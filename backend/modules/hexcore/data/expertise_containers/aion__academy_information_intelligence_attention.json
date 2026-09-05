@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_language_research_communication",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:language_research_communication",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_law_regulation_ethics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:information_intelligence_attention:intelligence_collection",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:information_intelligence_attention:source_criticism",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:information_intelligence_attention:uncertainty",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:information_intelligence_attention:confidentiality",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:information_intelligence_attention:narrative_analysis",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:information_intelligence_attention:attention_systems",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:information_intelligence_attention:misinformation_defence",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:information_intelligence_attention:transparency",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "human_society",
+      "id": "work:aion@wave.tp:subject:information_intelligence_attention",
+      "label": "Information, intelligence and ethical attention systems",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:information_intelligence_attention:intelligence_collection",
+      "label": "intelligence collection",
+      "subject_id": "information_intelligence_attention",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:information_intelligence_attention:source_criticism",
+      "label": "source criticism",
+      "subject_id": "information_intelligence_attention",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:information_intelligence_attention:uncertainty",
+      "label": "uncertainty",
+      "subject_id": "information_intelligence_attention",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:information_intelligence_attention:confidentiality",
+      "label": "confidentiality",
+      "subject_id": "information_intelligence_attention",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:information_intelligence_attention:narrative_analysis",
+      "label": "narrative analysis",
+      "subject_id": "information_intelligence_attention",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:information_intelligence_attention:attention_systems",
+      "label": "attention systems",
+      "subject_id": "information_intelligence_attention",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:information_intelligence_attention:misinformation_defence",
+      "label": "misinformation defence",
+      "subject_id": "information_intelligence_attention",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:information_intelligence_attention:transparency",
+      "label": "transparency",
+      "subject_id": "information_intelligence_attention",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_information_intelligence_attention",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:information_intelligence_attention:intelligence_collection",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:information_intelligence_attention:source_criticism",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:information_intelligence_attention:uncertainty",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:information_intelligence_attention:confidentiality",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:information_intelligence_attention:narrative_analysis",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:information_intelligence_attention:attention_systems",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:information_intelligence_attention:misinformation_defence",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:information_intelligence_attention:transparency",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "human_society",
+        "id": "work:aion@wave.tp:subject:information_intelligence_attention",
+        "label": "Information, intelligence and ethical attention systems",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:information_intelligence_attention:intelligence_collection",
+        "label": "intelligence collection",
+        "subject_id": "information_intelligence_attention",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:information_intelligence_attention:source_criticism",
+        "label": "source criticism",
+        "subject_id": "information_intelligence_attention",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:information_intelligence_attention:uncertainty",
+        "label": "uncertainty",
+        "subject_id": "information_intelligence_attention",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:information_intelligence_attention:confidentiality",
+        "label": "confidentiality",
+        "subject_id": "information_intelligence_attention",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:information_intelligence_attention:narrative_analysis",
+        "label": "narrative analysis",
+        "subject_id": "information_intelligence_attention",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:information_intelligence_attention:attention_systems",
+        "label": "attention systems",
+        "subject_id": "information_intelligence_attention",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:information_intelligence_attention:misinformation_defence",
+        "label": "misinformation defence",
+        "subject_id": "information_intelligence_attention",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:information_intelligence_attention:transparency",
+        "label": "transparency",
+        "subject_id": "information_intelligence_attention",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "human_society",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "information_intelligence_attention",
+    "title": "AION Academy \u00b7 Information, intelligence and ethical attention systems"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

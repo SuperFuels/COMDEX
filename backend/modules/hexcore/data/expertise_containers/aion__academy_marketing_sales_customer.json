@@ -1,0 +1,246 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_business_strategy_operations",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:business_strategy_operations",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:marketing_sales_customer:research",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:marketing_sales_customer:positioning",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:marketing_sales_customer:channels",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:marketing_sales_customer:sales_process",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:marketing_sales_customer:pricing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:marketing_sales_customer:service",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:marketing_sales_customer:retention",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "business",
+      "id": "work:aion@wave.tp:subject:marketing_sales_customer",
+      "label": "Marketing, sales and customer systems",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:marketing_sales_customer:research",
+      "label": "research",
+      "subject_id": "marketing_sales_customer",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:marketing_sales_customer:positioning",
+      "label": "positioning",
+      "subject_id": "marketing_sales_customer",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:marketing_sales_customer:channels",
+      "label": "channels",
+      "subject_id": "marketing_sales_customer",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:marketing_sales_customer:sales_process",
+      "label": "sales process",
+      "subject_id": "marketing_sales_customer",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:marketing_sales_customer:pricing",
+      "label": "pricing",
+      "subject_id": "marketing_sales_customer",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:marketing_sales_customer:service",
+      "label": "service",
+      "subject_id": "marketing_sales_customer",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:marketing_sales_customer:retention",
+      "label": "retention",
+      "subject_id": "marketing_sales_customer",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_marketing_sales_customer",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:marketing_sales_customer:research",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:marketing_sales_customer:positioning",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:marketing_sales_customer:channels",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:marketing_sales_customer:sales_process",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:marketing_sales_customer:pricing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:marketing_sales_customer:service",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:marketing_sales_customer:retention",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "business",
+        "id": "work:aion@wave.tp:subject:marketing_sales_customer",
+        "label": "Marketing, sales and customer systems",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:marketing_sales_customer:research",
+        "label": "research",
+        "subject_id": "marketing_sales_customer",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:marketing_sales_customer:positioning",
+        "label": "positioning",
+        "subject_id": "marketing_sales_customer",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:marketing_sales_customer:channels",
+        "label": "channels",
+        "subject_id": "marketing_sales_customer",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:marketing_sales_customer:sales_process",
+        "label": "sales process",
+        "subject_id": "marketing_sales_customer",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:marketing_sales_customer:pricing",
+        "label": "pricing",
+        "subject_id": "marketing_sales_customer",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:marketing_sales_customer:service",
+        "label": "service",
+        "subject_id": "marketing_sales_customer",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:marketing_sales_customer:retention",
+        "label": "retention",
+        "subject_id": "marketing_sales_customer",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "business",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "marketing_sales_customer",
+    "title": "AION Academy \u00b7 Marketing, sales and customer systems"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

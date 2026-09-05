@@ -1,0 +1,258 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_chemistry_materials",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:chemistry_materials",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_electronics_circuits",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:electronics_circuits",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_energy_fundamentals",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:energy_fundamentals",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:energy_storage:electrochemistry",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_storage",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_storage:cell_models",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_storage",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_storage:battery_management",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_storage",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_storage:thermal_safety",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_storage",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_storage:degradation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_storage",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_storage:pack_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_storage",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:energy_storage:economics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:energy_storage",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "energy",
+      "id": "work:aion@wave.tp:subject:energy_storage",
+      "label": "Batteries and energy storage",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_storage:electrochemistry",
+      "label": "electrochemistry",
+      "subject_id": "energy_storage",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_storage:cell_models",
+      "label": "cell models",
+      "subject_id": "energy_storage",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_storage:battery_management",
+      "label": "battery management",
+      "subject_id": "energy_storage",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_storage:thermal_safety",
+      "label": "thermal safety",
+      "subject_id": "energy_storage",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_storage:degradation",
+      "label": "degradation",
+      "subject_id": "energy_storage",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_storage:pack_design",
+      "label": "pack design",
+      "subject_id": "energy_storage",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:energy_storage:economics",
+      "label": "economics",
+      "subject_id": "energy_storage",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_energy_storage",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:energy_storage:electrochemistry",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_storage",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_storage:cell_models",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_storage",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_storage:battery_management",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_storage",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_storage:thermal_safety",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_storage",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_storage:degradation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_storage",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_storage:pack_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_storage",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:energy_storage:economics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:energy_storage",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "energy",
+        "id": "work:aion@wave.tp:subject:energy_storage",
+        "label": "Batteries and energy storage",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_storage:electrochemistry",
+        "label": "electrochemistry",
+        "subject_id": "energy_storage",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_storage:cell_models",
+        "label": "cell models",
+        "subject_id": "energy_storage",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_storage:battery_management",
+        "label": "battery management",
+        "subject_id": "energy_storage",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_storage:thermal_safety",
+        "label": "thermal safety",
+        "subject_id": "energy_storage",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_storage:degradation",
+        "label": "degradation",
+        "subject_id": "energy_storage",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_storage:pack_design",
+        "label": "pack design",
+        "subject_id": "energy_storage",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:energy_storage:economics",
+        "label": "economics",
+        "subject_id": "energy_storage",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "energy",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "energy_storage",
+    "title": "AION Academy \u00b7 Batteries and energy storage"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

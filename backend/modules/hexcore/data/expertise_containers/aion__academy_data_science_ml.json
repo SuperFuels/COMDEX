@@ -1,0 +1,258 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_linear_algebra",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:linear_algebra",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_programming_languages",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:programming_languages",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:data_science_ml:data_analysis",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_science_ml",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_science_ml:machine_learning",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_science_ml",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_science_ml:deep_learning",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_science_ml",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_science_ml:evaluation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_science_ml",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_science_ml:causal_ml",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_science_ml",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_science_ml:interpretability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_science_ml",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:data_science_ml:deployment",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:data_science_ml",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:data_science_ml",
+      "label": "Data science, AI and machine learning",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_science_ml:data_analysis",
+      "label": "data analysis",
+      "subject_id": "data_science_ml",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_science_ml:machine_learning",
+      "label": "machine learning",
+      "subject_id": "data_science_ml",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_science_ml:deep_learning",
+      "label": "deep learning",
+      "subject_id": "data_science_ml",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_science_ml:evaluation",
+      "label": "evaluation",
+      "subject_id": "data_science_ml",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_science_ml:causal_ml",
+      "label": "causal ml",
+      "subject_id": "data_science_ml",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_science_ml:interpretability",
+      "label": "interpretability",
+      "subject_id": "data_science_ml",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:data_science_ml:deployment",
+      "label": "deployment",
+      "subject_id": "data_science_ml",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_data_science_ml",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:data_science_ml:data_analysis",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_science_ml",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_science_ml:machine_learning",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_science_ml",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_science_ml:deep_learning",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_science_ml",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_science_ml:evaluation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_science_ml",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_science_ml:causal_ml",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_science_ml",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_science_ml:interpretability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_science_ml",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:data_science_ml:deployment",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:data_science_ml",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:data_science_ml",
+        "label": "Data science, AI and machine learning",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_science_ml:data_analysis",
+        "label": "data analysis",
+        "subject_id": "data_science_ml",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_science_ml:machine_learning",
+        "label": "machine learning",
+        "subject_id": "data_science_ml",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_science_ml:deep_learning",
+        "label": "deep learning",
+        "subject_id": "data_science_ml",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_science_ml:evaluation",
+        "label": "evaluation",
+        "subject_id": "data_science_ml",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_science_ml:causal_ml",
+        "label": "causal ml",
+        "subject_id": "data_science_ml",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_science_ml:interpretability",
+        "label": "interpretability",
+        "subject_id": "data_science_ml",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:data_science_ml:deployment",
+        "label": "deployment",
+        "subject_id": "data_science_ml",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "data_science_ml",
+    "title": "AION Academy \u00b7 Data science, AI and machine learning"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

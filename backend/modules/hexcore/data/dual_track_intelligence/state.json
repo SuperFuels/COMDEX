@@ -3,7 +3,7 @@
     "embodied_physical": 3,
     "practical_apprenticeship": 7
   },
-  "generation": 3,
+  "generation": 33,
   "learning_dispatch": {
     "mission_id": "practical_secure_service",
     "reason": "lowest_evidenced_capability_blocking_practical_work",
@@ -40,11 +40,11 @@
             "work_readiness": "independent_work_with_normal_verification"
           },
           {
-            "knowledge_level": "expert",
+            "knowledge_level": "advanced",
             "missing_subskills": [],
             "name": "Software engineering",
-            "overall_level": "expert",
-            "practical_level": "expert",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
             "subject_id": "software_engineering",
             "target_level": "expert",
             "work_readiness": "independent_work_with_normal_verification"
@@ -53,11 +53,11 @@
             "knowledge_level": "advanced",
             "missing_subskills": [],
             "name": "Security engineering",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
+            "overall_level": "beginner",
+            "practical_level": "beginner",
             "subject_id": "security_engineering",
             "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
+            "work_readiness": "practice_only"
           },
           {
             "knowledge_level": "unassessed",
@@ -89,6 +89,18 @@
             "subject_id": "secure_engineering",
             "target_level": "expert",
             "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "intermediate",
+            "missing_subskills": [
+              "test_regression"
+            ],
+            "name": "Debugging, repair and improvement",
+            "overall_level": "beginner",
+            "practical_level": "beginner",
+            "subject_id": "capability_debugging_repair",
+            "target_level": "expert",
+            "work_readiness": "practice_only"
           }
         ],
         "technology_proposal": {
@@ -104,14 +116,15 @@
       "lane": "practical_apprenticeship",
       "mission_id": "practical_secure_service",
       "objective": "Build and test an unfamiliar secure software service with transactional storage, failure recovery, and observable operations.",
-      "precommitment_digest": "191c500e429a2275eeeb45adac2532c0fc0de65011229088fc6e78f83ea9e525",
+      "precommitment_digest": "bdaef253c7cd8fb1eda6aad2910888a6b6e1e4246849868baa4b8fd25e902dc9",
       "readiness_decision": "learn_then_execute",
       "required_subjects": [
         "testing_debugging",
         "software_engineering",
         "security_engineering",
         "product_project_management",
-        "secure_engineering"
+        "secure_engineering",
+        "capability_debugging_repair"
       ],
       "status": "learning_or_contract_acquisition_required",
       "success_contract": [
@@ -135,9 +148,9 @@
           "reflect_and_update_competency"
         ],
         "authority_boundary": "Competency controls readiness; execution outcomes control success.",
-        "decision": "execute_with_strong_verification",
+        "decision": "learn_then_execute",
         "objective": "Investigate a changing public dataset, form a falsifiable forecast, and revise the analysis after a later independently published observation.",
-        "reason": "bounded_competence_requires_outcome_checks",
+        "reason": "one_or_more_required_capabilities_below_intermediate",
         "requirements": [
           {
             "knowledge_level": "advanced",
@@ -153,21 +166,35 @@
             "knowledge_level": "advanced",
             "missing_subskills": [],
             "name": "Python programming",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
+            "overall_level": "beginner",
+            "practical_level": "beginner",
             "subject_id": "python",
             "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
+            "work_readiness": "practice_only"
           },
           {
-            "knowledge_level": "expert",
-            "missing_subskills": [],
+            "knowledge_level": "intermediate",
+            "missing_subskills": [
+              "experimental_design",
+              "hypotheses",
+              "literature_review"
+            ],
             "name": "Scientific investigation and causal reasoning",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
+            "overall_level": "intermediate",
+            "practical_level": "intermediate",
             "subject_id": "scientific_method",
             "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
+            "work_readiness": "bounded_work_with_strong_verification"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Elections, polling and public-opinion analysis",
+            "overall_level": "beginner",
+            "practical_level": "beginner",
+            "subject_id": "elections_polling_public_opinion",
+            "target_level": "expert",
+            "work_readiness": "practice_only"
           }
         ],
         "technology_proposal": {
@@ -182,14 +209,15 @@
       "lane": "practical_apprenticeship",
       "mission_id": "practical_public_data",
       "objective": "Investigate a changing public dataset, form a falsifiable forecast, and revise the analysis after a later independently published observation.",
-      "precommitment_digest": "5a2f16b2f5a8d0ab89737ff05b4ed8b49a26be33faeda7af9a6ff1dbb82454b9",
-      "readiness_decision": "execute_with_strong_verification",
+      "precommitment_digest": "d9f0bf1efbf633b6307bcee4690bd4a6f5fe7bb95fc8b0c79e8850ed6d57cf01",
+      "readiness_decision": "learn_then_execute",
       "required_subjects": [
         "data_statistics",
         "python",
-        "scientific_method"
+        "scientific_method",
+        "elections_polling_public_opinion"
       ],
-      "status": "ready_for_governed_execution",
+      "status": "learning_or_contract_acquisition_required",
       "success_contract": [
         "define observable success before action",
         "use a private or sandboxed execution surface",
@@ -216,14 +244,16 @@
         "reason": "one_or_more_required_capabilities_below_intermediate",
         "requirements": [
           {
-            "knowledge_level": "advanced",
-            "missing_subskills": [],
-            "name": "Machine Learning and AI Engineering",
-            "overall_level": "beginner",
-            "practical_level": "beginner",
-            "subject_id": "machine_learning_ai",
-            "target_level": "advanced",
-            "work_readiness": "practice_only"
+            "knowledge_level": "intermediate",
+            "missing_subskills": [
+              "write_equations_and_schemas"
+            ],
+            "name": "Formalisation and knowledge markup",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "capability_formalisation",
+            "target_level": "expert",
+            "work_readiness": "not_ready"
           }
         ],
         "technology_proposal": {
@@ -235,10 +265,10 @@
       "lane": "practical_apprenticeship",
       "mission_id": "practical_formal_reasoning",
       "objective": "Solve an unfamiliar mathematical or algorithmic problem and construct a machine-checkable witness plus hostile counterexamples.",
-      "precommitment_digest": "06a30f9e4f13741095024766c5a1917427b790f2f3298600ecafb6a2d6340860",
+      "precommitment_digest": "b58e9dfbf86b83ea9c1ee300e5ae238ecbf84cc4920108ddc9d852e18bf67303",
       "readiness_decision": "learn_then_execute",
       "required_subjects": [
-        "machine_learning_ai"
+        "capability_formalisation"
       ],
       "status": "learning_or_contract_acquisition_required",
       "success_contract": [
@@ -277,24 +307,57 @@
             "work_readiness": "bounded_work_with_strong_verification"
           },
           {
-            "knowledge_level": "expert",
+            "knowledge_level": "advanced",
             "missing_subskills": [],
             "name": "English natural-language cognition",
+            "overall_level": "intermediate",
+            "practical_level": "intermediate",
+            "subject_id": "english",
+            "target_level": "expert",
+            "work_readiness": "bounded_work_with_strong_verification"
+          },
+          {
+            "knowledge_level": "intermediate",
+            "missing_subskills": [
+              "experimental_design",
+              "hypotheses",
+              "literature_review"
+            ],
+            "name": "Scientific investigation and causal reasoning",
+            "overall_level": "intermediate",
+            "practical_level": "intermediate",
+            "subject_id": "scientific_method",
+            "target_level": "expert",
+            "work_readiness": "bounded_work_with_strong_verification"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Event evidence and resolution research",
             "overall_level": "advanced",
             "practical_level": "advanced",
-            "subject_id": "english",
+            "subject_id": "event_evidence_resolution_research",
             "target_level": "expert",
             "work_readiness": "independent_work_with_normal_verification"
           },
           {
-            "knowledge_level": "expert",
-            "missing_subskills": [],
-            "name": "Scientific investigation and causal reasoning",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
-            "subject_id": "scientific_method",
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "backtesting",
+              "cross_validation",
+              "data_provenance",
+              "feature_engineering",
+              "hypothesis_design",
+              "multiple_testing",
+              "reproducibility",
+              "transaction_costs"
+            ],
+            "name": "Quantitative investment research",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "quantitative_research",
             "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
+            "work_readiness": "not_ready"
           },
           {
             "knowledge_level": "unassessed",
@@ -330,12 +393,14 @@
       "lane": "practical_apprenticeship",
       "mission_id": "practical_evidence_synthesis",
       "objective": "Research a technical decision across conflicting documents and produce a provenance-complete recommendation with explicit uncertainty.",
-      "precommitment_digest": "21a5c7d18fb91490acf03282fbef4999080b2b0beb7975082829be04dae1abcd",
+      "precommitment_digest": "fef36a0ad7d0e7a05aea1b7e1bcfed0fd96580b94c2aea7ee0ccc6645090be5b",
       "readiness_decision": "learn_then_execute",
       "required_subjects": [
         "research_communication",
         "english",
         "scientific_method",
+        "event_evidence_resolution_research",
+        "quantitative_research",
         "law_policy_ethics"
       ],
       "status": "learning_or_contract_acquisition_required",
@@ -448,14 +513,36 @@
             "work_readiness": "not_ready"
           },
           {
-            "knowledge_level": "expert",
-            "missing_subskills": [],
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "business_model",
+              "experimentation",
+              "funding",
+              "problem_discovery",
+              "product",
+              "responsible_innovation",
+              "scaling"
+            ],
+            "name": "Entrepreneurship and innovation",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "entrepreneurship_innovation",
+            "target_level": "expert",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "intermediate",
+            "missing_subskills": [
+              "experimental_design",
+              "hypotheses",
+              "literature_review"
+            ],
             "name": "Scientific investigation and causal reasoning",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
+            "overall_level": "intermediate",
+            "practical_level": "intermediate",
             "subject_id": "scientific_method",
             "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
+            "work_readiness": "bounded_work_with_strong_verification"
           }
         ],
         "technology_proposal": {
@@ -467,13 +554,14 @@
       "lane": "practical_apprenticeship",
       "mission_id": "practical_product_business",
       "objective": "Turn an unfamiliar customer problem into a prioritised product plan, measurable experiment, budget model, and go or no-go decision.",
-      "precommitment_digest": "6ad375d0fb4e5ea1848b3af2f894cf9d7137d358990b66197058d05926bfe612",
+      "precommitment_digest": "6de098a0ed22e0ab77fa7f42e905ef2535d6237b6ca1006bbc0901e8c131be27",
       "readiness_decision": "learn_then_execute",
       "required_subjects": [
         "business_management",
         "economics_entrepreneurship",
         "product_project_management",
         "finance_accounting",
+        "entrepreneurship_innovation",
         "scientific_method"
       ],
       "status": "learning_or_contract_acquisition_required",
@@ -503,11 +591,11 @@
         "reason": "one_or_more_required_capabilities_below_intermediate",
         "requirements": [
           {
-            "knowledge_level": "expert",
+            "knowledge_level": "advanced",
             "missing_subskills": [],
             "name": "Software engineering",
-            "overall_level": "expert",
-            "practical_level": "expert",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
             "subject_id": "software_engineering",
             "target_level": "expert",
             "work_readiness": "independent_work_with_normal_verification"
@@ -526,11 +614,11 @@
             "knowledge_level": "advanced",
             "missing_subskills": [],
             "name": "Security engineering",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
+            "overall_level": "beginner",
+            "practical_level": "beginner",
             "subject_id": "security_engineering",
             "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
+            "work_readiness": "practice_only"
           },
           {
             "knowledge_level": "unassessed",
@@ -564,14 +652,16 @@
             "work_readiness": "independent_work_with_normal_verification"
           },
           {
-            "knowledge_level": "advanced",
-            "missing_subskills": [],
-            "name": "Integrated Engineering Capstone",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
-            "subject_id": "integrated_engineering_capstone",
+            "knowledge_level": "intermediate",
+            "missing_subskills": [
+              "test_regression"
+            ],
+            "name": "Debugging, repair and improvement",
+            "overall_level": "beginner",
+            "practical_level": "beginner",
+            "subject_id": "capability_debugging_repair",
             "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
+            "work_readiness": "practice_only"
           }
         ],
         "technology_proposal": {
@@ -587,7 +677,7 @@
       "lane": "practical_apprenticeship",
       "mission_id": "practical_security_review",
       "objective": "Threat-model an unfamiliar application, discover exploitable assumptions, and verify a minimal repair without weakening legitimate behaviour.",
-      "precommitment_digest": "84d89e7baa20b17bde47eb537a4c0df0cf0a2c99b8d2e469989fe78a8c34380c",
+      "precommitment_digest": "34d5f59a8ecf5b826b3cc8752dc0ec62d707a641bd79098a8597d1978de2314e",
       "readiness_decision": "learn_then_execute",
       "required_subjects": [
         "software_engineering",
@@ -595,7 +685,7 @@
         "security_engineering",
         "product_project_management",
         "secure_engineering",
-        "integrated_engineering_capstone"
+        "capability_debugging_repair"
       ],
       "status": "learning_or_contract_acquisition_required",
       "success_contract": [
@@ -624,11 +714,11 @@
         "reason": "one_or_more_required_capabilities_below_intermediate",
         "requirements": [
           {
-            "knowledge_level": "expert",
+            "knowledge_level": "advanced",
             "missing_subskills": [],
             "name": "Software engineering",
-            "overall_level": "expert",
-            "practical_level": "expert",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
             "subject_id": "software_engineering",
             "target_level": "expert",
             "work_readiness": "independent_work_with_normal_verification"
@@ -647,11 +737,11 @@
             "knowledge_level": "advanced",
             "missing_subskills": [],
             "name": "Security engineering",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
+            "overall_level": "beginner",
+            "practical_level": "beginner",
             "subject_id": "security_engineering",
             "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
+            "work_readiness": "practice_only"
           },
           {
             "knowledge_level": "unassessed",
@@ -688,11 +778,11 @@
             "knowledge_level": "advanced",
             "missing_subskills": [],
             "name": "Python programming",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
+            "overall_level": "beginner",
+            "practical_level": "beginner",
             "subject_id": "python",
             "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
+            "work_readiness": "practice_only"
           }
         ],
         "technology_proposal": {
@@ -784,52 +874,18 @@
             "work_readiness": "not_ready"
           },
           {
-            "knowledge_level": "expert",
-            "missing_subskills": [],
+            "knowledge_level": "intermediate",
+            "missing_subskills": [
+              "experimental_design",
+              "hypotheses",
+              "literature_review"
+            ],
             "name": "Scientific investigation and causal reasoning",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
+            "overall_level": "intermediate",
+            "practical_level": "intermediate",
             "subject_id": "scientific_method",
             "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
-          },
-          {
-            "knowledge_level": "unassessed",
-            "missing_subskills": [
-              "analytical",
-              "general_chemistry",
-              "inorganic",
-              "laboratory_safety",
-              "materials",
-              "organic",
-              "physical_chemistry"
-            ],
-            "name": "Chemistry and materials",
-            "overall_level": "unassessed",
-            "practical_level": "unassessed",
-            "subject_id": "chemistry",
-            "target_level": "advanced",
-            "work_readiness": "not_ready"
-          },
-          {
-            "knowledge_level": "unassessed",
-            "missing_subskills": [
-              "consent",
-              "culture",
-              "disagreement",
-              "emotion",
-              "intent",
-              "negotiation",
-              "norms",
-              "perspective",
-              "physical_commonsense"
-            ],
-            "name": "Social and commonsense intelligence",
-            "overall_level": "unassessed",
-            "practical_level": "unassessed",
-            "subject_id": "social_commonsense",
-            "target_level": "advanced",
-            "work_readiness": "not_ready"
+            "work_readiness": "bounded_work_with_strong_verification"
           }
         ],
         "technology_proposal": {
@@ -841,14 +897,12 @@
       "lane": "embodied_physical",
       "mission_id": "embodied_system_identification",
       "objective": "Discover unknown gravity, actuation, damping, and inertia through safe diagnostic interventions in an unfamiliar physical environment.",
-      "precommitment_digest": "298146ea5541788bbf7aa7bc9ed224fffafa7926e56b481d54f685d13995f409",
+      "precommitment_digest": "8f56e2b28ca55d65a460ca9c707ddaa882add92dd61b46ae4b510bd854c4dba1",
       "readiness_decision": "learn_then_execute",
       "required_subjects": [
         "embedded_robotics",
         "physics",
-        "scientific_method",
-        "chemistry",
-        "social_commonsense"
+        "scientific_method"
       ],
       "status": "learning_or_contract_acquisition_required",
       "success_contract": [
@@ -917,52 +971,18 @@
             "work_readiness": "not_ready"
           },
           {
-            "knowledge_level": "expert",
-            "missing_subskills": [],
+            "knowledge_level": "intermediate",
+            "missing_subskills": [
+              "experimental_design",
+              "hypotheses",
+              "literature_review"
+            ],
             "name": "Scientific investigation and causal reasoning",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
+            "overall_level": "intermediate",
+            "practical_level": "intermediate",
             "subject_id": "scientific_method",
             "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
-          },
-          {
-            "knowledge_level": "unassessed",
-            "missing_subskills": [
-              "analytical",
-              "general_chemistry",
-              "inorganic",
-              "laboratory_safety",
-              "materials",
-              "organic",
-              "physical_chemistry"
-            ],
-            "name": "Chemistry and materials",
-            "overall_level": "unassessed",
-            "practical_level": "unassessed",
-            "subject_id": "chemistry",
-            "target_level": "advanced",
-            "work_readiness": "not_ready"
-          },
-          {
-            "knowledge_level": "unassessed",
-            "missing_subskills": [
-              "consent",
-              "culture",
-              "disagreement",
-              "emotion",
-              "intent",
-              "negotiation",
-              "norms",
-              "perspective",
-              "physical_commonsense"
-            ],
-            "name": "Social and commonsense intelligence",
-            "overall_level": "unassessed",
-            "practical_level": "unassessed",
-            "subject_id": "social_commonsense",
-            "target_level": "advanced",
-            "work_readiness": "not_ready"
+            "work_readiness": "bounded_work_with_strong_verification"
           }
         ],
         "technology_proposal": {
@@ -974,14 +994,12 @@
       "lane": "embodied_physical",
       "mission_id": "embodied_closed_loop_control",
       "objective": "Learn a closed-loop physical controller that reaches a target safely under unfamiliar mass and gravity.",
-      "precommitment_digest": "1998da95bed4e81606deec1e6292c950851bdd1bf65c138f4c75fe18f37acaa8",
+      "precommitment_digest": "68c9111aea1e5ff39c8e9c919d3da6fdf591accd69370044c5c3ab0f28ac6df7",
       "readiness_decision": "learn_then_execute",
       "required_subjects": [
         "embedded_robotics",
         "physics",
-        "scientific_method",
-        "chemistry",
-        "social_commonsense"
+        "scientific_method"
       ],
       "status": "learning_or_contract_acquisition_required",
       "success_contract": [
@@ -1050,61 +1068,29 @@
             "work_readiness": "not_ready"
           },
           {
-            "knowledge_level": "expert",
-            "missing_subskills": [],
+            "knowledge_level": "intermediate",
+            "missing_subskills": [
+              "experimental_design",
+              "hypotheses",
+              "literature_review"
+            ],
             "name": "Scientific investigation and causal reasoning",
-            "overall_level": "advanced",
-            "practical_level": "advanced",
-            "subject_id": "scientific_method",
-            "target_level": "expert",
-            "work_readiness": "independent_work_with_normal_verification"
-          },
-          {
-            "knowledge_level": "advanced",
-            "missing_subskills": [],
-            "name": "Research, Writing and Professional Communication",
             "overall_level": "intermediate",
             "practical_level": "intermediate",
-            "subject_id": "research_communication",
-            "target_level": "advanced",
+            "subject_id": "scientific_method",
+            "target_level": "expert",
             "work_readiness": "bounded_work_with_strong_verification"
           },
           {
-            "knowledge_level": "unassessed",
+            "knowledge_level": "intermediate",
             "missing_subskills": [
-              "analytical",
-              "general_chemistry",
-              "inorganic",
-              "laboratory_safety",
-              "materials",
-              "organic",
-              "physical_chemistry"
+              "separate_fact_inference_opinion"
             ],
-            "name": "Chemistry and materials",
+            "name": "Source evaluation and epistemics",
             "overall_level": "unassessed",
             "practical_level": "unassessed",
-            "subject_id": "chemistry",
-            "target_level": "advanced",
-            "work_readiness": "not_ready"
-          },
-          {
-            "knowledge_level": "unassessed",
-            "missing_subskills": [
-              "consent",
-              "culture",
-              "disagreement",
-              "emotion",
-              "intent",
-              "negotiation",
-              "norms",
-              "perspective",
-              "physical_commonsense"
-            ],
-            "name": "Social and commonsense intelligence",
-            "overall_level": "unassessed",
-            "practical_level": "unassessed",
-            "subject_id": "social_commonsense",
-            "target_level": "advanced",
+            "subject_id": "capability_source_criticism",
+            "target_level": "expert",
             "work_readiness": "not_ready"
           }
         ],
@@ -1117,15 +1103,13 @@
       "lane": "embodied_physical",
       "mission_id": "embodied_transfer",
       "objective": "Transfer an acquired physical method to source-disjoint dynamics and abstain when observations cannot identify a safe action.",
-      "precommitment_digest": "f5996a537b193de209c20a3f4a87b1c56135ca46515349c77342735e596878b3",
+      "precommitment_digest": "2ac24b81482caa8db62a3c29a01cbd67be745d5f93aad180a07c58f5c792885e",
       "readiness_decision": "learn_then_execute",
       "required_subjects": [
         "embedded_robotics",
         "physics",
         "scientific_method",
-        "research_communication",
-        "chemistry",
-        "social_commonsense"
+        "capability_source_criticism"
       ],
       "status": "learning_or_contract_acquisition_required",
       "success_contract": [
@@ -1136,8 +1120,8 @@
       ]
     }
   ],
-  "portfolio_digest": "fdb659a6b9614ec9aac041c4c8404f900e4ed8da8943e82ec38dac836f3ad548",
+  "portfolio_digest": "21b5e3e99061fcff2a656c1ed14e20a48117d42957dd19f979e7b317c2907235",
   "procedure_id": "procedure_dual_track_practical_embodied_portfolio_v1",
   "schema_version": "aion.dual_track_intelligence.v1",
-  "updated_at": 1787227555.431799
+  "updated_at": 1788565722.4249642
 }

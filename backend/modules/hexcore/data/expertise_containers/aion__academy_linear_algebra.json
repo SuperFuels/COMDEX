@@ -1,0 +1,190 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_algebra_geometry",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:algebra_geometry",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:linear_algebra:vectors",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:linear_algebra",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:linear_algebra:matrices",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:linear_algebra",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:linear_algebra:linear_maps",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:linear_algebra",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:linear_algebra:eigenstructure",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:linear_algebra",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:linear_algebra:numerical_linear_algebra",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:linear_algebra",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "mathematics",
+      "id": "work:aion@wave.tp:subject:linear_algebra",
+      "label": "Linear algebra",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:linear_algebra:vectors",
+      "label": "vectors",
+      "subject_id": "linear_algebra",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:linear_algebra:matrices",
+      "label": "matrices",
+      "subject_id": "linear_algebra",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:linear_algebra:linear_maps",
+      "label": "linear maps",
+      "subject_id": "linear_algebra",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:linear_algebra:eigenstructure",
+      "label": "eigenstructure",
+      "subject_id": "linear_algebra",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:linear_algebra:numerical_linear_algebra",
+      "label": "numerical linear algebra",
+      "subject_id": "linear_algebra",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_linear_algebra",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:linear_algebra:vectors",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:linear_algebra",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:linear_algebra:matrices",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:linear_algebra",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:linear_algebra:linear_maps",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:linear_algebra",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:linear_algebra:eigenstructure",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:linear_algebra",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:linear_algebra:numerical_linear_algebra",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:linear_algebra",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "mathematics",
+        "id": "work:aion@wave.tp:subject:linear_algebra",
+        "label": "Linear algebra",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:linear_algebra:vectors",
+        "label": "vectors",
+        "subject_id": "linear_algebra",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:linear_algebra:matrices",
+        "label": "matrices",
+        "subject_id": "linear_algebra",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:linear_algebra:linear_maps",
+        "label": "linear maps",
+        "subject_id": "linear_algebra",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:linear_algebra:eigenstructure",
+        "label": "eigenstructure",
+        "subject_id": "linear_algebra",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:linear_algebra:numerical_linear_algebra",
+        "label": "numerical linear algebra",
+        "subject_id": "linear_algebra",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "mathematics",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "linear_algebra",
+    "title": "AION Academy \u00b7 Linear algebra"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

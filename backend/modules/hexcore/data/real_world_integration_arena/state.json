@@ -1,0 +1,23 @@
+{
+  "capsules": [
+    "experience_capsule__cloud_failover_capacity_v1",
+    "experience_capsule__field_response_scheduler_v1",
+    "experience_capsule__resilient_service_network_v1"
+  ],
+  "completed_missions": [
+    "cloud_failover_capacity_v1",
+    "field_response_scheduler_v1",
+    "resilient_service_network_v1"
+  ],
+  "completed_real_world_missions": [
+    "public_software_change_observation_v1"
+  ],
+  "created_at": "2026-08-21T13:34:38.010071+00:00",
+  "cycles": 14115,
+  "real_world_capsules": [
+    "real_experience_capsule__public_software_change_observation_v1"
+  ],
+  "schema_version": "aion.hexcore.real_world_integration_arena.v2",
+  "status": "waiting_for_next_real_world_mission_adapter",
+  "updated_at": "2026-09-05T03:43:07.409808+00:00"
+}

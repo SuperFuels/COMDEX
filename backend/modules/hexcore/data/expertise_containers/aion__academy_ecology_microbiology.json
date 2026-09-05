@@ -1,0 +1,218 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_cell_genetic_biology",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:cell_genetic_biology",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:ecology_microbiology:microorganisms",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:ecology_microbiology",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:ecology_microbiology:ecosystems",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:ecology_microbiology",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:ecology_microbiology:population_dynamics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:ecology_microbiology",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:ecology_microbiology:soil_biology",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:ecology_microbiology",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:ecology_microbiology:biodiversity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:ecology_microbiology",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:ecology_microbiology:biosecurity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:ecology_microbiology",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "life_science",
+      "id": "work:aion@wave.tp:subject:ecology_microbiology",
+      "label": "Ecology and microbiology",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:ecology_microbiology:microorganisms",
+      "label": "microorganisms",
+      "subject_id": "ecology_microbiology",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:ecology_microbiology:ecosystems",
+      "label": "ecosystems",
+      "subject_id": "ecology_microbiology",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:ecology_microbiology:population_dynamics",
+      "label": "population dynamics",
+      "subject_id": "ecology_microbiology",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:ecology_microbiology:soil_biology",
+      "label": "soil biology",
+      "subject_id": "ecology_microbiology",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:ecology_microbiology:biodiversity",
+      "label": "biodiversity",
+      "subject_id": "ecology_microbiology",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:ecology_microbiology:biosecurity",
+      "label": "biosecurity",
+      "subject_id": "ecology_microbiology",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_ecology_microbiology",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:ecology_microbiology:microorganisms",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:ecology_microbiology",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:ecology_microbiology:ecosystems",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:ecology_microbiology",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:ecology_microbiology:population_dynamics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:ecology_microbiology",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:ecology_microbiology:soil_biology",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:ecology_microbiology",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:ecology_microbiology:biodiversity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:ecology_microbiology",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:ecology_microbiology:biosecurity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:ecology_microbiology",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "life_science",
+        "id": "work:aion@wave.tp:subject:ecology_microbiology",
+        "label": "Ecology and microbiology",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:ecology_microbiology:microorganisms",
+        "label": "microorganisms",
+        "subject_id": "ecology_microbiology",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:ecology_microbiology:ecosystems",
+        "label": "ecosystems",
+        "subject_id": "ecology_microbiology",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:ecology_microbiology:population_dynamics",
+        "label": "population dynamics",
+        "subject_id": "ecology_microbiology",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:ecology_microbiology:soil_biology",
+        "label": "soil biology",
+        "subject_id": "ecology_microbiology",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:ecology_microbiology:biodiversity",
+        "label": "biodiversity",
+        "subject_id": "ecology_microbiology",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:ecology_microbiology:biosecurity",
+        "label": "biosecurity",
+        "subject_id": "ecology_microbiology",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "life_science",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "ecology_microbiology",
+    "title": "AION Academy \u00b7 Ecology and microbiology"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

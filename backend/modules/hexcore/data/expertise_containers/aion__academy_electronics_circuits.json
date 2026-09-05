@@ -1,0 +1,218 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_electromagnetism",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:electromagnetism",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:electronics_circuits:analogue",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:electronics_circuits",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:electronics_circuits:digital",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:electronics_circuits",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:electronics_circuits:power_electronics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:electronics_circuits",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:electronics_circuits:pcb_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:electronics_circuits",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:electronics_circuits:signal_integrity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:electronics_circuits",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:electronics_circuits:test_and_debug",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:electronics_circuits",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "engineering",
+      "id": "work:aion@wave.tp:subject:electronics_circuits",
+      "label": "Electronics and circuit design",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:electronics_circuits:analogue",
+      "label": "analogue",
+      "subject_id": "electronics_circuits",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:electronics_circuits:digital",
+      "label": "digital",
+      "subject_id": "electronics_circuits",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:electronics_circuits:power_electronics",
+      "label": "power electronics",
+      "subject_id": "electronics_circuits",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:electronics_circuits:pcb_design",
+      "label": "pcb design",
+      "subject_id": "electronics_circuits",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:electronics_circuits:signal_integrity",
+      "label": "signal integrity",
+      "subject_id": "electronics_circuits",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:electronics_circuits:test_and_debug",
+      "label": "test and debug",
+      "subject_id": "electronics_circuits",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_electronics_circuits",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:electronics_circuits:analogue",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:electronics_circuits",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:electronics_circuits:digital",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:electronics_circuits",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:electronics_circuits:power_electronics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:electronics_circuits",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:electronics_circuits:pcb_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:electronics_circuits",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:electronics_circuits:signal_integrity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:electronics_circuits",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:electronics_circuits:test_and_debug",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:electronics_circuits",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "engineering",
+        "id": "work:aion@wave.tp:subject:electronics_circuits",
+        "label": "Electronics and circuit design",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:electronics_circuits:analogue",
+        "label": "analogue",
+        "subject_id": "electronics_circuits",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:electronics_circuits:digital",
+        "label": "digital",
+        "subject_id": "electronics_circuits",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:electronics_circuits:power_electronics",
+        "label": "power electronics",
+        "subject_id": "electronics_circuits",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:electronics_circuits:pcb_design",
+        "label": "pcb design",
+        "subject_id": "electronics_circuits",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:electronics_circuits:signal_integrity",
+        "label": "signal integrity",
+        "subject_id": "electronics_circuits",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:electronics_circuits:test_and_debug",
+        "label": "test and debug",
+        "subject_id": "electronics_circuits",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "engineering",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "electronics_circuits",
+    "title": "AION Academy \u00b7 Electronics and circuit design"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

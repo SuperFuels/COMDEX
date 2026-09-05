@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_history_geography_geopolitics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:history_geography_geopolitics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_psychology_organisations",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:psychology_organisations",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:electoral_systems",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:poll_sampling",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:turnout_models",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:poll_aggregation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:demographics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:campaign_dynamics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:forecast_error",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:institutional_scenarios",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "human_society",
+      "id": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+      "label": "Elections, polling and public-opinion analysis",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:electoral_systems",
+      "label": "electoral systems",
+      "subject_id": "elections_polling_public_opinion",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:poll_sampling",
+      "label": "poll sampling",
+      "subject_id": "elections_polling_public_opinion",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:turnout_models",
+      "label": "turnout models",
+      "subject_id": "elections_polling_public_opinion",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:poll_aggregation",
+      "label": "poll aggregation",
+      "subject_id": "elections_polling_public_opinion",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:demographics",
+      "label": "demographics",
+      "subject_id": "elections_polling_public_opinion",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:campaign_dynamics",
+      "label": "campaign dynamics",
+      "subject_id": "elections_polling_public_opinion",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:forecast_error",
+      "label": "forecast error",
+      "subject_id": "elections_polling_public_opinion",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:institutional_scenarios",
+      "label": "institutional scenarios",
+      "subject_id": "elections_polling_public_opinion",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_elections_polling_public_opinion",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:electoral_systems",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:poll_sampling",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:turnout_models",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:poll_aggregation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:demographics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:campaign_dynamics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:forecast_error",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:elections_polling_public_opinion:institutional_scenarios",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "human_society",
+        "id": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+        "label": "Elections, polling and public-opinion analysis",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:electoral_systems",
+        "label": "electoral systems",
+        "subject_id": "elections_polling_public_opinion",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:poll_sampling",
+        "label": "poll sampling",
+        "subject_id": "elections_polling_public_opinion",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:turnout_models",
+        "label": "turnout models",
+        "subject_id": "elections_polling_public_opinion",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:poll_aggregation",
+        "label": "poll aggregation",
+        "subject_id": "elections_polling_public_opinion",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:demographics",
+        "label": "demographics",
+        "subject_id": "elections_polling_public_opinion",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:campaign_dynamics",
+        "label": "campaign dynamics",
+        "subject_id": "elections_polling_public_opinion",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:forecast_error",
+        "label": "forecast error",
+        "subject_id": "elections_polling_public_opinion",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:elections_polling_public_opinion:institutional_scenarios",
+        "label": "institutional scenarios",
+        "subject_id": "elections_polling_public_opinion",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "human_society",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "elections_polling_public_opinion",
+    "title": "AION Academy \u00b7 Elections, polling and public-opinion analysis"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

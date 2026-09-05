@@ -1,0 +1,246 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_algebra_geometry",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:algebra_geometry",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:accounting_corporate_finance:bookkeeping",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:accounting_corporate_finance:statements",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:accounting_corporate_finance:cost_accounting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:accounting_corporate_finance:valuation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:accounting_corporate_finance:capital_budgeting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:accounting_corporate_finance:cash",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:accounting_corporate_finance:controls",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "label": "Accounting and corporate finance",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:accounting_corporate_finance:bookkeeping",
+      "label": "bookkeeping",
+      "subject_id": "accounting_corporate_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:accounting_corporate_finance:statements",
+      "label": "statements",
+      "subject_id": "accounting_corporate_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:accounting_corporate_finance:cost_accounting",
+      "label": "cost accounting",
+      "subject_id": "accounting_corporate_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:accounting_corporate_finance:valuation",
+      "label": "valuation",
+      "subject_id": "accounting_corporate_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:accounting_corporate_finance:capital_budgeting",
+      "label": "capital budgeting",
+      "subject_id": "accounting_corporate_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:accounting_corporate_finance:cash",
+      "label": "cash",
+      "subject_id": "accounting_corporate_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:accounting_corporate_finance:controls",
+      "label": "controls",
+      "subject_id": "accounting_corporate_finance",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_accounting_corporate_finance",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:accounting_corporate_finance:bookkeeping",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:accounting_corporate_finance:statements",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:accounting_corporate_finance:cost_accounting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:accounting_corporate_finance:valuation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:accounting_corporate_finance:capital_budgeting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:accounting_corporate_finance:cash",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:accounting_corporate_finance:controls",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:accounting_corporate_finance",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:accounting_corporate_finance",
+        "label": "Accounting and corporate finance",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:accounting_corporate_finance:bookkeeping",
+        "label": "bookkeeping",
+        "subject_id": "accounting_corporate_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:accounting_corporate_finance:statements",
+        "label": "statements",
+        "subject_id": "accounting_corporate_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:accounting_corporate_finance:cost_accounting",
+        "label": "cost accounting",
+        "subject_id": "accounting_corporate_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:accounting_corporate_finance:valuation",
+        "label": "valuation",
+        "subject_id": "accounting_corporate_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:accounting_corporate_finance:capital_budgeting",
+        "label": "capital budgeting",
+        "subject_id": "accounting_corporate_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:accounting_corporate_finance:cash",
+        "label": "cash",
+        "subject_id": "accounting_corporate_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:accounting_corporate_finance:controls",
+        "label": "controls",
+        "subject_id": "accounting_corporate_finance",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "accounting_corporate_finance",
+    "title": "AION Academy \u00b7 Accounting and corporate finance"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

@@ -2,9 +2,9 @@
   "missions": [
     {
       "archetype": "engineering",
-      "created_at": "2026-08-20T12:05:58.101638+00:00",
+      "created_at": "2026-09-04T23:50:45.558445+00:00",
       "external_actions_authorized": 0,
-      "graph_sha256": "0047b23a6b8693e5dfa1c28d6fcf214e88b86eae7bc3e9454a425badc41a373c",
+      "graph_sha256": "01e9c4fd92d7e3c62d183ff146c02ce25cdab8f36552e4220825d56f01448a6a",
       "milestones": [
         "mission_4620973e7bec6814ff:milestone:1:situation",
         "mission_4620973e7bec6814ff:milestone:2:capability",
@@ -25,24 +25,11 @@
         {
           "authority": "progressive_competency_registry",
           "depends_on": [],
-          "description": "Raise biology medicine to executable Intermediate evidence for this mission",
+          "description": "Raise capability real world grounding to executable Intermediate evidence for this mission",
           "kind": "learning",
-          "node_id": "mission_4620973e7bec6814ff:learn:biology_medicine",
+          "node_id": "mission_4620973e7bec6814ff:learn:capability_real_world_grounding",
           "status": "ready",
-          "subject_id": "biology_medicine",
-          "success_criteria": [
-            "intermediate_or_better",
-            "verified_practical_evidence"
-          ]
-        },
-        {
-          "authority": "progressive_competency_registry",
-          "depends_on": [],
-          "description": "Raise product project management to executable Intermediate evidence for this mission",
-          "kind": "learning",
-          "node_id": "mission_4620973e7bec6814ff:learn:product_project_management",
-          "status": "ready",
-          "subject_id": "product_project_management",
+          "subject_id": "capability_real_world_grounding",
           "success_criteria": [
             "intermediate_or_better",
             "verified_practical_evidence"
@@ -52,8 +39,7 @@
           "approval_policy": "autonomous_allowed",
           "authority": "verified_internal_state",
           "depends_on": [
-            "mission_4620973e7bec6814ff:learn:biology_medicine",
-            "mission_4620973e7bec6814ff:learn:product_project_management"
+            "mission_4620973e7bec6814ff:learn:capability_real_world_grounding"
           ],
           "description": "Observe the current environment, constraints, stakeholders and available evidence",
           "kind": "work",
@@ -73,39 +59,25 @@
               "subject_id": "research_communication"
             },
             {
-              "knowledge_level": "expert",
-              "overall_level": "advanced",
-              "practical_level": "advanced",
-              "ready": true,
-              "subject_id": "english"
-            },
-            {
-              "knowledge_level": "expert",
-              "overall_level": "advanced",
-              "practical_level": "advanced",
-              "ready": true,
-              "subject_id": "scientific_method"
-            },
-            {
-              "knowledge_level": "unassessed",
-              "overall_level": "unassessed",
-              "practical_level": "unassessed",
-              "ready": false,
-              "subject_id": "biology_medicine"
-            },
-            {
-              "knowledge_level": "unassessed",
-              "overall_level": "unassessed",
-              "practical_level": "unassessed",
-              "ready": false,
-              "subject_id": "product_project_management"
-            },
-            {
               "knowledge_level": "advanced",
               "overall_level": "intermediate",
               "practical_level": "intermediate",
               "ready": true,
-              "subject_id": "sql_databases"
+              "subject_id": "english"
+            },
+            {
+              "knowledge_level": "intermediate",
+              "overall_level": "intermediate",
+              "practical_level": "intermediate",
+              "ready": true,
+              "subject_id": "scientific_method"
+            },
+            {
+              "knowledge_level": "intermediate",
+              "overall_level": "unassessed",
+              "practical_level": "unassessed",
+              "ready": false,
+              "subject_id": "capability_real_world_grounding"
             }
           ],
           "status": "blocked",
@@ -147,37 +119,9 @@
           "status": "pending"
         },
         {
-          "authority": "progressive_competency_registry",
-          "depends_on": [],
-          "description": "Raise cpp to executable Intermediate evidence for this mission",
-          "kind": "learning",
-          "node_id": "mission_4620973e7bec6814ff:learn:cpp",
-          "status": "ready",
-          "subject_id": "cpp",
-          "success_criteria": [
-            "intermediate_or_better",
-            "verified_practical_evidence"
-          ]
-        },
-        {
-          "authority": "progressive_competency_registry",
-          "depends_on": [],
-          "description": "Raise java to executable Intermediate evidence for this mission",
-          "kind": "learning",
-          "node_id": "mission_4620973e7bec6814ff:learn:java",
-          "status": "ready",
-          "subject_id": "java",
-          "success_criteria": [
-            "intermediate_or_better",
-            "verified_practical_evidence"
-          ]
-        },
-        {
           "approval_policy": "autonomous_allowed",
           "authority": "verified_internal_state",
           "depends_on": [
-            "mission_4620973e7bec6814ff:learn:cpp",
-            "mission_4620973e7bec6814ff:learn:java",
             "mission_4620973e7bec6814ff:work:define_success"
           ],
           "description": "Map required competencies, tools, permissions and independent outcome authorities",
@@ -189,29 +133,7 @@
             "replan_affected_branch",
             "abstain_or_escalate"
           ],
-          "required_capabilities": [
-            {
-              "knowledge_level": "advanced",
-              "overall_level": "advanced",
-              "practical_level": "advanced",
-              "ready": true,
-              "subject_id": "operating_systems"
-            },
-            {
-              "knowledge_level": "unassessed",
-              "overall_level": "unassessed",
-              "practical_level": "unassessed",
-              "ready": false,
-              "subject_id": "cpp"
-            },
-            {
-              "knowledge_level": "unassessed",
-              "overall_level": "unassessed",
-              "practical_level": "unassessed",
-              "ready": false,
-              "subject_id": "java"
-            }
-          ],
+          "required_capabilities": [],
           "status": "blocked",
           "success_criteria": [
             "measurable_outcome",
@@ -251,9 +173,23 @@
           "status": "pending"
         },
         {
+          "authority": "progressive_competency_registry",
+          "depends_on": [],
+          "description": "Raise power institutions legitimacy to executable Intermediate evidence for this mission",
+          "kind": "learning",
+          "node_id": "mission_4620973e7bec6814ff:learn:power_institutions_legitimacy",
+          "status": "ready",
+          "subject_id": "power_institutions_legitimacy",
+          "success_criteria": [
+            "intermediate_or_better",
+            "verified_practical_evidence"
+          ]
+        },
+        {
           "approval_policy": "autonomous_allowed",
           "authority": "independent_real_outcome",
           "depends_on": [
+            "mission_4620973e7bec6814ff:learn:power_institutions_legitimacy",
             "mission_4620973e7bec6814ff:work:close_gaps"
           ],
           "description": "Choose architecture and technology from measured requirements and failure modes",
@@ -274,16 +210,30 @@
               "subject_id": "testing_debugging"
             },
             {
-              "knowledge_level": "expert",
-              "overall_level": "expert",
-              "practical_level": "expert",
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "capability_learning_strategy"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
               "ready": true,
               "subject_id": "networking"
             },
             {
-              "knowledge_level": "expert",
-              "overall_level": "expert",
-              "practical_level": "expert",
+              "knowledge_level": "advanced",
+              "overall_level": "beginner",
+              "practical_level": "beginner",
+              "ready": false,
+              "subject_id": "power_institutions_legitimacy"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
               "ready": true,
               "subject_id": "software_engineering"
             }
@@ -310,22 +260,7 @@
             "replan_affected_branch",
             "abstain_or_escalate"
           ],
-          "required_capabilities": [
-            {
-              "knowledge_level": "advanced",
-              "overall_level": "advanced",
-              "practical_level": "advanced",
-              "ready": true,
-              "subject_id": "integrated_engineering_capstone"
-            },
-            {
-              "knowledge_level": "expert",
-              "overall_level": "expert",
-              "practical_level": "expert",
-              "ready": true,
-              "subject_id": "software_engineering"
-            }
-          ],
+          "required_capabilities": [],
           "status": "blocked",
           "success_criteria": [
             "measurable_outcome",
@@ -334,9 +269,23 @@
           ]
         },
         {
+          "authority": "progressive_competency_registry",
+          "depends_on": [],
+          "description": "Raise security engineering to executable Intermediate evidence for this mission",
+          "kind": "learning",
+          "node_id": "mission_4620973e7bec6814ff:learn:security_engineering",
+          "status": "ready",
+          "subject_id": "security_engineering",
+          "success_criteria": [
+            "intermediate_or_better",
+            "verified_practical_evidence"
+          ]
+        },
+        {
           "approval_policy": "autonomous_allowed",
           "authority": "independent_real_outcome",
           "depends_on": [
+            "mission_4620973e7bec6814ff:learn:security_engineering",
             "mission_4620973e7bec6814ff:work:implementation"
           ],
           "description": "Invent and execute functional, adversarial and security tests",
@@ -351,9 +300,9 @@
           "required_capabilities": [
             {
               "knowledge_level": "advanced",
-              "overall_level": "advanced",
-              "practical_level": "advanced",
-              "ready": true,
+              "overall_level": "beginner",
+              "practical_level": "beginner",
+              "ready": false,
               "subject_id": "security_engineering"
             },
             {
@@ -383,7 +332,6 @@
           "approval_policy": "autonomous_allowed",
           "authority": "independent_real_outcome",
           "depends_on": [
-            "mission_4620973e7bec6814ff:learn:product_project_management",
             "mission_4620973e7bec6814ff:work:falsification"
           ],
           "description": "Execute the implementation on an unfamiliar project or environment",
@@ -395,29 +343,7 @@
             "replan_affected_branch",
             "abstain_or_escalate"
           ],
-          "required_capabilities": [
-            {
-              "knowledge_level": "unassessed",
-              "overall_level": "unassessed",
-              "practical_level": "unassessed",
-              "ready": false,
-              "subject_id": "product_project_management"
-            },
-            {
-              "knowledge_level": "advanced",
-              "overall_level": "advanced",
-              "practical_level": "advanced",
-              "ready": true,
-              "subject_id": "integrated_engineering_capstone"
-            },
-            {
-              "knowledge_level": "expert",
-              "overall_level": "expert",
-              "practical_level": "expert",
-              "ready": true,
-              "subject_id": "software_engineering"
-            }
-          ],
+          "required_capabilities": [],
           "status": "blocked",
           "success_criteria": [
             "measurable_outcome",
@@ -429,6 +355,7 @@
           "approval_policy": "autonomous_allowed",
           "authority": "independent_real_outcome",
           "depends_on": [
+            "mission_4620973e7bec6814ff:learn:capability_real_world_grounding",
             "mission_4620973e7bec6814ff:work:source_disjoint"
           ],
           "description": "Observe later use, reliability, cost and failure-recovery outcomes",
@@ -449,25 +376,11 @@
               "subject_id": "testing_debugging"
             },
             {
-              "knowledge_level": "advanced",
-              "overall_level": "advanced",
-              "practical_level": "advanced",
-              "ready": true,
-              "subject_id": "architecture_operations"
-            },
-            {
-              "knowledge_level": "advanced",
-              "overall_level": "advanced",
-              "practical_level": "advanced",
-              "ready": true,
-              "subject_id": "cloud_devops_sre"
-            },
-            {
-              "knowledge_level": "expert",
-              "overall_level": "expert",
-              "practical_level": "expert",
-              "ready": true,
-              "subject_id": "networking"
+              "knowledge_level": "intermediate",
+              "overall_level": "unassessed",
+              "practical_level": "unassessed",
+              "ready": false,
+              "subject_id": "capability_real_world_grounding"
             }
           ],
           "status": "blocked",
@@ -507,13 +420,6 @@
               "practical_level": "advanced",
               "ready": true,
               "subject_id": "testing_debugging"
-            },
-            {
-              "knowledge_level": "expert",
-              "overall_level": "expert",
-              "practical_level": "expert",
-              "ready": true,
-              "subject_id": "networking"
             }
           ],
           "status": "blocked",
@@ -524,9 +430,23 @@
           ]
         },
         {
+          "authority": "progressive_competency_registry",
+          "depends_on": [],
+          "description": "Raise capability retention compounding to executable Intermediate evidence for this mission",
+          "kind": "learning",
+          "node_id": "mission_4620973e7bec6814ff:learn:capability_retention_compounding",
+          "status": "ready",
+          "subject_id": "capability_retention_compounding",
+          "success_criteria": [
+            "intermediate_or_better",
+            "verified_practical_evidence"
+          ]
+        },
+        {
           "approval_policy": "autonomous_allowed",
           "authority": "independent_real_outcome",
           "depends_on": [
+            "mission_4620973e7bec6814ff:learn:capability_retention_compounding",
             "mission_4620973e7bec6814ff:work:retrospective"
           ],
           "description": "Retest later without replay and feed the verified method into the next objective",
@@ -540,11 +460,11 @@
           ],
           "required_capabilities": [
             {
-              "knowledge_level": "expert",
-              "overall_level": "advanced",
-              "practical_level": "advanced",
-              "ready": true,
-              "subject_id": "scientific_method"
+              "knowledge_level": "intermediate",
+              "overall_level": "unassessed",
+              "practical_level": "unassessed",
+              "ready": false,
+              "subject_id": "capability_retention_compounding"
             }
           ],
           "status": "blocked",
@@ -562,5 +482,5 @@
     }
   ],
   "schema_version": "aion.hexcore.hierarchical_mission_state.v1",
-  "updated_at": "2026-08-20T12:05:58.526720+00:00"
+  "updated_at": "2026-09-04T23:50:54.464425+00:00"
 }

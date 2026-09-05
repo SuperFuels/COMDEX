@@ -1,0 +1,252 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_mechanical_cad",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:mechanical_cad",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_chemistry_materials",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:chemistry_materials",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:manufacturing_quality:process_selection",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:manufacturing_quality",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:manufacturing_quality:design_for_manufacture",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:manufacturing_quality",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:manufacturing_quality:tooling",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:manufacturing_quality",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:manufacturing_quality:quality_control",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:manufacturing_quality",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:manufacturing_quality:reliability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:manufacturing_quality",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:manufacturing_quality:failure_analysis",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:manufacturing_quality",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:manufacturing_quality:costing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:manufacturing_quality",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "engineering",
+      "id": "work:aion@wave.tp:subject:manufacturing_quality",
+      "label": "Manufacturing, quality and reliability",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:manufacturing_quality:process_selection",
+      "label": "process selection",
+      "subject_id": "manufacturing_quality",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:manufacturing_quality:design_for_manufacture",
+      "label": "design for manufacture",
+      "subject_id": "manufacturing_quality",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:manufacturing_quality:tooling",
+      "label": "tooling",
+      "subject_id": "manufacturing_quality",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:manufacturing_quality:quality_control",
+      "label": "quality control",
+      "subject_id": "manufacturing_quality",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:manufacturing_quality:reliability",
+      "label": "reliability",
+      "subject_id": "manufacturing_quality",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:manufacturing_quality:failure_analysis",
+      "label": "failure analysis",
+      "subject_id": "manufacturing_quality",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:manufacturing_quality:costing",
+      "label": "costing",
+      "subject_id": "manufacturing_quality",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_manufacturing_quality",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:manufacturing_quality:process_selection",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:manufacturing_quality",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:manufacturing_quality:design_for_manufacture",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:manufacturing_quality",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:manufacturing_quality:tooling",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:manufacturing_quality",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:manufacturing_quality:quality_control",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:manufacturing_quality",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:manufacturing_quality:reliability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:manufacturing_quality",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:manufacturing_quality:failure_analysis",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:manufacturing_quality",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:manufacturing_quality:costing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:manufacturing_quality",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "engineering",
+        "id": "work:aion@wave.tp:subject:manufacturing_quality",
+        "label": "Manufacturing, quality and reliability",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:manufacturing_quality:process_selection",
+        "label": "process selection",
+        "subject_id": "manufacturing_quality",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:manufacturing_quality:design_for_manufacture",
+        "label": "design for manufacture",
+        "subject_id": "manufacturing_quality",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:manufacturing_quality:tooling",
+        "label": "tooling",
+        "subject_id": "manufacturing_quality",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:manufacturing_quality:quality_control",
+        "label": "quality control",
+        "subject_id": "manufacturing_quality",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:manufacturing_quality:reliability",
+        "label": "reliability",
+        "subject_id": "manufacturing_quality",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:manufacturing_quality:failure_analysis",
+        "label": "failure analysis",
+        "subject_id": "manufacturing_quality",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:manufacturing_quality:costing",
+        "label": "costing",
+        "subject_id": "manufacturing_quality",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "engineering",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "manufacturing_quality",
+    "title": "AION Academy \u00b7 Manufacturing, quality and reliability"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

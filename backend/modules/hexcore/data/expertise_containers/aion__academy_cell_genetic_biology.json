@@ -1,0 +1,224 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_scientific_method",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:scientific_method",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_chemistry_materials",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:chemistry_materials",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:cell_genetic_biology:cells",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cell_genetic_biology:biochemistry",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cell_genetic_biology:genetics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cell_genetic_biology:gene_expression",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cell_genetic_biology:evolution",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:cell_genetic_biology:experimental_biology",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "life_science",
+      "id": "work:aion@wave.tp:subject:cell_genetic_biology",
+      "label": "Cell, molecular and genetic biology",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cell_genetic_biology:cells",
+      "label": "cells",
+      "subject_id": "cell_genetic_biology",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cell_genetic_biology:biochemistry",
+      "label": "biochemistry",
+      "subject_id": "cell_genetic_biology",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cell_genetic_biology:genetics",
+      "label": "genetics",
+      "subject_id": "cell_genetic_biology",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cell_genetic_biology:gene_expression",
+      "label": "gene expression",
+      "subject_id": "cell_genetic_biology",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cell_genetic_biology:evolution",
+      "label": "evolution",
+      "subject_id": "cell_genetic_biology",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:cell_genetic_biology:experimental_biology",
+      "label": "experimental biology",
+      "subject_id": "cell_genetic_biology",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_cell_genetic_biology",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:cell_genetic_biology:cells",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cell_genetic_biology:biochemistry",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cell_genetic_biology:genetics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cell_genetic_biology:gene_expression",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cell_genetic_biology:evolution",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:cell_genetic_biology:experimental_biology",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "life_science",
+        "id": "work:aion@wave.tp:subject:cell_genetic_biology",
+        "label": "Cell, molecular and genetic biology",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cell_genetic_biology:cells",
+        "label": "cells",
+        "subject_id": "cell_genetic_biology",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cell_genetic_biology:biochemistry",
+        "label": "biochemistry",
+        "subject_id": "cell_genetic_biology",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cell_genetic_biology:genetics",
+        "label": "genetics",
+        "subject_id": "cell_genetic_biology",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cell_genetic_biology:gene_expression",
+        "label": "gene expression",
+        "subject_id": "cell_genetic_biology",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cell_genetic_biology:evolution",
+        "label": "evolution",
+        "subject_id": "cell_genetic_biology",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:cell_genetic_biology:experimental_biology",
+        "label": "experimental biology",
+        "subject_id": "cell_genetic_biology",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "life_science",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "cell_genetic_biology",
+    "title": "AION Academy \u00b7 Cell, molecular and genetic biology"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

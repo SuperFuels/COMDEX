@@ -1,0 +1,601 @@
+{
+  "container_count": 94,
+  "containers": [
+    {
+      "id": "aion__academy_accounting_corporate_finance",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_accounting_corporate_finance.json",
+      "subject_id": "accounting_corporate_finance"
+    },
+    {
+      "id": "aion__academy_adversary_emulation_penetration_testing",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_adversary_emulation_penetration_testing.json",
+      "subject_id": "adversary_emulation_penetration_testing"
+    },
+    {
+      "id": "aion__academy_agronomy_soil",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_agronomy_soil.json",
+      "subject_id": "agronomy_soil"
+    },
+    {
+      "id": "aion__academy_algebra_geometry",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_algebra_geometry.json",
+      "subject_id": "algebra_geometry"
+    },
+    {
+      "id": "aion__academy_alternative_private_markets",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_alternative_private_markets.json",
+      "subject_id": "alternative_private_markets"
+    },
+    {
+      "id": "aion__academy_animal_food_systems",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_animal_food_systems.json",
+      "subject_id": "animal_food_systems"
+    },
+    {
+      "id": "aion__academy_application_web_api_security",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_application_web_api_security.json",
+      "subject_id": "application_web_api_security"
+    },
+    {
+      "id": "aion__academy_asset_pricing",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_asset_pricing.json",
+      "subject_id": "asset_pricing"
+    },
+    {
+      "id": "aion__academy_business_strategy_operations",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_business_strategy_operations.json",
+      "subject_id": "business_strategy_operations"
+    },
+    {
+      "id": "aion__academy_calculus_analysis",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_calculus_analysis.json",
+      "subject_id": "calculus_analysis"
+    },
+    {
+      "id": "aion__academy_cell_genetic_biology",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_cell_genetic_biology.json",
+      "subject_id": "cell_genetic_biology"
+    },
+    {
+      "id": "aion__academy_chemistry_materials",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_chemistry_materials.json",
+      "subject_id": "chemistry_materials"
+    },
+    {
+      "id": "aion__academy_classical_physics",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_classical_physics.json",
+      "subject_id": "classical_physics"
+    },
+    {
+      "id": "aion__academy_cloud_identity_container_security",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_cloud_identity_container_security.json",
+      "subject_id": "cloud_identity_container_security"
+    },
+    {
+      "id": "aion__academy_computer_science",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_computer_science.json",
+      "subject_id": "computer_science"
+    },
+    {
+      "id": "aion__academy_control_robotics",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_control_robotics.json",
+      "subject_id": "control_robotics"
+    },
+    {
+      "id": "aion__academy_cryptography_protocol_security",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_cryptography_protocol_security.json",
+      "subject_id": "cryptography_protocol_security"
+    },
+    {
+      "id": "aion__academy_cybersecurity",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_cybersecurity.json",
+      "subject_id": "cybersecurity"
+    },
+    {
+      "id": "aion__academy_data_databases",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_data_databases.json",
+      "subject_id": "data_databases"
+    },
+    {
+      "id": "aion__academy_data_science_ml",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_data_science_ml.json",
+      "subject_id": "data_science_ml"
+    },
+    {
+      "id": "aion__academy_derivatives_structured_products",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_derivatives_structured_products.json",
+      "subject_id": "derivatives_structured_products"
+    },
+    {
+      "id": "aion__academy_design_creative_practice",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_design_creative_practice.json",
+      "subject_id": "design_creative_practice"
+    },
+    {
+      "id": "aion__academy_detection_threat_hunting_incident_response",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_detection_threat_hunting_incident_response.json",
+      "subject_id": "detection_threat_hunting_incident_response"
+    },
+    {
+      "id": "aion__academy_discrete_optimization",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_discrete_optimization.json",
+      "subject_id": "discrete_optimization"
+    },
+    {
+      "id": "aion__academy_earth_climate",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_earth_climate.json",
+      "subject_id": "earth_climate"
+    },
+    {
+      "id": "aion__academy_ecology_microbiology",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_ecology_microbiology.json",
+      "subject_id": "ecology_microbiology"
+    },
+    {
+      "id": "aion__academy_economics_core",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_economics_core.json",
+      "subject_id": "economics_core"
+    },
+    {
+      "id": "aion__academy_elections_polling_public_opinion",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_elections_polling_public_opinion.json",
+      "subject_id": "elections_polling_public_opinion"
+    },
+    {
+      "id": "aion__academy_electromagnetism",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_electromagnetism.json",
+      "subject_id": "electromagnetism"
+    },
+    {
+      "id": "aion__academy_electronics_circuits",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_electronics_circuits.json",
+      "subject_id": "electronics_circuits"
+    },
+    {
+      "id": "aion__academy_embedded_systems",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_embedded_systems.json",
+      "subject_id": "embedded_systems"
+    },
+    {
+      "id": "aion__academy_energy_fundamentals",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_energy_fundamentals.json",
+      "subject_id": "energy_fundamentals"
+    },
+    {
+      "id": "aion__academy_energy_policy_sustainability",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_energy_policy_sustainability.json",
+      "subject_id": "energy_policy_sustainability"
+    },
+    {
+      "id": "aion__academy_energy_storage",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_energy_storage.json",
+      "subject_id": "energy_storage"
+    },
+    {
+      "id": "aion__academy_entrepreneurship_innovation",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_entrepreneurship_innovation.json",
+      "subject_id": "entrepreneurship_innovation"
+    },
+    {
+      "id": "aion__academy_event_evidence_resolution_research",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_event_evidence_resolution_research.json",
+      "subject_id": "event_evidence_resolution_research"
+    },
+    {
+      "id": "aion__academy_exploit_analysis_reverse_engineering",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_exploit_analysis_reverse_engineering.json",
+      "subject_id": "exploit_analysis_reverse_engineering"
+    },
+    {
+      "id": "aion__academy_financial_data_infrastructure",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_financial_data_infrastructure.json",
+      "subject_id": "financial_data_infrastructure"
+    },
+    {
+      "id": "aion__academy_financial_econometrics",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_financial_econometrics.json",
+      "subject_id": "financial_econometrics"
+    },
+    {
+      "id": "aion__academy_financial_mathematics",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_financial_mathematics.json",
+      "subject_id": "financial_mathematics"
+    },
+    {
+      "id": "aion__academy_financial_regulation_compliance",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_financial_regulation_compliance.json",
+      "subject_id": "financial_regulation_compliance"
+    },
+    {
+      "id": "aion__academy_financial_risk_management",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_financial_risk_management.json",
+      "subject_id": "financial_risk_management"
+    },
+    {
+      "id": "aion__academy_fundamental_equity_credit",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_fundamental_equity_credit.json",
+      "subject_id": "fundamental_equity_credit"
+    },
+    {
+      "id": "aion__academy_generation_grids",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_generation_grids.json",
+      "subject_id": "generation_grids"
+    },
+    {
+      "id": "aion__academy_hardware_embedded_ot_security",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_hardware_embedded_ot_security.json",
+      "subject_id": "hardware_embedded_ot_security"
+    },
+    {
+      "id": "aion__academy_hedge_fund_operations",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_hedge_fund_operations.json",
+      "subject_id": "hedge_fund_operations"
+    },
+    {
+      "id": "aion__academy_history_geography_geopolitics",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_history_geography_geopolitics.json",
+      "subject_id": "history_geography_geopolitics"
+    },
+    {
+      "id": "aion__academy_human_computer_interaction",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_human_computer_interaction.json",
+      "subject_id": "human_computer_interaction"
+    },
+    {
+      "id": "aion__academy_information_intelligence_attention",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_information_intelligence_attention.json",
+      "subject_id": "information_intelligence_attention"
+    },
+    {
+      "id": "aion__academy_institutional_banking_treasury",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_institutional_banking_treasury.json",
+      "subject_id": "institutional_banking_treasury"
+    },
+    {
+      "id": "aion__academy_language_research_communication",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_language_research_communication.json",
+      "subject_id": "language_research_communication"
+    },
+    {
+      "id": "aion__academy_law_regulation_ethics",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_law_regulation_ethics.json",
+      "subject_id": "law_regulation_ethics"
+    },
+    {
+      "id": "aion__academy_linear_algebra",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_linear_algebra.json",
+      "subject_id": "linear_algebra"
+    },
+    {
+      "id": "aion__academy_logic_proof",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_logic_proof.json",
+      "subject_id": "logic_proof"
+    },
+    {
+      "id": "aion__academy_manufacturing_quality",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_manufacturing_quality.json",
+      "subject_id": "manufacturing_quality"
+    },
+    {
+      "id": "aion__academy_market_microstructure_execution",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_market_microstructure_execution.json",
+      "subject_id": "market_microstructure_execution"
+    },
+    {
+      "id": "aion__academy_marketing_sales_customer",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_marketing_sales_customer.json",
+      "subject_id": "marketing_sales_customer"
+    },
+    {
+      "id": "aion__academy_markets_investing",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_markets_investing.json",
+      "subject_id": "markets_investing"
+    },
+    {
+      "id": "aion__academy_mechanical_cad",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_mechanical_cad.json",
+      "subject_id": "mechanical_cad"
+    },
+    {
+      "id": "aion__academy_negotiation_governance",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_negotiation_governance.json",
+      "subject_id": "negotiation_governance"
+    },
+    {
+      "id": "aion__academy_network_wireless_security",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_network_wireless_security.json",
+      "subject_id": "network_wireless_security"
+    },
+    {
+      "id": "aion__academy_networks_talent_coordination",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_networks_talent_coordination.json",
+      "subject_id": "networks_talent_coordination"
+    },
+    {
+      "id": "aion__academy_numerical_methods",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_numerical_methods.json",
+      "subject_id": "numerical_methods"
+    },
+    {
+      "id": "aion__academy_operating_distributed_networks",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_operating_distributed_networks.json",
+      "subject_id": "operating_distributed_networks"
+    },
+    {
+      "id": "aion__academy_physiology_health",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_physiology_health.json",
+      "subject_id": "physiology_health"
+    },
+    {
+      "id": "aion__academy_portfolio_construction",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_portfolio_construction.json",
+      "subject_id": "portfolio_construction"
+    },
+    {
+      "id": "aion__academy_power_institutions_legitimacy",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_power_institutions_legitimacy.json",
+      "subject_id": "power_institutions_legitimacy"
+    },
+    {
+      "id": "aion__academy_precision_agriculture",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_precision_agriculture.json",
+      "subject_id": "precision_agriculture"
+    },
+    {
+      "id": "aion__academy_prediction_market_design_compliance",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_prediction_market_design_compliance.json",
+      "subject_id": "prediction_market_design_compliance"
+    },
+    {
+      "id": "aion__academy_prediction_market_microstructure",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_prediction_market_microstructure.json",
+      "subject_id": "prediction_market_microstructure"
+    },
+    {
+      "id": "aion__academy_probabilistic_forecasting_calibration",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_probabilistic_forecasting_calibration.json",
+      "subject_id": "probabilistic_forecasting_calibration"
+    },
+    {
+      "id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_probability_statistics.json",
+      "subject_id": "probability_statistics"
+    },
+    {
+      "id": "aion__academy_programming_languages",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_programming_languages.json",
+      "subject_id": "programming_languages"
+    },
+    {
+      "id": "aion__academy_psychology_organisations",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_psychology_organisations.json",
+      "subject_id": "psychology_organisations"
+    },
+    {
+      "id": "aion__academy_quantitative_research",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_quantitative_research.json",
+      "subject_id": "quantitative_research"
+    },
+    {
+      "id": "aion__academy_resilience_geography_long_horizon",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_resilience_geography_long_horizon.json",
+      "subject_id": "resilience_geography_long_horizon"
+    },
+    {
+      "id": "aion__academy_scientific_method",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_scientific_method.json",
+      "subject_id": "scientific_method"
+    },
+    {
+      "id": "aion__academy_security_architecture_operations",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_security_architecture_operations.json",
+      "subject_id": "security_architecture_operations"
+    },
+    {
+      "id": "aion__academy_security_research_disclosure",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_security_research_disclosure.json",
+      "subject_id": "security_research_disclosure"
+    },
+    {
+      "id": "aion__academy_sensors_instrumentation",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_sensors_instrumentation.json",
+      "subject_id": "sensors_instrumentation"
+    },
+    {
+      "id": "aion__academy_software_engineering",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_software_engineering.json",
+      "subject_id": "software_engineering"
+    },
+    {
+      "id": "aion__academy_stochastic_processes_finance",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_stochastic_processes_finance.json",
+      "subject_id": "stochastic_processes_finance"
+    },
+    {
+      "id": "aion__academy_strategic_assets_capital_allocation",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_strategic_assets_capital_allocation.json",
+      "subject_id": "strategic_assets_capital_allocation"
+    },
+    {
+      "id": "aion__academy_supply_chain_procurement",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_supply_chain_procurement.json",
+      "subject_id": "supply_chain_procurement"
+    },
+    {
+      "id": "aion__academy_systematic_trading",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_systematic_trading.json",
+      "subject_id": "systematic_trading"
+    },
+    {
+      "id": "aion__academy_systems_engineering",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_systems_engineering.json",
+      "subject_id": "systems_engineering"
+    },
+    {
+      "id": "aion__academy_tax_wealth_structuring",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_tax_wealth_structuring.json",
+      "subject_id": "tax_wealth_structuring"
+    },
+    {
+      "id": "aion__academy_technology_industry_platforms",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_technology_industry_platforms.json",
+      "subject_id": "technology_industry_platforms"
+    },
+    {
+      "id": "aion__academy_uncrewed_aerial_systems",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_uncrewed_aerial_systems.json",
+      "subject_id": "uncrewed_aerial_systems"
+    },
+    {
+      "id": "aion__academy_water_waste_resilience",
+      "kind": "knowledge_academy",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__academy_water_waste_resilience.json",
+      "subject_id": "water_waste_resilience"
+    },
+    {
+      "id": "aion__cross_domain_bridges",
+      "kind": "cross_domain_graph",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__cross_domain_bridges.json"
+    },
+    {
+      "id": "aion__dynamic_associations",
+      "kind": "dynamic_cross_domain_graph",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__dynamic_associations.json"
+    },
+    {
+      "id": "aion__expertise_evidence",
+      "kind": "evidence_authority",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__expertise_evidence.json"
+    },
+    {
+      "id": "aion__learning_capabilities",
+      "kind": "learning_capabilities",
+      "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/expertise_containers/aion__learning_capabilities.json"
+    }
+  ],
+  "created_at": "2026-08-21T22:46:47.090381+00:00",
+  "curriculum_digest": "a2c93e4206814c03ecb93d7276be299e68df420c98b01da82597f1ef39014a90",
+  "index_digest": "8a14326be5be4382f3ba03f8cee024ad7c3b187c2790b613d1dbef0c101a1725",
+  "kg": "work",
+  "schema_version": "aion.container.expertise_index.v1",
+  "shared": [
+    {
+      "id": "aion__cross_domain_bridges",
+      "label": "Cross-Domain Bridge Graph",
+      "permissions": [
+        "read",
+        "post"
+      ],
+      "role": "owner"
+    },
+    {
+      "id": "aion__expertise_evidence",
+      "label": "Expertise Evidence",
+      "permissions": [
+        "read",
+        "post"
+      ],
+      "role": "owner"
+    },
+    {
+      "id": "aion__dynamic_associations",
+      "label": "Dynamic Cross-Domain Associations",
+      "permissions": [
+        "read",
+        "post"
+      ],
+      "role": "owner"
+    }
+  ],
+  "user": "aion",
+  "wa": "aion@wave.tp"
+}

@@ -23,16 +23,16 @@
     },
     {
       "campaign_id": "formal_empirical_model",
-      "commitment_sha256": "ece6061a433b558782c89aee60a9b30c775aeecac5c66b6088e3f6c31e954e5a",
+      "commitment_sha256": "1e58dc39d097d4cf8b7674be8277fbaa67324e691efa96a550412dce2de97fe6",
       "competency_award": false,
-      "functional_memory_ready": true,
+      "functional_memory_ready": false,
       "missing_practical_repetitions": [],
       "objective": "Derive a mathematical model, design a falsifying experiment and revise it under conflicting measurements.",
       "required_subjects": [
         "mathematics",
         "scientific_method"
       ],
-      "status": "ACTIVE",
+      "status": "BLOCKED_MEMORY_OR_EXECUTOR",
       "success_contract": [
         "fresh executable or independently revealed outcome",
         "at least two falsifying counterexamples",
@@ -65,16 +65,16 @@
     },
     {
       "campaign_id": "reproducible_python_science",
-      "commitment_sha256": "0cd0bf3b4ae5687e9869fe737acc7c19a8962e201bd9c3d03f8289f5dc5b6bf7",
+      "commitment_sha256": "5f93e3ddd5cf5f785226e4b2497256bed22700cd2e39cc61283fc346cdb80759",
       "competency_award": false,
-      "functional_memory_ready": true,
+      "functional_memory_ready": false,
       "missing_practical_repetitions": [],
       "objective": "Create a reproducible Python investigation whose causal conclusion survives counterexamples and fresh execution.",
       "required_subjects": [
         "python",
         "scientific_method"
       ],
-      "status": "ACTIVE",
+      "status": "BLOCKED_MEMORY_OR_EXECUTOR",
       "success_contract": [
         "fresh executable or independently revealed outcome",
         "at least two falsifying counterexamples",
@@ -107,16 +107,16 @@
     },
     {
       "campaign_id": "evidence_bound_explanation",
-      "commitment_sha256": "b9958855c075b613027c6f6c3e1d45d54c1986baf39565aeae2f07b3da00c4b3",
+      "commitment_sha256": "306f2c59b4ab17a31e41c72875cd9d6364e00c1395b46decc4f78277bb0da2e3",
       "competency_award": false,
-      "functional_memory_ready": true,
+      "functional_memory_ready": false,
       "missing_practical_repetitions": [],
       "objective": "Investigate a disputed technical claim and produce a clear explanation that separates evidence, inference and uncertainty.",
       "required_subjects": [
         "english",
         "scientific_method"
       ],
-      "status": "ACTIVE",
+      "status": "BLOCKED_MEMORY_OR_EXECUTOR",
       "success_contract": [
         "fresh executable or independently revealed outcome",
         "at least two falsifying counterexamples",
@@ -159,6 +159,70 @@
       "generation": 4,
       "source_hash": "115621813ae38895dfa42ed59b9709ea66c727da27b4ee91da884e55624c1725",
       "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T08:20:30.784584+00:00",
+      "functional_reconstructions": 5,
+      "generation": 5,
+      "source_hash": "21326ce15d897698ac5802f422944bf9072728ba516b84a5dbdccb57a3819ab5",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T12:51:10.576349+00:00",
+      "functional_reconstructions": 5,
+      "generation": 6,
+      "source_hash": "9e9a4bda0fadd834af853c6bf3278ac75930e09897bb238232d96ac800112865",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T12:56:46.681048+00:00",
+      "functional_reconstructions": 5,
+      "generation": 7,
+      "source_hash": "3538c307ff4025218f86dedafcf5a2506b02280de95151a1bc8269d64e0ba6d1",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T12:58:23.496515+00:00",
+      "functional_reconstructions": 5,
+      "generation": 8,
+      "source_hash": "ea8114af0f1533a154cc01e3fbd999046b22b997395ae8170668f58aa7ad4f7b",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T13:09:37.160781+00:00",
+      "functional_reconstructions": 5,
+      "generation": 9,
+      "source_hash": "3538c307ff4025218f86dedafcf5a2506b02280de95151a1bc8269d64e0ba6d1",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T16:56:45.768106+00:00",
+      "functional_reconstructions": 5,
+      "generation": 10,
+      "source_hash": "e906f3c3751b0be441d67af1c5bc4494add2e8555a9bc4a74a919e94d25f62b2",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T21:51:26.744127+00:00",
+      "functional_reconstructions": 5,
+      "generation": 11,
+      "source_hash": "86fda2498d5be823749cb5e04efd69b991e329136908ac489214e00a6842f7b5",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-08-21T22:52:47.370800+00:00",
+      "functional_reconstructions": 5,
+      "generation": 12,
+      "source_hash": "e900b2ec37d864f61a8c0bff16100e3dfd1b698efcac0f7ba7df744a5d2b610a",
+      "substrate": "deterministic_control_retained"
     }
   ],
   "next_compounding_action": {
@@ -184,6 +248,6 @@
   },
   "procedure_id": "procedure_compounding_intelligence_engine_v1",
   "schema_version": "aion.hexcore.compounding_intelligence_state.v1",
-  "status": "PROMOTED_CONTROL_PLANE",
-  "updated_at": "2026-08-20T12:06:20.450771+00:00"
+  "status": "ACTIVE_NOT_PROMOTED",
+  "updated_at": "2026-09-05T00:18:25.460823+00:00"
 }

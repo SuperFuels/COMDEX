@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_calculus_analysis",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:calculus_analysis",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_linear_algebra",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:linear_algebra",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:financial_mathematics:discounting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_mathematics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_mathematics:returns",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_mathematics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_mathematics:no_arbitrage",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_mathematics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_mathematics:state_prices",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_mathematics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_mathematics:martingales",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_mathematics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_mathematics:change_of_measure",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_mathematics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_mathematics:convexity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_mathematics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_mathematics:numerical_pricing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_mathematics",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:financial_mathematics",
+      "label": "Financial mathematics",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_mathematics:discounting",
+      "label": "discounting",
+      "subject_id": "financial_mathematics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_mathematics:returns",
+      "label": "returns",
+      "subject_id": "financial_mathematics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_mathematics:no_arbitrage",
+      "label": "no arbitrage",
+      "subject_id": "financial_mathematics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_mathematics:state_prices",
+      "label": "state prices",
+      "subject_id": "financial_mathematics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_mathematics:martingales",
+      "label": "martingales",
+      "subject_id": "financial_mathematics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_mathematics:change_of_measure",
+      "label": "change of measure",
+      "subject_id": "financial_mathematics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_mathematics:convexity",
+      "label": "convexity",
+      "subject_id": "financial_mathematics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_mathematics:numerical_pricing",
+      "label": "numerical pricing",
+      "subject_id": "financial_mathematics",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_financial_mathematics",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:financial_mathematics:discounting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_mathematics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_mathematics:returns",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_mathematics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_mathematics:no_arbitrage",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_mathematics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_mathematics:state_prices",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_mathematics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_mathematics:martingales",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_mathematics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_mathematics:change_of_measure",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_mathematics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_mathematics:convexity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_mathematics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_mathematics:numerical_pricing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_mathematics",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:financial_mathematics",
+        "label": "Financial mathematics",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_mathematics:discounting",
+        "label": "discounting",
+        "subject_id": "financial_mathematics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_mathematics:returns",
+        "label": "returns",
+        "subject_id": "financial_mathematics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_mathematics:no_arbitrage",
+        "label": "no arbitrage",
+        "subject_id": "financial_mathematics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_mathematics:state_prices",
+        "label": "state prices",
+        "subject_id": "financial_mathematics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_mathematics:martingales",
+        "label": "martingales",
+        "subject_id": "financial_mathematics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_mathematics:change_of_measure",
+        "label": "change of measure",
+        "subject_id": "financial_mathematics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_mathematics:convexity",
+        "label": "convexity",
+        "subject_id": "financial_mathematics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_mathematics:numerical_pricing",
+        "label": "numerical pricing",
+        "subject_id": "financial_mathematics",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "financial_mathematics",
+    "title": "AION Academy \u00b7 Financial mathematics"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

@@ -1,0 +1,218 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_algebra_geometry",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:algebra_geometry",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:probability_statistics:probability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probability_statistics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probability_statistics:distributions",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probability_statistics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probability_statistics:estimation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probability_statistics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probability_statistics:hypothesis_testing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probability_statistics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probability_statistics:bayesian_reasoning",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probability_statistics",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:probability_statistics:uncertainty",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:probability_statistics",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "mathematics",
+      "id": "work:aion@wave.tp:subject:probability_statistics",
+      "label": "Probability and statistics",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probability_statistics:probability",
+      "label": "probability",
+      "subject_id": "probability_statistics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probability_statistics:distributions",
+      "label": "distributions",
+      "subject_id": "probability_statistics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probability_statistics:estimation",
+      "label": "estimation",
+      "subject_id": "probability_statistics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probability_statistics:hypothesis_testing",
+      "label": "hypothesis testing",
+      "subject_id": "probability_statistics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probability_statistics:bayesian_reasoning",
+      "label": "bayesian reasoning",
+      "subject_id": "probability_statistics",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:probability_statistics:uncertainty",
+      "label": "uncertainty",
+      "subject_id": "probability_statistics",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_probability_statistics",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:probability_statistics:probability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probability_statistics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probability_statistics:distributions",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probability_statistics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probability_statistics:estimation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probability_statistics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probability_statistics:hypothesis_testing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probability_statistics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probability_statistics:bayesian_reasoning",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probability_statistics",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:probability_statistics:uncertainty",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:probability_statistics",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "mathematics",
+        "id": "work:aion@wave.tp:subject:probability_statistics",
+        "label": "Probability and statistics",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probability_statistics:probability",
+        "label": "probability",
+        "subject_id": "probability_statistics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probability_statistics:distributions",
+        "label": "distributions",
+        "subject_id": "probability_statistics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probability_statistics:estimation",
+        "label": "estimation",
+        "subject_id": "probability_statistics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probability_statistics:hypothesis_testing",
+        "label": "hypothesis testing",
+        "subject_id": "probability_statistics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probability_statistics:bayesian_reasoning",
+        "label": "bayesian reasoning",
+        "subject_id": "probability_statistics",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:probability_statistics:uncertainty",
+        "label": "uncertainty",
+        "subject_id": "probability_statistics",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "mathematics",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "probability_statistics",
+    "title": "AION Academy \u00b7 Probability and statistics"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

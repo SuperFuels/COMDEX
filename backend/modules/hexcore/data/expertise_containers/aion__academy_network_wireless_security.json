@@ -1,0 +1,280 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_cybersecurity",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:cybersecurity",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_operating_distributed_networks",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:network_wireless_security:network_reconnaissance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:network_wireless_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:network_wireless_security:protocol_analysis",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:network_wireless_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:network_wireless_security:segmentation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:network_wireless_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:network_wireless_security:firewalls",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:network_wireless_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:network_wireless_security:secure_routing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:network_wireless_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:network_wireless_security:wireless_security",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:network_wireless_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:network_wireless_security:vpn_zero_trust",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:network_wireless_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:network_wireless_security:network_validation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:network_wireless_security",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:network_wireless_security",
+      "label": "Network and wireless security",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:network_wireless_security:network_reconnaissance",
+      "label": "network reconnaissance",
+      "subject_id": "network_wireless_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:network_wireless_security:protocol_analysis",
+      "label": "protocol analysis",
+      "subject_id": "network_wireless_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:network_wireless_security:segmentation",
+      "label": "segmentation",
+      "subject_id": "network_wireless_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:network_wireless_security:firewalls",
+      "label": "firewalls",
+      "subject_id": "network_wireless_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:network_wireless_security:secure_routing",
+      "label": "secure routing",
+      "subject_id": "network_wireless_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:network_wireless_security:wireless_security",
+      "label": "wireless security",
+      "subject_id": "network_wireless_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:network_wireless_security:vpn_zero_trust",
+      "label": "vpn zero trust",
+      "subject_id": "network_wireless_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:network_wireless_security:network_validation",
+      "label": "network validation",
+      "subject_id": "network_wireless_security",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_network_wireless_security",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:network_wireless_security:network_reconnaissance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:network_wireless_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:network_wireless_security:protocol_analysis",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:network_wireless_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:network_wireless_security:segmentation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:network_wireless_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:network_wireless_security:firewalls",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:network_wireless_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:network_wireless_security:secure_routing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:network_wireless_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:network_wireless_security:wireless_security",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:network_wireless_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:network_wireless_security:vpn_zero_trust",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:network_wireless_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:network_wireless_security:network_validation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:network_wireless_security",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:network_wireless_security",
+        "label": "Network and wireless security",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:network_wireless_security:network_reconnaissance",
+        "label": "network reconnaissance",
+        "subject_id": "network_wireless_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:network_wireless_security:protocol_analysis",
+        "label": "protocol analysis",
+        "subject_id": "network_wireless_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:network_wireless_security:segmentation",
+        "label": "segmentation",
+        "subject_id": "network_wireless_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:network_wireless_security:firewalls",
+        "label": "firewalls",
+        "subject_id": "network_wireless_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:network_wireless_security:secure_routing",
+        "label": "secure routing",
+        "subject_id": "network_wireless_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:network_wireless_security:wireless_security",
+        "label": "wireless security",
+        "subject_id": "network_wireless_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:network_wireless_security:vpn_zero_trust",
+        "label": "vpn zero trust",
+        "subject_id": "network_wireless_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:network_wireless_security:network_validation",
+        "label": "network validation",
+        "subject_id": "network_wireless_security",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "network_wireless_security",
+    "title": "AION Academy \u00b7 Network and wireless security"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

@@ -67,7 +67,7 @@
       ]
     },
     {
-      "artifact_count": 287,
+      "artifact_count": 306,
       "authority_id": "cau_verified_artifact_store",
       "independently_reveals_outcomes": false,
       "kind": "retained_evidence",
@@ -347,7 +347,7 @@
     "purpose_hash": "b4f83005014a0d0ecbcdca8038e803e8413dca2055ba56fd0fd5a15ba0b329bf",
     "terminal_mission_hash": "cf542ee72ebeb1fbef64c53fb3806c3b939b19df147b89253eb596a0340dba24",
     "terminal_objective_mutations": 0,
-    "updated_at": "2026-08-20T12:06:10.612041+00:00"
+    "updated_at": "2026-09-05T06:29:56.212924+00:00"
   },
   "curriculum_history": [
     {
@@ -782,7 +782,7 @@
       "task_type": "unfamiliar_apprenticeship_experiment"
     }
   ],
-  "evidence_revision": 4147,
+  "evidence_revision": 7279,
   "executor_contracts": {
     "procedure_executor_1edd5e4b2bc53b3b540c": {
       "authorities": [
@@ -930,14 +930,14 @@
     }
   },
   "experience_index_audit": {
-    "eligible_positive_count": 131,
+    "eligible_positive_count": 130,
     "excluded_self_artifacts": [
       "results/hexcore_autonomous_general_apprentice.json"
     ]
   },
   "gate_state": {
     "autonomous_curriculum": {
-      "artifact_count": 24,
+      "artifact_count": 23,
       "closed_loop_support": 0.8,
       "evidence": [
         {
@@ -1025,15 +1025,6 @@
           "sha256": "80c04a2bdfeae19e5693b7939c48454a837082b5e0c51386a98fade88556ceba"
         },
         {
-          "artifact": "results/hexcore_cross_domain_consequence_repair.json",
-          "family": "software",
-          "indicators": [
-            "curriculum"
-          ],
-          "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
-        },
-        {
           "artifact": "results/hexcore_general_apprenticeship_executor.json",
           "family": "general",
           "indicators": [
@@ -1050,7 +1041,7 @@
             "curriculum"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
+          "sha256": "63322195a69c31178770c75185fc554dfecb3a16c60d3b16ac520dcb88ef1d0e"
         },
         {
           "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
@@ -1184,7 +1175,7 @@
       "verified_curriculum_outcomes": 2
     },
     "compounding_self_improvement": {
-      "artifact_count": 131,
+      "artifact_count": 130,
       "closed_loop_support": 0.45,
       "evidence": [
         {
@@ -1423,7 +1414,7 @@
             "repair"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
+          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -1485,7 +1476,7 @@
             "repair"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
+          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -1507,17 +1498,6 @@
           ],
           "procedure_id": "procedure_counterfactual_plan_2524af5f13ea",
           "sha256": "7e1f97b3e501498386fb7bdbe6d7bec689655990a7aa5d8e868e3bc347669fac"
-        },
-        {
-          "artifact": "results/hexcore_cross_domain_consequence_repair.json",
-          "family": "software",
-          "indicators": [
-            "improvement",
-            "mutation",
-            "repair"
-          ],
-          "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -1644,7 +1624,7 @@
             "repair"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
+          "sha256": "63322195a69c31178770c75185fc554dfecb3a16c60d3b16ac520dcb88ef1d0e"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -2295,7 +2275,7 @@
             "repair"
           ],
           "procedure_id": "procedure_prospective_cross_domain_outcome_operation_v1",
-          "sha256": "6dc3dcd9f97749995475d0b5402a43d29971796aa27f33631150f343ad4b6411"
+          "sha256": "54e34ead40c14df53e1e8ec64c706587130208011355fbd65bf8b79178ea200e"
         },
         {
           "artifact": "results/hexcore_prospective_temporal_planning.json",
@@ -2570,7 +2550,7 @@
       "verified_curriculum_outcomes": 1
     },
     "cross_domain_transfer": {
-      "artifact_count": 80,
+      "artifact_count": 79,
       "closed_loop_support": 0.45,
       "evidence": [
         {
@@ -2710,7 +2690,7 @@
             "transfer"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
+          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -2740,15 +2720,6 @@
           ],
           "procedure_id": "procedure_continuous_cross_domain_mastery_v1",
           "sha256": "80c04a2bdfeae19e5693b7939c48454a837082b5e0c51386a98fade88556ceba"
-        },
-        {
-          "artifact": "results/hexcore_cross_domain_consequence_repair.json",
-          "family": "software",
-          "indicators": [
-            "cross_domain"
-          ],
-          "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -2848,7 +2819,7 @@
             "transfer"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
+          "sha256": "63322195a69c31178770c75185fc554dfecb3a16c60d3b16ac520dcb88ef1d0e"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -3180,7 +3151,7 @@
             "cross_domain"
           ],
           "procedure_id": "procedure_prospective_cross_domain_outcome_operation_v1",
-          "sha256": "6dc3dcd9f97749995475d0b5402a43d29971796aa27f33631150f343ad4b6411"
+          "sha256": "54e34ead40c14df53e1e8ec64c706587130208011355fbd65bf8b79178ea200e"
         },
         {
           "artifact": "results/hexcore_public_physics_transfer_v9.json",
@@ -3369,7 +3340,7 @@
       "verified_curriculum_outcomes": 1
     },
     "independent_consequences": {
-      "artifact_count": 130,
+      "artifact_count": 129,
       "closed_loop_support": 0.0,
       "evidence": [
         {
@@ -3596,7 +3567,7 @@
             "public"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
+          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -3657,7 +3628,7 @@
             "public"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
+          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -3678,16 +3649,6 @@
           ],
           "procedure_id": "procedure_counterfactual_plan_2524af5f13ea",
           "sha256": "7e1f97b3e501498386fb7bdbe6d7bec689655990a7aa5d8e868e3bc347669fac"
-        },
-        {
-          "artifact": "results/hexcore_cross_domain_consequence_repair.json",
-          "family": "software",
-          "indicators": [
-            "authority",
-            "outcome"
-          ],
-          "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -3810,7 +3771,7 @@
             "outcome"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
+          "sha256": "63322195a69c31178770c75185fc554dfecb3a16c60d3b16ac520dcb88ef1d0e"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -4433,7 +4394,7 @@
             "public"
           ],
           "procedure_id": "procedure_prospective_cross_domain_outcome_operation_v1",
-          "sha256": "6dc3dcd9f97749995475d0b5402a43d29971796aa27f33631150f343ad4b6411"
+          "sha256": "54e34ead40c14df53e1e8ec64c706587130208011355fbd65bf8b79178ea200e"
         },
         {
           "artifact": "results/hexcore_prospective_temporal_planning.json",
@@ -4695,7 +4656,7 @@
       "verified_curriculum_outcomes": 0
     },
     "long_term_continual_learning": {
-      "artifact_count": 129,
+      "artifact_count": 128,
       "closed_loop_support": 0.0,
       "evidence": [
         {
@@ -4918,7 +4879,7 @@
             "retention"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
+          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -4976,7 +4937,7 @@
             "restart"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
+          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -4996,16 +4957,6 @@
           ],
           "procedure_id": "procedure_counterfactual_plan_2524af5f13ea",
           "sha256": "7e1f97b3e501498386fb7bdbe6d7bec689655990a7aa5d8e868e3bc347669fac"
-        },
-        {
-          "artifact": "results/hexcore_cross_domain_consequence_repair.json",
-          "family": "software",
-          "indicators": [
-            "restart",
-            "retention"
-          ],
-          "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -5935,7 +5886,7 @@
       "verified_curriculum_outcomes": 0
     },
     "natural_language_cognition": {
-      "artifact_count": 102,
+      "artifact_count": 101,
       "closed_loop_support": 0.0,
       "evidence": [
         {
@@ -6092,7 +6043,7 @@
             "semantic"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
+          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -6159,15 +6110,6 @@
           ],
           "procedure_id": "procedure_counterfactual_plan_2524af5f13ea",
           "sha256": "7e1f97b3e501498386fb7bdbe6d7bec689655990a7aa5d8e868e3bc347669fac"
-        },
-        {
-          "artifact": "results/hexcore_cross_domain_consequence_repair.json",
-          "family": "software",
-          "indicators": [
-            "document"
-          ],
-          "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -6268,7 +6210,7 @@
             "semantic"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
+          "sha256": "63322195a69c31178770c75185fc554dfecb3a16c60d3b16ac520dcb88ef1d0e"
         },
         {
           "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
@@ -6946,7 +6888,7 @@
       "verified_curriculum_outcomes": 0
     },
     "open_ended_learning": {
-      "artifact_count": 130,
+      "artifact_count": 129,
       "closed_loop_support": 0.45,
       "evidence": [
         {
@@ -7171,7 +7113,7 @@
             "unfamiliar"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
+          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -7229,7 +7171,7 @@
             "open"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
+          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -7250,15 +7192,6 @@
           ],
           "procedure_id": "procedure_counterfactual_plan_2524af5f13ea",
           "sha256": "7e1f97b3e501498386fb7bdbe6d7bec689655990a7aa5d8e868e3bc347669fac"
-        },
-        {
-          "artifact": "results/hexcore_cross_domain_consequence_repair.json",
-          "family": "software",
-          "indicators": [
-            "learn"
-          ],
-          "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -7374,7 +7307,7 @@
             "open"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
+          "sha256": "63322195a69c31178770c75185fc554dfecb3a16c60d3b16ac520dcb88ef1d0e"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -8343,7 +8276,7 @@
             "visual"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
+          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
         },
         {
           "artifact": "results/hexcore_continual_neural_physical_policy_v14.json",
@@ -8380,7 +8313,7 @@
             "physical"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
+          "sha256": "63322195a69c31178770c75185fc554dfecb3a16c60d3b16ac520dcb88ef1d0e"
         },
         {
           "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
@@ -8589,7 +8522,7 @@
       "verified_curriculum_outcomes": 1
     },
     "real_planning_agency": {
-      "artifact_count": 131,
+      "artifact_count": 130,
       "closed_loop_support": 0.0,
       "evidence": [
         {
@@ -8816,7 +8749,7 @@
             "runtime"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
+          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -8872,7 +8805,7 @@
             "goal"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
+          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -8894,17 +8827,6 @@
           ],
           "procedure_id": "procedure_counterfactual_plan_2524af5f13ea",
           "sha256": "7e1f97b3e501498386fb7bdbe6d7bec689655990a7aa5d8e868e3bc347669fac"
-        },
-        {
-          "artifact": "results/hexcore_cross_domain_consequence_repair.json",
-          "family": "software",
-          "indicators": [
-            "goal",
-            "project",
-            "runtime"
-          ],
-          "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -9021,7 +8943,7 @@
             "project"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
+          "sha256": "63322195a69c31178770c75185fc554dfecb3a16c60d3b16ac520dcb88ef1d0e"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -9661,7 +9583,7 @@
             "goal"
           ],
           "procedure_id": "procedure_prospective_cross_domain_outcome_operation_v1",
-          "sha256": "6dc3dcd9f97749995475d0b5402a43d29971796aa27f33631150f343ad4b6411"
+          "sha256": "54e34ead40c14df53e1e8ec64c706587130208011355fbd65bf8b79178ea200e"
         },
         {
           "artifact": "results/hexcore_prospective_temporal_planning.json",
@@ -9916,7 +9838,7 @@
       "verified_curriculum_outcomes": 0
     },
     "representation_tool_invention": {
-      "artifact_count": 131,
+      "artifact_count": 130,
       "closed_loop_support": 0.0,
       "evidence": [
         {
@@ -10148,7 +10070,7 @@
             "tool"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
+          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -10206,7 +10128,7 @@
             "schema"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
+          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -10227,15 +10149,6 @@
           ],
           "procedure_id": "procedure_counterfactual_plan_2524af5f13ea",
           "sha256": "7e1f97b3e501498386fb7bdbe6d7bec689655990a7aa5d8e868e3bc347669fac"
-        },
-        {
-          "artifact": "results/hexcore_cross_domain_consequence_repair.json",
-          "family": "software",
-          "indicators": [
-            "schema"
-          ],
-          "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -10357,7 +10270,7 @@
             "schema"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
+          "sha256": "63322195a69c31178770c75185fc554dfecb3a16c60d3b16ac520dcb88ef1d0e"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -10999,7 +10912,7 @@
             "schema"
           ],
           "procedure_id": "procedure_prospective_cross_domain_outcome_operation_v1",
-          "sha256": "6dc3dcd9f97749995475d0b5402a43d29971796aa27f33631150f343ad4b6411"
+          "sha256": "54e34ead40c14df53e1e8ec64c706587130208011355fbd65bf8b79178ea200e"
         },
         {
           "artifact": "results/hexcore_prospective_temporal_planning.json",
@@ -11371,12 +11284,12 @@
     }
   ],
   "manifest_summary": {
-    "artifact_count": 260,
+    "artifact_count": 273,
     "classifications": {
       "protocol_only": 2,
-      "unresolved": 101,
-      "verified_negative": 25,
-      "verified_positive": 132
+      "unresolved": 111,
+      "verified_negative": 29,
+      "verified_positive": 131
     },
     "families": [
       "causal",
@@ -11393,9 +11306,9 @@
     "procedure_split_leakage": [],
     "protocol_usage": "evaluation infrastructure only; never capability training truth",
     "splits": {
-      "development": 61,
-      "sealed": 26,
-      "train": 173
+      "development": 62,
+      "sealed": 24,
+      "train": 187
     }
   },
   "method_cards": [
@@ -11535,23 +11448,6 @@
     },
     {
       "artifacts": [
-        "results/hexcore_cross_domain_consequence_repair.json",
-        "results/hexcore_open_public_api_acquisition.json"
-      ],
-      "families": [
-        "software",
-        "tool"
-      ],
-      "family_count": 2,
-      "method": "retain_reject",
-      "procedure_ids": [
-        "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-        "procedure_open_public_api_acquisition_80b9a41d73c6"
-      ],
-      "transfer_candidate": true
-    },
-    {
-      "artifacts": [
         "results/hexcore_adaptive_schema_theory_revision.json",
         "results/hexcore_compositional_theory_program_induction.json"
       ],
@@ -11564,23 +11460,6 @@
       "procedure_ids": [
         "procedure_adaptive_schema_revision_d5ea7bf85c36",
         "procedure_compositional_theory_program_67d49719b0b9"
-      ],
-      "transfer_candidate": true
-    },
-    {
-      "artifacts": [
-        "results/hexcore_cross_domain_consequence_repair.json",
-        "results/hexcore_prospective_cross_domain_outcome.json"
-      ],
-      "families": [
-        "general",
-        "software"
-      ],
-      "family_count": 2,
-      "method": "separate_world_change_self_failure",
-      "procedure_ids": [
-        "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-        "procedure_prospective_cross_domain_outcome_operation_v1"
       ],
       "transfer_candidate": true
     },
@@ -14720,20 +14599,6 @@
       "method": "detect_unsatisfied_cyclic_goal_graph",
       "procedure_ids": [
         "procedure_compositional_goal_graph_444839f5eb15"
-      ],
-      "transfer_candidate": false
-    },
-    {
-      "artifacts": [
-        "results/hexcore_cross_domain_consequence_repair.json"
-      ],
-      "families": [
-        "software"
-      ],
-      "family_count": 1,
-      "method": "diagnose_executor_contract",
-      "procedure_ids": [
-        "procedure_cross_domain_consequence_confirmed_self_repair_v1"
       ],
       "transfer_candidate": false
     },
@@ -18862,20 +18727,6 @@
     },
     {
       "artifacts": [
-        "results/hexcore_cross_domain_consequence_repair.json"
-      ],
-      "families": [
-        "software"
-      ],
-      "family_count": 1,
-      "method": "precommit_failure_receipt",
-      "procedure_ids": [
-        "procedure_cross_domain_consequence_confirmed_self_repair_v1"
-      ],
-      "transfer_candidate": false
-    },
-    {
-      "artifacts": [
         "results/hexcore_outcome_driven_world_revision.json"
       ],
       "families": [
@@ -20420,20 +20271,6 @@
     },
     {
       "artifacts": [
-        "results/hexcore_cross_domain_consequence_repair.json"
-      ],
-      "families": [
-        "software"
-      ],
-      "family_count": 1,
-      "method": "require_distinct_follow_contracts",
-      "procedure_ids": [
-        "procedure_cross_domain_consequence_confirmed_self_repair_v1"
-      ],
-      "transfer_candidate": false
-    },
-    {
-      "artifacts": [
         "results/hexcore_guided_foundation_academy.json"
       ],
       "families": [
@@ -21102,6 +20939,20 @@
       "method": "retain_regime_transition_lineage",
       "procedure_ids": [
         "procedure_anticipatory_temporal_39ad2cf55b17"
+      ],
+      "transfer_candidate": false
+    },
+    {
+      "artifacts": [
+        "results/hexcore_open_public_api_acquisition.json"
+      ],
+      "families": [
+        "tool"
+      ],
+      "family_count": 1,
+      "method": "retain_reject",
+      "procedure_ids": [
+        "procedure_open_public_api_acquisition_80b9a41d73c6"
       ],
       "transfer_candidate": false
     },
@@ -22199,6 +22050,20 @@
     },
     {
       "artifacts": [
+        "results/hexcore_prospective_cross_domain_outcome.json"
+      ],
+      "families": [
+        "general"
+      ],
+      "family_count": 1,
+      "method": "separate_world_change_self_failure",
+      "procedure_ids": [
+        "procedure_prospective_cross_domain_outcome_operation_v1"
+      ],
+      "transfer_candidate": false
+    },
+    {
+      "artifacts": [
         "results/hexcore_networking_academy.json",
         "results/hexcore_networking_apprenticeship.json"
       ],
@@ -22377,20 +22242,6 @@
       "method": "test_fresh_public_seeds",
       "procedure_ids": [
         "procedure_continual_neural_physical_policy_v14_39d2506bf61c"
-      ],
-      "transfer_candidate": false
-    },
-    {
-      "artifacts": [
-        "results/hexcore_cross_domain_consequence_repair.json"
-      ],
-      "families": [
-        "software"
-      ],
-      "family_count": 1,
-      "method": "test_repair",
-      "procedure_ids": [
-        "procedure_cross_domain_consequence_confirmed_self_repair_v1"
       ],
       "transfer_candidate": false
     },
@@ -23548,20 +23399,6 @@
     },
     {
       "artifacts": [
-        "results/hexcore_cross_domain_consequence_repair.json"
-      ],
-      "families": [
-        "software"
-      ],
-      "family_count": 1,
-      "method": "wait_for_later_runtime_outcome",
-      "procedure_ids": [
-        "procedure_cross_domain_consequence_confirmed_self_repair_v1"
-      ],
-      "transfer_candidate": false
-    },
-    {
-      "artifacts": [
         "results/hexcore_continuous_real_outcome_learning.json"
       ],
       "families": [
@@ -23571,20 +23408,6 @@
       "method": "watch_committed_outcomes",
       "procedure_ids": [
         "procedure_continuous_real_outcome_learning_v1"
-      ],
-      "transfer_candidate": false
-    },
-    {
-      "artifacts": [
-        "results/hexcore_cross_domain_consequence_repair.json"
-      ],
-      "families": [
-        "software"
-      ],
-      "family_count": 1,
-      "method": "watch_independent_ledgers",
-      "procedure_ids": [
-        "procedure_cross_domain_consequence_confirmed_self_repair_v1"
       ],
       "transfer_candidate": false
     },
@@ -23734,5 +23557,5 @@
   ],
   "schema_version": "aion.hexcore.autonomous_general_apprentice.v1",
   "status": "active",
-  "updated_at": "2026-08-20T12:11:03.763724+00:00"
+  "updated_at": "2026-09-05T06:45:31.016797+00:00"
 }

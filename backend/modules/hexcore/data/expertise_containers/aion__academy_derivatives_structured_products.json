@@ -1,0 +1,280 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_stochastic_processes_finance",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:stochastic_processes_finance",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_markets_investing",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:markets_investing",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:derivatives_structured_products:forwards_futures",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:derivatives_structured_products:options",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:derivatives_structured_products:greeks",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:derivatives_structured_products:volatility_surfaces",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:derivatives_structured_products:fixed_income_derivatives",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:derivatives_structured_products:credit_derivatives",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:derivatives_structured_products:structured_products",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:derivatives_structured_products:hedging",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:derivatives_structured_products",
+      "label": "Derivatives and structured products",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:derivatives_structured_products:forwards_futures",
+      "label": "forwards futures",
+      "subject_id": "derivatives_structured_products",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:derivatives_structured_products:options",
+      "label": "options",
+      "subject_id": "derivatives_structured_products",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:derivatives_structured_products:greeks",
+      "label": "greeks",
+      "subject_id": "derivatives_structured_products",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:derivatives_structured_products:volatility_surfaces",
+      "label": "volatility surfaces",
+      "subject_id": "derivatives_structured_products",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:derivatives_structured_products:fixed_income_derivatives",
+      "label": "fixed income derivatives",
+      "subject_id": "derivatives_structured_products",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:derivatives_structured_products:credit_derivatives",
+      "label": "credit derivatives",
+      "subject_id": "derivatives_structured_products",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:derivatives_structured_products:structured_products",
+      "label": "structured products",
+      "subject_id": "derivatives_structured_products",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:derivatives_structured_products:hedging",
+      "label": "hedging",
+      "subject_id": "derivatives_structured_products",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_derivatives_structured_products",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:derivatives_structured_products:forwards_futures",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:derivatives_structured_products:options",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:derivatives_structured_products:greeks",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:derivatives_structured_products:volatility_surfaces",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:derivatives_structured_products:fixed_income_derivatives",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:derivatives_structured_products:credit_derivatives",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:derivatives_structured_products:structured_products",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:derivatives_structured_products:hedging",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:derivatives_structured_products",
+        "label": "Derivatives and structured products",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:derivatives_structured_products:forwards_futures",
+        "label": "forwards futures",
+        "subject_id": "derivatives_structured_products",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:derivatives_structured_products:options",
+        "label": "options",
+        "subject_id": "derivatives_structured_products",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:derivatives_structured_products:greeks",
+        "label": "greeks",
+        "subject_id": "derivatives_structured_products",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:derivatives_structured_products:volatility_surfaces",
+        "label": "volatility surfaces",
+        "subject_id": "derivatives_structured_products",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:derivatives_structured_products:fixed_income_derivatives",
+        "label": "fixed income derivatives",
+        "subject_id": "derivatives_structured_products",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:derivatives_structured_products:credit_derivatives",
+        "label": "credit derivatives",
+        "subject_id": "derivatives_structured_products",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:derivatives_structured_products:structured_products",
+        "label": "structured products",
+        "subject_id": "derivatives_structured_products",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:derivatives_structured_products:hedging",
+        "label": "hedging",
+        "subject_id": "derivatives_structured_products",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "derivatives_structured_products",
+    "title": "AION Academy \u00b7 Derivatives and structured products"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

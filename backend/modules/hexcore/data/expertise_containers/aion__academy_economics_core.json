@@ -1,0 +1,218 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:economics_core:microeconomics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:economics_core",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:economics_core:macroeconomics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:economics_core",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:economics_core:incentives",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:economics_core",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:economics_core:game_theory",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:economics_core",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:economics_core:econometrics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:economics_core",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:economics_core:policy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:economics_core",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:economics_core",
+      "label": "Microeconomics, macroeconomics and econometrics",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:economics_core:microeconomics",
+      "label": "microeconomics",
+      "subject_id": "economics_core",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:economics_core:macroeconomics",
+      "label": "macroeconomics",
+      "subject_id": "economics_core",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:economics_core:incentives",
+      "label": "incentives",
+      "subject_id": "economics_core",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:economics_core:game_theory",
+      "label": "game theory",
+      "subject_id": "economics_core",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:economics_core:econometrics",
+      "label": "econometrics",
+      "subject_id": "economics_core",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:economics_core:policy",
+      "label": "policy",
+      "subject_id": "economics_core",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_economics_core",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:economics_core:microeconomics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:economics_core",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:economics_core:macroeconomics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:economics_core",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:economics_core:incentives",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:economics_core",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:economics_core:game_theory",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:economics_core",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:economics_core:econometrics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:economics_core",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:economics_core:policy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:economics_core",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:economics_core",
+        "label": "Microeconomics, macroeconomics and econometrics",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:economics_core:microeconomics",
+        "label": "microeconomics",
+        "subject_id": "economics_core",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:economics_core:macroeconomics",
+        "label": "macroeconomics",
+        "subject_id": "economics_core",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:economics_core:incentives",
+        "label": "incentives",
+        "subject_id": "economics_core",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:economics_core:game_theory",
+        "label": "game theory",
+        "subject_id": "economics_core",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:economics_core:econometrics",
+        "label": "econometrics",
+        "subject_id": "economics_core",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:economics_core:policy",
+        "label": "policy",
+        "subject_id": "economics_core",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "economics_core",
+    "title": "AION Academy \u00b7 Microeconomics, macroeconomics and econometrics"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

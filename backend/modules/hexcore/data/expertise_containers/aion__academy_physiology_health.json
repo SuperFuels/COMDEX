@@ -1,0 +1,224 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_cell_genetic_biology",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:cell_genetic_biology",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:physiology_health:anatomy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:physiology_health",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:physiology_health:physiology",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:physiology_health",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:physiology_health:pathology",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:physiology_health",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:physiology_health:pharmacology",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:physiology_health",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:physiology_health:epidemiology",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:physiology_health",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:physiology_health:clinical_evidence",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:physiology_health",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "life_science",
+      "id": "work:aion@wave.tp:subject:physiology_health",
+      "label": "Physiology, health and clinical evidence",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:physiology_health:anatomy",
+      "label": "anatomy",
+      "subject_id": "physiology_health",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:physiology_health:physiology",
+      "label": "physiology",
+      "subject_id": "physiology_health",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:physiology_health:pathology",
+      "label": "pathology",
+      "subject_id": "physiology_health",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:physiology_health:pharmacology",
+      "label": "pharmacology",
+      "subject_id": "physiology_health",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:physiology_health:epidemiology",
+      "label": "epidemiology",
+      "subject_id": "physiology_health",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:physiology_health:clinical_evidence",
+      "label": "clinical evidence",
+      "subject_id": "physiology_health",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_physiology_health",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:physiology_health:anatomy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:physiology_health",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:physiology_health:physiology",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:physiology_health",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:physiology_health:pathology",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:physiology_health",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:physiology_health:pharmacology",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:physiology_health",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:physiology_health:epidemiology",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:physiology_health",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:physiology_health:clinical_evidence",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:physiology_health",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "life_science",
+        "id": "work:aion@wave.tp:subject:physiology_health",
+        "label": "Physiology, health and clinical evidence",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:physiology_health:anatomy",
+        "label": "anatomy",
+        "subject_id": "physiology_health",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:physiology_health:physiology",
+        "label": "physiology",
+        "subject_id": "physiology_health",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:physiology_health:pathology",
+        "label": "pathology",
+        "subject_id": "physiology_health",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:physiology_health:pharmacology",
+        "label": "pharmacology",
+        "subject_id": "physiology_health",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:physiology_health:epidemiology",
+        "label": "epidemiology",
+        "subject_id": "physiology_health",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:physiology_health:clinical_evidence",
+        "label": "clinical evidence",
+        "subject_id": "physiology_health",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "life_science",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "physiology_health",
+    "title": "AION Academy \u00b7 Physiology, health and clinical evidence"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_financial_mathematics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:financial_mathematics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_economics_core",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:economics_core",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_accounting_corporate_finance",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:asset_pricing:present_value",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:asset_pricing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:asset_pricing:equilibrium_models",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:asset_pricing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:asset_pricing:factor_pricing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:asset_pricing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:asset_pricing:term_structure",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:asset_pricing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:asset_pricing:equity_valuation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:asset_pricing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:asset_pricing:credit_valuation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:asset_pricing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:asset_pricing:liquidity_premia",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:asset_pricing",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:asset_pricing:model_risk",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:asset_pricing",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:asset_pricing",
+      "label": "Asset pricing and valuation",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:asset_pricing:present_value",
+      "label": "present value",
+      "subject_id": "asset_pricing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:asset_pricing:equilibrium_models",
+      "label": "equilibrium models",
+      "subject_id": "asset_pricing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:asset_pricing:factor_pricing",
+      "label": "factor pricing",
+      "subject_id": "asset_pricing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:asset_pricing:term_structure",
+      "label": "term structure",
+      "subject_id": "asset_pricing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:asset_pricing:equity_valuation",
+      "label": "equity valuation",
+      "subject_id": "asset_pricing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:asset_pricing:credit_valuation",
+      "label": "credit valuation",
+      "subject_id": "asset_pricing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:asset_pricing:liquidity_premia",
+      "label": "liquidity premia",
+      "subject_id": "asset_pricing",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:asset_pricing:model_risk",
+      "label": "model risk",
+      "subject_id": "asset_pricing",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_asset_pricing",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:asset_pricing:present_value",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:asset_pricing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:asset_pricing:equilibrium_models",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:asset_pricing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:asset_pricing:factor_pricing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:asset_pricing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:asset_pricing:term_structure",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:asset_pricing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:asset_pricing:equity_valuation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:asset_pricing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:asset_pricing:credit_valuation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:asset_pricing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:asset_pricing:liquidity_premia",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:asset_pricing",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:asset_pricing:model_risk",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:asset_pricing",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:asset_pricing",
+        "label": "Asset pricing and valuation",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:asset_pricing:present_value",
+        "label": "present value",
+        "subject_id": "asset_pricing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:asset_pricing:equilibrium_models",
+        "label": "equilibrium models",
+        "subject_id": "asset_pricing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:asset_pricing:factor_pricing",
+        "label": "factor pricing",
+        "subject_id": "asset_pricing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:asset_pricing:term_structure",
+        "label": "term structure",
+        "subject_id": "asset_pricing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:asset_pricing:equity_valuation",
+        "label": "equity valuation",
+        "subject_id": "asset_pricing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:asset_pricing:credit_valuation",
+        "label": "credit valuation",
+        "subject_id": "asset_pricing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:asset_pricing:liquidity_premia",
+        "label": "liquidity premia",
+        "subject_id": "asset_pricing",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:asset_pricing:model_risk",
+        "label": "model risk",
+        "subject_id": "asset_pricing",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "asset_pricing",
+    "title": "AION Academy \u00b7 Asset pricing and valuation"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

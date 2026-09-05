@@ -1,0 +1,246 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_algebra_geometry",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:algebra_geometry",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:chemistry_materials:chemical_bonding",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:chemistry_materials",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:chemistry_materials:thermochemistry",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:chemistry_materials",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:chemistry_materials:electrochemistry",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:chemistry_materials",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:chemistry_materials:polymers",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:chemistry_materials",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:chemistry_materials:metals",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:chemistry_materials",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:chemistry_materials:composites",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:chemistry_materials",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:chemistry_materials:degradation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:chemistry_materials",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "physical_science",
+      "id": "work:aion@wave.tp:subject:chemistry_materials",
+      "label": "Chemistry and materials science",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:chemistry_materials:chemical_bonding",
+      "label": "chemical bonding",
+      "subject_id": "chemistry_materials",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:chemistry_materials:thermochemistry",
+      "label": "thermochemistry",
+      "subject_id": "chemistry_materials",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:chemistry_materials:electrochemistry",
+      "label": "electrochemistry",
+      "subject_id": "chemistry_materials",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:chemistry_materials:polymers",
+      "label": "polymers",
+      "subject_id": "chemistry_materials",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:chemistry_materials:metals",
+      "label": "metals",
+      "subject_id": "chemistry_materials",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:chemistry_materials:composites",
+      "label": "composites",
+      "subject_id": "chemistry_materials",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:chemistry_materials:degradation",
+      "label": "degradation",
+      "subject_id": "chemistry_materials",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_chemistry_materials",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:chemistry_materials:chemical_bonding",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:chemistry_materials",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:chemistry_materials:thermochemistry",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:chemistry_materials",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:chemistry_materials:electrochemistry",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:chemistry_materials",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:chemistry_materials:polymers",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:chemistry_materials",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:chemistry_materials:metals",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:chemistry_materials",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:chemistry_materials:composites",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:chemistry_materials",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:chemistry_materials:degradation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:chemistry_materials",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "physical_science",
+        "id": "work:aion@wave.tp:subject:chemistry_materials",
+        "label": "Chemistry and materials science",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:chemistry_materials:chemical_bonding",
+        "label": "chemical bonding",
+        "subject_id": "chemistry_materials",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:chemistry_materials:thermochemistry",
+        "label": "thermochemistry",
+        "subject_id": "chemistry_materials",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:chemistry_materials:electrochemistry",
+        "label": "electrochemistry",
+        "subject_id": "chemistry_materials",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:chemistry_materials:polymers",
+        "label": "polymers",
+        "subject_id": "chemistry_materials",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:chemistry_materials:metals",
+        "label": "metals",
+        "subject_id": "chemistry_materials",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:chemistry_materials:composites",
+        "label": "composites",
+        "subject_id": "chemistry_materials",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:chemistry_materials:degradation",
+        "label": "degradation",
+        "subject_id": "chemistry_materials",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "physical_science",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "chemistry_materials",
+    "title": "AION Academy \u00b7 Chemistry and materials science"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

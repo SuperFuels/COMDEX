@@ -1,0 +1,171 @@
+{
+  "adversarial_probe": {
+    "correctly_rejected": true,
+    "demand": 6,
+    "task_id": "oversized_unfamiliar_request"
+  },
+  "awards_subject_competence": false,
+  "baseline": {
+    "evaluation": {
+      "assigned": 4,
+      "passed": false,
+      "required": 4,
+      "resource_loads": {
+        "crew_alpha": 8,
+        "crew_beta": 0
+      },
+      "violations": [
+        "capacity:crew_alpha:8>5"
+      ]
+    },
+    "plan": [
+      {
+        "resource_id": "crew_alpha",
+        "task_id": "inspect"
+      },
+      {
+        "resource_id": "crew_alpha",
+        "task_id": "isolate"
+      },
+      {
+        "resource_id": "crew_alpha",
+        "task_id": "repair"
+      },
+      {
+        "resource_id": "crew_alpha",
+        "task_id": "verify"
+      }
+    ]
+  },
+  "capsule_id": "experience_capsule__field_response_scheduler_v1",
+  "claim_boundary": "This capsule proves performance only in its frozen simulation. It is applied-experience evidence, not mastery and not a verified real-world outcome.",
+  "created_at": "2026-08-21T13:34:38.010282+00:00",
+  "domain": "operations",
+  "environment": "safe_source_disjoint_deterministic_simulation",
+  "experience_claim": "bounded_source_disjoint_simulation",
+  "external_actions": 0,
+  "fresh_retry": {
+    "evaluation": {
+      "assigned": 4,
+      "passed": true,
+      "required": 4,
+      "resource_loads": {
+        "crew_alpha": 4,
+        "crew_beta": 4
+      },
+      "violations": []
+    },
+    "plan": [
+      {
+        "resource_id": "crew_alpha",
+        "task_id": "inspect"
+      },
+      {
+        "resource_id": "crew_beta",
+        "task_id": "isolate"
+      },
+      {
+        "resource_id": "crew_alpha",
+        "task_id": "repair"
+      },
+      {
+        "resource_id": "crew_beta",
+        "task_id": "verify"
+      }
+    ]
+  },
+  "knowledge_container_refs": [
+    {
+      "container_id": "aion__academy_algorithms_data_structures",
+      "subject_id": "algorithms_data_structures"
+    },
+    {
+      "container_id": "aion__academy_integrated_engineering_capstone",
+      "subject_id": "integrated_engineering_capstone"
+    }
+  ],
+  "knowledge_inputs": [
+    {
+      "evidence_records": 50,
+      "name": "Algorithms and Data Structures",
+      "overall_level": "advanced",
+      "subject_id": "algorithms_data_structures"
+    },
+    {
+      "evidence_records": 20,
+      "name": "Integrated Engineering Capstone",
+      "overall_level": "advanced",
+      "subject_id": "integrated_engineering_capstone"
+    }
+  ],
+  "knowledge_to_action_gap": "Static subject knowledge did not itself supply a fail-closed policy for interacting constraints.",
+  "mission_commitment": {
+    "adversarial_rule": "requests beyond every active resource capacity must be refused",
+    "authority": "deterministic_safe_simulation_v1",
+    "mission": {
+      "domain": "operations",
+      "mission_id": "field_response_scheduler_v1",
+      "resources": [
+        {
+          "active": true,
+          "capacity": 5,
+          "id": "crew_alpha"
+        },
+        {
+          "active": true,
+          "capacity": 4,
+          "id": "crew_beta"
+        }
+      ],
+      "subjects": [
+        "algorithms_data_structures",
+        "integrated_engineering_capstone"
+      ],
+      "tasks": [
+        {
+          "demand": 1,
+          "depends_on": [],
+          "id": "inspect",
+          "priority": 10
+        },
+        {
+          "demand": 2,
+          "depends_on": [
+            "inspect"
+          ],
+          "id": "isolate",
+          "priority": 9
+        },
+        {
+          "demand": 3,
+          "depends_on": [
+            "isolate"
+          ],
+          "id": "repair",
+          "priority": 8
+        },
+        {
+          "demand": 2,
+          "depends_on": [
+            "repair"
+          ],
+          "id": "verify",
+          "priority": 7
+        }
+      ],
+      "title": "Field response scheduling under capacity constraints"
+    },
+    "scoring": "all tasks assigned to active resources within capacity and dependency order"
+  },
+  "mission_commitment_sha256": "7e518f2cdd22f34aa75125edcd65c3b9d0de8760ef3b9c8b099ae69433f0b4d3",
+  "mission_id": "field_response_scheduler_v1",
+  "observed_surprise": "A locally plausible first-resource plan violated live availability, capacity, or dependency constraints.",
+  "outcome": "verified_calibration_pass",
+  "passed": true,
+  "repair": "Apply dependency-aware ordering, exclude inactive resources, track remaining capacity, and refuse work that cannot be safely placed.",
+  "schema_version": "aion.hexcore.real_world_integration_arena.v1",
+  "title": "Field response scheduling under capacity constraints",
+  "unsafe_actions": 0,
+  "wisdom_rule": "Do not deploy a theoretically valid plan until availability, capacity, dependencies, and refusal conditions have all been checked.",
+  "world_authority": "not_yet_observed"
+}

@@ -1,0 +1,252 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_electronics_circuits",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:electronics_circuits",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_programming_languages",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:programming_languages",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:embedded_systems:microcontrollers",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:embedded_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:embedded_systems:real_time",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:embedded_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:embedded_systems:firmware",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:embedded_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:embedded_systems:buses",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:embedded_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:embedded_systems:low_power",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:embedded_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:embedded_systems:hardware_software_codesign",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:embedded_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:embedded_systems:verification",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:embedded_systems",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "engineering",
+      "id": "work:aion@wave.tp:subject:embedded_systems",
+      "label": "Embedded hardware and software",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:embedded_systems:microcontrollers",
+      "label": "microcontrollers",
+      "subject_id": "embedded_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:embedded_systems:real_time",
+      "label": "real time",
+      "subject_id": "embedded_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:embedded_systems:firmware",
+      "label": "firmware",
+      "subject_id": "embedded_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:embedded_systems:buses",
+      "label": "buses",
+      "subject_id": "embedded_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:embedded_systems:low_power",
+      "label": "low power",
+      "subject_id": "embedded_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:embedded_systems:hardware_software_codesign",
+      "label": "hardware software codesign",
+      "subject_id": "embedded_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:embedded_systems:verification",
+      "label": "verification",
+      "subject_id": "embedded_systems",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_embedded_systems",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:embedded_systems:microcontrollers",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:embedded_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:embedded_systems:real_time",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:embedded_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:embedded_systems:firmware",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:embedded_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:embedded_systems:buses",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:embedded_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:embedded_systems:low_power",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:embedded_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:embedded_systems:hardware_software_codesign",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:embedded_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:embedded_systems:verification",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:embedded_systems",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "engineering",
+        "id": "work:aion@wave.tp:subject:embedded_systems",
+        "label": "Embedded hardware and software",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:embedded_systems:microcontrollers",
+        "label": "microcontrollers",
+        "subject_id": "embedded_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:embedded_systems:real_time",
+        "label": "real time",
+        "subject_id": "embedded_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:embedded_systems:firmware",
+        "label": "firmware",
+        "subject_id": "embedded_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:embedded_systems:buses",
+        "label": "buses",
+        "subject_id": "embedded_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:embedded_systems:low_power",
+        "label": "low power",
+        "subject_id": "embedded_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:embedded_systems:hardware_software_codesign",
+        "label": "hardware software codesign",
+        "subject_id": "embedded_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:embedded_systems:verification",
+        "label": "verification",
+        "subject_id": "embedded_systems",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "engineering",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "embedded_systems",
+    "title": "AION Academy \u00b7 Embedded hardware and software"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

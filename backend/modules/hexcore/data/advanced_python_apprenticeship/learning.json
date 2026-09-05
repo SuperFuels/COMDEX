@@ -3,7 +3,7 @@
   "adaptive_schema_theories": {},
   "advanced_python_apprenticeship": {
     "advanced_python_ea8d666a359e4346": {
-      "created_at": "2026-08-01T11:10:22.736715+00:00",
+      "created_at": "2026-09-04T20:00:16.879120+00:00",
       "gate": {
         "accepted": true,
         "competencies": 7,
@@ -142,7 +142,7 @@
       "source": "advanced_python_academy_cau"
     },
     "reason": "advanced_python_apprenticeship",
-    "state_hash": "9d45ecd4c3ca5dff2c19d3f54d55f4fec712dca5e0e8a616bfd91204008c5f7b"
+    "state_hash": "3452e096e72a0bc89f07d6dc97e7823785a11cdd1db50d06baf9f6acd955cd78"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -599,6 +599,818 @@
       "score": 1.0,
       "success": true,
       "timestamp": "2026-08-01T11:10:22.737076+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_b41f90059c804f2f",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-22T17:25:50.835284+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_8342bc641ab8472f",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-23T08:00:07.352521+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_7388735ab0724836",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-23T20:58:04.611738+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_301e658e5fb24fb7",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-24T20:08:08.562099+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_c29d510e1b754926",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-25T14:41:58.968694+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_21f516fb60f4422e",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-26T03:30:58.060679+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_99bb5f8076c14480",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-26T18:10:52.191400+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_1b906dca2d474110",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-27T08:41:47.273587+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_33fe4fcbecbd478b",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-28T13:00:02.016346+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_a077f0991b884e59",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-29T01:53:47.769496+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_1e3f43850c5e4dcd",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-29T13:27:01.729211+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_1520cdba97724524",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-30T02:58:59.761917+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_878203781313484e",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-30T19:39:23.079505+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_d8933149c25a4fe0",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-31T07:22:28.315862+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_1248dacaa6504ce3",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-08-31T19:03:36.943748+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_35bda12178154860",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-01T01:49:05.110399+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_533ac5eb157c4651",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-01T07:56:09.804793+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_7d69d3271cf14d8d",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-01T14:04:06.299536+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_0fa08cc0fbc8494c",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-01T20:21:07.095074+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_72cc4cd454884902",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-02T02:31:41.557683+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_d7f830e012184afe",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-02T08:41:14.574159+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_dc8b9fe0324e4c91",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-02T16:19:23.585087+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_8c6befce5b904096",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-02T22:34:18.579689+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_c1f8ce1e921f4480",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-03T04:46:39.879654+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_80b460970f8d4039",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-03T11:04:16.460917+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_15bc36379e0747d8",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-03T17:13:07.553249+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_31def702f1bd4bd6",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-03T23:21:12.116458+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_525b8dd234754810",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-04T13:39:20.471156+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "advanced_python_ea8d666a359e4346",
+        "gate": {
+          "accepted": true,
+          "competencies": 7,
+          "compile_passed": true,
+          "generators_context_managers_asyncio": true,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "packaging_contract": true,
+          "profiling_measurement": true,
+          "score": 1.0,
+          "sealed_concurrency_error_and_cleanup": true,
+          "security_scan": true,
+          "source_disjoint_transfer": true,
+          "typing_protocol_contract": true,
+          "unsafe_programs_executed": 0
+        }
+      },
+      "outcome_id": "outcome_6da21a2f1c1f40b7",
+      "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-04T20:00:16.879718+00:00"
     }
   ],
   "polyglot_execution_contracts": {},
@@ -687,7 +1499,7 @@
   "representation_models": {},
   "representation_revision_generations": [],
   "reproducibility_audits": [],
-  "revision": 31,
+  "revision": 89,
   "sandbox_patch_library": {},
   "schema_learning_projects": {},
   "schema_revision_sessions": [],
@@ -710,7 +1522,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-08-01T11:10:22.739090+00:00",
+  "updated_at": "2026-09-04T20:00:16.882624+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},

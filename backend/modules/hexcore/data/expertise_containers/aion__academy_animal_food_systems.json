@@ -1,0 +1,218 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_ecology_microbiology",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:ecology_microbiology",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:animal_food_systems:animal_systems",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:animal_food_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:animal_food_systems:food_safety",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:animal_food_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:animal_food_systems:post_harvest",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:animal_food_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:animal_food_systems:farm_economics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:animal_food_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:animal_food_systems:supply_chain",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:animal_food_systems",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:animal_food_systems:sustainability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:animal_food_systems",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "agriculture",
+      "id": "work:aion@wave.tp:subject:animal_food_systems",
+      "label": "Animal, food and agricultural systems",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:animal_food_systems:animal_systems",
+      "label": "animal systems",
+      "subject_id": "animal_food_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:animal_food_systems:food_safety",
+      "label": "food safety",
+      "subject_id": "animal_food_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:animal_food_systems:post_harvest",
+      "label": "post harvest",
+      "subject_id": "animal_food_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:animal_food_systems:farm_economics",
+      "label": "farm economics",
+      "subject_id": "animal_food_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:animal_food_systems:supply_chain",
+      "label": "supply chain",
+      "subject_id": "animal_food_systems",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:animal_food_systems:sustainability",
+      "label": "sustainability",
+      "subject_id": "animal_food_systems",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_animal_food_systems",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:animal_food_systems:animal_systems",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:animal_food_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:animal_food_systems:food_safety",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:animal_food_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:animal_food_systems:post_harvest",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:animal_food_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:animal_food_systems:farm_economics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:animal_food_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:animal_food_systems:supply_chain",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:animal_food_systems",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:animal_food_systems:sustainability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:animal_food_systems",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "agriculture",
+        "id": "work:aion@wave.tp:subject:animal_food_systems",
+        "label": "Animal, food and agricultural systems",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:animal_food_systems:animal_systems",
+        "label": "animal systems",
+        "subject_id": "animal_food_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:animal_food_systems:food_safety",
+        "label": "food safety",
+        "subject_id": "animal_food_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:animal_food_systems:post_harvest",
+        "label": "post harvest",
+        "subject_id": "animal_food_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:animal_food_systems:farm_economics",
+        "label": "farm economics",
+        "subject_id": "animal_food_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:animal_food_systems:supply_chain",
+        "label": "supply chain",
+        "subject_id": "animal_food_systems",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:animal_food_systems:sustainability",
+        "label": "sustainability",
+        "subject_id": "animal_food_systems",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "agriculture",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "animal_food_systems",
+    "title": "AION Academy \u00b7 Animal, food and agricultural systems"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

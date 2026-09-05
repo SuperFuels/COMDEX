@@ -1,0 +1,2825 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_accounting_corporate_finance",
+      "kind": "knowledge_academy",
+      "subject_id": "accounting_corporate_finance"
+    },
+    {
+      "container_id": "aion__academy_adversary_emulation_penetration_testing",
+      "kind": "knowledge_academy",
+      "subject_id": "adversary_emulation_penetration_testing"
+    },
+    {
+      "container_id": "aion__academy_agronomy_soil",
+      "kind": "knowledge_academy",
+      "subject_id": "agronomy_soil"
+    },
+    {
+      "container_id": "aion__academy_alternative_private_markets",
+      "kind": "knowledge_academy",
+      "subject_id": "alternative_private_markets"
+    },
+    {
+      "container_id": "aion__academy_application_web_api_security",
+      "kind": "knowledge_academy",
+      "subject_id": "application_web_api_security"
+    },
+    {
+      "container_id": "aion__academy_business_strategy_operations",
+      "kind": "knowledge_academy",
+      "subject_id": "business_strategy_operations"
+    },
+    {
+      "container_id": "aion__academy_cloud_identity_container_security",
+      "kind": "knowledge_academy",
+      "subject_id": "cloud_identity_container_security"
+    },
+    {
+      "container_id": "aion__academy_control_robotics",
+      "kind": "knowledge_academy",
+      "subject_id": "control_robotics"
+    },
+    {
+      "container_id": "aion__academy_cryptography_protocol_security",
+      "kind": "knowledge_academy",
+      "subject_id": "cryptography_protocol_security"
+    },
+    {
+      "container_id": "aion__academy_cybersecurity",
+      "kind": "knowledge_academy",
+      "subject_id": "cybersecurity"
+    },
+    {
+      "container_id": "aion__academy_data_databases",
+      "kind": "knowledge_academy",
+      "subject_id": "data_databases"
+    },
+    {
+      "container_id": "aion__academy_data_science_ml",
+      "kind": "knowledge_academy",
+      "subject_id": "data_science_ml"
+    },
+    {
+      "container_id": "aion__academy_derivatives_structured_products",
+      "kind": "knowledge_academy",
+      "subject_id": "derivatives_structured_products"
+    },
+    {
+      "container_id": "aion__academy_design_creative_practice",
+      "kind": "knowledge_academy",
+      "subject_id": "design_creative_practice"
+    },
+    {
+      "container_id": "aion__academy_detection_threat_hunting_incident_response",
+      "kind": "knowledge_academy",
+      "subject_id": "detection_threat_hunting_incident_response"
+    },
+    {
+      "container_id": "aion__academy_discrete_optimization",
+      "kind": "knowledge_academy",
+      "subject_id": "discrete_optimization"
+    },
+    {
+      "container_id": "aion__academy_earth_climate",
+      "kind": "knowledge_academy",
+      "subject_id": "earth_climate"
+    },
+    {
+      "container_id": "aion__academy_ecology_microbiology",
+      "kind": "knowledge_academy",
+      "subject_id": "ecology_microbiology"
+    },
+    {
+      "container_id": "aion__academy_economics_core",
+      "kind": "knowledge_academy",
+      "subject_id": "economics_core"
+    },
+    {
+      "container_id": "aion__academy_elections_polling_public_opinion",
+      "kind": "knowledge_academy",
+      "subject_id": "elections_polling_public_opinion"
+    },
+    {
+      "container_id": "aion__academy_embedded_systems",
+      "kind": "knowledge_academy",
+      "subject_id": "embedded_systems"
+    },
+    {
+      "container_id": "aion__academy_energy_policy_sustainability",
+      "kind": "knowledge_academy",
+      "subject_id": "energy_policy_sustainability"
+    },
+    {
+      "container_id": "aion__academy_energy_storage",
+      "kind": "knowledge_academy",
+      "subject_id": "energy_storage"
+    },
+    {
+      "container_id": "aion__academy_event_evidence_resolution_research",
+      "kind": "knowledge_academy",
+      "subject_id": "event_evidence_resolution_research"
+    },
+    {
+      "container_id": "aion__academy_exploit_analysis_reverse_engineering",
+      "kind": "knowledge_academy",
+      "subject_id": "exploit_analysis_reverse_engineering"
+    },
+    {
+      "container_id": "aion__academy_financial_data_infrastructure",
+      "kind": "knowledge_academy",
+      "subject_id": "financial_data_infrastructure"
+    },
+    {
+      "container_id": "aion__academy_financial_econometrics",
+      "kind": "knowledge_academy",
+      "subject_id": "financial_econometrics"
+    },
+    {
+      "container_id": "aion__academy_financial_mathematics",
+      "kind": "knowledge_academy",
+      "subject_id": "financial_mathematics"
+    },
+    {
+      "container_id": "aion__academy_financial_regulation_compliance",
+      "kind": "knowledge_academy",
+      "subject_id": "financial_regulation_compliance"
+    },
+    {
+      "container_id": "aion__academy_financial_risk_management",
+      "kind": "knowledge_academy",
+      "subject_id": "financial_risk_management"
+    },
+    {
+      "container_id": "aion__academy_fundamental_equity_credit",
+      "kind": "knowledge_academy",
+      "subject_id": "fundamental_equity_credit"
+    },
+    {
+      "container_id": "aion__academy_generation_grids",
+      "kind": "knowledge_academy",
+      "subject_id": "generation_grids"
+    },
+    {
+      "container_id": "aion__academy_hardware_embedded_ot_security",
+      "kind": "knowledge_academy",
+      "subject_id": "hardware_embedded_ot_security"
+    },
+    {
+      "container_id": "aion__academy_hedge_fund_operations",
+      "kind": "knowledge_academy",
+      "subject_id": "hedge_fund_operations"
+    },
+    {
+      "container_id": "aion__academy_history_geography_geopolitics",
+      "kind": "knowledge_academy",
+      "subject_id": "history_geography_geopolitics"
+    },
+    {
+      "container_id": "aion__academy_human_computer_interaction",
+      "kind": "knowledge_academy",
+      "subject_id": "human_computer_interaction"
+    },
+    {
+      "container_id": "aion__academy_information_intelligence_attention",
+      "kind": "knowledge_academy",
+      "subject_id": "information_intelligence_attention"
+    },
+    {
+      "container_id": "aion__academy_institutional_banking_treasury",
+      "kind": "knowledge_academy",
+      "subject_id": "institutional_banking_treasury"
+    },
+    {
+      "container_id": "aion__academy_language_research_communication",
+      "kind": "knowledge_academy",
+      "subject_id": "language_research_communication"
+    },
+    {
+      "container_id": "aion__academy_law_regulation_ethics",
+      "kind": "knowledge_academy",
+      "subject_id": "law_regulation_ethics"
+    },
+    {
+      "container_id": "aion__academy_linear_algebra",
+      "kind": "knowledge_academy",
+      "subject_id": "linear_algebra"
+    },
+    {
+      "container_id": "aion__academy_logic_proof",
+      "kind": "knowledge_academy",
+      "subject_id": "logic_proof"
+    },
+    {
+      "container_id": "aion__academy_manufacturing_quality",
+      "kind": "knowledge_academy",
+      "subject_id": "manufacturing_quality"
+    },
+    {
+      "container_id": "aion__academy_market_microstructure_execution",
+      "kind": "knowledge_academy",
+      "subject_id": "market_microstructure_execution"
+    },
+    {
+      "container_id": "aion__academy_marketing_sales_customer",
+      "kind": "knowledge_academy",
+      "subject_id": "marketing_sales_customer"
+    },
+    {
+      "container_id": "aion__academy_markets_investing",
+      "kind": "knowledge_academy",
+      "subject_id": "markets_investing"
+    },
+    {
+      "container_id": "aion__academy_mechanical_cad",
+      "kind": "knowledge_academy",
+      "subject_id": "mechanical_cad"
+    },
+    {
+      "container_id": "aion__academy_negotiation_governance",
+      "kind": "knowledge_academy",
+      "subject_id": "negotiation_governance"
+    },
+    {
+      "container_id": "aion__academy_network_wireless_security",
+      "kind": "knowledge_academy",
+      "subject_id": "network_wireless_security"
+    },
+    {
+      "container_id": "aion__academy_networks_talent_coordination",
+      "kind": "knowledge_academy",
+      "subject_id": "networks_talent_coordination"
+    },
+    {
+      "container_id": "aion__academy_operating_distributed_networks",
+      "kind": "knowledge_academy",
+      "subject_id": "operating_distributed_networks"
+    },
+    {
+      "container_id": "aion__academy_physiology_health",
+      "kind": "knowledge_academy",
+      "subject_id": "physiology_health"
+    },
+    {
+      "container_id": "aion__academy_portfolio_construction",
+      "kind": "knowledge_academy",
+      "subject_id": "portfolio_construction"
+    },
+    {
+      "container_id": "aion__academy_power_institutions_legitimacy",
+      "kind": "knowledge_academy",
+      "subject_id": "power_institutions_legitimacy"
+    },
+    {
+      "container_id": "aion__academy_precision_agriculture",
+      "kind": "knowledge_academy",
+      "subject_id": "precision_agriculture"
+    },
+    {
+      "container_id": "aion__academy_prediction_market_design_compliance",
+      "kind": "knowledge_academy",
+      "subject_id": "prediction_market_design_compliance"
+    },
+    {
+      "container_id": "aion__academy_prediction_market_microstructure",
+      "kind": "knowledge_academy",
+      "subject_id": "prediction_market_microstructure"
+    },
+    {
+      "container_id": "aion__academy_probabilistic_forecasting_calibration",
+      "kind": "knowledge_academy",
+      "subject_id": "probabilistic_forecasting_calibration"
+    },
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "subject_id": "probability_statistics"
+    },
+    {
+      "container_id": "aion__academy_programming_languages",
+      "kind": "knowledge_academy",
+      "subject_id": "programming_languages"
+    },
+    {
+      "container_id": "aion__academy_psychology_organisations",
+      "kind": "knowledge_academy",
+      "subject_id": "psychology_organisations"
+    },
+    {
+      "container_id": "aion__academy_quantitative_research",
+      "kind": "knowledge_academy",
+      "subject_id": "quantitative_research"
+    },
+    {
+      "container_id": "aion__academy_resilience_geography_long_horizon",
+      "kind": "knowledge_academy",
+      "subject_id": "resilience_geography_long_horizon"
+    },
+    {
+      "container_id": "aion__academy_scientific_method",
+      "kind": "knowledge_academy",
+      "subject_id": "scientific_method"
+    },
+    {
+      "container_id": "aion__academy_security_architecture_operations",
+      "kind": "knowledge_academy",
+      "subject_id": "security_architecture_operations"
+    },
+    {
+      "container_id": "aion__academy_security_research_disclosure",
+      "kind": "knowledge_academy",
+      "subject_id": "security_research_disclosure"
+    },
+    {
+      "container_id": "aion__academy_sensors_instrumentation",
+      "kind": "knowledge_academy",
+      "subject_id": "sensors_instrumentation"
+    },
+    {
+      "container_id": "aion__academy_software_engineering",
+      "kind": "knowledge_academy",
+      "subject_id": "software_engineering"
+    },
+    {
+      "container_id": "aion__academy_stochastic_processes_finance",
+      "kind": "knowledge_academy",
+      "subject_id": "stochastic_processes_finance"
+    },
+    {
+      "container_id": "aion__academy_strategic_assets_capital_allocation",
+      "kind": "knowledge_academy",
+      "subject_id": "strategic_assets_capital_allocation"
+    },
+    {
+      "container_id": "aion__academy_supply_chain_procurement",
+      "kind": "knowledge_academy",
+      "subject_id": "supply_chain_procurement"
+    },
+    {
+      "container_id": "aion__academy_systematic_trading",
+      "kind": "knowledge_academy",
+      "subject_id": "systematic_trading"
+    },
+    {
+      "container_id": "aion__academy_systems_engineering",
+      "kind": "knowledge_academy",
+      "subject_id": "systems_engineering"
+    },
+    {
+      "container_id": "aion__academy_tax_wealth_structuring",
+      "kind": "knowledge_academy",
+      "subject_id": "tax_wealth_structuring"
+    },
+    {
+      "container_id": "aion__academy_technology_industry_platforms",
+      "kind": "knowledge_academy",
+      "subject_id": "technology_industry_platforms"
+    },
+    {
+      "container_id": "aion__academy_uncrewed_aerial_systems",
+      "kind": "knowledge_academy",
+      "subject_id": "uncrewed_aerial_systems"
+    },
+    {
+      "container_id": "aion__academy_water_waste_resilience",
+      "kind": "knowledge_academy",
+      "subject_id": "water_waste_resilience"
+    }
+  ],
+  "dimensions": [
+    {
+      "bridge_variables": [
+        "vectors",
+        "matrices",
+        "eigenstructure"
+      ],
+      "from": "work:aion@wave.tp:subject:linear_algebra",
+      "id": "work:aion@wave.tp:bridge_245c8ce07eac11c8",
+      "kind": "ENABLES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:data_science_ml",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "likelihood",
+        "calibration",
+        "generalisation"
+      ],
+      "from": "work:aion@wave.tp:subject:probability_statistics",
+      "id": "work:aion@wave.tp:bridge_16b53a4e682ec91f",
+      "kind": "MEASURES_UNCERTAINTY_IN",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:data_science_ml",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "route",
+        "inventory",
+        "capacity"
+      ],
+      "from": "work:aion@wave.tp:subject:discrete_optimization",
+      "id": "work:aion@wave.tp:bridge_efbe986aa19acc32",
+      "kind": "OPTIMIZES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "state",
+        "feedback",
+        "trajectory"
+      ],
+      "from": "work:aion@wave.tp:subject:control_robotics",
+      "id": "work:aion@wave.tp:bridge_9064f0f315aa6699",
+      "kind": "STABILIZES_AND_GUIDES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "energy_density",
+        "mass",
+        "endurance",
+        "thermal_safety"
+      ],
+      "from": "work:aion@wave.tp:subject:energy_storage",
+      "id": "work:aion@wave.tp:bridge_5f86eca593bad983",
+      "kind": "CONSTRAINS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "flight_loop",
+        "sensors",
+        "communications",
+        "power"
+      ],
+      "from": "work:aion@wave.tp:subject:embedded_systems",
+      "id": "work:aion@wave.tp:bridge_608109d466eb1f78",
+      "kind": "IMPLEMENTS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "mass",
+        "drag",
+        "strength",
+        "payload"
+      ],
+      "from": "work:aion@wave.tp:subject:mechanical_cad",
+      "id": "work:aion@wave.tp:bridge_01f20ef5fe3c8d21",
+      "kind": "SHAPES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "tolerance",
+        "yield",
+        "unit_cost",
+        "reliability"
+      ],
+      "from": "work:aion@wave.tp:subject:manufacturing_quality",
+      "id": "work:aion@wave.tp:bridge_bce81fcda5070980",
+      "kind": "MAKES_ECONOMICALLY_REAL",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "airspace",
+        "privacy",
+        "airworthiness",
+        "operator_duty"
+      ],
+      "from": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "id": "work:aion@wave.tp:bridge_bfcdd1a5dbf8c7b6",
+      "kind": "GOVERNS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "command_link",
+        "firmware",
+        "identity",
+        "safety"
+      ],
+      "from": "work:aion@wave.tp:subject:cybersecurity",
+      "id": "work:aion@wave.tp:bridge_31cbaa989270f7fd",
+      "kind": "PROTECTS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "design",
+        "testing",
+        "dependency",
+        "release"
+      ],
+      "from": "work:aion@wave.tp:subject:software_engineering",
+      "id": "work:aion@wave.tp:bridge_386d62a82ee22888",
+      "kind": "SECURES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:application_web_api_security",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "protocol",
+        "boundary",
+        "routing",
+        "telemetry"
+      ],
+      "from": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "id": "work:aion@wave.tp:bridge_8aaba4576ac817df",
+      "kind": "EXPOSES_AND_DEFENDS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:network_wireless_security",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "identity",
+        "secret",
+        "tenant",
+        "lineage"
+      ],
+      "from": "work:aion@wave.tp:subject:data_databases",
+      "id": "work:aion@wave.tp:bridge_aa4883b7ce991880",
+      "kind": "PROTECTS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "authorization",
+        "surface",
+        "proof",
+        "remediation"
+      ],
+      "from": "work:aion@wave.tp:subject:application_web_api_security",
+      "id": "work:aion@wave.tp:bridge_629a51bc94720a82",
+      "kind": "VALIDATES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "memory",
+        "binary",
+        "debug",
+        "mitigation"
+      ],
+      "from": "work:aion@wave.tp:subject:programming_languages",
+      "id": "work:aion@wave.tp:bridge_9d6925b2995404fb",
+      "kind": "EXPLAINS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:exploit_analysis_reverse_engineering",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "telemetry",
+        "anomaly",
+        "triage",
+        "false_positive"
+      ],
+      "from": "work:aion@wave.tp:subject:data_science_ml",
+      "id": "work:aion@wave.tp:bridge_789b71568e42610d",
+      "kind": "DETECTS_WITH_LIMITS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "invariant",
+        "state",
+        "authentication",
+        "replay"
+      ],
+      "from": "work:aion@wave.tp:subject:logic_proof",
+      "id": "work:aion@wave.tp:bridge_895d2dcffabe8e68",
+      "kind": "VERIFIES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "firmware",
+        "interface",
+        "update",
+        "safety"
+      ],
+      "from": "work:aion@wave.tp:subject:embedded_systems",
+      "id": "work:aion@wave.tp:bridge_99a4e3af6b3df108",
+      "kind": "HARDENS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "scope",
+        "minimal_proof",
+        "embargo",
+        "disclosure"
+      ],
+      "from": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "id": "work:aion@wave.tp:bridge_4588d83b1bcd469e",
+      "kind": "AUTHORIZES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:security_research_disclosure",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "incident",
+        "control",
+        "metric",
+        "continuity"
+      ],
+      "from": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "id": "work:aion@wave.tp:bridge_1f5fc377245c8425",
+      "kind": "IMPROVES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:security_architecture_operations",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "wind",
+        "rain",
+        "terrain",
+        "visibility"
+      ],
+      "from": "work:aion@wave.tp:subject:earth_climate",
+      "id": "work:aion@wave.tp:bridge_dddbd68b00b431e8",
+      "kind": "SETS_ENVIRONMENT",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "remote_sensing",
+        "field_route",
+        "crop_action"
+      ],
+      "from": "work:aion@wave.tp:subject:precision_agriculture",
+      "id": "work:aion@wave.tp:bridge_f0d2f90c9f163297",
+      "kind": "APPLIES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "soil",
+        "crop_stress",
+        "yield"
+      ],
+      "from": "work:aion@wave.tp:subject:agronomy_soil",
+      "id": "work:aion@wave.tp:bridge_2f8b0c645e7bca20",
+      "kind": "DEFINES_BIOLOGICAL_OBJECTIVE",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:precision_agriculture",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "spectra",
+        "moisture",
+        "position",
+        "calibration"
+      ],
+      "from": "work:aion@wave.tp:subject:sensors_instrumentation",
+      "id": "work:aion@wave.tp:bridge_56d2004750433313",
+      "kind": "MEASURES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:precision_agriculture",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "state_of_charge",
+        "demand",
+        "resilience"
+      ],
+      "from": "work:aion@wave.tp:subject:energy_storage",
+      "id": "work:aion@wave.tp:bridge_67886afef24d1a85",
+      "kind": "BALANCES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:generation_grids",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "dispatch",
+        "capacity",
+        "constraints"
+      ],
+      "from": "work:aion@wave.tp:subject:discrete_optimization",
+      "id": "work:aion@wave.tp:bridge_ebc11022f6943b34",
+      "kind": "SCHEDULES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:generation_grids",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "externality",
+        "incentive",
+        "market"
+      ],
+      "from": "work:aion@wave.tp:subject:economics_core",
+      "id": "work:aion@wave.tp:bridge_a15e10f94ce790d7",
+      "kind": "VALUES_TRADEOFFS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "unit_cost",
+        "capital",
+        "scrap",
+        "warranty"
+      ],
+      "from": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "id": "work:aion@wave.tp:bridge_d8ea805e955ff7b8",
+      "kind": "PRICES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:manufacturing_quality",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "metrics",
+        "truth_source",
+        "forecast"
+      ],
+      "from": "work:aion@wave.tp:subject:data_databases",
+      "id": "work:aion@wave.tp:bridge_b229380d07e44441",
+      "kind": "INFORMS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:business_strategy_operations",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "segment",
+        "attribution",
+        "retention",
+        "bias"
+      ],
+      "from": "work:aion@wave.tp:subject:data_science_ml",
+      "id": "work:aion@wave.tp:bridge_aab8bd0850b82d14",
+      "kind": "PREDICTS_WITH_LIMITS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "attention",
+        "mental_model",
+        "error"
+      ],
+      "from": "work:aion@wave.tp:subject:psychology_organisations",
+      "id": "work:aion@wave.tp:bridge_ae338dfcedd16b21",
+      "kind": "GROUNDS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:human_computer_interaction",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "hypothesis",
+        "experiment",
+        "causal_effect"
+      ],
+      "from": "work:aion@wave.tp:subject:scientific_method",
+      "id": "work:aion@wave.tp:bridge_f1a47fee9cf6102d",
+      "kind": "TESTS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:business_strategy_operations",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "requirements",
+        "testing",
+        "reliability"
+      ],
+      "from": "work:aion@wave.tp:subject:software_engineering",
+      "id": "work:aion@wave.tp:bridge_8869b027a6fe287d",
+      "kind": "EXTENDS_INTO_HARDWARE",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:embedded_systems",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "requirement",
+        "risk",
+        "lifecycle_cost"
+      ],
+      "from": "work:aion@wave.tp:subject:systems_engineering",
+      "id": "work:aion@wave.tp:bridge_2f949ddd0e8e2e72",
+      "kind": "CONNECTS_DELIVERY_TO_VALUE",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:business_strategy_operations",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "ecosystem",
+        "contamination",
+        "recovery"
+      ],
+      "from": "work:aion@wave.tp:subject:ecology_microbiology",
+      "id": "work:aion@wave.tp:bridge_09bc597fcc80956b",
+      "kind": "CONSTRAINS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:water_waste_resilience",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "outcome",
+        "bias",
+        "uncertainty",
+        "safety"
+      ],
+      "from": "work:aion@wave.tp:subject:physiology_health",
+      "id": "work:aion@wave.tp:bridge_db895b7271b5c779",
+      "kind": "USES_WITH_CLINICAL_LIMITS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:data_science_ml",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "time_series",
+        "risk",
+        "regime_change",
+        "uncertainty"
+      ],
+      "from": "work:aion@wave.tp:subject:markets_investing",
+      "id": "work:aion@wave.tp:bridge_06ee3d01fe5fd664",
+      "kind": "USES_WITH_FINANCIAL_LIMITS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:data_science_ml",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "conditional_expectation",
+        "distribution",
+        "uncertainty",
+        "tail"
+      ],
+      "from": "work:aion@wave.tp:subject:probability_statistics",
+      "id": "work:aion@wave.tp:bridge_ec3fc7dbd48bcc55",
+      "kind": "GROUNDS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:financial_mathematics",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "path",
+        "measure",
+        "volatility",
+        "sensitivity"
+      ],
+      "from": "work:aion@wave.tp:subject:stochastic_processes_finance",
+      "id": "work:aion@wave.tp:bridge_12c8bc403983f4ca",
+      "kind": "PRICES_AND_HEDGES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "stationarity",
+        "leakage",
+        "regime",
+        "out_of_sample_error"
+      ],
+      "from": "work:aion@wave.tp:subject:financial_econometrics",
+      "id": "work:aion@wave.tp:bridge_055aea76d80b1b68",
+      "kind": "TESTS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:quantitative_research",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "features",
+        "validation",
+        "overfitting",
+        "interpretability"
+      ],
+      "from": "work:aion@wave.tp:subject:data_science_ml",
+      "id": "work:aion@wave.tp:bridge_77a0c6d1c998793c",
+      "kind": "SUPPLIES_MODELS_WITH_LIMITS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:quantitative_research",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "objective",
+        "constraint",
+        "turnover",
+        "risk_budget"
+      ],
+      "from": "work:aion@wave.tp:subject:discrete_optimization",
+      "id": "work:aion@wave.tp:bridge_ec8ecb693afe4c10",
+      "kind": "ALLOCATES_UNDER_CONSTRAINTS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:portfolio_construction",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "impact",
+        "latency",
+        "liquidity",
+        "slippage"
+      ],
+      "from": "work:aion@wave.tp:subject:market_microstructure_execution",
+      "id": "work:aion@wave.tp:bridge_c16ae2d5e1fdef33",
+      "kind": "TURNS_SIGNAL_INTO_REALISED_RETURN",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:systematic_trading",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "leverage",
+        "liquidity",
+        "counterparty",
+        "drawdown"
+      ],
+      "from": "work:aion@wave.tp:subject:financial_risk_management",
+      "id": "work:aion@wave.tp:bridge_974e33142af1c729",
+      "kind": "GOVERNS_SURVIVAL",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "earnings",
+        "cash_flow",
+        "balance_sheet",
+        "capital_structure"
+      ],
+      "from": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "id": "work:aion@wave.tp:bridge_a183a9143517db17",
+      "kind": "SUPPLIES_ECONOMIC_EVIDENCE",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "market_abuse",
+        "best_execution",
+        "audit",
+        "jurisdiction"
+      ],
+      "from": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "id": "work:aion@wave.tp:bridge_067c0290111a3765",
+      "kind": "CONSTRAINS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:systematic_trading",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "versioning",
+        "testing",
+        "data_lineage",
+        "deployment"
+      ],
+      "from": "work:aion@wave.tp:subject:software_engineering",
+      "id": "work:aion@wave.tp:bridge_b84f894f7a035fe9",
+      "kind": "MAKES_REPRODUCIBLE",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:quantitative_research",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "lineage",
+        "point_in_time",
+        "quality",
+        "reproducibility"
+      ],
+      "from": "work:aion@wave.tp:subject:data_databases",
+      "id": "work:aion@wave.tp:bridge_9881f372b4bfa9ed",
+      "kind": "GROUNDS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "base_rate",
+        "update",
+        "score",
+        "uncertainty"
+      ],
+      "from": "work:aion@wave.tp:subject:probability_statistics",
+      "id": "work:aion@wave.tp:bridge_c42ea42703333df8",
+      "kind": "CALIBRATES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "probability",
+        "edge",
+        "fee",
+        "threshold"
+      ],
+      "from": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "id": "work:aion@wave.tp:bridge_7ed86f50b19aa35b",
+      "kind": "TURNS_BELIEF_INTO_PRICE",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "quote",
+        "timestamp",
+        "liquidity",
+        "lineage"
+      ],
+      "from": "work:aion@wave.tp:subject:financial_data_infrastructure",
+      "id": "work:aion@wave.tp:bridge_27bb7af3f9a6104c",
+      "kind": "SUPPLIES_POINT_IN_TIME_BOOKS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "source",
+        "timeline",
+        "resolution",
+        "conflict"
+      ],
+      "from": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "id": "work:aion@wave.tp:bridge_aa389cf8fc6f65a1",
+      "kind": "SUPPLIES_VERIFIABLE_EVIDENCE",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "poll",
+        "turnout",
+        "institution",
+        "scenario"
+      ],
+      "from": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+      "id": "work:aion@wave.tp:bridge_e20030172cc3867b",
+      "kind": "SPECIALISES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "crowd",
+        "herding",
+        "overconfidence",
+        "adversarial_test"
+      ],
+      "from": "work:aion@wave.tp:subject:psychology_organisations",
+      "id": "work:aion@wave.tp:bridge_689415519684a0e4",
+      "kind": "MODELS_BIAS_WITHOUT_ASSUMING_IT",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "jurisdiction",
+        "integrity",
+        "disclosure",
+        "approval"
+      ],
+      "from": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "id": "work:aion@wave.tp:bridge_19015106e82d8b78",
+      "kind": "AUTHORIZES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "liquidity",
+        "funding",
+        "stress",
+        "limits"
+      ],
+      "from": "work:aion@wave.tp:subject:financial_risk_management",
+      "id": "work:aion@wave.tp:bridge_e2adbdc26dfa435a",
+      "kind": "GOVERNS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "illiquidity",
+        "capacity",
+        "valuation",
+        "due_diligence"
+      ],
+      "from": "work:aion@wave.tp:subject:portfolio_construction",
+      "id": "work:aion@wave.tp:bridge_4fb5737c5fd069b6",
+      "kind": "ALLOCATES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:alternative_private_markets",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "jurisdiction",
+        "conduct",
+        "referral",
+        "documentation"
+      ],
+      "from": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "id": "work:aion@wave.tp:bridge_25343a0246827527",
+      "kind": "CONSTRAINS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "authority",
+        "accountability",
+        "trust",
+        "legitimacy"
+      ],
+      "from": "work:aion@wave.tp:subject:negotiation_governance",
+      "id": "work:aion@wave.tp:bridge_ca9e3dd2d8eed6cb",
+      "kind": "GOVERNS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "source",
+        "uncertainty",
+        "narrative",
+        "transparency"
+      ],
+      "from": "work:aion@wave.tp:subject:language_research_communication",
+      "id": "work:aion@wave.tp:bridge_703f2f507c831e5b",
+      "kind": "INTERPRETS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "cash_flow",
+        "capital",
+        "control",
+        "exit"
+      ],
+      "from": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "id": "work:aion@wave.tp:bridge_a25024b2e7fa9598",
+      "kind": "VALUES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:strategic_assets_capital_allocation",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "legitimacy",
+        "law",
+        "stakeholders",
+        "governance"
+      ],
+      "from": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+      "id": "work:aion@wave.tp:bridge_35c0f21fabf679c3",
+      "kind": "CONSTRAINS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:strategic_assets_capital_allocation",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "architecture",
+        "standard",
+        "lifecycle",
+        "dependency"
+      ],
+      "from": "work:aion@wave.tp:subject:systems_engineering",
+      "id": "work:aion@wave.tp:bridge_e44fbc71f5f135d9",
+      "kind": "SCALES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "incentive",
+        "culture",
+        "team",
+        "succession"
+      ],
+      "from": "work:aion@wave.tp:subject:psychology_organisations",
+      "id": "work:aion@wave.tp:bridge_9a23c794234f720c",
+      "kind": "GROUNDS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "geography",
+        "trade",
+        "resource",
+        "scenario"
+      ],
+      "from": "work:aion@wave.tp:subject:history_geography_geopolitics",
+      "id": "work:aion@wave.tp:bridge_9c07c4bf7707cf05",
+      "kind": "CONTEXTUALISES",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:resilience_geography_long_horizon",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "concentration",
+        "liquidity",
+        "scenario",
+        "survival"
+      ],
+      "from": "work:aion@wave.tp:subject:financial_risk_management",
+      "id": "work:aion@wave.tp:bridge_9374605cb170e588",
+      "kind": "STRESS_TESTS",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:resilience_geography_long_horizon",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "trade",
+        "jurisdiction",
+        "disruption"
+      ],
+      "from": "work:aion@wave.tp:subject:history_geography_geopolitics",
+      "id": "work:aion@wave.tp:bridge_5906edb69b0a3a27",
+      "kind": "EXPLAINS_RISK_CONTEXT",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    },
+    {
+      "bridge_variables": [
+        "form",
+        "material",
+        "process",
+        "cost"
+      ],
+      "from": "work:aion@wave.tp:subject:design_creative_practice",
+      "id": "work:aion@wave.tp:bridge_5f9c7b8503dc9850",
+      "kind": "CONVERTS_CONCEPT_TO_PRODUCT",
+      "status": "curriculum_target_unverified",
+      "to": "work:aion@wave.tp:subject:manufacturing_quality",
+      "verification": [
+        "derive_mapping",
+        "test_counterexample",
+        "apply_in_unfamiliar_project"
+      ]
+    }
+  ],
+  "entanglement_used_only_for_container_association": true,
+  "glyphs": [],
+  "id": "aion__cross_domain_bridges",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "bridge_variables": [
+          "vectors",
+          "matrices",
+          "eigenstructure"
+        ],
+        "from": "work:aion@wave.tp:subject:linear_algebra",
+        "id": "work:aion@wave.tp:bridge_245c8ce07eac11c8",
+        "kind": "ENABLES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:data_science_ml",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "likelihood",
+          "calibration",
+          "generalisation"
+        ],
+        "from": "work:aion@wave.tp:subject:probability_statistics",
+        "id": "work:aion@wave.tp:bridge_16b53a4e682ec91f",
+        "kind": "MEASURES_UNCERTAINTY_IN",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:data_science_ml",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "route",
+          "inventory",
+          "capacity"
+        ],
+        "from": "work:aion@wave.tp:subject:discrete_optimization",
+        "id": "work:aion@wave.tp:bridge_efbe986aa19acc32",
+        "kind": "OPTIMIZES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "state",
+          "feedback",
+          "trajectory"
+        ],
+        "from": "work:aion@wave.tp:subject:control_robotics",
+        "id": "work:aion@wave.tp:bridge_9064f0f315aa6699",
+        "kind": "STABILIZES_AND_GUIDES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "energy_density",
+          "mass",
+          "endurance",
+          "thermal_safety"
+        ],
+        "from": "work:aion@wave.tp:subject:energy_storage",
+        "id": "work:aion@wave.tp:bridge_5f86eca593bad983",
+        "kind": "CONSTRAINS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "flight_loop",
+          "sensors",
+          "communications",
+          "power"
+        ],
+        "from": "work:aion@wave.tp:subject:embedded_systems",
+        "id": "work:aion@wave.tp:bridge_608109d466eb1f78",
+        "kind": "IMPLEMENTS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "mass",
+          "drag",
+          "strength",
+          "payload"
+        ],
+        "from": "work:aion@wave.tp:subject:mechanical_cad",
+        "id": "work:aion@wave.tp:bridge_01f20ef5fe3c8d21",
+        "kind": "SHAPES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "tolerance",
+          "yield",
+          "unit_cost",
+          "reliability"
+        ],
+        "from": "work:aion@wave.tp:subject:manufacturing_quality",
+        "id": "work:aion@wave.tp:bridge_bce81fcda5070980",
+        "kind": "MAKES_ECONOMICALLY_REAL",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "airspace",
+          "privacy",
+          "airworthiness",
+          "operator_duty"
+        ],
+        "from": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "id": "work:aion@wave.tp:bridge_bfcdd1a5dbf8c7b6",
+        "kind": "GOVERNS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "command_link",
+          "firmware",
+          "identity",
+          "safety"
+        ],
+        "from": "work:aion@wave.tp:subject:cybersecurity",
+        "id": "work:aion@wave.tp:bridge_31cbaa989270f7fd",
+        "kind": "PROTECTS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "design",
+          "testing",
+          "dependency",
+          "release"
+        ],
+        "from": "work:aion@wave.tp:subject:software_engineering",
+        "id": "work:aion@wave.tp:bridge_386d62a82ee22888",
+        "kind": "SECURES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:application_web_api_security",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "protocol",
+          "boundary",
+          "routing",
+          "telemetry"
+        ],
+        "from": "work:aion@wave.tp:subject:operating_distributed_networks",
+        "id": "work:aion@wave.tp:bridge_8aaba4576ac817df",
+        "kind": "EXPOSES_AND_DEFENDS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:network_wireless_security",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "identity",
+          "secret",
+          "tenant",
+          "lineage"
+        ],
+        "from": "work:aion@wave.tp:subject:data_databases",
+        "id": "work:aion@wave.tp:bridge_aa4883b7ce991880",
+        "kind": "PROTECTS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:cloud_identity_container_security",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "authorization",
+          "surface",
+          "proof",
+          "remediation"
+        ],
+        "from": "work:aion@wave.tp:subject:application_web_api_security",
+        "id": "work:aion@wave.tp:bridge_629a51bc94720a82",
+        "kind": "VALIDATES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:adversary_emulation_penetration_testing",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "memory",
+          "binary",
+          "debug",
+          "mitigation"
+        ],
+        "from": "work:aion@wave.tp:subject:programming_languages",
+        "id": "work:aion@wave.tp:bridge_9d6925b2995404fb",
+        "kind": "EXPLAINS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:exploit_analysis_reverse_engineering",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "telemetry",
+          "anomaly",
+          "triage",
+          "false_positive"
+        ],
+        "from": "work:aion@wave.tp:subject:data_science_ml",
+        "id": "work:aion@wave.tp:bridge_789b71568e42610d",
+        "kind": "DETECTS_WITH_LIMITS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "invariant",
+          "state",
+          "authentication",
+          "replay"
+        ],
+        "from": "work:aion@wave.tp:subject:logic_proof",
+        "id": "work:aion@wave.tp:bridge_895d2dcffabe8e68",
+        "kind": "VERIFIES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:cryptography_protocol_security",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "firmware",
+          "interface",
+          "update",
+          "safety"
+        ],
+        "from": "work:aion@wave.tp:subject:embedded_systems",
+        "id": "work:aion@wave.tp:bridge_99a4e3af6b3df108",
+        "kind": "HARDENS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "scope",
+          "minimal_proof",
+          "embargo",
+          "disclosure"
+        ],
+        "from": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "id": "work:aion@wave.tp:bridge_4588d83b1bcd469e",
+        "kind": "AUTHORIZES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:security_research_disclosure",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "incident",
+          "control",
+          "metric",
+          "continuity"
+        ],
+        "from": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+        "id": "work:aion@wave.tp:bridge_1f5fc377245c8425",
+        "kind": "IMPROVES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:security_architecture_operations",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "wind",
+          "rain",
+          "terrain",
+          "visibility"
+        ],
+        "from": "work:aion@wave.tp:subject:earth_climate",
+        "id": "work:aion@wave.tp:bridge_dddbd68b00b431e8",
+        "kind": "SETS_ENVIRONMENT",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "remote_sensing",
+          "field_route",
+          "crop_action"
+        ],
+        "from": "work:aion@wave.tp:subject:precision_agriculture",
+        "id": "work:aion@wave.tp:bridge_f0d2f90c9f163297",
+        "kind": "APPLIES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:uncrewed_aerial_systems",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "soil",
+          "crop_stress",
+          "yield"
+        ],
+        "from": "work:aion@wave.tp:subject:agronomy_soil",
+        "id": "work:aion@wave.tp:bridge_2f8b0c645e7bca20",
+        "kind": "DEFINES_BIOLOGICAL_OBJECTIVE",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:precision_agriculture",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "spectra",
+          "moisture",
+          "position",
+          "calibration"
+        ],
+        "from": "work:aion@wave.tp:subject:sensors_instrumentation",
+        "id": "work:aion@wave.tp:bridge_56d2004750433313",
+        "kind": "MEASURES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:precision_agriculture",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "state_of_charge",
+          "demand",
+          "resilience"
+        ],
+        "from": "work:aion@wave.tp:subject:energy_storage",
+        "id": "work:aion@wave.tp:bridge_67886afef24d1a85",
+        "kind": "BALANCES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:generation_grids",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "dispatch",
+          "capacity",
+          "constraints"
+        ],
+        "from": "work:aion@wave.tp:subject:discrete_optimization",
+        "id": "work:aion@wave.tp:bridge_ebc11022f6943b34",
+        "kind": "SCHEDULES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:generation_grids",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "externality",
+          "incentive",
+          "market"
+        ],
+        "from": "work:aion@wave.tp:subject:economics_core",
+        "id": "work:aion@wave.tp:bridge_a15e10f94ce790d7",
+        "kind": "VALUES_TRADEOFFS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:energy_policy_sustainability",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "unit_cost",
+          "capital",
+          "scrap",
+          "warranty"
+        ],
+        "from": "work:aion@wave.tp:subject:accounting_corporate_finance",
+        "id": "work:aion@wave.tp:bridge_d8ea805e955ff7b8",
+        "kind": "PRICES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:manufacturing_quality",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "metrics",
+          "truth_source",
+          "forecast"
+        ],
+        "from": "work:aion@wave.tp:subject:data_databases",
+        "id": "work:aion@wave.tp:bridge_b229380d07e44441",
+        "kind": "INFORMS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:business_strategy_operations",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "segment",
+          "attribution",
+          "retention",
+          "bias"
+        ],
+        "from": "work:aion@wave.tp:subject:data_science_ml",
+        "id": "work:aion@wave.tp:bridge_aab8bd0850b82d14",
+        "kind": "PREDICTS_WITH_LIMITS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:marketing_sales_customer",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "attention",
+          "mental_model",
+          "error"
+        ],
+        "from": "work:aion@wave.tp:subject:psychology_organisations",
+        "id": "work:aion@wave.tp:bridge_ae338dfcedd16b21",
+        "kind": "GROUNDS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:human_computer_interaction",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "hypothesis",
+          "experiment",
+          "causal_effect"
+        ],
+        "from": "work:aion@wave.tp:subject:scientific_method",
+        "id": "work:aion@wave.tp:bridge_f1a47fee9cf6102d",
+        "kind": "TESTS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:business_strategy_operations",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "requirements",
+          "testing",
+          "reliability"
+        ],
+        "from": "work:aion@wave.tp:subject:software_engineering",
+        "id": "work:aion@wave.tp:bridge_8869b027a6fe287d",
+        "kind": "EXTENDS_INTO_HARDWARE",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:embedded_systems",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "requirement",
+          "risk",
+          "lifecycle_cost"
+        ],
+        "from": "work:aion@wave.tp:subject:systems_engineering",
+        "id": "work:aion@wave.tp:bridge_2f949ddd0e8e2e72",
+        "kind": "CONNECTS_DELIVERY_TO_VALUE",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:business_strategy_operations",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "ecosystem",
+          "contamination",
+          "recovery"
+        ],
+        "from": "work:aion@wave.tp:subject:ecology_microbiology",
+        "id": "work:aion@wave.tp:bridge_09bc597fcc80956b",
+        "kind": "CONSTRAINS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:water_waste_resilience",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "outcome",
+          "bias",
+          "uncertainty",
+          "safety"
+        ],
+        "from": "work:aion@wave.tp:subject:physiology_health",
+        "id": "work:aion@wave.tp:bridge_db895b7271b5c779",
+        "kind": "USES_WITH_CLINICAL_LIMITS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:data_science_ml",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "time_series",
+          "risk",
+          "regime_change",
+          "uncertainty"
+        ],
+        "from": "work:aion@wave.tp:subject:markets_investing",
+        "id": "work:aion@wave.tp:bridge_06ee3d01fe5fd664",
+        "kind": "USES_WITH_FINANCIAL_LIMITS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:data_science_ml",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "conditional_expectation",
+          "distribution",
+          "uncertainty",
+          "tail"
+        ],
+        "from": "work:aion@wave.tp:subject:probability_statistics",
+        "id": "work:aion@wave.tp:bridge_ec3fc7dbd48bcc55",
+        "kind": "GROUNDS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:financial_mathematics",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "path",
+          "measure",
+          "volatility",
+          "sensitivity"
+        ],
+        "from": "work:aion@wave.tp:subject:stochastic_processes_finance",
+        "id": "work:aion@wave.tp:bridge_12c8bc403983f4ca",
+        "kind": "PRICES_AND_HEDGES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:derivatives_structured_products",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "stationarity",
+          "leakage",
+          "regime",
+          "out_of_sample_error"
+        ],
+        "from": "work:aion@wave.tp:subject:financial_econometrics",
+        "id": "work:aion@wave.tp:bridge_055aea76d80b1b68",
+        "kind": "TESTS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:quantitative_research",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "features",
+          "validation",
+          "overfitting",
+          "interpretability"
+        ],
+        "from": "work:aion@wave.tp:subject:data_science_ml",
+        "id": "work:aion@wave.tp:bridge_77a0c6d1c998793c",
+        "kind": "SUPPLIES_MODELS_WITH_LIMITS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:quantitative_research",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "objective",
+          "constraint",
+          "turnover",
+          "risk_budget"
+        ],
+        "from": "work:aion@wave.tp:subject:discrete_optimization",
+        "id": "work:aion@wave.tp:bridge_ec8ecb693afe4c10",
+        "kind": "ALLOCATES_UNDER_CONSTRAINTS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:portfolio_construction",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "impact",
+          "latency",
+          "liquidity",
+          "slippage"
+        ],
+        "from": "work:aion@wave.tp:subject:market_microstructure_execution",
+        "id": "work:aion@wave.tp:bridge_c16ae2d5e1fdef33",
+        "kind": "TURNS_SIGNAL_INTO_REALISED_RETURN",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:systematic_trading",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "leverage",
+          "liquidity",
+          "counterparty",
+          "drawdown"
+        ],
+        "from": "work:aion@wave.tp:subject:financial_risk_management",
+        "id": "work:aion@wave.tp:bridge_974e33142af1c729",
+        "kind": "GOVERNS_SURVIVAL",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:hedge_fund_operations",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "earnings",
+          "cash_flow",
+          "balance_sheet",
+          "capital_structure"
+        ],
+        "from": "work:aion@wave.tp:subject:accounting_corporate_finance",
+        "id": "work:aion@wave.tp:bridge_a183a9143517db17",
+        "kind": "SUPPLIES_ECONOMIC_EVIDENCE",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:fundamental_equity_credit",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "market_abuse",
+          "best_execution",
+          "audit",
+          "jurisdiction"
+        ],
+        "from": "work:aion@wave.tp:subject:financial_regulation_compliance",
+        "id": "work:aion@wave.tp:bridge_067c0290111a3765",
+        "kind": "CONSTRAINS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:systematic_trading",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "versioning",
+          "testing",
+          "data_lineage",
+          "deployment"
+        ],
+        "from": "work:aion@wave.tp:subject:software_engineering",
+        "id": "work:aion@wave.tp:bridge_b84f894f7a035fe9",
+        "kind": "MAKES_REPRODUCIBLE",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:quantitative_research",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "lineage",
+          "point_in_time",
+          "quality",
+          "reproducibility"
+        ],
+        "from": "work:aion@wave.tp:subject:data_databases",
+        "id": "work:aion@wave.tp:bridge_9881f372b4bfa9ed",
+        "kind": "GROUNDS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "base_rate",
+          "update",
+          "score",
+          "uncertainty"
+        ],
+        "from": "work:aion@wave.tp:subject:probability_statistics",
+        "id": "work:aion@wave.tp:bridge_c42ea42703333df8",
+        "kind": "CALIBRATES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "probability",
+          "edge",
+          "fee",
+          "threshold"
+        ],
+        "from": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "id": "work:aion@wave.tp:bridge_7ed86f50b19aa35b",
+        "kind": "TURNS_BELIEF_INTO_PRICE",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "quote",
+          "timestamp",
+          "liquidity",
+          "lineage"
+        ],
+        "from": "work:aion@wave.tp:subject:financial_data_infrastructure",
+        "id": "work:aion@wave.tp:bridge_27bb7af3f9a6104c",
+        "kind": "SUPPLIES_POINT_IN_TIME_BOOKS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "source",
+          "timeline",
+          "resolution",
+          "conflict"
+        ],
+        "from": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+        "id": "work:aion@wave.tp:bridge_aa389cf8fc6f65a1",
+        "kind": "SUPPLIES_VERIFIABLE_EVIDENCE",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "poll",
+          "turnout",
+          "institution",
+          "scenario"
+        ],
+        "from": "work:aion@wave.tp:subject:elections_polling_public_opinion",
+        "id": "work:aion@wave.tp:bridge_e20030172cc3867b",
+        "kind": "SPECIALISES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "crowd",
+          "herding",
+          "overconfidence",
+          "adversarial_test"
+        ],
+        "from": "work:aion@wave.tp:subject:psychology_organisations",
+        "id": "work:aion@wave.tp:bridge_689415519684a0e4",
+        "kind": "MODELS_BIAS_WITHOUT_ASSUMING_IT",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:prediction_market_microstructure",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "jurisdiction",
+          "integrity",
+          "disclosure",
+          "approval"
+        ],
+        "from": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "id": "work:aion@wave.tp:bridge_19015106e82d8b78",
+        "kind": "AUTHORIZES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:prediction_market_design_compliance",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "liquidity",
+          "funding",
+          "stress",
+          "limits"
+        ],
+        "from": "work:aion@wave.tp:subject:financial_risk_management",
+        "id": "work:aion@wave.tp:bridge_e2adbdc26dfa435a",
+        "kind": "GOVERNS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:institutional_banking_treasury",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "illiquidity",
+          "capacity",
+          "valuation",
+          "due_diligence"
+        ],
+        "from": "work:aion@wave.tp:subject:portfolio_construction",
+        "id": "work:aion@wave.tp:bridge_4fb5737c5fd069b6",
+        "kind": "ALLOCATES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:alternative_private_markets",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "jurisdiction",
+          "conduct",
+          "referral",
+          "documentation"
+        ],
+        "from": "work:aion@wave.tp:subject:law_regulation_ethics",
+        "id": "work:aion@wave.tp:bridge_25343a0246827527",
+        "kind": "CONSTRAINS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:tax_wealth_structuring",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "authority",
+          "accountability",
+          "trust",
+          "legitimacy"
+        ],
+        "from": "work:aion@wave.tp:subject:negotiation_governance",
+        "id": "work:aion@wave.tp:bridge_ca9e3dd2d8eed6cb",
+        "kind": "GOVERNS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "source",
+          "uncertainty",
+          "narrative",
+          "transparency"
+        ],
+        "from": "work:aion@wave.tp:subject:language_research_communication",
+        "id": "work:aion@wave.tp:bridge_703f2f507c831e5b",
+        "kind": "INTERPRETS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:information_intelligence_attention",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "cash_flow",
+          "capital",
+          "control",
+          "exit"
+        ],
+        "from": "work:aion@wave.tp:subject:accounting_corporate_finance",
+        "id": "work:aion@wave.tp:bridge_a25024b2e7fa9598",
+        "kind": "VALUES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:strategic_assets_capital_allocation",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "legitimacy",
+          "law",
+          "stakeholders",
+          "governance"
+        ],
+        "from": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+        "id": "work:aion@wave.tp:bridge_35c0f21fabf679c3",
+        "kind": "CONSTRAINS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:strategic_assets_capital_allocation",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "architecture",
+          "standard",
+          "lifecycle",
+          "dependency"
+        ],
+        "from": "work:aion@wave.tp:subject:systems_engineering",
+        "id": "work:aion@wave.tp:bridge_e44fbc71f5f135d9",
+        "kind": "SCALES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "incentive",
+          "culture",
+          "team",
+          "succession"
+        ],
+        "from": "work:aion@wave.tp:subject:psychology_organisations",
+        "id": "work:aion@wave.tp:bridge_9a23c794234f720c",
+        "kind": "GROUNDS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:networks_talent_coordination",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "geography",
+          "trade",
+          "resource",
+          "scenario"
+        ],
+        "from": "work:aion@wave.tp:subject:history_geography_geopolitics",
+        "id": "work:aion@wave.tp:bridge_9c07c4bf7707cf05",
+        "kind": "CONTEXTUALISES",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:resilience_geography_long_horizon",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "concentration",
+          "liquidity",
+          "scenario",
+          "survival"
+        ],
+        "from": "work:aion@wave.tp:subject:financial_risk_management",
+        "id": "work:aion@wave.tp:bridge_9374605cb170e588",
+        "kind": "STRESS_TESTS",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:resilience_geography_long_horizon",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "trade",
+          "jurisdiction",
+          "disruption"
+        ],
+        "from": "work:aion@wave.tp:subject:history_geography_geopolitics",
+        "id": "work:aion@wave.tp:bridge_5906edb69b0a3a27",
+        "kind": "EXPLAINS_RISK_CONTEXT",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:supply_chain_procurement",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      },
+      {
+        "bridge_variables": [
+          "form",
+          "material",
+          "process",
+          "cost"
+        ],
+        "from": "work:aion@wave.tp:subject:design_creative_practice",
+        "id": "work:aion@wave.tp:bridge_5f9c7b8503dc9850",
+        "kind": "CONVERTS_CONCEPT_TO_PRODUCT",
+        "status": "curriculum_target_unverified",
+        "to": "work:aion@wave.tp:subject:manufacturing_quality",
+        "verification": [
+          "derive_mapping",
+          "test_counterexample",
+          "apply_in_unfamiliar_project"
+        ]
+      }
+    ],
+    "nodes": []
+  },
+  "meta": {
+    "graph": "work",
+    "kind": "cross_domain_graph",
+    "ownerWA": "aion@wave.tp",
+    "title": "AION \u00b7 Cross-Domain Bridge Graph"
+  },
+  "schema_version": "aion.container.cross_domain_bridge_graph.v1",
+  "type": "container",
+  "typed_edges": true
+}

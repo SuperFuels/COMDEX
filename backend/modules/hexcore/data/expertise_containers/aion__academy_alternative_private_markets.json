@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_asset_pricing",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:asset_pricing",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_fundamental_equity_credit",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:fundamental_equity_credit",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_portfolio_construction",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:portfolio_construction",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:alternative_private_markets:private_equity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:alternative_private_markets",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:alternative_private_markets:venture_capital",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:alternative_private_markets",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:alternative_private_markets:private_credit",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:alternative_private_markets",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:alternative_private_markets:real_assets",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:alternative_private_markets",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:alternative_private_markets:commodities",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:alternative_private_markets",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:alternative_private_markets:hedge_fund_strategies",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:alternative_private_markets",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:alternative_private_markets:illiquidity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:alternative_private_markets",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:alternative_private_markets:manager_due_diligence",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:alternative_private_markets",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:alternative_private_markets",
+      "label": "Alternative investments and private markets",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:alternative_private_markets:private_equity",
+      "label": "private equity",
+      "subject_id": "alternative_private_markets",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:alternative_private_markets:venture_capital",
+      "label": "venture capital",
+      "subject_id": "alternative_private_markets",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:alternative_private_markets:private_credit",
+      "label": "private credit",
+      "subject_id": "alternative_private_markets",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:alternative_private_markets:real_assets",
+      "label": "real assets",
+      "subject_id": "alternative_private_markets",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:alternative_private_markets:commodities",
+      "label": "commodities",
+      "subject_id": "alternative_private_markets",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:alternative_private_markets:hedge_fund_strategies",
+      "label": "hedge fund strategies",
+      "subject_id": "alternative_private_markets",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:alternative_private_markets:illiquidity",
+      "label": "illiquidity",
+      "subject_id": "alternative_private_markets",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:alternative_private_markets:manager_due_diligence",
+      "label": "manager due diligence",
+      "subject_id": "alternative_private_markets",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_alternative_private_markets",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:alternative_private_markets:private_equity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:alternative_private_markets",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:alternative_private_markets:venture_capital",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:alternative_private_markets",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:alternative_private_markets:private_credit",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:alternative_private_markets",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:alternative_private_markets:real_assets",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:alternative_private_markets",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:alternative_private_markets:commodities",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:alternative_private_markets",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:alternative_private_markets:hedge_fund_strategies",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:alternative_private_markets",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:alternative_private_markets:illiquidity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:alternative_private_markets",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:alternative_private_markets:manager_due_diligence",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:alternative_private_markets",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:alternative_private_markets",
+        "label": "Alternative investments and private markets",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:alternative_private_markets:private_equity",
+        "label": "private equity",
+        "subject_id": "alternative_private_markets",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:alternative_private_markets:venture_capital",
+        "label": "venture capital",
+        "subject_id": "alternative_private_markets",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:alternative_private_markets:private_credit",
+        "label": "private credit",
+        "subject_id": "alternative_private_markets",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:alternative_private_markets:real_assets",
+        "label": "real assets",
+        "subject_id": "alternative_private_markets",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:alternative_private_markets:commodities",
+        "label": "commodities",
+        "subject_id": "alternative_private_markets",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:alternative_private_markets:hedge_fund_strategies",
+        "label": "hedge fund strategies",
+        "subject_id": "alternative_private_markets",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:alternative_private_markets:illiquidity",
+        "label": "illiquidity",
+        "subject_id": "alternative_private_markets",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:alternative_private_markets:manager_due_diligence",
+        "label": "manager due diligence",
+        "subject_id": "alternative_private_markets",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "alternative_private_markets",
+    "title": "AION Academy \u00b7 Alternative investments and private markets"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

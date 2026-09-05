@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_law_regulation_ethics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_markets_investing",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:markets_investing",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_accounting_corporate_finance",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:accounting_corporate_finance",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:financial_regulation_compliance:market_abuse",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_regulation_compliance:fiduciary_duty",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_regulation_compliance:client_suitability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_regulation_compliance:aml_kyc",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_regulation_compliance:best_execution",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_regulation_compliance:reporting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_regulation_compliance:model_governance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_regulation_compliance:jurisdiction",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:financial_regulation_compliance",
+      "label": "Financial regulation, compliance and conduct",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_regulation_compliance:market_abuse",
+      "label": "market abuse",
+      "subject_id": "financial_regulation_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_regulation_compliance:fiduciary_duty",
+      "label": "fiduciary duty",
+      "subject_id": "financial_regulation_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_regulation_compliance:client_suitability",
+      "label": "client suitability",
+      "subject_id": "financial_regulation_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_regulation_compliance:aml_kyc",
+      "label": "aml kyc",
+      "subject_id": "financial_regulation_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_regulation_compliance:best_execution",
+      "label": "best execution",
+      "subject_id": "financial_regulation_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_regulation_compliance:reporting",
+      "label": "reporting",
+      "subject_id": "financial_regulation_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_regulation_compliance:model_governance",
+      "label": "model governance",
+      "subject_id": "financial_regulation_compliance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_regulation_compliance:jurisdiction",
+      "label": "jurisdiction",
+      "subject_id": "financial_regulation_compliance",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_financial_regulation_compliance",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:financial_regulation_compliance:market_abuse",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_regulation_compliance:fiduciary_duty",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_regulation_compliance:client_suitability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_regulation_compliance:aml_kyc",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_regulation_compliance:best_execution",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_regulation_compliance:reporting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_regulation_compliance:model_governance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_regulation_compliance:jurisdiction",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_regulation_compliance",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:financial_regulation_compliance",
+        "label": "Financial regulation, compliance and conduct",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_regulation_compliance:market_abuse",
+        "label": "market abuse",
+        "subject_id": "financial_regulation_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_regulation_compliance:fiduciary_duty",
+        "label": "fiduciary duty",
+        "subject_id": "financial_regulation_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_regulation_compliance:client_suitability",
+        "label": "client suitability",
+        "subject_id": "financial_regulation_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_regulation_compliance:aml_kyc",
+        "label": "aml kyc",
+        "subject_id": "financial_regulation_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_regulation_compliance:best_execution",
+        "label": "best execution",
+        "subject_id": "financial_regulation_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_regulation_compliance:reporting",
+        "label": "reporting",
+        "subject_id": "financial_regulation_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_regulation_compliance:model_governance",
+        "label": "model governance",
+        "subject_id": "financial_regulation_compliance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_regulation_compliance:jurisdiction",
+        "label": "jurisdiction",
+        "subject_id": "financial_regulation_compliance",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "financial_regulation_compliance",
+    "title": "AION Academy \u00b7 Financial regulation, compliance and conduct"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

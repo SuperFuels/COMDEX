@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_cybersecurity",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:cybersecurity",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_embedded_systems",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:embedded_systems",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_electronics_circuits",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:electronics_circuits",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:firmware_analysis",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:hardware_roots_of_trust",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:debug_interfaces",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:embedded_networks",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:industrial_protocols",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:safety_boundaries",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:secure_updates",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:physical_cyber_incidents",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+      "label": "Hardware, embedded and operational-technology security",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:firmware_analysis",
+      "label": "firmware analysis",
+      "subject_id": "hardware_embedded_ot_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:hardware_roots_of_trust",
+      "label": "hardware roots of trust",
+      "subject_id": "hardware_embedded_ot_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:debug_interfaces",
+      "label": "debug interfaces",
+      "subject_id": "hardware_embedded_ot_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:embedded_networks",
+      "label": "embedded networks",
+      "subject_id": "hardware_embedded_ot_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:industrial_protocols",
+      "label": "industrial protocols",
+      "subject_id": "hardware_embedded_ot_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:safety_boundaries",
+      "label": "safety boundaries",
+      "subject_id": "hardware_embedded_ot_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:secure_updates",
+      "label": "secure updates",
+      "subject_id": "hardware_embedded_ot_security",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:physical_cyber_incidents",
+      "label": "physical cyber incidents",
+      "subject_id": "hardware_embedded_ot_security",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_hardware_embedded_ot_security",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:firmware_analysis",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:hardware_roots_of_trust",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:debug_interfaces",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:embedded_networks",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:industrial_protocols",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:safety_boundaries",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:secure_updates",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:hardware_embedded_ot_security:physical_cyber_incidents",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:hardware_embedded_ot_security",
+        "label": "Hardware, embedded and operational-technology security",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:firmware_analysis",
+        "label": "firmware analysis",
+        "subject_id": "hardware_embedded_ot_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:hardware_roots_of_trust",
+        "label": "hardware roots of trust",
+        "subject_id": "hardware_embedded_ot_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:debug_interfaces",
+        "label": "debug interfaces",
+        "subject_id": "hardware_embedded_ot_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:embedded_networks",
+        "label": "embedded networks",
+        "subject_id": "hardware_embedded_ot_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:industrial_protocols",
+        "label": "industrial protocols",
+        "subject_id": "hardware_embedded_ot_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:safety_boundaries",
+        "label": "safety boundaries",
+        "subject_id": "hardware_embedded_ot_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:secure_updates",
+        "label": "secure updates",
+        "subject_id": "hardware_embedded_ot_security",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:hardware_embedded_ot_security:physical_cyber_incidents",
+        "label": "physical cyber incidents",
+        "subject_id": "hardware_embedded_ot_security",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "hardware_embedded_ot_security",
+    "title": "AION Academy \u00b7 Hardware, embedded and operational-technology security"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

@@ -1,0 +1,280 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_financial_mathematics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:financial_mathematics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_numerical_methods",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:numerical_methods",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:stochastic_processes_finance:random_walks",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:stochastic_processes_finance:markov_processes",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:stochastic_processes_finance:brownian_motion",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:stochastic_processes_finance:ito_calculus",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:stochastic_processes_finance:stochastic_differential_equations",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:stochastic_processes_finance:jump_processes",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:stochastic_processes_finance:filtering",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:stochastic_processes_finance:simulation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:stochastic_processes_finance",
+      "label": "Stochastic processes for finance",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:stochastic_processes_finance:random_walks",
+      "label": "random walks",
+      "subject_id": "stochastic_processes_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:stochastic_processes_finance:markov_processes",
+      "label": "markov processes",
+      "subject_id": "stochastic_processes_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:stochastic_processes_finance:brownian_motion",
+      "label": "brownian motion",
+      "subject_id": "stochastic_processes_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:stochastic_processes_finance:ito_calculus",
+      "label": "ito calculus",
+      "subject_id": "stochastic_processes_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:stochastic_processes_finance:stochastic_differential_equations",
+      "label": "stochastic differential equations",
+      "subject_id": "stochastic_processes_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:stochastic_processes_finance:jump_processes",
+      "label": "jump processes",
+      "subject_id": "stochastic_processes_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:stochastic_processes_finance:filtering",
+      "label": "filtering",
+      "subject_id": "stochastic_processes_finance",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:stochastic_processes_finance:simulation",
+      "label": "simulation",
+      "subject_id": "stochastic_processes_finance",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_stochastic_processes_finance",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:stochastic_processes_finance:random_walks",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:stochastic_processes_finance:markov_processes",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:stochastic_processes_finance:brownian_motion",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:stochastic_processes_finance:ito_calculus",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:stochastic_processes_finance:stochastic_differential_equations",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:stochastic_processes_finance:jump_processes",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:stochastic_processes_finance:filtering",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:stochastic_processes_finance:simulation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:stochastic_processes_finance",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:stochastic_processes_finance",
+        "label": "Stochastic processes for finance",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:stochastic_processes_finance:random_walks",
+        "label": "random walks",
+        "subject_id": "stochastic_processes_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:stochastic_processes_finance:markov_processes",
+        "label": "markov processes",
+        "subject_id": "stochastic_processes_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:stochastic_processes_finance:brownian_motion",
+        "label": "brownian motion",
+        "subject_id": "stochastic_processes_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:stochastic_processes_finance:ito_calculus",
+        "label": "ito calculus",
+        "subject_id": "stochastic_processes_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:stochastic_processes_finance:stochastic_differential_equations",
+        "label": "stochastic differential equations",
+        "subject_id": "stochastic_processes_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:stochastic_processes_finance:jump_processes",
+        "label": "jump processes",
+        "subject_id": "stochastic_processes_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:stochastic_processes_finance:filtering",
+        "label": "filtering",
+        "subject_id": "stochastic_processes_finance",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:stochastic_processes_finance:simulation",
+        "label": "simulation",
+        "subject_id": "stochastic_processes_finance",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "stochastic_processes_finance",
+    "title": "AION Academy \u00b7 Stochastic processes for finance"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

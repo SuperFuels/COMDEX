@@ -1,0 +1,30 @@
+{
+  "capsule": {
+    "capsule_digest": "3503b037a4ea531b684b9c5d29cb756373aa8882b8c73c03385f734c2cd0bbf8",
+    "procedure": {
+      "procedure_version": 1,
+      "repair_causes": [
+        "payload_energy_omitted",
+        "fractional_reserve_branch_omitted"
+      ],
+      "steps": [
+        "outbound_base = outbound * base * wind",
+        "return_base = return * base",
+        "payload_energy = payload * payload_rate * (outbound + return)",
+        "consumed = outbound_base + return_base + payload_energy",
+        "required_reserve = max(fixed_reserve, fractional_reserve * capacity)",
+        "remaining = capacity - consumed",
+        "safe = remaining >= required_reserve"
+      ]
+    },
+    "raw_source_retained": false,
+    "schema_version": "aion.hexcore.functional_subject_capsule.v1",
+    "source_commitment": "55ccc06dcbdc02678831dc9c9eda5e74f319df9f8c2bb5766278611507161a7a",
+    "subject": "drone_energy_reserve_planning",
+    "training_answers_retained": false,
+    "training_case_commitment": "1707203fa0e2a62bb5620aeedf400d9bb0ac03aa7ed70a9601161d55477bebc5",
+    "verified": true
+  },
+  "created_at": "2026-08-21T06:39:20.779562+00:00",
+  "schema_version": "aion.hexcore.autonomous_problem_apprenticeship_state.v1"
+}

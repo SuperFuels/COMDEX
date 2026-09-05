@@ -1,0 +1,224 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_electronics_circuits",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:electronics_circuits",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_probability_statistics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probability_statistics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:sensors_instrumentation:sensor_physics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:sensors_instrumentation:signal_conditioning",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:sensors_instrumentation:sampling",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:sensors_instrumentation:calibration",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:sensors_instrumentation:sensor_fusion",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:sensors_instrumentation:measurement_uncertainty",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "engineering",
+      "id": "work:aion@wave.tp:subject:sensors_instrumentation",
+      "label": "Sensors and instrumentation",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:sensors_instrumentation:sensor_physics",
+      "label": "sensor physics",
+      "subject_id": "sensors_instrumentation",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:sensors_instrumentation:signal_conditioning",
+      "label": "signal conditioning",
+      "subject_id": "sensors_instrumentation",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:sensors_instrumentation:sampling",
+      "label": "sampling",
+      "subject_id": "sensors_instrumentation",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:sensors_instrumentation:calibration",
+      "label": "calibration",
+      "subject_id": "sensors_instrumentation",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:sensors_instrumentation:sensor_fusion",
+      "label": "sensor fusion",
+      "subject_id": "sensors_instrumentation",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:sensors_instrumentation:measurement_uncertainty",
+      "label": "measurement uncertainty",
+      "subject_id": "sensors_instrumentation",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_sensors_instrumentation",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:sensors_instrumentation:sensor_physics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:sensors_instrumentation:signal_conditioning",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:sensors_instrumentation:sampling",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:sensors_instrumentation:calibration",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:sensors_instrumentation:sensor_fusion",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:sensors_instrumentation:measurement_uncertainty",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:sensors_instrumentation",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "engineering",
+        "id": "work:aion@wave.tp:subject:sensors_instrumentation",
+        "label": "Sensors and instrumentation",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:sensors_instrumentation:sensor_physics",
+        "label": "sensor physics",
+        "subject_id": "sensors_instrumentation",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:sensors_instrumentation:signal_conditioning",
+        "label": "signal conditioning",
+        "subject_id": "sensors_instrumentation",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:sensors_instrumentation:sampling",
+        "label": "sampling",
+        "subject_id": "sensors_instrumentation",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:sensors_instrumentation:calibration",
+        "label": "calibration",
+        "subject_id": "sensors_instrumentation",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:sensors_instrumentation:sensor_fusion",
+        "label": "sensor fusion",
+        "subject_id": "sensors_instrumentation",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:sensors_instrumentation:measurement_uncertainty",
+        "label": "measurement uncertainty",
+        "subject_id": "sensors_instrumentation",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "engineering",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "sensors_instrumentation",
+    "title": "AION Academy \u00b7 Sensors and instrumentation"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

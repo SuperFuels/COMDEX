@@ -1,0 +1,230 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_agronomy_soil",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:agronomy_soil",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_data_science_ml",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:data_science_ml",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_sensors_instrumentation",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:sensors_instrumentation",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:precision_agriculture:field_sensing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:precision_agriculture",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:precision_agriculture:geospatial_mapping",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:precision_agriculture",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:precision_agriculture:variable_rate_control",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:precision_agriculture",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:precision_agriculture:farm_automation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:precision_agriculture",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:precision_agriculture:yield_models",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:precision_agriculture",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:precision_agriculture:decision_support",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:precision_agriculture",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "agriculture",
+      "id": "work:aion@wave.tp:subject:precision_agriculture",
+      "label": "Precision and autonomous agriculture",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:precision_agriculture:field_sensing",
+      "label": "field sensing",
+      "subject_id": "precision_agriculture",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:precision_agriculture:geospatial_mapping",
+      "label": "geospatial mapping",
+      "subject_id": "precision_agriculture",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:precision_agriculture:variable_rate_control",
+      "label": "variable rate control",
+      "subject_id": "precision_agriculture",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:precision_agriculture:farm_automation",
+      "label": "farm automation",
+      "subject_id": "precision_agriculture",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:precision_agriculture:yield_models",
+      "label": "yield models",
+      "subject_id": "precision_agriculture",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:precision_agriculture:decision_support",
+      "label": "decision support",
+      "subject_id": "precision_agriculture",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_precision_agriculture",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:precision_agriculture:field_sensing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:precision_agriculture",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:precision_agriculture:geospatial_mapping",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:precision_agriculture",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:precision_agriculture:variable_rate_control",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:precision_agriculture",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:precision_agriculture:farm_automation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:precision_agriculture",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:precision_agriculture:yield_models",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:precision_agriculture",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:precision_agriculture:decision_support",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:precision_agriculture",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "agriculture",
+        "id": "work:aion@wave.tp:subject:precision_agriculture",
+        "label": "Precision and autonomous agriculture",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:precision_agriculture:field_sensing",
+        "label": "field sensing",
+        "subject_id": "precision_agriculture",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:precision_agriculture:geospatial_mapping",
+        "label": "geospatial mapping",
+        "subject_id": "precision_agriculture",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:precision_agriculture:variable_rate_control",
+        "label": "variable rate control",
+        "subject_id": "precision_agriculture",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:precision_agriculture:farm_automation",
+        "label": "farm automation",
+        "subject_id": "precision_agriculture",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:precision_agriculture:yield_models",
+        "label": "yield models",
+        "subject_id": "precision_agriculture",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:precision_agriculture:decision_support",
+        "label": "decision support",
+        "subject_id": "precision_agriculture",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "agriculture",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "precision_agriculture",
+    "title": "AION Academy \u00b7 Precision and autonomous agriculture"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

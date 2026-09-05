@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_cloud_identity_container_security",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:cloud_identity_container_security",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_network_wireless_security",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:network_wireless_security",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_detection_threat_hunting_incident_response",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:security_architecture_operations:zero_trust_architecture",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_architecture_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_architecture_operations:security_controls",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_architecture_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_architecture_operations:asset_inventory",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_architecture_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_architecture_operations:vulnerability_management",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_architecture_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_architecture_operations:supply_chain_assurance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_architecture_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_architecture_operations:business_continuity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_architecture_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_architecture_operations:metrics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_architecture_operations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:security_architecture_operations:security_governance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:security_architecture_operations",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:security_architecture_operations",
+      "label": "Security architecture and operational assurance",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_architecture_operations:zero_trust_architecture",
+      "label": "zero trust architecture",
+      "subject_id": "security_architecture_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_architecture_operations:security_controls",
+      "label": "security controls",
+      "subject_id": "security_architecture_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_architecture_operations:asset_inventory",
+      "label": "asset inventory",
+      "subject_id": "security_architecture_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_architecture_operations:vulnerability_management",
+      "label": "vulnerability management",
+      "subject_id": "security_architecture_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_architecture_operations:supply_chain_assurance",
+      "label": "supply chain assurance",
+      "subject_id": "security_architecture_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_architecture_operations:business_continuity",
+      "label": "business continuity",
+      "subject_id": "security_architecture_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_architecture_operations:metrics",
+      "label": "metrics",
+      "subject_id": "security_architecture_operations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:security_architecture_operations:security_governance",
+      "label": "security governance",
+      "subject_id": "security_architecture_operations",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_security_architecture_operations",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:security_architecture_operations:zero_trust_architecture",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_architecture_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_architecture_operations:security_controls",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_architecture_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_architecture_operations:asset_inventory",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_architecture_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_architecture_operations:vulnerability_management",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_architecture_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_architecture_operations:supply_chain_assurance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_architecture_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_architecture_operations:business_continuity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_architecture_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_architecture_operations:metrics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_architecture_operations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:security_architecture_operations:security_governance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:security_architecture_operations",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:security_architecture_operations",
+        "label": "Security architecture and operational assurance",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_architecture_operations:zero_trust_architecture",
+        "label": "zero trust architecture",
+        "subject_id": "security_architecture_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_architecture_operations:security_controls",
+        "label": "security controls",
+        "subject_id": "security_architecture_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_architecture_operations:asset_inventory",
+        "label": "asset inventory",
+        "subject_id": "security_architecture_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_architecture_operations:vulnerability_management",
+        "label": "vulnerability management",
+        "subject_id": "security_architecture_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_architecture_operations:supply_chain_assurance",
+        "label": "supply chain assurance",
+        "subject_id": "security_architecture_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_architecture_operations:business_continuity",
+        "label": "business continuity",
+        "subject_id": "security_architecture_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_architecture_operations:metrics",
+        "label": "metrics",
+        "subject_id": "security_architecture_operations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:security_architecture_operations:security_governance",
+        "label": "security governance",
+        "subject_id": "security_architecture_operations",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "security_architecture_operations",
+    "title": "AION Academy \u00b7 Security architecture and operational assurance"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

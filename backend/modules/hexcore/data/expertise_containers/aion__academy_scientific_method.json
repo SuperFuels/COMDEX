@@ -1,0 +1,211 @@
+{
+  "competence_awarded": false,
+  "container_refs": [],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:scientific_method:hypotheses",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:scientific_method",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:scientific_method:experimental_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:scientific_method",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:scientific_method:measurement",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:scientific_method",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:scientific_method:causal_inference",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:scientific_method",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:scientific_method:replication",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:scientific_method",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:scientific_method:literature_review",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:scientific_method",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "physical_science",
+      "id": "work:aion@wave.tp:subject:scientific_method",
+      "label": "Scientific method and measurement",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:scientific_method:hypotheses",
+      "label": "hypotheses",
+      "subject_id": "scientific_method",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:scientific_method:experimental_design",
+      "label": "experimental design",
+      "subject_id": "scientific_method",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:scientific_method:measurement",
+      "label": "measurement",
+      "subject_id": "scientific_method",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:scientific_method:causal_inference",
+      "label": "causal inference",
+      "subject_id": "scientific_method",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:scientific_method:replication",
+      "label": "replication",
+      "subject_id": "scientific_method",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:scientific_method:literature_review",
+      "label": "literature review",
+      "subject_id": "scientific_method",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_scientific_method",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:scientific_method:hypotheses",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:scientific_method",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:scientific_method:experimental_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:scientific_method",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:scientific_method:measurement",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:scientific_method",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:scientific_method:causal_inference",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:scientific_method",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:scientific_method:replication",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:scientific_method",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:scientific_method:literature_review",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:scientific_method",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "physical_science",
+        "id": "work:aion@wave.tp:subject:scientific_method",
+        "label": "Scientific method and measurement",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:scientific_method:hypotheses",
+        "label": "hypotheses",
+        "subject_id": "scientific_method",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:scientific_method:experimental_design",
+        "label": "experimental design",
+        "subject_id": "scientific_method",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:scientific_method:measurement",
+        "label": "measurement",
+        "subject_id": "scientific_method",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:scientific_method:causal_inference",
+        "label": "causal inference",
+        "subject_id": "scientific_method",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:scientific_method:replication",
+        "label": "replication",
+        "subject_id": "scientific_method",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:scientific_method:literature_review",
+        "label": "literature review",
+        "subject_id": "scientific_method",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "physical_science",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "scientific_method",
+    "title": "AION Academy \u00b7 Scientific method and measurement"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

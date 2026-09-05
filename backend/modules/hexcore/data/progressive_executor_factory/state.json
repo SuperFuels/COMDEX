@@ -216,9 +216,3365 @@
         "supervised_learning",
         "unsupervised_learning"
       ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 7,
+      "declared_subskills": [
+        "assets",
+        "behaviour",
+        "derivatives",
+        "market_structure",
+        "portfolio_theory",
+        "regulation",
+        "risk"
+      ],
+      "family": "market_and_risk_execution",
+      "installed_at": "2026-08-21T16:56:15.599348+00:00",
+      "source_hash": "cbdf05be21e56e4ed46572d782f27330e1128d631f5f29bdd3ff17e667fac9fb",
+      "status": "installed_verified_adapter",
+      "subject_id": "markets_investing",
+      "subject_name": "Financial markets and investment",
+      "supported_subskills": [
+        "assets",
+        "behaviour",
+        "derivatives",
+        "market_structure",
+        "portfolio_theory",
+        "regulation",
+        "risk"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 6,
+      "declared_subskills": [
+        "bayesian_reasoning",
+        "distributions",
+        "estimation",
+        "hypothesis_testing",
+        "probability",
+        "uncertainty"
+      ],
+      "family": "probability_and_inference",
+      "installed_at": "2026-08-21T21:13:17.235912+00:00",
+      "source_hash": "84df43a98ff654caa51a74dec81fc35af6ece2df34c29d13741907b8c0998de2",
+      "status": "installed_verified_adapter",
+      "subject_id": "probability_statistics",
+      "subject_name": "Probability and statistics",
+      "supported_subskills": [
+        "bayesian_reasoning",
+        "distributions",
+        "estimation",
+        "hypothesis_testing",
+        "probability",
+        "uncertainty"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 7,
+      "declared_subskills": [
+        "bookkeeping",
+        "capital_budgeting",
+        "cash",
+        "controls",
+        "cost_accounting",
+        "statements",
+        "valuation"
+      ],
+      "family": "accounting_and_valuation",
+      "installed_at": "2026-08-21T21:13:17.235923+00:00",
+      "source_hash": "03cf7400f977cc24e8af2b250f62429d07f97ddd8b5e70cedbd78b67fa096706",
+      "status": "installed_verified_adapter",
+      "subject_id": "accounting_corporate_finance",
+      "subject_name": "Accounting and corporate finance",
+      "supported_subskills": [
+        "bookkeeping",
+        "capital_budgeting",
+        "cash",
+        "controls",
+        "cost_accounting",
+        "statements",
+        "valuation"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "change_of_measure",
+        "convexity",
+        "discounting",
+        "martingales",
+        "no_arbitrage",
+        "numerical_pricing",
+        "returns",
+        "state_prices"
+      ],
+      "family": "financial_proof_and_pricing",
+      "installed_at": "2026-08-21T21:13:17.235930+00:00",
+      "source_hash": "1b087036499673479ba36791b11cb6c50b23eb88b4b1043fee2a3c2e12d59135",
+      "status": "installed_verified_adapter",
+      "subject_id": "financial_mathematics",
+      "subject_name": "Financial mathematics",
+      "supported_subskills": [
+        "change_of_measure",
+        "convexity",
+        "discounting",
+        "martingales",
+        "no_arbitrage",
+        "numerical_pricing",
+        "returns",
+        "state_prices"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "accountability",
+        "governance",
+        "institutional_power",
+        "law_and_rules",
+        "legitimacy",
+        "power_failure_modes",
+        "state_capacity",
+        "trust"
+      ],
+      "family": "strategic_stewardship_decision",
+      "installed_at": "2026-08-21T22:12:06.952825+00:00",
+      "source_hash": "9beda51b6679cf1c93ad34521cf4e4c9d09762a88b9e500552d8fa0c324bff08",
+      "status": "installed_verified_adapter",
+      "subject_id": "power_institutions_legitimacy",
+      "subject_name": "Power, institutions and legitimate authority",
+      "supported_subskills": [
+        "accountability",
+        "governance",
+        "institutional_power",
+        "law_and_rules",
+        "legitimacy",
+        "power_failure_modes",
+        "state_capacity",
+        "trust"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "attention_systems",
+        "confidentiality",
+        "intelligence_collection",
+        "misinformation_defence",
+        "narrative_analysis",
+        "source_criticism",
+        "transparency",
+        "uncertainty"
+      ],
+      "family": "strategic_stewardship_decision",
+      "installed_at": "2026-08-21T22:12:06.952836+00:00",
+      "source_hash": "9beda51b6679cf1c93ad34521cf4e4c9d09762a88b9e500552d8fa0c324bff08",
+      "status": "installed_verified_adapter",
+      "subject_id": "information_intelligence_attention",
+      "subject_name": "Information, intelligence and ethical attention systems",
+      "supported_subskills": [
+        "attention_systems",
+        "confidentiality",
+        "intelligence_collection",
+        "misinformation_defence",
+        "narrative_analysis",
+        "source_criticism",
+        "transparency",
+        "uncertainty"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "asset_thesis",
+        "build_buy_partner",
+        "control_rights",
+        "dependency_reduction",
+        "exit_discipline",
+        "optionality",
+        "portfolio_allocation",
+        "valuation"
+      ],
+      "family": "strategic_stewardship_decision",
+      "installed_at": "2026-08-21T22:12:06.952842+00:00",
+      "source_hash": "9beda51b6679cf1c93ad34521cf4e4c9d09762a88b9e500552d8fa0c324bff08",
+      "status": "installed_verified_adapter",
+      "subject_id": "strategic_assets_capital_allocation",
+      "subject_name": "Strategic assets and capital allocation",
+      "supported_subskills": [
+        "asset_thesis",
+        "build_buy_partner",
+        "control_rights",
+        "dependency_reduction",
+        "exit_discipline",
+        "optionality",
+        "portfolio_allocation",
+        "valuation"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "compute_data_energy",
+        "distribution_power",
+        "industry_structure",
+        "intellectual_property",
+        "manufacturing_scale",
+        "platform_economics",
+        "standards_strategy",
+        "technology_forecasting"
+      ],
+      "family": "strategic_stewardship_decision",
+      "installed_at": "2026-08-21T22:12:06.952848+00:00",
+      "source_hash": "9beda51b6679cf1c93ad34521cf4e4c9d09762a88b9e500552d8fa0c324bff08",
+      "status": "installed_verified_adapter",
+      "subject_id": "technology_industry_platforms",
+      "subject_name": "Technology, industry, platforms and standards",
+      "supported_subskills": [
+        "compute_data_energy",
+        "distribution_power",
+        "industry_structure",
+        "intellectual_property",
+        "manufacturing_scale",
+        "platform_economics",
+        "standards_strategy",
+        "technology_forecasting"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "alliances",
+        "coordination",
+        "culture",
+        "incentive_alignment",
+        "negotiation",
+        "organisation_design",
+        "succession",
+        "talent_systems"
+      ],
+      "family": "strategic_stewardship_decision",
+      "installed_at": "2026-08-21T22:12:06.952853+00:00",
+      "source_hash": "9beda51b6679cf1c93ad34521cf4e4c9d09762a88b9e500552d8fa0c324bff08",
+      "status": "installed_verified_adapter",
+      "subject_id": "networks_talent_coordination",
+      "subject_name": "Networks, talent and organisational coordination",
+      "supported_subskills": [
+        "alliances",
+        "coordination",
+        "culture",
+        "incentive_alignment",
+        "negotiation",
+        "organisation_design",
+        "succession",
+        "talent_systems"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "defensive_security",
+        "geographic_advantage",
+        "logistics",
+        "resilience",
+        "resource_security",
+        "scenario_planning",
+        "strategic_patience",
+        "supply_dependencies"
+      ],
+      "family": "strategic_stewardship_decision",
+      "installed_at": "2026-08-21T22:12:06.952858+00:00",
+      "source_hash": "9beda51b6679cf1c93ad34521cf4e4c9d09762a88b9e500552d8fa0c324bff08",
+      "status": "installed_verified_adapter",
+      "subject_id": "resilience_geography_long_horizon",
+      "subject_name": "Geography, logistics, resilience and long-horizon strategy",
+      "supported_subskills": [
+        "defensive_security",
+        "geographic_advantage",
+        "logistics",
+        "resilience",
+        "resource_security",
+        "scenario_planning",
+        "strategic_patience",
+        "supply_dependencies"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "api_security",
+        "authentication",
+        "authorization",
+        "browser_security",
+        "injection_defence",
+        "secure_coding",
+        "security_testing",
+        "session_security"
+      ],
+      "family": "authorized_cyber_range",
+      "installed_at": "2026-08-21T22:28:51.844127+00:00",
+      "source_hash": "06953b943ea652234b436db7f812494454373d2cc4dfb75c3d7d9e308ea78055",
+      "status": "installed_verified_adapter",
+      "subject_id": "application_web_api_security",
+      "subject_name": "Application, web and API security",
+      "supported_subskills": [
+        "api_security",
+        "authentication",
+        "authorization",
+        "browser_security",
+        "injection_defence",
+        "secure_coding",
+        "security_testing",
+        "session_security"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "cryptography",
+        "identity",
+        "incident_response",
+        "network_security",
+        "privacy",
+        "secure_design",
+        "supply_chain",
+        "threat_models"
+      ],
+      "family": "authorized_cyber_range",
+      "installed_at": "2026-08-21T22:28:51.844141+00:00",
+      "source_hash": "06953b943ea652234b436db7f812494454373d2cc4dfb75c3d7d9e308ea78055",
+      "status": "installed_verified_adapter",
+      "subject_id": "cybersecurity",
+      "subject_name": "Cybersecurity and privacy",
+      "supported_subskills": [
+        "cryptography",
+        "identity",
+        "incident_response",
+        "network_security",
+        "privacy",
+        "secure_design",
+        "supply_chain",
+        "threat_models"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "firewalls",
+        "network_reconnaissance",
+        "network_validation",
+        "protocol_analysis",
+        "secure_routing",
+        "segmentation",
+        "vpn_zero_trust",
+        "wireless_security"
+      ],
+      "family": "authorized_cyber_range",
+      "installed_at": "2026-08-21T22:28:51.844150+00:00",
+      "source_hash": "06953b943ea652234b436db7f812494454373d2cc4dfb75c3d7d9e308ea78055",
+      "status": "installed_verified_adapter",
+      "subject_id": "network_wireless_security",
+      "subject_name": "Network and wireless security",
+      "supported_subskills": [
+        "firewalls",
+        "network_reconnaissance",
+        "network_validation",
+        "protocol_analysis",
+        "secure_routing",
+        "segmentation",
+        "vpn_zero_trust",
+        "wireless_security"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "cloud_posture",
+        "container_security",
+        "continuous_assurance",
+        "identity_access_management",
+        "kubernetes_security",
+        "secrets",
+        "serverless_security",
+        "tenant_isolation"
+      ],
+      "family": "authorized_cyber_range",
+      "installed_at": "2026-08-21T22:28:51.844163+00:00",
+      "source_hash": "06953b943ea652234b436db7f812494454373d2cc4dfb75c3d7d9e308ea78055",
+      "status": "installed_verified_adapter",
+      "subject_id": "cloud_identity_container_security",
+      "subject_name": "Cloud, identity and container security",
+      "supported_subskills": [
+        "cloud_posture",
+        "container_security",
+        "continuous_assurance",
+        "identity_access_management",
+        "kubernetes_security",
+        "secrets",
+        "serverless_security",
+        "tenant_isolation"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "attack_surface_mapping",
+        "controlled_exploitation",
+        "evidence_preservation",
+        "privilege_boundary_testing",
+        "reconnaissance",
+        "remediation_verification",
+        "scope_authorization",
+        "vulnerability_validation"
+      ],
+      "family": "authorized_cyber_range",
+      "installed_at": "2026-08-21T22:28:51.844171+00:00",
+      "source_hash": "06953b943ea652234b436db7f812494454373d2cc4dfb75c3d7d9e308ea78055",
+      "status": "installed_verified_adapter",
+      "subject_id": "adversary_emulation_penetration_testing",
+      "subject_name": "Authorised adversary emulation and penetration testing",
+      "supported_subskills": [
+        "attack_surface_mapping",
+        "controlled_exploitation",
+        "evidence_preservation",
+        "privilege_boundary_testing",
+        "reconnaissance",
+        "remediation_verification",
+        "scope_authorization",
+        "vulnerability_validation"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "assembly_fundamentals",
+        "binary_formats",
+        "debugging",
+        "dynamic_analysis",
+        "exploit_mitigation",
+        "malware_triage",
+        "memory_safety",
+        "static_analysis"
+      ],
+      "family": "authorized_cyber_range",
+      "installed_at": "2026-08-21T22:28:51.844177+00:00",
+      "source_hash": "06953b943ea652234b436db7f812494454373d2cc4dfb75c3d7d9e308ea78055",
+      "status": "installed_verified_adapter",
+      "subject_id": "exploit_analysis_reverse_engineering",
+      "subject_name": "Exploit analysis and defensive reverse engineering",
+      "supported_subskills": [
+        "assembly_fundamentals",
+        "binary_formats",
+        "debugging",
+        "dynamic_analysis",
+        "exploit_mitigation",
+        "malware_triage",
+        "memory_safety",
+        "static_analysis"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "containment",
+        "detection_logic",
+        "eradication",
+        "post_incident_learning",
+        "recovery",
+        "telemetry",
+        "threat_hunting",
+        "triage"
+      ],
+      "family": "authorized_cyber_range",
+      "installed_at": "2026-08-21T22:28:51.844184+00:00",
+      "source_hash": "06953b943ea652234b436db7f812494454373d2cc4dfb75c3d7d9e308ea78055",
+      "status": "installed_verified_adapter",
+      "subject_id": "detection_threat_hunting_incident_response",
+      "subject_name": "Detection engineering, threat hunting and incident response",
+      "supported_subskills": [
+        "containment",
+        "detection_logic",
+        "eradication",
+        "post_incident_learning",
+        "recovery",
+        "telemetry",
+        "threat_hunting",
+        "triage"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "authentication_protocols",
+        "cryptographic_primitives",
+        "formal_protocol_review",
+        "key_management",
+        "nonce_replay_safety",
+        "protocol_state_machines",
+        "side_channels",
+        "tls"
+      ],
+      "family": "authorized_cyber_range",
+      "installed_at": "2026-08-21T22:28:51.844191+00:00",
+      "source_hash": "06953b943ea652234b436db7f812494454373d2cc4dfb75c3d7d9e308ea78055",
+      "status": "installed_verified_adapter",
+      "subject_id": "cryptography_protocol_security",
+      "subject_name": "Applied cryptography and protocol security",
+      "supported_subskills": [
+        "authentication_protocols",
+        "cryptographic_primitives",
+        "formal_protocol_review",
+        "key_management",
+        "nonce_replay_safety",
+        "protocol_state_machines",
+        "side_channels",
+        "tls"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "debug_interfaces",
+        "embedded_networks",
+        "firmware_analysis",
+        "hardware_roots_of_trust",
+        "industrial_protocols",
+        "physical_cyber_incidents",
+        "safety_boundaries",
+        "secure_updates"
+      ],
+      "family": "authorized_cyber_range",
+      "installed_at": "2026-08-21T22:28:51.844197+00:00",
+      "source_hash": "06953b943ea652234b436db7f812494454373d2cc4dfb75c3d7d9e308ea78055",
+      "status": "installed_verified_adapter",
+      "subject_id": "hardware_embedded_ot_security",
+      "subject_name": "Hardware, embedded and operational-technology security",
+      "supported_subskills": [
+        "debug_interfaces",
+        "embedded_networks",
+        "firmware_analysis",
+        "hardware_roots_of_trust",
+        "industrial_protocols",
+        "physical_cyber_incidents",
+        "safety_boundaries",
+        "secure_updates"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "authorization",
+        "embargo",
+        "minimal_proof",
+        "public_disclosure",
+        "reproducibility",
+        "research_ethics",
+        "severity",
+        "vendor_coordination"
+      ],
+      "family": "authorized_cyber_range",
+      "installed_at": "2026-08-21T22:28:51.844204+00:00",
+      "source_hash": "06953b943ea652234b436db7f812494454373d2cc4dfb75c3d7d9e308ea78055",
+      "status": "installed_verified_adapter",
+      "subject_id": "security_research_disclosure",
+      "subject_name": "Security research and responsible vulnerability disclosure",
+      "supported_subskills": [
+        "authorization",
+        "embargo",
+        "minimal_proof",
+        "public_disclosure",
+        "reproducibility",
+        "research_ethics",
+        "severity",
+        "vendor_coordination"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "asset_inventory",
+        "business_continuity",
+        "metrics",
+        "security_controls",
+        "security_governance",
+        "supply_chain_assurance",
+        "vulnerability_management",
+        "zero_trust_architecture"
+      ],
+      "family": "authorized_cyber_range",
+      "installed_at": "2026-08-21T22:28:51.844209+00:00",
+      "source_hash": "06953b943ea652234b436db7f812494454373d2cc4dfb75c3d7d9e308ea78055",
+      "status": "installed_verified_adapter",
+      "subject_id": "security_architecture_operations",
+      "subject_name": "Security architecture and operational assurance",
+      "supported_subskills": [
+        "asset_inventory",
+        "business_continuity",
+        "metrics",
+        "security_controls",
+        "security_governance",
+        "supply_chain_assurance",
+        "vulnerability_management",
+        "zero_trust_architecture"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "aggregation",
+        "base_rates",
+        "bayesian_updates",
+        "calibration",
+        "decision_thresholds",
+        "forecast_decomposition",
+        "proper_scoring_rules",
+        "reference_classes"
+      ],
+      "family": "governed_prediction_market",
+      "installed_at": "2026-08-21T22:47:02.613257+00:00",
+      "source_hash": "5c769543100b222c221659ccd683bb7682fe78e731a289d7ae379fddadd9c223",
+      "status": "installed_verified_adapter",
+      "subject_id": "probabilistic_forecasting_calibration",
+      "subject_name": "Probabilistic forecasting and calibration",
+      "supported_subskills": [
+        "aggregation",
+        "base_rates",
+        "bayesian_updates",
+        "calibration",
+        "decision_thresholds",
+        "forecast_decomposition",
+        "proper_scoring_rules",
+        "reference_classes"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "binary_contracts",
+        "cross_market_coherence",
+        "execution_controls",
+        "fees_slippage",
+        "implied_probability",
+        "liquidity",
+        "order_books",
+        "position_sizing"
+      ],
+      "family": "governed_prediction_market",
+      "installed_at": "2026-08-21T22:47:02.613267+00:00",
+      "source_hash": "5c769543100b222c221659ccd683bb7682fe78e731a289d7ae379fddadd9c223",
+      "status": "installed_verified_adapter",
+      "subject_id": "prediction_market_microstructure",
+      "subject_name": "Prediction-market microstructure and execution",
+      "supported_subskills": [
+        "binary_contracts",
+        "cross_market_coherence",
+        "execution_controls",
+        "fees_slippage",
+        "implied_probability",
+        "liquidity",
+        "order_books",
+        "position_sizing"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "audit_trail",
+        "conflicting_sources",
+        "manipulation_risk",
+        "question_decomposition",
+        "resolution_rules",
+        "settlement_review",
+        "source_hierarchy",
+        "timeline_evidence"
+      ],
+      "family": "governed_prediction_market",
+      "installed_at": "2026-08-21T22:47:02.613275+00:00",
+      "source_hash": "5c769543100b222c221659ccd683bb7682fe78e731a289d7ae379fddadd9c223",
+      "status": "installed_verified_adapter",
+      "subject_id": "event_evidence_resolution_research",
+      "subject_name": "Event evidence and resolution research",
+      "supported_subskills": [
+        "audit_trail",
+        "conflicting_sources",
+        "manipulation_risk",
+        "question_decomposition",
+        "resolution_rules",
+        "settlement_review",
+        "source_hierarchy",
+        "timeline_evidence"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "campaign_dynamics",
+        "demographics",
+        "electoral_systems",
+        "forecast_error",
+        "institutional_scenarios",
+        "poll_aggregation",
+        "poll_sampling",
+        "turnout_models"
+      ],
+      "family": "governed_prediction_market",
+      "installed_at": "2026-08-21T22:47:02.613280+00:00",
+      "source_hash": "5c769543100b222c221659ccd683bb7682fe78e731a289d7ae379fddadd9c223",
+      "status": "installed_verified_adapter",
+      "subject_id": "elections_polling_public_opinion",
+      "subject_name": "Elections, polling and public-opinion analysis",
+      "supported_subskills": [
+        "campaign_dynamics",
+        "demographics",
+        "electoral_systems",
+        "forecast_error",
+        "institutional_scenarios",
+        "poll_aggregation",
+        "poll_sampling",
+        "turnout_models"
+      ]
+    },
+    {
+      "authority": "executable_candidate_plus_counterexample_falsification",
+      "counterexamples": 8,
+      "declared_subskills": [
+        "insider_information",
+        "jurisdiction",
+        "manipulation_resistance",
+        "market_demand",
+        "objective_question_design",
+        "post_settlement_review",
+        "proposal_governance",
+        "resolution_authority"
+      ],
+      "family": "governed_prediction_market",
+      "installed_at": "2026-08-21T22:47:02.613285+00:00",
+      "source_hash": "5c769543100b222c221659ccd683bb7682fe78e731a289d7ae379fddadd9c223",
+      "status": "installed_verified_adapter",
+      "subject_id": "prediction_market_design_compliance",
+      "subject_name": "Prediction-market design, integrity and compliance",
+      "supported_subskills": [
+        "insider_information",
+        "jurisdiction",
+        "manipulation_resistance",
+        "market_demand",
+        "objective_question_design",
+        "post_settlement_review",
+        "proposal_governance",
+        "resolution_authority"
+      ]
     }
   ],
-  "rejections": [],
+  "rejections": [
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T07:42:31.736298+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T07:43:04.805184+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T08:20:06.955721+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T08:20:24.462927+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T08:41:01.754123+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T09:15:19.831000+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T09:39:39.370012+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T09:57:48.430142+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T10:24:19.777327+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T10:49:04.531771+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T11:20:34.453220+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T11:42:14.880459+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T12:09:51.034060+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T12:26:34.318235+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T12:49:48.087865+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T12:50:44.569555+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T12:51:04.150951+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T12:53:23.793892+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T12:53:43.899287+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T12:56:23.777168+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T12:56:40.138698+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T12:57:57.336457+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T12:58:16.392059+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T13:09:30.198498+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T13:20:34.801782+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T13:31:37.298754+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T13:34:57.719962+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T13:35:17.714483+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T13:37:07.291408+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T13:37:28.807082+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T13:48:10.311115+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T14:03:40.188451+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T14:04:02.200970+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T14:13:22.321565+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T14:13:44.778015+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T14:14:25.317775+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T14:14:49.083393+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T14:33:08.194861+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T14:44:06.634850+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T15:15:31.644822+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T15:32:04.761601+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T16:06:22.241629+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T16:35:53.693597+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T16:47:06.111911+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T16:51:54.497358+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T16:52:17.120675+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T16:56:15.599308+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T16:56:38.459755+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T16:58:19.915271+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T18:12:30.523218+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T19:49:18.256937+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T20:50:34.781980+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T21:13:17.235737+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T21:14:34.801793+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T21:19:06.066012+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T21:51:19.474305+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T22:12:06.952637+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T22:12:12.709566+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T22:28:51.843883+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T22:29:00.762224+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T22:47:02.613050+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T22:47:11.853143+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T22:52:06.920083+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T22:52:37.741157+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T22:54:15.161797+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T23:11:12.879342+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T23:12:41.550972+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-21T23:13:30.578264+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T00:08:51.831388+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T01:30:27.919541+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T02:58:47.050857+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T04:16:06.956159+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T05:34:59.970669+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T06:52:46.183027+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T07:19:35.975860+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T08:10:16.202496+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T09:19:10.930994+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T10:37:16.564816+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T11:43:36.450121+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T12:44:31.805477+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T13:00:55.909424+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T13:44:18.768163+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T13:45:32.227830+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T13:46:52.402366+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T15:05:26.236429+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T16:14:21.378784+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T17:09:24.207513+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T17:15:44.379095+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T17:17:39.733251+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T17:19:38.561129+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T17:22:39.682418+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T17:44:35.500277+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T17:58:17.531360+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T18:03:16.396683+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T18:20:28.185061+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T19:21:20.154507+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T20:22:31.677006+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T21:24:05.175525+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T22:25:19.526142+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-22T23:40:21.754379+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T03:41:29.629510+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T05:11:42.212948+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T06:13:57.988542+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T07:15:19.540292+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T08:16:18.139645+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T09:18:37.705387+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T10:36:20.389563+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T11:37:35.647684+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T12:38:18.913070+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T14:13:48.672653+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T15:18:58.781919+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T16:25:21.498270+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T17:43:01.230571+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T18:55:20.138214+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T19:56:39.272113+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T20:58:35.587403+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T21:55:40.781815+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T22:00:21.172584+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-23T23:31:54.466943+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T01:17:37.750219+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T03:30:07.264809+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T05:11:29.279682+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T07:37:34.616194+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T09:37:02.759617+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T11:23:55.806841+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T13:43:17.533273+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T14:44:33.167917+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T16:14:59.812528+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T17:18:20.714367+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T18:25:02.899069+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T19:36:58.248498+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T20:38:40.161657+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T22:02:57.666088+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-24T23:43:18.940250+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T01:22:25.782591+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T02:47:02.575156+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T04:21:29.930659+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T05:48:38.259096+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T07:05:27.006671+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T08:07:08.538727+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T09:08:23.276996+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T10:32:32.680959+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T11:33:48.916417+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T14:18:13.748340+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T15:20:18.141305+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T16:36:33.369623+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T17:39:39.313482+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T17:40:46.149247+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T18:43:51.427189+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T19:46:46.389139+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T20:48:42.827799+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T21:49:47.032647+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-25T22:52:50.846921+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T00:21:23.633283+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T01:28:19.520408+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T03:01:35.624345+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T04:26:12.074912+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T05:33:03.762713+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T06:45:23.164721+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T07:47:31.918689+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T09:10:50.187726+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T10:40:18.456628+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T11:41:37.382796+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T12:59:47.216071+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T14:24:37.831270+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T16:11:01.382915+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T17:19:44.869226+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T17:35:07.114207+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T18:20:30.105599+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T19:21:31.997207+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T20:22:47.021788+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T21:24:05.069802+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T22:51:38.338822+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-26T23:57:40.514486+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T01:01:07.249068+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T02:32:42.914684+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T03:42:20.050106+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T05:41:17.956522+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T06:43:33.460409+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T08:04:00.288784+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T09:40:13.686085+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T11:06:58.288175+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T12:46:20.701147+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T14:03:10.041637+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T15:29:14.535432+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T17:04:51.507555+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T18:16:51.813978+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-27T19:17:47.713480+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T01:40:53.184440+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T05:40:31.938255+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T06:37:29.100503+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T06:41:38.411698+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T06:46:03.551305+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T07:42:11.889911+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T08:44:55.174701+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T09:50:07.339110+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T11:04:34.024691+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T12:09:46.248672+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T13:19:46.345891+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T14:25:01.275199+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T15:30:17.170345+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T16:44:42.014103+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T17:46:38.666375+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T18:49:10.690247+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T19:50:02.057459+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T20:50:54.039842+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T21:52:45.982494+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T22:54:43.838586+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-28T23:55:49.629242+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T00:57:15.329411+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T01:58:20.538812+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T02:59:25.050502+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T04:00:40.951501+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T05:01:36.156512+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T06:03:02.585439+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T07:03:56.616398+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T08:05:22.371261+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T09:06:30.837552+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T10:07:45.053485+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T11:08:33.709336+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T12:09:19.373090+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T13:10:13.806605+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T14:11:23.731802+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T15:12:25.111085+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T16:13:51.792582+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T17:15:06.028861+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T18:16:21.328468+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T19:17:37.393818+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T20:18:32.550388+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T21:20:03.045315+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T22:21:00.417200+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-29T23:22:03.934386+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T00:26:23.040918+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T01:42:01.959983+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T03:03:14.484088+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T04:33:01.789037+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T05:35:40.977752+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T07:03:16.372836+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T08:08:28.329971+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T09:09:45.299170+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T10:31:08.857992+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T12:28:59.073136+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T13:41:31.174806+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T14:42:50.210322+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T15:50:19.759751+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T16:51:39.949144+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T17:53:15.609520+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T18:55:17.674560+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T19:56:38.574334+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T20:57:50.303499+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T22:01:29.525008+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-30T23:04:55.701414+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T00:07:19.719178+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T01:08:47.937941+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T02:09:48.279584+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T03:11:20.037221+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T04:12:13.741923+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T05:13:33.108101+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T06:14:33.901431+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T07:15:31.857403+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T08:16:29.234130+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T09:17:29.705464+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T10:18:22.761216+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T11:19:23.656945+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T12:20:50.954913+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T13:21:44.777582+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T14:23:00.774605+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T15:24:09.071273+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T16:25:47.250994+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T17:27:03.663593+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T18:28:01.495165+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T19:29:33.042329+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T20:31:13.691618+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T20:32:46.688254+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T21:32:21.204695+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T22:33:50.424410+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-08-31T23:34:46.179929+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T00:35:57.500166+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T01:37:05.616728+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T02:38:27.210385+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T03:39:23.058170+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T04:40:32.461946+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T05:41:41.317014+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T06:42:52.636637+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T07:43:56.290200+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T08:44:48.694321+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T09:46:13.425327+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T10:47:18.041892+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T11:48:24.188949+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T12:49:20.331573+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T13:50:37.713152+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T14:51:56.752724+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T15:53:27.804200+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T16:54:17.916158+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T17:55:31.870329+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T18:56:25.370386+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T19:58:13.900444+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T20:59:23.384933+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T22:01:20.382225+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-01T23:02:38.961560+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T00:03:55.840133+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T01:05:19.467869+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T02:06:28.829937+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T03:07:30.656466+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T04:08:34.888347+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T05:09:40.059303+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T06:10:30.962336+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T07:11:57.927297+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T08:13:13.913454+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T09:14:14.209224+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T10:16:12.782851+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T11:47:40.276873+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T12:48:40.594906+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T13:50:06.236985+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T14:51:25.278315+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T15:52:44.905870+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T16:54:06.788213+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T17:55:34.639337+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T18:56:47.526839+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T19:58:00.136071+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T20:59:28.721630+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T22:00:46.323131+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-02T23:01:54.614116+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T00:03:11.822703+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T01:04:08.498988+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T02:05:26.053682+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T03:06:25.580909+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T04:08:03.063093+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T05:09:38.683344+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T06:10:38.087443+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T07:12:08.327534+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T08:13:34.019466+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T09:14:33.140472+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T10:15:49.664298+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T11:17:03.099934+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T12:18:22.584542+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T13:19:44.912988+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T14:21:33.150469+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T15:22:58.700730+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T16:24:47.865973+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T17:26:17.080276+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T18:27:21.707594+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T19:28:56.946200+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T20:30:01.243424+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T21:32:45.424065+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T22:34:01.367482+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-03T23:35:20.144937+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T00:48:41.076448+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T02:16:14.922890+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T03:49:02.828520+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T05:13:28.621039+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T06:30:48.303962+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T07:31:51.171005+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T08:37:37.128462+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T09:51:06.206632+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T10:54:04.204400+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T12:25:55.796545+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T13:27:09.290381+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T14:28:23.122055+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T15:29:49.573198+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T16:30:58.739968+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T17:32:04.984744+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T18:34:09.297020+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T19:36:22.483531+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T20:51:22.601433+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T22:22:37.965620+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-04T23:58:57.688615+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-05T02:20:20.450096+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    },
+    {
+      "family": "empirical_dataset_or_experiment",
+      "reason": "incomplete_subskill_coverage_or_failed_falsification",
+      "recorded_at": "2026-09-05T03:15:55.342618+00:00",
+      "status": "rejected",
+      "subject_id": "scientific_method"
+    }
+  ],
   "schema_version": "aion.hexcore.autonomous_progressive_executor_factory.v1",
-  "updated_at": "2026-08-20T12:06:09.478403+00:00"
+  "updated_at": "2026-09-05T03:15:55.342779+00:00"
 }

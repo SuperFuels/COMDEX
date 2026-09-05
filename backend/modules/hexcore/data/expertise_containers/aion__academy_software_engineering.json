@@ -1,0 +1,246 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_programming_languages",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:programming_languages",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:software_engineering:requirements",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:software_engineering",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:software_engineering:architecture",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:software_engineering",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:software_engineering:testing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:software_engineering",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:software_engineering:debugging",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:software_engineering",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:software_engineering:version_control",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:software_engineering",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:software_engineering:delivery",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:software_engineering",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:software_engineering:maintenance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:software_engineering",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:software_engineering",
+      "label": "Software engineering",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:software_engineering:requirements",
+      "label": "requirements",
+      "subject_id": "software_engineering",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:software_engineering:architecture",
+      "label": "architecture",
+      "subject_id": "software_engineering",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:software_engineering:testing",
+      "label": "testing",
+      "subject_id": "software_engineering",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:software_engineering:debugging",
+      "label": "debugging",
+      "subject_id": "software_engineering",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:software_engineering:version_control",
+      "label": "version control",
+      "subject_id": "software_engineering",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:software_engineering:delivery",
+      "label": "delivery",
+      "subject_id": "software_engineering",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:software_engineering:maintenance",
+      "label": "maintenance",
+      "subject_id": "software_engineering",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_software_engineering",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:software_engineering:requirements",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:software_engineering",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:software_engineering:architecture",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:software_engineering",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:software_engineering:testing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:software_engineering",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:software_engineering:debugging",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:software_engineering",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:software_engineering:version_control",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:software_engineering",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:software_engineering:delivery",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:software_engineering",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:software_engineering:maintenance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:software_engineering",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:software_engineering",
+        "label": "Software engineering",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:software_engineering:requirements",
+        "label": "requirements",
+        "subject_id": "software_engineering",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:software_engineering:architecture",
+        "label": "architecture",
+        "subject_id": "software_engineering",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:software_engineering:testing",
+        "label": "testing",
+        "subject_id": "software_engineering",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:software_engineering:debugging",
+        "label": "debugging",
+        "subject_id": "software_engineering",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:software_engineering:version_control",
+        "label": "version control",
+        "subject_id": "software_engineering",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:software_engineering:delivery",
+        "label": "delivery",
+        "subject_id": "software_engineering",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:software_engineering:maintenance",
+        "label": "maintenance",
+        "subject_id": "software_engineering",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "software_engineering",
+    "title": "AION Academy \u00b7 Software engineering"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

@@ -1,0 +1,273 @@
+{
+  "claim_boundary": "Real observations are retained without converting one outcome into mastery.",
+  "contains_independently_observed_outcomes": true,
+  "edges": [
+    {
+      "id": "00a46e0f6cb93ac46d57482e",
+      "relation": "EXPOSES_GAP",
+      "source": "experience_capsule__field_response_scheduler_v1",
+      "target": "gap__field_response_scheduler_v1"
+    },
+    {
+      "id": "0873969d941a7f91d9fd4d6a",
+      "relation": "EXPOSES_GAP",
+      "source": "experience_capsule__resilient_service_network_v1",
+      "target": "gap__resilient_service_network_v1"
+    },
+    {
+      "id": "21db39012f9b1a3c14aaa629",
+      "relation": "APPLIES_IN",
+      "source": "subject__cloud_devops_sre",
+      "target": "experience_capsule__cloud_failover_capacity_v1"
+    },
+    {
+      "id": "29ab0552df4662ba1324de84",
+      "relation": "APPLIES_IN",
+      "source": "subject__networking",
+      "target": "experience_capsule__resilient_service_network_v1"
+    },
+    {
+      "id": "34afd45e57814bea6913a8ad",
+      "relation": "VALIDATED_BY",
+      "source": "repair__field_response_scheduler_v1",
+      "target": "experience_capsule__field_response_scheduler_v1"
+    },
+    {
+      "id": "4b56464a3937f062002417db",
+      "relation": "VALIDATED_BY",
+      "source": "repair__resilient_service_network_v1",
+      "target": "experience_capsule__resilient_service_network_v1"
+    },
+    {
+      "id": "4ce7dff8899939523da686a6",
+      "relation": "PRODUCES_WISDOM",
+      "source": "experience_capsule__cloud_failover_capacity_v1",
+      "target": "wisdom__cloud_failover_capacity_v1"
+    },
+    {
+      "id": "71549301acecc5c3d1329775",
+      "relation": "APPLIES_IN",
+      "source": "subject__algorithms_data_structures",
+      "target": "experience_capsule__field_response_scheduler_v1"
+    },
+    {
+      "id": "7ed79d0f9734746c1dbf506a",
+      "relation": "VALIDATED_BY",
+      "source": "repair__cloud_failover_capacity_v1",
+      "target": "experience_capsule__cloud_failover_capacity_v1"
+    },
+    {
+      "id": "8749459d468d92d4c531130c",
+      "relation": "APPLIES_IN",
+      "source": "subject__distributed_systems",
+      "target": "experience_capsule__resilient_service_network_v1"
+    },
+    {
+      "id": "891fc90eecf84a7ceca8666b",
+      "relation": "TESTED_IN_REAL_WORLD_BY",
+      "source": "subject__software_engineering",
+      "target": "real_experience_capsule__public_software_change_observation_v1"
+    },
+    {
+      "id": "940a06dd1ffdff29231879ff",
+      "relation": "REPAIRED_BY",
+      "source": "gap__field_response_scheduler_v1",
+      "target": "repair__field_response_scheduler_v1"
+    },
+    {
+      "id": "a81cb5210dcc2ae448bb953e",
+      "relation": "REPAIRED_BY",
+      "source": "gap__cloud_failover_capacity_v1",
+      "target": "repair__cloud_failover_capacity_v1"
+    },
+    {
+      "id": "b52a0a6ce9f880c84119ed26",
+      "relation": "APPLIES_IN",
+      "source": "subject__integrated_engineering_capstone",
+      "target": "experience_capsule__field_response_scheduler_v1"
+    },
+    {
+      "id": "b64e6fcb5eb409c03fcb5e9d",
+      "relation": "EXPOSES_GAP",
+      "source": "experience_capsule__cloud_failover_capacity_v1",
+      "target": "gap__cloud_failover_capacity_v1"
+    },
+    {
+      "id": "b6567d783c6312a325c92d4e",
+      "relation": "APPLIES_IN",
+      "source": "subject__architecture_operations",
+      "target": "experience_capsule__cloud_failover_capacity_v1"
+    },
+    {
+      "id": "b8329e88982a55d4e01413fa",
+      "relation": "PRODUCES_WISDOM",
+      "source": "experience_capsule__resilient_service_network_v1",
+      "target": "wisdom__resilient_service_network_v1"
+    },
+    {
+      "id": "c7d21549bb88a9aa277805b5",
+      "relation": "TESTED_IN_REAL_WORLD_BY",
+      "source": "subject__distributed_systems",
+      "target": "real_experience_capsule__public_software_change_observation_v1"
+    },
+    {
+      "id": "d190fd9f0a5f4bb6efe9f377",
+      "relation": "REPAIRED_BY",
+      "source": "gap__resilient_service_network_v1",
+      "target": "repair__resilient_service_network_v1"
+    },
+    {
+      "id": "df62b8214e4918271c7fb338",
+      "relation": "SCORED_BY",
+      "source": "real_experience_capsule__public_software_change_observation_v1",
+      "target": "public_observation__92784a94521cccd82b0cc6b772a398f62eada07240a0c28228cc69e487e4bd64"
+    },
+    {
+      "id": "e4356643b391bc2d15a56b94",
+      "relation": "TESTED_IN_REAL_WORLD_BY",
+      "source": "subject__python_core",
+      "target": "real_experience_capsule__public_software_change_observation_v1"
+    },
+    {
+      "id": "eada127c2cabe4c1dcd3bedb",
+      "relation": "PRODUCES_REAL_LESSON",
+      "source": "public_observation__92784a94521cccd82b0cc6b772a398f62eada07240a0c28228cc69e487e4bd64",
+      "target": "real_lesson__public_software_change_observation_v1"
+    },
+    {
+      "id": "f11e7e191cc9c3f5aa8caa2e",
+      "relation": "PRODUCES_WISDOM",
+      "source": "experience_capsule__field_response_scheduler_v1",
+      "target": "wisdom__field_response_scheduler_v1"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "experience_capsule__cloud_failover_capacity_v1",
+      "kind": "experience_capsule",
+      "label": "Cloud failover with dependency and capacity pressure"
+    },
+    {
+      "id": "experience_capsule__field_response_scheduler_v1",
+      "kind": "experience_capsule",
+      "label": "Field response scheduling under capacity constraints"
+    },
+    {
+      "id": "experience_capsule__resilient_service_network_v1",
+      "kind": "experience_capsule",
+      "label": "Resilient service routing during a primary-node failure"
+    },
+    {
+      "id": "gap__cloud_failover_capacity_v1",
+      "kind": "knowledge_action_gap",
+      "label": "Static subject knowledge did not itself supply a fail-closed policy for interacting constraints."
+    },
+    {
+      "id": "gap__field_response_scheduler_v1",
+      "kind": "knowledge_action_gap",
+      "label": "Static subject knowledge did not itself supply a fail-closed policy for interacting constraints."
+    },
+    {
+      "id": "gap__resilient_service_network_v1",
+      "kind": "knowledge_action_gap",
+      "label": "Static subject knowledge did not itself supply a fail-closed policy for interacting constraints."
+    },
+    {
+      "id": "public_observation__92784a94521cccd82b0cc6b772a398f62eada07240a0c28228cc69e487e4bd64",
+      "kind": "independent_public_observation",
+      "label": "public outcome cycle 3666"
+    },
+    {
+      "id": "real_experience_capsule__public_software_change_observation_v1",
+      "kind": "real_experience_capsule",
+      "label": "Observe an unseen public software ecosystem change",
+      "outcome_success": true
+    },
+    {
+      "id": "real_lesson__public_software_change_observation_v1",
+      "kind": "real_world_lesson",
+      "label": "The frozen public-software continuity model matched the later world observation."
+    },
+    {
+      "id": "repair__cloud_failover_capacity_v1",
+      "kind": "repair_policy",
+      "label": "Apply dependency-aware ordering, exclude inactive resources, track remaining capacity, and refuse work that cannot be safely placed."
+    },
+    {
+      "id": "repair__field_response_scheduler_v1",
+      "kind": "repair_policy",
+      "label": "Apply dependency-aware ordering, exclude inactive resources, track remaining capacity, and refuse work that cannot be safely placed."
+    },
+    {
+      "id": "repair__resilient_service_network_v1",
+      "kind": "repair_policy",
+      "label": "Apply dependency-aware ordering, exclude inactive resources, track remaining capacity, and refuse work that cannot be safely placed."
+    },
+    {
+      "id": "subject__algorithms_data_structures",
+      "kind": "subject_knowledge",
+      "label": "Algorithms and Data Structures",
+      "level": "advanced"
+    },
+    {
+      "id": "subject__architecture_operations",
+      "kind": "subject_knowledge",
+      "label": "Architecture and Production Operations",
+      "level": "advanced"
+    },
+    {
+      "id": "subject__cloud_devops_sre",
+      "kind": "subject_knowledge",
+      "label": "Cloud, DevOps and Site Reliability",
+      "level": "advanced"
+    },
+    {
+      "id": "subject__distributed_systems",
+      "kind": "subject_knowledge",
+      "label": "Distributed Systems",
+      "level": "advanced"
+    },
+    {
+      "id": "subject__integrated_engineering_capstone",
+      "kind": "subject_knowledge",
+      "label": "Integrated Engineering Capstone",
+      "level": "advanced"
+    },
+    {
+      "id": "subject__networking",
+      "kind": "subject_knowledge",
+      "label": "Computer Networking",
+      "level": "advanced"
+    },
+    {
+      "id": "subject__python_core",
+      "kind": "subject_knowledge",
+      "label": "Python Core",
+      "level": "advanced"
+    },
+    {
+      "id": "subject__software_engineering",
+      "kind": "subject_knowledge",
+      "label": "Software engineering",
+      "level": "expert"
+    },
+    {
+      "id": "wisdom__cloud_failover_capacity_v1",
+      "kind": "wisdom_rule",
+      "label": "Do not deploy a theoretically valid plan until availability, capacity, dependencies, and refusal conditions have all been checked."
+    },
+    {
+      "id": "wisdom__field_response_scheduler_v1",
+      "kind": "wisdom_rule",
+      "label": "Do not deploy a theoretically valid plan until availability, capacity, dependencies, and refusal conditions have all been checked."
+    },
+    {
+      "id": "wisdom__resilient_service_network_v1",
+      "kind": "wisdom_rule",
+      "label": "Do not deploy a theoretically valid plan until availability, capacity, dependencies, and refusal conditions have all been checked."
+    }
+  ],
+  "schema_version": "aion.hexcore.applied_experience_graph.v1",
+  "separate_from_textbook_graph": true,
+  "updated_at": "2026-08-21T14:12:18.520285+00:00"
+}

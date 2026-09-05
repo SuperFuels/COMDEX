@@ -1,0 +1,17 @@
+{
+  "assessment_receipts": [],
+  "dimensions": [],
+  "evidence_capsules": [],
+  "glyphs": [],
+  "id": "aion__expertise_evidence",
+  "meta": {
+    "graph": "work",
+    "kind": "evidence_authority",
+    "ownerWA": "aion@wave.tp",
+    "title": "AION \u00b7 Expertise Evidence and Examinations"
+  },
+  "schema_version": "aion.container.expertise_evidence.v1",
+  "self_scoring_cannot_award_competence": true,
+  "source_disjoint_required": true,
+  "type": "container"
+}

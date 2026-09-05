@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_cybersecurity",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:cybersecurity",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_data_science_ml",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:data_science_ml",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_operating_distributed_networks",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:telemetry",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:detection_logic",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:threat_hunting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:triage",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:containment",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:eradication",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:recovery",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:post_incident_learning",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+      "label": "Detection engineering, threat hunting and incident response",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:telemetry",
+      "label": "telemetry",
+      "subject_id": "detection_threat_hunting_incident_response",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:detection_logic",
+      "label": "detection logic",
+      "subject_id": "detection_threat_hunting_incident_response",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:threat_hunting",
+      "label": "threat hunting",
+      "subject_id": "detection_threat_hunting_incident_response",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:triage",
+      "label": "triage",
+      "subject_id": "detection_threat_hunting_incident_response",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:containment",
+      "label": "containment",
+      "subject_id": "detection_threat_hunting_incident_response",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:eradication",
+      "label": "eradication",
+      "subject_id": "detection_threat_hunting_incident_response",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:recovery",
+      "label": "recovery",
+      "subject_id": "detection_threat_hunting_incident_response",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:post_incident_learning",
+      "label": "post incident learning",
+      "subject_id": "detection_threat_hunting_incident_response",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_detection_threat_hunting_incident_response",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:telemetry",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:detection_logic",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:threat_hunting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:triage",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:containment",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:eradication",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:recovery",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:post_incident_learning",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:detection_threat_hunting_incident_response",
+        "label": "Detection engineering, threat hunting and incident response",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:telemetry",
+        "label": "telemetry",
+        "subject_id": "detection_threat_hunting_incident_response",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:detection_logic",
+        "label": "detection logic",
+        "subject_id": "detection_threat_hunting_incident_response",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:threat_hunting",
+        "label": "threat hunting",
+        "subject_id": "detection_threat_hunting_incident_response",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:triage",
+        "label": "triage",
+        "subject_id": "detection_threat_hunting_incident_response",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:containment",
+        "label": "containment",
+        "subject_id": "detection_threat_hunting_incident_response",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:eradication",
+        "label": "eradication",
+        "subject_id": "detection_threat_hunting_incident_response",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:recovery",
+        "label": "recovery",
+        "subject_id": "detection_threat_hunting_incident_response",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:detection_threat_hunting_incident_response:post_incident_learning",
+        "label": "post incident learning",
+        "subject_id": "detection_threat_hunting_incident_response",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "detection_threat_hunting_incident_response",
+    "title": "AION Academy \u00b7 Detection engineering, threat hunting and incident response"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

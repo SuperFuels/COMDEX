@@ -1,0 +1,246 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_scientific_method",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:scientific_method",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:psychology_organisations:cognition",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:psychology_organisations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:psychology_organisations:motivation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:psychology_organisations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:psychology_organisations:decision_bias",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:psychology_organisations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:psychology_organisations:teams",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:psychology_organisations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:psychology_organisations:leadership",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:psychology_organisations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:psychology_organisations:culture",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:psychology_organisations",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:psychology_organisations:change",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:psychology_organisations",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "human_society",
+      "id": "work:aion@wave.tp:subject:psychology_organisations",
+      "label": "Psychology and organisational behaviour",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:psychology_organisations:cognition",
+      "label": "cognition",
+      "subject_id": "psychology_organisations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:psychology_organisations:motivation",
+      "label": "motivation",
+      "subject_id": "psychology_organisations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:psychology_organisations:decision_bias",
+      "label": "decision bias",
+      "subject_id": "psychology_organisations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:psychology_organisations:teams",
+      "label": "teams",
+      "subject_id": "psychology_organisations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:psychology_organisations:leadership",
+      "label": "leadership",
+      "subject_id": "psychology_organisations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:psychology_organisations:culture",
+      "label": "culture",
+      "subject_id": "psychology_organisations",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:psychology_organisations:change",
+      "label": "change",
+      "subject_id": "psychology_organisations",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_psychology_organisations",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:psychology_organisations:cognition",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:psychology_organisations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:psychology_organisations:motivation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:psychology_organisations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:psychology_organisations:decision_bias",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:psychology_organisations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:psychology_organisations:teams",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:psychology_organisations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:psychology_organisations:leadership",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:psychology_organisations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:psychology_organisations:culture",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:psychology_organisations",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:psychology_organisations:change",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:psychology_organisations",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "human_society",
+        "id": "work:aion@wave.tp:subject:psychology_organisations",
+        "label": "Psychology and organisational behaviour",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:psychology_organisations:cognition",
+        "label": "cognition",
+        "subject_id": "psychology_organisations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:psychology_organisations:motivation",
+        "label": "motivation",
+        "subject_id": "psychology_organisations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:psychology_organisations:decision_bias",
+        "label": "decision bias",
+        "subject_id": "psychology_organisations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:psychology_organisations:teams",
+        "label": "teams",
+        "subject_id": "psychology_organisations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:psychology_organisations:leadership",
+        "label": "leadership",
+        "subject_id": "psychology_organisations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:psychology_organisations:culture",
+        "label": "culture",
+        "subject_id": "psychology_organisations",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:psychology_organisations:change",
+        "label": "change",
+        "subject_id": "psychology_organisations",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "human_society",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "psychology_organisations",
+    "title": "AION Academy \u00b7 Psychology and organisational behaviour"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

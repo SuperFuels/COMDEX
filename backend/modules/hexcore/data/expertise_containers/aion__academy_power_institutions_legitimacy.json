@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_history_geography_geopolitics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:history_geography_geopolitics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_negotiation_governance",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:negotiation_governance",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_law_regulation_ethics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:institutional_power",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:law_and_rules",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:legitimacy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:trust",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:accountability",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:state_capacity",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:governance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:power_failure_modes",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "human_society",
+      "id": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+      "label": "Power, institutions and legitimate authority",
+      "risk": "dual_use",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:institutional_power",
+      "label": "institutional power",
+      "subject_id": "power_institutions_legitimacy",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:law_and_rules",
+      "label": "law and rules",
+      "subject_id": "power_institutions_legitimacy",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:legitimacy",
+      "label": "legitimacy",
+      "subject_id": "power_institutions_legitimacy",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:trust",
+      "label": "trust",
+      "subject_id": "power_institutions_legitimacy",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:accountability",
+      "label": "accountability",
+      "subject_id": "power_institutions_legitimacy",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:state_capacity",
+      "label": "state capacity",
+      "subject_id": "power_institutions_legitimacy",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:governance",
+      "label": "governance",
+      "subject_id": "power_institutions_legitimacy",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:power_failure_modes",
+      "label": "power failure modes",
+      "subject_id": "power_institutions_legitimacy",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_power_institutions_legitimacy",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:institutional_power",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:law_and_rules",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:legitimacy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:trust",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:accountability",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:state_capacity",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:governance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:power_institutions_legitimacy:power_failure_modes",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "human_society",
+        "id": "work:aion@wave.tp:subject:power_institutions_legitimacy",
+        "label": "Power, institutions and legitimate authority",
+        "risk": "dual_use",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:institutional_power",
+        "label": "institutional power",
+        "subject_id": "power_institutions_legitimacy",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:law_and_rules",
+        "label": "law and rules",
+        "subject_id": "power_institutions_legitimacy",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:legitimacy",
+        "label": "legitimacy",
+        "subject_id": "power_institutions_legitimacy",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:trust",
+        "label": "trust",
+        "subject_id": "power_institutions_legitimacy",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:accountability",
+        "label": "accountability",
+        "subject_id": "power_institutions_legitimacy",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:state_capacity",
+        "label": "state capacity",
+        "subject_id": "power_institutions_legitimacy",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:governance",
+        "label": "governance",
+        "subject_id": "power_institutions_legitimacy",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:power_institutions_legitimacy:power_failure_modes",
+        "label": "power failure modes",
+        "subject_id": "power_institutions_legitimacy",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "human_society",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "power_institutions_legitimacy",
+    "title": "AION Academy \u00b7 Power, institutions and legitimate authority"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

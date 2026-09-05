@@ -1,0 +1,218 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_software_engineering",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:software_engineering",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:human_computer_interaction:user_research",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:human_computer_interaction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:human_computer_interaction:interaction_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:human_computer_interaction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:human_computer_interaction:accessibility",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:human_computer_interaction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:human_computer_interaction:visualisation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:human_computer_interaction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:human_computer_interaction:human_factors",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:human_computer_interaction",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:human_computer_interaction:evaluation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:human_computer_interaction",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "computing",
+      "id": "work:aion@wave.tp:subject:human_computer_interaction",
+      "label": "Human-computer interaction",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:human_computer_interaction:user_research",
+      "label": "user research",
+      "subject_id": "human_computer_interaction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:human_computer_interaction:interaction_design",
+      "label": "interaction design",
+      "subject_id": "human_computer_interaction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:human_computer_interaction:accessibility",
+      "label": "accessibility",
+      "subject_id": "human_computer_interaction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:human_computer_interaction:visualisation",
+      "label": "visualisation",
+      "subject_id": "human_computer_interaction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:human_computer_interaction:human_factors",
+      "label": "human factors",
+      "subject_id": "human_computer_interaction",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:human_computer_interaction:evaluation",
+      "label": "evaluation",
+      "subject_id": "human_computer_interaction",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_human_computer_interaction",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:human_computer_interaction:user_research",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:human_computer_interaction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:human_computer_interaction:interaction_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:human_computer_interaction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:human_computer_interaction:accessibility",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:human_computer_interaction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:human_computer_interaction:visualisation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:human_computer_interaction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:human_computer_interaction:human_factors",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:human_computer_interaction",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:human_computer_interaction:evaluation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:human_computer_interaction",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "computing",
+        "id": "work:aion@wave.tp:subject:human_computer_interaction",
+        "label": "Human-computer interaction",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:human_computer_interaction:user_research",
+        "label": "user research",
+        "subject_id": "human_computer_interaction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:human_computer_interaction:interaction_design",
+        "label": "interaction design",
+        "subject_id": "human_computer_interaction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:human_computer_interaction:accessibility",
+        "label": "accessibility",
+        "subject_id": "human_computer_interaction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:human_computer_interaction:visualisation",
+        "label": "visualisation",
+        "subject_id": "human_computer_interaction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:human_computer_interaction:human_factors",
+        "label": "human factors",
+        "subject_id": "human_computer_interaction",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:human_computer_interaction:evaluation",
+        "label": "evaluation",
+        "subject_id": "human_computer_interaction",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "computing",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "human_computer_interaction",
+    "title": "AION Academy \u00b7 Human-computer interaction"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

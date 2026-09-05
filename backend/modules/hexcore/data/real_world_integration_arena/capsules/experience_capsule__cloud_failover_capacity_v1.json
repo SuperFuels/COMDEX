@@ -1,0 +1,178 @@
+{
+  "adversarial_probe": {
+    "correctly_rejected": true,
+    "demand": 7,
+    "task_id": "oversized_unfamiliar_request"
+  },
+  "awards_subject_competence": false,
+  "baseline": {
+    "evaluation": {
+      "assigned": 4,
+      "passed": false,
+      "required": 4,
+      "resource_loads": {
+        "zone_a": 11,
+        "zone_b": 0,
+        "zone_c": 0
+      },
+      "violations": [
+        "capacity:zone_a:11>6"
+      ]
+    },
+    "plan": [
+      {
+        "resource_id": "zone_a",
+        "task_id": "database"
+      },
+      {
+        "resource_id": "zone_a",
+        "task_id": "api"
+      },
+      {
+        "resource_id": "zone_a",
+        "task_id": "worker"
+      },
+      {
+        "resource_id": "zone_a",
+        "task_id": "monitor"
+      }
+    ]
+  },
+  "capsule_id": "experience_capsule__cloud_failover_capacity_v1",
+  "claim_boundary": "This capsule proves performance only in its frozen simulation. It is applied-experience evidence, not mastery and not a verified real-world outcome.",
+  "created_at": "2026-08-21T13:36:11.526645+00:00",
+  "domain": "infrastructure",
+  "environment": "safe_source_disjoint_deterministic_simulation",
+  "experience_claim": "bounded_source_disjoint_simulation",
+  "external_actions": 0,
+  "fresh_retry": {
+    "evaluation": {
+      "assigned": 4,
+      "passed": true,
+      "required": 4,
+      "resource_loads": {
+        "zone_a": 5,
+        "zone_b": 6,
+        "zone_c": 0
+      },
+      "violations": []
+    },
+    "plan": [
+      {
+        "resource_id": "zone_b",
+        "task_id": "database"
+      },
+      {
+        "resource_id": "zone_a",
+        "task_id": "api"
+      },
+      {
+        "resource_id": "zone_b",
+        "task_id": "worker"
+      },
+      {
+        "resource_id": "zone_a",
+        "task_id": "monitor"
+      }
+    ]
+  },
+  "knowledge_container_refs": [
+    {
+      "container_id": "aion__academy_architecture_operations",
+      "subject_id": "architecture_operations"
+    },
+    {
+      "container_id": "aion__academy_cloud_devops_sre",
+      "subject_id": "cloud_devops_sre"
+    }
+  ],
+  "knowledge_inputs": [
+    {
+      "evidence_records": 19,
+      "name": "Architecture and Production Operations",
+      "overall_level": "advanced",
+      "subject_id": "architecture_operations"
+    },
+    {
+      "evidence_records": 31,
+      "name": "Cloud, DevOps and Site Reliability",
+      "overall_level": "advanced",
+      "subject_id": "cloud_devops_sre"
+    }
+  ],
+  "knowledge_to_action_gap": "Static subject knowledge did not itself supply a fail-closed policy for interacting constraints.",
+  "mission_commitment": {
+    "adversarial_rule": "requests beyond every active resource capacity must be refused",
+    "authority": "deterministic_safe_simulation_v1",
+    "mission": {
+      "domain": "infrastructure",
+      "mission_id": "cloud_failover_capacity_v1",
+      "resources": [
+        {
+          "active": true,
+          "capacity": 6,
+          "id": "zone_a"
+        },
+        {
+          "active": true,
+          "capacity": 6,
+          "id": "zone_b"
+        },
+        {
+          "active": false,
+          "capacity": 8,
+          "id": "zone_c"
+        }
+      ],
+      "subjects": [
+        "architecture_operations",
+        "cloud_devops_sre"
+      ],
+      "tasks": [
+        {
+          "demand": 4,
+          "depends_on": [],
+          "id": "database",
+          "priority": 10
+        },
+        {
+          "demand": 4,
+          "depends_on": [
+            "database"
+          ],
+          "id": "api",
+          "priority": 9
+        },
+        {
+          "demand": 2,
+          "depends_on": [
+            "database"
+          ],
+          "id": "worker",
+          "priority": 8
+        },
+        {
+          "demand": 1,
+          "depends_on": [
+            "api"
+          ],
+          "id": "monitor",
+          "priority": 7
+        }
+      ],
+      "title": "Cloud failover with dependency and capacity pressure"
+    },
+    "scoring": "all tasks assigned to active resources within capacity and dependency order"
+  },
+  "mission_commitment_sha256": "8887170980927faf973d6568a2f16a45e5e73ea86623e00de77f303878cd3b99",
+  "mission_id": "cloud_failover_capacity_v1",
+  "observed_surprise": "A locally plausible first-resource plan violated live availability, capacity, or dependency constraints.",
+  "outcome": "verified_calibration_pass",
+  "passed": true,
+  "repair": "Apply dependency-aware ordering, exclude inactive resources, track remaining capacity, and refuse work that cannot be safely placed.",
+  "schema_version": "aion.hexcore.real_world_integration_arena.v1",
+  "title": "Cloud failover with dependency and capacity pressure",
+  "unsafe_actions": 0,
+  "wisdom_rule": "Do not deploy a theoretically valid plan until availability, capacity, dependencies, and refusal conditions have all been checked.",
+  "world_authority": "not_yet_observed"
+}

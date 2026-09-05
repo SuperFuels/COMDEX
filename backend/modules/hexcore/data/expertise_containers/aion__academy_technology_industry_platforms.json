@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_strategic_assets_capital_allocation",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:strategic_assets_capital_allocation",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_systems_engineering",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:systems_engineering",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_economics_core",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:economics_core",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:technology_industry_platforms:technology_forecasting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:technology_industry_platforms:industry_structure",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:technology_industry_platforms:platform_economics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:technology_industry_platforms:standards_strategy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:technology_industry_platforms:intellectual_property",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:technology_industry_platforms:compute_data_energy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:technology_industry_platforms:manufacturing_scale",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:technology_industry_platforms:distribution_power",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "business",
+      "id": "work:aion@wave.tp:subject:technology_industry_platforms",
+      "label": "Technology, industry, platforms and standards",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:technology_industry_platforms:technology_forecasting",
+      "label": "technology forecasting",
+      "subject_id": "technology_industry_platforms",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:technology_industry_platforms:industry_structure",
+      "label": "industry structure",
+      "subject_id": "technology_industry_platforms",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:technology_industry_platforms:platform_economics",
+      "label": "platform economics",
+      "subject_id": "technology_industry_platforms",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:technology_industry_platforms:standards_strategy",
+      "label": "standards strategy",
+      "subject_id": "technology_industry_platforms",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:technology_industry_platforms:intellectual_property",
+      "label": "intellectual property",
+      "subject_id": "technology_industry_platforms",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:technology_industry_platforms:compute_data_energy",
+      "label": "compute data energy",
+      "subject_id": "technology_industry_platforms",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:technology_industry_platforms:manufacturing_scale",
+      "label": "manufacturing scale",
+      "subject_id": "technology_industry_platforms",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:technology_industry_platforms:distribution_power",
+      "label": "distribution power",
+      "subject_id": "technology_industry_platforms",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_technology_industry_platforms",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:technology_industry_platforms:technology_forecasting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:technology_industry_platforms:industry_structure",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:technology_industry_platforms:platform_economics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:technology_industry_platforms:standards_strategy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:technology_industry_platforms:intellectual_property",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:technology_industry_platforms:compute_data_energy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:technology_industry_platforms:manufacturing_scale",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:technology_industry_platforms:distribution_power",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:technology_industry_platforms",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "business",
+        "id": "work:aion@wave.tp:subject:technology_industry_platforms",
+        "label": "Technology, industry, platforms and standards",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:technology_industry_platforms:technology_forecasting",
+        "label": "technology forecasting",
+        "subject_id": "technology_industry_platforms",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:technology_industry_platforms:industry_structure",
+        "label": "industry structure",
+        "subject_id": "technology_industry_platforms",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:technology_industry_platforms:platform_economics",
+        "label": "platform economics",
+        "subject_id": "technology_industry_platforms",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:technology_industry_platforms:standards_strategy",
+        "label": "standards strategy",
+        "subject_id": "technology_industry_platforms",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:technology_industry_platforms:intellectual_property",
+        "label": "intellectual property",
+        "subject_id": "technology_industry_platforms",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:technology_industry_platforms:compute_data_energy",
+        "label": "compute data energy",
+        "subject_id": "technology_industry_platforms",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:technology_industry_platforms:manufacturing_scale",
+        "label": "manufacturing scale",
+        "subject_id": "technology_industry_platforms",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:technology_industry_platforms:distribution_power",
+        "label": "distribution power",
+        "subject_id": "technology_industry_platforms",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "business",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "technology_industry_platforms",
+    "title": "AION Academy \u00b7 Technology, industry, platforms and standards"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

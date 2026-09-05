@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_language_research_communication",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:language_research_communication",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_law_regulation_ethics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:law_regulation_ethics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_probabilistic_forecasting_calibration",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:probabilistic_forecasting_calibration",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:question_decomposition",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:source_hierarchy",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:resolution_rules",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:timeline_evidence",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:conflicting_sources",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:manipulation_risk",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:audit_trail",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:settlement_review",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "human_society",
+      "id": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+      "label": "Event evidence and resolution research",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:question_decomposition",
+      "label": "question decomposition",
+      "subject_id": "event_evidence_resolution_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:source_hierarchy",
+      "label": "source hierarchy",
+      "subject_id": "event_evidence_resolution_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:resolution_rules",
+      "label": "resolution rules",
+      "subject_id": "event_evidence_resolution_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:timeline_evidence",
+      "label": "timeline evidence",
+      "subject_id": "event_evidence_resolution_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:conflicting_sources",
+      "label": "conflicting sources",
+      "subject_id": "event_evidence_resolution_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:manipulation_risk",
+      "label": "manipulation risk",
+      "subject_id": "event_evidence_resolution_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:audit_trail",
+      "label": "audit trail",
+      "subject_id": "event_evidence_resolution_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:settlement_review",
+      "label": "settlement review",
+      "subject_id": "event_evidence_resolution_research",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_event_evidence_resolution_research",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:question_decomposition",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:source_hierarchy",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:resolution_rules",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:timeline_evidence",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:conflicting_sources",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:manipulation_risk",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:audit_trail",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:event_evidence_resolution_research:settlement_review",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "human_society",
+        "id": "work:aion@wave.tp:subject:event_evidence_resolution_research",
+        "label": "Event evidence and resolution research",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:question_decomposition",
+        "label": "question decomposition",
+        "subject_id": "event_evidence_resolution_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:source_hierarchy",
+        "label": "source hierarchy",
+        "subject_id": "event_evidence_resolution_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:resolution_rules",
+        "label": "resolution rules",
+        "subject_id": "event_evidence_resolution_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:timeline_evidence",
+        "label": "timeline evidence",
+        "subject_id": "event_evidence_resolution_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:conflicting_sources",
+        "label": "conflicting sources",
+        "subject_id": "event_evidence_resolution_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:manipulation_risk",
+        "label": "manipulation risk",
+        "subject_id": "event_evidence_resolution_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:audit_trail",
+        "label": "audit trail",
+        "subject_id": "event_evidence_resolution_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:event_evidence_resolution_research:settlement_review",
+        "label": "settlement review",
+        "subject_id": "event_evidence_resolution_research",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "human_society",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "event_evidence_resolution_research",
+    "title": "AION Academy \u00b7 Event evidence and resolution research"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

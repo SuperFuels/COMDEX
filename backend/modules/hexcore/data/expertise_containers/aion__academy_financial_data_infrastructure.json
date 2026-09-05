@@ -1,0 +1,286 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_data_databases",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:data_databases",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_software_engineering",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:software_engineering",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_markets_investing",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:markets_investing",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:financial_data_infrastructure:market_data",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_data_infrastructure:reference_data",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_data_infrastructure:corporate_actions",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_data_infrastructure:point_in_time_data",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_data_infrastructure:survivorship_bias",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_data_infrastructure:research_platforms",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_data_infrastructure:lineage",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:financial_data_infrastructure:production_controls",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:financial_data_infrastructure",
+      "label": "Financial data and research infrastructure",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_data_infrastructure:market_data",
+      "label": "market data",
+      "subject_id": "financial_data_infrastructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_data_infrastructure:reference_data",
+      "label": "reference data",
+      "subject_id": "financial_data_infrastructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_data_infrastructure:corporate_actions",
+      "label": "corporate actions",
+      "subject_id": "financial_data_infrastructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_data_infrastructure:point_in_time_data",
+      "label": "point in time data",
+      "subject_id": "financial_data_infrastructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_data_infrastructure:survivorship_bias",
+      "label": "survivorship bias",
+      "subject_id": "financial_data_infrastructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_data_infrastructure:research_platforms",
+      "label": "research platforms",
+      "subject_id": "financial_data_infrastructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_data_infrastructure:lineage",
+      "label": "lineage",
+      "subject_id": "financial_data_infrastructure",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:financial_data_infrastructure:production_controls",
+      "label": "production controls",
+      "subject_id": "financial_data_infrastructure",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_financial_data_infrastructure",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:financial_data_infrastructure:market_data",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_data_infrastructure:reference_data",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_data_infrastructure:corporate_actions",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_data_infrastructure:point_in_time_data",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_data_infrastructure:survivorship_bias",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_data_infrastructure:research_platforms",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_data_infrastructure:lineage",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:financial_data_infrastructure:production_controls",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:financial_data_infrastructure",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:financial_data_infrastructure",
+        "label": "Financial data and research infrastructure",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_data_infrastructure:market_data",
+        "label": "market data",
+        "subject_id": "financial_data_infrastructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_data_infrastructure:reference_data",
+        "label": "reference data",
+        "subject_id": "financial_data_infrastructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_data_infrastructure:corporate_actions",
+        "label": "corporate actions",
+        "subject_id": "financial_data_infrastructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_data_infrastructure:point_in_time_data",
+        "label": "point in time data",
+        "subject_id": "financial_data_infrastructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_data_infrastructure:survivorship_bias",
+        "label": "survivorship bias",
+        "subject_id": "financial_data_infrastructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_data_infrastructure:research_platforms",
+        "label": "research platforms",
+        "subject_id": "financial_data_infrastructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_data_infrastructure:lineage",
+        "label": "lineage",
+        "subject_id": "financial_data_infrastructure",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:financial_data_infrastructure:production_controls",
+        "label": "production controls",
+        "subject_id": "financial_data_infrastructure",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "financial_data_infrastructure",
+    "title": "AION Academy \u00b7 Financial data and research infrastructure"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

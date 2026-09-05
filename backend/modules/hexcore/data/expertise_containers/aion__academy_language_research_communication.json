@@ -1,0 +1,239 @@
+{
+  "competence_awarded": false,
+  "container_refs": [],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:language_research_communication:reading",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:language_research_communication",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:language_research_communication:writing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:language_research_communication",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:language_research_communication:argument",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:language_research_communication",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:language_research_communication:citation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:language_research_communication",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:language_research_communication:presentation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:language_research_communication",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:language_research_communication:teaching",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:language_research_communication",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:language_research_communication:multilingual_communication",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:language_research_communication",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "human_society",
+      "id": "work:aion@wave.tp:subject:language_research_communication",
+      "label": "Language, research and professional communication",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:language_research_communication:reading",
+      "label": "reading",
+      "subject_id": "language_research_communication",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:language_research_communication:writing",
+      "label": "writing",
+      "subject_id": "language_research_communication",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:language_research_communication:argument",
+      "label": "argument",
+      "subject_id": "language_research_communication",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:language_research_communication:citation",
+      "label": "citation",
+      "subject_id": "language_research_communication",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:language_research_communication:presentation",
+      "label": "presentation",
+      "subject_id": "language_research_communication",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:language_research_communication:teaching",
+      "label": "teaching",
+      "subject_id": "language_research_communication",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:language_research_communication:multilingual_communication",
+      "label": "multilingual communication",
+      "subject_id": "language_research_communication",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_language_research_communication",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:language_research_communication:reading",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:language_research_communication",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:language_research_communication:writing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:language_research_communication",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:language_research_communication:argument",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:language_research_communication",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:language_research_communication:citation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:language_research_communication",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:language_research_communication:presentation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:language_research_communication",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:language_research_communication:teaching",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:language_research_communication",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:language_research_communication:multilingual_communication",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:language_research_communication",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "human_society",
+        "id": "work:aion@wave.tp:subject:language_research_communication",
+        "label": "Language, research and professional communication",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:language_research_communication:reading",
+        "label": "reading",
+        "subject_id": "language_research_communication",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:language_research_communication:writing",
+        "label": "writing",
+        "subject_id": "language_research_communication",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:language_research_communication:argument",
+        "label": "argument",
+        "subject_id": "language_research_communication",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:language_research_communication:citation",
+        "label": "citation",
+        "subject_id": "language_research_communication",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:language_research_communication:presentation",
+        "label": "presentation",
+        "subject_id": "language_research_communication",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:language_research_communication:teaching",
+        "label": "teaching",
+        "subject_id": "language_research_communication",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:language_research_communication:multilingual_communication",
+        "label": "multilingual communication",
+        "subject_id": "language_research_communication",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "human_society",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "language_research_communication",
+    "title": "AION Academy \u00b7 Language, research and professional communication"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

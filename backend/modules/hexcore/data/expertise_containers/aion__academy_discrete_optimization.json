@@ -1,0 +1,224 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_logic_proof",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:logic_proof",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_algebra_geometry",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:algebra_geometry",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:discrete_optimization:combinatorics",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:discrete_optimization",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:discrete_optimization:graphs",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:discrete_optimization",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:discrete_optimization:algorithms",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:discrete_optimization",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:discrete_optimization:linear_programming",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:discrete_optimization",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:discrete_optimization:constraint_optimisation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:discrete_optimization",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:discrete_optimization:operations_research",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:discrete_optimization",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "mathematics",
+      "id": "work:aion@wave.tp:subject:discrete_optimization",
+      "label": "Discrete mathematics and optimisation",
+      "risk": "ordinary",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:discrete_optimization:combinatorics",
+      "label": "combinatorics",
+      "subject_id": "discrete_optimization",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:discrete_optimization:graphs",
+      "label": "graphs",
+      "subject_id": "discrete_optimization",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:discrete_optimization:algorithms",
+      "label": "algorithms",
+      "subject_id": "discrete_optimization",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:discrete_optimization:linear_programming",
+      "label": "linear programming",
+      "subject_id": "discrete_optimization",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:discrete_optimization:constraint_optimisation",
+      "label": "constraint optimisation",
+      "subject_id": "discrete_optimization",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:discrete_optimization:operations_research",
+      "label": "operations research",
+      "subject_id": "discrete_optimization",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_discrete_optimization",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:discrete_optimization:combinatorics",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:discrete_optimization",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:discrete_optimization:graphs",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:discrete_optimization",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:discrete_optimization:algorithms",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:discrete_optimization",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:discrete_optimization:linear_programming",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:discrete_optimization",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:discrete_optimization:constraint_optimisation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:discrete_optimization",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:discrete_optimization:operations_research",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:discrete_optimization",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "mathematics",
+        "id": "work:aion@wave.tp:subject:discrete_optimization",
+        "label": "Discrete mathematics and optimisation",
+        "risk": "ordinary",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:discrete_optimization:combinatorics",
+        "label": "combinatorics",
+        "subject_id": "discrete_optimization",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:discrete_optimization:graphs",
+        "label": "graphs",
+        "subject_id": "discrete_optimization",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:discrete_optimization:algorithms",
+        "label": "algorithms",
+        "subject_id": "discrete_optimization",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:discrete_optimization:linear_programming",
+        "label": "linear programming",
+        "subject_id": "discrete_optimization",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:discrete_optimization:constraint_optimisation",
+        "label": "constraint optimisation",
+        "subject_id": "discrete_optimization",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:discrete_optimization:operations_research",
+        "label": "operations research",
+        "subject_id": "discrete_optimization",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "mathematics",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "discrete_optimization",
+    "title": "AION Academy \u00b7 Discrete mathematics and optimisation"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}

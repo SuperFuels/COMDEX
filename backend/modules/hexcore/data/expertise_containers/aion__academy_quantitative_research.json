@@ -1,0 +1,292 @@
+{
+  "competence_awarded": false,
+  "container_refs": [
+    {
+      "container_id": "aion__academy_financial_mathematics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:financial_mathematics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_financial_econometrics",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:financial_econometrics",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_programming_languages",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:programming_languages",
+      "relation": "PREREQUISITE"
+    },
+    {
+      "container_id": "aion__academy_data_science_ml",
+      "kind": "knowledge_academy",
+      "namespaced_target": "work:aion@wave.tp:subject:data_science_ml",
+      "relation": "PREREQUISITE"
+    }
+  ],
+  "dimensions": [
+    {
+      "from": "work:aion@wave.tp:concept:quantitative_research:hypothesis_design",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:quantitative_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:quantitative_research:data_provenance",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:quantitative_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:quantitative_research:feature_engineering",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:quantitative_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:quantitative_research:backtesting",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:quantitative_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:quantitative_research:cross_validation",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:quantitative_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:quantitative_research:multiple_testing",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:quantitative_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:quantitative_research:transaction_costs",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:quantitative_research",
+      "verified": true
+    },
+    {
+      "from": "work:aion@wave.tp:concept:quantitative_research:reproducibility",
+      "kind": "PART_OF",
+      "meaning": "curriculum structure only",
+      "to": "work:aion@wave.tp:subject:quantitative_research",
+      "verified": true
+    }
+  ],
+  "evidence_claims": [],
+  "glyphs": [
+    {
+      "domain": "economics_finance",
+      "id": "work:aion@wave.tp:subject:quantitative_research",
+      "label": "Quantitative investment research",
+      "risk": "high_stakes",
+      "status": "curriculum_declared_unassessed",
+      "type": "subject"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:quantitative_research:hypothesis_design",
+      "label": "hypothesis design",
+      "subject_id": "quantitative_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:quantitative_research:data_provenance",
+      "label": "data provenance",
+      "subject_id": "quantitative_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:quantitative_research:feature_engineering",
+      "label": "feature engineering",
+      "subject_id": "quantitative_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:quantitative_research:backtesting",
+      "label": "backtesting",
+      "subject_id": "quantitative_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:quantitative_research:cross_validation",
+      "label": "cross validation",
+      "subject_id": "quantitative_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:quantitative_research:multiple_testing",
+      "label": "multiple testing",
+      "subject_id": "quantitative_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:quantitative_research:transaction_costs",
+      "label": "transaction costs",
+      "subject_id": "quantitative_research",
+      "type": "concept"
+    },
+    {
+      "evidence_status": "unassessed",
+      "id": "work:aion@wave.tp:concept:quantitative_research:reproducibility",
+      "label": "reproducibility",
+      "subject_id": "quantitative_research",
+      "type": "concept"
+    }
+  ],
+  "id": "aion__academy_quantitative_research",
+  "knowledge_graph": {
+    "edges": [
+      {
+        "from": "work:aion@wave.tp:concept:quantitative_research:hypothesis_design",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:quantitative_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:quantitative_research:data_provenance",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:quantitative_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:quantitative_research:feature_engineering",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:quantitative_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:quantitative_research:backtesting",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:quantitative_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:quantitative_research:cross_validation",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:quantitative_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:quantitative_research:multiple_testing",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:quantitative_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:quantitative_research:transaction_costs",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:quantitative_research",
+        "verified": true
+      },
+      {
+        "from": "work:aion@wave.tp:concept:quantitative_research:reproducibility",
+        "kind": "PART_OF",
+        "meaning": "curriculum structure only",
+        "to": "work:aion@wave.tp:subject:quantitative_research",
+        "verified": true
+      }
+    ],
+    "nodes": [
+      {
+        "domain": "economics_finance",
+        "id": "work:aion@wave.tp:subject:quantitative_research",
+        "label": "Quantitative investment research",
+        "risk": "high_stakes",
+        "status": "curriculum_declared_unassessed",
+        "type": "subject"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:quantitative_research:hypothesis_design",
+        "label": "hypothesis design",
+        "subject_id": "quantitative_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:quantitative_research:data_provenance",
+        "label": "data provenance",
+        "subject_id": "quantitative_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:quantitative_research:feature_engineering",
+        "label": "feature engineering",
+        "subject_id": "quantitative_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:quantitative_research:backtesting",
+        "label": "backtesting",
+        "subject_id": "quantitative_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:quantitative_research:cross_validation",
+        "label": "cross validation",
+        "subject_id": "quantitative_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:quantitative_research:multiple_testing",
+        "label": "multiple testing",
+        "subject_id": "quantitative_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:quantitative_research:transaction_costs",
+        "label": "transaction costs",
+        "subject_id": "quantitative_research",
+        "type": "concept"
+      },
+      {
+        "evidence_status": "unassessed",
+        "id": "work:aion@wave.tp:concept:quantitative_research:reproducibility",
+        "label": "reproducibility",
+        "subject_id": "quantitative_research",
+        "type": "concept"
+      }
+    ]
+  },
+  "meta": {
+    "curriculum_only": true,
+    "domain": "economics_finance",
+    "graph": "work",
+    "kind": "knowledge_academy",
+    "ownerWA": "aion@wave.tp",
+    "subject_id": "quantitative_research",
+    "title": "AION Academy \u00b7 Quantitative investment research"
+  },
+  "schema_version": "aion.container.knowledge_academy.v1",
+  "type": "container"
+}
