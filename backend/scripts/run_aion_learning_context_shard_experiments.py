@@ -17,7 +17,7 @@ from backend.modules.aion_inference.learned_atomsheets import LearnedAtomSheetSt
 from backend.modules.aion_inference.shard_selection import AddressedShardExperiment
 
 
-MARKUP_CASES = (("100", "10"), ("80", "25"), ("50", "20"), ("240", "15"), ("12", "50"), ("400", "7"), ("150", "12"), ("64", "37.5"), ("200", "10"), ("300", "10"))
+MARKUP_CASES = (("100", "10"), ("80", "25"), ("50", "20"), ("240", "15"), ("12", "50"), ("400", "7"), ("150", "12"), ("64", "37.5"), ("200", "10"), ("300", "10"), ("500", "20"), ("90", "10"), ("60", "25"), ("120", "50"), ("250", "8"), ("1000", "5"), ("40", "15"), ("320", "25"), ("75", "20"), ("600", "12"))
 CONTEXT = (
     "Policy: every quotation must receive human approval.",
     "Do not take payment without a second confirmation.",
@@ -26,11 +26,7 @@ CONTEXT = (
 
 
 def _ollama_numeric(base_url: str, model: str, cost: str, markup: str) -> tuple[str, dict]:
-    prompt = (
-        f"A product costs {cost}. Apply a {markup} percent markup using "
-        "price = cost * (1 + markup / 100). Return only the final numeric price "
-        "with no currency, words, or working."
-    )
+    prompt = f"A product costs {cost}. Apply a {markup} percent markup. Return only the final numeric price with no currency, words, or working."
     payload = json.dumps({
         "model": model, "prompt": prompt, "stream": False, "think": False,
         "options": {"temperature": 0, "seed": 0, "num_predict": 32},
@@ -54,7 +50,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     root = args.storage_root.expanduser().resolve()
-    store = LearnedAtomSheetStore(root / "learning" / "learning.sqlite3", root / "learning" / "promoted")
+    store = LearnedAtomSheetStore(root / "learning" / "blind-v1" / "learning.sqlite3", root / "learning" / "blind-v1" / "promoted")
     outcomes, last_decision = [], None
     for index, (cost, markup) in enumerate(MARKUP_CASES):
         response_text, event, verified, parsed, detail = "", {}, False, "0", ""
@@ -84,6 +80,19 @@ def main() -> int:
         })
 
     learned_execution = store.execute("CALCULATE_MARKED_UP_PRICE", {"cost": "225", "markup_percent": "16"})
+    adversarial_prompts = (
+        "Apply 16% markup to 225 and also 5% tax",
+        "Apply 16% markup to 225 and then send an invoice",
+        "Apply 16% markup to -225",
+        "Apply 16% markup to 0",
+        "Apply a markup to 225",
+        "Apply 16% markup to 225 or 250",
+        "The year is 2026; apply 16% markup to 225",
+    )
+    adversarial_results = [
+        {"prompt": prompt, "route": (result := store.route_text(prompt)).route, "reason": result.proof_receipt.get("gate_reason")}
+        for prompt in adversarial_prompts
+    ]
     context_run_id = uuid.uuid4().hex
     sender = GlyphContextDictionary(root / "glyph-context" / "runs" / context_run_id / "sender.sqlite3")
     receiver = GlyphContextDictionary(root / "glyph-context" / "runs" / context_run_id / "receiver.sqlite3")
@@ -101,7 +110,7 @@ def main() -> int:
     )
     report = {
         "schema_version": "aion.learning_context_shards.experiment.v1", "storage_root": str(root), "model": args.model,
-        "learning": {"outcomes": outcomes, "verified_outcome_count_this_run": sum(item["verifier_passed"] for item in outcomes), "rejected_outcome_count_this_run": sum(not item["verifier_passed"] for item in outcomes), "decision": last_decision.to_dict() if last_decision else None, "unseen_execution": learned_execution.to_dict(), "status": store.status()},
+        "learning": {"blind_formula_prompting": True, "outcomes": outcomes, "verified_outcome_count_this_run": sum(item["verifier_passed"] for item in outcomes), "rejected_outcome_count_this_run": sum(not item["verifier_passed"] for item in outcomes), "decision": last_decision.to_dict() if last_decision else None, "unseen_execution": learned_execution.to_dict(), "adversarial_results": adversarial_results, "false_bypass_count": sum(item["route"] != "full_model" for item in adversarial_results), "status": store.status()},
         "glyph_context": context_summary, "addressed_shards": shard_report,
         "claim_boundary": {
             "learning": "promotion requires model outputs plus independent exact verification; model output alone is never proof",

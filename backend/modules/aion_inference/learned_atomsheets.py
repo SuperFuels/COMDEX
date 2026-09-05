@@ -20,6 +20,7 @@ from typing import Any, Callable, Mapping, Optional, Sequence
 
 
 MAX_ABSOLUTE_INPUT = Decimal("1e12")
+EXECUTOR_VERSION = "aion.learned_template_executor.v2"
 INTENT_PATTERN = re.compile(r"^[A-Z][A-Z0-9_]{2,63}$")
 FIELD_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,47}$")
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
@@ -78,6 +79,7 @@ TEMPLATES: tuple[OperatorTemplate, ...] = (
     OperatorTemplate("ratio_ba.v1", 2, "b / a", "result * a == b", lambda v: _ratio(v[1], v[0]), lambda v, r: r * v[0] == v[1]),
     OperatorTemplate("percentage_of.v1", 2, "a * b / 100", "result * 100 == a * b", lambda v: v[0] * v[1] / Decimal("100"), lambda v, r: r * Decimal("100") == v[0] * v[1]),
     OperatorTemplate("increase_a_percent_b.v1", 2, "a * (1 + b / 100)", "result * 100 == a * (100 + b)", lambda v: v[0] * (Decimal("1") + v[1] / Decimal("100")), lambda v, r: r * Decimal("100") == v[0] * (Decimal("100") + v[1])),
+    OperatorTemplate("decrease_a_percent_b.v1", 2, "a * (1 - b / 100)", "result * 100 == a * (100 - b)", lambda v: v[0] * (Decimal("1") - v[1] / Decimal("100")), lambda v, r: r * Decimal("100") == v[0] * (Decimal("100") - v[1])),
     OperatorTemplate("mean2.v1", 2, "(a + b) / 2", "result * 2 == a + b", lambda v: (v[0] + v[1]) / Decimal("2"), lambda v, r: r * Decimal("2") == v[0] + v[1]),
     OperatorTemplate("sum3.v1", 3, "a + b + c", "result - a - b == c", lambda v: v[0] + v[1] + v[2], lambda v, r: r - v[0] - v[1] == v[2]),
     OperatorTemplate("last_minus_first_two.v1", 3, "c - a - b", "result + a + b == c", lambda v: v[2] - v[0] - v[1], lambda v, r: r + v[0] + v[1] == v[2]),
@@ -399,6 +401,7 @@ class LearnedAtomSheetStore:
             "intent": intent,
             "status": "promoted",
             "origin": "verified_model_outcomes",
+            "executor_version": EXECUTOR_VERSION,
             "required_inputs": fields,
             "operator_template_id": template.template_id,
             "symbol_binding": {symbol: field for symbol, field in zip(("a", "b", "c"), fields)},
@@ -414,6 +417,10 @@ class LearnedAtomSheetStore:
                 "holdout_observations": self.holdout_observations,
             },
         }
+        sheet["validity"]["positive_inputs"] = [
+            field for field in fields
+            if all(_decimal(item["inputs"][field]) > 0 for item in observations)
+        ]
         contract_hash = _sha(sheet)
         envelope = {**sheet, "contract_sha256": contract_hash, "promoted_at": _utc_now()}
         with sqlite3.connect(self.database_path) as connection:
@@ -460,6 +467,11 @@ class LearnedAtomSheetStore:
                 proof_receipt={"gate_passed": False, "gate_reason": "no_promoted_atomsheet"},
             )
         fields = list(sheet["required_inputs"])
+        if sheet.get("executor_version") != EXECUTOR_VERSION:
+            return LearnedExecutionResult(
+                "aion.learned_atomsheet.execution.v1", "full_model", normalized_intent, None, None, True,
+                {"gate_passed": False, "gate_reason": "learned_executor_version_mismatch", "contract_sha256": sheet["contract_sha256"]},
+            )
         if set(inputs) != set(fields):
             reason = "required_inputs_do_not_match"
             return LearnedExecutionResult(
@@ -468,6 +480,9 @@ class LearnedAtomSheetStore:
             )
         try:
             values = [_decimal(inputs[field]) for field in fields]
+            normalized_by_field = dict(zip(fields, values))
+            if any(normalized_by_field[field] <= 0 for field in sheet["validity"].get("positive_inputs", ())):
+                raise ValueError("input violates learned positive-domain boundary")
             template = TEMPLATE_INDEX[sheet["operator_template_id"]]
             result = template.evaluate(values)
             verified = template.verify(values, result)
@@ -514,6 +529,11 @@ class LearnedAtomSheetStore:
             return LearnedExecutionResult(
                 "aion.learned_atomsheet.execution.v1", "full_model", "UNKNOWN", None, None, True,
                 {"gate_passed": False, "gate_reason": "compound_action_requires_orchestration"},
+            )
+        if len(re.findall(r"[+-]?\d[\d,]*(?:\.\d+)?", lowered)) != 2:
+            return LearnedExecutionResult(
+                "aion.learned_atomsheet.execution.v1", "full_model", "UNKNOWN", None, None, True,
+                {"gate_passed": False, "gate_reason": "learned_text_numeric_ambiguity"},
             )
         number = r"([+-]?\d[\d,]*(?:\.\d+)?)"
         patterns = (

@@ -183,3 +183,8 @@ def test_promoted_markup_sheet_routes_plain_english_and_rejects_compound_action(
     blocked = store.route_text("Add 16% markup to 225 and then send an invoice")
     assert blocked.route == "full_model"
     assert blocked.proof_receipt["gate_reason"] == "compound_action_requires_orchestration"
+    multiple = store.route_text("Apply 16% markup to 225 and also 5% tax")
+    assert multiple.route == "full_model"
+    assert multiple.proof_receipt["gate_reason"] == "learned_text_numeric_ambiguity"
+    negative = store.route_text("Apply 16% markup to -225")
+    assert negative.route == "full_model"
