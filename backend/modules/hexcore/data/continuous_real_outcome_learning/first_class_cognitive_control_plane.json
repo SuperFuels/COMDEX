@@ -2364,9 +2364,38 @@
       "used_skill_ids": [],
       "verified": true,
       "verifier": "committed_external_outcome_ledger"
+    },
+    {
+      "canonical_learning_authorized": false,
+      "evidence_refs": [
+        "node",
+        "open_meteo_madrid"
+      ],
+      "outcome": "VERIFIED_MEMORY_COMMITTED",
+      "outcome_id": "task_outcome_1fa5cffd4f324110b85f0bf20f626ad0",
+      "recorded_at": "2026-09-05T07:10:13.056012+00:00",
+      "trace_id": "task_trace_4b3807d5961b48679efa3eb39376ec81",
+      "used_memory_ids": [],
+      "used_skill_ids": [],
+      "verified": true,
+      "verifier": "committed_external_outcome_ledger"
+    },
+    {
+      "canonical_learning_authorized": false,
+      "evidence_refs": [
+        "open_meteo_madrid"
+      ],
+      "outcome": "VERIFIED_MEMORY_COMMITTED",
+      "outcome_id": "task_outcome_dfd520e259ac411ea88b86815cb49077",
+      "recorded_at": "2026-09-05T07:24:08.982357+00:00",
+      "trace_id": "task_trace_08e089dbab8a45e7a8c77201265d7bf9",
+      "used_memory_ids": [],
+      "used_skill_ids": [],
+      "verified": true,
+      "verifier": "committed_external_outcome_ledger"
     }
   ],
-  "revision": 465,
+  "revision": 471,
   "schema_version": "aion.hexcore.first_class_cognitive_control_plane.v1",
   "task_traces": [
     {
@@ -22452,7 +22481,263 @@
         "whether"
       ],
       "trace_id": "task_trace_dfa3a224deac4aa1a8b933943757beb3"
+    },
+    {
+      "created_at": "2026-09-05T07:08:52.834404+00:00",
+      "missing_capabilities": [
+        "water_waste_resilience",
+        "manufacturing_quality",
+        "psychology_organisations",
+        "algebra_geometry"
+      ],
+      "retrieved_ids": {
+        "canonical_claims": [],
+        "experiences": [
+          "real_experience_capsule__public_software_change_observation_v1",
+          "experience_capsule__field_response_scheduler_v1",
+          "experience_capsule__resilient_service_network_v1",
+          "experience_capsule__cloud_failover_capacity_v1"
+        ],
+        "procedures": [
+          "procedure_outcome_response_05f009f1527f",
+          "procedure_outcome_response_0a972115d187",
+          "procedure_outcome_response_6bf575208404",
+          "procedure_outcome_response_757845400f4d",
+          "procedure_outcome_response_8f0c21f84861",
+          "procedure_outcome_response_013503ec7220",
+          "procedure_outcome_response_0371b7b130ad",
+          "procedure_outcome_response_04a018575c09"
+        ],
+        "subjects": [
+          "algebra_geometry",
+          "capability_debugging_repair",
+          "capability_learning_strategy",
+          "capability_systems_thinking",
+          "cloud_devops_sre",
+          "cybersecurity",
+          "detection_threat_hunting_incident_response",
+          "manufacturing_quality",
+          "networking",
+          "psychology_organisations",
+          "secure_engineering",
+          "security_engineering",
+          "technology_industry_platforms",
+          "water_waste_resilience"
+        ],
+        "unverified_encounters": []
+      },
+      "session_id": "aion-canonical-runtime",
+      "task_hash": "b3009f6b7db79b24aa1bafada7973db98b32e73f6aecb4a18d4ba87a055b48d7",
+      "task_tokens": [
+        "change",
+        "committed",
+        "consequence",
+        "determine",
+        "external",
+        "failure",
+        "governed",
+        "internal",
+        "perform",
+        "represents",
+        "response",
+        "retain",
+        "then",
+        "whether"
+      ],
+      "trace_id": "task_trace_0547deb1e0de4c2e9b339e6f46cccd58"
+    },
+    {
+      "created_at": "2026-09-05T07:10:06.140901+00:00",
+      "missing_capabilities": [
+        "water_waste_resilience",
+        "manufacturing_quality",
+        "psychology_organisations",
+        "algebra_geometry"
+      ],
+      "retrieved_ids": {
+        "canonical_claims": [],
+        "experiences": [
+          "real_experience_capsule__public_software_change_observation_v1",
+          "experience_capsule__field_response_scheduler_v1",
+          "experience_capsule__resilient_service_network_v1",
+          "experience_capsule__cloud_failover_capacity_v1"
+        ],
+        "procedures": [
+          "procedure_outcome_response_05f009f1527f",
+          "procedure_outcome_response_0a972115d187",
+          "procedure_outcome_response_6bf575208404",
+          "procedure_outcome_response_757845400f4d",
+          "procedure_outcome_response_8f0c21f84861",
+          "procedure_outcome_response_013503ec7220",
+          "procedure_outcome_response_0371b7b130ad",
+          "procedure_outcome_response_04a018575c09"
+        ],
+        "subjects": [
+          "algebra_geometry",
+          "capability_debugging_repair",
+          "capability_learning_strategy",
+          "capability_systems_thinking",
+          "cloud_devops_sre",
+          "cybersecurity",
+          "detection_threat_hunting_incident_response",
+          "manufacturing_quality",
+          "networking",
+          "psychology_organisations",
+          "secure_engineering",
+          "security_engineering",
+          "technology_industry_platforms",
+          "water_waste_resilience"
+        ],
+        "unverified_encounters": []
+      },
+      "session_id": "aion-canonical-runtime",
+      "task_hash": "b3009f6b7db79b24aa1bafada7973db98b32e73f6aecb4a18d4ba87a055b48d7",
+      "task_tokens": [
+        "change",
+        "committed",
+        "consequence",
+        "determine",
+        "external",
+        "failure",
+        "governed",
+        "internal",
+        "perform",
+        "represents",
+        "response",
+        "retain",
+        "then",
+        "whether"
+      ],
+      "trace_id": "task_trace_4b3807d5961b48679efa3eb39376ec81"
+    },
+    {
+      "created_at": "2026-09-05T07:10:31.689238+00:00",
+      "missing_capabilities": [
+        "water_waste_resilience",
+        "manufacturing_quality",
+        "psychology_organisations",
+        "algebra_geometry"
+      ],
+      "retrieved_ids": {
+        "canonical_claims": [],
+        "experiences": [
+          "real_experience_capsule__public_software_change_observation_v1",
+          "experience_capsule__field_response_scheduler_v1",
+          "experience_capsule__resilient_service_network_v1",
+          "experience_capsule__cloud_failover_capacity_v1"
+        ],
+        "procedures": [
+          "procedure_outcome_response_05f009f1527f",
+          "procedure_outcome_response_0a972115d187",
+          "procedure_outcome_response_6bf575208404",
+          "procedure_outcome_response_757845400f4d",
+          "procedure_outcome_response_8f0c21f84861",
+          "procedure_outcome_response_013503ec7220",
+          "procedure_outcome_response_0371b7b130ad",
+          "procedure_outcome_response_04a018575c09"
+        ],
+        "subjects": [
+          "algebra_geometry",
+          "capability_debugging_repair",
+          "capability_learning_strategy",
+          "capability_systems_thinking",
+          "cloud_devops_sre",
+          "cybersecurity",
+          "detection_threat_hunting_incident_response",
+          "manufacturing_quality",
+          "networking",
+          "psychology_organisations",
+          "secure_engineering",
+          "security_engineering",
+          "technology_industry_platforms",
+          "water_waste_resilience"
+        ],
+        "unverified_encounters": []
+      },
+      "session_id": "aion-canonical-runtime",
+      "task_hash": "b3009f6b7db79b24aa1bafada7973db98b32e73f6aecb4a18d4ba87a055b48d7",
+      "task_tokens": [
+        "change",
+        "committed",
+        "consequence",
+        "determine",
+        "external",
+        "failure",
+        "governed",
+        "internal",
+        "perform",
+        "represents",
+        "response",
+        "retain",
+        "then",
+        "whether"
+      ],
+      "trace_id": "task_trace_30a03fc140a141058ac4b50f1bc3b836"
+    },
+    {
+      "created_at": "2026-09-05T07:24:04.756674+00:00",
+      "missing_capabilities": [
+        "water_waste_resilience",
+        "manufacturing_quality",
+        "psychology_organisations",
+        "algebra_geometry"
+      ],
+      "retrieved_ids": {
+        "canonical_claims": [],
+        "experiences": [
+          "real_experience_capsule__public_software_change_observation_v1",
+          "experience_capsule__field_response_scheduler_v1",
+          "experience_capsule__resilient_service_network_v1",
+          "experience_capsule__cloud_failover_capacity_v1"
+        ],
+        "procedures": [
+          "procedure_outcome_response_05f009f1527f",
+          "procedure_outcome_response_0a972115d187",
+          "procedure_outcome_response_6bf575208404",
+          "procedure_outcome_response_757845400f4d",
+          "procedure_outcome_response_8f0c21f84861",
+          "procedure_outcome_response_013503ec7220",
+          "procedure_outcome_response_0371b7b130ad",
+          "procedure_outcome_response_04a018575c09"
+        ],
+        "subjects": [
+          "algebra_geometry",
+          "capability_debugging_repair",
+          "capability_learning_strategy",
+          "capability_systems_thinking",
+          "cloud_devops_sre",
+          "cybersecurity",
+          "detection_threat_hunting_incident_response",
+          "manufacturing_quality",
+          "networking",
+          "psychology_organisations",
+          "secure_engineering",
+          "security_engineering",
+          "technology_industry_platforms",
+          "water_waste_resilience"
+        ],
+        "unverified_encounters": []
+      },
+      "session_id": "aion-canonical-runtime",
+      "task_hash": "b3009f6b7db79b24aa1bafada7973db98b32e73f6aecb4a18d4ba87a055b48d7",
+      "task_tokens": [
+        "change",
+        "committed",
+        "consequence",
+        "determine",
+        "external",
+        "failure",
+        "governed",
+        "internal",
+        "perform",
+        "represents",
+        "response",
+        "retain",
+        "then",
+        "whether"
+      ],
+      "trace_id": "task_trace_08e089dbab8a45e7a8c77201265d7bf9"
     }
   ],
-  "updated_at": "2026-09-05T05:05:36.060377+00:00"
+  "updated_at": "2026-09-05T07:24:08.982384+00:00"
 }

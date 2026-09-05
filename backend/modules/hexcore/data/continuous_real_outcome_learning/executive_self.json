@@ -4559,12 +4559,36 @@
       "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
       "mode": "work",
       "recorded_at": "2026-09-05T05:04:26.585929+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-05T07:08:39.369946+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-05T07:10:18.586910+00:00"
     }
   ],
   "commitments": {},
   "current_attention": {
     "attention_score": 9.215,
-    "id": "outcome:04cf6b8787d45c234a3afc23efd308b035764f0c2682f3226a055ce20e741e35",
+    "id": "outcome:2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
     "priority": 9.0,
     "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
     "type": "goal"
@@ -4608,12 +4632,12 @@
   "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
   "identity_immutable": true,
   "instrumental_goal_proposals": [],
-  "last_wake_at": "2026-09-05T05:04:26.585929+00:00",
+  "last_wake_at": "2026-09-05T07:10:18.586910+00:00",
   "mode": "work",
   "reflection_history": [],
-  "revision": 380,
+  "revision": 382,
   "schema_version": "aion.hexcore.persistent_executive_self.v1",
   "signals": [],
   "strategy_questions": [],
-  "updated_at": "2026-09-05T05:04:26.585941+00:00"
+  "updated_at": "2026-09-05T07:10:18.586943+00:00"
 }

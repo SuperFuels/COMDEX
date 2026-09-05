@@ -91,7 +91,7 @@
       "source": "north_star_mastery_registry_cau"
     },
     "reason": "constitutional_north_star_mastery_registry",
-    "state_hash": "ecf9ec93b367468fa5f3098d81e87d0c7c2b16b20ae2c538b17f4100acdcb9e4"
+    "state_hash": "9e891088fe5cf5da2de85179ee26f89a80deb20eedb30a83822a6ced660e6e6a"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -162700,6 +162700,238 @@
       "score": 1.0,
       "success": true,
       "timestamp": "2026-09-05T06:30:15.915070+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "constitutional_purpose_immutable": true,
+          "development_scaffolding_claim_withheld": true,
+          "guidance_proposal_only": true,
+          "innovation_authority_locked": true,
+          "learning_goals_generated": 12,
+          "levels": {
+            "expert": 0,
+            "learning": 4,
+            "mastered": 0,
+            "operational_bounded": 6,
+            "proficient_bounded": 5,
+            "unassessed": 8
+          },
+          "objective_mutations": 0,
+          "owner_supplied_lesson_steps": 0,
+          "queryable_capability_answers": 5,
+          "restart_retention": true,
+          "scaffolding_baseline_established": true,
+          "subject_groups": 9,
+          "subjects_tracked": 23,
+          "unsafe_actions": 0,
+          "unsupported_expert_claims": 0,
+          "unsupported_mastery_claims": 0
+        },
+        "maturity": {
+          "current_stage": "apprentice",
+          "derived_task_fields": 90,
+          "executor_contracts": 4,
+          "general_apprentice_criteria": {
+            "derived_fields_positive": true,
+            "executor_contracts_at_least_5": false,
+            "noncomputational_subjects_at_least_3": true,
+            "operational_subjects_at_least_6": true,
+            "owner_task_fields_zero": true,
+            "verified_receipts_at_least_10": false,
+            "verified_transfer_families_at_least_6": false
+          },
+          "innovation_authority_unlocked": false,
+          "next_stage": "general_apprentice",
+          "noncomputational_operational_subjects": 5,
+          "operational_subjects": 11,
+          "owner_task_fields": 0,
+          "reason_innovation_locked": "Research proposals are allowed, but autonomous innovation authority remains locked until general-apprentice breadth, cross-subject transfer and independent outcomes mature.",
+          "verified_receipts": 6,
+          "verified_transfer_families": 5
+        }
+      },
+      "outcome_id": "outcome_037cb456e7b24434",
+      "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-05T06:48:15.990119+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "constitutional_purpose_immutable": true,
+          "development_scaffolding_claim_withheld": true,
+          "guidance_proposal_only": true,
+          "innovation_authority_locked": true,
+          "learning_goals_generated": 12,
+          "levels": {
+            "expert": 0,
+            "learning": 4,
+            "mastered": 0,
+            "operational_bounded": 6,
+            "proficient_bounded": 5,
+            "unassessed": 8
+          },
+          "objective_mutations": 0,
+          "owner_supplied_lesson_steps": 0,
+          "queryable_capability_answers": 5,
+          "restart_retention": true,
+          "scaffolding_baseline_established": true,
+          "subject_groups": 9,
+          "subjects_tracked": 23,
+          "unsafe_actions": 0,
+          "unsupported_expert_claims": 0,
+          "unsupported_mastery_claims": 0
+        },
+        "maturity": {
+          "current_stage": "apprentice",
+          "derived_task_fields": 90,
+          "executor_contracts": 4,
+          "general_apprentice_criteria": {
+            "derived_fields_positive": true,
+            "executor_contracts_at_least_5": false,
+            "noncomputational_subjects_at_least_3": true,
+            "operational_subjects_at_least_6": true,
+            "owner_task_fields_zero": true,
+            "verified_receipts_at_least_10": false,
+            "verified_transfer_families_at_least_6": false
+          },
+          "innovation_authority_unlocked": false,
+          "next_stage": "general_apprentice",
+          "noncomputational_operational_subjects": 5,
+          "operational_subjects": 11,
+          "owner_task_fields": 0,
+          "reason_innovation_locked": "Research proposals are allowed, but autonomous innovation authority remains locked until general-apprentice breadth, cross-subject transfer and independent outcomes mature.",
+          "verified_receipts": 6,
+          "verified_transfer_families": 5
+        }
+      },
+      "outcome_id": "outcome_8d87a08707ee49a2",
+      "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-05T07:04:38.675030+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "constitutional_purpose_immutable": true,
+          "development_scaffolding_claim_withheld": true,
+          "guidance_proposal_only": true,
+          "innovation_authority_locked": true,
+          "learning_goals_generated": 12,
+          "levels": {
+            "expert": 0,
+            "learning": 4,
+            "mastered": 0,
+            "operational_bounded": 6,
+            "proficient_bounded": 5,
+            "unassessed": 8
+          },
+          "objective_mutations": 0,
+          "owner_supplied_lesson_steps": 0,
+          "queryable_capability_answers": 5,
+          "restart_retention": true,
+          "scaffolding_baseline_established": true,
+          "subject_groups": 9,
+          "subjects_tracked": 23,
+          "unsafe_actions": 0,
+          "unsupported_expert_claims": 0,
+          "unsupported_mastery_claims": 0
+        },
+        "maturity": {
+          "current_stage": "apprentice",
+          "derived_task_fields": 90,
+          "executor_contracts": 4,
+          "general_apprentice_criteria": {
+            "derived_fields_positive": true,
+            "executor_contracts_at_least_5": false,
+            "noncomputational_subjects_at_least_3": true,
+            "operational_subjects_at_least_6": true,
+            "owner_task_fields_zero": true,
+            "verified_receipts_at_least_10": false,
+            "verified_transfer_families_at_least_6": false
+          },
+          "innovation_authority_unlocked": false,
+          "next_stage": "general_apprentice",
+          "noncomputational_operational_subjects": 5,
+          "operational_subjects": 11,
+          "owner_task_fields": 0,
+          "reason_innovation_locked": "Research proposals are allowed, but autonomous innovation authority remains locked until general-apprentice breadth, cross-subject transfer and independent outcomes mature.",
+          "verified_receipts": 6,
+          "verified_transfer_families": 5
+        }
+      },
+      "outcome_id": "outcome_9bc548b906664dfc",
+      "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-05T07:21:04.257333+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "constitutional_purpose_immutable": true,
+          "development_scaffolding_claim_withheld": true,
+          "guidance_proposal_only": true,
+          "innovation_authority_locked": true,
+          "learning_goals_generated": 12,
+          "levels": {
+            "expert": 0,
+            "learning": 4,
+            "mastered": 0,
+            "operational_bounded": 6,
+            "proficient_bounded": 5,
+            "unassessed": 8
+          },
+          "objective_mutations": 0,
+          "owner_supplied_lesson_steps": 0,
+          "queryable_capability_answers": 5,
+          "restart_retention": true,
+          "scaffolding_baseline_established": true,
+          "subject_groups": 9,
+          "subjects_tracked": 23,
+          "unsafe_actions": 0,
+          "unsupported_expert_claims": 0,
+          "unsupported_mastery_claims": 0
+        },
+        "maturity": {
+          "current_stage": "apprentice",
+          "derived_task_fields": 90,
+          "executor_contracts": 4,
+          "general_apprentice_criteria": {
+            "derived_fields_positive": true,
+            "executor_contracts_at_least_5": false,
+            "noncomputational_subjects_at_least_3": true,
+            "operational_subjects_at_least_6": true,
+            "owner_task_fields_zero": true,
+            "verified_receipts_at_least_10": false,
+            "verified_transfer_families_at_least_6": false
+          },
+          "innovation_authority_unlocked": false,
+          "next_stage": "general_apprentice",
+          "noncomputational_operational_subjects": 5,
+          "operational_subjects": 11,
+          "owner_task_fields": 0,
+          "reason_innovation_locked": "Research proposals are allowed, but autonomous innovation authority remains locked until general-apprentice breadth, cross-subject transfer and independent outcomes mature.",
+          "verified_receipts": 6,
+          "verified_transfer_families": 5
+        }
+      },
+      "outcome_id": "outcome_97c6cf4a7a8f4ab2",
+      "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-09-05T07:38:03.949587+00:00"
     }
   ],
   "polyglot_execution_contracts": {},
@@ -162816,7 +163048,7 @@
   "representation_models": {},
   "representation_revision_generations": [],
   "reproducibility_audits": [],
-  "revision": 5606,
+  "revision": 5614,
   "sandbox_patch_library": {},
   "schema_learning_projects": {},
   "schema_revision_sessions": [],
@@ -162839,7 +163071,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-09-05T06:30:55.578560+00:00",
+  "updated_at": "2026-09-05T07:38:36.288200+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},

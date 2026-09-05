@@ -43,6 +43,7 @@
     "outcome:0f0969e9233f0d9ca8aec88443f2a76f8bc9733deb515df6fae4fd84d713ac01": "procedure_outcome_response_88ece556be2d",
     "outcome:117ab33c1b9c009a858c9810c8e10b4c7a9651aa4abd801d342910e150d99041": "procedure_outcome_response_04c48215902c",
     "outcome:11ca64fcd08372979be421d4700383f2818138f604d17cc590b70d16e59cda6e": "procedure_outcome_response_88cdb6aa7dd4",
+    "outcome:12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc": "procedure_outcome_response_31d90817b738",
     "outcome:133d44b0b0d4909a50edf6b10930c5ddd171abe3baad388787818d3aa4e328ba": "procedure_outcome_response_df2a0fa8ac33",
     "outcome:13a9d0aff9bc113fba5bee5fbeb1fe180622b3073b242eb085617b5fdc712212": "procedure_outcome_response_9e1f88ba363e",
     "outcome:14fbe89a3abaa16396332852a086e0c41ef26781fc4f0ac51fd0095536675c78": "procedure_outcome_response_5ec61a50be8e",
@@ -77,6 +78,7 @@
     "outcome:29ed19f9e795129758cc279ce4befb7570210bfd8443e6180d2e1881f66c820d": "procedure_outcome_response_482fc50735b3",
     "outcome:2a76dfe691c5fe0060726fbe738aa2ffdb4ef100e1162122ba652852937fc496": "procedure_outcome_response_bc2022be4369",
     "outcome:2bf57feeb7b3e8311b91713341afc4e546c37ba3c78e95d2d5dbeb38fd032b38": "procedure_outcome_response_78f718fac6bc",
+    "outcome:2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c": "procedure_outcome_response_45c0e22921cb",
     "outcome:2ca9244af84d6d81210d1cf6d716a99d74e945580e4b1b48aa8c80704e828a69": "procedure_outcome_response_cb7aa07fd619",
     "outcome:2cc4d8d06a506cc2e2bbfacdee8ce2e5685d03924ca06995ea4aea23cdce2856": "procedure_outcome_response_93a68bfd3ff1",
     "outcome:2e56d81011a81910cc63087dfca91395de98117a1be60d967acecf42b06168aa": "procedure_outcome_response_2a737506f040",
@@ -485,7 +487,7 @@
       "source": "continuous_real_outcome_cau"
     },
     "reason": "continuous_real_outcome_learning",
-    "state_hash": "374345a0b859d866df33a1d2147b3e11c6a44b77fc225154cbfc7cea3de61134"
+    "state_hash": "bd1000400674a29b046f22ec86d932626e7efcd8f8ce7d72642e2994decf2bca"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -122952,6 +122954,28 @@
       "score": 2.0,
       "success": true,
       "timestamp": "2026-09-05T06:38:58.702849+00:00"
+    },
+    {
+      "evidence": {
+        "event_set_hash": "da5b42fc7dd1f0bf009bb1afa7b81b76ac884ed8e36e6a882b42924e14abaf66",
+        "gate": {
+          "accepted": true,
+          "committed_events_available": 396,
+          "duplicate_actions_after_restart": 0,
+          "new_events_processed": 1,
+          "source_models_retained": 4,
+          "total_events_retained": 396,
+          "unsafe_live_writes": 0,
+          "verified_response_rate": 1.0,
+          "world_change_events_retained": 390
+        }
+      },
+      "outcome_id": "outcome_a699c5ec6fdc45d7",
+      "procedure_id": "procedure_continuous_real_outcome_learning_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 2.0,
+      "success": true,
+      "timestamp": "2026-09-05T07:24:17.904369+00:00"
     }
   ],
   "polyglot_execution_contracts": {},
@@ -125669,6 +125693,39 @@
       ],
       "success": true
     },
+    "procedure_outcome_response_31d90817b738": {
+      "evidence": {
+        "class": "external_world_change",
+        "event_id": "12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc",
+        "evidence": [
+          {
+            "revision": "ad67159bea7202eac85440dafac98fad5cdd175d",
+            "source": "node"
+          },
+          {
+            "revision": "5b86552ee94c81669b0d79b9c647e44d10564a6f250c419583554b2ad7daf302",
+            "source": "open_meteo_madrid"
+          }
+        ],
+        "outcome_sha256": "12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc",
+        "response": "revise_source_world_model",
+        "verified": true
+      },
+      "goal": "outcome:12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc",
+      "procedure_id": "procedure_outcome_response_31d90817b738",
+      "promoted_at": "2026-09-05T07:09:34.485652+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "read_committed_outcome",
+        "attribute_origin",
+        "route_response",
+        "retain_verified_revision_or_private_failure"
+      ],
+      "success": true
+    },
     "procedure_outcome_response_31f54c903706": {
       "evidence": {
         "class": "external_world_change",
@@ -126696,6 +126753,35 @@
       "goal": "outcome:6de0efdd9483b11a00301ebfef8ea23a3137d0e607310c8584fa51406e520799",
       "procedure_id": "procedure_outcome_response_4537cec4eb1a",
       "promoted_at": "2026-08-31T19:15:22.259313+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "read_committed_outcome",
+        "attribute_origin",
+        "route_response",
+        "retain_verified_revision_or_private_failure"
+      ],
+      "success": true
+    },
+    "procedure_outcome_response_45c0e22921cb": {
+      "evidence": {
+        "class": "external_world_change",
+        "event_id": "2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+        "evidence": [
+          {
+            "revision": "7b8983cdf0bca8ecac73dd18b9f6f6c81f113471dbd04e770e679fabe138d45d",
+            "source": "open_meteo_madrid"
+          }
+        ],
+        "outcome_sha256": "2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+        "response": "revise_source_world_model",
+        "verified": true
+      },
+      "goal": "outcome:2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+      "procedure_id": "procedure_outcome_response_45c0e22921cb",
+      "promoted_at": "2026-09-05T07:23:40.491966+00:00",
       "schema_version": "aion.hexcore.procedure_candidate.v1",
       "score": 1.0,
       "source_rules": [],
@@ -139765,6 +139851,24 @@
       "schema_version": "aion.hexcore.procedure_promotion.v1",
       "score": 1.0,
       "timestamp": "2026-09-05T05:05:11.658595+00:00"
+    },
+    {
+      "evidence_hash": "31d90817b738f4a387ff57ab5e1070878d6cca1eab9296959c0ef5d288fcf8f8",
+      "goal": "outcome:12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc",
+      "new_champion_id": "procedure_outcome_response_31d90817b738",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-09-05T07:09:34.485703+00:00"
+    },
+    {
+      "evidence_hash": "45c0e22921cb4aed7e458107c658104f5c0e2cafc72bc34fe7ae300a214d7ae1",
+      "goal": "outcome:2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+      "new_champion_id": "procedure_outcome_response_45c0e22921cb",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-09-05T07:23:40.492016+00:00"
     }
   ],
   "property_invention_sessions": [],
@@ -139785,7 +139889,7 @@
   "representation_models": {},
   "representation_revision_generations": [],
   "reproducibility_audits": [],
-  "revision": 11524,
+  "revision": 11528,
   "sandbox_patch_library": {},
   "schema_learning_projects": {},
   "schema_revision_sessions": [],
@@ -139808,7 +139912,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-09-05T06:39:12.387250+00:00",
+  "updated_at": "2026-09-05T07:24:28.772209+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},

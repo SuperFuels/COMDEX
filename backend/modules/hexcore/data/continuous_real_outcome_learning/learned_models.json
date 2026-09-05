@@ -6942,6 +6942,36 @@
       "outcome_sha256": "04cf6b8787d45c234a3afc23efd308b035764f0c2682f3226a055ce20e741e35",
       "response": "revise_source_world_model",
       "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc",
+      "evidence": [
+        {
+          "revision": "ad67159bea7202eac85440dafac98fad5cdd175d",
+          "source": "node"
+        },
+        {
+          "revision": "5b86552ee94c81669b0d79b9c647e44d10564a6f250c419583554b2ad7daf302",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+      "evidence": [
+        {
+          "revision": "7b8983cdf0bca8ecac73dd18b9f6f6c81f113471dbd04e770e679fabe138d45d",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+      "response": "revise_source_world_model",
+      "verified": true
     }
   ],
   "sources": {
@@ -6952,13 +6982,13 @@
     },
     "node": {
       "authority": "https://github.com/nodejs/node.git",
-      "observed_at": "2026-09-05T04:57:00.370893+00:00",
-      "revision": "57860ef5d4922aa830bea8e4f101f9e2d20d9351"
+      "observed_at": "2026-09-05T06:59:19.804836+00:00",
+      "revision": "ad67159bea7202eac85440dafac98fad5cdd175d"
     },
     "open_meteo_madrid": {
       "authority": "https://api.open-meteo.com/v1/forecast?latitude=40.4168&longitude=-3.7038&current=temperature_2m,wind_speed_10m",
-      "observed_at": "2026-09-05T04:57:00.370893+00:00",
-      "revision": "66421f116767b74a13898ba8fc87244c0847f809b7d3fb8c7cebcb8ff1f054f2"
+      "observed_at": "2026-09-05T07:02:56.774561+00:00",
+      "revision": "7b8983cdf0bca8ecac73dd18b9f6f6c81f113471dbd04e770e679fabe138d45d"
     },
     "pypi_numpy": {
       "authority": "https://pypi.org/pypi/numpy/json",

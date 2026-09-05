@@ -347,7 +347,7 @@
     "purpose_hash": "b4f83005014a0d0ecbcdca8038e803e8413dca2055ba56fd0fd5a15ba0b329bf",
     "terminal_mission_hash": "cf542ee72ebeb1fbef64c53fb3806c3b939b19df147b89253eb596a0340dba24",
     "terminal_objective_mutations": 0,
-    "updated_at": "2026-09-05T06:29:56.212924+00:00"
+    "updated_at": "2026-09-05T07:20:55.356962+00:00"
   },
   "curriculum_history": [
     {
@@ -782,7 +782,7 @@
       "task_type": "unfamiliar_apprenticeship_experiment"
     }
   ],
-  "evidence_revision": 7279,
+  "evidence_revision": 7285,
   "executor_contracts": {
     "procedure_executor_1edd5e4b2bc53b3b540c": {
       "authorities": [
@@ -1414,7 +1414,7 @@
             "repair"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
+          "sha256": "fa507fc56dc924192db61cfcdb99679bc20b7b86ba7c6a38ef3eccb73c1e5dfb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -1476,7 +1476,7 @@
             "repair"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
+          "sha256": "1f3f0e5f16565a8b04522b36be69c6d0204cdeec18724a951ce1572448283770"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -2690,7 +2690,7 @@
             "transfer"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
+          "sha256": "fa507fc56dc924192db61cfcdb99679bc20b7b86ba7c6a38ef3eccb73c1e5dfb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -3567,7 +3567,7 @@
             "public"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
+          "sha256": "fa507fc56dc924192db61cfcdb99679bc20b7b86ba7c6a38ef3eccb73c1e5dfb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -3628,7 +3628,7 @@
             "public"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
+          "sha256": "1f3f0e5f16565a8b04522b36be69c6d0204cdeec18724a951ce1572448283770"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -4879,7 +4879,7 @@
             "retention"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
+          "sha256": "fa507fc56dc924192db61cfcdb99679bc20b7b86ba7c6a38ef3eccb73c1e5dfb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -4937,7 +4937,7 @@
             "restart"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
+          "sha256": "1f3f0e5f16565a8b04522b36be69c6d0204cdeec18724a951ce1572448283770"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -6043,7 +6043,7 @@
             "semantic"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
+          "sha256": "fa507fc56dc924192db61cfcdb99679bc20b7b86ba7c6a38ef3eccb73c1e5dfb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -7113,7 +7113,7 @@
             "unfamiliar"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
+          "sha256": "fa507fc56dc924192db61cfcdb99679bc20b7b86ba7c6a38ef3eccb73c1e5dfb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -7171,7 +7171,7 @@
             "open"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
+          "sha256": "1f3f0e5f16565a8b04522b36be69c6d0204cdeec18724a951ce1572448283770"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -8276,7 +8276,7 @@
             "visual"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
+          "sha256": "fa507fc56dc924192db61cfcdb99679bc20b7b86ba7c6a38ef3eccb73c1e5dfb"
         },
         {
           "artifact": "results/hexcore_continual_neural_physical_policy_v14.json",
@@ -8749,7 +8749,7 @@
             "runtime"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
+          "sha256": "fa507fc56dc924192db61cfcdb99679bc20b7b86ba7c6a38ef3eccb73c1e5dfb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -8805,7 +8805,7 @@
             "goal"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
+          "sha256": "1f3f0e5f16565a8b04522b36be69c6d0204cdeec18724a951ce1572448283770"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -10070,7 +10070,7 @@
             "tool"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "db66843c31c8f1d6cfca94960e07458bd2a3a8a5688fe9cd705c060b95af8abb"
+          "sha256": "fa507fc56dc924192db61cfcdb99679bc20b7b86ba7c6a38ef3eccb73c1e5dfb"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -10128,7 +10128,7 @@
             "schema"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "d0490c07d719f4cf75b0c6254ee0788ebd330f8cdb12014c86f129a5e102c307"
+          "sha256": "1f3f0e5f16565a8b04522b36be69c6d0204cdeec18724a951ce1572448283770"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -11306,8 +11306,8 @@
     "procedure_split_leakage": [],
     "protocol_usage": "evaluation infrastructure only; never capability training truth",
     "splits": {
-      "development": 62,
-      "sealed": 24,
+      "development": 61,
+      "sealed": 25,
       "train": 187
     }
   },
@@ -23557,5 +23557,5 @@
   ],
   "schema_version": "aion.hexcore.autonomous_general_apprentice.v1",
   "status": "active",
-  "updated_at": "2026-09-05T06:45:31.016797+00:00"
+  "updated_at": "2026-09-05T07:38:49.421557+00:00"
 }

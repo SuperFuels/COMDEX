@@ -10232,6 +10232,58 @@
       "score": 1.0,
       "status": "completed",
       "verified": true
+    },
+    {
+      "completed_at": "2026-09-05T07:10:15.896111+00:00",
+      "cycle_id": "cycle_6ba143adc55f4b1e",
+      "executive_method": "operational_incident",
+      "goal_id": "outcome:12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc",
+      "promotion": {
+        "champion_id": "procedure_outcome_response_31d90817b738",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "continuous_real_outcome_cau"
+          },
+          "reason": "procedure_promotion:procedure_outcome_response_31d90817b738",
+          "state_hash": "f3a584b55ada81f8131b80df44cf4e270615c99aa47855a47cc751ebb47d1724"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-09-05T07:24:13.031615+00:00",
+      "cycle_id": "cycle_f0da12516a49416b",
+      "executive_method": "operational_incident",
+      "goal_id": "outcome:2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+      "promotion": {
+        "champion_id": "procedure_outcome_response_45c0e22921cb",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "continuous_real_outcome_cau"
+          },
+          "reason": "procedure_promotion:procedure_outcome_response_45c0e22921cb",
+          "state_hash": "cab8c8c654deef7bee756ae7e2c89951e411b66c3b13c65f80f2b68b1ba97ed4"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
     }
   ],
   "created_at": "2026-07-31T22:16:32.465986+00:00",
@@ -10240,20 +10292,20 @@
   "executive_attention": {
     "attention": {
       "attention_score": 9.215,
-      "id": "outcome:04cf6b8787d45c234a3afc23efd308b035764f0c2682f3226a055ce20e741e35",
+      "id": "outcome:2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
       "priority": 9.0,
       "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
       "type": "goal"
     },
     "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
     "mode": "work",
-    "recorded_at": "2026-09-05T05:04:26.585929+00:00"
+    "recorded_at": "2026-09-05T07:10:18.586910+00:00"
   },
   "failure_queues": {},
   "goal_runtime": {},
   "last_error": null,
   "last_event": "cycle_completed:completed",
-  "last_heartbeat_at": "2026-09-05T05:05:40.575222+00:00",
+  "last_heartbeat_at": "2026-09-05T07:24:13.031566+00:00",
   "metacognitive_history": [
     {
       "action_signature": "0cad8d63ce661268",
@@ -22344,10 +22396,72 @@
       "review_id": "meta_734fb2f654be2fe3",
       "score": 1.0,
       "verified": true
+    },
+    {
+      "action_signature": "0cad8d63ce661268",
+      "action_type": "revise_source_world_model",
+      "cycle_id": "cycle_6ba143adc55f4b1e",
+      "decision": "execute",
+      "deliberation_units": 3,
+      "depth": "cheap",
+      "goal_id": "outcome:12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc",
+      "outcome_grade": "good",
+      "outcome_reflection": {
+        "attribution": "none",
+        "cheap_noop": true,
+        "competing_explanations": [],
+        "diagnostic_required": false,
+        "lesson": null,
+        "llm_calls": 0,
+        "observed_score": 1.0,
+        "outcome_grade": "good",
+        "performed": false,
+        "predicted_success": 1.0,
+        "prediction_error": 0.0,
+        "reflected_at": "2026-09-05T07:09:27.673843+00:00",
+        "reflection_id": "reflection_3823939921441d82",
+        "schema_version": "aion.hexcore.post_action_reflection.v1",
+        "verified": true
+      },
+      "recorded_at": "2026-09-05T07:09:27.673867+00:00",
+      "review_id": "meta_6410d7469095d469",
+      "score": 1.0,
+      "verified": true
+    },
+    {
+      "action_signature": "0cad8d63ce661268",
+      "action_type": "revise_source_world_model",
+      "cycle_id": "cycle_f0da12516a49416b",
+      "decision": "execute",
+      "deliberation_units": 3,
+      "depth": "cheap",
+      "goal_id": "outcome:2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+      "outcome_grade": "good",
+      "outcome_reflection": {
+        "attribution": "none",
+        "cheap_noop": true,
+        "competing_explanations": [],
+        "diagnostic_required": false,
+        "lesson": null,
+        "llm_calls": 0,
+        "observed_score": 1.0,
+        "outcome_grade": "good",
+        "performed": false,
+        "predicted_success": 1.0,
+        "prediction_error": 0.0,
+        "reflected_at": "2026-09-05T07:23:35.839796+00:00",
+        "reflection_id": "reflection_6e3a06a6b33a284f",
+        "schema_version": "aion.hexcore.post_action_reflection.v1",
+        "verified": true
+      },
+      "recorded_at": "2026-09-05T07:23:35.839821+00:00",
+      "review_id": "meta_63daf823c4633233",
+      "score": 1.0,
+      "verified": true
     }
   ],
   "mission_goals": [],
-  "next_wake_at": 1788584740.630849,
+  "next_wake_at": 1788593053.171493,
   "open_specialist_contracts": {},
   "outcome_receipts": [],
   "pending_outcomes": {},
@@ -34379,10 +34493,66 @@
       ],
       "success": true,
       "verified": true
+    },
+    {
+      "evidence": {
+        "class": "external_world_change",
+        "event_id": "12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc",
+        "evidence": [
+          {
+            "revision": "ad67159bea7202eac85440dafac98fad5cdd175d",
+            "source": "node"
+          },
+          {
+            "revision": "5b86552ee94c81669b0d79b9c647e44d10564a6f250c419583554b2ad7daf302",
+            "source": "open_meteo_madrid"
+          }
+        ],
+        "outcome_sha256": "12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc",
+        "response": "revise_source_world_model",
+        "verified": true
+      },
+      "goal": "outcome:12b0284b079cfd9cabae71477444009c07764960e302f1247b665eb14db4bfcc",
+      "procedure_id": "procedure_outcome_response_31d90817b738",
+      "score": 1.0,
+      "steps": [
+        "read_committed_outcome",
+        "attribute_origin",
+        "route_response",
+        "retain_verified_revision_or_private_failure"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "class": "external_world_change",
+        "event_id": "2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+        "evidence": [
+          {
+            "revision": "7b8983cdf0bca8ecac73dd18b9f6f6c81f113471dbd04e770e679fabe138d45d",
+            "source": "open_meteo_madrid"
+          }
+        ],
+        "outcome_sha256": "2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+        "response": "revise_source_world_model",
+        "verified": true
+      },
+      "goal": "outcome:2c5e61a633299e5037dc735b7fe3aa8a7e6a529359ebf61da7eaf87b98cc716c",
+      "procedure_id": "procedure_outcome_response_45c0e22921cb",
+      "score": 1.0,
+      "steps": [
+        "read_committed_outcome",
+        "attribute_origin",
+        "route_response",
+        "retain_verified_revision_or_private_failure"
+      ],
+      "success": true,
+      "verified": true
     }
   ],
-  "revision": 6296,
+  "revision": 6328,
   "schema_version": "aion.hexcore.canonical_cognitive_runtime.v1",
   "status": "idle",
-  "updated_at": "2026-09-05T05:05:40.580854+00:00"
+  "updated_at": "2026-09-05T07:24:13.121501+00:00"
 }
