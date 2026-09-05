@@ -20,7 +20,7 @@ from typing import Any, Callable, Mapping, Optional, Sequence
 
 
 MAX_ABSOLUTE_INPUT = Decimal("1e12")
-EXECUTOR_VERSION = "aion.learned_template_executor.v2"
+EXECUTOR_VERSION = "aion.learned_template_executor.v3"
 INTENT_PATTERN = re.compile(r"^[A-Z][A-Z0-9_]{2,63}$")
 FIELD_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,47}$")
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
@@ -421,6 +421,9 @@ class LearnedAtomSheetStore:
             field for field in fields
             if all(_decimal(item["inputs"][field]) > 0 for item in observations)
         ]
+        sheet["validity"]["percentage_inputs"] = [
+            field for field in fields if field.endswith("_percent")
+        ]
         contract_hash = _sha(sheet)
         envelope = {**sheet, "contract_sha256": contract_hash, "promoted_at": _utc_now()}
         with sqlite3.connect(self.database_path) as connection:
@@ -483,6 +486,11 @@ class LearnedAtomSheetStore:
             normalized_by_field = dict(zip(fields, values))
             if any(normalized_by_field[field] <= 0 for field in sheet["validity"].get("positive_inputs", ())):
                 raise ValueError("input violates learned positive-domain boundary")
+            if any(
+                normalized_by_field[field] < 0 or normalized_by_field[field] > 100
+                for field in sheet["validity"].get("percentage_inputs", ())
+            ):
+                raise ValueError("input violates learned percentage-domain boundary")
             template = TEMPLATE_INDEX[sheet["operator_template_id"]]
             result = template.evaluate(values)
             verified = template.verify(values, result)

@@ -40,12 +40,13 @@ def resolve_inference_storage_root() -> Path:
 @lru_cache(maxsize=1)
 def get_adaptive_runtime() -> AdaptiveInferenceRuntime:
     root = resolve_inference_storage_root()
+    learning_root = root / "learning/falsification-runs/multifamily-v4-domain-bounds"
     return AdaptiveInferenceRuntime(
         replay_path=root / "runtime/replay.sqlite3",
         trace_path=root / "runtime/execution_receipts.jsonl",
         learned_store=LearnedAtomSheetStore(
-            root / "learning/blind-v1/learning.sqlite3",
-            root / "learning/blind-v1/promoted",
+            learning_root / "learning.sqlite3",
+            learning_root / "promoted",
         ),
     )
 
@@ -53,9 +54,10 @@ def get_adaptive_runtime() -> AdaptiveInferenceRuntime:
 @lru_cache(maxsize=1)
 def get_learning_store() -> LearnedAtomSheetStore:
     root = resolve_inference_storage_root()
+    learning_root = root / "learning/falsification-runs/multifamily-v4-domain-bounds"
     return LearnedAtomSheetStore(
-        root / "learning/blind-v1/learning.sqlite3",
-        root / "learning/blind-v1/promoted",
+        learning_root / "learning.sqlite3",
+        learning_root / "promoted",
     )
 
 
@@ -76,6 +78,7 @@ def inference_capabilities() -> dict:
         "proof_receipts": True,
         "verified_replay": True,
         "learned_atomsheet_promotion": True,
+        "learned_route_cohort": "multifamily-v4-domain-bounds",
         "learning_ingestion_api": False,
         "learning_ingestion_reason": "verified outcomes enter through the trusted internal verifier boundary",
     }

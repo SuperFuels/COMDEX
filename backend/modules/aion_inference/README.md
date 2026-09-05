@@ -121,3 +121,25 @@ PYTHONPATH=. python backend/scripts/run_aion_learning_context_shard_experiments.
   --base-url http://127.0.0.1:11435 \
   --model qwen3:1.7b
 ```
+
+The multi-family falsification harness extends promotion to markup, discount,
+tax, and hourly labour while keeping formulas out of the prompts. It preserves
+incorrect model answers as rejected evidence, challenges each promoted sheet
+on 25 unseen inputs, and attacks the boundary with negative, zero, oversized,
+out-of-range percentage, mismatched-field, unknown-intent, ambiguous-language,
+and compound-action cases. Use a fresh run ID for every cohort:
+
+```bash
+PYTHONPATH=. python backend/scripts/run_aion_multifamily_falsification.py \
+  --storage-root "/Volumes/EXTERNAL/AION-Inference" \
+  --run-id multifamily-v4-domain-bounds \
+  --base-url http://127.0.0.1:11435 \
+  --model qwen3:1.7b \
+  --structured-output
+```
+
+The recorded v4 SD-backed cohort promoted all four expected operators, passed
+100 of 100 unseen calculations without model calls, and rejected all 983
+adversarial cases from the learned fast path. Earlier failed tax cohorts remain
+on the evidence volume; they show that promotion safely remains quarantined
+when the small model does not supply enough correct outcomes.

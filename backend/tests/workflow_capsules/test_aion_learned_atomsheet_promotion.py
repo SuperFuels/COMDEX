@@ -188,3 +188,25 @@ def test_promoted_markup_sheet_routes_plain_english_and_rejects_compound_action(
     assert multiple.proof_receipt["gate_reason"] == "learned_text_numeric_ambiguity"
     negative = store.route_text("Apply 16% markup to -225")
     assert negative.route == "full_model"
+
+
+def test_discount_promotion_learns_decrease_and_rejects_impossible_percentage(tmp_path):
+    store = _store(tmp_path)
+    fixtures = [("100", "10"), ("80", "25"), ("50", "20"), ("240", "15"), ("12", "50"), ("400", "7")]
+    for index, (cost, percent) in enumerate(fixtures):
+        result = Decimal(cost) * (Decimal("1") - Decimal(percent) / Decimal("100"))
+        decision = store.observe(VerifiedModelOutcome(
+            intent="CALCULATE_DISCOUNTED_PRICE",
+            inputs={"cost": cost, "discount_percent": percent},
+            result=str(result),
+            verifier_id=f"decimal-reference-{index % 2}", model_id="qwen3:1.7b",
+            response_sha256=_response_hash(100 + index),
+            created_at=f"2026-09-05T22:00:{index:02d}+00:00",
+        ))
+    assert decision.status == "promoted"
+    assert decision.candidate_template_ids == ("decrease_a_percent_b.v1",)
+    valid = store.execute("CALCULATE_DISCOUNTED_PRICE", {"cost": "200", "discount_percent": "15"})
+    assert valid.answer == "170"
+    invalid = store.execute("CALCULATE_DISCOUNTED_PRICE", {"cost": "200", "discount_percent": "125"})
+    assert invalid.route == "full_model"
+    assert invalid.proof_receipt["gate_reason"] == "learned_sheet_verification_failed"
