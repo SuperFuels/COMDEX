@@ -9,7 +9,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from backend.modules.aion_inference import AdaptiveInferenceRuntime
+from backend.modules.aion_inference import AdaptiveInferenceRuntime, LearnedAtomSheetStore
 
 
 router = APIRouter(prefix="/api/aion/inference", tags=["aion-inference"])
@@ -19,6 +19,11 @@ class InferenceRouteRequest(BaseModel):
     text: str = Field(min_length=1, max_length=32_768)
     context: list[str] = Field(default_factory=list, max_length=100)
     context_max_bytes: int = Field(default=2048, ge=128, le=131_072)
+
+
+class LearnedRouteRequest(BaseModel):
+    intent: str = Field(min_length=3, max_length=64, pattern=r"^[A-Z][A-Z0-9_]+$")
+    inputs: dict[str, str] = Field(min_length=2, max_length=3)
 
 
 @lru_cache(maxsize=1)
@@ -41,6 +46,15 @@ def get_adaptive_runtime() -> AdaptiveInferenceRuntime:
     )
 
 
+@lru_cache(maxsize=1)
+def get_learning_store() -> LearnedAtomSheetStore:
+    root = resolve_inference_storage_root()
+    return LearnedAtomSheetStore(
+        root / "learning/learning.sqlite3",
+        root / "learning/promoted",
+    )
+
+
 @router.get("/capabilities")
 def inference_capabilities() -> dict:
     return {
@@ -57,6 +71,9 @@ def inference_capabilities() -> dict:
         "ambiguous_inputs_bypass_allowed": False,
         "proof_receipts": True,
         "verified_replay": True,
+        "learned_atomsheet_promotion": True,
+        "learning_ingestion_api": False,
+        "learning_ingestion_reason": "verified outcomes enter through the trusted internal verifier boundary",
     }
 
 
@@ -70,3 +87,16 @@ def route_inference(
         context=request.context,
         context_max_bytes=request.context_max_bytes,
     ).to_dict()
+
+
+@router.get("/learning/status")
+def learning_status(store: LearnedAtomSheetStore = Depends(get_learning_store)) -> dict:
+    return dict(store.status())
+
+
+@router.post("/route-structured")
+def route_learned_atomsheet(
+    request: LearnedRouteRequest,
+    store: LearnedAtomSheetStore = Depends(get_learning_store),
+) -> dict:
+    return store.execute(request.intent, request.inputs).to_dict()

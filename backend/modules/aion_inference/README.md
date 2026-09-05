@@ -76,3 +76,43 @@ replay store and an append-only execution receipt log. The runtime uses
 Requests containing a second action, multiple calculations, missing values,
 invalid dimensions, mixed profit currencies, or unresolved ambiguity cannot
 take the deterministic bypass.
+
+## Learned AtomSheets and Glyph context
+
+`LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts
+model outcomes only through a trusted internal verifier boundary. A model
+response is never treated as proof. Automatic promotion requires at least six
+distinct verified input sets, two verifier identities, a unique exact match in
+the audited operator-template library, and a two-observation holdout pass.
+Promoted contracts are content hashed, written to the external evidence root,
+and cannot be silently replaced by a different contract. Later verified
+outcomes monitor the existing contract. Unknown intents, mismatched inputs,
+numeric boundary failures, and inverse-check failures return the full-model
+route.
+
+There is deliberately no public learning-ingestion endpoint yet. The API
+publishes learning status and can execute an already promoted structured route:
+
+- `GET /api/aion/inference/learning/status`
+- `POST /api/aion/inference/route-structured`
+
+`GlyphContextDictionary` gives repeated policy and evidence passages stable
+content addresses and small session slots. The first packet carries hash-checked
+definitions; later packets carry slot references. Decoding rejects tampering,
+unknown slots, dictionary mismatches, and any discrepancy between declared and
+decoded policy slots.
+
+`AddressedShardExperiment` measures full versus selected content-addressed
+storage reads. Its current fixture is synthetic and proves only byte-addressing
+and hash verification. It does not claim real MoE routing, neural output
+equivalence, or token-throughput improvement.
+
+Run the combined SD-backed experiment while the isolated Ollama model store is
+available:
+
+```bash
+PYTHONPATH=. python backend/scripts/run_aion_learning_context_shard_experiments.py \
+  --storage-root "/Volumes/EXTERNAL/AION-Inference" \
+  --base-url http://127.0.0.1:11435 \
+  --model qwen3:1.7b
+```

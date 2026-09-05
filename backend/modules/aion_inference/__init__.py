@@ -20,6 +20,14 @@ from .adaptive_runtime import (
     ContextSelector,
     ReplayStore,
 )
+from .learned_atomsheets import (
+    LearnedAtomSheetStore,
+    LearnedExecutionResult,
+    LearningDecision,
+    VerifiedModelOutcome,
+)
+from .glyph_context import GlyphContextDictionary, GlyphContextPacket, GlyphContextPassage
+from .shard_selection import AddressedShard, AddressedShardExperiment, ShardReadMeasurement
 
 __all__ = [
     "BenchmarkReport",
@@ -41,4 +49,14 @@ __all__ = [
     "ContextSelection",
     "ContextSelector",
     "ReplayStore",
+    "LearnedAtomSheetStore",
+    "LearnedExecutionResult",
+    "LearningDecision",
+    "VerifiedModelOutcome",
+    "GlyphContextDictionary",
+    "GlyphContextPacket",
+    "GlyphContextPassage",
+    "AddressedShard",
+    "AddressedShardExperiment",
+    "ShardReadMeasurement",
 ]

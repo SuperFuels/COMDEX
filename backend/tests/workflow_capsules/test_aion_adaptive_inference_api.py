@@ -6,10 +6,11 @@ import pytest
 
 from backend.api.aion_inference_router import (
     get_adaptive_runtime,
+    get_learning_store,
     resolve_inference_storage_root,
     router,
 )
-from backend.modules.aion_inference import AdaptiveInferenceRuntime
+from backend.modules.aion_inference import AdaptiveInferenceRuntime, LearnedAtomSheetStore
 
 
 @pytest.fixture
@@ -21,6 +22,8 @@ def client(tmp_path):
         trace_path=tmp_path / "trace.jsonl",
     )
     app.dependency_overrides[get_adaptive_runtime] = lambda: runtime
+    learning = LearnedAtomSheetStore(tmp_path / "learning.sqlite3", tmp_path / "promoted")
+    app.dependency_overrides[get_learning_store] = lambda: learning
     with TestClient(app) as test_client:
         yield test_client
 
@@ -33,6 +36,8 @@ def test_capabilities_publish_strict_bypass_boundary(client):
     assert "CONVERT_LENGTH" in body["verified_routes"]
     assert body["compound_actions_bypass_allowed"] is False
     assert body["ambiguous_inputs_bypass_allowed"] is False
+    assert body["learned_atomsheet_promotion"] is True
+    assert body["learning_ingestion_api"] is False
 
 
 def test_api_executes_verified_route_then_replay(client):
@@ -71,3 +76,16 @@ def test_explicit_storage_root_has_priority(monkeypatch, tmp_path):
     resolve_inference_storage_root.cache_clear()
     assert resolve_inference_storage_root() == tmp_path
     resolve_inference_storage_root.cache_clear()
+
+
+def test_learning_status_and_unknown_structured_route_fail_closed(client):
+    status = client.get("/api/aion/inference/learning/status")
+    assert status.status_code == 200
+    assert status.json()["promoted_atomsheets"] == 0
+    response = client.post(
+        "/api/aion/inference/route-structured",
+        json={"intent": "CALCULATE_NEW_THING", "inputs": {"a": "1", "b": "2"}},
+    )
+    assert response.status_code == 200
+    assert response.json()["route"] == "full_model"
+    assert response.json()["model_call_required"] is True
