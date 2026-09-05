@@ -79,6 +79,12 @@ def inference_capabilities() -> dict:
         "verified_replay": True,
         "learned_atomsheet_promotion": True,
         "learned_route_cohort": "multifamily-v4-domain-bounds",
+        "learned_verified_routes": [
+            "CALCULATE_MARKED_UP_PRICE",
+            "CALCULATE_DISCOUNTED_PRICE",
+            "CALCULATE_PRICE_WITH_TAX",
+            "CALCULATE_LABOUR_COST",
+        ],
         "learning_ingestion_api": False,
         "learning_ingestion_reason": "verified outcomes enter through the trusted internal verifier boundary",
     }

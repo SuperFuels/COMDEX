@@ -143,3 +143,14 @@ The recorded v4 SD-backed cohort promoted all four expected operators, passed
 adversarial cases from the learned fast path. Earlier failed tax cohorts remain
 on the evidence volume; they show that promotion safely remains quarantined
 when the small model does not supply enough correct outcomes.
+
+All four promoted families now have bounded ordinary-English routing. The
+separate text experiment covers 100 valid variants and 450 invalid, ambiguous,
+mixed-family, or compound-action prompts. Its acceptance gate requires exact
+answers for every valid variant and zero invalid fast-path executions:
+
+```bash
+PYTHONPATH=. python backend/scripts/run_aion_multifamily_text_routing_experiment.py \
+  --storage-root "/Volumes/EXTERNAL/AION-Inference" \
+  --run-id multifamily-v4-domain-bounds
+```

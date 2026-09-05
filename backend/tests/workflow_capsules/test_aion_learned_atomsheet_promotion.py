@@ -185,7 +185,7 @@ def test_promoted_markup_sheet_routes_plain_english_and_rejects_compound_action(
     assert blocked.proof_receipt["gate_reason"] == "compound_action_requires_orchestration"
     multiple = store.route_text("Apply 16% markup to 225 and also 5% tax")
     assert multiple.route == "full_model"
-    assert multiple.proof_receipt["gate_reason"] == "learned_text_numeric_ambiguity"
+    assert multiple.proof_receipt["gate_reason"] == "multiple_learned_families_detected"
     negative = store.route_text("Apply 16% markup to -225")
     assert negative.route == "full_model"
 
@@ -210,3 +210,61 @@ def test_discount_promotion_learns_decrease_and_rejects_impossible_percentage(tm
     invalid = store.execute("CALCULATE_DISCOUNTED_PRICE", {"cost": "200", "discount_percent": "125"})
     assert invalid.route == "full_model"
     assert invalid.proof_receipt["gate_reason"] == "learned_sheet_verification_failed"
+
+
+def _promote_text_family(store, intent, fields, rule, hash_offset):
+    fixtures = [("100", "10"), ("80", "25"), ("50", "20"), ("240", "15"), ("12", "50"), ("400", "7")]
+    for index, (a, b) in enumerate(fixtures):
+        store.observe(VerifiedModelOutcome(
+            intent=intent, inputs={fields[0]: a, fields[1]: b}, result=str(rule(Decimal(a), Decimal(b))),
+            verifier_id=f"decimal-reference-{index % 2}", model_id="qwen3:1.7b",
+            response_sha256=_response_hash(hash_offset + index),
+            created_at=f"2026-09-06T08:00:{index:02d}+00:00",
+        ))
+
+
+@pytest.mark.parametrize(
+    ("prompt", "expected"),
+    [
+        ("Take 15% off 200", "170"),
+        ("200 with a 15 percent discount", "170"),
+        ("Add 15% sales tax to 200", "230"),
+        ("What is 200 plus 15 percent tax?", "230"),
+        ("35 per hour for 8 hours", "280"),
+        ("Labour cost for 8 hours at 35 per hour", "280"),
+    ],
+)
+def test_promoted_families_route_unambiguous_plain_english(tmp_path, prompt, expected):
+    store = _store(tmp_path)
+    _promote_text_family(store, "CALCULATE_DISCOUNTED_PRICE", ("cost", "discount_percent"),
+                         lambda a, b: a * (Decimal("1") - b / Decimal("100")), 200)
+    _promote_text_family(store, "CALCULATE_PRICE_WITH_TAX", ("subtotal", "tax_percent"),
+                         lambda a, b: a * (Decimal("1") + b / Decimal("100")), 300)
+    _promote_text_family(store, "CALCULATE_LABOUR_COST", ("hourly_rate", "hours"),
+                         lambda a, b: a * b, 400)
+    result = store.route_text(prompt)
+    assert result.route == "verified_learned_atomsheet"
+    assert result.answer == expected
+    assert result.model_call_required is False
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "Take 15% off 200 and then pay the invoice",
+        "Add 15% tax to 200 or 250",
+        "Discount 200 by 15% and add tax",
+        "Work for 8 hours at 35 per hour and then email the customer",
+        "Use 35 and 8 to find labour cost",
+        "Take 125% off 200",
+    ],
+)
+def test_plain_english_new_families_fail_closed_on_unsafe_or_ambiguous_text(tmp_path, prompt):
+    store = _store(tmp_path)
+    _promote_text_family(store, "CALCULATE_DISCOUNTED_PRICE", ("cost", "discount_percent"),
+                         lambda a, b: a * (Decimal("1") - b / Decimal("100")), 500)
+    _promote_text_family(store, "CALCULATE_PRICE_WITH_TAX", ("subtotal", "tax_percent"),
+                         lambda a, b: a * (Decimal("1") + b / Decimal("100")), 600)
+    _promote_text_family(store, "CALCULATE_LABOUR_COST", ("hourly_rate", "hours"),
+                         lambda a, b: a * b, 700)
+    assert store.route_text(prompt).route == "full_model"

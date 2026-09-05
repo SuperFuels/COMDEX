@@ -528,7 +528,7 @@ class LearnedAtomSheetStore:
         )
 
     def route_text(self, text: str) -> LearnedExecutionResult:
-        """Recognize the first promoted markup family from ordinary English."""
+        """Recognize a promoted arithmetic family from bounded ordinary English."""
         lowered = " ".join(text.casefold().split())
         if re.search(
             r"\b(?:and|then)\s+(?!(?:do\s+not|don't|never|not)\b)(?:book|schedule|send|email|pay|order|contact|write|create)\b",
@@ -538,32 +538,64 @@ class LearnedAtomSheetStore:
                 "aion.learned_atomsheet.execution.v1", "full_model", "UNKNOWN", None, None, True,
                 {"gate_passed": False, "gate_reason": "compound_action_requires_orchestration"},
             )
+        family_markers = sum((
+            bool(re.search(r"\b(?:markup|mark-up|mark\s+up)\b", lowered)),
+            bool(re.search(r"\b(?:discount|off)\b", lowered)),
+            bool(re.search(r"\b(?:sales\s+)?tax\b", lowered)),
+            bool(re.search(r"\b(?:labou?r|hours?|per\s+hour|an\s+hour)\b", lowered)),
+        ))
+        if family_markers > 1:
+            return LearnedExecutionResult(
+                "aion.learned_atomsheet.execution.v1", "full_model", "UNKNOWN", None, None, True,
+                {"gate_passed": False, "gate_reason": "multiple_learned_families_detected"},
+            )
         if len(re.findall(r"[+-]?\d[\d,]*(?:\.\d+)?", lowered)) != 2:
             return LearnedExecutionResult(
                 "aion.learned_atomsheet.execution.v1", "full_model", "UNKNOWN", None, None, True,
                 {"gate_passed": False, "gate_reason": "learned_text_numeric_ambiguity"},
             )
-        number = r"([+-]?\d[\d,]*(?:\.\d+)?)"
-        patterns = (
-            rf"(?:add|apply)\s+{number}\s*(?:%|percent)\s+(?:markup|mark-up)\s+(?:to|on)\s+{number}",
-            rf"mark\s*up\s+{number}\s+by\s+{number}\s*(?:%|percent)",
-            rf"{number}\s+(?:with|at)\s+(?:a\s+)?{number}\s*(?:%|percent)\s+(?:markup|mark-up)",
+        number = r"[+-]?\d[\d,]*(?:\.\d+)?"
+        route_patterns: tuple[tuple[str, Mapping[str, str], str], ...] = (
+            ("CALCULATE_MARKED_UP_PRICE", {"cost": "base", "markup_percent": "percent"},
+             rf"(?:add|apply)\s+(?P<percent>{number})\s*(?:%|percent)\s+(?:markup|mark-up)\s+(?:to|on)\s+(?P<base>{number})"),
+            ("CALCULATE_MARKED_UP_PRICE", {"cost": "base", "markup_percent": "percent"},
+             rf"mark\s*up\s+(?P<base>{number})\s+by\s+(?P<percent>{number})\s*(?:%|percent)"),
+            ("CALCULATE_MARKED_UP_PRICE", {"cost": "base", "markup_percent": "percent"},
+             rf"(?P<base>{number})\s+(?:with|at)\s+(?:a\s+)?(?P<percent>{number})\s*(?:%|percent)\s+(?:markup|mark-up)"),
+            ("CALCULATE_DISCOUNTED_PRICE", {"cost": "base", "discount_percent": "percent"},
+             rf"apply\s+(?P<percent>{number})\s*(?:%|percent)\s+discount\s+(?:to|on)\s+(?P<base>{number})"),
+            ("CALCULATE_DISCOUNTED_PRICE", {"cost": "base", "discount_percent": "percent"},
+             rf"(?:take|subtract)\s+(?P<percent>{number})\s*(?:%|percent)\s+off\s+(?P<base>{number})"),
+            ("CALCULATE_DISCOUNTED_PRICE", {"cost": "base", "discount_percent": "percent"},
+             rf"discount\s+(?P<base>{number})\s+by\s+(?P<percent>{number})\s*(?:%|percent)"),
+            ("CALCULATE_DISCOUNTED_PRICE", {"cost": "base", "discount_percent": "percent"},
+             rf"(?P<base>{number})\s+(?:with|at)\s+(?:a\s+)?(?P<percent>{number})\s*(?:%|percent)\s+discount"),
+            ("CALCULATE_PRICE_WITH_TAX", {"subtotal": "base", "tax_percent": "percent"},
+             rf"(?:add|apply)\s+(?P<percent>{number})\s*(?:%|percent)\s+(?:sales\s+)?tax\s+(?:to|on)\s+(?P<base>{number})"),
+            ("CALCULATE_PRICE_WITH_TAX", {"subtotal": "base", "tax_percent": "percent"},
+             rf"(?P<base>{number})\s+(?:with|plus)\s+(?P<percent>{number})\s*(?:%|percent)\s+(?:sales\s+)?tax"),
+            ("CALCULATE_PRICE_WITH_TAX", {"subtotal": "base", "tax_percent": "percent"},
+             rf"total\s+(?:price\s+)?including\s+(?P<percent>{number})\s*(?:%|percent)\s+(?:sales\s+)?tax\s+(?:on|for)\s+(?P<base>{number})"),
+            ("CALCULATE_LABOUR_COST", {"hourly_rate": "rate", "hours": "hours"},
+             rf"(?P<rate>{number})\s+(?:per|an)\s+hour\s+(?:for|over|and)\s+(?P<hours>{number})\s+hours?"),
+            ("CALCULATE_LABOUR_COST", {"hourly_rate": "rate", "hours": "hours"},
+             rf"(?P<hours>{number})\s+hours?\s+(?:at|for)\s+(?P<rate>{number})\s+(?:per|an)\s+hour"),
         )
-        matches: list[tuple[str, str]] = []
-        for index, pattern in enumerate(patterns):
-            found = re.findall(pattern, lowered)
-            if index == 0:
-                matches.extend((cost, percent) for percent, cost in found)
-            else:
-                matches.extend((cost, percent) for cost, percent in found)
-        unique = {(cost.replace(",", ""), percent.replace(",", "")) for cost, percent in matches}
-        if len(unique) != 1:
+        candidates: set[tuple[str, tuple[tuple[str, str], ...]]] = set()
+        for intent, bindings, pattern in route_patterns:
+            for match in re.finditer(pattern, lowered):
+                inputs = tuple(sorted(
+                    (field, match.group(group).replace(",", ""))
+                    for field, group in bindings.items()
+                ))
+                candidates.add((intent, inputs))
+        if len(candidates) != 1:
             return LearnedExecutionResult(
                 "aion.learned_atomsheet.execution.v1", "full_model", "UNKNOWN", None, None, True,
                 {"gate_passed": False, "gate_reason": "no_unambiguous_promoted_text_match"},
             )
-        cost, percent = next(iter(unique))
-        return self.execute("CALCULATE_MARKED_UP_PRICE", {"cost": cost, "markup_percent": percent})
+        intent, inputs = next(iter(candidates))
+        return self.execute(intent, dict(inputs))
 
     def status(self) -> Mapping[str, Any]:
         with sqlite3.connect(self.database_path) as connection:
