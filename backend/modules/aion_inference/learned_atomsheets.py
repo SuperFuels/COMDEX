@@ -480,6 +480,8 @@ class LearnedAtomSheetStore:
                 {"gate_passed": False, "gate_reason": "learned_sheet_verification_failed", "contract_sha256": sheet["contract_sha256"]},
             )
         structured = {"value": _display(result)}
+        normalized_inputs = {field: _display(value) for field, value in zip(fields, values)}
+        glyph_address = f"glyph:sha256:{_sha({'intent': normalized_intent, 'inputs': normalized_inputs})}"
         receipt = {
             "gate_passed": True,
             "gate_reason": "promoted_atomsheet_boundary",
@@ -488,6 +490,8 @@ class LearnedAtomSheetStore:
             "operator_template_id": template.template_id,
             "inverse_verified": True,
             "result_sha256": _sha(structured),
+            "glyph_address": glyph_address,
+            "normalized_inputs": normalized_inputs,
             "model_calls": 0,
         }
         return LearnedExecutionResult(
@@ -499,6 +503,39 @@ class LearnedAtomSheetStore:
             model_call_required=False,
             proof_receipt=receipt,
         )
+
+    def route_text(self, text: str) -> LearnedExecutionResult:
+        """Recognize the first promoted markup family from ordinary English."""
+        lowered = " ".join(text.casefold().split())
+        if re.search(
+            r"\b(?:and|then)\s+(?!(?:do\s+not|don't|never|not)\b)(?:book|schedule|send|email|pay|order|contact|write|create)\b",
+            lowered,
+        ):
+            return LearnedExecutionResult(
+                "aion.learned_atomsheet.execution.v1", "full_model", "UNKNOWN", None, None, True,
+                {"gate_passed": False, "gate_reason": "compound_action_requires_orchestration"},
+            )
+        number = r"([+-]?\d[\d,]*(?:\.\d+)?)"
+        patterns = (
+            rf"(?:add|apply)\s+{number}\s*(?:%|percent)\s+(?:markup|mark-up)\s+(?:to|on)\s+{number}",
+            rf"mark\s*up\s+{number}\s+by\s+{number}\s*(?:%|percent)",
+            rf"{number}\s+(?:with|at)\s+(?:a\s+)?{number}\s*(?:%|percent)\s+(?:markup|mark-up)",
+        )
+        matches: list[tuple[str, str]] = []
+        for index, pattern in enumerate(patterns):
+            found = re.findall(pattern, lowered)
+            if index == 0:
+                matches.extend((cost, percent) for percent, cost in found)
+            else:
+                matches.extend((cost, percent) for cost, percent in found)
+        unique = {(cost.replace(",", ""), percent.replace(",", "")) for cost, percent in matches}
+        if len(unique) != 1:
+            return LearnedExecutionResult(
+                "aion.learned_atomsheet.execution.v1", "full_model", "UNKNOWN", None, None, True,
+                {"gate_passed": False, "gate_reason": "no_unambiguous_promoted_text_match"},
+            )
+        cost, percent = next(iter(unique))
+        return self.execute("CALCULATE_MARKED_UP_PRICE", {"cost": cost, "markup_percent": percent})
 
     def status(self) -> Mapping[str, Any]:
         with sqlite3.connect(self.database_path) as connection:

@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import json
+import hashlib
+from decimal import Decimal
 
 import pytest
 
 from backend.modules.aion_inference import (
     AdaptiveInferenceRuntime,
     ContextSelector,
+    LearnedAtomSheetStore,
+    VerifiedModelOutcome,
     VerifiedCalculationRouter,
 )
 
@@ -126,3 +130,30 @@ def test_fast_path_rejects_compound_or_multiple_requests(prompt):
     result = VerifiedCalculationRouter().route(prompt)
     assert result.route == "full_model"
     assert result.model_call_required is True
+
+
+def test_normal_adaptive_route_uses_promoted_english_atomsheet_then_replay(tmp_path):
+    learned = LearnedAtomSheetStore(tmp_path / "learning.sqlite3", tmp_path / "promoted")
+    fixtures = [("100", "10"), ("80", "25"), ("50", "20"), ("240", "15"), ("12", "50"), ("400", "7")]
+    for index, (cost, percent) in enumerate(fixtures):
+        result = Decimal(cost) * (Decimal("1") + Decimal(percent) / Decimal("100"))
+        learned.observe(VerifiedModelOutcome(
+            intent="CALCULATE_MARKED_UP_PRICE",
+            inputs={"cost": cost, "markup_percent": percent},
+            result=str(result),
+            verifier_id=f"decimal-verifier-{index % 2}",
+            model_id="model-a",
+            response_sha256=hashlib.sha256(f"response-{index}".encode()).hexdigest(),
+            created_at=f"2026-09-05T22:00:{index:02d}+00:00",
+        ))
+    runtime = AdaptiveInferenceRuntime(
+        replay_path=tmp_path / "replay.sqlite3",
+        trace_path=tmp_path / "trace.jsonl",
+        learned_store=learned,
+    )
+    first = runtime.route("What is 225 with a 16% markup?")
+    second = runtime.route("225 with a 16 percent markup")
+    assert first.answer == second.answer == "261"
+    assert first.route == "verified_atomsheet"
+    assert first.proof_receipt["sheet_id"] == "aion.learned.calculate.marked.up.price.v1"
+    assert second.route == "verified_replay"

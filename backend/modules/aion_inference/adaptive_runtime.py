@@ -12,6 +12,7 @@ from typing import Any, Iterable, Mapping, Optional
 
 from .semantic_gateway import SemanticGateway
 from .verified_calculations import VerifiedCalculationRouter
+from .learned_atomsheets import LearnedAtomSheetStore
 
 
 def _utc_now() -> str:
@@ -132,12 +133,13 @@ class AdaptiveRuntimeResult:
 
 
 class AdaptiveInferenceRuntime:
-    def __init__(self, *, replay_path: Path, trace_path: Path) -> None:
+    def __init__(self, *, replay_path: Path, trace_path: Path, learned_store: Optional[LearnedAtomSheetStore] = None) -> None:
         self.semantic = SemanticGateway()
         self.calculations = VerifiedCalculationRouter()
         self.context_selector = ContextSelector()
         self.replay = ReplayStore(replay_path)
         self.trace_path = trace_path
+        self.learned_store = learned_store
         trace_path.parent.mkdir(parents=True, exist_ok=True)
 
     def _trace(self, result: AdaptiveRuntimeResult) -> None:
@@ -218,6 +220,17 @@ class AdaptiveInferenceRuntime:
                 receipt=calculation.proof_receipt,
                 contract_hash=str(calculation.proof_receipt["catalog_sha256"]),
             )
+
+        if self.learned_store is not None:
+            learned = self.learned_store.route_text(text)
+            if not learned.model_call_required:
+                return self._verified_result(
+                    glyph_address=str(learned.proof_receipt["glyph_address"]),
+                    answer=learned.answer or "",
+                    structured_result=learned.structured_result or {},
+                    receipt=learned.proof_receipt,
+                    contract_hash=str(learned.proof_receipt["contract_sha256"]),
+                )
 
         selection = self.context_selector.select(text, context, max_bytes=context_max_bytes)
         fallback = json.dumps({

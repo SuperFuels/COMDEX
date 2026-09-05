@@ -43,6 +43,10 @@ def get_adaptive_runtime() -> AdaptiveInferenceRuntime:
     return AdaptiveInferenceRuntime(
         replay_path=root / "runtime/replay.sqlite3",
         trace_path=root / "runtime/execution_receipts.jsonl",
+        learned_store=LearnedAtomSheetStore(
+            root / "learning/learning.sqlite3",
+            root / "learning/promoted",
+        ),
     )
 
 

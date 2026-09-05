@@ -169,3 +169,17 @@ def test_later_verified_outcome_monitors_without_rewriting_promoted_contract(tmp
     assert later.status == "promoted"
     assert later.reason == "existing_promotion_still_validated"
     assert later.contract_sha256 == contract
+
+
+def test_promoted_markup_sheet_routes_plain_english_and_rejects_compound_action(tmp_path):
+    store = _store(tmp_path)
+    fixtures = [("100", "10"), ("80", "25"), ("50", "20"), ("240", "15"), ("12", "50"), ("400", "7")]
+    for index, values in enumerate(fixtures):
+        _observe_markup(store, index, *values)
+    result = store.route_text("What is 225 with a 16% markup?")
+    assert result.route == "verified_learned_atomsheet"
+    assert result.answer == "261"
+    assert result.proof_receipt["normalized_inputs"] == {"cost": "225", "markup_percent": "16"}
+    blocked = store.route_text("Add 16% markup to 225 and then send an invoice")
+    assert blocked.route == "full_model"
+    assert blocked.proof_receipt["gate_reason"] == "compound_action_requires_orchestration"

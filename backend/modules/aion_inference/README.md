@@ -107,6 +107,11 @@ storage reads. Its current fixture is synthetic and proves only byte-addressing
 and hash verification. It does not claim real MoE routing, neural output
 equivalence, or token-throughput improvement.
 
+The first promoted family is connected to the normal text route. Requests such
+as `What is 225 with a 16% markup?` compile to the promoted inputs, execute
+without a model call, and replay across equivalent supported wording. Ambiguous
+phrasing and compound follow-on actions still fail closed.
+
 Run the combined SD-backed experiment while the isolated Ollama model store is
 available:
 
