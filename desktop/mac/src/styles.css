@@ -69,6 +69,71 @@
   --border-strong: 2px;
 }
 
+/* AION Flow: encrypted mother-vault binding picker. */
+.aion-vault-binding-picker {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.aion-vault-binding-picker__select-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.aion-vault-binding-picker__select-row select {
+  min-width: 0;
+}
+
+.aion-vault-binding-picker__status {
+  color: #53647a;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.aion-vault-binding-picker__create {
+  padding: 16px;
+  border: 1px solid #cfdbe9;
+  border-radius: 14px;
+  background: #f7faff;
+}
+
+.aion-vault-binding-picker__create[hidden] {
+  display: none !important;
+}
+
+.aion-vault-binding-picker__create > label {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.aion-vault-binding-picker__create > label > span {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.aion-vault-binding-picker__create > p {
+  margin: 4px 0 12px;
+  color: #53647a;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.aion-vault-binding-picker__create > div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 720px) {
+  .aion-vault-binding-picker__select-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -1875,6 +1940,14 @@ button {
 .desktop-workspace-main {
   min-width: 0;
   width: 100%;
+}
+
+/* Shared Board / Executive Team presence on primary business surfaces. The
+   header is fixed to the application frame; only page content receives the
+   corresponding offset, so the left sidebar remains aligned to the window. */
+.desktop-workspace-main.aion-shared-executive-header-page {
+  padding-top: 70px;
+  box-sizing: border-box;
 }
 
 .desktop-ai-rail {
@@ -5135,6 +5208,148 @@ pre {
 
 .operations-agents-surface .aion-workflow-sidebar-collapsed .aion-workflow-app-nav button[data-tab="operations_flow"]::before {
   content: "⑂";
+}
+
+/* AION COO operating command centre */
+.aion-coo-command {
+  width:min(1700px, calc(100% - 40px));
+  margin:18px auto 8px;
+  color:#17243a;
+  display:grid;
+  gap:14px;
+}
+
+.aion-coo-command__hero,
+.aion-coo-command__priority,
+.aion-coo-command__grid > section,
+.aion-coo-command__checkins,
+.aion-coo-command__direct {
+  background:#fff;
+  border:1px solid #dce8f4;
+  box-shadow:0 12px 34px rgba(27,78,121,.06);
+}
+
+.aion-coo-command__hero {
+  border-top:3px solid #82ccff;
+  padding:22px 24px;
+  display:flex;
+  justify-content:space-between;
+  gap:24px;
+  align-items:center;
+}
+
+.aion-coo-command__hero span,
+.aion-coo-command__priority span,
+.aion-coo-command__grid header span,
+.aion-coo-command__checkins > header span,
+.aion-coo-command__direct label {
+  display:block;
+  color:#1471c9;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+}
+
+.aion-coo-command__hero h1 {
+  margin:6px 0 5px;
+  color:#18191b;
+  font-size:clamp(24px,2vw,36px);
+  line-height:1.08;
+  letter-spacing:-.035em;
+}
+
+.aion-coo-command__hero p {
+  margin:0;
+  max-width:940px;
+  color:#60768d;
+  font-size:13px;
+  line-height:1.55;
+}
+
+.aion-coo-command__actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.aion-coo-command button {
+  appearance:none;
+  border:1px solid #b9d5e9;
+  background:#f2f9ff;
+  color:#17324b;
+  min-height:42px;
+  padding:0 15px;
+  font:800 11px/1.1 inherit;
+  cursor:pointer;
+}
+.aion-coo-command button:hover { background:#dff2ff; color:#086bbd; }
+.aion-coo-command button.is-primary { background:#101b2d; border-color:#101b2d; color:#fff; }
+.aion-coo-command button.is-primary:hover { background:#1471c9; border-color:#1471c9; }
+
+.aion-coo-command__metrics {
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:1px;
+  border:1px solid #dce8f4;
+  background:#dce8f4;
+}
+.aion-coo-command__metrics article { padding:16px 18px; background:#fff; border-top:3px solid #79caff; }
+.aion-coo-command__metrics article[data-tone="attention"] { border-top-color:#f5a623; }
+.aion-coo-command__metrics article[data-tone="risk"] { border-top-color:#e15759; }
+.aion-coo-command__metrics article span { display:block; color:#6d8297; font-size:10px; text-transform:uppercase; letter-spacing:.08em; font-weight:800; }
+.aion-coo-command__metrics article strong { display:block; margin:5px 0 2px; font-size:26px; line-height:1; color:#142b43; }
+.aion-coo-command__metrics article small { color:#8ba0b5; font-size:10px; }
+
+.aion-coo-command__priority { padding:15px 18px; border-left:4px solid #1471c9; display:grid; grid-template-columns:auto 1fr auto; gap:18px; align-items:center; }
+.aion-coo-command__priority strong { font-size:14px; color:#192f45; }
+.aion-coo-command__priority small { font-size:10px; color:#7c91a6; text-align:right; }
+
+.aion-coo-command__grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.aion-coo-command__grid > section { min-width:0; }
+.aion-coo-command__grid header,
+.aion-coo-command__checkins > header { display:flex; justify-content:space-between; gap:16px; align-items:center; padding:13px 16px; border-bottom:1px solid #e4eef7; }
+.aion-coo-command__grid header strong,
+.aion-coo-command__checkins > header strong { color:#50677e; font-size:10px; text-transform:uppercase; letter-spacing:.07em; }
+.aion-coo-command__list { max-height:230px; overflow:auto; }
+.aion-coo-command__list article { padding:12px 16px; border-bottom:1px solid #edf3f8; display:grid; grid-template-columns:8px minmax(0,1fr); gap:10px; align-items:start; }
+.aion-coo-command__list article i { width:7px; height:7px; margin-top:5px; border-radius:50%; background:#59bd84; }
+.aion-coo-command__list article[data-tone="attention"] i { background:#f5a623; }
+.aion-coo-command__list article[data-tone="risk"] i { background:#e15759; }
+.aion-coo-command__list b { display:block; font-size:12px; color:#263b50; }
+.aion-coo-command__list small { display:block; margin-top:3px; color:#7a8fa3; font-size:10px; line-height:1.35; }
+.aion-coo-command__list p { margin:0; padding:18px; color:#7a8fa3; font-size:11px; }
+
+.aion-coo-command__checkins > div { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
+.aion-coo-command__checkins article { padding:15px; border-right:1px solid #e4eef7; border-bottom:1px solid #e4eef7; border-top:3px solid #52bf81; min-width:0; }
+.aion-coo-command__checkins article[data-tone="attention"] { border-top-color:#f5a623; }
+.aion-coo-command__checkins article[data-tone="risk"] { border-top-color:#e15759; }
+.aion-coo-command__checkins article > button { width:100%; min-height:28px; padding:0; border:0; background:transparent; display:flex; justify-content:space-between; text-align:left; }
+.aion-coo-command__checkins article > button:hover { background:transparent; }
+.aion-coo-command__checkins article > button span { display:flex; align-items:center; gap:7px; font-size:13px; font-weight:900; color:#1f3348; }
+.aion-coo-command__checkins article > button i { width:7px; height:7px; border-radius:50%; background:#52bf81; }
+.aion-coo-command__checkins article[data-tone="attention"] > button i { background:#f5a623; }
+.aion-coo-command__checkins article[data-tone="risk"] > button i { background:#e15759; }
+.aion-coo-command__checkins article > button em { font-style:normal; font-size:9px; color:#1471c9; text-transform:uppercase; letter-spacing:.08em; }
+.aion-coo-command__checkins article p { margin:8px 0; color:#6c8297; font-size:10px; line-height:1.4; min-height:28px; }
+.aion-coo-command__checkins dl { margin:0 0 8px; display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
+.aion-coo-command__checkins dl div { background:#f5f9fd; padding:7px; text-align:center; }
+.aion-coo-command__checkins dt { color:#8ba0b5; font-size:8px; text-transform:uppercase; }
+.aion-coo-command__checkins dd { margin:2px 0 0; color:#20364d; font-size:14px; font-weight:900; }
+.aion-coo-command__checkins article > small { display:block; color:#6d8297; font-size:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.aion-coo-command__direct { padding:12px 14px; display:grid; grid-template-columns:auto minmax(180px,1fr) auto; gap:12px; align-items:center; }
+.aion-coo-command__direct input { min-height:42px; border:1px solid #cbddeb; background:#fbfdff; color:#17324b; padding:0 13px; font:600 12px/1.2 inherit; outline:none; }
+.aion-coo-command__direct input:focus { border-color:#70bff1; box-shadow:0 0 0 3px rgba(63,169,241,.12); }
+
+@media (max-width:1100px) {
+  .aion-coo-command__metrics { grid-template-columns:repeat(3,1fr); }
+  .aion-coo-command__checkins > div { grid-template-columns:repeat(2,1fr); }
+  .aion-coo-command__priority { grid-template-columns:1fr; gap:5px; }
+  .aion-coo-command__priority small { text-align:left; }
+}
+@media (max-width:760px) {
+  .aion-coo-command { width:calc(100% - 20px); }
+  .aion-coo-command__hero { align-items:flex-start; flex-direction:column; }
+  .aion-coo-command__metrics,
+  .aion-coo-command__grid,
+  .aion-coo-command__checkins > div { grid-template-columns:1fr; }
+  .aion-coo-command__direct { grid-template-columns:1fr; }
 }
 
 .operations-agents-surface .aion-workflow-sidebar-collapsed .aion-workflow-app-nav button[data-tab="local_node"]::before {
@@ -11179,9 +11394,9 @@ html body .surface-shell[data-aion-boardroom-view-mode]:has(.aion-main-sidebar) 
   position: relative;
   min-height: 70px;
   display: grid;
-  grid-template-columns: minmax(170px, .7fr) minmax(480px, 1.8fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
   padding: 9px 24px 9px 88px;
   color: #27445f;
   background: rgba(255, 255, 255, .98);
@@ -11194,6 +11409,45 @@ html body .surface-shell[data-aion-boardroom-view-mode]:has(.aion-main-sidebar) 
 
 body.aion-workflow-sidebar-expanded [data-aion-boardroom-sticky-team-header="true"] {
   padding-left: 260px;
+}
+
+[data-aion-boardroom-sticky-groups="true"] {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 2vw, 30px);
+}
+
+.aion-executive-sticky-group {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.aion-executive-sticky-group-label {
+  flex: 0 0 auto;
+  color: #173956;
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.aion-executive-sticky-divider {
+  width: 1px;
+  height: 42px;
+  flex: 0 0 1px;
+  background: #d7e9f7;
+}
+
+.aion-executive-sticky-empty {
+  color: #8ca1b3;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 [data-aion-boardroom-sticky-session-label="true"] {
@@ -11236,7 +11490,8 @@ body.aion-workflow-sidebar-expanded [data-aion-boardroom-sticky-team-header="tru
   box-shadow: 0 0 0 4px rgba(105,229,193,.12), 0 0 16px rgba(105,229,193,.72);
 }
 
-[data-aion-boardroom-sticky-members="true"] {
+[data-aion-boardroom-sticky-members="true"],
+.aion-executive-sticky-members {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11250,6 +11505,91 @@ body.aion-workflow-sidebar-expanded [data-aion-boardroom-sticky-team-header="tru
   justify-items: center;
   gap: 4px;
   color: #688096;
+}
+
+.aion-executive-sticky-member {
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 57px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: #688096;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.aion-executive-sticky-header .aion-executive-sticky-member,
+.aion-executive-sticky-header .aion-executive-sticky-member:hover,
+.aion-executive-sticky-header .aion-executive-sticky-member:focus,
+.aion-executive-sticky-header .aion-executive-sticky-member:focus-visible,
+.aion-executive-sticky-header .aion-executive-sticky-member[data-active="true"] {
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.aion-executive-sticky-header .aion-executive-sticky-member:hover,
+.aion-executive-sticky-header .aion-executive-sticky-member:focus-visible,
+.aion-executive-sticky-header .aion-executive-sticky-member[data-active="true"] {
+  color: #1677c8 !important;
+}
+
+.aion-executive-sticky-header .aion-executive-sticky-member:hover [data-aion-boardroom-sticky-avatar="true"],
+.aion-executive-sticky-header .aion-executive-sticky-member:focus-visible [data-aion-boardroom-sticky-avatar="true"],
+.aion-executive-sticky-header .aion-executive-sticky-member[data-active="true"] [data-aion-boardroom-sticky-avatar="true"],
+.aion-executive-sticky-header .aion-executive-sticky-member:hover .aion-executive-utility-avatar,
+.aion-executive-sticky-header .aion-executive-sticky-member:focus-visible .aion-executive-utility-avatar,
+.aion-executive-sticky-header .aion-executive-sticky-member[data-active="true"] .aion-executive-utility-avatar {
+  border-color: #b9d9ef !important;
+  background: #eaf5fc !important;
+  box-shadow: 0 5px 14px rgba(35, 88, 126, .16) !important;
+  transform: none !important;
+}
+
+.aion-executive-sticky-header .aion-board-provider-member:hover .aion-board-provider-avatar,
+.aion-executive-sticky-header .aion-board-provider-member:focus-visible .aion-board-provider-avatar,
+.aion-executive-sticky-header .aion-board-provider-member[data-active="true"] .aion-board-provider-avatar {
+  border-color: #99c8e9 !important;
+  background: linear-gradient(145deg, #173956, #1376c5) !important;
+  box-shadow: 0 5px 14px rgba(35,88,126,.18) !important;
+  transform: none !important;
+}
+
+.aion-board-provider-avatar {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid #99c8e9;
+  background: linear-gradient(145deg, #173956, #1376c5);
+  color: #ffffff;
+  box-shadow: 0 5px 14px rgba(35,88,126,.18);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .04em;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.aion-executive-utility-avatar {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid #b9d9ef;
+  background: #eaf5fc;
+  color: #173956;
+  box-shadow: 0 5px 14px rgba(35, 88, 126, .16);
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: -.02em;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
 [data-aion-boardroom-sticky-avatar="true"] {
@@ -11285,15 +11625,1967 @@ body.aion-workflow-sidebar-expanded [data-aion-boardroom-sticky-team-header="tru
   white-space: nowrap;
 }
 
-[data-aion-boardroom-sticky-member][data-active="true"] {
+html body .surface-shell[data-aion-o14p-live-agents-shell="true"] {
+  padding-top: 95px !important;
+  overflow-x: clip;
+}
+
+.aion-board-meeting-archive {
+  margin: 0 0 14px;
+  border: 1px solid #d7e9f7;
+  border-left: 3px solid #62b2ef;
+  background: #fbfdff;
+  color: #173956;
+}
+
+.aion-board-meeting-archive-summary {
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: minmax(180px, .75fr) minmax(280px, 1.6fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 8px 10px 8px 14px;
+}
+
+.aion-board-meeting-archive-heading,
+.aion-board-meeting-latest {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+
+.aion-board-meeting-archive-heading strong {
+  color: #173956;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.aion-board-meeting-archive-heading span,
+.aion-board-meeting-latest span,
+.aion-board-meeting-latest small {
+  overflow: hidden;
+  color: #7890a4;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-board-meeting-latest > span {
+  color: #1677c8;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.aion-board-meeting-latest strong {
+  color: #27445f;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.aion-board-meeting-archive-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.aion-board-meeting-archive-actions button {
+  min-height: 32px;
+  border: 1px solid #b9dcf7;
+  background: #ffffff;
+  color: #1376c5;
+  padding: 0 11px;
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.aion-board-meeting-archive-actions button:hover {
+  background: #eaf6ff;
+}
+
+.aion-board-meeting-archive-actions .aion-board-meeting-expand {
+  width: 32px;
+  padding: 0;
+  font-size: 16px;
+}
+
+.aion-board-meeting-archive-list {
+  display: grid;
+  border-top: 1px solid #d7e9f7;
+  background: #ffffff;
+}
+
+.aion-board-meeting-row {
+  width: 100%;
+  min-height: 42px;
+  display: grid;
+  grid-template-columns: 110px 180px minmax(160px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  border-bottom: 1px solid #edf4f9;
+  background: #ffffff;
+  color: #27445f;
+  padding: 7px 12px 7px 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.aion-board-meeting-row:hover {
+  background: #f5faff;
+}
+
+.aion-board-meeting-row span,
+.aion-board-meeting-row small,
+.aion-board-meeting-row em {
+  color: #7890a4;
+  font-size: 10px;
+  font-style: normal;
+}
+
+.aion-board-meeting-row strong {
+  font-size: 11px;
+}
+
+.aion-board-meeting-row em {
+  color: #1677c8;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.aion-board-meeting-empty {
+  padding: 13px 14px;
+  color: #7890a4;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .aion-board-meeting-archive-summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .aion-board-meeting-latest {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .aion-board-meeting-archive-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .aion-board-meeting-row {
+    grid-template-columns: 100px minmax(130px, 1fr) auto;
+  }
+  .aion-board-meeting-row small { display: none; }
+}
+
+.aion-exec-dashboard-shell {
+  min-height: 100vh;
+  padding: 34px 40px 96px 112px;
+  background: #f7fafc;
+  color: #173956;
+}
+
+.aion-exec-dashboard {
+  width: min(1560px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+}
+
+.aion-exec-dashboard-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 10px 4px 4px;
+}
+
+.aion-exec-dashboard-head > div:first-child > span,
+.aion-exec-dashboard-panel > header span {
+  color: #1677c8;
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.aion-exec-dashboard-head h1 {
+  margin: 5px 0 4px;
+  color: #102c45;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.05;
+  letter-spacing: -.035em;
+}
+
+.aion-exec-dashboard-head p {
+  margin: 0;
+  color: #6c8498;
+  font-size: 13px;
+}
+
+.aion-exec-dashboard-head-metrics {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.aion-exec-dashboard-head-metrics span {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  border: 1px solid #d7e9f7;
+  background: #ffffff;
+  color: #6c8498;
+  padding: 8px 10px;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.aion-exec-dashboard-head-metrics b {
+  color: #173956;
+  font-size: 14px;
+}
+
+.aion-exec-dashboard-head-metrics span[data-tone="risk"] b {
+  color: #b45309;
+}
+
+.aion-exec-dashboard-functions {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(125px, 1fr));
+  gap: 8px;
+}
+
+.aion-exec-dashboard-function-carousel {
+  min-height: 168px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  align-items: stretch;
+  border: 1px solid #d7e9f7;
+  border-top: 3px solid #8ccfff;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(33, 89, 132, .07);
+}
+
+.aion-exec-dashboard-carousel-arrow {
+  border: 0;
+  background: #f8fbfd;
+  color: #7890a4;
+  font-size: 31px;
+  font-weight: 350;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.aion-exec-dashboard-carousel-arrow:first-child {
+  border-right: 1px solid #e5f0f8;
+}
+
+.aion-exec-dashboard-carousel-arrow:last-child {
+  border-left: 1px solid #e5f0f8;
+}
+
+.aion-exec-dashboard-carousel-arrow:hover {
+  background: #eaf6ff;
   color: #1677c8;
 }
 
-[data-aion-boardroom-sticky-member][data-active="true"] [data-aion-boardroom-sticky-avatar="true"] {
-  border-color: #3b9ee8;
-  box-shadow: 0 0 0 3px rgba(59,158,232,.14), 0 6px 18px rgba(35,88,126,.20);
+.aion-exec-dashboard-carousel-card {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 11px;
+  padding: 14px 18px 12px;
+}
+
+.aion-exec-dashboard-carousel-position,
+.aion-exec-dashboard-carousel-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.aion-exec-dashboard-carousel-position span {
+  color: #1677c8;
+  font-size: 8px;
+  font-weight: 950;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.aion-exec-dashboard-carousel-position b {
+  color: #8ca1b3;
+  font-size: 9px;
+}
+
+.aion-exec-dashboard-carousel-main {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  align-items: center;
+  gap: 28px;
+}
+
+.aion-exec-dashboard-carousel-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.aion-exec-dashboard-carousel-title i {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+}
+
+.aion-exec-dashboard-function-carousel[data-tone="healthy"] .aion-exec-dashboard-carousel-title i {
+  background: #10b981;
+}
+
+.aion-exec-dashboard-function-carousel[data-tone="risk"] .aion-exec-dashboard-carousel-title i {
+  background: #ef4444;
+}
+
+.aion-exec-dashboard-carousel-title strong {
+  color: #173956;
+  font-size: 24px;
+  letter-spacing: -.025em;
+}
+
+.aion-exec-dashboard-carousel-main p {
+  max-width: 700px;
+  margin: 7px 0 0 17px;
+  color: #7890a4;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.aion-exec-dashboard-carousel-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(82px, 1fr));
+  gap: 8px;
+}
+
+.aion-exec-dashboard-carousel-metrics > span {
+  min-width: 82px;
+  display: grid;
+  gap: 3px;
+  border-left: 1px solid #d7e9f7;
+  padding: 4px 12px;
+}
+
+.aion-exec-dashboard-carousel-metrics b {
+  color: #173956;
+  font-size: 20px;
+}
+
+.aion-exec-dashboard-carousel-metrics small {
+  color: #8ca1b3;
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.aion-exec-dashboard-carousel-foot {
+  border-top: 1px solid #edf4f9;
+  padding-top: 9px;
+}
+
+.aion-exec-dashboard-carousel-foot > span {
+  color: #8ca1b3;
+  font-size: 8px;
+}
+
+.aion-exec-dashboard-carousel-foot > button {
+  border: 0;
+  background: transparent;
+  color: #1677c8;
+  padding: 0;
+  font-size: 9px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.aion-marketing-snapshot {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid #dcecf7;
+  padding-top: 12px;
+}
+
+.aion-marketing-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(98px, 1fr));
+  gap: 7px;
+}
+
+.aion-marketing-metric {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  border: 1px solid #d7e9f7;
+  background: #f9fcff;
+  color: #173956;
+  padding: 9px 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.aion-marketing-metric:hover,
+.aion-marketing-metric[data-active="true"] {
+  border-color: #8ccfff;
+  background: #eaf6ff;
+  box-shadow: 0 5px 14px rgba(33, 89, 132, .09);
+}
+
+.aion-marketing-metric[data-available="false"] {
+  background: #fbfcfd;
+  color: #7890a4;
+}
+
+.aion-marketing-metric > span {
+  overflow: hidden;
+  color: #7890a4;
+  font-size: 8px;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-marketing-metric > strong {
+  overflow: hidden;
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-marketing-metric > small {
+  overflow: hidden;
+  color: #9aabba;
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-marketing-metric-detail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 1px;
+  border: 1px solid #b9dcf7;
+  background: #dcecf7;
+}
+
+.aion-marketing-metric-detail > div {
+  display: grid;
+  gap: 5px;
+  background: #f7fbfe;
+  padding: 10px;
+}
+
+.aion-marketing-metric-detail > div > span,
+.aion-marketing-decision-chain header > span,
+.aion-marketing-intelligence-grid header > span {
+  color: #1677c8;
+  font-size: 7px;
+  font-weight: 950;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.aion-marketing-metric-detail > div > strong {
+  color: #27445f;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.aion-marketing-metric-detail .aion-marketing-metric-recommendation {
+  grid-column: 1 / -1;
+  background: #eef8ff;
+}
+
+.aion-marketing-intelligence-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+  gap: 10px;
+}
+
+.aion-marketing-intelligence-grid > section,
+.aion-marketing-decision-chain {
+  border: 1px solid #d7e9f7;
+  background: #ffffff;
+}
+
+.aion-marketing-intelligence-grid header,
+.aion-marketing-decision-chain > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid #e5f0f8;
+  padding: 9px 11px;
+}
+
+.aion-marketing-intelligence-grid header > strong,
+.aion-marketing-decision-chain header > strong {
+  color: #27445f;
+  font-size: 9px;
+}
+
+.aion-marketing-intelligence-grid > section > p,
+.aion-marketing-unavailable {
+  margin: 0;
+  color: #7890a4;
+  padding: 11px;
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+.aion-marketing-platform-row {
+  min-height: 42px;
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #edf4f9;
+  padding: 7px 11px;
+}
+
+.aion-marketing-platform-row > strong {
+  color: #27445f;
+  font-size: 9px;
+  text-transform: capitalize;
+}
+
+.aion-marketing-platform-row > span {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #8ca1b3;
+  font-size: 8px;
+}
+
+.aion-marketing-platform-row i {
+  display: inline-flex;
+  gap: 3px;
+  font-style: normal;
+}
+
+.aion-marketing-platform-row b {
+  color: #173956;
+}
+
+.aion-marketing-intelligence-grid dl {
+  display: grid;
+  margin: 0;
+  padding: 0 11px 10px;
+}
+
+.aion-marketing-intelligence-grid dl > div {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 8px;
+  border-top: 1px solid #edf4f9;
+  padding: 7px 0;
+  font-size: 8px;
+}
+
+.aion-marketing-intelligence-grid dt {
+  color: #7890a4;
+}
+
+.aion-marketing-intelligence-grid dd {
+  margin: 0;
+  color: #27445f;
+  font-weight: 750;
+}
+
+.aion-marketing-decision-stages {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.aion-marketing-decision-stages article {
+  min-width: 0;
+  border-right: 1px solid #e5f0f8;
+  padding: 10px 11px;
+}
+
+.aion-marketing-decision-stages article:last-child {
+  border-right: 0;
+}
+
+.aion-marketing-decision-stages article > span {
+  color: #7890a4;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.aion-marketing-decision-stages article > strong {
+  display: block;
+  margin-top: 5px;
+  color: #173956;
+  font-size: 10px;
+  text-transform: capitalize;
+}
+
+.aion-marketing-decision-stages article > p {
+  margin: 5px 0 0;
+  color: #7890a4;
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.aion-marketing-decision-stages article[data-stage="operations"] {
+  box-shadow: inset 3px 0 0 #22a6e8;
+}
+
+.aion-marketing-decision-stages article[data-stage="ceo"] {
+  box-shadow: inset 3px 0 0 #173956;
+}
+
+.aion-marketing-decision-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  border-top: 1px solid #e5f0f8;
+  padding: 8px 10px;
+}
+
+.aion-marketing-decision-actions > span {
+  margin-right: auto;
+  color: #7890a4;
+  font-size: 8px;
+}
+
+.aion-marketing-decision-actions > button {
+  border: 1px solid #b9dcf7;
+  background: #f7fbfe;
+  color: #1677c8;
+  padding: 7px 9px;
+  font-size: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.aion-marketing-decision-actions > button:hover {
+  background: #eaf6ff;
+}
+
+.aion-marketing-decision-actions > button:disabled {
+  border-color: #e2e8ee;
+  background: #f6f8fa;
+  color: #a6b2bd;
+  cursor: not-allowed;
+}
+
+.aion-sales-signals {
+  border: 1px solid #d7e9f7;
+  background: #ffffff;
+}
+
+.aion-sales-signals > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid #e5f0f8;
+  padding: 9px 11px;
+}
+
+.aion-sales-signals > header > span {
+  color: #1677c8;
+  font-size: 7px;
+  font-weight: 950;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.aion-sales-signals > header > strong {
+  color: #27445f;
+  font-size: 9px;
+}
+
+.aion-sales-signals > article {
+  display: grid;
+  gap: 4px;
+  border-bottom: 1px solid #edf4f9;
+  box-shadow: inset 3px 0 0 #f59e0b;
+  padding: 9px 12px;
+}
+
+.aion-sales-signals > article[data-severity="risk"] {
+  box-shadow: inset 3px 0 0 #ef4444;
+  background: #fffafa;
+}
+
+.aion-sales-signals > article > strong {
+  color: #173956;
+  font-size: 9px;
+}
+
+.aion-sales-signals > article > p,
+.aion-sales-signals > p {
+  margin: 0;
+  color: #7890a4;
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.aion-sales-signals > p {
+  padding: 11px;
+}
+
+.aion-sales-decision-chain .aion-marketing-decision-stages article[data-stage="sales"] {
+  box-shadow: inset 3px 0 0 #1677c8;
+}
+
+.aion-finance-control-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.aion-finance-cash-radar {
+  display: grid;
+  gap: 10px;
+  border: 1px solid #b9dcf5;
+  border-top: 3px solid #1677c8;
+  background: linear-gradient(180deg, #f8fcff 0%, #ffffff 52%);
+  padding: 12px;
+}
+
+.aion-finance-cash-radar > header,
+.aion-finance-cash-events > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.aion-finance-cash-radar > header > span {
+  display: grid;
+  gap: 3px;
+}
+
+.aion-finance-cash-radar > header small,
+.aion-finance-cash-events > header > span {
+  color: #1677c8;
+  font-size: 7px;
+  font-weight: 950;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.aion-finance-cash-radar > header strong {
+  color: #173956;
+  font-size: 14px;
+}
+
+.aion-finance-cash-radar > header > em {
+  border-radius: 999px;
+  background: #eaf6ff;
+  color: #1677c8;
+  padding: 5px 8px;
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.aion-finance-cash-summary {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid #d7e9f7;
+  background: #ffffff;
+}
+
+.aion-finance-cash-summary > article {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  border-right: 1px solid #e5f0f8;
+  padding: 10px;
+}
+
+.aion-finance-cash-summary > article:last-child {
+  border-right: 0;
+}
+
+.aion-finance-cash-summary > article[data-risk="true"],
+.aion-finance-cash-horizons > article[data-risk="true"] {
+  background: #fff3f1;
+  box-shadow: inset 0 -3px 0 #d94b40;
+}
+
+.aion-finance-cash-summary span,
+.aion-finance-cash-horizons span {
+  color: #7890a4;
+  font-size: 7px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.aion-finance-cash-summary strong,
+.aion-finance-cash-horizons strong {
+  overflow-wrap: anywhere;
+  color: #173956;
+  font-size: 12px;
+}
+
+.aion-finance-cash-summary small,
+.aion-finance-cash-horizons small {
+  color: #91a4b4;
+  font-size: 7px;
+  line-height: 1.4;
+}
+
+.aion-finance-cash-horizons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.aion-finance-cash-horizons > article {
+  display: grid;
+  gap: 3px;
+  border: 1px solid #d7e9f7;
+  background: #fbfdff;
+  padding: 9px 10px;
+}
+
+.aion-finance-cash-events {
+  border: 1px solid #d7e9f7;
+  background: #ffffff;
+}
+
+.aion-finance-cash-events > header {
+  border-bottom: 1px solid #e5f0f8;
+  padding: 8px 10px;
+}
+
+.aion-finance-cash-events > header > strong {
+  color: #27445f;
+  font-size: 8px;
+}
+
+.aion-finance-cash-events > article {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #edf4f9;
+  padding: 7px 10px;
+}
+
+.aion-finance-cash-events > article > time {
+  color: #7890a4;
+  font-size: 8px;
+}
+
+.aion-finance-cash-events > article > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.aion-finance-cash-events > article > span strong {
+  color: #27445f;
+  font-size: 9px;
+}
+
+.aion-finance-cash-events > article > span small {
+  overflow: hidden;
+  color: #91a4b4;
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-finance-cash-events > article > em {
+  display: grid;
+  justify-items: end;
+  color: #b83d34;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.aion-finance-cash-events > article[data-direction="in"] > em {
+  color: #07825e;
+}
+
+.aion-finance-cash-events > article > em small {
+  color: #91a4b4;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.aion-finance-cash-radar > footer {
+  color: #7890a4;
+  font-size: 7px;
+  line-height: 1.45;
+}
+
+.aion-finance-control-grid > section {
+  border: 1px solid #d7e9f7;
+  background: #ffffff;
+}
+
+.aion-finance-control-grid > section > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  border-bottom: 1px solid #e5f0f8;
+  padding: 9px 11px;
+}
+
+.aion-finance-control-grid > section > header > span {
+  color: #1677c8;
+  font-size: 7px;
+  font-weight: 950;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.aion-finance-control-grid > section > header > strong {
+  color: #27445f;
+  font-size: 9px;
+}
+
+.aion-finance-ledger-row,
+.aion-finance-project-row,
+.aion-finance-objective-row {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid #edf4f9;
+  padding: 7px 11px;
+}
+
+.aion-finance-ledger-row > span,
+.aion-finance-project-row small,
+.aion-finance-objective-row small {
+  color: #7890a4;
+  font-size: 8px;
+}
+
+.aion-finance-ledger-row > strong,
+.aion-finance-project-row > b,
+.aion-finance-objective-row > b {
+  color: #173956;
+  font-size: 9px;
+}
+
+.aion-finance-project-row > span,
+.aion-finance-objective-row > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.aion-finance-project-row strong,
+.aion-finance-objective-row strong {
+  color: #27445f;
+  font-size: 9px;
+}
+
+.aion-finance-signals article > strong > em {
+  display: inline-flex;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: #eaf6ff;
+  color: #1677c8;
+  padding: 3px 6px;
+  font-size: 6px;
+  font-style: normal;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.aion-finance-decision-chain .aion-marketing-decision-stages article[data-stage="finance"] {
+  box-shadow: inset 3px 0 0 #10b981;
+}
+
+.aion-finance-decision-chain .aion-marketing-decision-stages article[data-stage="ceo"] {
+  background: #f7fbfe;
+  box-shadow: inset 3px 0 0 #173956;
+}
+
+.aion-support-dashboard-snapshot {
+  display: grid;
+  gap: 10px;
+}
+
+.aion-support-dashboard-loading {
+  border: 1px solid #d7e9f7;
+  border-left: 4px solid #1677c8;
+  background: #f8fcff;
+  padding: 14px;
+}
+
+.aion-support-dashboard-loading strong {
+  color: #173956;
+  font-size: 11px;
+}
+
+.aion-support-dashboard-loading p {
+  margin: 4px 0 0;
+  color: #7890a4;
+  font-size: 8px;
+}
+
+.aion-support-dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  border: 1px solid #d7e9f7;
+  background: #ffffff;
+}
+
+.aion-support-dashboard-metrics > article {
+  display: grid;
+  gap: 3px;
+  border-right: 1px solid #e5f0f8;
+  padding: 10px 12px;
+}
+
+.aion-support-dashboard-metrics > article:last-child {
+  border-right: 0;
+}
+
+.aion-support-dashboard-metrics strong {
+  color: #173956;
+  font-size: 16px;
+}
+
+.aion-support-dashboard-metrics span {
+  color: #7890a4;
+  font-size: 7px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.aion-support-dashboard-metrics > article[data-tone="risk"] {
+  background: #fff3f1;
+  box-shadow: inset 0 -3px 0 #d94b40;
+}
+
+.aion-support-dashboard-metrics > article[data-tone="attention"] {
+  background: #fffaf0;
+  box-shadow: inset 0 -3px 0 #e59b17;
+}
+
+.aion-support-dashboard-metrics > article[data-tone="healthy"] {
+  box-shadow: inset 0 -3px 0 #10b981;
+}
+
+.aion-support-director-briefing {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #b9dcf5;
+  border-left: 4px solid #1677c8;
+  background: #f8fcff;
+  padding: 11px 12px;
+}
+
+.aion-support-director-briefing > span {
+  display: grid;
+  gap: 4px;
+}
+
+.aion-support-director-briefing small,
+.aion-support-dashboard-grid > section > header span,
+.aion-support-resolution-ledger > header span {
+  color: #1677c8;
+  font-size: 7px;
+  font-weight: 950;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.aion-support-director-briefing strong {
+  color: #27445f;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.aion-support-director-briefing button,
+.aion-support-case-card > footer button {
+  border: 0;
+  background: transparent;
+  color: #1677c8;
+  cursor: pointer;
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.aion-support-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.aion-support-dashboard-grid > section,
+.aion-support-resolution-ledger {
+  border: 1px solid #d7e9f7;
+  background: #ffffff;
+}
+
+.aion-support-dashboard-grid > section > header,
+.aion-support-resolution-ledger > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  border-bottom: 1px solid #e5f0f8;
+  padding: 9px 11px;
+}
+
+.aion-support-dashboard-grid > section > header strong,
+.aion-support-resolution-ledger > header strong {
+  color: #27445f;
+  font-size: 8px;
+}
+
+.aion-support-case-card {
+  display: grid;
+  gap: 6px;
+  border-bottom: 1px solid #edf4f9;
+  padding: 10px 11px;
+}
+
+.aion-support-case-card[data-priority="urgent"],
+.aion-support-case-card[data-priority="critical"],
+.aion-support-case-card[data-overdue="true"] {
+  background: #fff9f7;
+  box-shadow: inset 3px 0 0 #d94b40;
+}
+
+.aion-support-case-card > header,
+.aion-support-case-card > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.aion-support-case-card > header > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.aion-support-case-card > header strong,
+.aion-support-case-card h4 {
+  color: #173956;
+  font-size: 9px;
+}
+
+.aion-support-case-card h4,
+.aion-support-case-card p {
+  margin: 0;
+}
+
+.aion-support-case-card > header small,
+.aion-support-case-card > footer span,
+.aion-support-proposed-resolution small {
+  color: #91a4b4;
+  font-size: 7px;
+}
+
+.aion-support-case-card > header em {
+  border-radius: 999px;
+  background: #eaf6ff;
+  color: #1677c8;
+  padding: 3px 6px;
+  font-size: 6px;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.aion-support-case-card > p,
+.aion-support-proposed-resolution p {
+  color: #647f95;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.aion-support-risk-flags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.aion-support-risk-flags span {
+  border-radius: 999px;
+  background: #ffe9e5;
+  color: #b83d34;
+  padding: 3px 6px;
+  font-size: 6px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.aion-support-proposed-resolution {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #f1d595;
+  background: #fffaf0;
+  padding: 8px;
+}
+
+.aion-support-proposed-resolution > span {
+  color: #a5640a;
+  font-size: 6px;
+  font-weight: 950;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.aion-support-proposed-resolution > strong {
+  color: #704509;
+  font-size: 9px;
+}
+
+.aion-support-resolution-ledger > article {
+  display: grid;
+  grid-template-columns: minmax(150px, .7fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #edf4f9;
+  padding: 8px 11px;
+}
+
+.aion-support-resolution-ledger > article > span {
+  display: grid;
+  gap: 2px;
+}
+
+.aion-support-resolution-ledger > article strong {
+  color: #173956;
+  font-size: 9px;
+}
+
+.aion-support-resolution-ledger > article small,
+.aion-support-resolution-ledger > article p,
+.aion-support-resolution-ledger > article em {
+  margin: 0;
+  color: #7890a4;
+  font-size: 7px;
+  font-style: normal;
+}
+
+.aion-support-resolution-ledger > article em {
+  color: #07825e;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.aion-support-governance-note {
+  color: #7890a4;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.aion-people-dashboard-snapshot { display:grid; gap:10px; }
+.aion-people-dashboard-metrics { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); border:1px solid #d7e9f7; background:#fff; }
+.aion-people-dashboard-metrics>article { display:grid; gap:3px; border-right:1px solid #e5f0f8; padding:10px 12px; }
+.aion-people-dashboard-metrics>article:last-child { border-right:0; }
+.aion-people-dashboard-metrics strong { color:#173956; font-size:16px; }
+.aion-people-dashboard-metrics span { color:#7890a4; font-size:7px; font-weight:850; text-transform:uppercase; }
+.aion-people-dashboard-metrics>article[data-tone="risk"] { background:#fff3f1; box-shadow:inset 0 -3px 0 #d94b40; }
+.aion-people-dashboard-metrics>article[data-tone="attention"] { background:#fffaf0; box-shadow:inset 0 -3px 0 #e59b17; }
+.aion-people-dashboard-metrics>article[data-tone="healthy"] { box-shadow:inset 0 -3px 0 #10b981; }
+.aion-people-director-briefing { display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid #b9dcf5; border-left:4px solid #1677c8; background:#f8fcff; padding:11px 12px; }
+.aion-people-director-briefing>span { display:grid; gap:4px; }
+.aion-people-director-briefing small,.aion-people-calendar>header span,.aion-people-dashboard-grid>section>header span { color:#1677c8; font-size:7px; font-weight:950; letter-spacing:.11em; text-transform:uppercase; }
+.aion-people-director-briefing strong { color:#27445f; font-size:10px; line-height:1.45; }
+.aion-people-director-briefing button,.aion-people-dashboard-grid button { border:0; background:transparent; color:#1677c8; cursor:pointer; font-size:8px; font-weight:900; }
+.aion-people-calendar { border:1px solid #d7e9f7; background:#fff; }
+.aion-people-calendar>header,.aion-people-dashboard-grid>section>header { display:flex; justify-content:space-between; gap:9px; border-bottom:1px solid #e5f0f8; padding:9px 11px; }
+.aion-people-calendar>header strong,.aion-people-dashboard-grid>section>header strong { color:#27445f; font-size:8px; }
+.aion-people-calendar>div { display:grid; grid-template-columns:repeat(14,minmax(0,1fr)); }
+.aion-people-calendar article { min-width:0; display:grid; gap:2px; border-right:1px solid #edf4f9; padding:7px 5px; text-align:center; }
+.aion-people-calendar article[data-away="true"] { background:#fffaf0; box-shadow:inset 0 -3px 0 #e59b17; }
+.aion-people-calendar article small { color:#91a4b4; font-size:6px; text-transform:uppercase; }
+.aion-people-calendar article b { color:#173956; font-size:11px; }
+.aion-people-calendar article span { overflow:hidden; color:#647f95; font-size:6px; text-overflow:ellipsis; white-space:nowrap; }
+.aion-people-dashboard-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.aion-people-dashboard-grid>section { border:1px solid #d7e9f7; background:#fff; }
+.aion-people-dashboard-grid>section[data-restricted="true"] { box-shadow:inset 3px 0 0 #d94b40; }
+.aion-people-dashboard-grid>section>article { display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid #edf4f9; padding:9px 11px; }
+.aion-people-dashboard-grid>section>article span,.aion-people-dashboard-grid>section>article b,.aion-people-dashboard-grid>section>article small { display:block; }
+.aion-people-dashboard-grid>section>article b { color:#173956; font-size:9px; }
+.aion-people-dashboard-grid>section>article small,.aion-people-dashboard-grid>section>p { color:#7890a4; font-size:7px; }
+.aion-people-dashboard-grid>section>p { margin:0; padding:12px; }
+.aion-people-governance-note { color:#7890a4; font-size:7px; line-height:1.5; }
+
+@media (max-width: 1100px) {
+  .aion-finance-control-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aion-finance-cash-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .aion-finance-cash-summary > article {
+    border-bottom: 1px solid #e5f0f8;
+  }
+
+  .aion-finance-cash-horizons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .aion-support-dashboard-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .aion-support-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aion-people-dashboard-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .aion-people-dashboard-grid { grid-template-columns:1fr; }
+  .aion-people-calendar>div { grid-template-columns:repeat(7,minmax(0,1fr)); }
+}
+
+.aion-vault-crm-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.aion-vault-crm-panel .operations-agents-card-head {
+  margin-bottom: 0;
+}
+
+.aion-vault-crm-provider-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.aion-vault-crm-provider-grid > article {
+  min-width: 0;
+  border: 1px solid #d7e9f7;
+  background: #fbfdff;
+  padding: 11px;
+}
+
+.aion-vault-crm-provider-grid > article[data-available="false"] {
+  background: #fbfcfd;
+  opacity: .78;
+}
+
+.aion-vault-crm-provider-grid > article[data-connected="true"] {
+  border-color: #86d8bd;
+  box-shadow: inset 3px 0 0 #10b981;
+}
+
+.aion-vault-crm-provider-grid > article > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.aion-vault-crm-provider-grid strong {
+  color: #173956;
+  font-size: 11px;
+}
+
+.aion-vault-crm-provider-grid span {
+  color: #1677c8;
+  font-size: 7px;
+  font-weight: 900;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.aion-vault-crm-provider-grid p {
+  margin: 7px 0 0;
+  color: #7890a4;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.aion-vault-crm-provider-select-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 360px) minmax(0, 1fr);
+  align-items: end;
+  gap: 14px;
+  border: 1px solid #d7e9f7;
+  background: #fbfdff;
+  padding: 12px 13px;
+}
+
+.aion-vault-crm-provider-select-row > label {
+  display: grid;
+  gap: 7px;
+}
+
+.aion-vault-crm-provider-select-row select {
+  min-height: 44px;
+  width: 100%;
+  border: 1px solid #b9d3e6;
+  border-radius: 0;
+  background: #ffffff;
+  color: #173956;
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.aion-vault-crm-provider-select-row > div {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+}
+
+.aion-vault-crm-provider-select-row > div > strong {
+  color: #173956;
+  font-size: 11px;
+}
+
+.aion-vault-crm-provider-select-row > div > span {
+  color: #1677c8;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.aion-vault-crm-provider-select-row > div > p {
+  margin: 0;
+  color: #7890a4;
+  font-size: 8px;
+  text-align: right;
+}
+
+.aion-vault-crm-connection-row {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid #d7e9f7;
+  background: #f7fbfe;
+  padding: 11px 13px;
+}
+
+.aion-vault-crm-health,
+.aion-vault-crm-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.aion-vault-crm-health > div {
+  display: grid;
+  gap: 3px;
+}
+
+.aion-vault-crm-health strong {
+  color: #173956;
+  font-size: 11px;
+}
+
+.aion-vault-crm-health small {
+  color: #7890a4;
+  font-size: 8px;
+}
+
+.aion-vault-crm-contract {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid #d7e9f7;
+  background: #d7e9f7;
+}
+
+.aion-vault-crm-contract > div {
+  display: grid;
+  gap: 6px;
+  background: #ffffff;
+  padding: 11px;
+}
+
+.aion-vault-crm-contract strong {
+  color: #173956;
+  font-size: 9px;
+}
+
+.aion-vault-crm-contract span {
+  color: #7890a4;
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.aion-vault-crm-error {
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .aion-vault-crm-provider-grid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+  .aion-vault-crm-contract {
+    grid-template-columns: 1fr;
+  }
+  .aion-vault-crm-provider-select-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.aion-exec-dashboard-function {
+  min-width: 0;
+  min-height: 126px;
+  display: grid;
+  grid-template-rows: auto minmax(34px, 1fr) auto;
+  gap: 9px;
+  border: 1px solid #d7e9f7;
+  border-top: 3px solid #8ccfff;
+  background: #ffffff;
+  color: #27445f;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.aion-exec-dashboard-function:hover {
+  border-color: #8ccfff;
+  box-shadow: 0 8px 22px rgba(33, 89, 132, .10);
   transform: translateY(-1px);
 }
+
+.aion-exec-dashboard-function-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.aion-exec-dashboard-function-top strong {
+  overflow: hidden;
+  color: #173956;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-exec-dashboard-function-top i {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: #f59e0b;
+}
+
+.aion-exec-dashboard-function[data-tone="healthy"] .aion-exec-dashboard-function-top i {
+  background: #10b981;
+}
+
+.aion-exec-dashboard-function[data-tone="risk"] .aion-exec-dashboard-function-top i {
+  background: #ef4444;
+}
+
+.aion-exec-dashboard-function-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #7890a4;
+  font-size: 10px;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.aion-exec-dashboard-function-metrics {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8ca1b3;
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.aion-exec-dashboard-function-metrics b {
+  color: #27445f;
+  font-size: 10px;
+}
+
+.aion-exec-dashboard-panel {
+  border: 1px solid #d7e9f7;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(33, 89, 132, .06);
+}
+
+.aion-exec-dashboard-panel > header {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5f0f8;
+}
+
+.aion-exec-dashboard-panel > header h2 {
+  margin: 3px 0 0;
+  color: #173956;
+  font-size: 18px;
+  letter-spacing: -.015em;
+}
+
+.aion-exec-dashboard-panel > header > small {
+  color: #8ca1b3;
+  font-size: 9px;
+  text-align: right;
+}
+
+.aion-exec-dashboard-action-list {
+  display: grid;
+}
+
+.aion-exec-dashboard-action-row {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 84px minmax(240px, 1.5fr) minmax(90px, .55fr) minmax(110px, .65fr) minmax(110px, .7fr);
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  border-bottom: 1px solid #edf4f9;
+}
+
+.aion-exec-dashboard-action-row:last-child {
+  border-bottom: 0;
+}
+
+.aion-exec-dashboard-action-row > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.aion-exec-dashboard-action-row strong {
+  overflow: hidden;
+  color: #27445f;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-exec-dashboard-action-row small {
+  overflow: hidden;
+  color: #8ca1b3;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-exec-dashboard-status {
+  display: inline-flex !important;
+  width: fit-content;
+  border-radius: 999px;
+  background: #eaf6ff;
+  color: #1677c8;
+  padding: 5px 7px;
+  font-size: 8px;
+  font-weight: 950;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.aion-exec-dashboard-status[data-status="completed"] {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.aion-exec-dashboard-status[data-status="amber"] {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.aion-exec-dashboard-status[data-status="failed"] {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.aion-exec-dashboard-two-column {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(360px, .8fr);
+  gap: 18px;
+}
+
+.aion-exec-dashboard-kpis,
+.aion-exec-dashboard-automations,
+.aion-exec-dashboard-daily {
+  display: grid;
+}
+
+.aion-exec-dashboard-kpi-group,
+.aion-exec-dashboard-daily > details {
+  border-bottom: 1px solid #edf4f9;
+  background: #ffffff;
+}
+
+.aion-exec-dashboard-kpi-group > summary,
+.aion-exec-dashboard-daily > details > summary {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.aion-exec-dashboard-kpi-group > summary::-webkit-details-marker,
+.aion-exec-dashboard-daily > details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.aion-exec-dashboard-kpi-group > summary > span,
+.aion-exec-dashboard-daily > details > summary > span,
+.aion-exec-dashboard-kpi-list > div > span,
+.aion-exec-dashboard-automation-row > span:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.aion-exec-dashboard-kpi-group strong,
+.aion-exec-dashboard-daily strong,
+.aion-exec-dashboard-automation-row strong {
+  color: #27445f;
+  font-size: 10px;
+}
+
+.aion-exec-dashboard-kpi-group small,
+.aion-exec-dashboard-daily small,
+.aion-exec-dashboard-automation-row small {
+  overflow: hidden;
+  color: #8ca1b3;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-exec-dashboard-kpi-group > summary > b,
+.aion-exec-dashboard-daily > details > summary > b {
+  color: #1677c8;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.aion-exec-dashboard-kpi-list {
+  display: grid;
+  padding: 0 14px 10px;
+}
+
+.aion-exec-dashboard-kpi-list > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px;
+  background: #f7fbfe;
+  border-top: 1px solid #e5f0f8;
+}
+
+.aion-exec-dashboard-kpi-list > div > b {
+  color: #173956;
+  font-size: 11px;
+}
+
+.aion-exec-dashboard-kpi-list > button {
+  border: 1px dashed #b9dcf7;
+  background: #f7fbfe;
+  color: #1677c8;
+  padding: 10px;
+  font-size: 9px;
+  font-weight: 850;
+  text-align: left;
+  cursor: pointer;
+}
+
+.aion-exec-dashboard-automation-row {
+  min-height: 50px;
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) 90px 70px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #edf4f9;
+}
+
+.aion-exec-dashboard-automation-row > span:nth-child(2) {
+  color: #7890a4;
+  font-size: 9px;
+}
+
+.aion-exec-dashboard-automation-row > b {
+  color: #047857;
+  font-size: 8px;
+  letter-spacing: .06em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.aion-exec-dashboard-daily > details > div {
+  border-top: 1px solid #edf4f9;
+  background: #fbfdff;
+}
+
+.aion-exec-dashboard-empty {
+  padding: 18px;
+  color: #7890a4;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1280px) {
+  .aion-exec-dashboard-functions {
+    grid-template-columns: repeat(4, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .aion-exec-dashboard-shell {
+    padding: 26px 18px 80px 88px;
+  }
+  .aion-exec-dashboard-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .aion-exec-dashboard-functions {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+  .aion-exec-dashboard-function-carousel {
+    grid-template-columns: 38px minmax(0, 1fr) 38px;
+  }
+  .aion-exec-dashboard-carousel-main {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .aion-exec-dashboard-carousel-metrics {
+    grid-template-columns: repeat(2, minmax(90px, 1fr));
+  }
+  .aion-marketing-metric-grid {
+    grid-template-columns: repeat(4, minmax(100px, 1fr));
+  }
+  .aion-marketing-metric-detail,
+  .aion-marketing-decision-stages {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+  .aion-marketing-intelligence-grid {
+    grid-template-columns: 1fr;
+  }
+  .aion-exec-dashboard-two-column {
+    grid-template-columns: 1fr;
+  }
+  .aion-exec-dashboard-action-row {
+    grid-template-columns: 78px minmax(160px, 1fr) minmax(100px, .6fr);
+  }
+  .aion-exec-dashboard-action-row > span:nth-child(3),
+  .aion-exec-dashboard-action-row > span:nth-child(5) {
+    display: none;
+  }
+}
+
+.aion-board-direct-line {
+  position: absolute;
+  top: calc(100% + 1px);
+  left: 88px;
+  right: 24px;
+  min-height: 42px;
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr) minmax(240px, 1.25fr) auto auto;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border: 1px solid #b9dcf7;
+  border-top: 0;
+  background: rgba(246, 251, 255, .99);
+  box-shadow: 0 12px 24px rgba(33, 89, 132, .14);
+  color: #173956;
+}
+
+body.aion-workflow-sidebar-expanded .aion-board-direct-line {
+  left: 260px;
+}
+
+.aion-board-direct-line > strong {
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.aion-board-direct-line-status {
+  overflow: hidden;
+  color: #5f7890;
+  font-size: 10px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-board-direct-line-status[data-tone="error"] { color: #b42318; }
+.aion-board-direct-line-status[data-tone="loading"] { color: #1376c5; }
+
+.aion-board-direct-line input {
+  min-width: 0;
+  height: 30px;
+  border: 1px solid #b9dcf7;
+  background: #ffffff;
+  color: #173956;
+  padding: 0 10px;
+  font-size: 11px;
+}
+
+.aion-board-direct-line button {
+  height: 30px;
+  border: 1px solid #8ccfff;
+  background: #eaf6ff;
+  color: #1376c5;
+  padding: 0 11px;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.aion-board-direct-line button:hover { background: #d8eeff; }
+.aion-board-direct-line button:disabled { cursor: wait; opacity: .55; }
 
 .aion-executive-sticky-actions {
   display: flex;
@@ -11343,16 +13635,21 @@ body.aion-workflow-sidebar-expanded [data-aion-boardroom-sticky-team-header="tru
 
 @media (max-width: 1080px) {
   [data-aion-boardroom-sticky-team-header="true"] {
-    grid-template-columns: auto minmax(0,1fr) auto;
+    grid-template-columns: minmax(0,1fr) auto;
     gap: 10px;
   }
-  [data-aion-boardroom-sticky-session-label="true"] small { display: none; }
+  [data-aion-boardroom-sticky-groups="true"] { justify-content: flex-start; overflow-x: auto; }
+  .aion-executive-sticky-group-label { display: none; }
   [data-aion-boardroom-sticky-members="true"] {
     justify-content: flex-start;
     overflow-x: auto;
     scrollbar-width: none;
   }
   [data-aion-boardroom-sticky-members="true"]::-webkit-scrollbar { display: none; }
+  .aion-board-direct-line {
+    grid-template-columns: auto minmax(100px,1fr) auto auto;
+  }
+  .aion-board-direct-line-status { display: none; }
 }
 
 @media (max-width: 760px) {
@@ -11362,4 +13659,6 @@ body.aion-workflow-sidebar-expanded [data-aion-boardroom-sticky-team-header="tru
   [data-aion-boardroom-sticky-session-label="true"] strong { display: none; }
   [data-aion-boardroom-sticky-member] { min-width: 44px; }
   [data-aion-boardroom-sticky-name="true"] { display: none; }
+  .aion-executive-sticky-divider { display: none; }
+  .aion-board-direct-line { left: 70px; right: 8px; }
 }

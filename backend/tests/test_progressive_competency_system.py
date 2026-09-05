@@ -6,7 +6,12 @@ from pathlib import Path
 
 from backend.modules.hexcore.progressive_competency_system import ProgressiveCompetencySystem
 from backend.modules.hexcore.progressive_competency_executor import (
-    PROJECTS, ProgressiveCompetencyExecutor, _run_program,
+    PROJECTS, RETENTION_PROJECTS, RUNNERS, TRANSFER_PROJECTS,
+    ProgressiveCompetencyExecutor, _run_program,
+)
+from backend.modules.hexcore.diverse_practical_executor_portfolios import (
+    EVENT_RESOLUTION_PROJECTS, FORECASTING_PROJECTS,
+    event_resolution_runner, forecasting_runner,
 )
 
 
@@ -79,6 +84,133 @@ def test_missing_unfamiliar_projects_are_scheduled_before_retention(tmp_path: Pa
     assert requirement["minimum_unfamiliar_projects"] == 3
 
 
+def test_source_disjoint_assessment_does_not_impersonate_transfer(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    sid = "python_core"
+    skill = system.state["subjects"][sid]["subskills"][0]
+    _record(system, sid, "knowledge_test", [skill], 901, source_disjoint=True)
+    _record(system, sid, "exercise", [skill], 902, source_disjoint=True)
+    assert system.assess(sid)["transfer_cases"] == 0
+    _record(system, sid, "transfer", [skill], 903, source_disjoint=True)
+    assert system.assess(sid)["transfer_cases"] == 1
+
+
+def test_replayed_named_family_is_retained_but_scored_once(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    sid = "python_core"
+    skill = system.state["subjects"][sid]["subskills"][0]
+    for index in range(3):
+        _record(system, sid, "project", [skill], 920 + index,
+                project_family="same_hidden_case")
+    result = system.assess(sid)
+    assert result["raw_evidence_records"] == 3
+    assert result["evidence_records"] == 1
+    assert result["projects"] == 1
+
+
+def test_transfer_portfolio_supports_the_expert_four_family_gate():
+    assert len({row[0] for row in TRANSFER_PROJECTS}) >= 4
+    for _, source, old, new in TRANSFER_PROJECTS:
+        assert _run_program(source)["returncode"] == 0
+        assert _run_program(source.replace(old, new, 1))["returncode"] != 0
+
+
+def test_delayed_retention_portfolio_covers_all_expert_milestones():
+    assert len({row[0] for row in RETENTION_PROJECTS}) >= 4
+    for _, source, old, new in RETENTION_PROJECTS:
+        assert _run_program(source)["returncode"] == 0
+        assert _run_program(source.replace(old, new, 1))["returncode"] != 0
+
+
+def test_forecasting_portfolio_contains_eight_source_distinct_hidden_projects():
+    assert len({row.family for row in FORECASTING_PROJECTS}) == 8
+    evidence = []
+    families = []
+    contract = {"requirement": {"kind": "project", "subskills": [
+        "aggregation", "base_rates", "bayesian_updates", "calibration",
+    ]}}
+    for _ in FORECASTING_PROJECTS:
+        result = forecasting_runner(contract, evidence)
+        assert result["passed"] is True
+        assert result["unfamiliar"] is True
+        assert result["gate"]["counterexamples_rejected"] == 1
+        families.append(result["project_family"])
+        evidence.append({"kind": "project", "project_family": result["project_family"]})
+    assert len(set(families)) == 8
+    assert forecasting_runner(contract, evidence)["status"] == "diverse_project_executor_required"
+
+
+def test_event_resolution_portfolio_contains_eight_source_distinct_hidden_projects():
+    assert len({row.family for row in EVENT_RESOLUTION_PROJECTS}) == 8
+    evidence = []
+    families = []
+    contract = {"requirement": {"kind": "project", "subskills": [
+        "question_decomposition", "source_hierarchy", "resolution_rules",
+        "timeline_evidence", "conflicting_sources", "manipulation_risk",
+        "audit_trail", "settlement_review",
+    ]}}
+    for _ in EVENT_RESOLUTION_PROJECTS:
+        result = event_resolution_runner(contract, evidence)
+        assert result["passed"] is True
+        assert result["unfamiliar"] is True
+        assert result["gate"]["counterexamples_rejected"] == 1
+        families.append(result["project_family"])
+        evidence.append({"kind": "project", "project_family": result["project_family"]})
+    assert len(set(families)) == 8
+    assert event_resolution_runner(contract, evidence)["status"] == "diverse_project_executor_required"
+
+
+def test_comprehensive_learning_abilities_receive_a_real_scheduler_lane(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    system._add_subject(
+        "capability_test_strategy", "Test strategy", "learning_capability",
+        ["diagnose", "adapt"], importance=1.0, source="comprehensive_expertise_curriculum",
+    )
+    system.state["subjects"]["capability_test_strategy"]["target_level"] = "expert"
+    system.state.setdefault("external_curricula", {})["test"] = {"curriculum_digest": "test"}
+    system.state["active_subject_id"] = "algorithms_data_structures"
+    for index in range(6):
+        system.state["contracts"].append({
+            "contract_id": f"domain-{index}", "subject_id": "algorithms_data_structures",
+            "status": "satisfied", "requirement": {"kind": "exercise"},
+        })
+    assert system._priority_subject() == "capability_test_strategy"
+
+
+def test_learning_ability_bootstrap_rotates_to_least_evidenced_capability(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    for subject_id in ("capability_alpha", "capability_beta", "capability_gamma"):
+        system._add_subject(
+            subject_id, subject_id, "learning_capability", ["diagnose", "execute"],
+            importance=1.0, source="comprehensive_expertise_curriculum",
+        )
+    system.state.setdefault("external_curricula", {})["test"] = {"curriculum_digest": "test"}
+    system.state["contracts"].append({
+        "contract_id": "alpha-prior", "subject_id": "capability_alpha",
+        "status": "satisfied", "requirement": {"kind": "lesson"},
+    })
+    system.state["active_subject_id"] = "capability_alpha"
+    assert system._priority_subject() == "capability_beta"
+
+
+def test_learning_abilities_receive_half_of_recent_primary_lane(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    system._add_subject(
+        "capability_alpha", "Alpha", "learning_capability", ["diagnose", "execute"],
+        importance=1.0, source="comprehensive_expertise_curriculum",
+    )
+    system.state.setdefault("external_curricula", {})["test"] = {"curriculum_digest": "test"}
+    for index, subject_id in enumerate((
+        "capability_alpha", "algorithms_data_structures", "capability_alpha",
+        "algorithms_data_structures", "algorithms_data_structures", "algorithms_data_structures",
+    )):
+        system.state["contracts"].append({
+            "contract_id": f"recent-{index}", "subject_id": subject_id,
+            "status": "satisfied", "requirement": {"kind": "lesson"},
+        })
+    assert system._priority_subject() == "capability_alpha"
+
+
 def test_cross_domain_depth_targets_override_unfocused_breadth(tmp_path: Path):
     system = _empty_repo(tmp_path)
     system.configure_depth_acceleration(
@@ -147,14 +279,45 @@ def test_expert_requires_deeper_projects_recovery_transfer_and_retention(tmp_pat
     for i in range(12): _record(system, sid, "project", ["alpha", "beta"], 300 + i)
     for i in range(6): _record(system, sid, "debugging", ["alpha", "beta"], 320 + i)
     for i in range(4): _record(system, sid, "transfer", ["alpha", "beta"], 340 + i)
-    for i in range(2):
+    for i, milestone in enumerate((1, 7, 30, 90)):
         _record(system, sid, "retention", ["alpha", "beta"], 350 + i,
-                retained=True, scaffolding=0.1)
+                retained=True, scaffolding=0.1,
+                retention_milestone_days=milestone)
     result = system.assess(sid)
     assert result["knowledge_level"] == "expert"
     assert result["practical_level"] == "expert"
     assert result["overall_level"] == "expert"
     assert result["target_reached"] is True
+
+
+def test_short_unclassified_retention_cannot_award_expert(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    system.register_mission_gap(
+        mission="learn a new field", subject_name="Honest Expert Gate", group="research",
+        proposed_subskills=["alpha", "beta"], evidence="mission requires it",
+    )
+    sid = "mission_honest_expert_gate"
+    system.state["subjects"][sid]["target_level"] = "expert"
+    for i, skill in enumerate(["alpha", "beta"]):
+        for repeat in range(4):
+            _record(system, sid, "knowledge_test", [skill], 500 + i * 20 + repeat)
+            _record(system, sid, "exercise", [skill], 510 + i * 20 + repeat)
+    for i in range(12):
+        _record(system, sid, "project", ["alpha", "beta"], 600 + i)
+    for i in range(6):
+        _record(system, sid, "debugging", ["alpha", "beta"], 620 + i)
+    for i in range(4):
+        _record(system, sid, "transfer", ["alpha", "beta"], 640 + i)
+    for i in range(2):
+        _record(system, sid, "retention", ["alpha", "beta"], 650 + i,
+                retained=True, scaffolding=0.1)
+    result = system.assess(sid)
+    assert result["overall_level"] == "advanced"
+    assert result["long_term_retention_complete"] is False
+    assert result["retention_milestones_completed"] == []
+    requirement = system._next_requirement(result)
+    assert requirement["kind"] == "retention"
+    assert requirement["retention_milestone_days"] == 1
 
 
 def test_theory_can_advance_while_physical_practice_remains_explicitly_blocked(tmp_path: Path):
@@ -394,6 +557,79 @@ def test_unsupported_subject_is_explicitly_parked_so_scheduler_can_rotate(tmp_pa
     )
     next_cycle = system.step()["cycle"]["action"]
     assert next_cycle.get("subject_id") != "mission_unfamiliar_domain"
+
+
+def test_exhausted_diverse_project_portfolio_is_parked_without_false_progress(
+        tmp_path: Path, monkeypatch):
+    system = _empty_repo(tmp_path)
+    system.set_active_subject("python_core")
+    system.step()
+    evidence_before = len(system.evidence_for("python_core"))
+
+    monkeypatch.setitem(RUNNERS, "python_core", lambda contract, evidence: {
+        "status": "diverse_project_executor_required",
+        "passed": False,
+        "reason": "The verified Python project portfolio is exhausted.",
+    })
+    executor = ProgressiveCompetencyExecutor(
+        system=system, state_path=tmp_path / "executor.json",
+        result_dir=tmp_path / "results/progressive_competency",
+    )
+    outcome = executor.step()
+
+    assert outcome["status"] == "diverse_project_executor_required"
+    assert outcome["progressed"] is False
+    assert len(system.evidence_for("python_core")) == evidence_before
+    contract = next(
+        row for row in system.state["contracts"]
+        if row["contract_id"] == outcome["contract_id"]
+    )
+    assert contract["status"] == "blocked_executor_capability"
+    assert contract["required_authority"] == "genuinely_diverse_hidden_project_portfolio"
+    assert any(
+        row["subject_id"] == "python_core"
+        and row["blocker_type"] == "executor_capability"
+        and row["status"] == "open"
+        for row in system.state["blockers"]
+    )
+    next_cycle = system.step()["cycle"]["action"]
+    assert next_cycle.get("subject_id") != "python_core"
+
+
+def test_new_portfolio_version_reissues_parked_contract_without_false_evidence(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    system.set_active_subject("python_core")
+    created = system.step()["cycle"]["action"]
+    contract_id = created["contract_id"]
+    parked = next(row for row in system.state["contracts"] if row["contract_id"] == contract_id)
+    parked["requirement"] = {
+        "kind": "retention", "authority": "elapsed_closed_book_fresh_tasks",
+        "subskills": list(system.state["subjects"]["python_core"]["subskills"]),
+        "retention_milestone_days": 1,
+    }
+    system.add_practical_blocker(
+        subject_id="python_core", subskills=parked["requirement"]["subskills"],
+        reason="portfolio exhausted", required_authority="genuinely_diverse_hidden_project_portfolio",
+        blocker_type="executor_capability",
+    )
+    system.park_executor_blocked_contract(
+        contract_id, reason="portfolio exhausted",
+        required_authority="genuinely_diverse_hidden_project_portfolio",
+    )
+    before = len(system.evidence_for("python_core"))
+    executor = ProgressiveCompetencyExecutor(
+        system=system, state_path=tmp_path / "executor.json",
+        result_dir=tmp_path / "results/progressive_competency",
+    )
+    reissued = next(row for row in system.state["contracts"]
+                    if row.get("reissued_from_contract_id") == contract_id)
+    assert reissued["status"] == "open"
+    assert reissued["executor_version"]
+    assert len(system.evidence_for("python_core")) == before
+    assert executor.reconcile_available_blockers() == 0
+    assert not any(row.get("status") == "open" and row.get("subject_id") == "python_core"
+                   and row.get("blocker_type") == "executor_capability"
+                   for row in system.state["blockers"])
 
 
 def test_active_unsupported_subject_never_borrows_unrelated_executor(tmp_path: Path):

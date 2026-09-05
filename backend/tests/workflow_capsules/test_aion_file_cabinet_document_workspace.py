@@ -82,3 +82,56 @@ def test_frontend_routes_artifacts_to_reader_and_workflows_to_canvas():
     assert 'state.activeTab = "operations_flow"' in text
     assert "isAionFileCabinetNodeProtected(found.node)" in text
     assert "Protected Board / evidence record" in text
+
+
+def test_boardroom_json_preview_is_rendered_as_readable_minutes(tmp_path, monkeypatch):
+    monkeypatch.setattr(AIONBusinessPaths, "ROOT", tmp_path / "AION_BUSINESS")
+    workspace = "home-fixed"
+    artifact_path = AIONBusinessPaths.ROOT / "business_containers" / workspace / "pilot" / "meeting.json"
+    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+    artifact_path.write_text(
+        json.dumps(
+            {
+                "session_id": "boardroom_session_1",
+                "session_type": "business_assessment",
+                "generated_at": "2026-08-23T18:13:27+00:00",
+                "council_members": ["OpenAI", "Gemini / Google"],
+                "business_context_packet": {"lines": ["Business name: Home Fixed"]},
+                "boardroom_council_result": {
+                    "consensus": {
+                        "summary": "Review cash and capacity before launch.",
+                        "risks": ["Capacity is not verified."],
+                    }
+                },
+                "execution_boundary": {"approval_gated": True},
+                "boardroom_session_packet_hash": "sha256:test",
+            }
+        ),
+        encoding="utf-8",
+    )
+    tree = WorkflowFileCabinetRepository.default_tree(workspace)
+    tree["folders"] = [
+        {
+            "id": "meeting-1",
+            "name": "Boardroom Session",
+            "type": "business_container_artifact",
+            "document_type": "boardroom_session",
+            "source_of_truth": "business_container",
+            "target": {"storage_path": str(artifact_path.relative_to(AIONBusinessPaths.ROOT))},
+        }
+    ]
+    WorkflowFileCabinetRepository.save(workspace, tree)
+
+    preview = WorkflowFileCabinetRepository.preview(workspace, "meeting-1")
+    text = "\n".join(block.get("text", "") for block in preview["blocks"])
+    assert preview["kind"] == "document"
+    assert "Board meeting minutes" in text
+    assert "Review cash and capacity before launch." in text
+    assert "Capacity is not verified." in text
+
+
+def test_frontend_repairs_missing_legacy_boardroom_artifact_once():
+    source = __import__("pathlib").Path("desktop/mac/src/app.js").read_text(encoding="utf-8")
+    assert "artifact_file_missing" in source
+    assert "__aionPersistBoardroomSessionForItemV1" in source
+    assert "Recovering and securely filing these meeting minutes" in source

@@ -1,0 +1,66 @@
+\section{Canonical Organisation and Workspace Authority for AION Flow}
+\label{sec:aion-flow-canonical-authority}
+
+This section records completion of \texttt{AFLOW-1104}. It is intended to be appended to the
+existing AION and Pilot technical document. AION Flow no longer accepts a role name supplied by
+the browser as evidence that a person may inspect, author, export or commit a workflow.
+
+\subsection{Canonical decision path}
+
+Every protected production operation now follows this decision sequence:
+
+\begin{quote}
+Signed-in person $\rightarrow$ active workspace lookup $\rightarrow$ canonical organisation
+membership $\rightarrow$ exact capability decision $\rightarrow$ workflow scope check
+$\rightarrow$ operation or fail-closed refusal.
+\end{quote}
+
+The workspace repository proves that the requested workspace exists and is active. The existing
+Organisation Authority container then proves that the person is active and that one of their
+persisted roles grants the exact AION Flow capability. A browser may still include a role label for
+display or old-client compatibility, but the backend marks it as ignored and never uses it to
+grant access.
+
+The initial exact capabilities cover review, authoring, signed commits, encrypted export,
+encrypted import and benchmarking. They use the \texttt{aion\_flow} capability namespace and are
+included in the canonical Owner/Director template. An
+organisation administrator may later assign individual capabilities to custom roles through the
+same authority model; no separate AION Flow permissions database is created.
+
+\subsection{Protected surfaces}
+
+Canonical authority is enforced for production qualification, signed revision commits, revision
+history, version differences, encrypted export, encrypted import, zero-content telemetry and local
+benchmarks. The desktop Production panel sends the canonical person and workspace identity. It no
+longer overwrites that identity with an \texttt{owner} role claim. The qualification result displays
+the bounded authority decision so the user can see which store made the decision and why access was
+allowed or denied.
+
+The result fails closed when the person identifier is absent, the workspace does not exist or is
+inactive, the person is not active, the capability is not granted, or the requested organisation,
+workspace or graph scope does not match. Department-scoped graphs also pass their department to the
+existing authority evaluator.
+
+\subsection{Tenant isolation and revision ownership}
+
+Workflow revision storage is keyed by both workspace and workflow identifier. Two businesses may
+therefore use the same workflow name without sharing history or colliding revisions. Each new signed
+revision records the canonical workspace, canonical organisation, person identifier and authority
+source alongside its graph hash, optimistic base revision, timestamp, public key and signature.
+The person's mutable browser role is deliberately absent from the signed authorship record.
+
+Historical revision ledgers created before workspace scoping are not guessed or silently assigned.
+They fail closed with an explicit migration requirement. This prevents a member of one workspace
+from claiming an ambiguous legacy history merely by knowing its workflow identifier.
+
+\subsection{Verification and remaining work}
+
+Focused automated tests prove that a forged \texttt{owner} claim cannot elevate an ordinary
+employee, a missing workspace is rejected, canonical owners retain their intended capabilities,
+the same workflow identifier remains isolated across two active workspaces, signed revision
+conflicts still fail, and encrypted transfer, telemetry and benchmarking remain governed.
+
+This completes the membership and workspace-authority integration. It does not complete overall
+enterprise qualification. Formal threat and dependency review, sustained parallel and long-running
+benchmarks, accessibility and regulatory review, and representative business field testing remain
+open under \texttt{AFLOW-1107}--\texttt{AFLOW-1109}.

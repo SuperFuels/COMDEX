@@ -5,7 +5,8 @@ from __future__ import annotations
 from typing import Any
 import os
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, File, Form, Header, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
@@ -18,9 +19,21 @@ sales = SalesRevenueService()
 
 class EnquiryCreateRequest(BaseModel):
     name: str
+    customer_type: str = "person"
+    first_name: str | None = None
+    last_name: str | None = None
     email: str | None = None
     phone: str | None = None
+    address: str | None = None
     company_name: str | None = None
+    position_title: str | None = None
+    department: str | None = None
+    phone_extension: str | None = None
+    entry_mode: str = "lead"
+    initial_stage: str = "new"
+    estimated_value: float | None = Field(default=None, ge=0)
+    currency: str = "GBP"
+    next_action: str | None = None
     enquiry: str
     source: str = "manual"
     source_reference: str | None = None
@@ -57,6 +70,18 @@ class StageRequest(BaseModel):
     changed_by_person_id: str
 
 
+class RelationshipUpdateRequest(BaseModel):
+    relationship_status: str = "lead"
+    priority: str = "normal"
+    preferred_channel: str = "unspecified"
+    next_action: str | None = None
+    next_action_due: str | None = None
+    tags: list[str] = Field(default_factory=list)
+    owner_person_id: str
+    address: str | None = None
+    updated_by_person_id: str
+
+
 class SessionStartRequest(BaseModel):
     channel: str = "manual"
     provider: str = "native"
@@ -71,6 +96,21 @@ class SessionCompleteRequest(BaseModel):
     next_action: str | None = None
     human_takeover: bool = False
     completed_by_person_id: str
+
+
+class WorkFeedEventRequest(BaseModel):
+    kind: str
+    title: str
+    summary: str
+    details: dict[str, Any] = Field(default_factory=dict)
+    lifecycle_stage: str | None = None
+    source: str = "manual"
+    provider: str = "tessaris"
+    source_reference: str | None = None
+    attachments: list[dict[str, Any]] = Field(default_factory=list)
+    action: dict[str, Any] = Field(
+        default_factory=lambda: {"status": "recorded", "external_action_performed": False})
+    recorded_by_person_id: str
 
 
 class IntakeEndpointRequest(BaseModel):
@@ -136,10 +176,38 @@ class SalesAgentConfigureRequest(BaseModel):
     configured_by_person_id: str
 
 
+class CallCentreAgentCreateRequest(BaseModel):
+    name: str
+    direction: str = "inbound"
+    created_by_person_id: str
+
+
+class CallCentreAgentUpdateRequest(BaseModel):
+    setup: dict[str, Any]
+    expected_agent_hash: str
+    configured_by_person_id: str
+
+
+class CallCentreAgentTestRequest(BaseModel):
+    run_by_person_id: str
+
+
+class CallCentreAgentMintRequest(BaseModel):
+    expected_agent_hash: str
+    minted_by_person_id: str
+
+
+class CallCentreAgentStateRequest(BaseModel):
+    state: str
+    expected_agent_hash: str
+    changed_by_person_id: str
+
+
 class CallPrepareRequest(BaseModel):
     reason: str = "Respond to customer enquiry"
     prepared_by_person_id: str
     goals: dict[str, Any] | None = None
+    agent_id: str | None = None
 
 
 class CallApprovalRequest(BaseModel):
@@ -221,6 +289,14 @@ def update_stage(workspace_id: str, opportunity_id: str, request: StageRequest) 
     return {"ok": True, "opportunity": record, "external_action_performed": False}
 
 
+@router.post("/{workspace_id}/opportunities/{opportunity_id}/relationship")
+def update_relationship(workspace_id: str, opportunity_id: str,
+                        request: RelationshipUpdateRequest) -> dict[str, Any]:
+    record = _call(sales.update_relationship, _workspace(workspace_id), opportunity_id,
+                   **request.model_dump())
+    return {"ok": True, "opportunity": record, "external_action_performed": False}
+
+
 @router.post("/{workspace_id}/opportunities/{opportunity_id}/sessions")
 def start_session(workspace_id: str, opportunity_id: str,
                   request: SessionStartRequest) -> dict[str, Any]:
@@ -234,6 +310,56 @@ def complete_session(workspace_id: str, opportunity_id: str, session_id: str,
     record = _call(sales.complete_session, _workspace(workspace_id), opportunity_id, session_id,
                    **request.model_dump())
     return {"ok": True, "opportunity": record, "external_action_performed": False}
+
+
+@router.get("/{workspace_id}/opportunities/{opportunity_id}/work-feed")
+def get_work_feed(workspace_id: str, opportunity_id: str) -> dict[str, Any]:
+    feed = _call(sales.get_work_feed, _workspace(workspace_id), opportunity_id)
+    return {"ok": True, "work_feed": feed}
+
+
+@router.post("/{workspace_id}/opportunities/{opportunity_id}/work-feed/events")
+def append_work_event(workspace_id: str, opportunity_id: str,
+                      request: WorkFeedEventRequest) -> dict[str, Any]:
+    result = _call(sales.append_work_event, _workspace(workspace_id), opportunity_id,
+                   **request.model_dump())
+    return {"ok": True, **result,
+            "external_action_performed": bool(result["event"]["action"]["external_action_performed"])}
+
+
+@router.post("/{workspace_id}/opportunities/{opportunity_id}/work-feed/attachments")
+async def upload_work_feed_attachment(
+    workspace_id: str,
+    opportunity_id: str,
+    file: UploadFile = File(...),
+    recorded_by_person_id: str = Form(...),
+) -> dict[str, Any]:
+    content = await file.read(25 * 1024 * 1024 + 1)
+    attachment = _call(
+        sales.store_work_feed_attachment,
+        _workspace(workspace_id),
+        opportunity_id,
+        filename=file.filename or "customer-file",
+        content=content,
+        media_type=file.content_type,
+        recorded_by_person_id=recorded_by_person_id,
+    )
+    return {"ok": True, "attachment": attachment, "external_action_performed": False}
+
+
+@router.get("/{workspace_id}/opportunities/{opportunity_id}/work-feed/attachments/{attachment_id}")
+def get_work_feed_attachment(workspace_id: str, opportunity_id: str, attachment_id: str) -> FileResponse:
+    path, metadata = _call(
+        sales.work_feed_attachment_path,
+        _workspace(workspace_id),
+        opportunity_id,
+        attachment_id,
+    )
+    return FileResponse(
+        path,
+        media_type=metadata.get("media_type") or "application/octet-stream",
+        filename=metadata.get("name") or path.name,
+    )
 
 
 @router.post("/{workspace_id}/intake-endpoints")
@@ -297,6 +423,52 @@ def poll_homefixed_public_queue(workspace_id: str,
         intake_token=os.getenv("HOMEFIXED_INTAKE_TOKEN", ""),
     )
     return {"ok": True, **result}
+
+
+@router.get("/{workspace_id}/call-centre/agents")
+def list_call_centre_agents(workspace_id: str) -> dict[str, Any]:
+    return {"ok": True, "items": _call(sales.list_sales_agents, _workspace(workspace_id))}
+
+
+@router.post("/{workspace_id}/call-centre/agents")
+def create_call_centre_agent(workspace_id: str,
+                             request: CallCentreAgentCreateRequest) -> dict[str, Any]:
+    agent = _call(sales.create_sales_agent, _workspace(workspace_id), **request.model_dump())
+    return {"ok": True, "agent": agent, "external_action_performed": False}
+
+
+@router.put("/{workspace_id}/call-centre/agents/{agent_id}")
+def update_call_centre_agent(workspace_id: str, agent_id: str,
+                             request: CallCentreAgentUpdateRequest) -> dict[str, Any]:
+    agent = _call(sales.configure_call_centre_agent, _workspace(workspace_id), agent_id,
+                  **request.model_dump())
+    return {"ok": True, "agent": agent, "external_action_performed": False,
+            "safety_check_required": True}
+
+
+@router.post("/{workspace_id}/call-centre/agents/{agent_id}/test")
+def test_call_centre_agent(workspace_id: str, agent_id: str,
+                           request: CallCentreAgentTestRequest) -> dict[str, Any]:
+    result = _call(sales.test_call_centre_agent, _workspace(workspace_id), agent_id,
+                   **request.model_dump())
+    return {"ok": True, **result, "external_action_performed": False}
+
+
+@router.post("/{workspace_id}/call-centre/agents/{agent_id}/mint")
+def mint_call_centre_agent(workspace_id: str, agent_id: str,
+                           request: CallCentreAgentMintRequest) -> dict[str, Any]:
+    result = _call(sales.mint_call_centre_contract, _workspace(workspace_id), agent_id,
+                   **request.model_dump())
+    return {"ok": True, **result, "external_action_performed": False}
+
+
+@router.post("/{workspace_id}/call-centre/agents/{agent_id}/state")
+def set_call_centre_agent_state(workspace_id: str, agent_id: str,
+                                request: CallCentreAgentStateRequest) -> dict[str, Any]:
+    agent = _call(sales.set_call_centre_agent_state, _workspace(workspace_id), agent_id,
+                  **request.model_dump())
+    return {"ok": True, "agent": agent, "external_action_performed": False,
+            "external_execution_enabled": bool(agent.get("external_execution_enabled"))}
 
 
 @router.post("/{workspace_id}/playbooks/inbound-enquiry/simulations")

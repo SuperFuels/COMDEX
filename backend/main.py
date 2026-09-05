@@ -1086,6 +1086,7 @@ from backend.modules.aion_business.api.audit_api import router as aion_business_
 from backend.modules.aion_business.api.external_specialist_api import router as aion_business_external_specialist_router
 from backend.modules.aion_business.api.external_work_order_api import router as aion_business_external_work_order_router
 from backend.modules.aion_business.api.boardroom_api import router as aion_business_boardroom_router
+from backend.modules.aion_business.api.commercial_adoption_api import router as aion_commercial_adoption_router
 from backend.modules.aion.api.local_llm_api import router as local_llm_router
 from backend.api.business_runtime_router import router as business_runtime_router
 from backend.api.local_node_router import router as local_node_router
@@ -1119,6 +1120,8 @@ from backend.modules.aion_business.api.finance_bookkeeping_api import router as 
 from backend.modules.aion_business.api.finance_sales_api import router as aion_finance_sales_router
 from backend.modules.aion_business.api.sales_revenue_api import router as aion_sales_revenue_router
 from backend.modules.aion_business.api.sales_completion_api import router as aion_sales_completion_router
+from backend.modules.aion_business.api.pilot_scheduled_work_api import router as aion_pilot_scheduled_work_router
+from backend.modules.aion_business.api.medium_business_operating_api import router as aion_medium_business_operating_router
 from backend.modules.aion_business.api.support_case_api import router as aion_support_case_router
 from backend.modules.aion_business.api.marketing_creative_api import router as aion_marketing_creative_router
 from backend.modules.aion_business.api.marketing_connections_api import router as aion_marketing_connections_router
@@ -1385,6 +1388,8 @@ app.include_router(aion_finance_bookkeeping_router)
 app.include_router(aion_finance_sales_router)
 app.include_router(aion_sales_revenue_router)
 app.include_router(aion_sales_completion_router)
+app.include_router(aion_pilot_scheduled_work_router)
+app.include_router(aion_medium_business_operating_router)
 app.include_router(aion_support_case_router)
 app.include_router(aion_marketing_creative_router)
 app.include_router(aion_marketing_connections_router)
@@ -1395,6 +1400,7 @@ app.include_router(aion_business_external_specialist_router)
 app.include_router(aion_business_external_work_order_router)
 app.include_router(aion_business_topology_router)
 app.include_router(aion_business_boardroom_router)
+app.include_router(aion_commercial_adoption_router)
 # app.include_router(aion_dashboard_router)
 app.include_router(aion_cognitive_router)
 app.include_router(aion_router, prefix="/api/aion", tags=["AION"])

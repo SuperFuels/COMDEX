@@ -48,5 +48,7 @@ def test_phase25k_file_cabinet_renders_business_container_artifact_rows():
 
 def test_phase25k_terminal_save_uses_artifact_preview_and_previous_refs():
     assert "commitAionBoardroomSessionArtifactPreview(sessionType)" in TEXT
-    assert "Boardroom session saved as business-container artifact preview" in TEXT
+    assert "await persistAionBoardroomSessionArtifactV2(record)" in TEXT
+    assert "Boardroom minutes saved to the business container" in TEXT
+    assert "window.__aionVisibleAskBoardResult" in TEXT
     assert "&gt; Previous boardroom sessions:" in TEXT

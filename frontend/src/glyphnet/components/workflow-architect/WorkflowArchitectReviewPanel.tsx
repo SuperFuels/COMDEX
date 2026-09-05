@@ -18,7 +18,8 @@ function asArray(value: unknown): unknown[] {
 
 function getReviewSteps(payload: WorkflowArchitectBuildReviewResponse): Record<string, unknown>[] {
   const review = payload.review || {};
-  const spec = (review["spec"] || review["workflow_spec"] || payload["spec"]) as Record<string, unknown> | undefined;
+  const legacyPayload = payload as unknown as Record<string, unknown>;
+  const spec = (review["spec"] || review["workflow_spec"] || legacyPayload["spec"]) as Record<string, unknown> | undefined;
   const steps = spec?.["steps"] || review["steps"];
   return Array.isArray(steps) ? (steps as Record<string, unknown>[]) : [];
 }

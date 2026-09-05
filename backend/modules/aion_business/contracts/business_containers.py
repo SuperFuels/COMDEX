@@ -87,6 +87,7 @@ class BusinessMapContainer(BaseModel):
     meta: BusinessContainerMeta
 
     facts: List[Dict[str, Any]] = Field(default_factory=list)
+    relationships: List[Dict[str, Any]] = Field(default_factory=list)
     assumptions: List[Dict[str, Any]] = Field(default_factory=list)
     unknowns: List[Dict[str, Any]] = Field(default_factory=list)
     conflicts: List[Dict[str, Any]] = Field(default_factory=list)
@@ -195,6 +196,7 @@ class OrganizationAuthorityContainer(BaseModel):
     roles: List[Dict[str, Any]] = Field(default_factory=list)
     authority_policies: List[Dict[str, Any]] = Field(default_factory=list)
     assets: List[Dict[str, Any]] = Field(default_factory=list)
+    people_operations: Dict[str, Any] = Field(default_factory=dict)
     external_sources: List[Dict[str, Any]] = Field(default_factory=list)
     governance: Dict[str, Any] = Field(default_factory=dict)
     summary: Dict[str, Any] = Field(default_factory=dict)

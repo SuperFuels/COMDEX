@@ -108,3 +108,137 @@ def test_board_prompt_compacts_canonical_context_without_dropping_late_authority
     assert '"ready_to_activate"' in prompt
     assert '"authority_ready"' in prompt
     assert "external_data.row_499" not in prompt
+
+
+def test_pilot_draft_uses_one_connected_provider_and_never_executes(monkeypatch) -> None:
+    valid_content = (
+        '{"position":"Subject: A lighter, modular carport for your project\\n\\nHello,\\n\\nCarbonCore combines a clean architectural finish with low-mass handling and modular repairability. This can make installation more practical for smaller crews while retaining reinforcement at selected high-load points. Would you like us to prepare a quotation for your site?\\n\\nKind regards,\\n[Name]",'
+        '"recommendations":[],"risks":["Confirm final specification"],'
+        '"missing_inputs":[],"plan_changes":["safe draft only; not sent"],"confidence":0.91}'
+    )
+    calls = []
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "openai", "label": "OpenAI", "connected": True, "mode": "test", "model": "test-model"},
+        {"id": "gemini", "label": "Gemini", "connected": True, "mode": "test", "model": "test-model"},
+    ])
+
+    def fake_call(provider_id, prompt):
+        calls.append((provider_id, prompt))
+        return {"content": valid_content, "model": "test-model", "latency_ms": 2}
+
+    monkeypatch.setattr(router, "_call_connected_provider", fake_call)
+    result = router.pilot_draft(router.PilotDraftRequest(
+        business_id="home-fixed",
+        request="write me a client email explaining the benefits",
+        approved_facts=[{"claim_id": "fact-1", "text": "CarbonCore uses a hybrid aluminium and carbon composite frame."}],
+        business_context={
+            "business_name": "Home Fixed",
+            "website_url": "www.homefixed.com",
+            "sender_name": "Kevin Robinson",
+            "sender_title": "Founder / Director",
+            "ignored_secret": "must not enter the prompt",
+        },
+        requested_providers=["openai", "gemini"],
+    ))
+    assert result["status"] == "draft_ready"
+    assert result["external_action_performed"] is False
+    assert result["boundary"] == "draft_only_not_sent"
+    assert result["approved_fact_count"] == 1
+    assert result["business_context_fields_used"] == [
+        "business_name",
+        "sender_name",
+        "sender_title",
+        "website_url",
+    ]
+    assert result["receipt_hash"].startswith("sha256:")
+    assert len(calls) == 1
+    assert calls[0][0] == "openai"
+    assert "hybrid aluminium and carbon composite frame" in calls[0][1]
+    assert "Home Fixed" in calls[0][1]
+    assert "Kevin Robinson" in calls[0][1]
+    assert "Founder / Director" in calls[0][1]
+    assert "ignored_secret" not in calls[0][1]
+    assert "Do not replace a known identity value with a placeholder" in calls[0][1]
+    assert "complete artifact" in calls[0][1]
+
+
+def test_pilot_draft_rejects_schema_placeholder_as_a_finished_artifact(monkeypatch) -> None:
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "openai", "label": "OpenAI", "connected": True, "mode": "test", "model": "test-model"},
+    ])
+    monkeypatch.setattr(router, "_call_connected_provider", lambda *_: {
+        "content": '{"position":"complete finished draft","recommendations":[],"risks":[],"missing_inputs":[],"plan_changes":[],"confidence":0.5}',
+        "model": "test-model",
+        "latency_ms": 1,
+    })
+
+    result = router.pilot_draft(router.PilotDraftRequest(request="write a client email"))
+
+    assert result["status"] == "failed"
+    assert result["reason"] == "incomplete_pilot_draft_response"
+    assert result["external_action_performed"] is False
+
+
+def test_pilot_draft_fails_closed_without_a_connected_provider(monkeypatch) -> None:
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "openai", "label": "OpenAI", "connected": False, "reason": "missing_api_key"},
+    ])
+    result = router.pilot_draft(router.PilotDraftRequest(request="write a client email"))
+    assert result == {
+        "schema_version": "aion.pilot_draft_result.v1",
+        "status": "unavailable",
+        "reason": "no_connected_drafting_provider",
+        "external_action_performed": False,
+    }
+
+
+def test_quote_interview_extracts_only_validated_quote_fields_and_fails_over(monkeypatch) -> None:
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "gemini", "label": "Gemini", "connected": True, "model": "test-gemini"},
+        {"id": "openai", "label": "OpenAI", "connected": True, "model": "test-openai"},
+    ])
+    calls = []
+
+    def fake_call(provider_id, prompt):
+        calls.append(provider_id)
+        if provider_id == "gemini":
+            raise RuntimeError("temporary_provider_failure")
+        assert "original customer enquiry is not supplied" in prompt
+        return {
+            "content": '{"scope_summary":"We propose to renew the flat roof.","scope_items":["Remove the existing roof covering","Supply and install a new felt roof system"],"exclusions":["Customer provides parking"],"duration":"2 days","charge_lines":[{"category":"labour","description":"Installation labour","quantity":2,"internal_unit_cost":150,"customer_unit_price":350,"person_name":"Kevin"}],"terms":"","next_stage":"evidence","quote_complete_requested":false}',
+            "model": "test-openai", "latency_ms": 4,
+        }
+
+    monkeypatch.setattr(router, "_call_connected_provider", fake_call)
+    result = router.quote_interview(router.QuoteInterviewRequest(
+        business_id="home-fixed", stage="customer_charges", currency="GBP",
+        user_turn="erm charge 350 per day for two days",
+        current_draft={"scope": "Supply and install a felt flat roof."},
+        requested_providers=["gemini", "openai"],
+    ))
+
+    assert calls == ["gemini", "openai"]
+    assert result["status"] == "extracted"
+    assert result["provider_id"] == "openai"
+    assert result["external_action_performed"] is False
+    assert result["extraction"]["charge_lines"][0] == {
+        "category": "labour", "description": "Installation labour", "quantity": 2.0,
+        "internal_unit_cost": 150.0, "customer_unit_price": 350.0, "person_name": "Kevin",
+    }
+    assert result["extraction"]["scope_items"] == [
+        "Remove the existing roof covering", "Supply and install a new felt roof system",
+    ]
+    assert len(result["receipt_hash"]) == 64
+
+
+def test_quote_interview_rejects_invalid_or_negative_financial_output(monkeypatch) -> None:
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "gemini", "label": "Gemini", "connected": True, "model": "test"},
+    ])
+    monkeypatch.setattr(router, "_call_connected_provider", lambda *_: {
+        "content": '{"scope_summary":"","scope_items":[],"exclusions":[],"duration":"","charge_lines":[{"category":"labour","description":"Labour","quantity":1,"internal_unit_cost":-50,"customer_unit_price":100,"person_name":""}],"terms":"","next_stage":"review","quote_complete_requested":false}',
+    })
+    result = router.quote_interview(router.QuoteInterviewRequest(user_turn="labour costs minus fifty"))
+    assert result["status"] == "unavailable"
+    assert result["external_action_performed"] is False
+    assert result["attempts"][0]["reason"] == "invalid_quote_interview_internal_unit_cost"

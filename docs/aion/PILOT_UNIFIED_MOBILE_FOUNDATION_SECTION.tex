@@ -1,0 +1,180 @@
+\section{Pilot Unified Mobile Foundation}
+\label{sec:pilot-unified-mobile-foundation}
+
+The Pilot mobile product is the common private client for Personal Pilot, bounded
+professional Workspaces, and the AION Boardroom.  It does not create three separate
+accounts or three separate messaging systems.  One verified person uses one trusted
+device and deliberately enters a governed space.  The selected space determines which
+memory, conversations, tools, services, and approval powers are available.
+
+This section records the implemented contract foundation and the first responsive
+reference client.  The reference client is intentionally fixture-driven: it proves the
+information architecture and boundary model without claiming that demonstration buttons
+already possess live authority.  Live discovery, pairing, synchronization, messaging,
+and action execution are connected in subsequent stages.
+
+\subsection{Product Model}
+
+The application exposes three primary modes:
+
+\begin{description}
+  \item[Personal.] Private conversation, inbox, tasks, calendar, household devices,
+  television, games, learning, shopping, files, reminders, and personal approvals.
+  \item[Workspace.] A deliberately bounded role in a client, employer, project, or
+  professional engagement.  Its tools are supplied by an authorized workspace manifest.
+  \item[Boardroom.] Mobile briefing, review, delegation, intervention, and approval for
+  an owned or administered organization.  Complex business creation and administration
+  remain desktop-first.
+\end{description}
+
+Changing the visible mode is not an authority grant.  Every request carries the active
+person, device, space, membership, lease, and mother-brain context.  The receiving mother
+brain validates that complete context again before reading private information or
+executing an operation.
+
+\subsection{Versioned Shared Contracts}
+
+The canonical schema is version \texttt{pilot.unified.v1}.  Its implementation lives in
+an isolated Python contract package.  It does not overwrite the existing AION cognitive
+runtime, Pilot Fabric, GlyphNet, or Boardroom stores.
+
+The first contract set defines:
+
+\begin{itemize}
+  \item person and persona references;
+  \item trusted device and signed possession proof;
+  \item Personal, Workspace, and Boardroom spaces;
+  \item memberships, invitations, roles, and explicit scopes;
+  \item short-lived, device-bound capability leases;
+  \item the complete active context attached to every operation;
+  \item participants, conversations, attachment references, and message envelopes;
+  \item action proposals, approvals, executions, and immutable receipts;
+  \item surface manifests, service-connection references, and memory references.
+\end{itemize}
+
+Every contract supports deterministic serialization and hashing.  Identifiers, timestamps,
+and payload sizes are bounded before use.  Action states follow an explicit transition
+graph so a client cannot convert a prepared proposal directly into a verified result.
+Rendered controls confer no authority by themselves.
+
+\subsection{Authority and Confused-Deputy Protection}
+
+The validator treats the following tuple as one security boundary:
+
+\begin{center}
+\texttt{person + device + possession + space + membership + lease + mother}
+\end{center}
+
+The persona on the possession proof must match the active person.  The device on the
+proof must match the requesting device.  The membership and capability lease must both
+refer to the selected space and persona.  Their time windows and revisions must remain
+valid, and the requested scope must be present in both records.  A bounded replay guard
+rejects a nonce that has already been consumed.
+
+This prevents a client from rendering a Boardroom button while retaining a Personal
+lease, borrowing a scope from another Workspace, replaying an old approval, or persuading
+one mother brain to exercise authority issued by another.
+
+\subsection{Compatibility Without Destructive Migration}
+
+Read-only adapters project existing stores into the new contracts.  They currently cover:
+
+\begin{itemize}
+  \item Pilot Fabric private identities and trusted phone devices;
+  \item personal spaces, inbox tasks, messages, and contacts;
+  \item governed communication drafts;
+  \item GlyphNet thread events and durable conversation history;
+  \item Boardroom workspace bundles and organizational context.
+\end{itemize}
+
+Existing records are not irreversibly rewritten.  A legacy approval without production
+possession evidence is deliberately returned to an awaiting-approval state.  A Boardroom
+bundle identifies a potential Workspace but grants no mobile capability until the
+Boardroom issues a signed surface manifest and role lease.
+
+\subsection{Ownership Registry}
+
+The implementation registry prevents parallel subsystems from becoming competing sources
+of truth.  Pilot Fabric owns private identity, device possession, personal tasks, service
+connections, and television continuity.  GlyphNet owns conversation transport and its
+thread journal.  The Boardroom owns organization records, departments, decisions, and
+business policy.  GlyphChain proof modules may anchor hashes and receipts, but never
+authorize an action merely because a chain entry exists.
+
+Economic experiments---including PHO, PhotonPay, wallets, tokens, bonds, minting, and
+staking---remain preserved but disabled in the mobile feature policy.  They are excluded
+from routes, manifests, shortcuts, capability requests, and default navigation.  Radio
+and wave transports remain optional adapters behind the same message envelope.
+
+\subsection{Responsive Reference Client}
+
+The first client is implemented inside the existing Next.js application at
+\texttt{/pilot/mobile}.  It reads the same JSON fixture used by the contract tests, rather
+than duplicating example identities and permissions in the interface.
+
+The visible structure is intentionally close to a familiar messaging application:
+
+\begin{enumerate}
+  \item a compact Pilot header with private notification and person controls;
+  \item a persistent identity strip showing person, space, role, mother, and connection;
+  \item a Personal, Workspace, and Boardroom segmented switcher;
+  \item horizontally scrollable, context-specific shortcuts from the surface manifest;
+  \item a small stream of messages, tasks, reminders, decisions, approvals, and receipts;
+  \item one persistent text and hold-to-speak Pilot composer;
+  \item persistent Pilot, Inbox, Actions, Spaces, and Me navigation.
+\end{enumerate}
+
+{\setlength{\emergencystretch}{2em}
+Personal shortcuts include Calendar, Tasks, Devices, TV, Games, Learning, Shopping, and
+Files.  Workspace shortcuts are supplied by its bounded manifest.  Boardroom shortcuts
+include Board, Sales, Marketing, Finance, Operations, Support, People, Products, and
+Files.  They appear only when authorized.  The universal television and camera observer
+entry points remain easy to reach.  Specialist functions no longer form one long
+controller page.\par}
+
+The three modes use distinct accent systems while retaining one component language.
+Touch targets, safe-area insets, visible keyboard focus, screen-reader labels, scalable
+type, contrast, and reduced-motion preferences are supported.  Protected notification
+previews hide sender and content until the device proves possession and the user unlocks
+the relevant space.
+
+\subsection{Installable and Offline Shell}
+
+The reference client includes a scoped web-application manifest, a Pilot aircraft icon,
+and a network-first service worker.  The worker caches only the Pilot shell and same-origin
+resources.  It attempts the current mother-brain response first and falls back to the
+cached shell when connectivity is lost.  Offline rendering never implies that an action
+was accepted, sent, or executed; such claims require a fresh signed receipt.
+
+Production installation still requires trusted HTTPS, certificate and key lifecycle
+management, safe remote discovery, and a native signed-phone path for biometric approval.
+Those controls belong to the pairing and remote-continuity stage rather than this visual
+foundation.
+
+\subsection{Implemented State Language}
+
+Cards use explicit states including \texttt{prepared}, \texttt{pending},
+\texttt{locked}, \texttt{offline}, \texttt{expired}, \texttt{failed}, and
+\texttt{verified}.  A prepared item is not approved; an approved item is not executed;
+an executed item is not verified until an independent adapter or provider receipt proves
+the outcome.  This language is shared across Personal, Workspace, and Boardroom surfaces.
+
+\subsection{Verification Evidence and Honest Boundary}
+
+Contract, compatibility, authority, replay, transition, economic-feature isolation,
+manifest, installability, accessibility, and fixture-consumption checks are automated.
+The complete AION Fabric suite contains 427 passing tests after this stage.  The local
+reference route, manifest, and service worker each return a successful response.
+
+The complete optimized Next.js production build compiles successfully and statically
+generates the Pilot mobile route.  Live usability tests on representative iPhone and
+Android sizes, replacement of the legacy controller stream, and real mother-brain
+synchronization remain open and are not represented as complete.
+
+\subsection{Next Implementation Boundary}
+
+The next stage turns the phone into a secure client of a user-selected mother brain.  It
+adds local visual pairing, signed possession, certificate pinning, local discovery,
+remote relay or private-network continuity, explicit mother selection, revocation, and
+recovery.  Only after that boundary is verified should the fixture cards become live
+GlyphNet conversations, Boardroom reviews, Pilot actions, and external service approvals.

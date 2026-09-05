@@ -1,0 +1,157 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\definecolor{PilotBlue}{HTML}{155EEF}
+\definecolor{PilotInk}{HTML}{15213B}
+\hypersetup{colorlinks=true,linkcolor=PilotBlue,urlcolor=PilotBlue}
+\setlist{nosep,leftmargin=*}
+\title{Pilot Fabric 0.33\\Signed Provider Playback Telemetry}
+\author{Tessaris / AION Device Fabric}
+\date{30 August 2026}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Screen perception can establish what appears to be visible, while catalogue
+metadata can establish that a provider identifier exists. Neither fact proves
+that a household account can play a title, that playback is active, or that a
+particular position is current. Pilot Fabric 0.33 introduces a provider-
+independent signed telemetry boundary for those stronger claims.
+
+The boundary is designed for authorized native provider applications, owner-
+connected account adapters and capable AION device nodes. It does not bypass
+closed provider security, scrape credentials or convert a catalogue result into
+an entitlement claim.
+
+\section{Trust and scope model}
+
+Each telemetry source is registered locally on the mother brain with:
+
+\begin{itemize}
+  \item an Ed25519 public identity;
+  \item one provider name;
+  \item one private household persona;
+  \item a local approval record; and
+  \item a least-privilege set of scopes.
+\end{itemize}
+
+\begin{longtable}{p{0.27\linewidth}p{0.65\linewidth}}
+\toprule
+\textbf{Scope} & \textbf{Authority} \\
+\midrule
+\endhead
+\texttt{metadata.read} & Content identifier, title, series, season and episode. \\
+\texttt{playback.read} & State, position and duration. \\
+\texttt{entitlement.read} & Included, rental, purchase or unavailable status. \\
+\bottomrule
+\end{longtable}
+
+The scopes are independent. A source with playback access cannot assert an
+entitlement, and metadata access cannot assert playback. The shared television
+cannot choose a persona or widen a source lease.
+
+\section{Signed envelope protocol}
+
+An adapter emits a canonical JSON
+\texttt{pilot.provider-telemetry-envelope.v1} containing source, provider,
+persona, nonce, observation time, content, playback and entitlement fields. The
+complete envelope is signed with the registered Ed25519 private key.
+
+Fabric rejects a packet when any of the following is true:
+
+\begin{itemize}
+  \item the source is unknown or no longer trusted;
+  \item the signature is invalid;
+  \item the source, provider or persona binding differs;
+  \item the observation is more than two minutes old or materially in the future;
+  \item the nonce has already been used;
+  \item a playback or entitlement state is outside the bounded vocabulary; or
+  \item position, duration or field sizes violate their limits.
+\end{itemize}
+
+The ingestion endpoint exists only on the trusted LAN HTTPS companion. Its
+tokenized path, CSRF check, size limit and rate limiting operate in addition to
+the envelope signature; TLS is not treated as a substitute for source identity.
+
+\section{Normalization and privacy}
+
+Pilot stores the normalized fact rather than the provider response. The retained
+record contains the bounded content identity, title labels, playback state,
+position, duration, entitlement status, evidence hash and source identifier.
+Raw responses, account names, email addresses, OAuth credentials, cookies and
+provider secrets are excluded.
+
+The source registry is mother-local and owner-readable only. Public adapter keys
+are not projected into television, phone or general status snapshots. Audit
+records contain telemetry identifiers, hashes, provider, persona, state and the
+result of reconciliation, but no credential or raw response.
+
+\section{Fusion with screen perception}
+
+The multi-frame perception timeline accepts signed telemetry as a distinct
+source. A signed title can establish provider-verified programme support when
+repeated observations agree. A signed provider position outranks an OCR position
+and is labelled \texttt{signed\_provider\_adapter}; OCR remains labelled
+\texttt{owner\_camera\_ocr} and never becomes provider-verified by implication.
+
+This produces a useful evidence hierarchy:
+
+\begin{enumerate}
+  \item signed provider or native-session telemetry;
+  \item official catalogue metadata;
+  \item permitted television device state;
+  \item repeated owner-camera screen observations; and
+  \item single-frame OCR or classification evidence.
+\end{enumerate}
+
+Conflicting sources remain separate. Pilot does not silently merge a signed
+provider title with a different camera observation.
+
+\section{Entertainment execution reconciliation}
+
+A telemetry packet can update only the latest matching execution for the same
+persona, provider and content identifier or exact title. A playing state changes
+the execution to \texttt{playback\_verified}; a matching non-playing session can
+establish only that the provider surface is open. Entitlement changes only when
+the source has \texttt{entitlement.read} and supplies a non-unknown state.
+
+Consequently, the following claims remain distinct:
+
+\begin{itemize}
+  \item an official route was prepared;
+  \item the device received an open command;
+  \item the provider surface opened;
+  \item the account is entitled to the title; and
+  \item the exact title is actively playing.
+\end{itemize}
+
+\section{Operational boundary and next work}
+
+Fabric 0.33 completes the secure telemetry contract, verification, persistence,
+private-phone display, perception fusion and entertainment reconciliation.
+Actual provider coverage depends on supported, owner-authorized adapters. A
+service that offers no permitted playback API cannot be treated as if it does.
+
+The next implementation work is to create native television and mobile media-
+session adapters where platform policy permits, add authorized provider account
+connectors, and field-test disagreement handling across provider telemetry,
+webOS state and multi-frame screen perception.
+
+\section{Verification}
+
+The release is covered by tests for signature validation, local source
+registration, provider/persona binding, stale and future timestamp rejection,
+nonce replay, scope isolation, entitlement boundaries, execution matching,
+HTTPS-only ingestion and provider-verified perception timelines. The complete
+Fabric regression suite contains 248 passing checks at release time.
+
+\end{document}

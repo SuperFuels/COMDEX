@@ -1,0 +1,7 @@
+cryptography>=49,<51
+websockets>=15,<16
+faster-whisper>=1.2,<2
+sounddevice>=0.5,<1
+numpy>=2,<3
+qrcode==8.2
+broadlink>=0.19,<1

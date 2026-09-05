@@ -53,6 +53,7 @@ class GovernedTurnContext:
     reasoning_providers: List[str] = field(default_factory=list)
     cognitive_foundation: Dict[str, Any] = field(default_factory=dict)
     learning_layers: Dict[str, Any] = field(default_factory=dict)
+    task_intelligence: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return _json_safe(asdict(self))
@@ -108,6 +109,7 @@ class HexCoreGovernedRuntime:
         soul_laws_path: Optional[Path] = None,
         foundation_root: Optional[Path] = None,
         learning_state_path: Optional[Path] = None,
+        cognitive_control_plane: Optional[Any] = None,
     ) -> None:
         self._authority_provider = authority_provider or self._default_authority_provider
         self._recall_provider = recall_provider or self._default_recall_provider
@@ -123,6 +125,7 @@ class HexCoreGovernedRuntime:
                 str(_data_root() / "hexcore" / "persistent_learning_state.json"),
             )
         )
+        self._cognitive_control_plane = cognitive_control_plane
 
     @staticmethod
     def _default_authority_provider(goal: str) -> Mapping[str, Any]:
@@ -283,6 +286,45 @@ class HexCoreGovernedRuntime:
         descriptor["research_states"] = research_states
         return descriptor
 
+    def _task_intelligence(
+        self,
+        task_text: str,
+        *,
+        session_id: str,
+        request_metadata: Mapping[str, Any],
+    ) -> Dict[str, Any]:
+        try:
+            if self._cognitive_control_plane is None:
+                from backend.modules.hexcore.first_class_cognitive_control_plane import (
+                    FirstClassCognitiveControlPlane,
+                )
+
+                self._cognitive_control_plane = FirstClassCognitiveControlPlane(
+                    canonical_state_path=self.learning_state_path,
+                    state_path=self.learning_state_path.with_name(
+                        "first_class_cognitive_control_plane.json"
+                    ),
+                )
+            return self._cognitive_control_plane.prepare_task(
+                task_text,
+                metadata={**dict(request_metadata), "session_id": session_id},
+            )
+        except Exception as exc:
+            return {
+                "schema_version": "aion.hexcore.task_intelligence_context.v1",
+                "status": "unavailable_fail_closed",
+                "error": type(exc).__name__,
+                "canonical_truth": [],
+                "experiential_memory": [],
+                "encountered_unverified": [],
+                "required_skills": [],
+                "missing_capabilities": [],
+                "task_policy": {
+                    "facts_must_come_from_canonical_or_current_verified_evidence": True,
+                    "unverified_encounters_are_research_leads_only": True,
+                },
+            }
+
     def begin_turn(
         self,
         *,
@@ -294,6 +336,11 @@ class HexCoreGovernedRuntime:
         meta = dict(request_metadata or {})
         goal = str(meta.get("authority_goal") or "maintain_coherence")
         providers = meta.get("reasoning_providers") or ["aion_composer", "local_gemma", "openai", "gemini"]
+        task_intelligence = self._task_intelligence(
+            user_text,
+            session_id=session_id,
+            request_metadata=meta,
+        )
         return GovernedTurnContext(
             governance_id=str(uuid.uuid4()),
             turn_id=turn_id,
@@ -313,15 +360,33 @@ class HexCoreGovernedRuntime:
             reasoning_providers=[str(v) for v in providers],
             cognitive_foundation=self._foundation_descriptor(),
             learning_layers=self._persistent_learning_descriptor(),
+            task_intelligence=task_intelligence,
         )
 
     def status(self) -> Dict[str, Any]:
+        control_plane_status: Dict[str, Any]
+        try:
+            if self._cognitive_control_plane is None:
+                from backend.modules.hexcore.first_class_cognitive_control_plane import (
+                    FirstClassCognitiveControlPlane,
+                )
+
+                self._cognitive_control_plane = FirstClassCognitiveControlPlane(
+                    canonical_state_path=self.learning_state_path,
+                    state_path=self.learning_state_path.with_name(
+                        "first_class_cognitive_control_plane.json"
+                    ),
+                )
+            control_plane_status = self._cognitive_control_plane.status()
+        except Exception as exc:
+            control_plane_status = {"status": "unavailable_fail_closed", "error": type(exc).__name__}
         return {
             "schema_version": "aion.hexcore.governed_runtime_status.v1",
             "authority": self._authority_snapshot("maintain_coherence"),
             "outcome_ledger": str(self.outcome_ledger.path),
             "cognitive_foundation": self._foundation_descriptor(),
             "learning_layers": self._persistent_learning_descriptor(),
+            "first_class_cognitive_control_plane": control_plane_status,
             "learning_policy": {
                 "provider_output_is_knowledge": False,
                 "explicit_verified_outcome_required": True,
@@ -515,6 +580,15 @@ class HexCoreGovernedRuntime:
             "mode": mode,
             "authority": context.authority,
             "recall_count": len(context.recalled_knowledge),
+            "task_intelligence": {
+                "trace_id": context.task_intelligence.get("trace_id"),
+                "status": context.task_intelligence.get("status"),
+                "canonical_count": len(context.task_intelligence.get("canonical_truth") or []),
+                "experience_count": len(context.task_intelligence.get("experiential_memory") or []),
+                "unverified_count": len(context.task_intelligence.get("encountered_unverified") or []),
+                "required_skill_count": len(context.task_intelligence.get("required_skills") or []),
+                "missing_capabilities": list(context.task_intelligence.get("missing_capabilities") or []),
+            },
             "learning": {
                 "candidate": candidate_audit,
                 "committed": learned,
@@ -523,6 +597,20 @@ class HexCoreGovernedRuntime:
             },
         }
         record_hash = self.outcome_ledger.append(record)
+        try:
+            trace_id = str(context.task_intelligence.get("trace_id") or "")
+            if trace_id and self._cognitive_control_plane is not None:
+                self._cognitive_control_plane.record_task_outcome(
+                    trace_id=trace_id,
+                    used_memory_ids=list(meta.get("used_memory_ids") or []),
+                    used_skill_ids=list(meta.get("used_skill_ids") or []),
+                    outcome=learning_reason,
+                    verified=bool(learned),
+                    verifier=str(candidate.get("verifier") or "") or None,
+                    evidence_refs=list(candidate.get("evidence_refs") or []),
+                )
+        except Exception:
+            pass
         return {
             "schema_version": "aion.hexcore.governance_result.v1",
             "governance_id": context.governance_id,
@@ -533,6 +621,7 @@ class HexCoreGovernedRuntime:
             "reasoning_providers": list(context.reasoning_providers),
             "cognitive_foundation": context.cognitive_foundation,
             "learning_layers": context.learning_layers,
+            "task_intelligence": context.task_intelligence,
             "learning_committed": learned,
             "learning_reason": learning_reason,
             "learning_authorization_record_hash": authorization_record_hash,

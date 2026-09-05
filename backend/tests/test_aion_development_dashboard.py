@@ -3,6 +3,7 @@ from pathlib import Path
 
 from backend.AION.system.aion_development_dashboard import (
     _classify_service_health,
+    _log_has_actionable_error_after,
     collect_snapshot,
     render_text,
 )
@@ -61,6 +62,54 @@ def test_dashboard_handles_empty_workspace_without_crashing(tmp_path):
     assert "AION OPEN-MISSION LEARNING" in render_text(snapshot, width=80)
 
 
+def test_focused_dashboard_reports_live_comprehensive_expertise_launch(tmp_path):
+    _write(tmp_path / "backend/modules/hexcore/data/comprehensive_expertise_curriculum/curriculum.json", {
+        "curriculum_digest": "abc123", "learning_capabilities": {f"c{i}": {} for i in range(18)},
+        "subjects": {f"s{i}": {} for i in range(52)}, "domains": {f"d{i}": [] for i in range(12)},
+        "cross_domain_bridges": [{} for _ in range(29)], "capstones": [{} for _ in range(6)],
+    })
+    _write(tmp_path / "backend/modules/hexcore/data/expertise_curriculum_runtime/state.json", {
+        "status": "active", "current_phase": 0, "current_phase_name": "learn_to_learn",
+        "current_subject_id": "capability_learning_strategy", "curriculum_digest": "abc123",
+        "competence_awarded_by_activation": False,
+    })
+    _write(tmp_path / "backend/modules/hexcore/data/expertise_containers/index.json", {
+        "containers": [{"id": f"k{i}"} for i in range(55)],
+    })
+    _write(tmp_path / "backend/modules/hexcore/data/progressive_competency/executor_registry.json", {
+        "adapters": [{"subject_id": "capability_learning_strategy", "status": "verified_available"}],
+    })
+    _write(tmp_path / "results/aion_progressive_competency_status.json", {
+        "summary": {"active_subject_id": "capability_learning_strategy", "unsafe_actions": 0},
+        "subjects": {"capability_learning_strategy": {
+            "subject_id": "capability_learning_strategy", "name": "Learning strategy",
+            "group": "learning_capability", "overall_level": "unassessed",
+            "knowledge_level": "beginner", "evidence_records": 2,
+            "coverage": {"knowledge": 0.2, "practical": 0.0}, "target_reached": False,
+        }},
+        "blockers": [], "active_contracts": [],
+    })
+    _write(tmp_path / "results/aion_mastery_curriculum_service_status.json", {
+        "status": "competency_curriculum_active", "updated_at": 1,
+        "progressive_competency_executor": {
+            "status": "verified_and_recorded", "subject_id": "capability_learning_strategy",
+            "progressed": True,
+        },
+    })
+    snapshot = collect_snapshot(tmp_path)
+    assert snapshot["comprehensive_expertise"]["launch_ready"] is True
+    text = render_text(snapshot, width=180)
+    assert "COMPREHENSIVE EXPERTISE PROGRAMME — LIVE" in text
+    assert "Launch: ACTIVE" in text
+    assert "18 learning abilities" in text
+    assert "52 subject academies" in text
+    assert "Verified capability adapters: 1/18" in text
+    assert "Next gate:" in text
+    assert "Practical proof:" in text
+    assert "Ability competence ledger:" in text
+    assert "Installed and executing does not mean mastered" in text
+
+
 def test_service_health_requires_fresh_evidence_not_only_a_pid():
     assert _classify_service_health(
         active=True, evidence_age_seconds=30, stale_after_seconds=60,
@@ -91,6 +140,17 @@ def test_service_health_distinguishes_scheduled_waiting_from_failure():
         active=True, evidence_age_seconds=30, stale_after_seconds=60,
         status="error", disk_free_bytes=10 * 1024 ** 3,
     )[0] == "degraded"
+
+
+def test_dashboard_ignores_allocator_noise_but_detects_real_tracebacks(tmp_path):
+    log = tmp_path / "learner.log"
+    log.write_text(
+        "Python(1) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.\n",
+        encoding="utf-8",
+    )
+    assert _log_has_actionable_error_after(log, 0) is False
+    log.write_text("Traceback (most recent call last):\nRuntimeError: broken\n", encoding="utf-8")
+    assert _log_has_actionable_error_after(log, 0) is True
 
 
 def test_dashboard_describes_completed_calibration_and_zero_control_truthfully(tmp_path):

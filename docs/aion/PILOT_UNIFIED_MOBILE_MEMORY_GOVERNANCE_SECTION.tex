@@ -1,0 +1,62 @@
+\begingroup
+\sloppy
+\section{Unified Mobile Memory Governance}
+\label{sec:pilot-unified-mobile-memory}
+
+The unified Pilot phone application now exposes the existing AION private-memory authority as a
+user-controlled Personal surface.  Memory is not treated as an invisible model prompt or copied
+into a separate mobile database.  The mother brain remains the source of truth, while the trusted
+phone provides inspection, explicit entry, correction, scope control, export and deletion.
+
+\subsection{Identity and Guardian Boundary}
+
+Every request is signed by the phone's non-exportable Ed25519 key and validated against its active
+mother-issued certificate and capability lease.  Three independent scopes are used:
+\texttt{memory.read}, \texttt{memory.write} and \texttt{memory.export}.  The private persona in
+the certificate is always the requester.  A requester may target only themselves or a child profile
+whose active guardian is that requester.  Sibling, unrelated child and other-adult memory access
+fails closed before the memory store is read.
+
+The interface identifies whose memory is open and marks a child surface as guardian managed.  It
+does not merge an adult's records with a child's records, and it does not make a child profile a
+general route into household memory.
+
+\subsection{Inspectable Records and Scope}
+
+Each projected record contains a bounded kind, human-readable summary, explicit scope, creation or
+correction time and integrity hash.  The supported scopes are \texttt{private} and
+\texttt{household\_shared}.  New records default to private.  Moving a record into household scope
+requires an affirmative confirmation on the trusted phone; it is never inferred from television
+speech or silently widened by a model.
+
+The person can correct the summary without replacing the record identity.  Pilot records the
+correction time and recomputes its canonical integrity hash.  Create, correct, scope-change and
+delete operations carry idempotency keys.  An identical retry returns the original result, whereas
+reuse of the same key with different content is rejected.
+
+\subsection{Export and Permanent Deletion}
+
+Export produces a structured JSON package containing the selected profile, that profile's
+memories, inspectable service consents and non-secret trusted-device metadata.  Recovery-code
+hashes and device public keys are removed.  Export authority is separate from read authority so a
+future organization or child policy can permit inspection without permitting bulk extraction.
+
+Deletion requires a second, explicit irreversible confirmation in the phone interface and a signed
+\texttt{memory.write} request.  The memory content is removed permanently.  The replay-safe
+operation receipt remains so a retransmitted request cannot recreate ambiguity, but Pilot does not
+claim the deleted content is recoverable.
+
+\subsection{Mobile Experience and Verification}
+
+The Personal shortcut rail now includes a dedicated Memory panel.  It provides an identity selector
+for the current adult and their guardian-controlled children, an explicit-memory form, scope labels,
+correction and scope controls, permanent deletion and a local JSON download.  Status messages state
+whether a change was saved, shared, made private, exported or deleted.
+
+Focused authority tests verify self access, guardian-child access, denial of other-adult access,
+idempotent creation and deletion, correction and scope changes, and secret-free export.  Mobile
+surface checks verify the signed endpoints and irreversible-delete wording.  The optimized Next.js
+production build compiles successfully.  No live memory, account, provider or television state was
+changed during automated verification.
+
+\endgroup

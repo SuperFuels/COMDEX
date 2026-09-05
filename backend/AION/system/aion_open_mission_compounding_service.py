@@ -12,6 +12,7 @@ from backend.modules.hexcore.wall_clock_scheduler import wait_for_wall_clock
 from backend.modules.hexcore.open_mission_compounding_governor import (
     OpenMissionCompoundingGovernor,
 )
+from backend.modules.hexcore.standalone_task_governance import governed_standalone_task
 
 
 def _consume_json_inbox(governor, inbox: Path, rejected: Path) -> None:
@@ -56,9 +57,16 @@ def run_service() -> None:
         # The matched executor is an independent writer.  Reload the
         # authority-owned state every cycle so this publisher cannot overwrite
         # a newer executor result with a stale in-memory snapshot.
-        governor = OpenMissionCompoundingGovernor(state_path=state_path)
-        _consume_json_inbox(governor, data_root / "inbox", data_root / "rejected")
-        governor.publish_snapshot(repo_root / "results/aion_open_mission_compounding_status.json")
+        with governed_standalone_task(
+            repo_root=repo_root,
+            service_id="open_mission_compounding",
+            task_text="Reconcile governed mission packets and publish the frozen compounding evidence snapshot",
+        ) as governed:
+            governor = OpenMissionCompoundingGovernor(state_path=state_path)
+            _consume_json_inbox(governor, data_root / "inbox", data_root / "rejected")
+            snapshot_path = repo_root / "results/aion_open_mission_compounding_status.json"
+            result = governor.publish_snapshot(snapshot_path)
+            governed.finish(result or {"status": "snapshot_published"}, verified=False)
         wait_for_wall_clock(interval)
 
 

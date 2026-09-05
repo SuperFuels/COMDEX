@@ -1,0 +1,128 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{microtype}
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,urlcolor=blue!65!black}
+\setlist{nosep,leftmargin=*}
+
+\title{Pilot Fabric 0.32\\Trusted Private-Phone HTTPS}
+\author{Tessaris}
+\date{30 August 2026}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Browser camera APIs require a secure context.  Pilot Fabric 0.32 therefore adds
+a TLS private companion without turning a public cloud into the home's trust
+anchor.  The mother brain creates a household certificate authority (CA), issues
+a LAN server certificate and runs the existing tokenized controller over HTTPS.
+The original HTTP page remains a local bootstrap and recovery path.
+
+\section{Local public-key infrastructure}
+
+Certificate generation uses the cryptography library already included in the
+Pilot package.  It does not execute a shell command, contact a CA service, or
+upload a key.  The household root uses a 3072-bit RSA key and SHA-256 signature,
+is constrained to CA use with path length zero, and has key-signing and revocation-
+list usage only.  The server uses a separate 3072-bit RSA key and a 397-day
+certificate restricted to TLS server authentication.
+
+The leaf Subject Alternative Name contains the active private LAN address, the
+mother's local hostname, localhost and the loopback address.  If DHCP changes the
+LAN address, Pilot issues a new leaf from the same household root.  This keeps the
+trusted root stable while ensuring the certificate matches the actual connection
+target.
+
+\section{Key custody}
+
+The TLS directory and private keys use owner-only filesystem permissions.  The
+CA key and server key never enter an API response, QR code, television projection,
+status payload, package, or audit record.  Only the public CA certificate may be
+downloaded.  Public status contains certificate fingerprints, current address,
+hostname and the explicit-trust requirement.
+
+\section{Two-port onboarding model}
+
+\begin{longtable}{p{0.23\linewidth}p{0.20\linewidth}p{0.49\linewidth}}
+\toprule
+\textbf{Port} & \textbf{Role} & \textbf{Behavior} \\
+\midrule
+\endhead
+8767 & Bootstrap and recovery & Shows the rotating pairing code, public CA
+download, secure-controller link, fingerprint and trust instructions. \\
+8769 & Trusted controller & Serves the same private controller and perception
+endpoints using TLS 1.2 or later after the phone trusts the household root. \\
+\bottomrule
+\end{longtable}
+
+A correct pairing code redirects to the secure controller when TLS is available.
+Both routes retain the secret path token, CSRF token, request-size limits and IP
+rate limits.  HTTPS adds HSTS.  Responses remain non-cacheable and deny framing,
+cross-origin resources and microphone access; camera permission is restricted to
+the controller's own origin.
+
+\section{Explicit Apple trust flow}
+
+Pilot displays the root SHA-256 fingerprint on the trusted laptop dashboard and
+on the pairing page.  The owner downloads the public certificate, reviews the
+profile, compares the fingerprint, installs it and then explicitly enables full
+trust in Certificate Trust Settings.  These are platform security decisions and
+Pilot never clicks, suppresses or automates them.
+
+Apple documents that manually installed roots on unsupervised iPhone and iPad
+devices are not automatically trusted for SSL/TLS.  Full trust must be enabled
+separately.  Apple recommends Configurator or mobile-device management for managed
+organizational deployment.  Consumer Pilot preserves manual control and allows
+trust to be revoked by removing the installed profile.
+
+\section{Camera and observer behavior}
+
+Once the certificate is trusted, the HTTPS page is a secure browser context and
+may call \texttt{get\allowbreak User\allowbreak Media} after the user grants camera permission.  Observer
+Mode remains visible, ten-minute limited, persona-bound and frame-rate limited.
+Page hiding stops tracks and timers; return requires \emph{Resume after phone
+sleep}.  TLS enables the API but does not weaken consent or permit invisible
+background capture.
+
+\section{Failure and recovery}
+
+If CA creation, leaf issuance or TLS binding fails, Fabric continues to expose
+the HTTP recovery controller and records only the failure class.  No private key
+material appears in logs.  The HTTP controller remains suitable for remote and
+approval operations, while the UI honestly explains that continuous camera
+access needs HTTPS or a signed native client.
+
+\section{Verification}
+
+Automated tests verify owner-only key modes, required IP and DNS SAN values, root
+reuse, leaf rotation after an address change, TLS chain validation against the
+generated root, HSTS, public-certificate delivery and the absence of private-key
+delivery.  The complete Fabric suite rechecks CSRF, rate limits, controller
+commands, observer leases, local frame deletion, multi-frame stability, verified
+navigation, webOS operation and audit integrity.
+
+\section{Remaining work}
+
+A native signed iOS and Android companion would remove the manual-root onboarding
+step, use OS key stores and support clearer background lifecycle behavior.  The
+next data-plane stage is authenticated provider metadata for programme, episode,
+entitlement and playback position where each service permits it.  Such adapters
+must remain persona-bound and must never export session cookies to TV nodes.
+
+\section{References}
+
+\begin{itemize}
+  \item Apple, \href{https://support.apple.com/en-us/102390}{Trust manually
+  installed certificate profiles in iOS, iPadOS, and visionOS}.
+  \item Mozilla, \href{https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia}{MediaDevices.getUserMedia secure-context requirements}.
+\end{itemize}
+
+\end{document}

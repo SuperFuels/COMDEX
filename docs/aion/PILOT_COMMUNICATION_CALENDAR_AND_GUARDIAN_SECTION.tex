@@ -1,0 +1,193 @@
+% Append-only section fragment. Paste below the preceding section in the master document.
+% This fragment intentionally contains no preamble and no document boundaries.
+
+\section{Persona-Private Communication}
+\label{sec:pilot-communication}
+
+Pilot Fabric 0.51 converts communication from a generic agent route into a
+persona-private, receipt-verified capability.  The shared television may begin a
+request, but it never selects a recipient, exposes an address, or sends content.
+Recipient resolution, content review, approval, and account execution occur on a
+trusted private phone bound to the active identity.
+
+\subsection{Communication State Machine}
+
+The governed sequence is
+\begin{enumerate}
+  \item resolve exactly one contact from the active persona's private contact book;
+  \item create an AION Native draft without requiring a paid model;
+  \item display the exact recipient, channel, subject, and body on the private phone;
+  \item bind approval to a hash of the recipient and content;
+  \item invoke one authorized, persona-specific provider adapter;
+  \item accept success only when the provider returns a verifiable message identifier;
+  \item retain a normalized receipt without the raw provider response or credentials.
+\end{enumerate}
+Changing either the recipient or content invalidates the approval.  An adapter
+exception is recorded as an unknown delivery effect requiring reconciliation;
+Pilot does not retry automatically and risk duplicate delivery.
+
+\subsection{Inbox Intelligence and Follow-Through}
+
+Authorized incoming-message adapters may submit a bounded record containing the
+provider message identifier, sender, receive time, source, and content.  Pilot
+stores a deterministic local summary, source provenance, freshness at ingestion,
+and a body hash; the raw body is not retained by this layer.  A private user may
+convert a message into a task or a calendar proposal.  Conversion does not inherit
+authority from the message and cannot change an external service silently.
+
+After a provider-verified send, the owner may schedule a conditional follow-up
+such as ``remind me tomorrow if no verified reply has arrived.''  The condition
+is linked to the verified sent-message record rather than inferred from speech.
+
+\subsection{Children, Messaging, and Calls}
+
+External communication from a guardian-controlled child identity requires two
+decisions: the configured guardian first approves the draft, then the child
+identity approves the exact content from its trusted surface.  Ordinary Pilot
+messages remain distinct from external email and messaging.
+
+WhatsApp is represented as an authorized handoff boundary.  Pilot does not scrape
+WhatsApp contacts, automate an unsupported consumer session, or claim delivery
+without an official provider result.  A call action prepares the private contact
+and route, but placing the call requires an explicit tap on an authorized phone
+surface.
+
+\subsection{Provider and OAuth Boundary}
+
+The Google account flow uses an installed-application OAuth design with PKCE,
+a one-time state value, a system browser, an exact scope review, and a ten-minute
+authorization lifetime.  Fabric retains only an opaque vault reference.  Access
+and refresh tokens must be stored by an authorized operating-system or production
+secret vault and are never placed in the television, nodes, audit log, or Fabric
+state.  Gmail delivery uses the official \texttt{users.messages.send} endpoint
+and requires a returned provider message identifier.
+
+Public distribution still requires a registered Google OAuth client, enabled
+APIs, an owned production domain, privacy policy, consent-screen configuration,
+and any Google verification required for the selected user-data scopes.  Those
+provider approvals cannot be completed by source code alone.
+
+\section{Calendar and Planning}
+\label{sec:pilot-calendar-planning}
+
+The calendar layer separates create, reschedule, cancel, availability, and travel
+planning into distinct governed operations.  Every modification carries an exact
+scope containing its title, interval, location, reminder, travel allowance, and
+provider event identifier where applicable.  Private approval signs a canonical
+hash of that scope.
+
+\subsection{Conflict and Availability Privacy}
+
+Before approval, Pilot compares the proposed interval---including an optional
+travel allowance---with normalized private busy intervals.  A conflict response
+contains only the conflicting start and end boundaries.  It does not disclose
+the title, attendees, description, or location of the private event.  An owner
+must separately confirm that an action may proceed despite a detected conflict.
+
+Availability queries return free intervals of a selected duration and explicitly
+record that private event details were not disclosed.  This contract aligns with
+the provider free/busy abstraction and allows household coordination without
+exposing one person's calendar contents.
+
+\subsection{Execution and Receipts}
+
+Create uses an exact provider insert operation.  Reschedule requires a previously
+identified provider event and sends only the reviewed time change.  Cancel also
+requires an exact event identifier.  Each action has a fresh approval and an
+idempotent execution state.  A normalized receipt retains the action, provider
+event identifier, provider status, and reviewed scope hash, but no access token or
+raw provider response.
+
+If an adapter invocation fails after transmission, the action becomes
+the ``execution unknown; reconciliation required'' state; it is not automatically
+repeated.
+This prevents an uncertain response from creating duplicate events or applying a
+modification twice.
+
+\subsection{Google Calendar Integration}
+
+The implementation contains provider adapters for event insertion, exact
+rescheduling, and deletion, plus a private free/busy contract.  Real execution is
+disabled until the active persona completes PKCE authorization and grants the
+reviewed Calendar scopes.  The account binding belongs to that persona and cannot
+be selected by shared-TV speech.
+
+\section{Pilot Guardian: First Safe Urgent-Help Proof}
+\label{sec:pilot-guardian}
+
+Pilot Guardian is a non-medical urgent-help system.  Its first proof connects an
+explicit spoken or phone request to a large confirmation surface, one or more
+separately authorized trusted contacts, optional consented location, and a live
+response record.  It does not diagnose a fall and does not represent itself as an
+ambulance or emergency-service dispatcher.
+
+\subsection{Permission Separation}
+
+An ordinary contact permission does not imply emergency interruption.  The owner
+must grant a separate Guardian permission naming the contact, route, interruption
+policy, and whether location may be shared.  Location requires its own explicit
+permission receipt.  Entry, lock, light, wearable, and room-sensor permissions are
+not inferred from contact status.
+
+\subsection{Incident Flow}
+
+The implemented state machine is
+\begin{enumerate}
+  \item an explicit help phrase or private-phone control creates an incident;
+  \item the TV and phone show a large, cancellable confirmation state;
+  \item the protected identity confirms or marks the event as a false alarm;
+  \item confirmation selects only pre-authorized Guardian contacts;
+  \item an authorized adapter attempts each alert and must return a provider alert ID;
+  \item failed routes become a visible connectivity-fallback state;
+  \item a trusted contact may respond through the incident's unguessable response token;
+  \item the response is shown as live human contact evidence.
+\end{enumerate}
+
+At every state the structured record contains
+the ambulance-dispatched and emergency-service-contacted flags set to false,
+unless a future tested official
+adapter proves otherwise.  No language-model output can change these fields.
+
+\subsection{Sensors and False Positives}
+
+Authorized wearable or room-sensor observations may be recorded as
+\texttt{possible\_fall}, \texttt{wearable\_sos}, or \texttt{inactivity} signals.
+They include confidence and provenance but explicitly set
+the medical-diagnosis and automatic-dispatch flags set to false.  A
+signal prompts the human confirmation flow.  The protected identity can cancel an
+unconfirmed incident as a false alarm.
+
+\subsection{External Safety Work Still Required}
+
+Guardian is not field-complete.  Production deployment requires regional legal,
+clinical, accessibility, safeguarding, privacy, telecoms, and emergency-service
+review; resilient push/SMS/voice providers; power and Internet failure testing;
+continuous delivery-path monitoring; escalation timing studies; false-positive
+field trials; and explicit qualification in every supported country.  In Spain
+and the European Union, an ordinary app must not claim connection to the 112
+emergency system without an authorized, tested integration and verified receipt.
+
+\section{Verification and Release Boundary}
+
+Automated tests cover local-first drafting, exact recipient/content hashes,
+guardian approval for child communication, provider receipt requirements,
+received-message provenance, message-to-task conversion, conditional no-reply
+follow-up, calendar conflict privacy, explicit conflict acceptance, free-slot
+queries, create/reschedule/cancel receipts, PKCE state and scope validation, opaque
+token-vault references, Guardian permissions, optional location, false-alarm
+cancellation, sensor non-diagnosis, connectivity fallback, verified trusted-contact
+alerts, two-way response records, and deterministic emergency voice routing.
+
+The locally enforceable software is complete only at its adapter boundaries.
+Real Gmail, Calendar, messaging, call, notification, and emergency delivery remain
+disabled until the owner or product operator supplies registered provider clients,
+completes OAuth or equivalent authorization, and obtains the required production
+and regional approvals.
+
+\subsection{Official Technical References}
+
+The implementation follows Google's installed-application OAuth and PKCE guidance,
+Gmail \texttt{users.messages.send}, Calendar \texttt{events.insert}, exact event
+modification APIs, and Calendar free/busy query.  These provider interfaces and
+policies must be revalidated before production release because authorization
+requirements and platform policies can change.

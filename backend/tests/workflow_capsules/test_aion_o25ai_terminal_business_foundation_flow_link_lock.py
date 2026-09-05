@@ -22,7 +22,8 @@ def test_o25ai_bad_overlay_and_wrong_combined_prompt_removed():
 
 def test_o25ai_terminal_uses_current_o25aj_opening_authority():
     text = read_app()
-    assert 'const AION_O25AJ_OPENING = "Before we start, what should I call you?";' in text
+    assert 'const AION_O25AJ_OPENING = "Hi, I’m AION, your AI business partner.' in text
+    assert 'Before we start, what should I call you?";' in text
     assert "function startAionO25ABSelectedTerminalVoiceO25AJ" in text
     assert "o25aj_terminal_opening" in text
 

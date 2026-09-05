@@ -1,0 +1,165 @@
+% Append this fragment immediately before the master document's closing line.
+% It deliberately contains no preamble or document boundary.
+\section{Resource-Governed Multi-Frame Production Perception}
+\label{sec:pilot-production-perception}
+
+\subsection{Purpose}
+
+Pilot Fabric 0.31 replaced single-image screen certainty with a bounded temporal
+evidence model.  Manual phone captures and owner-visible Observer Mode frames are
+analysed locally, fused with permitted device and provider metadata, and then
+added to a structured multi-frame timeline.  Source images are deleted before
+the timeline receives the result.
+
+Pilot Fabric 0.40 adds the reusable production resource contract: selectable
+capture profiles, visible duration and countdown controls, mother-enforced frame
+intervals, battery/thermal/visibility policy, explicit pause and resume, hashed
+session receipts and automatic context-window recovery after an application or
+input change.
+
+The design principle is:
+
+\begin{quote}
+One frame is an observation.  Repeated independent agreement is required before
+Pilot calls a surface or programme stable.
+\end{quote}
+
+\subsection{Processing Pipeline}
+
+The phone sends an owner-authorized JPEG, PNG or HEIC image under the existing
+size, rate and session limits.  Apple Vision performs local OCR and image
+classification in a temporary owner-only file.  The file is deleted in a
+\texttt{finally} boundary.  Screen fusion then combines sanitized OCR geometry,
+labels, cached webOS state, explicit live context and bounded official metadata.
+Only that structured result and the image hash enter the timeline.
+
+\subsection{Temporal Stability Rules}
+
+The timeline considers at most twelve structured frames and uses a rolling
+ninety-second reasoning window.  An identical consecutive image hash is ignored.
+Surface stability requires at least two frames and agreement in two-thirds or
+more of the recent window.  Until that threshold is met, the surface is
+\texttt{uncertain} regardless of a single-frame classifier confidence.
+
+A programme title is stable only when the same provider title appears in at
+least two frames.  The independent \texttt{provider\_verified} field becomes true
+only when one of those supporting records carries official-API metadata status.
+This prevents repeated OCR guesses from being relabelled as authenticated
+provider facts.
+
+\subsection{Temporal Outputs}
+
+\begin{description}
+  \item[Stable surface:] Majority-supported surface plus matching-frame count,
+  total frames and ratio.
+  \item[Programme:] Repeated title, support count, stability flag and independent
+  provider-verification flag.
+  \item[Subtitle timeline:] Ordered, de-duplicated recent subtitle lines derived
+  from structured local OCR.
+  \item[Scene changed:] Two or more distinct image hashes in the recent window;
+  this is not semantic plot interpretation.
+  \item[Playback position:] A bounded OCR pattern such as
+  \texttt{12:34 / 52:10}, labelled \texttt{owner\_camera\_ocr} and explicitly
+  not provider verified.
+  \item[Evidence hash:] Canonical hash over the structured temporal record.
+\end{description}
+
+\subsection{Observer Continuity After Phone Sleep}
+
+Observer Mode remains a visible, owner-started, persona-bound ten-minute lease.
+The frame token is returned once, only its hash is persisted by the mother, and
+frames cannot arrive more frequently than the configured interval.  The private
+phone keeps the short-lived token in same-tab browser session storage so a page
+suspension does not create a new observer identity.
+
+When the page is hidden, Pilot stops the sampling timer and camera tracks.  It
+does not invisibly restart them.  After returning, the user presses
+\emph{Resume after phone sleep}; the browser requests camera access again and
+continues the same unexpired lease.  Stop clears the browser token and invalidates
+the backend token hash.
+
+\subsection{Capture Profiles and Resource Governance}
+
+The owner chooses one of three bounded profiles. \emph{Detail} requests a
+three-second interval, 1280-pixel maximum dimension and JPEG quality 0.78.
+\emph{Balanced} uses five seconds, 1280 pixels and quality 0.72.
+\emph{Battery Saver} uses fifteen seconds, 960 pixels and quality 0.60. The
+browser uses these rendering limits, while the mother independently rate-limits
+accepted frames using the effective interval.
+
+The client may report a coarse battery band, charging state, thermal state and
+page visibility. Exact battery percentage is converted to
+\texttt{healthy}, \texttt{moderate}, \texttt{low} or \texttt{critical} and is
+not placed in the audit ledger. An unplugged low battery slows capture to at
+least fifteen seconds. A fair thermal state slows capture to ten seconds and a
+serious thermal state to thirty seconds. Critical thermal state, an unplugged
+critical battery or a hidden/suspended page pauses the lease and causes the
+mother to reject frames.
+
+The web controller cannot obtain a standardized thermal measurement on every
+phone, so it reports \texttt{nominal}; the same bounded endpoint accepts an
+OS-derived thermal class from a future signed native observer. Missing battery
+telemetry remains \texttt{unknown} and never invents a healthy state.
+
+\subsection{Visible Controls and Session Receipt}
+
+The private controller displays a persistent active/paused/stopped indicator,
+accepted-frame count, remaining-session countdown, capture profile, coarse
+battery state, thermal state and effective sampling interval. The owner can
+apply a new profile, pause, visibly resume or stop. Pause and page hiding close
+the browser camera tracks immediately. Resume never reopens the camera without
+an owner gesture.
+
+Stopping creates a canonical receipt containing only session identifier, frame
+count, capture profile, stop time and the explicit assertion that raw frames were
+not retained. The receipt is content-free and hashed; the bearer frame token is
+destroyed.
+
+\subsection{Automatic Context-Change Recovery}
+
+Once a surface is stable, a contradictory frame creates a pending transition
+rather than immediately replacing the context. Two consecutive frames on the
+new surface create a clean reasoning window containing only that surface's
+evidence. Old Netflix titles, subtitles, products or playback facts therefore
+cannot be carried into YouTube, HDMI, a game or another application. The
+timeline records the old and new surface, whether the change is pending or
+established, and that old-context evidence was not reused.
+
+\subsection{Private-Phone Presentation}
+
+The controller now displays surface, supporting frame count, aggregate confidence,
+programme title, stability, official-provider status, recent subtitles and the
+latest OCR playback position.  This sits beside the verified-navigation panel,
+so a navigation transaction can wait for temporal evidence instead of relying
+on remote-button delivery.
+
+\subsection{Privacy and Trust Boundary}
+
+At most twelve structured records are retained.  They contain hashes, timestamps,
+surface, app, bounded summary, subtitles, scoreboard fields, bounded provider
+identifiers and optional OCR position.  They contain no source pixels, raw audio,
+face identity, provider credentials, cookies or payment data.  People remain
+unknown and consequential actions still require the private approval boundary.
+
+\subsection{Verification}
+
+The 305-test Fabric suite establishes that one frame remains uncertain, two consistent frames
+can establish a surface and programme, conflicting frames remain uncertain,
+duplicate hashes are ignored, OCR positions are never called provider verified,
+and the structured history cannot exceed twelve frames. It also verifies low
+battery throttling, critical-resource pause, hidden-page pause, persona-bound
+configuration, content-free stop receipts and clean application/input context
+transitions. The complete Fabric
+suite also rechecks local image deletion, observer token secrecy and rate limits,
+screen fusion, verified navigation, phone security, webOS controls and audit
+integrity.
+
+\subsection{Remaining Production Work}
+
+The trusted HTTPS controller can exercise this contract, but browser background
+camera operation remains constrained by iOS and Android. Production deployment
+still needs signed native Pilot companions. Those clients must preserve visible
+consent indicators, short leases, OS-level camera disclosure, revocation,
+resource telemetry and the same source-pixel deletion boundary. Authenticated
+programme, episode and playback-position adapters are also still needed where
+providers permit them.

@@ -163,6 +163,26 @@ class ExecuteTrainTaskApprovalRequest(BaseModel):
     executed_by: str = "operations_agents_desktop"
 
 
+class PilotEmailPrepareRequest(BaseModel):
+    to: str
+    subject: str
+    body: str
+    cc: str = ""
+    bcc: str = ""
+    requested_by: str = "aion_central_pilot"
+
+
+class PilotEmailSendRequest(BaseModel):
+    payload_hash: str
+    executed_by: str = "aion_central_pilot"
+    approval_granted: bool = False
+
+
+class PilotAuthorityUpdateRequest(BaseModel):
+    rules: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
+    updated_by: str = "business_owner"
+
+
 class ExternalToolDryRunRequest(BaseModel):
     tool_id: str
     payload: Dict[str, Any] = {}
@@ -523,6 +543,50 @@ def disconnect_hubspot_connector() -> Dict[str, Any]:
 @router.get("/connectors/gmail/health")
 def get_gmail_connector_health() -> Dict[str, Any]:
     return get_runtime().get_gmail_connector_health()
+
+
+@router.post("/pilot/email/prepare")
+def prepare_pilot_email_send(
+    request: PilotEmailPrepareRequest,
+    workspace_id: Optional[str] = Query(default=None),
+) -> Dict[str, Any]:
+    return get_runtime(workspace_id).prepare_pilot_email_send(
+        to=request.to,
+        subject=request.subject,
+        body=request.body,
+        cc=request.cc,
+        bcc=request.bcc,
+        requested_by=request.requested_by,
+    )
+
+
+@router.get("/pilot/authority")
+def get_pilot_authority_policy(
+    workspace_id: Optional[str] = Query(default=None),
+) -> Dict[str, Any]:
+    return get_runtime(workspace_id).get_pilot_authority_policy()
+
+
+@router.post("/pilot/authority")
+def update_pilot_authority_policy(
+    request: PilotAuthorityUpdateRequest,
+    workspace_id: Optional[str] = Query(default=None),
+) -> Dict[str, Any]:
+    return get_runtime(workspace_id).update_pilot_authority_policy(request.rules, request.updated_by)
+
+
+@router.post("/pilot/email/{approval_id}/send")
+def execute_pilot_email_send(
+    approval_id: str,
+    request: PilotEmailSendRequest,
+    workspace_id: Optional[str] = Query(default=None),
+) -> Dict[str, Any]:
+    return get_runtime(workspace_id).execute_pilot_email_send(
+        approval_id=approval_id,
+        payload_hash=request.payload_hash,
+        executed_by=request.executed_by,
+        approval_granted=request.approval_granted,
+    )
 
 
 @router.get("/connectors/gmail/connect-url")

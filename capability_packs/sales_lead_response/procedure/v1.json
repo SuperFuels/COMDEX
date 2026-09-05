@@ -1,0 +1,20 @@
+{
+  "schema_version": "aion.sales_lead_response.procedure.v1",
+  "steps": [
+    {"id": "admit", "operation": "aion.admit", "effect": "read_only"},
+    {"id": "context", "operation": "business_map.read_projection", "effect": "read_only"},
+    {"id": "classify", "operation": "lead.classify_deterministically", "effect": "local"},
+    {"id": "draft", "operation": "email.prepare_draft", "effect": "reversible"},
+    {"id": "approve", "operation": "approval.require_exact_recipient_and_content", "effect": "human_gate"},
+    {"id": "send", "operation": "email.send_approved", "effect": "external"},
+    {"id": "verify", "operation": "receipt.verify_delivery", "effect": "read_only"},
+    {"id": "learn", "operation": "aion.record_bounded_outcome", "effect": "canonical_receipt_only"}
+  ],
+  "fail_closed_when": [
+    "recipient_ambiguous",
+    "approval_missing_or_expired",
+    "provider_receipt_missing",
+    "business_map_scope_unavailable",
+    "requested_claim_not_evidenced"
+  ]
+}

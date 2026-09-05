@@ -1,0 +1,72 @@
+\section{Sovereign Runtime Recovery and Signed Updates}
+\label{sec:sovereign-runtime-recovery-updates}
+
+This section records completion of the internal engineering required by \texttt{SBB-0106}. It is
+intended to be appended to the existing AION Sovereign Business Brain document. Platform signing,
+service registration and clean-machine distribution remain external release work and are not
+misrepresented as complete.
+
+\subsection{Bounded health supervision}
+
+Each installed mother brain has a local supervisor state machine. A healthy check clears prior
+failure counters without restarting the service. An unhealthy check may invoke one bounded restart,
+then verifies health again before claiming recovery. Failed attempts enter a configured cooldown,
+preventing a tight restart loop. After the finite attempt ceiling, the state becomes
+\texttt{manual\_recovery\_required}; Pilot does not repeatedly consume the machine or claim that it
+recovered. Supervisor state is atomically replaced in an owner-only file and contains operational
+status rather than customer content.
+
+\subsection{Pinned publisher authority}
+
+An update is trusted only when its Ed25519 signer is already present in the installation's trusted
+publisher set. A public key carried by the candidate package cannot make itself trusted. The signed
+manifest binds the release version and every included path, byte count, SHA-256 digest and executable
+flag. Missing, undeclared, duplicated, tampered, oversized, absolute, parent-traversing and symbolic
+link members fail closed before activation.
+
+The publisher private key is not included in Pilot or stored by the customer brain. A production
+platform installer will install only the release publisher's public trust anchor. The current
+developer preview intentionally records that this external trust anchor is unavailable, rather than
+silently accepting self-signed updates.
+
+\subsection{Staging, activation and rollback}
+
+A verified candidate is unpacked into a private staging directory separate from the active release.
+Activation moves the completed candidate into the immutable release collection and atomically
+changes the current-version record. Pilot then starts that exact directory and applies its health
+check. Only a successful start followed by successful health verification records the candidate as
+activated.
+
+If either check fails, Pilot stops the candidate where possible, restores the previous-version
+pointer, restarts the prior release and verifies it independently. If no healthy previous release is
+available, Pilot reports manual recovery as required; it never calls the failed candidate active.
+This design keeps application versions separate from customer memory, Business Maps, credentials
+and receipts, so application rollback does not roll customer data backward.
+
+Every staging, activation and rollback event is added to a local hash chain and signed by the mother
+identity. The history records versions, outcomes and receipt hashes without copying customer
+content. It therefore provides an inspectable explanation of what changed and why a rollback
+occurred.
+
+\subsection{Verification and packaging}
+
+Automated tests cover healthy operation without restart, successful bounded recovery, cooldown and
+attempt ceilings, trusted activation, failed-candidate rollback, recovery of the previous release,
+untrusted publishers, modified files, path traversal and honest failure when no prior release exists.
+The bootstrap packaging tests also verify every archived file and confirm that no customer data or
+provider credentials are included. All ten focused tests pass.
+
+The update and recovery modules are included in Bootstrap version~0.14.0. The archive SHA-256 is
+\begin{flushleft}
+\texttt{f79380541a81b0fa}\texttt{f7fccbbe21641ab3}\\
+\texttt{d9ac4538043f210d}\texttt{03597515ac9ffd04}.
+\end{flushleft}
+
+\subsection{Remaining release boundary}
+
+\texttt{SBB-0106} is complete as provider-independent application logic. Completion does not imply
+that the unsigned preview is a production installer. \texttt{SBB-0101} must register the supervisor
+with launchd, Windows Service Control Manager and systemd through platform-signed installers and
+install the publisher trust anchor. \texttt{SBB-0108} must package platform-specific dependencies and
+a useful local model, disconnect the network physically and pass clean-machine setup, restart,
+failed-update rollback, backup and useful offline-work exercises.

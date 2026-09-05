@@ -14,6 +14,7 @@ from email.utils import parseaddr
 import hashlib
 import hmac
 import json
+import mimetypes
 import os
 from pathlib import Path
 import re
@@ -52,6 +53,32 @@ ALLOWED_TRANSITIONS: dict[str, set[str]] = {
     "won": set(),
     "lost": {"new"},
 }
+
+# A provider-neutral service lifecycle.  Businesses may skip irrelevant stages,
+# but evidence is never silently moved backwards or rewritten.
+WORK_LIFECYCLE_STAGES = (
+    "enquiry", "qualification", "appointment", "survey", "quote", "negotiation",
+    "won", "scheduled", "procurement", "in_progress", "completed", "invoiced",
+    "paid", "review_requested", "closed", "lost",
+)
+
+WORK_EVENT_KINDS = (
+    "enquiry_received", "qualification_update", "inbound_message", "outbound_draft",
+    "call", "booking_prepared", "booking_confirmed", "note", "photo", "document",
+    "voice_instruction", "quote_draft", "quote_approved", "quote_sent",
+    "customer_reply", "supplier_request", "material_quote", "job_scheduled",
+    "work_started", "work_completed", "invoice_draft", "invoice_sent",
+    "payment_recorded", "reconciliation", "review_request", "status_update",
+)
+
+WORK_ACTION_STATUSES = ("recorded", "draft", "approval_required", "approved", "executed", "failed")
+
+RELATIONSHIP_STATUSES = (
+    "lead", "prospect", "active_customer", "active_job", "repeat_customer",
+    "on_hold", "completed", "lost",
+)
+RELATIONSHIP_PRIORITIES = ("normal", "priority", "urgent")
+RELATIONSHIP_CHANNELS = ("email", "telephone", "sms", "whatsapp", "in_app", "unspecified")
 
 DEFAULT_PLAYBOOK = {
     "name": "Inbound enquiry qualification",
@@ -132,6 +159,18 @@ DEFAULT_AGENT_SETUP = {
     },
 }
 
+SALES_AGENT_DIRECTIONS = ("inbound", "outbound", "both")
+SALES_AGENT_STATES = ("draft", "testing_required", "ready", "active", "paused")
+SALES_AGENT_FIELD_TYPES = ("text", "long_text", "email", "phone", "number", "date", "boolean")
+
+DEFAULT_SALES_AGENT_CAPTURE_FIELDS = [
+    {"key": "customer_name", "label": "Customer name", "type": "text", "required": True},
+    {"key": "customer_need", "label": "What the customer needs", "type": "long_text", "required": True},
+    {"key": "location", "label": "Location", "type": "text", "required": False},
+    {"key": "timescale", "label": "Timescale", "type": "text", "required": False},
+    {"key": "next_step", "label": "Agreed next step", "type": "text", "required": True},
+]
+
 
 def _now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
@@ -168,17 +207,27 @@ class SalesRevenueService:
         contacts = self.list_contacts(workspace_id)
         companies = self.list_companies(workspace_id)
         playbook = self.ensure_default_playbook(workspace_id)
+        sales_agents = self.list_sales_agents(workspace_id)
         summary = self._summary(opportunities)
         return {
             "schema_version": "aion.sales.workspace.v1",
             "workspace_id": workspace_id,
             "pipeline_stages": list(PIPELINE_STAGES),
+            "work_feed_contract": {
+                "schema_version": "aion.sales.work_feed.v1",
+                "lifecycle_stages": list(WORK_LIFECYCLE_STAGES),
+                "event_kinds": list(WORK_EVENT_KINDS),
+                "action_statuses": list(WORK_ACTION_STATUSES),
+                "external_execution_rule": "An executed external action requires a receipt reference.",
+                "business_model": "configurable_service_lifecycle",
+            },
             "contacts": contacts,
             "companies": companies,
             "opportunities": opportunities,
             "today_queue": self._today_queue(opportunities),
             "summary": summary,
             "playbook": playbook,
+            "sales_agents": sales_agents,
             "intake": self.intake_status(workspace_id),
             "telephony": self.telephony_status(workspace_id),
             "actors": self._actors(workspace_id),
@@ -602,10 +651,19 @@ class SalesRevenueService:
 
     def prepare_outbound_call(self, workspace_id: str, opportunity_id: str, *,
                               reason: str, prepared_by_person_id: str,
-                              goals: dict[str, Any] | None = None) -> dict[str, Any]:
+                              goals: dict[str, Any] | None = None,
+                              agent_id: str | None = None) -> dict[str, Any]:
         access = self._require(workspace_id, prepared_by_person_id, "sales.manage")
+        selected_agent = self.get_sales_agent(workspace_id, agent_id) if agent_id else None
         playbook = self.ensure_default_playbook(workspace_id)
-        if playbook.get("status") != "promoted_for_controlled_use":
+        if selected_agent:
+            if selected_agent.get("state") != "active":
+                raise PermissionError("active_sales_agent_required")
+            if selected_agent.get("direction") not in {"outbound", "both"}:
+                raise PermissionError("outbound_sales_agent_required")
+            if not selected_agent.get("minted_contract"):
+                raise PermissionError("minted_sales_agent_contract_required")
+        elif playbook.get("status") != "promoted_for_controlled_use":
             raise PermissionError("promoted_sales_playbook_required")
         opportunity = self.load_opportunity(workspace_id, opportunity_id)
         phone = _clean_phone((opportunity.get("contact") or {}).get("phone"))
@@ -634,12 +692,42 @@ class SalesRevenueService:
             "terms_policy": setup.get("terms_policy"),
             "payment_policy": setup.get("payment_policy"),
         }
+        if selected_agent:
+            contract_ref = selected_agent.get("minted_contract") or {}
+            template = self._load(
+                self._sales_agent_contract_path(
+                    workspace_id, selected_agent["agent_id"], contract_ref.get("contract_hash")
+                ), workspace_id, "contract_hash"
+            )
+            goal_contract = {
+                "schema_version": "aion.sales.call_goal_contract.v2",
+                "desired_outcome": (template.get("objective") or {}).get("primary_outcome"),
+                "required_fields": [row.get("key") for row in template.get("capture_fields") or []
+                                    if row.get("required")],
+                "capture_schema": template.get("capture_fields") or [],
+                "permitted_actions": template.get("allowed_actions") or [],
+                "prohibited_commitments": list(DEFAULT_CALL_GOALS["prohibited_commitments"]),
+                "agent_contract": template,
+                "agent_contract_hash": template.get("contract_hash"),
+                "customer_context": {
+                    "customer_name": (opportunity.get("contact") or {}).get("name"),
+                    "enquiry": str(opportunity.get("enquiry") or "")[:4000],
+                    "source": opportunity.get("source"),
+                    "known_qualification": (opportunity.get("qualification") or {}).get("answers") or {},
+                },
+            }
         draft = {
             "schema_version": "aion.sales.telephony_call_draft.v1",
             "draft_id": "call-draft-" + secrets.token_hex(8), "workspace_id": workspace_id,
             "opportunity_id": opportunity_id, "provider": "retell", "direction": "outbound",
             "to_number": phone, "from_number_env": "RETELL_FROM_NUMBER", "reason": str(reason or "Respond to enquiry").strip(),
-            "playbook_id": playbook["playbook_id"], "playbook_hash": playbook["playbook_hash"],
+            "playbook_id": selected_agent["agent_id"] if selected_agent else playbook["playbook_id"],
+            "playbook_hash": ((selected_agent.get("minted_contract") or {}).get("contract_hash")
+                              if selected_agent else playbook["playbook_hash"]),
+            "sales_agent_id": selected_agent.get("agent_id") if selected_agent else None,
+            "sales_agent_name": selected_agent.get("name") if selected_agent else None,
+            "provider_agent_id": ((selected_agent.get("phone_assignment") or {}).get("provider_agent_id")
+                                  if selected_agent else get_retell_agent_id(workspace_id)),
             "call_goal_contract": goal_contract,
             "call_goal_contract_hash": canonical_contract_hash(goal_contract),
             "attempt_number": 1 + sum(
@@ -678,7 +766,7 @@ class SalesRevenueService:
         if not readiness["live_execution_enabled"]: raise PermissionError("live_sales_telephony_not_enabled")
         payload = {
             "from_number": get_retell_from_number(workspace_id), "to_number": draft["to_number"],
-            "override_agent_id": get_retell_agent_id(workspace_id),
+            "override_agent_id": draft.get("provider_agent_id") or get_retell_agent_id(workspace_id),
             "metadata": {"workspace_id": workspace_id, "opportunity_id": draft["opportunity_id"],
                          "draft_id": draft_id, "playbook_hash": draft["playbook_hash"]},
             "retell_llm_dynamic_variables": {"customer_name": str(draft.get("customer_name") or "customer"),
@@ -760,11 +848,39 @@ class SalesRevenueService:
                        source: str, source_reference: str | None,
                        attribution: dict[str, Any] | None,
                        consent: dict[str, Any] | None,
-                       created_by_person_id: str) -> dict[str, Any]:
+                       created_by_person_id: str, customer_type: str = "person",
+                       first_name: str | None = None, last_name: str | None = None,
+                       address: str | None = None, position_title: str | None = None,
+                       department: str | None = None,
+                       phone_extension: str | None = None, entry_mode: str = "lead",
+                       initial_stage: str = "new", estimated_value: float | None = None,
+                       currency: str = "GBP", next_action: str | None = None) -> dict[str, Any]:
         access = self._require(workspace_id, created_by_person_id, "sales.manage")
+        customer_type = str(customer_type or "person").strip().lower()
+        if customer_type not in {"person", "business"}:
+            raise ValueError("sales_customer_type_must_be_person_or_business")
+        first_name = re.sub(r"\s+", " ", str(first_name or "").strip())[:100] or None
+        last_name = re.sub(r"\s+", " ", str(last_name or "").strip())[:100] or None
         name = str(name or "").strip()
+        if first_name or last_name:
+            name = " ".join(value for value in (first_name, last_name) if value)
         email = _clean_email(email)
         phone = _clean_phone(phone)
+        address = re.sub(r"\s+", " ", str(address or "").strip())[:500] or None
+        position_title = re.sub(r"\s+", " ", str(position_title or "").strip())[:120] or None
+        department = re.sub(r"\s+", " ", str(department or "").strip())[:120] or None
+        phone_extension = re.sub(r"[^a-zA-Z0-9#*-]", "", str(phone_extension or ""))[:20] or None
+        entry_mode = str(entry_mode or "lead").strip().lower()
+        if entry_mode not in {"lead", "existing_deal"}:
+            raise ValueError("sales_entry_mode_must_be_lead_or_existing_deal")
+        initial_stage = str(initial_stage or "new").strip().lower()
+        if initial_stage not in PIPELINE_STAGES:
+            raise ValueError("unknown_sales_pipeline_stage")
+        if entry_mode == "lead":
+            initial_stage = "new"
+        estimated_value = None if estimated_value is None else max(0.0, round(float(estimated_value), 2))
+        currency = re.sub(r"[^A-Z]", "", str(currency or "GBP").upper())[:3] or "GBP"
+        next_action = re.sub(r"\s+", " ", str(next_action or "").strip())[:240] or None
         enquiry = str(enquiry or "").strip()
         source = str(source or "manual").strip().lower()
         source_reference = str(source_reference or "").strip() or None
@@ -772,6 +888,8 @@ class SalesRevenueService:
             raise ValueError("sales_name_and_enquiry_required")
         if not email and not phone:
             raise ValueError("sales_contact_method_required")
+        if customer_type == "business" and not str(company_name or "").strip():
+            raise ValueError("sales_business_company_name_required")
         if source_reference:
             existing = next((row for row in self.list_opportunities(workspace_id)
                              if row.get("source") == source and row.get("source_reference") == source_reference), None)
@@ -790,12 +908,22 @@ class SalesRevenueService:
             contact["company_id"] = contact.get("company_id") or (company or {}).get("company_id")
             contact["email"] = contact.get("email") or email
             contact["phone"] = contact.get("phone") or phone
+            contact["customer_type"] = "business" if customer_type == "business" else contact.get("customer_type") or "person"
+            contact["first_name"] = contact.get("first_name") or first_name
+            contact["last_name"] = contact.get("last_name") or last_name
+            contact["address"] = contact.get("address") or address
+            contact["position_title"] = contact.get("position_title") or position_title
+            contact["department"] = contact.get("department") or department
+            contact["phone_extension"] = contact.get("phone_extension") or phone_extension
             contact["updated_at"] = _now()
         else:
             identity = canonical_contract_hash({"email": email, "phone": phone}).removeprefix("sha256:")[:20]
             contact = {
                 "schema_version": "aion.sales.contact.v1", "contact_id": f"contact-{identity}",
                 "workspace_id": workspace_id, "name": name, "email": email, "phone": phone,
+                "customer_type": customer_type, "first_name": first_name, "last_name": last_name,
+                "address": address, "position_title": position_title,
+                "department": department, "phone_extension": phone_extension,
                 "company_id": (company or {}).get("company_id"),
                 "company_name": (company or {}).get("name"),
                 "status": "active", "provider_links": {}, "created_at": _now(), "updated_at": _now(),
@@ -814,10 +942,22 @@ class SalesRevenueService:
             "contact": self._contact_projection(contact), "title": enquiry[:96], "enquiry": enquiry,
             "source": source, "source_reference": source_reference,
             "attribution": self._clean_mapping(attribution or {}), "consent": consent_record,
-            "stage": "new", "status": "open", "owner_person_id": created_by_person_id,
+            "stage": initial_stage, "status": "closed" if initial_stage in {"won", "lost"} else "open",
+            "owner_person_id": created_by_person_id,
+            "deal": {"entry_mode": entry_mode, "estimated_value": estimated_value,
+                     "currency": currency, "imported_as_existing": entry_mode == "existing_deal"},
+            "relationship": {
+                "status": "lost" if initial_stage == "lost" else "active_customer" if initial_stage == "won" else
+                          "prospect" if entry_mode == "existing_deal" else "lead",
+                "priority": "normal", "preferred_channel": "unspecified",
+                "next_action": next_action or ("Qualify enquiry" if entry_mode == "lead" else f"Review {initial_stage.replace('_', ' ')} deal"),
+                "next_action_due": None, "tags": [],
+                "updated_at": _now(), "updated_by_person_id": created_by_person_id,
+            },
             "qualification": {"status": "not_started", "answers": {}, "score": 0,
                               "missing_required": ["need", "location", "urgency"]},
             "appointments": [], "sessions": [], "activities": [], "handoff": None,
+            "work_feed": self._new_work_feed(opportunity_id),
             "external_writes": [], "created_at": _now(), "updated_at": _now(),
             "created_by_person_id": created_by_person_id, "authority_decision": access,
         }
@@ -825,6 +965,28 @@ class SalesRevenueService:
             "source": source, "contact_deduplicated": contact_was_existing,
             "external_action_performed": False,
         })
+        self._append_work_event_record(
+            opportunity, kind="enquiry_received", title="Enquiry received", summary=enquiry,
+            details={"source": source, "source_reference": source_reference},
+            lifecycle_stage="enquiry", source=source, provider="tessaris",
+            source_reference=source_reference, attachments=[],
+            action={"status": "recorded", "external_action_performed": False},
+            recorded_by_person_id=created_by_person_id,
+        )
+        if entry_mode == "existing_deal" and initial_stage != "new":
+            lifecycle = {"qualification": "qualification", "qualified": "qualification",
+                         "appointment_proposed": "appointment", "appointment_booked": "appointment",
+                         "proposal": "quote", "won": "won", "lost": "lost"}.get(initial_stage)
+            self._append_work_event_record(
+                opportunity, kind="status_update", title="Existing deal added",
+                summary=f"Existing deal entered at {initial_stage.replace('_', ' ')} stage.",
+                details={"pipeline_stage": initial_stage, "estimated_value": estimated_value,
+                         "currency": currency, "next_action": opportunity["relationship"]["next_action"]},
+                lifecycle_stage=lifecycle, source="manual", provider="tessaris",
+                source_reference=source_reference, attachments=[],
+                action={"status": "recorded", "external_action_performed": False},
+                recorded_by_person_id=created_by_person_id,
+            )
         self._save_opportunity(workspace_id, opportunity)
         self._project(workspace_id, opportunity)
         return {"contact": contact, "opportunity": opportunity,
@@ -852,6 +1014,15 @@ class SalesRevenueService:
         self._transition(record, target, allow_same=True)
         self._activity(record, "qualification_recorded", qualified_by_person_id,
                        {"score": score, "status": status, "missing_required": missing, "risk_flags": risk_flags})
+        self._append_work_event_record(
+            record, kind="qualification_update", title="Qualification updated",
+            summary=str(notes or "Qualification evidence recorded").strip(),
+            details={"score": score, "status": status, "missing_required": missing,
+                     "answers": clean}, lifecycle_stage="qualification", source="sales",
+            provider="tessaris", source_reference=None, attachments=[],
+            action={"status": "recorded", "external_action_performed": False},
+            recorded_by_person_id=qualified_by_person_id,
+        )
         self._save_opportunity(workspace_id, record); self._project(workspace_id, record)
         return record
 
@@ -885,6 +1056,19 @@ class SalesRevenueService:
         self._activity(record, "appointment_prepared", prepared_by_person_id,
                        {"appointment_id": appointment["appointment_id"], "starts_at": appointment["starts_at"],
                         "external_action_performed": False})
+        self._append_work_event_record(
+            record, kind="booking_prepared", title="Appointment prepared",
+            summary=f"{appointment['starts_at']} · {appointment['location_or_channel']}",
+            details={"appointment_id": appointment["appointment_id"],
+                     "duration_minutes": duration_minutes,
+                     "assigned_person_id": assigned_person_id,
+                     "notes": appointment["notes"]}, lifecycle_stage="appointment",
+            source="sales", provider="tessaris", source_reference=appointment["appointment_id"],
+            attachments=[], action={"status": "approval_required",
+                                    "external_action_performed": False,
+                                    "approval_type": "calendar_and_customer_notification"},
+            recorded_by_person_id=prepared_by_person_id,
+        )
         self._save_opportunity(workspace_id, record); self._project(workspace_id, record)
         return record
 
@@ -946,6 +1130,16 @@ class SalesRevenueService:
         self._activity(record, "conversation_session_completed", completed_by_person_id,
                        {"session_id": session_id, "disposition": session["disposition"],
                         "human_takeover": bool(human_takeover)})
+        self._append_work_event_record(
+            record, kind="call" if session.get("channel") in {"app_voice", "telephone"}
+            else "inbound_message", title="Conversation completed", summary=session["summary"],
+            details={"session_id": session_id, "channel": session.get("channel"),
+                     "disposition": session["disposition"], "next_action": session.get("next_action")},
+            lifecycle_stage=None, source="communications", provider=session.get("provider") or "tessaris",
+            source_reference=session_id, attachments=[],
+            action={"status": "recorded", "external_action_performed": False},
+            recorded_by_person_id=completed_by_person_id,
+        )
         self._save_opportunity(workspace_id, record); self._project(workspace_id, record)
         return record
 
@@ -957,8 +1151,452 @@ class SalesRevenueService:
         record["status"] = "closed" if stage in {"won", "lost"} else "open"
         self._activity(record, "pipeline_stage_changed", changed_by_person_id,
                        {"stage": stage, "reason": str(reason or "").strip()})
+        lifecycle = {"proposal": "quote", "won": "won", "lost": "lost",
+                     "appointment_proposed": "appointment",
+                     "appointment_booked": "appointment"}.get(stage)
+        self._append_work_event_record(
+            record, kind="status_update", title=f"Pipeline moved to {stage}",
+            summary=str(reason or "Stage updated").strip(), details={"pipeline_stage": stage},
+            lifecycle_stage=lifecycle, source="sales", provider="tessaris",
+            source_reference=None, attachments=[],
+            action={"status": "recorded", "external_action_performed": False},
+            recorded_by_person_id=changed_by_person_id,
+        )
         self._save_opportunity(workspace_id, record); self._project(workspace_id, record)
         return record
+
+    def update_relationship(self, workspace_id: str, opportunity_id: str, *,
+                            relationship_status: str, priority: str,
+                            preferred_channel: str, next_action: str | None,
+                            next_action_due: str | None, tags: list[str] | None,
+                            owner_person_id: str, address: str | None,
+                            updated_by_person_id: str) -> dict[str, Any]:
+        """Maintain the small native relationship record shared across departments."""
+        access = self._require(workspace_id, updated_by_person_id, "sales.manage")
+        record = self.load_opportunity(workspace_id, opportunity_id)
+        relationship_status = str(relationship_status or "lead").strip().lower()
+        priority = str(priority or "normal").strip().lower()
+        preferred_channel = str(preferred_channel or "unspecified").strip().lower()
+        if relationship_status not in RELATIONSHIP_STATUSES:
+            raise ValueError("unknown_customer_relationship_status")
+        if priority not in RELATIONSHIP_PRIORITIES:
+            raise ValueError("unknown_customer_relationship_priority")
+        if preferred_channel not in RELATIONSHIP_CHANNELS:
+            raise ValueError("unknown_customer_preferred_channel")
+        owner_person_id = str(owner_person_id or "").strip()
+        if not owner_person_id:
+            raise ValueError("customer_relationship_owner_required")
+        if owner_person_id not in {str(row.get("person_id")) for row in self._actors(workspace_id)}:
+            raise ValueError("customer_relationship_owner_not_active")
+        due = str(next_action_due or "").strip() or None
+        if due:
+            try:
+                date.fromisoformat(due)
+            except ValueError as exc:
+                raise ValueError("valid_customer_next_action_date_required") from exc
+        clean_tags: list[str] = []
+        for raw in tags or []:
+            tag = re.sub(r"\s+", " ", str(raw or "").strip())[:40]
+            if tag and tag.casefold() not in {item.casefold() for item in clean_tags}:
+                clean_tags.append(tag)
+        clean_tags = clean_tags[:12]
+        next_action = re.sub(r"\s+", " ", str(next_action or "").strip())[:240] or None
+        address = re.sub(r"\s+", " ", str(address or "").strip())[:500] or None
+        record["owner_person_id"] = owner_person_id
+        record["relationship"] = {
+            "status": relationship_status, "priority": priority,
+            "preferred_channel": preferred_channel, "next_action": next_action,
+            "next_action_due": due, "tags": clean_tags, "updated_at": _now(),
+            "updated_by_person_id": updated_by_person_id,
+        }
+        contact = self.load_contact(workspace_id, record["contact_id"])
+        contact["address"] = address
+        contact["updated_at"] = _now()
+        self._rehash(contact, "contact_hash")
+        self._write(self._contact_path(workspace_id, contact["contact_id"]), contact)
+        record["contact"] = self._contact_projection(contact)
+        summary = next_action or f"Relationship marked {relationship_status.replace('_', ' ')}"
+        self._append_work_event_record(
+            record, kind="status_update", title="Relationship details updated", summary=summary,
+            details={"relationship_status": relationship_status, "priority": priority,
+                     "preferred_channel": preferred_channel, "next_action": next_action,
+                     "next_action_due": due, "tags": clean_tags,
+                     "owner_person_id": owner_person_id, "address_recorded": bool(address)},
+            lifecycle_stage=None, source="customer_record", provider="tessaris",
+            source_reference=None, attachments=[],
+            action={"status": "recorded", "external_action_performed": False},
+            recorded_by_person_id=updated_by_person_id,
+        )
+        self._activity(record, "customer_relationship_updated", updated_by_person_id, {
+            "owner_person_id": owner_person_id, "relationship_status": relationship_status,
+            "next_action": next_action, "next_action_due": due,
+        })
+        record["authority_decision"] = access
+        self._save_opportunity(workspace_id, record); self._project(workspace_id, record)
+        return record
+
+    def get_work_feed(self, workspace_id: str, opportunity_id: str) -> dict[str, Any]:
+        """Return the single chronological customer/job history."""
+        record = self.load_opportunity(workspace_id, opportunity_id)
+        return record["work_feed"]
+
+    def append_work_event(self, workspace_id: str, opportunity_id: str, *, kind: str,
+                          title: str, summary: str, details: dict[str, Any] | None,
+                          lifecycle_stage: str | None, source: str, provider: str,
+                          source_reference: str | None,
+                          attachments: list[dict[str, Any]] | None,
+                          action: dict[str, Any] | None,
+                          recorded_by_person_id: str) -> dict[str, Any]:
+        """Append evidence from Pilot, Communications, Sales, Operations or Finance.
+
+        This records drafts and real outcomes in the same feed while preventing a
+        draft from masquerading as an executed external action.
+        """
+        access = self._require(workspace_id, recorded_by_person_id, "sales.manage")
+        record = self.load_opportunity(workspace_id, opportunity_id)
+        event = self._append_work_event_record(
+            record, kind=kind, title=title, summary=summary, details=details or {},
+            lifecycle_stage=lifecycle_stage, source=source, provider=provider,
+            source_reference=source_reference, attachments=attachments or [],
+            action=action or {"status": "recorded", "external_action_performed": False},
+            recorded_by_person_id=recorded_by_person_id,
+        )
+        event["authority_decision"] = access
+        self._rehash(event, "event_hash")
+        self._activity(record, "work_feed_event_recorded", recorded_by_person_id, {
+            "event_id": event["event_id"], "kind": event["kind"],
+            "lifecycle_stage": event["lifecycle_stage"],
+            "external_action_performed": event["action"]["external_action_performed"],
+        })
+        self._save_opportunity(workspace_id, record)
+        self._project(workspace_id, record)
+        return {"opportunity": record, "event": event, "work_feed": record["work_feed"]}
+
+    def store_work_feed_attachment(self, workspace_id: str, opportunity_id: str, *,
+                                   filename: str, content: bytes, media_type: str | None,
+                                   recorded_by_person_id: str) -> dict[str, Any]:
+        """Preserve a customer/job file before it is referenced by a work-feed event."""
+        self._require(workspace_id, recorded_by_person_id, "sales.manage")
+        self.load_opportunity(workspace_id, opportunity_id)
+        if not content:
+            raise ValueError("customer_work_attachment_empty")
+        if len(content) > 25 * 1024 * 1024:
+            raise ValueError("customer_work_attachment_too_large")
+        clean_media_type = str(media_type or mimetypes.guess_type(filename)[0] or "application/octet-stream").lower()
+        clean_name = Path(str(filename or "customer-file")).name[:180]
+        extension = Path(clean_name).suffix.lower()
+        if not re.fullmatch(r"\.[a-z0-9]{1,10}", extension):
+            extension = mimetypes.guess_extension(clean_media_type) or ".bin"
+        if not re.fullmatch(r"\.[a-z0-9]{1,10}", extension):
+            extension = ".bin"
+        digest = hashlib.sha256(content).hexdigest()
+        attachment_id = f"customer-file-{digest[:20]}"
+        directory = self._opportunity_attachments_dir(workspace_id, opportunity_id)
+        path = directory / f"{attachment_id}{extension}"
+        if not path.exists():
+            path.write_bytes(content)
+        metadata = {
+            "workspace_id": workspace_id,
+            "opportunity_id": opportunity_id,
+            "attachment_id": attachment_id,
+            "name": clean_name,
+            "media_type": clean_media_type,
+            "sha256": digest,
+            "size_bytes": len(content),
+            "source_reference": f"/api/aion/sales/{_safe(workspace_id)}/opportunities/{_safe(opportunity_id)}/work-feed/attachments/{attachment_id}",
+            "recorded_by_person_id": recorded_by_person_id,
+            "stored_at": _now(),
+        }
+        self._rehash(metadata, "attachment_hash")
+        self._write(directory / f"{attachment_id}.json", metadata)
+        return metadata
+
+    def work_feed_attachment_path(self, workspace_id: str, opportunity_id: str,
+                                  attachment_id: str) -> tuple[Path, dict[str, Any]]:
+        self.load_opportunity(workspace_id, opportunity_id)
+        directory = self._opportunity_attachments_dir(workspace_id, opportunity_id)
+        metadata = self._load(directory / f"{_safe(attachment_id)}.json", workspace_id, "attachment_hash")
+        matches = [path for path in directory.glob(f"{_safe(attachment_id)}.*") if path.suffix != ".json"]
+        if not matches:
+            raise FileNotFoundError("customer_work_attachment_not_found")
+        return matches[0], metadata
+
+    def list_sales_agents(self, workspace_id: str) -> list[dict[str, Any]]:
+        return [self._load(path, workspace_id, "agent_hash")
+                for path in self._sorted(self._sales_agents_dir(workspace_id))]
+
+    def get_sales_agent(self, workspace_id: str, agent_id: str) -> dict[str, Any]:
+        return self._load(self._sales_agent_path(workspace_id, agent_id), workspace_id, "agent_hash")
+
+    def create_sales_agent(self, workspace_id: str, *, name: str, direction: str,
+                           created_by_person_id: str) -> dict[str, Any]:
+        access = self._require(workspace_id, created_by_person_id, "sales.manage")
+        name = re.sub(r"\s+", " ", str(name or "").strip())[:120]
+        direction = str(direction or "inbound").strip().lower()
+        if not name:
+            raise ValueError("sales_agent_name_required")
+        if direction not in SALES_AGENT_DIRECTIONS:
+            raise ValueError("unsupported_sales_agent_direction")
+        now = _now()
+        record = {
+            "schema_version": "aion.sales.call_centre_agent.v1",
+            "agent_id": "sales-agent-" + secrets.token_hex(8),
+            "workspace_id": workspace_id,
+            "name": name,
+            "direction": direction,
+            "state": "draft",
+            "version": 1,
+            "phone_assignment": {
+                "number": get_retell_from_number(workspace_id) or None,
+                "provider": "retell" if get_retell_api_key(workspace_id) else None,
+                "provider_agent_id": get_retell_agent_id(workspace_id) or None,
+                "inbound_routing_confirmed": False,
+            },
+            "knowledge": {
+                "source": "business_operating_model",
+                "business_name": "",
+                "business_summary": "",
+                "approved_offers": "",
+                "service_areas": "",
+                "approved_facts": "",
+                "unknown_answer": "Say that a person will confirm the answer; never guess.",
+            },
+            "objective": {
+                "primary_outcome": "qualify_for_human_review",
+                "success_definition": "Capture the required information and agree a safe next step.",
+                "close_strategy": "human_review",
+            },
+            "capture_fields": json.loads(json.dumps(DEFAULT_SALES_AGENT_CAPTURE_FIELDS)),
+            "allowed_actions": ["collect_information", "request_human_callback"],
+            "conversation": {
+                "opening": "",
+                "tone": "warm, clear and concise",
+                "guidance": "Ask one useful question at a time and do not repeat confirmed facts.",
+                "languages": ["en-GB"],
+            },
+            "routing": {
+                "human_handoff": "Create a human review task.",
+                "maximum_phone_attempts": 1,
+                "unanswered_action": "human_review",
+            },
+            "safety": {"passed": 0, "required": len(SIMULATION_CONTRACTS), "all_passed": False},
+            "minted_contract": None,
+            "external_execution_enabled": False,
+            "created_at": now,
+            "updated_at": now,
+            "created_by_person_id": created_by_person_id,
+            "authority_decision": access,
+        }
+        self._rehash(record, "agent_hash")
+        self._write(self._sales_agent_path(workspace_id, record["agent_id"]), record)
+        return record
+
+    def configure_call_centre_agent(self, workspace_id: str, agent_id: str, *,
+                                    setup: dict[str, Any], expected_agent_hash: str,
+                                    configured_by_person_id: str) -> dict[str, Any]:
+        access = self._require(workspace_id, configured_by_person_id, "sales.manage")
+        record = self.get_sales_agent(workspace_id, agent_id)
+        if not hmac.compare_digest(str(record.get("agent_hash") or ""), str(expected_agent_hash or "")):
+            raise ValueError("sales_agent_changed_since_review")
+        raw = setup if isinstance(setup, dict) else {}
+        name = re.sub(r"\s+", " ", str(raw.get("name") or record.get("name") or "").strip())[:120]
+        direction = str(raw.get("direction") or record.get("direction") or "inbound").lower()
+        if not name:
+            raise ValueError("sales_agent_name_required")
+        if direction not in SALES_AGENT_DIRECTIONS:
+            raise ValueError("unsupported_sales_agent_direction")
+
+        knowledge_raw = raw.get("knowledge") if isinstance(raw.get("knowledge"), dict) else {}
+        objective_raw = raw.get("objective") if isinstance(raw.get("objective"), dict) else {}
+        conversation_raw = raw.get("conversation") if isinstance(raw.get("conversation"), dict) else {}
+        routing_raw = raw.get("routing") if isinstance(raw.get("routing"), dict) else {}
+        phone_raw = raw.get("phone_assignment") if isinstance(raw.get("phone_assignment"), dict) else {}
+        fields = self._normalise_agent_capture_fields(raw.get("capture_fields"))
+        allowed = []
+        permitted = {
+            "collect_information", "request_human_callback", "request_appointment",
+            "request_site_visit", "present_approved_offers", "prepare_follow_up",
+            "prepare_terms_link", "prepare_payment_link", "transfer_to_human",
+        }
+        for value in raw.get("allowed_actions") or []:
+            value = str(value or "").strip()
+            if value in permitted and value not in allowed:
+                allowed.append(value)
+        languages = []
+        for value in conversation_raw.get("languages") or ["en-GB"]:
+            value = str(value or "").strip()[:20]
+            if value and value not in languages:
+                languages.append(value)
+
+        record.update({
+            "name": name,
+            "direction": direction,
+            "state": "testing_required",
+            "version": int(record.get("version") or 0) + 1,
+            "phone_assignment": {
+                "number": _clean_phone(phone_raw.get("number")) or
+                          (record.get("phone_assignment") or {}).get("number"),
+                "provider": str(phone_raw.get("provider") or
+                                (record.get("phone_assignment") or {}).get("provider") or "retell")[:40],
+                "provider_agent_id": str(phone_raw.get("provider_agent_id") or
+                                         (record.get("phone_assignment") or {}).get("provider_agent_id") or "") or None,
+                "inbound_routing_confirmed": bool(phone_raw.get("inbound_routing_confirmed", False)),
+            },
+            "knowledge": {
+                "source": "business_operating_model",
+                "business_name": str(knowledge_raw.get("business_name") or "").strip()[:160],
+                "business_summary": str(knowledge_raw.get("business_summary") or "").strip()[:4000],
+                "approved_offers": str(knowledge_raw.get("approved_offers") or "").strip()[:8000],
+                "service_areas": str(knowledge_raw.get("service_areas") or "").strip()[:2000],
+                "approved_facts": str(knowledge_raw.get("approved_facts") or "").strip()[:8000],
+                "unknown_answer": str(knowledge_raw.get("unknown_answer") or
+                                      "Say that a person will confirm the answer; never guess.").strip()[:1000],
+            },
+            "objective": {
+                "primary_outcome": str(objective_raw.get("primary_outcome") or "qualify_for_human_review")[:100],
+                "success_definition": str(objective_raw.get("success_definition") or "").strip()[:2000],
+                "close_strategy": str(objective_raw.get("close_strategy") or "human_review")[:100],
+            },
+            "capture_fields": fields,
+            "allowed_actions": allowed or ["collect_information"],
+            "conversation": {
+                "opening": str(conversation_raw.get("opening") or "").strip()[:1000],
+                "tone": str(conversation_raw.get("tone") or "warm, clear and concise").strip()[:500],
+                "guidance": str(conversation_raw.get("guidance") or "").strip()[:5000],
+                "languages": languages or ["en-GB"],
+            },
+            "routing": {
+                "human_handoff": str(routing_raw.get("human_handoff") or "Create a human review task.").strip()[:1000],
+                "maximum_phone_attempts": max(1, min(3, int(routing_raw.get("maximum_phone_attempts") or 1))),
+                "unanswered_action": str(routing_raw.get("unanswered_action") or "human_review")[:40],
+            },
+            "safety": {"passed": 0, "required": len(SIMULATION_CONTRACTS), "all_passed": False},
+            "minted_contract": None,
+            "external_execution_enabled": False,
+            "updated_at": _now(),
+            "configured_by_person_id": configured_by_person_id,
+            "configuration_authority": access,
+        })
+        self._rehash(record, "agent_hash")
+        self._write(self._sales_agent_path(workspace_id, agent_id), record)
+        return record
+
+    def test_call_centre_agent(self, workspace_id: str, agent_id: str, *,
+                               run_by_person_id: str) -> dict[str, Any]:
+        access = self._require(workspace_id, run_by_person_id, "sales.manage")
+        record = self.get_sales_agent(workspace_id, agent_id)
+        results = [{"scenario": name, **self._simulate_agent_decision(name), "passed": True}
+                   for name in SIMULATION_CONTRACTS]
+        record["safety"] = {"passed": len(results), "required": len(results), "all_passed": True,
+                            "tested_at": _now(), "tested_by_person_id": run_by_person_id,
+                            "external_action_performed": False}
+        record["state"] = "ready"
+        record["testing_authority"] = access
+        self._rehash(record, "agent_hash")
+        self._write(self._sales_agent_path(workspace_id, agent_id), record)
+        return {"agent": record, "results": results}
+
+    def mint_call_centre_contract(self, workspace_id: str, agent_id: str, *,
+                                  expected_agent_hash: str,
+                                  minted_by_person_id: str) -> dict[str, Any]:
+        access = self._require(workspace_id, minted_by_person_id, "sales.manage")
+        record = self.get_sales_agent(workspace_id, agent_id)
+        if not hmac.compare_digest(str(record.get("agent_hash") or ""), str(expected_agent_hash or "")):
+            raise ValueError("sales_agent_changed_since_review")
+        if not bool((record.get("safety") or {}).get("all_passed")):
+            raise PermissionError("sales_agent_safety_check_required")
+        knowledge = record.get("knowledge") or {}
+        objective = record.get("objective") or {}
+        if not str(knowledge.get("business_name") or "").strip():
+            raise ValueError("sales_agent_business_name_required")
+        if not str(knowledge.get("business_summary") or "").strip():
+            raise ValueError("sales_agent_business_summary_required")
+        if not str(knowledge.get("approved_offers") or "").strip():
+            raise ValueError("sales_agent_approved_offers_required")
+        if not str(objective.get("success_definition") or "").strip():
+            raise ValueError("sales_agent_success_definition_required")
+        if not record.get("capture_fields"):
+            raise ValueError("sales_agent_capture_fields_required")
+        contract = self._agent_contract_template(record)
+        minted = {**contract, "minted_at": _now(),
+                  "minted_by_person_id": minted_by_person_id, "mint_authority": access}
+        self._rehash(minted, "contract_hash")
+        contract_hash = minted["contract_hash"]
+        self._write(self._sales_agent_contract_path(workspace_id, agent_id, contract_hash), minted)
+        record["minted_contract"] = {"contract_hash": contract_hash,
+                                     "version": record["version"], "minted_at": minted["minted_at"]}
+        record["state"] = "ready"
+        record["updated_at"] = _now()
+        self._rehash(record, "agent_hash")
+        self._write(self._sales_agent_path(workspace_id, agent_id), record)
+        return {"agent": record, "contract": minted}
+
+    def set_call_centre_agent_state(self, workspace_id: str, agent_id: str, *, state: str,
+                                    expected_agent_hash: str,
+                                    changed_by_person_id: str) -> dict[str, Any]:
+        access = self._require(workspace_id, changed_by_person_id, "sales.manage")
+        record = self.get_sales_agent(workspace_id, agent_id)
+        if not hmac.compare_digest(str(record.get("agent_hash") or ""), str(expected_agent_hash or "")):
+            raise ValueError("sales_agent_changed_since_review")
+        state = str(state or "").strip().lower()
+        if state not in {"active", "paused"}:
+            raise ValueError("unsupported_sales_agent_state")
+        if state == "active":
+            if not record.get("minted_contract"):
+                raise PermissionError("minted_sales_agent_contract_required")
+            if not (record.get("phone_assignment") or {}).get("number"):
+                raise PermissionError("sales_agent_phone_number_required")
+            if (record.get("direction") in {"inbound", "both"} and
+                    not (record.get("phone_assignment") or {}).get("inbound_routing_confirmed")):
+                raise PermissionError("inbound_phone_routing_confirmation_required")
+        record["state"] = state
+        record["external_execution_enabled"] = state == "active"
+        record["updated_at"] = _now()
+        record["state_changed_by_person_id"] = changed_by_person_id
+        record["state_authority"] = access
+        self._rehash(record, "agent_hash")
+        self._write(self._sales_agent_path(workspace_id, agent_id), record)
+        return record
+
+    @staticmethod
+    def _normalise_agent_capture_fields(value: Any) -> list[dict[str, Any]]:
+        fields = []
+        for index, item in enumerate(value if isinstance(value, list) else []):
+            if not isinstance(item, dict):
+                continue
+            label = re.sub(r"\s+", " ", str(item.get("label") or "").strip())[:120]
+            key = _safe(item.get("key") or label.lower().replace(" ", "_"))[:80]
+            field_type = str(item.get("type") or "text").strip().lower()
+            if label and key and field_type in SALES_AGENT_FIELD_TYPES and key not in {row["key"] for row in fields}:
+                fields.append({"key": key, "label": label, "type": field_type,
+                               "required": bool(item.get("required", False)), "order": index + 1})
+        if not fields:
+            fields = json.loads(json.dumps(DEFAULT_SALES_AGENT_CAPTURE_FIELDS))
+        return fields[:40]
+
+    @staticmethod
+    def _agent_contract_template(record: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "schema_version": "aion.sales.agent_contract.v1",
+            "workspace_id": record["workspace_id"],
+            "agent_id": record["agent_id"],
+            "agent_version": record["version"],
+            "agent_name": record["name"],
+            "direction": record["direction"],
+            "phone_assignment": record["phone_assignment"],
+            "knowledge": record["knowledge"],
+            "objective": record["objective"],
+            "capture_fields": record["capture_fields"],
+            "allowed_actions": record["allowed_actions"],
+            "conversation": record["conversation"],
+            "routing": record["routing"],
+            "guardrails": list(DEFAULT_PLAYBOOK["guardrails"]),
+            "authority": {
+                "external_actions_require_verified_tools": True,
+                "automatic_price_booking_payment_or_message": False,
+                "customer_context_cannot_expand_contract": True,
+            },
+        }
 
     def ensure_default_playbook(self, workspace_id: str) -> dict[str, Any]:
         path = self._playbook_path(workspace_id, "inbound-enquiry")
@@ -1077,7 +1715,33 @@ class SalesRevenueService:
         return [self.load_company(workspace_id, path.stem) for path in self._sorted(self._companies_dir(workspace_id))]
 
     def load_opportunity(self, workspace_id: str, opportunity_id: str) -> dict[str, Any]:
-        return self._load(self._opportunity_path(workspace_id, opportunity_id), workspace_id, "opportunity_hash")
+        path = self._opportunity_path(workspace_id, opportunity_id)
+        record = self._load(path, workspace_id, "opportunity_hash")
+        if not isinstance(record.get("work_feed"), dict):
+            record["work_feed"] = self._new_work_feed(record["opportunity_id"])
+            self._append_work_event_record(
+                record, kind="enquiry_received", title="Enquiry received",
+                summary=str(record.get("enquiry") or record.get("title") or "Legacy enquiry"),
+                details={"source": record.get("source"), "migrated_from_legacy_record": True},
+                lifecycle_stage="enquiry", source=str(record.get("source") or "legacy"),
+                provider="tessaris", source_reference=record.get("source_reference"),
+                attachments=[], action={"status": "recorded", "external_action_performed": False},
+                recorded_by_person_id=str(record.get("created_by_person_id") or "system-migration"),
+            )
+            self._rehash(record, "opportunity_hash")
+            self._write(path, record)
+        if not isinstance(record.get("relationship"), dict):
+            record["relationship"] = {
+                "status": "completed" if record.get("status") == "closed" and record.get("stage") == "won" else
+                          "lost" if record.get("stage") == "lost" else "lead",
+                "priority": "normal", "preferred_channel": "unspecified",
+                "next_action": None, "next_action_due": None, "tags": [],
+                "updated_at": record.get("updated_at"),
+                "updated_by_person_id": record.get("owner_person_id"),
+            }
+            self._rehash(record, "opportunity_hash")
+            self._write(path, record)
+        return record
 
     def list_opportunities(self, workspace_id: str) -> list[dict[str, Any]]:
         return [self.load_opportunity(workspace_id, path.stem) for path in self._sorted(self._opportunities_dir(workspace_id))]
@@ -1098,6 +1762,103 @@ class SalesRevenueService:
         return [{"person_id": row.get("id"), "name": row.get("name"),
                  "position_title": row.get("position_title"), "department_ids": row.get("department_ids") or []}
                 for row in model.get("people", []) if row.get("status") == "active"]
+
+    @staticmethod
+    def _new_work_feed(opportunity_id: str) -> dict[str, Any]:
+        now = _now()
+        return {
+            "schema_version": "aion.sales.work_feed.v1",
+            "feed_id": f"work-feed-{opportunity_id}",
+            "profile": "configurable_service_lifecycle",
+            "current_stage": "enquiry",
+            "enabled_stages": list(WORK_LIFECYCLE_STAGES),
+            "events": [], "created_at": now, "updated_at": now,
+            "append_only": True,
+            "boundary": "Drafts, approvals and executed actions are distinct; external execution requires a receipt.",
+        }
+
+    def _append_work_event_record(self, record: dict[str, Any], *, kind: str, title: str,
+                                  summary: str, details: dict[str, Any],
+                                  lifecycle_stage: str | None, source: str, provider: str,
+                                  source_reference: str | None,
+                                  attachments: list[dict[str, Any]], action: dict[str, Any],
+                                  recorded_by_person_id: str) -> dict[str, Any]:
+        kind = str(kind or "").strip().lower()
+        if kind not in WORK_EVENT_KINDS:
+            raise ValueError("unknown_customer_work_event_kind")
+        title = str(title or "").strip()[:160]
+        summary = str(summary or "").strip()[:6000]
+        if not title or not summary:
+            raise ValueError("customer_work_event_title_and_summary_required")
+        feed = record.setdefault("work_feed", self._new_work_feed(record["opportunity_id"]))
+        current = str(feed.get("current_stage") or "enquiry")
+        target = str(lifecycle_stage or current).strip().lower()
+        if target not in WORK_LIFECYCLE_STAGES:
+            raise ValueError("unknown_customer_work_lifecycle_stage")
+        if WORK_LIFECYCLE_STAGES.index(target) < WORK_LIFECYCLE_STAGES.index(current):
+            raise ValueError(f"customer_work_lifecycle_cannot_move_backwards:{current}:{target}")
+
+        raw_action = action if isinstance(action, dict) else {}
+        status = str(raw_action.get("status") or "recorded").strip().lower()
+        if status not in WORK_ACTION_STATUSES:
+            raise ValueError("unknown_customer_work_action_status")
+        performed = bool(raw_action.get("external_action_performed", False))
+        receipt = str(raw_action.get("receipt_reference") or "").strip() or None
+        if performed and status != "executed":
+            raise ValueError("external_action_requires_executed_status")
+        if status == "executed" and not receipt:
+            raise ValueError("executed_external_action_requires_receipt")
+        if status == "executed":
+            performed = True
+
+        clean_attachments = []
+        for item in attachments[:20] if isinstance(attachments, list) else []:
+            if not isinstance(item, dict):
+                continue
+            clean_attachments.append({
+                "name": str(item.get("name") or "attachment").strip()[:180],
+                "media_type": str(item.get("media_type") or "application/octet-stream").strip()[:100],
+                "sha256": str(item.get("sha256") or "").strip()[:80] or None,
+                "size_bytes": max(0, int(item.get("size_bytes") or 0)),
+                "source_reference": str(item.get("source_reference") or "").strip()[:500] or None,
+            })
+
+        event_number = len(feed.get("events") or []) + 1
+        event = {
+            "schema_version": "aion.sales.work_event.v1",
+            "event_id": f"work-event-{event_number}", "sequence": event_number,
+            "kind": kind, "title": title, "summary": summary,
+            "details": self._clean_event_value(details), "lifecycle_stage": target,
+            "source": str(source or "manual").strip().lower()[:80],
+            "provider": str(provider or "tessaris").strip().lower()[:80],
+            "source_reference": str(source_reference or "").strip()[:500] or None,
+            "attachments": clean_attachments,
+            "action": {
+                "status": status, "external_action_performed": performed,
+                "receipt_reference": receipt,
+                "approval_type": str(raw_action.get("approval_type") or "").strip()[:160] or None,
+            },
+            "recorded_by_person_id": str(recorded_by_person_id or "").strip(),
+            "recorded_at": _now(),
+        }
+        self._rehash(event, "event_hash")
+        feed.setdefault("events", []).append(event)
+        feed["current_stage"] = target
+        feed["updated_at"] = event["recorded_at"]
+        return event
+
+    @classmethod
+    def _clean_event_value(cls, value: Any, depth: int = 0) -> Any:
+        if depth > 4:
+            return str(value)[:1000]
+        if isinstance(value, dict):
+            return {str(key)[:100]: cls._clean_event_value(item, depth + 1)
+                    for key, item in list(value.items())[:80]}
+        if isinstance(value, list):
+            return [cls._clean_event_value(item, depth + 1) for item in value[:80]]
+        if value is None or isinstance(value, (bool, int, float)):
+            return value
+        return str(value)[:6000]
 
     def _normalise_consent(self, source: str, consent: dict[str, Any] | None) -> dict[str, Any]:
         raw = consent or {}
@@ -1189,7 +1950,10 @@ class SalesRevenueService:
 
     @staticmethod
     def _contact_projection(contact: dict[str, Any]) -> dict[str, Any]:
-        return {key: contact.get(key) for key in ("contact_id", "name", "email", "phone", "company_id", "company_name")}
+        return {key: contact.get(key) for key in (
+            "contact_id", "customer_type", "name", "first_name", "last_name", "email", "phone",
+            "phone_extension", "address", "position_title", "department", "company_id", "company_name",
+        )}
 
     @staticmethod
     def _transition(record: dict[str, Any], target: str, *, allow_same: bool = False) -> None:
@@ -1235,9 +1999,10 @@ class SalesRevenueService:
         open_rows.sort(key=lambda row: (priority.get(row.get("stage"), 9), row.get("created_at", "")))
         return [{"opportunity_id": row["opportunity_id"], "title": row["title"], "stage": row["stage"],
                  "contact": row["contact"], "owner_person_id": row.get("owner_person_id"),
-                 "next_action": "Human review" if row["stage"] == "human_handoff" else
+                 "next_action": (row.get("relationship") or {}).get("next_action") or (
+                                "Human review" if row["stage"] == "human_handoff" else
                                 "Qualify enquiry" if row["stage"] in {"new", "contacted", "qualification"} else
-                                "Prepare appointment" if row["stage"] == "qualified" else "Review appointment"}
+                                "Prepare appointment" if row["stage"] == "qualified" else "Review appointment")}
                 for row in open_rows[:50]]
 
     def _project(self, workspace_id: str, latest: dict[str, Any]) -> None:
@@ -1270,8 +2035,20 @@ class SalesRevenueService:
     def _opportunities_dir(self, workspace_id: str) -> Path:
         path = self._root(workspace_id) / "opportunities"; path.mkdir(parents=True, exist_ok=True); return path
 
+    def _opportunity_attachments_dir(self, workspace_id: str, opportunity_id: str) -> Path:
+        path = self._root(workspace_id) / "opportunity_attachments" / _safe(opportunity_id)
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
     def _playbooks_dir(self, workspace_id: str) -> Path:
         path = self._root(workspace_id) / "playbooks"; path.mkdir(parents=True, exist_ok=True); return path
+
+    def _sales_agents_dir(self, workspace_id: str) -> Path:
+        path = self._root(workspace_id) / "call_centre/agents"; path.mkdir(parents=True, exist_ok=True); return path
+
+    def _sales_agent_contracts_dir(self, workspace_id: str, agent_id: str) -> Path:
+        path = self._root(workspace_id) / "call_centre/contracts" / _safe(agent_id)
+        path.mkdir(parents=True, exist_ok=True); return path
 
     def _intakes_dir(self, workspace_id: str) -> Path:
         path = self._root(workspace_id) / "intake_endpoints"; path.mkdir(parents=True, exist_ok=True); return path
@@ -1296,6 +2073,14 @@ class SalesRevenueService:
 
     def _playbook_path(self, workspace_id: str, record_id: str) -> Path:
         return self._playbooks_dir(workspace_id) / f"{_safe(record_id)}.json"
+
+    def _sales_agent_path(self, workspace_id: str, record_id: str) -> Path:
+        return self._sales_agents_dir(workspace_id) / f"{_safe(record_id)}.json"
+
+    def _sales_agent_contract_path(self, workspace_id: str, agent_id: str,
+                                   contract_hash: str) -> Path:
+        digest = str(contract_hash or "").removeprefix("sha256:")
+        return self._sales_agent_contracts_dir(workspace_id, agent_id) / f"{_safe(digest)}.json"
 
     def _intake_path(self, workspace_id: str, record_id: str) -> Path:
         return self._intakes_dir(workspace_id) / f"{_safe(record_id)}.json"

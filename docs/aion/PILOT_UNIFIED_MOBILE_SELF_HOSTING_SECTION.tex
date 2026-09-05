@@ -1,0 +1,86 @@
+\section{Customer-Owned Pilot Deployment}
+\label{sec:pilot-mobile-self-hosting}
+
+Pilot treats the AION mother brain as customer-controlled infrastructure.  Tessaris
+supplies software, adapters and optional discovery services; it is not required to
+hold a readable copy of the customer's memory, business map, identity, messages or
+provider credentials.  The same ownership contract applies to a personal computer,
+home server, private virtual server or business deployment.
+
+\subsection{Deployment profiles}
+
+The deployment authority produces a canonical plan for four supported profiles:
+personal computer, household server, private VPS and organization.  Each plan names
+the customer as data controller, requires trusted TLS, signed phone possession,
+encrypted backup and a single writable primary, and records whether remote access
+and high availability are required.  A selected AWS, Google Cloud, NVIDIA, Prem or
+other customer account is a replaceable compute location rather than a Tessaris
+data tenancy.
+
+The profile planner is implemented, but clean installers and container packages for
+all four targets remain release work.  Existing developer-preview packaging is not
+misrepresented as a production business deployment.
+
+\subsection{Direct connection and optional rendezvous}
+
+A mother can issue a short-lived signed connection descriptor containing its public
+fingerprint and trusted HTTPS endpoints.  The descriptor contains no mother private
+key, service token or phone capability.  Alteration or expiry invalidates it.
+Therefore a browser or native phone can connect directly to the selected mother
+without logging into a centralized Tessaris data copy.
+
+Where direct discovery is unavailable, the mother can produce a minimum-metadata
+rendezvous record.  Its endpoint descriptor is sealed specifically to the phone's
+X25519 transport key using an ephemeral key and AES-256-GCM.  The intermediary sees
+only an opaque rotating mother identifier, ciphertext and expiry.  It cannot read
+the address or customer identity.  Operating the relay service at production scale,
+and packaging a self-hosted relay for advanced customers, remain separate tasks.
+
+\subsection{Encrypted backup and verified restore}
+
+The ownership authority archives the selected mother directory with a manifest of
+relative path, byte count and SHA-256 digest.  The archive is encrypted using
+AES-256-GCM with a key derived from a user passphrase by scrypt.  The authenticated
+header records the backup identifier, mother fingerprint, time, file count, content
+hash, manifest hash, key-derivation parameters and cipher.  The local state exposes
+the last successful verified backup time without retaining the passphrase.
+
+Restore rejects a wrong passphrase, modified ciphertext and unsafe archive paths.
+After extraction it rebuilds the manifest and compares its canonical hash before
+reporting success.  The mechanism can preserve identity and private state when the
+operator includes the complete mother directory; a fully rehearsed migration
+workflow and rollback runbook are still required before whole-mother migration is
+closed.
+
+\subsection{Single-primary and update safety}
+
+A signed, expiring primary lease prevents two instances sharing the same authority
+store from operating as writable primary at the same time.  Another instance may
+take control only after release or expiry.  A future distributed deployment must
+place this lease in a storage system with appropriate consistency; copying two
+disconnected directories cannot itself prevent a network partition.
+
+Updates are staged only after verifying the publisher signature over the version and
+artifact digest.  Activation is followed by a supplied health check.  Failed health
+removes the staged artifact and records a rollback rather than silently leaving the
+mother on an unverified release.  Production installers still need to bind this
+authority to platform services and signed release channels.
+
+\subsection{Private diagnostics}
+
+The diagnostic builder recursively redacts passwords, secrets, authorization
+headers, cookies, API keys, tokens and private-key fields.  Bearer values embedded
+inside bounded log lines are also removed.  The resulting report contains a hash,
+timestamp and mother fingerprint and explicitly states that secrets are absent.
+This enables a one-click support artifact without granting support personnel access
+to the customer's brain.
+
+\subsection{Verification and remaining boundary}
+
+Automated tests cover all deployment profiles, descriptor signing and tampering,
+phone-only rendezvous decryption, encrypted backup and exact restore, wrong-password
+failure, primary split-brain refusal, valid and invalid update signatures, health
+rollback and diagnostic redaction.  Remaining Stage 10 deliverables are production
+packages for all deployment targets, complete remote browser transport, a deployable
+self-hosted relay and a whole-mother migration rehearsal.  Those gaps remain visible
+in the master checklist.

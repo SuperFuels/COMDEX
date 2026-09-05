@@ -1,0 +1,14 @@
+{
+  "schema_version": "aion.sales_lead_response.tools.v1",
+  "tools": [
+    "business_map.read",
+    "inbound_lead.read",
+    "contact.resolve",
+    "email.prepare_draft",
+    "email.send",
+    "receipt.verify"
+  ],
+  "execution_actions": ["email.send_approved", "crm.record_verified"],
+  "requires_authorized_adapter": true,
+  "bundles_credentials": false
+}

@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from backend.modules.hexcore.mission_capability_action_harness import MissionCapabilityActionHarness
@@ -48,3 +49,20 @@ def test_router_separates_single_domain_from_cross_domain_work(tmp_path: Path):
     )
     assert single == ["algorithms_data_structures"]
     assert mixed == ["algorithms_data_structures", "testing_debugging"]
+
+
+def test_retained_router_cannot_weaken_the_unrelated_domain_precision_floor(tmp_path: Path):
+    champion = tmp_path / "backend/modules/hexcore/data/capability_routing_champion.json"
+    champion.parent.mkdir(parents=True)
+    champion.write_text(json.dumps({"policy": {
+        "semantic_floor": 2.0, "peak_ratio": 0.55,
+        "minimum_overlap": 1, "maximum_subjects": 12,
+        "contextual_archetypes": True,
+    }}), encoding="utf-8")
+    harness = MissionCapabilityActionHarness(repo_root=tmp_path, state_path=tmp_path / "state.json")
+    selected = harness.infer_subjects(
+        "Design a deterministic graph algorithm that orders dependency nodes and rejects cycles"
+    )
+    assert selected == ["algorithms_data_structures"]
+    assert "agronomy_soil" not in selected
+    assert "strategic_assets_capital_allocation" not in selected

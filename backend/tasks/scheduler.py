@@ -65,6 +65,26 @@ def run_finance_recurring_work():
     except Exception:
         logger.exception("Finance recurring scheduler scan failed")
 
+def run_pilot_scheduled_work():
+    """Run due governed Pilot jobs without bypassing their action boundaries."""
+    try:
+        from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+        from backend.modules.aion_business.runtime.pilot_scheduled_work_service import PilotScheduledWorkService
+
+        root = AIONBusinessPaths.BUSINESS_CONTAINERS
+        if not root.exists():
+            return
+        service = PilotScheduledWorkService()
+        for workspace in sorted(path for path in root.iterdir() if path.is_dir()):
+            try:
+                results = service.run_due(workspace.name)
+                if results:
+                    logger.info("Pilot scheduled work %s: %s", workspace.name, results)
+            except Exception:
+                logger.exception("Pilot scheduled-work scan failed for %s", workspace.name)
+    except Exception:
+        logger.exception("Pilot scheduled-work scheduler scan failed")
+
 def start_scheduler():
     global scheduler
 
@@ -85,6 +105,14 @@ def start_scheduler():
             run_finance_recurring_work,
             CronTrigger(minute="*/5"),
             id="aion-finance-recurring-work",
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+        )
+        scheduler.add_job(
+            run_pilot_scheduled_work,
+            CronTrigger(minute="*"),
+            id="aion-pilot-scheduled-work",
             replace_existing=True,
             max_instances=1,
             coalesce=True,

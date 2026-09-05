@@ -1,0 +1,2 @@
+cryptography>=49,<51
+pydantic>=2.10,<3

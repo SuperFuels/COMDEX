@@ -1,0 +1,33 @@
+\section{Mobile Review, Correction, Delegation, and Approval Cards}
+\label{sec:pilot-mobile-workspace-cards}
+\raggedright
+
+Pilot now transforms bounded departmental work summaries into private mobile review cards.  A card
+identifies the authoritative source task, department, title, source status, local review state, and
+revision.  Its complete visible scope is hashed deterministically.  The card is a projection over
+the organisation's provider records and is not a second task database.
+
+Reading cards requires an active membership with workspace-read or card-read authority.  Acting on
+a card additionally requires the exact card-action capability; approval has its own separate
+\texttt{workspace.approve} capability on both the phone lease and organisation membership.  This
+separation prevents a person who can inspect work from silently approving it.
+
+Four bounded actions are available.  Review records that the person inspected the card.  Correction
+stores an exact correction request.  Delegation records the exact intended person reference but
+does not send or assign work.  Approval binds the person to the unchanged scope hash but does not
+execute a tool, publish content, move funds, or modify an external provider.  Each result says
+explicitly that approval is not execution.
+
+Every mutation advances the card revision.  A stale browser carrying the preceding scope hash is
+rejected, while a genuine network retry with the same idempotency key and identical request returns
+the original receipt.  Reusing that key with changed content fails closed.  Receipts bind operation,
+card, actor, membership, previous scope hash, and recording time.
+
+The unified phone displays the review cards beneath the accepted organisation.  It keeps review,
+correction, delegation and approval visually distinct, collects correction or recipient details
+privately, refreshes after each action, and reminds the user that an approval did not execute an
+external action.
+
+Automated tests cover capability separation, stale-scope rejection, exact corrections, prepared
+delegation, approval-versus-execution separation, and idempotent retry.  Seventeen focused gateway
+tests pass and the optimized Next.js application compiles.  This closes \texttt{MOB-0608}.

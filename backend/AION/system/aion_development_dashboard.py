@@ -41,6 +41,38 @@ STATUS_SYMBOL = {
     "executor_required": "WAIT", "remediation_required": "REMEDIATE",
     "locked": "LOCK", "scheduled": "DUE", "satisfied": "DONE",
 }
+FINANCE_ACADEMY_SUBJECTS = (
+    "probability_statistics", "financial_mathematics", "accounting_corporate_finance",
+    "economics_core", "markets_investing", "stochastic_processes_finance",
+    "financial_econometrics", "quantitative_research", "asset_pricing",
+    "derivatives_structured_products", "portfolio_construction",
+    "financial_risk_management", "market_microstructure_execution",
+    "systematic_trading", "fundamental_equity_credit",
+    "financial_regulation_compliance", "hedge_fund_operations",
+    "institutional_banking_treasury", "alternative_private_markets",
+    "tax_wealth_structuring", "financial_data_infrastructure",
+    "probabilistic_forecasting_calibration", "prediction_market_microstructure",
+    "event_evidence_resolution_research", "elections_polling_public_opinion",
+    "prediction_market_design_compliance",
+)
+STRATEGIC_CAPABILITY_SUBJECTS = (
+    "power_institutions_legitimacy", "information_intelligence_attention",
+    "strategic_assets_capital_allocation", "technology_industry_platforms",
+    "networks_talent_coordination", "resilience_geography_long_horizon",
+)
+CYBERSECURITY_ACADEMY_SUBJECTS = (
+    "cybersecurity", "application_web_api_security", "network_wireless_security",
+    "cloud_identity_container_security", "adversary_emulation_penetration_testing",
+    "exploit_analysis_reverse_engineering",
+    "detection_threat_hunting_incident_response", "cryptography_protocol_security",
+    "hardware_embedded_ot_security", "security_research_disclosure",
+    "security_architecture_operations",
+)
+PREDICTION_MARKET_ACADEMY_SUBJECTS = (
+    "probabilistic_forecasting_calibration", "prediction_market_microstructure",
+    "event_evidence_resolution_research", "elections_polling_public_opinion",
+    "prediction_market_design_compliance",
+)
 
 
 def _read_json(path: Path, default: Any = None, retries: int = 2) -> Any:
@@ -114,6 +146,36 @@ def _classify_service_health(
     return "healthy", "worker alive and evidence is fresh"
 
 
+_BENIGN_RUNTIME_LOG_FRAGMENTS = (
+    "MallocStackLogging: can't turn off malloc stack logging because it was not enabled.",
+)
+_ACTIONABLE_RUNTIME_LOG_MARKERS = (
+    "Traceback (most recent call last):", "Fatal Python error:",
+    "RuntimeError:", "AssertionError:", "Unhandled exception:",
+)
+
+
+def _is_benign_runtime_log_line(line: str) -> bool:
+    return any(fragment in line for fragment in _BENIGN_RUNTIME_LOG_FRAGMENTS)
+
+
+def _log_has_actionable_error_after(path: Path, evidence_epoch: float) -> bool:
+    """Inspect a bounded tail; log activity alone is not evidence of failure."""
+    try:
+        if path.stat().st_mtime <= evidence_epoch:
+            return False
+        with path.open("rb") as stream:
+            size = stream.seek(0, os.SEEK_END)
+            stream.seek(max(0, size - 256 * 1024))
+            tail = stream.read().decode("utf-8", "replace")
+    except OSError:
+        return False
+    meaningful = "\n".join(
+        line for line in tail.splitlines() if not _is_benign_runtime_log_line(line)
+    )
+    return any(marker in meaningful for marker in _ACTIONABLE_RUNTIME_LOG_MARKERS)
+
+
 def _payload_updated_epoch(path: Path, payload: Mapping[str, Any]) -> float:
     candidates = []
     for key in ("updated_at", "updated_epoch", "generated_at", "created_at"):
@@ -141,7 +203,7 @@ def _process_inventory(root: Path) -> dict[str, dict[str, Any]]:
         "Arena v15 campaign": "long_duration_real_outcome_campaign",
     }
     evidence = {
-        "Real-outcome learner": (root / "results/hexcore_continuous_real_outcome_learning.json", 15 * 60),
+        "Real-outcome learner": (root / "results/aion_real_outcome_learning_service_status.json", 5 * 60),
         "General apprentice": (root / "backend/modules/hexcore/data/autonomous_general_apprentice/state.json", 15 * 60),
         "North-Star registry": (root / "results/hexcore_constitutional_north_star_mastery_registry.json", 45 * 60),
         "Mastery academy": (root / "results/aion_mastery_curriculum_service_status.json", 5 * 60),
@@ -184,10 +246,7 @@ def _process_inventory(root: Path) -> dict[str, dict[str, Any]]:
         error_after_evidence = False
         log_path = logs.get(label)
         if log_path:
-            try:
-                error_after_evidence = log_path.stat().st_mtime > updated_epoch
-            except OSError:
-                error_after_evidence = False
+            error_after_evidence = _log_has_actionable_error_after(log_path, updated_epoch)
         health, reason = _classify_service_health(
             active=active,
             evidence_age_seconds=age_seconds,
@@ -204,6 +263,8 @@ def _process_inventory(root: Path) -> dict[str, dict[str, Any]]:
             "health_reason": reason,
             "evidence_age_seconds": age_seconds,
             "evidence_path": str(evidence_path.relative_to(root)) if evidence_path else None,
+            "phase": payload.get("phase"),
+            "cycle": payload.get("cycle"),
         }
     inventory["_system"] = {
         "disk_free_bytes": disk_free,
@@ -300,6 +361,21 @@ def collect_snapshot(root: Path) -> dict[str, Any]:
         "simulator_disjoint_scaleup": root / "results/hexcore_simulator_disjoint_embodied_scaleup.json",
         "open_mission_compounding": root / "results/aion_open_mission_compounding_status.json",
         "open_mission_executor": root / "results/aion_open_mission_executor_status.json",
+        "expertise_curriculum": root / "backend/modules/hexcore/data/comprehensive_expertise_curriculum/curriculum.json",
+        "expertise_runtime": root / "backend/modules/hexcore/data/expertise_curriculum_runtime/state.json",
+        "expertise_containers": root / "backend/modules/hexcore/data/expertise_containers/index.json",
+        "progressive_executor_registry_live": root / "backend/modules/hexcore/data/progressive_competency/executor_registry.json",
+        "real_world_integration_arena": root / "results/hexcore_real_world_integration_arena.json",
+        "real_world_experience_adapters": root / "results/hexcore_real_world_experience_adapters.json",
+        "owned_purple_team_cyber_range": root / "results/hexcore_owned_purple_team_cyber_range.json",
+        "prediction_market_intelligence": root / "results/hexcore_prediction_market_intelligence.json",
+        "prediction_market_paper_game": root / "results/hexcore_prediction_market_paper_game.json",
+        "prediction_market_research": root / "results/hexcore_prediction_market_research.json",
+        "practical_testing_authority": root / "results/hexcore_governed_practical_testing_authority.json",
+        "continuous_spaced_practice": root / "results/hexcore_continuous_spaced_practice.json",
+        "continuous_knowledge_entanglement": root / "results/hexcore_continuous_knowledge_entanglement.json",
+        "first_class_cognitive_control_plane": root / "results/hexcore_first_class_cognitive_control_plane.json",
+        "active_runtime_cognitive_migration": root / "results/hexcore_active_runtime_cognitive_migration.json",
     }
     data = {name: _read_json(path) for name, path in paths.items()}
     registry = data["registry"]
@@ -375,8 +451,83 @@ def collect_snapshot(root: Path) -> dict[str, Any]:
         key=lambda row: (-level_rank.get(str(row.get("overall_level")), 0), str(row.get("name", ""))),
     )[:6]
 
-    generated_at = time.time()
     service_status = data["curriculum_status"]
+    expertise_curriculum = data["expertise_curriculum"]
+    expertise_runtime = data["expertise_runtime"]
+    expertise_containers = data["expertise_containers"]
+    capability_subjects = {
+        subject_id: row for subject_id, row in progressive_subjects.items()
+        if str(subject_id).startswith("capability_")
+    }
+    capability_blockers = [
+        row for row in progressive_payload.get("blockers") or []
+        if str(row.get("subject_id") or "").startswith("capability_")
+        and row.get("status") == "open"
+    ]
+    registry_rows = data["progressive_executor_registry_live"].get("adapters") or []
+    if isinstance(registry_rows, Mapping):
+        registry_rows = list(registry_rows.values())
+    capability_adapters = [
+        row for row in registry_rows
+        if str(row.get("subject_id") or "").startswith("capability_")
+        and row.get("status") == "verified_available"
+    ]
+    capability_total = len(expertise_curriculum.get("learning_capabilities") or {})
+    capability_levels = {
+        level: sum(str(row.get("overall_level") or "unassessed") == level
+                   for row in capability_subjects.values())
+        for level in ("unassessed", "beginner", "intermediate", "advanced", "expert")
+    }
+    latest_executor = service_status.get("progressive_competency_executor") or {}
+    containers = expertise_containers.get("containers") or []
+    expertise_launch_ready = bool(
+        expertise_runtime.get("status") == "active"
+        and capability_total > 0
+        and len(capability_adapters) > 0
+        and len(containers) >= len(expertise_curriculum.get("subjects") or {}) + 3
+    )
+    finance_rows = [progressive_subjects.get(subject_id) or {"subject_id": subject_id}
+                    for subject_id in FINANCE_ACADEMY_SUBJECTS]
+    finance_level_counts = {
+        level: sum(str(row.get("overall_level") or "unassessed") == level
+                   for row in finance_rows)
+        for level in ("unassessed", "beginner", "intermediate", "advanced", "expert")
+    }
+    adapter_rows = data["real_world_experience_adapters"].get("adapters") or []
+    paper_market_row = next((
+        row for row in adapter_rows if row.get("adapter_id") == "paper_market_strategy_v1"
+    ), {})
+    finance_gate = next((
+        requirement for requirement in (paper_market_row.get("readiness") or {}).get("subjects") or []
+        if not requirement.get("ready")
+    ), {})
+    strategic_rows = [progressive_subjects.get(subject_id) or {"subject_id": subject_id}
+                      for subject_id in STRATEGIC_CAPABILITY_SUBJECTS]
+    strategic_level_counts = {
+        level: sum(str(row.get("overall_level") or "unassessed") == level
+                   for row in strategic_rows)
+        for level in ("unassessed", "beginner", "intermediate", "advanced", "expert")
+    }
+    cybersecurity_rows = [progressive_subjects.get(subject_id) or {"subject_id": subject_id}
+                          for subject_id in CYBERSECURITY_ACADEMY_SUBJECTS]
+    cybersecurity_level_counts = {
+        level: sum(str(row.get("overall_level") or "unassessed") == level
+                   for row in cybersecurity_rows)
+        for level in ("unassessed", "beginner", "intermediate", "advanced", "expert")
+    }
+    prediction_market_rows = [progressive_subjects.get(subject_id) or {"subject_id": subject_id}
+                              for subject_id in PREDICTION_MARKET_ACADEMY_SUBJECTS]
+    prediction_market_level_counts = {
+        level: sum(str(row.get("overall_level") or "unassessed") == level
+                   for row in prediction_market_rows)
+        for level in ("unassessed", "beginner", "intermediate", "advanced", "expert")
+    }
+    security_adapter_status = next((
+        row.get("status") for row in data["real_world_experience_adapters"].get("adapters") or []
+        if row.get("adapter_id") == "owned_purple_team_security_assessment_v1"
+    ), "not_started")
+
+    generated_at = time.time()
     service_updated = float(service_status.get("updated_at") or 0.0)
     snapshot = {
         "schema_version": "aion.development_dashboard.v1",
@@ -392,9 +543,135 @@ def collect_snapshot(root: Path) -> dict[str, Any]:
             "progressive_competency_executor": service_status.get("progressive_competency_executor"),
             "progressive_executor_registry": service_status.get("progressive_executor_registry") or {},
             "glyph_consolidation": service_status.get("glyph_consolidation"),
+            "governed_practical_testing_authority": (
+                service_status.get("governed_practical_testing_authority")
+                or data["practical_testing_authority"]
+            ),
+            "continuous_spaced_practice": (
+                service_status.get("continuous_spaced_practice")
+                or data["continuous_spaced_practice"]
+            ),
+            "continuous_knowledge_entanglement": (
+                service_status.get("continuous_knowledge_entanglement")
+                or data["continuous_knowledge_entanglement"]
+            ),
+            "first_class_cognitive_control_plane": (
+                service_status.get("first_class_cognitive_control_plane")
+                or data["first_class_cognitive_control_plane"]
+            ),
+            "active_runtime_cognitive_migration": (
+                service_status.get("active_runtime_cognitive_migration")
+                or data["active_runtime_cognitive_migration"]
+            ),
         },
         "open_mission_compounding": data["open_mission_compounding"],
         "open_mission_executor": data["open_mission_executor"],
+        "real_world_integration_arena": data["real_world_integration_arena"],
+        "real_world_experience_adapters": data["real_world_experience_adapters"],
+        "comprehensive_expertise": {
+            "status": expertise_runtime.get("status", "not_installed"),
+            "launch_ready": expertise_launch_ready,
+            "phase": expertise_runtime.get("current_phase"),
+            "phase_name": expertise_runtime.get("current_phase_name", "not_started"),
+            "curriculum_digest": expertise_runtime.get("curriculum_digest"),
+            "learning_capabilities": capability_total,
+            "subject_academies": len(expertise_curriculum.get("subjects") or {}),
+            "domains": len(expertise_curriculum.get("domains") or {}),
+            "bridges": len(expertise_curriculum.get("cross_domain_bridges") or []),
+            "capstones": len(expertise_curriculum.get("capstones") or []),
+            "containers": len(containers),
+            "capability_adapters": len(capability_adapters),
+            "capability_adapter_subjects": sorted(str(row.get("subject_id")) for row in capability_adapters),
+            "capability_blockers": len(capability_blockers),
+            "capability_executor_blockers": sum(
+                row.get("blocker_type") == "executor_capability" for row in capability_blockers
+            ),
+            "capability_evidence": sum(int(row.get("evidence_records") or 0) for row in capability_subjects.values()),
+            "capabilities_with_evidence": sum(int(row.get("evidence_records") or 0) > 0 for row in capability_subjects.values()),
+            "capabilities_target_reached": sum(row.get("target_reached") is True for row in capability_subjects.values()),
+            "capability_levels": capability_levels,
+            "next_requirement": progressive_contract.get("requirement") or {},
+            # Report the subject the governed scheduler is actually executing.
+            # The phase focus is retained separately and must not masquerade as
+            # live activity when a parallel foundation/depth lane is running.
+            "current": progressive_active,
+            "phase_focus": (
+                progressive_subjects.get(expertise_runtime.get("current_subject_id")) or {}
+            ),
+            "strongest_checked": strongest_progressive,
+            "latest_executor": latest_executor,
+            "practical_testing_authority": (
+                service_status.get("governed_practical_testing_authority")
+                or data["practical_testing_authority"]
+            ),
+            "continuous_spaced_practice": (
+                service_status.get("continuous_spaced_practice")
+                or data["continuous_spaced_practice"]
+            ),
+            "continuous_knowledge_entanglement": (
+                service_status.get("continuous_knowledge_entanglement")
+                or data["continuous_knowledge_entanglement"]
+            ),
+            "first_class_cognitive_control_plane": (
+                service_status.get("first_class_cognitive_control_plane")
+                or data["first_class_cognitive_control_plane"]
+            ),
+            "active_runtime_cognitive_migration": (
+                service_status.get("active_runtime_cognitive_migration")
+                or data["active_runtime_cognitive_migration"]
+            ),
+            "finance_academy": {
+                "subjects": len(finance_rows),
+                "levels": finance_level_counts,
+                "evidence_records": sum(int(row.get("evidence_records") or 0) for row in finance_rows),
+                "next_gate": finance_gate,
+                "paper_market_status": next((
+                    row.get("status") for row in data["real_world_experience_adapters"].get("adapters") or []
+                    if row.get("adapter_id") == "paper_market_strategy_v1"
+                ), "not_started"),
+            },
+            "strategic_capability_academy": {
+                "subjects": len(strategic_rows),
+                "levels": strategic_level_counts,
+                "evidence_records": sum(int(row.get("evidence_records") or 0)
+                                        for row in strategic_rows),
+                "next_gate": finance_gate,
+                "capital_movement_authority": False,
+                "external_influence_authority": False,
+            },
+            "cybersecurity_academy": {
+                "subjects": len(cybersecurity_rows),
+                "levels": cybersecurity_level_counts,
+                "evidence_records": sum(int(row.get("evidence_records") or 0)
+                                        for row in cybersecurity_rows),
+                "assessment_status": security_adapter_status,
+                "external_targets_authorized": False,
+                "destructive_actions_authorized": False,
+                "range_qualification_passed": data["owned_purple_team_cyber_range"].get("passed") is True,
+                "qualified_tool_surface": data["owned_purple_team_cyber_range"].get("tool_surface") or [],
+                "range_gate": data["owned_purple_team_cyber_range"].get("gate") or {},
+            },
+            "prediction_market_academy": {
+                "subjects": len(prediction_market_rows),
+                "levels": prediction_market_level_counts,
+                "evidence_records": sum(int(row.get("evidence_records") or 0)
+                                        for row in prediction_market_rows),
+                "live_public_status": data["prediction_market_intelligence"].get("status", "not_started"),
+                "market_count": (data["prediction_market_intelligence"].get("source_receipt") or {}).get("market_count", 0),
+                "platform_counts": (data["prediction_market_intelligence"].get("source_receipt") or {}).get("platform_counts", {}),
+                "geographic_eligibility": data["prediction_market_intelligence"].get("geographic_eligibility") or {},
+                "gate": data["prediction_market_intelligence"].get("gate") or {},
+                "paper_ledger": data["prediction_market_intelligence"].get("paper_ledger") or {},
+                "paper_game": data["prediction_market_paper_game"] or {},
+                "research": data["prediction_market_research"] or {},
+            },
+            "execution_model": "verified_adapter_acquired_before_each_new_capability",
+            "competence_awarded_by_activation": expertise_runtime.get("competence_awarded_by_activation", False),
+            "claim_boundary": (
+                "Installed and executing does not mean mastered; competence requires practical transfer, "
+                "independent outcomes and delayed retention."
+            ),
+        },
         "executive": {
             "mode": data["executive_self"].get("mode", "not_started"),
             "identity_immutable": data["executive_self"].get("identity_immutable"),
@@ -1339,7 +1616,10 @@ def render_lines(snapshot: Mapping[str, Any], width: int = 120) -> list[tuple[st
         tone = {"healthy": "good", "waiting": "normal", "degraded": "warn", "offline": "bad"}.get(health, "warn")
         label_text = {"healthy": "HEALTHY", "waiting": "WAITING", "degraded": "DEGRADED", "offline": "OFFLINE"}.get(health, health.upper())
         age = _age(snapshot["generated_at"] - row["evidence_age_seconds"]) if row.get("evidence_age_seconds") is not None else "unknown"
-        lines.append((tone, _clip(f" {label_text:8}  {label} · evidence {age} · {row.get('health_reason', '')}", width)))
+        phase = str(row.get("phase") or "").replace("_", " ")
+        phase_text = f" · phase {phase}" if phase else ""
+        lines.append((tone, _clip(
+            f" {label_text:8}  {label} · evidence {age} · {row.get('health_reason', '')}{phase_text}", width)))
     system_health = services.get("_system") or {}
     disk_free = system_health.get("disk_free_gib")
     lines.append(("good" if system_health.get("health") == "healthy" else "warn", _clip(
@@ -1347,8 +1627,282 @@ def render_lines(snapshot: Mapping[str, Any], width: int = 120) -> list[tuple[st
     service = snapshot.get("service_status") or {}
     service_age = service.get("age_seconds")
     age = _age(snapshot["generated_at"] - service_age if service_age is not None else None)
-    lines.append(("good" if service.get("status") == "active" else "warn", _clip(
+    healthy_curriculum_statuses = {
+        "active", "healthy", "running", "competency_cycle_checkpoint",
+        "competency_curriculum_active", "competency_waiting_for_executor",
+    }
+    lines.append(("good" if service.get("status") in healthy_curriculum_statuses else "warn", _clip(
         f" Curriculum ledger: {service.get('status', 'unknown')} | refreshed {age} ago", width)))
+
+    expertise = snapshot.get("comprehensive_expertise") or {}
+    current = expertise.get("current") or {}
+    phase_focus = expertise.get("phase_focus") or {}
+    latest = expertise.get("latest_executor") or {}
+    lines.extend(("section", line) for line in _section("COMPREHENSIVE EXPERTISE PROGRAMME — LIVE", width))
+    lines.append(("good" if expertise.get("launch_ready") else "warn", _clip(
+        f" Launch: {'ACTIVE' if expertise.get('launch_ready') else 'GATED'} | "
+        f"phase {expertise.get('phase', '-')} · {str(expertise.get('phase_name', 'unknown')).replace('_', ' ')} | "
+        f"curriculum {str(expertise.get('curriculum_digest') or '-')[:12]}", width)))
+    lines.append(("normal", _clip(
+        f" Curriculum: {expertise.get('learning_capabilities', 0)} learning abilities · "
+        f"{expertise.get('subject_academies', 0)} subject academies · "
+        f"{expertise.get('domains', 0)} domains · {expertise.get('bridges', 0)} cross-domain bridges · "
+        f"{expertise.get('capstones', 0)} capstones · {expertise.get('containers', 0)} containers", width)))
+    lines.append(("good" if latest.get("progressed") else "warn", _clip(
+        f" Current actual work: {current.get('name', current.get('subject_id', 'waiting'))} · "
+        f"overall {current.get('overall_level', 'unassessed')} · knowledge {current.get('knowledge_level', 'unassessed')} · "
+        f"evidence {current.get('evidence_records', 0)} distinct/{current.get('raw_evidence_records', current.get('evidence_records', 0))} raw · "
+        f"coverage K={float((current.get('coverage') or {}).get('knowledge') or 0):.2f} "
+        f"P={float((current.get('coverage') or {}).get('practical') or 0):.2f}", width)))
+    if phase_focus.get("subject_id") and phase_focus.get("subject_id") != current.get("subject_id"):
+        lines.append(("muted", _clip(
+            f" Phase focus retained: {phase_focus.get('name', phase_focus.get('subject_id'))} · "
+            f"overall {phase_focus.get('overall_level', 'unassessed')} · parallel lane currently active", width)))
+    lines.append(("normal", _clip(
+        f" Verified capability adapters: {expertise.get('capability_adapters', 0)}/{expertise.get('learning_capabilities', 0)} "
+        f"(acquired before use) · capability evidence {expertise.get('capability_evidence', 0)} across "
+        f"{expertise.get('capabilities_with_evidence', 0)} abilities · open capability blockers "
+        f"{expertise.get('capability_blockers', 0)}", width)))
+    practical_authority = expertise.get("practical_testing_authority") or {}
+    practical_summary = practical_authority.get("summary") or {}
+    lines.append(("good" if practical_authority.get("passed") else "warn", _clip(
+        f" Practical-test authority: {practical_authority.get('status', 'not active')} · "
+        f"bounded practice {practical_summary.get('practice_authorized', 0)}/"
+        f"{practical_summary.get('subjects', 0)} · independently scored adapters "
+        f"{practical_summary.get('competence_adapters_verified', 0)}/"
+        f"{practical_summary.get('subjects', 0)} · open adapter gaps "
+        f"{practical_summary.get('competence_adapter_gaps', 0)} · unrestricted live authority "
+        f"{practical_summary.get('unrestricted_live_authorities', 0)}", width)))
+    spaced_practice = expertise.get("continuous_spaced_practice") or {}
+    spaced_summary = spaced_practice.get("summary") or {}
+    latest_practice = spaced_practice.get("latest") or {}
+    lines.append(("good" if spaced_practice.get("passed") else "warn", _clip(
+        f" Spaced practice: {spaced_practice.get('status', 'not started')} · rehearsals "
+        f"{spaced_summary.get('total_rehearsals', 0)} across "
+        f"{spaced_summary.get('subjects_practised', 0)}/"
+        f"{spaced_summary.get('subjects_with_practice_adapters', 0)} supported subjects · failures "
+        f"{spaced_summary.get('failed_rehearsals', 0)} · latest "
+        f"{latest_practice.get('subject_name', latest_practice.get('subject_id', 'waiting'))} · "
+        f"awards competence={spaced_summary.get('awards_competence', False)}", width)))
+    entanglement = expertise.get("continuous_knowledge_entanglement") or {}
+    entanglement_summary = entanglement.get("summary") or {}
+    lines.append(("good" if entanglement.get("passed") else "warn", _clip(
+        f" Associative graph: {entanglement.get('status', 'not started')} · subjects "
+        f"{entanglement_summary.get('subjects', 0)} · active relationships "
+        f"{entanglement_summary.get('active_relationships', 0)} · cross-domain "
+        f"{entanglement_summary.get('cross_domain_relationships', 0)} · verified transfer "
+        f"{entanglement_summary.get('verified_transfer_relationships', 0)} · reassessment cycles "
+        f"{entanglement_summary.get('assessment_cycles', 0)} · competence awarded="
+        f"{entanglement_summary.get('competence_awarded', False)}", width)))
+    cognitive = expertise.get("first_class_cognitive_control_plane") or {}
+    lines.append(("good" if cognitive.get("passed") else "warn", _clip(
+        f" Cognitive control plane: {cognitive.get('status', 'not started')} · canonical claims "
+        f"{cognitive.get('canonical_active_claims', 0)} · verified evidence "
+        f"{cognitive.get('canonical_evidence_capsules', 0)} · experience capsules "
+        f"{cognitive.get('experience_capsules', 0)} · task retrievals "
+        f"{cognitive.get('task_retrievals', 0)} · unverified encounters "
+        f"{cognitive.get('encountered_unverified', 0)} · chatter promotions "
+        f"{cognitive.get('repetition_promotions', 0)}", width)))
+    migration = expertise.get("active_runtime_cognitive_migration") or {}
+    lines.append(("good" if migration.get("status") == "fully_migrated" else "warn", _clip(
+        f" Active runtime migration: {migration.get('status', 'not audited')} · governed entrypoints "
+        f"{migration.get('migrated_entrypoints', 0)}/"
+        f"{migration.get('active_service_entrypoints', 0)} · bypasses "
+        f"{migration.get('unmigrated_entrypoints', 0)} · live standalone traces "
+        f"{migration.get('live_standalone_task_traces', 0)}/"
+        f"{migration.get('standalone_entrypoints', 0)}", width)))
+    lines.append(("good" if latest.get("status") == "verified_and_recorded" else "warn", _clip(
+        f" Latest governed outcome: {latest.get('status', 'waiting')} · "
+        f"{latest.get('subject_id', 'none')} · progressed={latest.get('progressed', False)} · "
+        f"unsafe actions {(snapshot.get('progressive', {}).get('summary') or {}).get('unsafe_actions', 0)}", width)))
+    next_requirement = expertise.get("next_requirement") or {}
+    subskills = list((current.get("per_subskill") or {}).keys())
+    lines.append(("normal", _clip(
+        f" Next gate: {str(next_requirement.get('kind') or 'waiting').replace('_', ' ')} · "
+        f"{', '.join(str(skill).replace('_', ' ') for skill in (next_requirement.get('subskills') or [])) or 'none'} | "
+        f"subject subskills tracked {len(subskills)}", width)))
+    lines.append(("normal", _clip(
+        f" Practical proof: projects {current.get('projects', 0)} · unfamiliar {current.get('unfamiliar_projects', 0)} · "
+        f"debug/repair {current.get('debugging_cases', 0)} · transfer {current.get('transfer_cases', 0)} · "
+        f"retention {current.get('retention_cases', 0)} · milestones "
+        f"{current.get('retention_milestones_completed', [])} · "
+        f"90-day gate={current.get('long_term_retention_complete', False)} · "
+        f"target reached={current.get('target_reached', False)}", width)))
+    levels = expertise.get("capability_levels") or {}
+    lines.append(("good" if expertise.get("capabilities_target_reached") else "warn", _clip(
+        f" Ability competence ledger: expert {levels.get('expert', 0)} · advanced {levels.get('advanced', 0)} · "
+        f"intermediate {levels.get('intermediate', 0)} · beginner {levels.get('beginner', 0)} · "
+        f"unassessed {levels.get('unassessed', 0)} · at target {expertise.get('capabilities_target_reached', 0)}/"
+        f"{expertise.get('learning_capabilities', 0)}", width)))
+    strongest = expertise.get("strongest_checked") or []
+    if strongest:
+        lines.append(("muted", _clip(
+            " Strongest bounded subject evidence: " + ", ".join(
+                f"{row.get('name', row.get('subject_id'))} ({row.get('overall_level', 'unassessed')})"
+                for row in strongest
+            ), width)))
+    finance = expertise.get("finance_academy") or {}
+    finance_levels = finance.get("levels") or {}
+    finance_gate = finance.get("next_gate") or {}
+    lines.append(("good" if finance_levels.get("advanced", 0) or finance_levels.get("expert", 0) else "warn", _clip(
+        f" Institutional finance academy: {finance.get('subjects', 0)} subjects · evidence "
+        f"{finance.get('evidence_records', 0)} · expert {finance_levels.get('expert', 0)} · "
+        f"advanced {finance_levels.get('advanced', 0)} · intermediate {finance_levels.get('intermediate', 0)} · "
+        f"beginner {finance_levels.get('beginner', 0)} · unassessed {finance_levels.get('unassessed', 0)}", width)))
+    lines.append(("normal", _clip(
+        f" Finance path now: {str(finance_gate.get('subject_id') or 'waiting').replace('_', ' ')} "
+        f"{finance_gate.get('actual', '')}→{finance_gate.get('required', '')} · delayed paper market "
+        f"{str(finance.get('paper_market_status') or 'not_started').replace('_', ' ')}", width)))
+    strategic = expertise.get("strategic_capability_academy") or {}
+    strategic_levels = strategic.get("levels") or {}
+    lines.append(("good" if strategic_levels.get("advanced", 0) else "warn", _clip(
+        f" Strategic capability academy: {strategic.get('subjects', 0)} subjects · evidence "
+        f"{strategic.get('evidence_records', 0)} · expert {strategic_levels.get('expert', 0)} · "
+        f"advanced {strategic_levels.get('advanced', 0)} · intermediate {strategic_levels.get('intermediate', 0)} · "
+        f"beginner {strategic_levels.get('beginner', 0)} · unassessed {strategic_levels.get('unassessed', 0)}", width)))
+    lines.append(("normal", _clip(
+        " Strategic authority boundary: research and ranked proposals only · capital movement=False · "
+        "external influence=False · owner/legal/harm review required", width)))
+    cyber = expertise.get("cybersecurity_academy") or {}
+    cyber_levels = cyber.get("levels") or {}
+    lines.append(("good" if cyber_levels.get("advanced", 0) else "warn", _clip(
+        f" Purple-team cybersecurity academy: {cyber.get('subjects', 0)} subjects · evidence "
+        f"{cyber.get('evidence_records', 0)} · expert {cyber_levels.get('expert', 0)} · "
+        f"advanced {cyber_levels.get('advanced', 0)} · intermediate {cyber_levels.get('intermediate', 0)} · "
+        f"beginner {cyber_levels.get('beginner', 0)} · unassessed {cyber_levels.get('unassessed', 0)}", width)))
+    lines.append(("normal", _clip(
+        f" Cyber range: {str(cyber.get('assessment_status') or 'not_started').replace('_', ' ')} · "
+        "external targets=False · destructive actions=False · signed isolated scope required", width)))
+    cyber_gate = cyber.get("range_gate") or {}
+    lines.append(("good" if cyber.get("range_qualification_passed") else "warn", _clip(
+        f" Range qualification: {'PASS' if cyber.get('range_qualification_passed') else 'WAITING'} · "
+        f"weaknesses {cyber_gate.get('baseline_weaknesses_demonstrated', 0)} · "
+        f"detections {cyber_gate.get('detections_recorded', 0)} · repairs "
+        f"{cyber_gate.get('repairs_verified', 0)} · variant retests "
+        f"{cyber_gate.get('variant_attacks_rejected', 0)} · tools "
+        f"{', '.join(cyber.get('qualified_tool_surface') or []) or 'none'}", width)))
+    prediction = expertise.get("prediction_market_academy") or {}
+    prediction_levels = prediction.get("levels") or {}
+    prediction_gate = prediction.get("gate") or {}
+    prediction_ledger = prediction.get("paper_ledger") or {}
+    prediction_platforms = prediction.get("platform_counts") or {}
+    prediction_geo = prediction.get("geographic_eligibility") or {}
+    prediction_game = prediction.get("paper_game") or {}
+    prediction_research = prediction.get("research") or {}
+    research_summary = prediction_research.get("summary") or {}
+    game_tally = prediction_game.get("tally") or {}
+    game_gate = prediction_game.get("gate") or {}
+    lines.append(("good" if prediction_levels.get("advanced", 0) else "warn", _clip(
+        f" Prediction-market academy: {prediction.get('subjects', 0)} subjects · evidence "
+        f"{prediction.get('evidence_records', 0)} · expert {prediction_levels.get('expert', 0)} · "
+        f"advanced {prediction_levels.get('advanced', 0)} · intermediate {prediction_levels.get('intermediate', 0)} · "
+        f"beginner {prediction_levels.get('beginner', 0)} · unassessed {prediction_levels.get('unassessed', 0)}", width)))
+    lines.append(("good" if prediction.get("market_count", 0) else "warn", _clip(
+        f" Live prediction-market research: {str(prediction.get('live_public_status') or 'not_started').replace('_', ' ')} · "
+        f"markets {prediction.get('market_count', 0)} · Polymarket {prediction_platforms.get('polymarket', 0)} · "
+        f"Kalshi {prediction_platforms.get('kalshi', 0)} · geoblock checked={prediction_geo.get('checked', False)} "
+        f"blocked={prediction_geo.get('blocked')}", width)))
+    lines.append(("warn", _clip(
+        f" Capital gate: paper={prediction_gate.get('paper_trading_enabled', False)} · "
+        f"live={prediction_gate.get('live_trading_enabled', False)} · orders submitted "
+        f"{prediction_gate.get('orders_submitted', 0)} · live capital at risk "
+        f"{prediction_gate.get('live_capital_at_risk', 0)} · signed loss budget + per-order approval required", width)))
+    lines.append(("normal", _clip(
+        f" Prediction ledger: commitments {prediction_ledger.get('commitments', 0)} · pending "
+        f"{prediction_ledger.get('pending', 0)} · abstained {prediction_ledger.get('abstained', 0)} · settled "
+        f"{prediction_ledger.get('settled', 0)} · paper net P&L {prediction_ledger.get('net_pnl', 0)} · "
+        f"mean Brier {prediction_ledger.get('mean_brier')}", width)))
+    game_wins = game_tally.get("wins", 0)
+    game_losses = game_tally.get("losses", 0)
+    game_win_rate = game_tally.get("win_rate")
+    game_win_text = "pending first settlement" if game_win_rate is None else f"{100 * float(game_win_rate):.1f}%"
+    lines.append(("good" if game_tally.get("open_positions", 0) or game_tally.get("settled_bets", 0) else "warn", _clip(
+        f" Paper trading game: {str(prediction_game.get('status') or 'not_started').replace('_', ' ').upper()} | "
+        f"account ${float(game_tally.get('account_value', 1000)):.2f} / $1,000.00 · "
+        f"open {game_tally.get('open_positions', 0)} · bets {game_tally.get('total_bets', 0)} · "
+        f"settled {game_tally.get('settled_bets', 0)} · W-L {game_wins}-{game_losses} · "
+        f"win rate {game_win_text} · realized P&L ${float(game_tally.get('paper_pnl_realized', 0)):.2f}", width)))
+    lines.append(("normal", _clip(
+        f" Fast-learning rules: markets must close within {game_gate.get('maximum_time_to_close_hours', 24)}h · "
+        f"max bet ${float(game_gate.get('max_order', 10)):.2f} · daily risk ${float(game_gate.get('max_daily_risk', 20)):.2f} · "
+        f"total exposure ${float(game_gate.get('max_total_exposure', 50)):.2f} · live capital $0", width)))
+    lines.append(("good" if research_summary.get("usable_packets", 0) else "warn", _clip(
+        f" Independent research: {str(prediction_research.get('status') or 'not_started').replace('_', ' ').upper()} | "
+        f"v2 packets {research_summary.get('current_quality_packets', 0)} · usable {research_summary.get('usable_packets', 0)} · "
+        f"abstained/blocked {research_summary.get('abstained_or_blocked', 0)} · researched today "
+        f"{research_summary.get('researched_today', 0)}/{research_summary.get('daily_research_cap', 10)} · "
+        f"legacy excluded {research_summary.get('legacy_packets_excluded', 0)} · "
+        "market price hidden=True · future entries require cited event analysis", width)))
+    lines.append(("muted", _clip(
+        f" Claim boundary: {expertise.get('claim_boundary', 'installation is not mastery')}", width)))
+
+    integration = snapshot.get("real_world_integration_arena") or {}
+    latest_capsule = integration.get("latest_capsule") or {}
+    latest_real_capsule = integration.get("latest_real_world_capsule") or {}
+    active_real_contract = integration.get("active_real_world_contract") or {}
+    latest_retry = ((latest_capsule.get("fresh_retry") or {}).get("evaluation") or {})
+    latest_baseline = ((latest_capsule.get("baseline") or {}).get("evaluation") or {})
+    graph = integration.get("graph") or {}
+    lines.extend(("section", line) for line in _section("REAL-WORLD INTEGRATION ARENA — PARALLEL", width))
+    lines.append(("good" if integration.get("passed") else "warn", _clip(
+        f" Arena: {str(integration.get('status') or 'not_started').replace('_', ' ').upper()} | "
+        f"real outcomes {integration.get('real_world_capsule_count', 0)} · qualification simulations "
+        f"{integration.get('calibration_capsule_count', 0)} · completed missions "
+        f"{len(integration.get('completed_missions') or [])} · outstanding eligible "
+        f"{len(integration.get('outstanding_eligible') or [])}", width)))
+    lines.append(("normal", _clip(
+        f" Applied graph: {graph.get('nodes', 0)} nodes · {graph.get('edges', 0)} typed links | "
+        f"runs beside curriculum={integration.get('parallel_to_curriculum', False)} · "
+        f"awards subject competence={integration.get('awards_subject_competence', False)}", width)))
+    if latest_capsule:
+        subjects = ", ".join(row.get("name", row.get("subject_id", "unknown"))
+                             for row in latest_capsule.get("knowledge_inputs") or [])
+        lines.append(("good" if latest_capsule.get("passed") else "warn", _clip(
+            f" Latest arena: {latest_capsule.get('title', latest_capsule.get('mission_id'))} · "
+            f"subjects {subjects or 'none'}", width)))
+        lines.append(("good" if latest_retry.get("passed") else "warn", _clip(
+            f" Experience loop: baseline {'PASS' if latest_baseline.get('passed') else 'FAIL'} → "
+            f"gap exposed → repair → fresh retry {'PASS' if latest_retry.get('passed') else 'FAIL'} · "
+            f"unsafe actions {latest_capsule.get('unsafe_actions', 0)}", width)))
+    if active_real_contract:
+        due = float(active_real_contract.get("not_before_epoch") or 0)
+        seconds = max(0, int(due - snapshot.get("generated_at", 0)))
+        lines.append(("warn", _clip(
+            f" Frozen real-world contract: {active_real_contract.get('title', active_real_contract.get('mission_id'))} · "
+            f"later unseen public observation due in about {seconds}s · commitment "
+            f"{str(active_real_contract.get('commitment_sha256') or '-')[:12]}", width)))
+    if latest_real_capsule:
+        lines.append(("good" if latest_real_capsule.get("verified_real_outcome") else "warn", _clip(
+            f" Latest genuine outcome: {latest_real_capsule.get('title')} · score "
+            f"{latest_real_capsule.get('correct_predictions', 0)}/{latest_real_capsule.get('scored_predictions', 0)} · "
+            f"world-owned receipt {str(latest_real_capsule.get('later_outcome_sha256') or '-')[:12]}", width)))
+    lines.append(("warn" if integration.get("awaiting_genuine_world_authority") else "muted", _clip(
+        f" Genuine-world validation still required for {integration.get('awaiting_genuine_world_authority', 0)} capsules. "
+        f"Boundary: {integration.get('claim_boundary', 'calibration is not real-world mastery')}", width)))
+    adapters = snapshot.get("real_world_experience_adapters") or {}
+    lines.append(("good" if adapters.get("passed") else "warn", _clip(
+        f" Real adapter portfolio: ready {adapters.get('ready', 0)}/{adapters.get('adapter_count', 0)} · "
+        f"active frozen contracts {adapters.get('active_real_contracts', 0)} · learning-gated "
+        f"{adapters.get('learning_gated', 0)} · live capital at risk {adapters.get('live_capital_at_risk', 0)} · "
+        f"physical actions {adapters.get('physical_actions', 0)}", width)))
+    verified_adapter_outcome = adapters.get("latest_verified_outcome") or {}
+    if verified_adapter_outcome:
+        lines.append(("good" if verified_adapter_outcome.get("outcome_success") else "warn", _clip(
+            f"  Latest advanced real outcome: {verified_adapter_outcome.get('capsule_id')} · "
+            f"{'PASS' if verified_adapter_outcome.get('outcome_success') else 'MISS'} · "
+            f"independent receipt {str(verified_adapter_outcome.get('later_outcome_sha256') or '-')[:12]} · "
+            f"verified outcomes {adapters.get('verified_real_outcomes', 0)}", width)))
+    for adapter in adapters.get("adapters") or []:
+        tone = "good" if adapter.get("active_contract") else (
+            "warn" if adapter.get("readiness", {}).get("ready") else "muted")
+        lines.append((tone, _clip(
+            f"  {adapter.get('title', adapter.get('adapter_id'))}: "
+            f"{str(adapter.get('status') or 'unknown').replace('_', ' ')}", width)))
+    adapter_dispatch = adapters.get("learning_dispatch") or adapters.get("next_learning_gate") or {}
+    if adapter_dispatch:
+        lines.append(("normal", _clip(
+            f"  Next real-world unlock being learned: {adapter_dispatch.get('subject_id')} → "
+            f"{adapter_dispatch.get('adapter_id')}", width)))
 
     moonshot = snapshot.get("open_mission_compounding") or {}
     executor = snapshot.get("open_mission_executor") or {}

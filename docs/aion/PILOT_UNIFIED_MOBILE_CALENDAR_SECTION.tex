@@ -1,0 +1,101 @@
+\section{Unified Mobile Private Calendar}
+\label{sec:pilot-unified-mobile-calendar}
+
+Pilot's unified mobile application now exposes the existing governed calendar authority through
+the same possession-bound phone identity used by Personal Pilot.  This is not a second calendar
+database and it is not a calendar running in the television.  The mother brain remains the owner
+of normalized events, proposals, approvals, provider bindings and receipts; the phone is a private
+review and authorization surface.åç
+
+\subsection{User Capability}
+
+The Personal mode contains a Calendar shortcut.  After opening it, the authenticated person can:
+\begin{itemize}
+  \item inspect only their own normalized calendar events, pending proposals and receipts;
+  \item query free slots over a selected interval without disclosing the titles or contents of
+        events occupying other times;
+  \item prepare event creation, rescheduling and cancellation;
+  \item specify the exact calendar, title, start, end, time zone, location, attendees, travel
+        allowance and reminder interval;
+  \item see whether attendee notifications are proposed before any message is sent;
+  \item review conflicts and explicitly accept a conflict without revealing the conflicting
+        event title;
+  \item approve or reject the immutable proposal from the signed phone;
+  \item execute an approved proposal only as a separate deliberate action; and
+  \item inspect a normalized verified provider receipt after execution.
+\end{itemize}
+
+When no authorized calendar account is connected, Pilot remains useful for local preparation,
+conflict checking and review but stops honestly before external execution.  The interface states
+that the adapter is unavailable rather than representing a prepared proposal as a real event.
+
+\subsection{Authority and Request Flow}
+
+Each calendar operation is signed by the phone's non-exportable Ed25519 possession key and is
+validated against its current mother-issued certificate and short-lived capability lease.  The
+calendar scopes are separated as follows:
+\begin{itemize}
+  \item \texttt{calendar.read} for private snapshots and availability;
+  \item \texttt{calendar.propose} for preparing an exact change;
+  \item \texttt{calendar.approve} for the owner's immutable-scope decision; and
+  \item \texttt{calendar.execute} for the separately authorized provider operation.
+\end{itemize}
+
+The request persona must equal the persona cryptographically bound to the phone certificate.
+Consequently, a shared television request cannot silently select a person, account or calendar,
+and one adult's phone cannot read or alter another adult's schedule.  Existing phones whose lease
+predates these scopes must reconnect once; lease renewal cannot silently add authority.
+
+The execution sequence is:
+\begin{center}
+Phone request $\rightarrow$ signed lease validation $\rightarrow$ persona calendar authority
+$\rightarrow$ exact proposal hash $\rightarrow$ private decision $\rightarrow$ explicit execution
+$\rightarrow$ provider verification $\rightarrow$ normalized receipt.
+\end{center}
+
+\subsection{Conflict Privacy and Retry Safety}
+
+Conflict detection includes the selected travel allowance before the proposed start.  A conflict
+record contains only an internal event reference and the occupied start and end times; it does not
+contain the private title.  Pilot requires an additional explicit conflict acknowledgement before
+an overlapping proposal can enter the approved state.
+
+Every mobile preparation carries an idempotency key bound to a canonical hash of the persona,
+action and complete proposed scope.  Repeating an identical request returns the original proposal.
+Reusing the key after changing any field fails closed.  Executing an already completed proposal
+returns the existing receipt rather than creating a second external event.
+
+\subsection{Provider Boundary}
+
+Persona-specific Google OAuth bindings remain on the mother brain.  Raw access and refresh tokens,
+vault references and account secrets are never returned to the phone or projected onto the shared
+television.  The Google Calendar creation adapter accepts both the canonical calendar proposal
+shape and the earlier service-proposal shape, uses a deterministic provider event identifier for
+reconciliation, and returns the provider event identifier and provider status required by the
+calendar receipt authority.  Reschedule and cancellation require the exact provider event and
+calendar identifiers.
+
+Google Calendar is the first provider adapter, not the calendar architecture.  The normalized
+proposal, approval and receipt contracts remain provider-independent so another authorized
+calendar service can be registered without changing the Personal Pilot interface or its identity
+boundary.
+
+\subsection{Failure Semantics}
+
+The implementation distinguishes preparation, approval and execution.  Network failure or an
+unverifiable provider response moves an attempted operation to reconciliation-required state; it
+does not retry a consequential provider write blindly.  Missing adapters, expired leases, revoked
+phones, altered hashes, invalid attendees, invalid time zones and cross-person requests all fail
+closed.  A provider effect is recorded only after an adapter returns a verified provider event
+identifier.
+
+\subsection{Verification}
+
+Automated evidence covers private-person filtering, phone signatures and calendar scopes,
+availability without title disclosure, exact attendees and calendar selection, travel-aware
+conflicts, explicit conflict acceptance, idempotent preparation, changed-scope rejection,
+adapter absence, verified execution receipts and duplicate-execution recovery.  At completion,
+all 457 AION Fabric tests passed and the optimized Next.js application compiled and statically
+generated the unified Pilot mobile route.  This is coded closure of \texttt{MOB-0504}; a real
+Google account still requires the owner's normal OAuth authorization before an external event can
+be created.

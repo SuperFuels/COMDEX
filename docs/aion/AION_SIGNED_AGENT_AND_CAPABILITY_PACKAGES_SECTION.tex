@@ -1,0 +1,83 @@
+% Append this section before \end{document} in the master AION document.
+\section{Signed Agent and Capability Packages}
+\label{sec:capability-packages}
+
+The capability-package layer turns specialist prompts, procedures and tools into portable,
+inspectable additions to a customer-owned AION brain.  A package may add a sales adviser,
+finance procedure, industry workflow or another bounded skill, but it cannot contain or
+replace the customer's brain, Business Map or private data.
+
+\subsection{Package Identity and Supply Chain}
+
+Every release has an immutable package identifier and version.  Its manifest binds the
+artefact's SHA--256 hash and byte length to a trusted Ed25519 publisher, package name,
+department, industry, permissions, limits, tests and publishing terms.  Installation verifies
+the publisher, canonical manifest hash, signature and real artefact bytes.  Reusing a version
+with changed content is rejected.  Manifests declaring copied customer brain or customer data
+are rejected before installation.
+
+\subsection{Declared Least Authority}
+
+Permissions are explicit allow-lists for network hosts, file roots, identity scopes, tools
+and named execution actions.  The authorization broker begins with no authority and issues a
+hashed grant only when the package is active, the exact target is declared and its cumulative
+authorization ceiling has not been reached.  File paths are resolved before comparison so that
+relative traversal cannot escape an allowed root.  Raw commands cannot be substituted for a
+named execution action.  The package never obtains authority merely because an LLM proposed it.
+
+The broker returns permission to a separate governed executor; it does not run arbitrary
+third-party code in the mother process.  A production operating-system or container sandbox is
+still required before arbitrary marketplace code can execute.  This distinction prevents a
+logical allow-list from being misrepresented as process isolation.
+
+\subsection{Qualification and Activation}
+
+Three independent test records are mandatory:
+\begin{enumerate}
+  \item a dry run demonstrating expected inputs and outputs without external mutation;
+  \item adversarial permission tests proving undeclared access is denied; and
+  \item outcome tests establishing useful task behaviour.
+\end{enumerate}
+
+Any failed test blocks the release.  Activation is unavailable until all three pass and a
+named human owner supplies an approval receipt.  The receipt is retained as a hash rather than
+raw approval content.  Every runtime grant identifies the accountable owner, making a package
+an owned delegation rather than an autonomous legal or managerial actor.
+
+\subsection{Independent Component Versions}
+
+Prompt, procedure, tool and policy components have separate declared version lists and active
+selections.  Changing or rolling back one component does not require changing the underlying
+model or other components.  Each selection preserves the previous version and timestamp in
+component history.  This makes it possible to determine whether a behaviour change came from
+a model, prompt, operating procedure, tool implementation or policy.
+
+\subsection{Catalogue and Commercial Controls}
+
+The catalogue distinguishes Tessaris-curated, customer-created and third-party publishers.
+It presents package status, department, industry, curation state, commercial terms and the
+accountable owner while explicitly excluding customer brain content.  Third-party releases
+must declare commercial terms, creating a foundation for later publisher onboarding and
+revenue sharing without allowing payment status to bypass safety qualification.
+
+\subsection{Revocation, Removal and Brain Integrity}
+
+Revocation records a reason and immediately ends authorization.  Removal changes the package
+state to removed while retaining qualification, activation and revocation evidence.  Neither
+operation deletes or rewrites external business state.  Automated tests preserve a control
+Business Map file before and after the full activate--revoke--remove sequence to verify this
+separation.
+
+\subsection{Implemented and Remaining Work}
+
+Pilot Fabric~0.61.0 and AION Sovereign Brain Bootstrap~0.9.0 implement trusted manifests,
+artefact verification, immutable releases, mandatory qualification, human-accountable
+activation, least-authority grants, bounded use, independent component selection, catalogue
+terms, revocation and evidence-preserving removal.
+
+Two Phase~6 items remain open.  First, arbitrary third-party code requires qualified native
+or container sandboxes for every supported operating environment; the current authority broker
+does not execute such code.  Second, actual signed department and industry pack libraries must
+be authored and tested without copying customer memory.  Marketplace payment, publisher identity
+review and dispute handling also remain commercial-readiness work even though publishing class
+and revenue terms are already represented in the catalogue.

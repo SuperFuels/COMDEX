@@ -1,0 +1,141 @@
+\section{AION Flow Simulation, Governed Execution, Recovery and Route Receipts}
+\label{sec:aion-flow-stage-eight}
+
+\subsection{Purpose}
+
+Stage Eight converts the sovereign visual intelligence graph into a controlled runtime
+without allowing a model node to become an execution authority.  The existing Boardroom Workflow
+Canvas remains the authoring surface.  A new \textbf{Run \& receipts} control exposes compilation,
+simulation, exact review, execution state, recovery controls and the final route receipt in the same
+interface.
+
+The operating sequence is:
+
+\begin{quote}
+Visible graph $\rightarrow$ sovereign compile $\rightarrow$ Workflow Capsule $\rightarrow$
+static validation $\rightarrow$ policy and disclosure preflight $\rightarrow$ simulation
+$\rightarrow$ exact review $\rightarrow$ authorized capability execution $\rightarrow$
+verification $\rightarrow$ Intelligence Route Receipt.
+\end{quote}
+
+Drawing, saving, compiling or simulating a workflow causes no external write.  Model output remains
+a proposal and cannot call a connector directly.
+
+\subsection{Compilation and Workflow Capsule Translation}
+
+The runtime normalizes nodes and edges from the visible Glyph canvas and submits the graph to the
+Sovereign Flow compiler.  Compilation requires exactly one AION admission boundary and one AION
+receipt boundary.  Every node must be reachable from admission and able to reach the receipt.
+Capabilities require an upstream policy node, while consequential capabilities additionally require
+an upstream approval node.  External destinations must declare their provider, data classification,
+destination, residency and encrypted edge.
+
+A successful sovereign manifest is translated into the existing
+\texttt{aion.workflow\_capsule.v1} contract.  This preserves the deployed Workflow Capsule system
+rather than creating a parallel executor.  The capsule records its sovereign manifest hash, ordered
+steps, graph links, dry-run-first policy and approval-before-write rule.  Compilation explicitly marks
+the result as not executed.
+
+\subsection{Static Validation and Safe Simulation}
+
+Before a run can be authorized, Stage Eight checks:
+
+\begin{itemize}
+  \item node and edge identities and supported node types;
+  \item capability and verification bindings;
+  \item the AION admission and receipt boundary;
+  \item policy and approval placement;
+  \item external disclosure, encryption and residency declarations; and
+  \item graph cycles, which are rejected unless expressed through a separately bounded deliberation
+        node with explicit limits.
+\end{itemize}
+
+The simulator produces sample output hashes and per-node simulated states.  It performs zero
+external writes.  Its report lists predicted boundary crossings, exact fields and destinations,
+estimated cost and the number of consequential capabilities.  Secrets and secret-shaped fields are
+redacted before any preparation or run record is persisted.
+
+\subsection{Exact Review and Approval}
+
+The preparation generates a canonical review containing the flow identifier, manifest hash, active
+person and workspace, capability list, targets, consequential-action flags, disclosure-report hash,
+estimated cost and approval count.  A canonical \texttt{review\_hash} binds these facts together.
+
+The user must open \textbf{Review exact route}, confirm the displayed route and explicitly authorize
+it.  If approval changes the authorized state, AION generates a new review hash and requires final
+confirmation before execution.  A changed manifest, expired authority, revoked identity, missing
+approval or separation-of-duty violation fails closed.  Shared model output cannot manufacture this
+approval.
+
+\subsection{Execution Boundary}
+
+Non-consequential local capabilities may execute through the bounded local capability interface.
+Consequential capabilities are dispatched only through the existing permissioned Workflow Connector
+adapter.  The default runtime refuses an unbound consequential capability.  Connector credentials
+remain opaque mother-brain vault references and never enter the graph, browser state or receipt.
+
+Connector readiness and external completion are different facts.  A route may prove that its policy,
+approval and connector prerequisites are ready without claiming that an email, record or other
+external action occurred.  The final receipt marks an external effect as verified only when the
+permissioned adapter returns a positive provider outcome for that exact operation.
+
+\subsection{Run State, Idempotency and Recovery}
+
+Each run is journalled atomically in the customer-owned runtime directory.  Every node has an ordered
+state selected from queued, running, waiting, blocked, failed and verified.  The journal records
+attempts and events without storing raw credentials.
+
+Capability execution uses a stable idempotency key.  A resumed operation that has already been
+verified is not issued again.  Retry counts and timeouts are bounded, and an open connector circuit
+stops further attempts.  Compensation instructions are executed automatically only when explicitly
+marked safe and local; otherwise they enter \texttt{waiting\_approval} rather than being falsely
+reported as complete.
+
+The Boardroom exposes \textbf{Pause}, \textbf{Cancel}, \textbf{Resume} and \textbf{Recover}.  After a
+mother-brain restart, a run found in the running state is moved to waiting and its interrupted node is
+returned to queued.  Resume requires the same stored manifest hash.  Completed, cancelled or
+compensated runs cannot be silently restarted.
+
+\subsection{Intelligence Route Receipt}
+
+Every terminal attempt produces \texttt{aion.intelligence\_route\_receipt.v1}.  The receipt contains:
+
+\begin{itemize}
+  \item receipt, run and flow identifiers;
+  \item sovereign manifest and exact-review hashes;
+  \item final run status;
+  \item each node's final state and output hash;
+  \item whether all consequential external effects were actually provider-verified; and
+  \item issue time and a canonical tamper-evident receipt hash.
+\end{itemize}
+
+The receipt is visible inside \textbf{Run \& receipts} and can be inspected without exposing the
+underlying restricted content.  It proves the route that was reviewed and the outcome that was
+observed; it does not turn model agreement or connector readiness into evidence of execution.
+
+\subsection{Boardroom Location and Use}
+
+The capability is deliberately visible in the existing Boardroom rather than hidden in a developer
+API.  Open the Boardroom's \textbf{Workflow Canvas}.  Beside \textbf{Execute workflow}, select
+\textbf{Run \& receipts}, then:
+
+\begin{enumerate}
+  \item select \textbf{Compile \& simulate};
+  \item inspect static validation, policy, predicted cost, disclosure and simulated node states;
+  \item select \textbf{Review exact route};
+  \item confirm and authorize the exact route when an approval is required;
+  \item confirm the final review hash and select \textbf{Run authorized route};
+  \item monitor node states or use pause, cancel, resume and recover; and
+  \item inspect the resulting \textbf{Intelligence Route Receipt}.
+\end{enumerate}
+
+This surface is intended for ordinary Boardroom operators.  Advanced payloads remain inspectable but
+are not required to understand whether a route is safe, blocked, waiting, complete or externally
+verified.
+
+\subsection{Security Principle}
+
+\begin{quote}
+\textbf{AION may compile and coordinate the intelligence route, but only customer policy, exact human
+authority and a permissioned capability adapter can create a consequential external effect.}
+\end{quote}

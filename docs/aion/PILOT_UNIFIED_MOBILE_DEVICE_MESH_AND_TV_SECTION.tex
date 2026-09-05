@@ -1,0 +1,101 @@
+\begingroup
+\sloppy
+\section{Unified Mobile Device Mesh, Television and IoT Control}
+\label{sec:pilot-unified-mobile-device-mesh}
+
+The unified Pilot mobile application now projects the existing AION Device Fabric into two
+purpose-specific Personal surfaces: Devices for mesh visibility and bounded IoT actions, and TV
+for shared-screen ownership and verified television control.  The implementation reuses the
+Fabric node ledger, discovery engine, signed capability capsules, webOS gateway, television-room
+registry, Production Private Identity and local infrared climate gateway.  It does not create a
+second device registry or bypass the device adapters already governed by the mother brain.
+
+\subsection{Private Mesh Projection}
+
+The Devices surface shows each evidenced node's name, class, platform, role, enrollment state,
+transports and count of signed capabilities.  The mother strips public keys, pairing secrets,
+local IP addresses, control endpoints, schema internals and room endpoints before returning the
+projection.  A room contains only its display name, television name, node reference and default
+marker.  The phone therefore receives enough information to understand the home without becoming
+a copy of its network or trust stores.
+
+An explicit ``Discover nearby devices'' action runs the existing bounded discovery engine.  It
+listens for standard advertisements, performs the already governed bounded discovery probes and
+refreshes schema evidence.  The mobile result declares that enrollment, control and credential
+attempts remain false.  A discovered node is visibly labelled observation-only.  Discovery never
+creates a capability lease and the phone cannot enroll a new device from this surface.
+
+\subsection{Exclusive Shared-Screen Session}
+
+The television is a shared household surface, while private files, tasks, accounts and business
+work belong to a person.  Before any mutating TV command, the person must acquire a five-minute
+idle session from a trusted phone.  The browser signs a dedicated possession payload with its
+non-exportable Ed25519 key and then signs the enclosing mobile request.  The mother checks both
+proofs against the same certificate, person and device.
+
+Only one person may hold the screen.  Another household member sees that the television is in use
+but not the controller's private identity.  Every accepted command renews the idle deadline.
+Expiry or explicit ``Lock TV workspace'' immediately removes control and hides private shared-
+screen content.  An observe-state operation remains available without acquisition because it
+changes no television state.
+
+\subsection{Governed Television Controls}
+
+The TV surface provides directional navigation, OK, Back, Home, volume, mute, play and pause, plus
+explicit launch controls for Pilot Home, Netflix, YouTube, Games and God View.  The phone cannot
+submit arbitrary webOS methods, application identifiers, URLs or pointer commands through this
+interface.  Each request is constrained to an allowlist and routed through the existing signed
+webOS capability and adapter.
+
+Mutating commands require \texttt{tv.control}; live observation requires the narrower
+\texttt{tv.observe}.  A content-bound request identifier is passed into the verified-navigation
+ledger so a network retry does not repeat an already accepted command.  The response distinguishes
+adapter acceptance, a device receipt and verified navigation.  Button delivery alone is never
+reported as successful screen navigation.  The user can request a fresh webOS foreground-app and
+audio-state observation, while visually dependent navigation still requires the existing Observer
+workflow to prove the screen outcome.
+
+\subsection{IoT Capability Boundary}
+
+The initial non-TV control surface exposes only presets already learned by the local infrared
+climate gateway.  No raw infrared waveform, device MAC address or gateway host is sent to the
+phone.  Sending a preset requires a signed \texttt{devices.control} capability and an explicit
+confirmation.  The response separates \texttt{transport\_delivered} from
+\texttt{device\_state\_verified}.  Since ordinary infrared is one-way, Pilot always leaves the
+latter false and instructs the person to confirm the appliance or add an authorized state sensor.
+
+Other discovered appliances remain non-controllable until they are enrolled and receive an
+appropriate signed capability capsule and adapter.  A generic device name or inferred schema is
+not authority.
+
+\subsection{Mobile Capability Scopes}
+
+The production phone lease now separates:
+\begin{itemize}
+  \item \texttt{devices.read} for the sanitized mesh and room projection;
+  \item \texttt{devices.discover} for a bounded user-requested local scan;
+  \item \texttt{devices.control} for explicitly supported enrolled IoT actions;
+  \item \texttt{tv.observe} for non-mutating television state; and
+  \item \texttt{tv.control} for session ownership and allowlisted TV commands.
+\end{itemize}
+
+Every request remains bound to the phone certificate's person and device.  Persona substitution,
+missing scope, expired lease, revoked phone, unavailable adapter, locked shared screen or
+unsupported command fails closed.
+
+\subsection{Verification and Remaining Qualification}
+
+Automated tests prove projection redaction, capability summarization, exclusive session
+enforcement, nested possession signatures, locked-screen rejection, accepted TV control and the
+distinction between infrared delivery and appliance-state verification.  Mobile-surface checks
+cover separate Devices and TV experiences, observe-only discovery language, acquisition, remote
+controls, application launch controls and the IoT verification warning.  At coded closure of
+\texttt{MOB-0509}, all 465 AION Fabric tests passed and the optimized Next.js build generated
+\texttt{/pilot/mobile} successfully.
+
+Real-device qualification remains required after the Pilot runtime and phone lease are renewed:
+the existing LG television must prove acquisition, observation, one reversible control and
+automatic locking on the physical phone.  Additional television and appliance vendors remain
+adapter- and hardware-dependent and are not claimed universal from the LG implementation alone.
+No new device was enrolled and no live IoT command was sent during automated verification.
+\endgroup

@@ -1,0 +1,99 @@
+\section{Native macOS Delivery and Governed Commercial Adoption}
+
+This increment converts two previously architectural promises into executable foundations: a
+normal macOS installation payload for the customer-owned brain, and a commercial layer that can
+charge for continuing operational service without monetising ownership of the customer's data,
+memory or local intelligence.
+
+\subsection{Native macOS package foundation}
+
+The qualified macOS arm64 offline bundle is now wrapped in a native component package.  The
+package installs the sealed AION payload beneath \texttt{/Library/Application Support/Tessaris},
+adds a normal \texttt{Pilot Setup.app} entry point and registers a per-user LaunchAgent.  The
+LaunchAgent starts the Python runtime carried by the sealed package rather than depending on an
+uncontrolled system Python installation.
+
+The installed service binds only to the loopback interface and exposes read-only
+\texttt{/health} and \texttt{/status} routes.  Mutating HTTP requests fail closed.  Status output
+contains readiness, version and setup state, but no owner identity, filesystem path, credential,
+private content or provider key.  The installation payload is therefore useful before any cloud
+provider is connected.
+
+The generated package is intentionally labelled \emph{unsigned}.  Apple Developer ID signing,
+notarisation, stapling and clean-machine qualification on supported Intel and Apple Silicon Macs
+remain explicit release gates; an internal build cannot honestly manufacture that external
+evidence.
+
+\subsection{Entitlements preserve sovereign ownership}
+
+Commercial entitlements are signed and tenant-bound.  They cover Free, Operator, Boardroom,
+Growth and Sovereign editions, with an exact feature set, numerical limits, catalogue version and
+expiry.  They contain no customer content and grant Tessaris no authority to inspect, control or
+retain the customer's brain.  Verification rejects an entitlement that attempts to introduce
+customer-data authority.
+
+Ownership capabilities---including local brain access, export, backup, recovery and local model
+use---remain available when no paid entitlement exists or after one expires.  Paid entitlements
+unlock operational capabilities; they do not become the root of ownership.
+
+\subsection{Bounded department trials}
+
+A department trial records an exact tenant, department, start and end time, verified-action
+allowance, Tessaris-managed intelligence budget, currency, offer version and consent receipt.
+Automatic renewal is invalid unless the target plan and exact price are recorded at activation.
+A tenant cannot create overlapping active trials for the same department, and identifiers cannot
+be reused.
+
+Reaching a time, verified-action or managed-cost ceiling moves the department into a safe
+review-only state.  Enquiry intake, deterministic routing, agent-to-agent communication and work
+preparation continue, while managed inference and autonomous external actions stop.  Cancellation
+and paid activation produce hashed transition receipts.  Capacity and overage changes require a
+separate owner action, and overage cannot be enabled without a specific approval reference.
+
+\subsection{Fair metering and separated compute cost}
+
+The unit of commercial work is a verified business action.  Internal reasoning, retries,
+deterministic checks, local-model tokens and tokens purchased directly from a provider by the
+customer do not consume this action allowance.  Each action record distinguishes local
+customer-owned compute, customer-funded provider compute and Tessaris-managed compute.  Costs are
+kept separate by funding source and currency; the system does not invent a cross-currency total.
+
+This permits a customer to use Gemma locally or supply an existing Gemini, OpenAI or other key
+without paying Tessaris merely for those tokens.  Charges can instead attach to the accountable
+operational service, verified outcomes, managed intelligence, support or dedicated capacity that
+Tessaris actually supplies.
+
+\subsection{Private value evidence}
+
+The customer's value ledger stores bounded measures such as verified work completed, time saved,
+cost avoided or opportunity influence.  Every entry carries a hashed evidence reference and is
+labelled \emph{verified}, \emph{estimated} or \emph{inferred}.  Lower and upper bounds are retained
+instead of collapsing uncertain estimates into a false precise number.  A claim that AION
+``generated revenue'' fails closed unless a separate causal authority is eventually established.
+Neither operational records nor value summaries store prompts, message bodies, documents,
+credentials or private customer content.
+
+\subsection{Boardroom and signed-phone control surfaces}
+
+The locally authenticated Boardroom shows department state, verified-action use, managed-cost
+ceilings and private value evidence.  It can start an exact 30-day trial with no automatic renewal
+and can cancel a service into its safe review-only fallback.
+
+The same content-free view is available in Pilot Mobile only through the existing trusted-phone
+route.  A signed phone request must carry an active canonical organisation membership containing a
+separate commercial-read or commercial-control scope.  The gateway derives the tenant from that
+membership's bound workspace; the phone never submits an arbitrary tenant identifier.  Starting a
+trial repeats the exact period, department, action allowance and managed-intelligence ceiling in a
+private confirmation.  Cancellation also requires a new signed request.  An expired membership,
+missing phone scope, missing organisation scope or workspace mismatch fails closed.
+Monthly capacity is separately confirmed, and overage remains blocked unless the user explicitly
+enables it in that confirmation; the resulting approval reference is retained only as a hash.
+
+\subsection{Verification and remaining boundary}
+
+Focused tests cover entitlement signatures and limits, ownership after expiry, exact trial
+terms, duplicate prevention, safe fallback, fair action accounting, funding separation,
+cancellation and paid transitions, explicit overage approval and evidence-quality aggregation.
+Additional signed-phone tests prove tenant derivation, content-free projection and denial without
+the exact membership scope.  Payment-provider certification, public pricing and real customer
+willingness-to-pay remain later integration and field-validation gates.

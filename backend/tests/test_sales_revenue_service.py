@@ -63,6 +63,105 @@ def test_company_identity_is_canonical_and_shared_across_people(monkeypatch, tmp
     assert len(sales.list_companies("acme")) == 1
 
 
+def test_manual_b2b_enquiry_preserves_contact_role_department_and_extension(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    result = sales.create_enquiry(
+        "acme", name="Kevin Robinson", first_name="Kevin", last_name="Robinson",
+        customer_type="business", email="kevin@buyer.test", phone="+44 20 7000 0000",
+        phone_extension="204", address="10 Business Park, London",
+        company_name="Buyer Limited", position_title="Operations Director",
+        department="Operations", enquiry="Need a managed service proposal", source="manual",
+        source_reference=None, attribution={}, consent={}, created_by_person_id="person.owner",
+    )
+    contact = result["contact"]
+    projected = result["opportunity"]["contact"]
+    assert contact["customer_type"] == "business"
+    assert contact["first_name"] == "Kevin"
+    assert contact["last_name"] == "Robinson"
+    assert contact["company_name"] == "Buyer Limited"
+    assert contact["position_title"] == "Operations Director"
+    assert contact["department"] == "Operations"
+    assert contact["phone_extension"] == "204"
+    assert contact["address"] == "10 Business Park, London"
+    assert projected["position_title"] == "Operations Director"
+    assert projected["phone_extension"] == "204"
+
+
+def test_business_enquiry_requires_a_company(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    with pytest.raises(ValueError, match="sales_business_company_name_required"):
+        sales.create_enquiry(
+            "acme", name="Kevin Robinson", customer_type="business",
+            email="kevin@buyer.test", phone=None, company_name=None,
+            enquiry="Need a proposal", source="manual", source_reference=None,
+            attribution={}, consent={}, created_by_person_id="person.owner",
+        )
+
+
+def test_owner_can_add_an_existing_deal_at_its_real_commercial_stage(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    result = sales.create_enquiry(
+        "acme", name="Morgan Client", email="morgan@example.test", phone=None,
+        company_name=None, enquiry="Existing annual support proposal", source="manual",
+        source_reference=None, attribution={}, consent={}, created_by_person_id="person.owner",
+        entry_mode="existing_deal", initial_stage="proposal", estimated_value=12500,
+        currency="GBP", next_action="Manager to approve proposal",
+    )
+    opportunity = result["opportunity"]
+    assert opportunity["stage"] == "proposal"
+    assert opportunity["deal"] == {
+        "entry_mode": "existing_deal", "estimated_value": 12500.0,
+        "currency": "GBP", "imported_as_existing": True,
+    }
+    assert opportunity["relationship"]["next_action"] == "Manager to approve proposal"
+    assert opportunity["work_feed"]["current_stage"] == "quote"
+    assert [event["title"] for event in opportunity["work_feed"]["events"]] == [
+        "Enquiry received", "Existing deal added",
+    ]
+
+
+def test_customer_relationship_is_native_signed_and_shared_with_the_work_feed(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    created = enquiry(sales)
+    opportunity_id = created["opportunity"]["opportunity_id"]
+
+    updated = sales.update_relationship(
+        "acme", opportunity_id,
+        relationship_status="active_job", priority="priority",
+        preferred_channel="whatsapp", next_action="Collect the remaining 50%",
+        next_action_due="2026-09-01", tags=["Roofing", "Repeat customer", "roofing"],
+        owner_person_id="person.owner", address="12 Example Street, Almeria",
+        updated_by_person_id="person.owner",
+    )
+
+    assert updated["relationship"]["status"] == "active_job"
+    assert updated["relationship"]["priority"] == "priority"
+    assert updated["relationship"]["preferred_channel"] == "whatsapp"
+    assert updated["relationship"]["next_action"] == "Collect the remaining 50%"
+    assert updated["relationship"]["tags"] == ["Roofing", "Repeat customer"]
+    assert updated["relationship"]["updated_by_person_id"] == "person.owner"
+    assert updated["contact"]["address"] == "12 Example Street, Almeria"
+    assert updated["work_feed"]["events"][-1]["title"] == "Relationship details updated"
+    assert updated["work_feed"]["events"][-1]["recorded_by_person_id"] == "person.owner"
+    assert sales.list_contacts("acme")[0]["address"] == "12 Example Street, Almeria"
+    assert sales.workspace("acme")["today_queue"][0]["next_action"] == "Collect the remaining 50%"
+
+
+def test_customer_relationship_rejects_invalid_owner_and_due_date(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    opportunity_id = enquiry(sales)["opportunity"]["opportunity_id"]
+    base = dict(
+        relationship_status="lead", priority="normal", preferred_channel="email",
+        next_action=None, tags=[], address=None, updated_by_person_id="person.owner",
+    )
+    with pytest.raises(ValueError, match="valid_customer_next_action_date_required"):
+        sales.update_relationship("acme", opportunity_id, owner_person_id="person.owner",
+                                  next_action_due="tomorrow", **base)
+    with pytest.raises(ValueError, match="customer_relationship_owner_not_active"):
+        sales.update_relationship("acme", opportunity_id, owner_person_id="person.unknown",
+                                  next_action_due=None, **base)
+
+
 def test_legacy_underscore_business_alias_remains_inside_same_sales_workspace(monkeypatch, tmp_path):
     sales, _ = service(monkeypatch, tmp_path)
     playbook = sales.ensure_default_playbook("home-fixed")
@@ -108,6 +207,97 @@ def test_qualification_handoff_and_booking_are_governed(monkeypatch, tmp_path):
     assert booked["appointments"][0]["customer_notification_sent"] is False
     boardroom = repository.load_dict("acme", "boardroom_snapshot")
     assert boardroom["boardroom"]["runtime"]["sales_revenue_spine"]["summary"]["appointments"] == 1
+
+
+def test_customer_work_feed_carries_the_job_from_enquiry_to_receipted_action(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    opportunity = enquiry(sales)["opportunity"]
+    opportunity_id = opportunity["opportunity_id"]
+
+    initial = sales.get_work_feed("acme", opportunity_id)
+    assert initial["current_stage"] == "enquiry"
+    assert [event["kind"] for event in initial["events"]] == ["enquiry_received"]
+
+    surveyed = sales.append_work_event(
+        "acme", opportunity_id, kind="photo", lifecycle_stage="survey",
+        title="Site survey photographs", summary="Customer roof and access photographed.",
+        details={"customer_visible": False, "caption": "North elevation and failed flashing"},
+        source="pilot", provider="tessaris", source_reference="voice-session-1",
+        action={"status": "recorded", "external_action_performed": False},
+        recorded_by_person_id="person.owner",
+        attachments=[{"name": "north-elevation.jpg", "media_type": "image/jpeg",
+                      "sha256": "a" * 64, "size": 2048,
+                      "source_reference": "business-file-cabinet/photo-1"}],
+    )
+    assert surveyed["work_feed"]["current_stage"] == "survey"
+    assert surveyed["event"]["attachments"][0]["sha256"] == "a" * 64
+
+    drafted = sales.append_work_event(
+        "acme", opportunity_id, kind="quote_draft", lifecycle_stage="quote",
+        title="Roof repair quotation", summary="Top-line customer quote prepared with VAT.",
+        details={"customer_total": "2400.00", "currency": "GBP",
+                 "terms": "50% deposit; balance on completion"},
+        source="pilot", provider="tessaris", source_reference=None,
+        attachments=[], action={"status": "draft", "external_action_performed": False},
+        recorded_by_person_id="person.owner",
+    )
+    assert drafted["event"]["action"]["external_action_performed"] is False
+
+    with pytest.raises(ValueError, match="executed_external_action_requires_receipt"):
+        sales.append_work_event(
+            "acme", opportunity_id, kind="quote_sent", lifecycle_stage="quote",
+            title="Quotation sent", summary="Sent to customer",
+            details={}, source="gmail", provider="google", source_reference=None,
+            attachments=[], action={"status": "executed", "external_action_performed": True},
+            recorded_by_person_id="person.owner",
+        )
+
+    sent = sales.append_work_event(
+        "acme", opportunity_id, kind="quote_sent", lifecycle_stage="quote",
+        title="Quotation sent", summary="Approved quotation delivered through Gmail.",
+        details={"recipient": "jamie@example.test"}, source="gmail", provider="google",
+        source_reference="gmail-message-id-123", attachments=[],
+        action={"status": "executed", "external_action_performed": True,
+                "receipt_reference": "gmail-message-id-123"},
+        recorded_by_person_id="person.owner",
+    )
+    assert sent["event"]["action"]["external_action_performed"] is True
+    assert sent["event"]["action"]["receipt_reference"] == "gmail-message-id-123"
+
+    with pytest.raises(ValueError, match="lifecycle_cannot_move_backwards"):
+        sales.append_work_event(
+            "acme", opportunity_id, kind="note", lifecycle_stage="qualification",
+            title="Invalid backwards move", summary="Must fail closed", details={},
+            source="sales", provider="tessaris", source_reference=None, attachments=[],
+            action={"status": "recorded", "external_action_performed": False},
+            recorded_by_person_id="person.owner",
+        )
+
+    persisted = sales.load_opportunity("acme", opportunity_id)["work_feed"]
+    assert persisted["current_stage"] == "quote"
+    assert [event["kind"] for event in persisted["events"]][-3:] == [
+        "photo", "quote_draft", "quote_sent",
+    ]
+
+
+def test_customer_work_feed_preserves_generic_business_files(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    created = enquiry(sales)
+    opportunity_id = created["opportunity"]["opportunity_id"]
+
+    attachment = sales.store_work_feed_attachment(
+        "acme", opportunity_id, filename="Marketing proposal.pdf",
+        content=b"%PDF-1.4 proposal", media_type="application/pdf",
+        recorded_by_person_id="person.owner",
+    )
+
+    assert attachment["name"] == "Marketing proposal.pdf"
+    assert attachment["media_type"] == "application/pdf"
+    assert attachment["attachment_id"].startswith("customer-file-")
+    path, metadata = sales.work_feed_attachment_path("acme", opportunity_id, attachment["attachment_id"])
+    assert path.suffix == ".pdf"
+    assert path.read_bytes() == b"%PDF-1.4 proposal"
+    assert metadata["sha256"] == attachment["sha256"]
 
 
 def test_voice_session_requires_ai_disclosure_and_records_structured_outcome(monkeypatch, tmp_path):
@@ -318,6 +508,95 @@ def test_sales_agent_setup_is_generic_goal_driven_and_resets_promotion(monkeypat
     assert configured["agent_setup"]["contact_sequence"]["maximum_phone_attempts"] == 2
     assert configured["agent_setup"]["contact_sequence"]["automatic_send"] is False
     assert configured["external_deployment_performed"] is False
+
+
+def test_call_centre_agent_mints_exact_contract_and_drives_selected_outbound_call(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    opportunity = enquiry(sales)["opportunity"]
+    created = sales.create_sales_agent(
+        "acme", name="New enquiry follow-up", direction="outbound",
+        created_by_person_id="person.owner",
+    )
+    configured = sales.configure_call_centre_agent(
+        "acme", created["agent_id"], expected_agent_hash=created["agent_hash"],
+        configured_by_person_id="person.owner",
+        setup={
+            "name": "New enquiry follow-up", "direction": "outbound",
+            "phone_assignment": {"number": "+441234567890", "provider": "retell",
+                                 "provider_agent_id": "provider-agent-1"},
+            "knowledge": {"business_name": "Acme Services",
+                          "business_summary": "Approved repairs for local customers.",
+                          "approved_offers": "Boiler repair and assessment.",
+                          "service_areas": "Madrid", "approved_facts": "Open weekdays."},
+            "objective": {"primary_outcome": "qualify_for_human_review",
+                          "success_definition": "Capture the fault and agree a human callback.",
+                          "close_strategy": "human_callback"},
+            "capture_fields": [
+                {"key": "customer_name", "label": "Customer name", "type": "text", "required": True},
+                {"key": "fault", "label": "Fault", "type": "long_text", "required": True},
+            ],
+            "allowed_actions": ["collect_information", "request_human_callback"],
+            "conversation": {"opening": "Hello, I am Acme's AI assistant.",
+                             "tone": "clear", "guidance": "Ask one question at a time.",
+                             "languages": ["en-GB"]},
+            "routing": {"human_handoff": "Create a sales task.", "maximum_phone_attempts": 2,
+                        "unanswered_action": "prepare_email"},
+        },
+    )
+    checked = sales.test_call_centre_agent(
+        "acme", created["agent_id"], run_by_person_id="person.owner")
+    assert checked["agent"]["safety"]["all_passed"] is True
+    minted = sales.mint_call_centre_contract(
+        "acme", created["agent_id"], expected_agent_hash=checked["agent"]["agent_hash"],
+        minted_by_person_id="person.owner",
+    )
+    assert minted["contract"]["schema_version"] == "aion.sales.agent_contract.v1"
+    assert minted["contract"]["contract_hash"].startswith("sha256:")
+    active = sales.set_call_centre_agent_state(
+        "acme", created["agent_id"], state="active",
+        expected_agent_hash=minted["agent"]["agent_hash"], changed_by_person_id="person.owner",
+    )
+    assert active["state"] == "active"
+    draft = sales.prepare_outbound_call(
+        "acme", opportunity["opportunity_id"], agent_id=created["agent_id"],
+        reason="Respond to the boiler enquiry", prepared_by_person_id="person.owner",
+    )
+    assert draft["sales_agent_name"] == "New enquiry follow-up"
+    assert draft["provider_agent_id"] == "provider-agent-1"
+    assert draft["call_goal_contract"]["agent_contract_hash"] == minted["contract"]["contract_hash"]
+    assert draft["call_goal_contract"]["agent_contract"]["knowledge"]["approved_offers"] == "Boiler repair and assessment."
+    assert draft["call_goal_contract"]["required_fields"] == ["customer_name", "fault"]
+
+
+def test_inbound_call_centre_agent_cannot_claim_active_until_number_routing_is_confirmed(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    created = sales.create_sales_agent(
+        "acme", name="Inbound website line", direction="inbound",
+        created_by_person_id="person.owner",
+    )
+    configured = sales.configure_call_centre_agent(
+        "acme", created["agent_id"], expected_agent_hash=created["agent_hash"],
+        configured_by_person_id="person.owner",
+        setup={
+            "name": "Inbound website line", "direction": "inbound",
+            "phone_assignment": {"number": "+441234567891", "provider": "retell",
+                                 "inbound_routing_confirmed": False},
+            "knowledge": {"business_name": "Acme", "business_summary": "Local services.",
+                          "approved_offers": "Approved appointments."},
+            "objective": {"success_definition": "Capture the enquiry for review."},
+        },
+    )
+    checked = sales.test_call_centre_agent(
+        "acme", created["agent_id"], run_by_person_id="person.owner")
+    minted = sales.mint_call_centre_contract(
+        "acme", created["agent_id"], expected_agent_hash=checked["agent"]["agent_hash"],
+        minted_by_person_id="person.owner",
+    )
+    with pytest.raises(PermissionError, match="inbound_phone_routing_confirmation_required"):
+        sales.set_call_centre_agent_state(
+            "acme", created["agent_id"], state="active",
+            expected_agent_hash=minted["agent"]["agent_hash"], changed_by_person_id="person.owner",
+        )
 
 
 def test_retell_webhook_signature_verification_is_replay_bounded(monkeypatch, tmp_path):

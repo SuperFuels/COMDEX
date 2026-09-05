@@ -12,7 +12,9 @@ full research-stack boot while preserving the endpoints used by the renderer.
 from __future__ import annotations
 
 import os
+import logging
 from pathlib import Path
+from threading import Event, Thread
 from typing import Any
 
 from dotenv import load_dotenv
@@ -43,13 +45,17 @@ from backend.modules.aion_business.api.finance_inbox_api import router as financ
 from backend.modules.aion_business.api.finance_bookkeeping_api import router as finance_bookkeeping_router
 from backend.modules.aion_business.api.finance_sales_api import router as finance_sales_router
 from backend.modules.aion_business.api.sales_revenue_api import router as sales_revenue_router
+from backend.modules.aion_business.api.medium_business_operating_api import router as medium_business_operating_router
 from backend.modules.aion_business.api.sales_completion_api import router as sales_completion_router
 from backend.modules.aion_business.api.support_case_api import router as support_case_router
 from backend.modules.aion_business.api.marketing_creative_api import router as marketing_creative_router
 from backend.modules.aion_business.api.marketing_connections_api import router as marketing_connections_router
 from backend.modules.aion_business.api.organization_authority_api import router as organization_authority_router
+from backend.modules.aion_business.api.pilot_scheduled_work_api import router as pilot_scheduled_work_router
 from backend.modules.aion_business.api.workflow_api import router as business_workflow_router
 from backend.modules.aion_business.api.workflow_file_cabinet_api import router as workflow_file_cabinet_router
+from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.pilot_scheduled_work_service import PilotScheduledWorkService
 from backend.modules.aion_voice.api import router as voice_router
 from backend.modules.aion_workflow.workflow_approval_repository import WorkflowApprovalRepository
 from backend.modules.aion_workflow.workflow_dry_run import dry_run_workflow_glyph
@@ -64,19 +70,54 @@ app = FastAPI(
     redoc_url=None,
 )
 
+_desktop_pilot_scheduler_thread: Thread | None = None
+_desktop_pilot_scheduler_stop = Event()
+_logger = logging.getLogger("tessaris.desktop.pilot_scheduler")
+
+
+def _run_due_desktop_pilot_work() -> None:
+    root = AIONBusinessPaths.BUSINESS_CONTAINERS
+    if not root.exists():
+        return
+    service = PilotScheduledWorkService()
+    for workspace in sorted(path for path in root.iterdir() if path.is_dir()):
+        try:
+            service.run_due(workspace.name)
+        except Exception:
+            _logger.exception("Pilot scheduled-work scan failed for %s", workspace.name)
+
+
+def _desktop_pilot_scheduler_loop() -> None:
+    while not _desktop_pilot_scheduler_stop.wait(60):
+        _run_due_desktop_pilot_work()
+
 @app.on_event("startup")
 def start_support_channel_poller() -> None:
+    global _desktop_pilot_scheduler_thread
     from backend.modules.aion_business.runtime.support_polling_service import SUPPORT_POLLER
     SUPPORT_POLLER.start()
     from backend.modules.aion_business.runtime.creative_render_polling_service import CREATIVE_RENDER_POLLER
     CREATIVE_RENDER_POLLER.start()
+    if _desktop_pilot_scheduler_thread is None or not _desktop_pilot_scheduler_thread.is_alive():
+        _desktop_pilot_scheduler_stop.clear()
+        _desktop_pilot_scheduler_thread = Thread(
+            target=_desktop_pilot_scheduler_loop,
+            name="aion-desktop-pilot-scheduled-work",
+            daemon=True,
+        )
+        _desktop_pilot_scheduler_thread.start()
 
 @app.on_event("shutdown")
 def stop_support_channel_poller() -> None:
+    global _desktop_pilot_scheduler_thread
     from backend.modules.aion_business.runtime.support_polling_service import SUPPORT_POLLER
     SUPPORT_POLLER.stop()
     from backend.modules.aion_business.runtime.creative_render_polling_service import CREATIVE_RENDER_POLLER
     CREATIVE_RENDER_POLLER.stop()
+    _desktop_pilot_scheduler_stop.set()
+    if _desktop_pilot_scheduler_thread is not None:
+        _desktop_pilot_scheduler_thread.join(timeout=2)
+        _desktop_pilot_scheduler_thread = None
 
 app.add_middleware(
     CORSMiddleware,
@@ -113,6 +154,8 @@ for router in (
     marketing_connections_router,
     department_pilot_router,
     organization_authority_router,
+    pilot_scheduled_work_router,
+    medium_business_operating_router,
     voice_router,
 ):
     app.include_router(router)

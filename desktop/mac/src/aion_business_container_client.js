@@ -298,6 +298,88 @@
     return request(`/api/aion/business/data/business-map/${encodeURIComponent(businessId)}`);
   }
 
+  async function getBusinessKnowledge() {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/business-knowledge/${encodeURIComponent(businessId)}`);
+  }
+
+  async function addBusinessKnowledgeText({ title, text, scopes, confidentiality } = {}) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/business-knowledge/${encodeURIComponent(businessId)}/text`, {
+      method: 'POST',
+      body: JSON.stringify({
+        title: String(title || 'Owner-provided business knowledge'),
+        text: String(text || ''),
+        scopes: Array.isArray(scopes) && scopes.length ? scopes : ['all'],
+        confidentiality: String(confidentiality || 'internal'),
+      }),
+    });
+  }
+
+  async function uploadBusinessKnowledgeFile(file, { scopes, confidentiality } = {}) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    const body = new FormData();
+    body.append('file', file, file.name);
+    body.append('scopes', (Array.isArray(scopes) && scopes.length ? scopes : ['all']).join(','));
+    body.append('confidentiality', String(confidentiality || 'internal'));
+    return request(`/api/aion/business/data/business-knowledge/${encodeURIComponent(businessId)}/file`, { method: 'POST', body });
+  }
+
+  async function approveBusinessKnowledgeClaims(claimIds = []) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/business-knowledge/${encodeURIComponent(businessId)}/claims/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ claim_ids: Array.isArray(claimIds) ? claimIds : [], actor: 'business_owner' }),
+    });
+  }
+
+  async function searchBusinessKnowledge(query, actorScope = 'pilot', limit = 8) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/business-knowledge/${encodeURIComponent(businessId)}/search`, {
+      method: 'POST',
+      body: JSON.stringify({ query: String(query || ''), actor_scope: String(actorScope || 'pilot'), limit }),
+    });
+  }
+
+  async function getOrganizationAuthority() {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/organisation/${encodeURIComponent(businessId)}`);
+  }
+
+  async function getPilotScheduledWork() {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/pilot/scheduled-work/${encodeURIComponent(businessId)}`);
+  }
+
+  async function createPilotScheduledWork(payload = {}) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/pilot/scheduled-work/${encodeURIComponent(businessId)}`, {
+      method: 'POST', body: JSON.stringify(payload),
+    });
+  }
+
+  async function setPilotScheduledWorkEnabled(scheduleId, enabled, changedByPersonId) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/pilot/scheduled-work/${encodeURIComponent(businessId)}/${encodeURIComponent(scheduleId)}/enabled`, {
+      method: 'POST', body: JSON.stringify({ enabled: enabled === true, changed_by_person_id: String(changedByPersonId || '') }),
+    });
+  }
+
+  async function runPilotScheduledWork(scheduleId) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/pilot/scheduled-work/${encodeURIComponent(businessId)}/${encodeURIComponent(scheduleId)}/run`, { method: 'POST' });
+  }
+
   async function bootstrap() {
     const packet = readFoundationPacket();
     if (!packet) return;
@@ -324,6 +406,10 @@
     getXeroStatus, connectXero, selectXeroTenant, syncXero, disconnectXero,
     getOperatingModel, saveOperatingModel, importOperatingModelSpreadsheet, completeFinanceFoundation,
     getBoardroomContext, askFinanceAgent, getBusinessMap,
+    getBusinessKnowledge, addBusinessKnowledgeText, uploadBusinessKnowledgeFile,
+    approveBusinessKnowledgeClaims, searchBusinessKnowledge,
+    getOrganizationAuthority, getPilotScheduledWork, createPilotScheduledWork,
+    setPilotScheduledWorkEnabled, runPilotScheduledWork,
   };
   setTimeout(bootstrap, 600);
 })(window);

@@ -654,9 +654,9 @@
           <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
             <div>
               <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;">Aion Business Desktop</div>
-              <div style="margin-top:4px;font-size:28px;font-weight:800;color:#0f172a;">Operations Flow</div>
+              <div style="margin-top:4px;font-size:28px;font-weight:800;color:#0f172a;">Operating system map</div>
               <div style="margin-top:6px;font-size:13px;color:#64748b;max-width:780px;">
-                Desktop-native operations chain using local boardroom snapshot data instead of the web iframe.
+                Supporting topology for the COO command loop. This map shows loaded runtime structure; business performance belongs in the evidence-backed COO briefing above.
               </div>
               <div style="margin-top:8px;font-size:12px;color:#475569;">
                 ${escapeHtml(workspace.name || workspace.workspace_id || "Workspace")} ·
@@ -695,19 +695,7 @@
             grid-template-columns:repeat(5,minmax(0,1fr));
             gap:12px;
           ">
-            ${metricCard("Marketing Input", `${pulse?.sales?.orders ?? "—"}`, "Traffic into funnel", "#1a8aff")}
-            ${metricCard("Sales Conv.", formatPct(pulse?.sales?.conversionRate), "Lead → won", "#22c55e")}
-            ${metricCard("Ops Backlog", `${pulse?.ops?.backlog ?? "—"}`, "Awaiting fulfilment", "#f59e0b")}
-            ${metricCard("Cash", formatMoney(pulse?.cash?.onHand), "Finance bank", "#15803d")}
-            ${metricCard("Retention", formatPct(pulse?.sales?.sellThroughRate), "Support health", "#22c55e")}
-          </div>
-
-          <div style="
-            margin-top:12px;
-            display:grid;
-            grid-template-columns:repeat(4,minmax(0,1fr));
-            gap:12px;
-          ">
+            ${metricCard("Department Seats", seats.length, "Loaded operating functions", "#1a8aff")}
             ${metricCard("Runtime Runs", runs.length, "Boardroom runtime snapshot", "#0f172a")}
             ${metricCard("Pending Approvals", approvals.filter((item) => item?.status === "pending").length, "Decision queue", "#f59e0b")}
             ${metricCard("Topology Nodes", topologyNodes.length, "Spatial/runtime graph", "#1a8aff")}
@@ -1611,6 +1599,7 @@
     const topology = getTopology(snapshot);
     const floors = getFloors(snapshot);
     const seats = getSeats(snapshot);
+    const bindingsByCategory = getBindingsByCategory(snapshot);
 
     const marketingSeat = getSeatByDepartmentKey(seats, "marketing");
     const salesSeat = getSeatByDepartmentKey(seats, "sales");
@@ -2134,14 +2123,14 @@
     addAnimatedObject(pillC);
 
     const stats = [
-      { label: "Marketing Input", value: `${pulse?.sales?.orders ?? "—"}`, x: -4.5, z: -9.2, accent: 0x1a8aff },
-      { label: "Sales Conv", value: formatPct(pulse?.sales?.conversionRate), x: 1.2, z: -9.2, accent: 0x22c55e },
-      { label: "Ops Backlog", value: `${pulse?.ops?.backlog ?? "—"}`, x: 6.9, z: -9.2, accent: 0xf59e0b },
-      { label: "Cash", value: formatMoney(pulse?.cash?.onHand), x: 12.6, z: -9.2, accent: 0x15803d },
-      { label: "Retention", value: formatPct(pulse?.sales?.sellThroughRate), x: 18.3, z: -9.2, accent: 0x22c55e },
-      { label: "Runs", value: `${safeArray(runtime.runs).length}`, x: 24.0, z: -9.2, accent: 0x1a8aff },
-      { label: "Approvals", value: `${safeArray(runtime.approvals).filter((item) => item?.status === "pending").length}`, x: 29.7, z: -9.2, accent: 0xf59e0b },
-      { label: "Topology", value: `${safeArray(topology.nodes).length}/${safeArray(topology.edges).length}`, x: 35.4, z: -9.2, accent: 0x8b5cf6 },
+      { label: "Seats", value: `${seats.length}`, x: -4.5, z: -9.2, accent: 0x1a8aff },
+      { label: "Runs", value: `${safeArray(runtime.runs).length}`, x: 1.2, z: -9.2, accent: 0x22c55e },
+      { label: "Approvals", value: `${safeArray(runtime.approvals).filter((item) => item?.status === "pending").length}`, x: 6.9, z: -9.2, accent: 0xf59e0b },
+      { label: "Nodes", value: `${safeArray(topology.nodes).length}`, x: 12.6, z: -9.2, accent: 0x1a8aff },
+      { label: "Edges", value: `${safeArray(topology.edges).length}`, x: 18.3, z: -9.2, accent: 0x22c55e },
+      { label: "Floors", value: `${floors.length}`, x: 24.0, z: -9.2, accent: 0x1a8aff },
+      { label: "Bindings", value: `${Object.keys(bindingsByCategory).length}`, x: 29.7, z: -9.2, accent: 0x8b5cf6 },
+      { label: "Mode", value: "LIVE", x: 35.4, z: -9.2, accent: 0x15803d },
     ];
 
     stats.forEach((item) => {

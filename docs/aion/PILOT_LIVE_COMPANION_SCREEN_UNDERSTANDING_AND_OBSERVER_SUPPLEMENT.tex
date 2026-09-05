@@ -1,0 +1,821 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=24mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\definecolor{pilotblue}{HTML}{2368FF}
+\definecolor{pilotgreen}{HTML}{16834A}
+\definecolor{pilotamber}{HTML}{B56A00}
+\definecolor{pilotred}{HTML}{C52F46}
+\newcommand{\Pilot}{\textbf{Pilot}}
+\newcommand{\Fabric}{\textbf{AION Device Fabric}}
+\newcommand{\implemented}{\textcolor{pilotgreen}{\textbf{Implemented}}}
+\newcommand{\bounded}{\textcolor{pilotamber}{\textbf{Bounded}}}
+\newcommand{\deferred}{\textcolor{pilotred}{\textbf{Production work}}}
+
+\title{\textbf{Pilot Live Companion, Screen Understanding,\\Provider Evidence, and Observer Mode}\\[4pt]
+\large AION Device Fabric Technical Supplement}
+\author{Tessaris / AION Product and Technical Record}
+\date{29 August 2026\\Fabric implementation versions 0.15.0--0.19.0}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This supplement documents the implemented transition from television control
+to evidence-grounded television understanding in AION Device Fabric.  Fabric
+0.15 introduced Pilot Live Companion and signed, rights-aware Pilot Moments.
+Fabric 0.16 added local phone-camera perception, positioned optical character
+recognition (OCR), structured screen fusion, confidence-labelled findings, and
+private owner correction.  Fabric 0.17 added provider-reference normalization,
+optional official YouTube metadata enrichment, and a short-lived explicit
+Observer Mode authority.  Together these capabilities allow Pilot to reason
+about recent television speech and owner-supplied visual evidence without
+claiming unsupported access to protected programme pixels, copying protected
+media, inferring a person's identity from a face, or treating provider metadata
+as proof of subscription entitlement.  This document records the architecture,
+schemas, execution flows, trust boundaries, verification results, and remaining
+production work.
+\end{abstract}
+
+\section{Scope and Implemented Status}
+
+The work described here is additive to the existing mother-brain, signed
+capability, webOS gateway, private-phone, audit-ledger, and television-Canvas
+architecture.  It does not replace COMDEX intelligence files and does not grant
+the television direct access to COMDEX memory, service credentials, device
+pairing secrets, or private household identity data.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Implemented releases covered by this supplement.}
+\label{tab:pilot-live-releases}
+\begin{tabularx}{\textwidth}{@{}L{14mm}L{34mm}Y L{25mm}@{}}
+\toprule
+Release & Principal object & Capability introduced & Verification\\
+\midrule
+0.15.0 & \nolinkurl{pilot.live.context.v1} and
+\nolinkurl{pilot.moment.v1} & Explicit live fact-check, explanation, and
+rights-aware Moment preparation using recent memory-only audio and permitted
+TV state & 136 tests; real LG state observation and Moment preparation\\
+0.16.0 & \nolinkurl{pilot.screen-understanding.v1} & Local Apple Vision OCR
+geometry, screen-element detection, source/confidence fusion, and persona-bound
+correction & 144 tests; real OCR geometry processing; no live TV commands\\
+0.17.0 & \nolinkurl{pilot.provider-metadata.v1} and
+\nolinkurl{pilot.explicit-observer.v1} & Provider identifiers, optional official
+YouTube enrichment, and explicit short-lived camera-session leases & 149 tests;
+audit chain valid; no live TV commands\\
+0.18.0 & \nolinkurl{pilot.live-news.v1} & Claim decomposition, source-labelled
+comparison, correction timeline, playback-preserving spoken verdict, and
+private-phone evidence record & 154 tests; safe fallback verified; no live TV
+commands\\
+0.18.1 & Evidence-provider failover & OpenAI Responses web search followed by
+Gemini Google Search grounding and then an explicit non-verdict handoff & 156
+tests; live grounded failover verified; no live TV commands\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The user-facing commands introduced by this programme include:
+
+\begin{itemize}[leftmargin=*]
+  \item ``Pilot, fact check that.''
+  \item ``Pilot, explain that.''
+  \item ``Pilot, share that moment.''
+  \item ``Pilot, what is on the screen?''
+  \item ``Pilot, what is the score?''
+  \item ``Pilot, read the subtitle.''
+  \item ``Pilot, what product is that?''
+\end{itemize}
+
+These phrases are entry points into governed intents rather than authority to
+perform arbitrary external actions.  A request may produce an answer, a
+prepared context object, an explicit request for more evidence, or an honest
+refusal.  It does not silently purchase, message, publish, identify a person,
+or export protected media.
+
+\section{System Architecture}
+
+\subsection{Evidence flow}
+
+The implemented data path is:
+
+\begin{center}
+\begin{tabular}{c}
+Television programme, game, browser, or application\\
+$\downarrow$ permitted metadata \hspace{12mm} $\downarrow$ room audio
+\hspace{12mm} $\downarrow$ explicit phone capture\\
+webOS gateway \hspace{9mm} memory-only audio ring
+\hspace{9mm} local Apple Vision\\
+$\searrow$ \hspace{27mm} $\downarrow$ \hspace{27mm} $\swarrow$\\
+AION mother-brain evidence normalization and policy\\
+$\downarrow$\\
+LiveContext $+$ provider metadata $+$ OCR geometry $+$ labels $+$ screen belief\\
+$\downarrow$\\
+confidence-labelled screen-understanding object\\
+$\downarrow$\\
+TV Canvas answer, private phone detail, correction, or governed next action
+\end{tabular}
+\end{center}
+
+The restricted television remains a gateway-managed surface.  The mother node
+performs planning, canonicalization, signing, local perception, policy checks,
+evidence retrieval, and auditing.  The private phone is both a control surface
+and an optional owner-visible sensor.  The TV Canvas receives only a sanitized
+projection.
+
+\subsection{Evidence classes}
+
+Pilot distinguishes rather than silently merges its inputs:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Device evidence:} permitted webOS foreground-application,
+        audio, playback, and cached state.
+  \item \textbf{Ephemeral transcript evidence:} locally transcribed material
+        from the bounded recent-audio buffer, used only after an explicit
+        request.
+  \item \textbf{Owner-captured visual evidence:} OCR observations, bounding
+        boxes, classifications, and an image digest derived from an explicit
+        phone submission.
+  \item \textbf{Provider evidence:} normalized official URLs or identifiers
+        and, where configured, bounded official API metadata.
+  \item \textbf{Prior screen belief:} the most recent confidence-labelled
+        Fabric view of the active surface.
+  \item \textbf{Owner correction:} a persona-bound statement correcting one
+        supported field of the current observation.
+\end{enumerate}
+
+Every fusion result records source descriptions and confidence values.  A
+source conflict is represented explicitly.  Missing evidence is not converted
+into fabricated certainty.
+
+\section{Fabric 0.15: Pilot Live Companion}
+
+\subsection{Memory-only recent-audio window}
+
+The voice service maintains a bounded in-memory ring containing at most
+approximately 30 seconds of recent audio.  In the current implementation the
+ring is a fixed-length deque sampled in bounded blocks.  It is cleared when the
+microphone sleeps and when the voice process stops.  Raw audio is not written
+to the Fabric runtime directory, capability ledger, Canvas, phone interface,
+or Moment object.
+
+The ring is not itself an authorization to retain or research television
+speech.  Persistence begins only when the user makes an explicit contextual
+request.  The mother then constructs a small structured LiveContext from
+bounded recent transcript fragments and freshly observed permitted TV state.
+
+\subsection{LiveContext schema}
+
+The persisted object has schema identifier
+\texttt{pilot.live.context.v1}.  Its principal fields are:
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}L{37mm}Y@{}}
+\toprule
+Field & Meaning\\
+\midrule
+\texttt{created\_at} & UTC creation time.\\
+\texttt{surface} & Current confidence-labelled Fabric surface.\\
+\texttt{app} & Bounded foreground application identifier and title.\\
+\texttt{playback} & Exposed title, state, position, or duration fields when
+available.\\
+\texttt{recent\_statement} & Most recent bounded, non-wake transcript fragment.\\
+\texttt{recent\_transcripts} & At most four normalized transcript fragments.\\
+\texttt{evidence} & Typed descriptions of webOS and ephemeral transcript
+sources.\\
+\texttt{confidence} & Context confidence, not a truth score for the statement.\\
+\texttt{privacy} & Raw-audio retention and explicit-request declarations.\\
+\texttt{context\_hash} & Canonical hash of the structured record.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The context hash is calculated over canonical bytes.  It permits later audit
+records and Moment objects to refer to the exact evidence object without
+embedding raw audio.
+
+\subsection{Fact-check and explanation flow}
+
+For ``fact check that'' or ``explain that'', the runtime performs the following
+bounded sequence:
+
+\begin{enumerate}[leftmargin=*]
+  \item Verify the signed capability corresponding to the requested intent.
+  \item Observe fresh permitted webOS state and record its action receipt.
+  \item Extract a bounded recent statement from the memory-only transcript
+        window; if unavailable, use a sufficiently supported captured subtitle
+        or owner correction.
+  \item Construct and hash the LiveContext.
+  \item Route the question to the research layer with the appropriate
+        fact-check or explanation mode.
+  \item Prefer current, attributable evidence and retain sanitized results
+        rather than the raw provider response.
+  \item Present a compact result on the TV Canvas and fuller evidence on the
+        private phone.
+  \item Write an audit event containing the intent, evidence hashes, and result
+        state.
+\end{enumerate}
+
+A fact-check result is evidence-labelled.  Where research evidence is not
+available, Pilot must not invent a verdict; it returns an insufficient-evidence
+state or an explicit search handoff.  The system therefore distinguishes
+\emph{what was said}, \emph{what the TV reports is active}, and \emph{what
+external evidence supports}.
+
+\section{Fabric 0.15: Signed Pilot Moments}
+
+\subsection{Purpose and rights boundary}
+
+``Share that moment'' currently prepares a portable context object rather than
+copying television media.  The object uses schema
+\texttt{pilot.moment.v1}.  It may contain application and playback metadata, a
+bounded recent statement, the originating context hash, a requested interval
+of at most 30 seconds, and an optional recipient hint.  It explicitly records:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{protected\_audio\_copied = false};
+  \item \texttt{protected\_video\_copied = false};
+  \item provider-native sharing is preferred; and
+  \item a fallback card contains context rather than programme media.
+\end{itemize}
+
+The current provider-aware hierarchy is:
+
+\begin{enumerate}[leftmargin=*]
+  \item YouTube-like surfaces may prepare a provider timestamp link.
+  \item Twitch-like surfaces may prepare a provider-native clip operation,
+        pending an authorized provider adapter.
+  \item Other surfaces produce a signed context card unless an official native
+        sharing mechanism is exposed.
+\end{enumerate}
+
+The Moment remains \texttt{prepared\_not\_sent}.  Selecting a recipient and
+sending through a messaging service remain separate private actions.
+
+\subsection{Integrity model}
+
+Let $M$ be the canonical Moment payload.  Fabric calculates
+
+\begin{equation}
+ h_M = \operatorname{SHA256}(\operatorname{canonical}(M)),
+\end{equation}
+
+and signs the canonical bytes with the issuing node identity:
+
+\begin{equation}
+ \sigma_M = \operatorname{Sign}_{K_{\mathrm{issuer}}}
+             (\operatorname{canonical}(M)).
+\end{equation}
+
+The stored record includes $M$, $h_M$, the issuer public key, and $\sigma_M$.
+This establishes provenance and tamper evidence; it does not create media
+rights or prove that a recipient is entitled to play the referenced programme.
+
+\section{Fabric 0.16: Non-Disruptive Screen Understanding}
+
+\subsection{Owner-visible phone perception}
+
+Because LG webOS does not expose a supported general-purpose third-party
+screen-capture interface, the implemented visual path uses a photograph
+submitted explicitly from the private phone.\cite{webosscreenshot} The service
+accepts JPEG, PNG, or HEIC content up to 5 MiB.  It writes a
+permission-restricted temporary file,
+runs local Apple Vision, and deletes the temporary image in a
+\texttt{finally} cleanup path.
+
+The persisted \texttt{aion.phone.visual-perception.v1} record contains only:
+
+\begin{itemize}[leftmargin=*]
+  \item SHA-256 digest and byte count of the submitted image;
+  \item explicit-capture source and consent labels;
+  \item at most 40 normalized OCR strings;
+  \item at most 40 positioned OCR observations;
+  \item at most 12 bounded image-classification labels;
+  \item inferred surface, view, cues, confidence, and timestamp; and
+  \item \texttt{image\_retained = false}.
+\end{itemize}
+
+Each positioned OCR item contains bounded normalized coordinates
+$x,y,w,h\in[0,1]$ and recognition confidence.  Geometry allows Pilot to
+distinguish likely subtitle regions from menus and other screen text.
+
+\subsection{Fusion model}
+
+The screen fusion service combines phone perception $P$, permitted device state
+$D$, explicit live context $L$, previous screen belief $B$, and provider
+metadata $R$:
+
+\begin{equation}
+ S = F(P,D,L,B,R).
+\end{equation}
+
+The current implementation is a bounded deterministic evidence classifier,
+not an unrestricted claim of visual understanding.  For each supported finding
+$j$, it emits detection state $d_j$, confidence $c_j$, supporting source IDs,
+and a normalized evidence subset.  The overall confidence is the mean of
+detected supported-element confidences, or the base perception confidence when
+no supported element is detected:
+
+\begin{equation}
+ C(S)=
+ \begin{cases}
+  |J|^{-1}\sum_{j\in J}c_j, & |J|>0,\\
+  c_P, & |J|=0.
+ \end{cases}
+\end{equation}
+
+This value indicates evidence strength within the implemented detector set; it
+is not a probability that every semantic statement about the scene is true.
+
+\subsection{Implemented detectors}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Current screen-understanding findings.}
+\begin{tabularx}{\textwidth}{@{}L{28mm}Y Y@{}}
+\toprule
+Finding & Evidence used & Important boundary\\
+\midrule
+Subtitles & OCR position, centre alignment, line length, and recognition
+confidence & Likely subtitle text, not guaranteed programme transcript\\
+Scoreboard & Team/score pattern, match clock, sports terms, and image labels &
+Does not independently verify the official match result\\
+Products & Currency/price expressions, purchase language, and product labels &
+Any save, basket, or purchase remains private-confirmation-only\\
+Locations & Map, route, distance, station, airport, landmark, and city cues &
+Does not infer a private location or authorize navigation\\
+Game HUD & Game surface state plus mission, level, score, health, or quest text &
+Does not control gameplay or infer hidden game state\\
+People & Generic person-related image labels & Faces remain unknown; identity is
+never guessed\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The resulting \texttt{pilot.screen-understanding.v1} object contains an
+observation ID, app and surface, summary, confidence, source-conflict flag,
+typed source records, supported findings, provider metadata, corrections,
+privacy declarations, and canonical evidence hash.
+
+\subsection{Private correction}
+
+The phone controller lets the owner correct only the latest observation and
+only an allowlisted field: subtitle, scoreboard, product, location, or scene.
+The correction is normalized, bounded to 240 characters, attached to a private
+persona, timestamped, and incorporated into a new evidence hash.  A stale
+observation ID is rejected.  Person identity is intentionally absent from the
+allowlist.
+
+Corrections are evidence supplied by the owner, not automatic ground truth.
+They can support later explanations or fact-check requests, but should remain
+source-labelled in any downstream result.
+
+\section{Fabric 0.17: Provider Evidence}
+
+\subsection{Normalized provider record}
+
+The \texttt{ProviderMetadataResolver} accepts a bounded set of HTTPS references
+obtained from the current evidence context.  It recognizes supported YouTube
+video IDs, Netflix title IDs, and Twitch clip IDs and writes a
+\texttt{pilot.provider-metadata.v1} object.  Common fields include provider,
+content ID, canonical official URL, metadata status, confidence, source links,
+limitations, application evidence, entitlement flags, and evidence hash.
+
+The following invariants always apply:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{availability\_verified = false} unless a future authorized
+        availability adapter proves otherwise;
+  \item \texttt{account\_entitlement\_verified = false} unless a future
+        persona-specific account adapter proves otherwise;
+  \item metadata is not treated as permission to play, copy, clip, or send
+        protected content; and
+  \item an unavailable provider API cannot prevent local screen perception.
+\end{itemize}
+
+\subsection{YouTube enrichment}
+
+Without a configured API key, a recognized YouTube URL produces a
+\nolinkurl{provider_identifier_only} record.  When the owner configures
+\nolinkurl{YOUTUBE_API_KEY}, the mother may call the official YouTube Data API
+\nolinkurl{videos.list} endpoint using a restricted field projection.  The
+response is limited to 500,000 bytes and may enrich the record with title,
+channel, publication time, ISO-8601 duration, caption availability, live state,
+and embeddability.\cite{youtubevideos} A timeout, invalid key, oversized
+response, invalid JSON,
+or other provider failure produces \nolinkurl{official_api_unavailable} while
+preserving the identifier-only evidence path.
+
+\subsection{Netflix and Twitch boundaries}
+
+A Netflix title reference records the official title ID and identifies
+Netflix's supported mobile Moments feature as a potential native-share
+route.\cite{netflixmoments}
+It does not claim that Moments can be driven from the LG browser, that a title
+is available in the household's region, or that Pilot may copy the programme.
+
+A Twitch clip reference records the official clip identifier and a native-clip
+boundary.  Enriched Twitch operations remain unavailable until a developer
+application and user-authorized adapter are connected.  Twitch embedded video
+also imposes HTTPS and parent-domain requirements that a production surface
+must satisfy.\cite{twitchembed}
+
+\section{Fabric 0.17: Explicit Observer Mode}
+
+\subsection{Authority and session lifecycle}
+
+Observer Mode is a backend and phone-interface foundation for repeated visual
+sampling.  It is deliberately not a hidden camera mode.  The owner must press
+\emph{Start Observer Mode} on the private phone and grant visible browser or
+native camera permission.
+
+Starting a session creates:
+
+\begin{itemize}[leftmargin=*]
+  \item a random session identifier;
+  \item a 256-bit URL-safe bearer token returned once to the phone;
+  \item the initiating private persona ID;
+  \item a start and expiry time;
+  \item a maximum duration of 600 seconds;
+  \item a configured interval clamped to 3--30 seconds;
+  \item accepted-frame counters; and
+  \item declarations that source frames are not retained and visible owner
+        start is required.
+\end{itemize}
+
+Only the token hash is persisted.  The token itself is absent from status
+snapshots and audit events.  For an incoming frame with token $t$, the service
+requires
+
+\begin{equation}
+ \operatorname{CTEqual}(\operatorname{SHA256}(t),h_t)=\mathrm{true},
+\end{equation}
+
+where \texttt{CTEqual} denotes constant-time comparison and $h_t$ is the
+stored token hash.  It additionally requires an active unexpired session and a
+time since the previous accepted frame greater than or equal to the permitted
+interval.  Invalid, early, stopped, or expired frames are rejected before image
+analysis.
+
+Stopping the observer is bound to the same private persona.  It marks the
+session inactive and clears the persisted token hash.  The start and stop
+events enter the Fabric audit chain without the bearer token or image content.
+
+\subsection{Phone implementation}
+
+The controller requests an environment-facing camera stream with audio
+disabled, shows the live preview, downsizes frames to at most 1,280 pixels on
+the largest requested dimension, encodes bounded JPEG samples, and sends them
+to the existing perception endpoint with the
+\texttt{X-Pilot-Observer} session header.  The page stops its media tracks when
+the user stops Observer Mode or leaves the page.
+
+Each accepted frame follows the same local Apple Vision, immediate deletion,
+screen-fusion, hash, and audit path as a manual capture.  Observer Mode changes
+capture cadence; it does not bypass the normal perception or capability
+boundary.
+
+\subsection{Secure-context limitation}
+
+Browser \texttt{getUserMedia()} is restricted to secure contexts.\cite{mdnmedia}
+The current phone controller is served over token-protected local HTTP for the
+developer proof.  On mobile browsers enforcing the secure-context rule, the UI
+therefore refuses automatic observation and directs the owner to the existing
+manual \emph{Take a picture of the TV screen} control.  The implementation does
+not weaken browser security or install an untrusted camera workaround.
+
+A production Observer Mode requires one of:
+
+\begin{enumerate}[leftmargin=*]
+  \item local HTTPS with a certificate chain trusted by the phone; or
+  \item a signed native Pilot application with explicit camera permission,
+        foreground indicators, operating-system lifecycle handling, and a
+        reviewed privacy declaration.
+\end{enumerate}
+
+Until one of these paths exists, repeated automatic camera observation is a
+backend-complete but browser-constrained capability; manual owner capture is
+the working developer-preview path.
+
+\section{Capability and Interface Boundaries}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Relevant signed Fabric capabilities.}
+\begin{tabularx}{\textwidth}{@{}L{58mm}L{14mm}Y@{}}
+\toprule
+Capability & Risk & Scope\\
+\midrule
+\nolinkurl{voice.live.fact_check} & Low & Build explicit live context and request
+evidence-labelled verification.\\
+\nolinkurl{companion.webos.perception.submit} & Low & Submit one explicit bounded
+phone image for local ephemeral analysis.\\
+\nolinkurl{companion.screen.context.correct} & Low & Correct one allowlisted field
+of the current structured observation.\\
+\nolinkurl{companion.screen.observer.control} & Medium & Start or stop one visible,
+short-lived, persona-bound observer session.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Phone operations use a rotating private companion path and a separate CSRF
+secret.  Perception requests are limited to 5 MiB.  Ordinary controller
+requests are limited separately.  Observer frames carry the additional bearer
+token.  The server returns permission failures distinctly from malformed input
+and unexpected processing failures.
+
+The phone response includes a restrictive camera policy scoped to the current
+origin and disables microphone access on the controller page.  The camera
+belongs to the visual-observer workflow; television audio continues to be
+handled by the separately governed local voice service.
+
+\section{Data Lifecycle and Privacy Model}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Retention by data class.}
+\begin{tabularx}{\textwidth}{@{}L{35mm}L{35mm}Y@{}}
+\toprule
+Data & Retention & Persisted derivative\\
+\midrule
+Recent microphone audio & Memory-only; cleared on sleep or stop & Bounded
+transcript fragments only after explicit contextual request\\
+Phone photograph & Temporary local file deleted after analysis & Hash, byte
+count, OCR, geometry, labels, and inference\\
+Observer frame & Same immediate deletion as manual capture & Structured
+perception, fusion result, hash, and session counter\\
+Observer bearer token & Never persisted in raw form & SHA-256 token hash while
+session remains usable\\
+Provider response & Raw response not retained & Bounded normalized metadata
+fields and evidence hash\\
+Owner correction & Persisted, persona-bound, maximum 240 characters & Field,
+value, timestamp, persona ID, and updated evidence hash\\
+Pilot Moment & Persisted signed context record & No protected audio or video\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The system does not infer face identity.  A shared television request cannot
+select a private payment method, account, contact, or calendar automatically.
+Products, locations, purchases, bookings, and sharing remain within the
+existing private-phone confirmation model.
+
+\section{Implementation Map}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}L{43mm}Y@{}}
+\toprule
+Module & Responsibility\\
+\midrule
+\texttt{voice.py} & Wake phrase, microphone lifecycle, memory-only audio ring,
+bounded transcript context, and live intents.\\
+\texttt{live\_context.py} & Construction and canonical hashing of explicit
+LiveContext evidence.\\
+\texttt{moments.py} & Rights-aware Moment payload, canonical hash, device
+signature, and prepared-not-sent state.\\
+\texttt{apple\_vision.swift} & Local text recognition, normalized geometry, and
+image classifications.\\
+\texttt{perception.py} & Input validation, temporary-file lifecycle, structured
+perception record, and immediate image deletion.\\
+\texttt{screen\_fusion.py} & Deterministic source-aware fusion, supported
+detectors, confidence, conflict state, correction, and evidence hash.\\
+\texttt{provider\_metadata.py} & Provider URL normalization and optional
+bounded official YouTube metadata enrichment.\\
+\texttt{observer.py} & Explicit session lease, persona binding, token hashing,
+expiry, frame interval enforcement, and stop.\\
+\texttt{live\_news.py} & Verdict normalization, per-claim evidence binding,
+source classification, correction timeline, privacy declaration, canonical
+hash, and bounded history.\\
+\texttt{companion.py} & Private phone panels, manual capture, Observer controls,
+camera preview, CSRF, request limits, and frame upload.\\
+\texttt{runtime.py} & Signed capability enforcement, evidence orchestration,
+provider fusion, audit events, and answer routing.\\
+\texttt{cli.py} & Dashboard, phone snapshot projection, controller services,
+and runtime status.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Verification and Reproducibility}
+
+Automated verification covers provider parsing, official-API normalization,
+entitlement non-claims, Observer token redaction, invalid-token rejection,
+frame-rate enforcement, persona-bound stop, screen fusion, subtitle and score
+detection, product confirmation boundaries, game-HUD detection, correction
+allowlists, companion controls, and the existing Fabric regression suite.
+
+The terminal release evidence is:
+
+\begin{itemize}[leftmargin=*]
+  \item Fabric 0.15.0: 136 passing checks; package SHA-256
+        \nolinkurl{c313bdd26da53f1db452e34377d2aef6bdc6dc2510822a64cb54ac439c3d1ed3}.
+  \item Fabric 0.16.0: 144 passing checks; package SHA-256
+        \nolinkurl{5304d4bdd1beb724fd96f3ee90a14983e7a67021f51e333b3ac38fbf87aff595}.
+  \item Fabric 0.17.0: 149 passing checks; package SHA-256
+        \nolinkurl{513eac8a8c0c9e4178837a16103c4266156341140e609af6430dc920054d49a1}.
+  \item Fabric 0.18.0: 154 passing checks; package SHA-256
+        \nolinkurl{ac594129b59a5a2a97110ace96a2aed03013ee4164db0a79026c0641d7ad0eae}.
+  \item Fabric 0.18.1: 156 passing checks; package SHA-256
+        \nolinkurl{897b15e348d9367a633581ac4b4a12a6a4063ad095e924757e0f2c737312afd0}.
+\end{itemize}
+
+Fabric 0.15 was field-verified against the paired LG television for permitted
+state observation and Moment preparation.  Fabric 0.16 verified real Apple
+Vision OCR geometry.  The 0.16 and 0.17 implementation and regression runs did
+not issue live TV control actions, allowing the household game session to
+continue uninterrupted.  At the 0.17 release gate the audit chain was valid,
+the microphone was physically closed, and Observer Mode was stopped.
+
+\section{Fabric 0.18: Claim-Decomposed Live News}
+
+Fabric 0.18 turns the earlier evidence-labelled fact-check proof into a
+production-shaped workflow.  The structured research contract requires an
+overall verdict and confidence, at most four independently checkable claims,
+per-claim verdicts and explanations, explicit evidence indexes, date scope,
+context notes, and at most five HTTPS evidence sources.  The provider request
+uses built-in web search and strict JSON Schema output with response storage
+disabled.  Fabric retains only the sanitized structured result.
+
+The mother then compiles \texttt{pilot.live-news.v1}.  Evidence indexes that do
+not correspond to retained HTTPS sources are removed.  Missing provider
+authority forces \texttt{Unverifiable} with zero confidence.  The evidence
+record includes a chronological statement-capture, owner-correction, and
+research timeline plus a canonical digest.  Raw audio, source pixels, raw
+provider responses, and private identity are not projected or retained in the
+fact-check object.
+
+The presentation model is intentionally asymmetric.  Pilot speaks the compact
+verdict without navigating away from the active programme and exposes the full
+claim/source/timeline record on the private phone.  ``Pilot, show me the
+evidence'' is an explicit request to open the full-screen Canvas.  A persistent
+overlay above arbitrary third-party webOS applications is not claimed: LG
+documents notification overlays as system-application functionality.  A true
+same-screen overlay therefore remains native-platform work rather than a
+gateway simulation.
+
+\section{Honest Capability Boundary}
+
+The implemented proof establishes that Pilot can:
+
+\begin{itemize}[leftmargin=*]
+  \item preserve a bounded recent context without retaining raw room audio;
+  \item create a signed current-programme context after explicit request;
+  \item research and display evidence-labelled explanations or fact checks;
+  \item prepare a rights-aware, signed Moment without copying protected media;
+  \item extract OCR text and geometry locally from an explicit phone image;
+  \item recognize a bounded set of subtitle, score, product, location, and game
+        cues;
+  \item fuse independent sources while retaining source and confidence labels;
+  \item let a private persona correct the current observation;
+  \item normalize supported provider identifiers and optionally enrich YouTube
+        metadata; and
+  \item create a visible, expiring, rate-limited Observer authority.
+\end{itemize}
+
+The proof does \emph{not} yet establish that Pilot can:
+
+\begin{itemize}[leftmargin=*]
+  \item see arbitrary protected TV pixels without the owner-provided camera;
+  \item run automatic phone-camera observation over insecure LAN HTTP;
+  \item identify an actor or household member solely from a face;
+  \item guarantee that OCR text is an exact subtitle or factual statement;
+  \item establish a household's subscription or playback entitlement from a
+        provider URL;
+  \item create or distribute a protected media clip where the provider has not
+        authorized it;
+  \item send a Moment without separate private recipient selection and
+        authorization; or
+  \item provide production-grade continuous perception without native/TLS
+        lifecycle, battery, thermal, privacy, and accessibility testing.
+\end{itemize}
+
+\section{Fabric 0.19: AION Native Intelligence Routing}
+
+Fabric 0.19 removes OpenAI from the default research path.  The mother brain
+stores one of three maximum-authority policies: \texttt{native},
+\texttt{gemini}, or \texttt{boost}.  In every policy the route begins with
+deterministic local capability, available AION state and memory, the installed
+local model, and bounded public evidence.  The Gemini policy may then use a
+persona-provided Gemini key for evidence synthesis; Google Search grounding is
+a separate, explicitly enabled capability.  The Boost policy may reach a
+premium provider only after the preceding routes fail.
+
+The routing record deliberately contains no secret.  It records a provider
+class trace, local UTC usage counts, and one user-facing provenance label:
+\texttt{AION Local}, \texttt{AION + live public evidence}, or
+\texttt{Pilot Boost}.  Gemini requests are constrained by a configurable local
+daily safety allowance.  The provider key remains in the mother-brain vault and
+is never projected to the television or edge nodes.
+
+Evidence checking is not delegated entirely to a model.  Fabric filters to
+bounded HTTPS sources, rejects model-introduced URLs when an allowed evidence
+set exists, validates claim citation indexes, and detects contradictory
+verdicts for normalized duplicate claims.  In the internet/no-paid-AI state,
+Pilot can still present useful current sources.  In fact-check mode it returns
+\texttt{Unverifiable} when no model result passes the boundary instead of
+manufacturing a verdict.
+
+\section{Remaining Production Work}
+
+The next production-quality steps are:
+
+\begin{enumerate}[leftmargin=*]
+  \item deploy trusted local TLS or a signed native phone application;
+  \item add a persistent foreground camera indicator, explicit pause, session
+        countdown, battery/thermal adaptation, and operating-system suspension
+        recovery;
+  \item connect authenticated, persona-specific provider metadata and
+        entitlement adapters without exposing account credentials to the TV;
+  \item add official provider-native timestamp, Moment, and clip execution
+        where terms and APIs permit it;
+  \item implement observe--act--observe--verify for supported third-party
+        navigation while preventing automatic legal consent or purchases;
+  \item improve subtitle, scoreboard, product, and programme identification
+        through provider metadata and temporally stable multi-frame fusion;
+  \item add spoiler-aware explanation, translation, sports interpretation, and
+        native-platform compact overlays where the TV platform grants authority; and
+  \item complete privacy, accessibility, child-safety, rights, abuse, and
+        regional compliance review before consumer release.
+\end{enumerate}
+
+\section{Conclusion}
+
+Fabric 0.15--0.19 establishes the first governed perception loop for Pilot's
+television product.  The important architectural result is not a claim that the
+restricted TV has become an unrestricted camera or media extractor.  It is
+that the mother brain can combine explicit, bounded, independently labelled
+evidence into useful room-scale intelligence while preserving ownership,
+privacy, rights, and action boundaries.
+
+The resulting pattern is:
+
+\begin{center}
+\textbf{recent context $+$ permitted device state $+$ owner-visible pixels
+$+$ provider evidence}\\[4pt]
+$\downarrow$\\[4pt]
+\textbf{confidence-labelled understanding $\rightarrow$ private correction
+$\rightarrow$ governed answer or action.}
+\end{center}
+
+This is the foundation for live fact checking, contextual explanation,
+translation, sports intelligence, product discovery, accessibility, education,
+and rights-aware sharing without requiring a replacement television.
+
+\begin{thebibliography}{9}
+
+\bibitem{youtubevideos}
+Google for Developers, ``YouTube Data API: Videos: list.''\\
+\url{https://developers.google.com/youtube/v3/docs/videos/list}
+
+\bibitem{netflixmoments}
+Netflix Help Center, ``How to save and share clips from Netflix.''\\
+\url{https://help.netflix.com/en/node/210664027435620}
+
+\bibitem{twitchembed}
+Twitch Developers, ``Embedding Video and Clips'' and ``Everything.''\\
+\url{https://dev.twitch.tv/docs/embed/video-and-clips/}\\
+\url{https://dev.twitch.tv/docs/embed/}
+
+\bibitem{mdnmedia}
+MDN Web Docs, ``MediaDevices: getUserMedia() method.''\\
+\url{https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia}
+
+\bibitem{webosscreenshot}
+LG webOS TV Developer Forum, ``Is there an API like in Android TV get
+screenshot of the screen?''\\
+\url{https://forum.webostv.developer.lge.com/t/is-there-an-api-like-in-android-tv-get-screenshot-of-the-screen/1419}
+
+\bibitem{openairesponses}
+OpenAI, ``Responses API: Create a model response.''\\
+\url{https://developers.openai.com/api/reference/resources/responses/methods/create}
+
+\bibitem{webosnotifications}
+LG webOS TV Developer, ``Notifications.''\\
+\url{https://webostv.developer.lge.com/develop/guides/notifications}
+
+\end{thebibliography}
+
+\end{document}

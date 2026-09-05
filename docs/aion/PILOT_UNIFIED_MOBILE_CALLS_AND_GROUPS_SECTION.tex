@@ -1,0 +1,55 @@
+\section{Pilot Calls and Private Groups}
+\label{sec:pilot-mobile-calls-groups}
+
+Pilot now has a governed call and private-group state authority that can be shared by
+future native phone clients.  It separates signed signalling, membership and abuse
+controls from the WebRTC media plane.  This is important because a correct interface
+state machine is not evidence that media encryption has received an independent
+cryptographic audit.
+
+\subsection{Authenticated call lifecycle}
+
+A call records the exact caller, recipient and their registered signing keys.  Only
+a participant with a valid signature over the requested transition can change its
+state.  The permitted sequence covers invitation, ringing, answer, connection,
+reconnection and ending, with explicit decline and pre-answer cancellation paths.
+The recipient alone may ring, answer or decline; the caller alone may cancel before
+answer; either authenticated participant may reconnect or end an active call.
+
+Every connection and reconnection advances a key epoch and replaces the prior
+session-key commitment.  Ending removes the active commitment.  This gives the
+native WebRTC layer a mandatory key-rotation boundary, but the current Python
+authority does not transport media or claim audited end-to-end media encryption.
+
+\subsection{Private groups and membership epochs}
+
+Groups support owner, administrator, member and guardian-approved child roles.
+Only an active owner or administrator may add or remove another member.  A child
+cannot be added without an explicit guardian-approved request.  Every membership
+addition or removal advances the group key epoch and records an append-only event,
+so a removed member cannot legitimately receive material protected under the next
+epoch.  Ownership itself cannot be silently removed through the ordinary member
+route.
+
+Group messages retain a private body hash in this boundary and may refer to a
+bounded encrypted attachment.  Mentions must identify active group members, replies
+must reference a message in the same group, and supported reactions are bounded.
+The existing Unified Inbox remains responsible for encrypted content delivery.
+
+\subsection{Abuse and child protections}
+
+Per-person action limits restrict rapid automated signalling.  A block prevents a
+new call or group contact across the blocked relationship.  Reports record a
+category and evidence hash without claiming that an external platform received the
+report.  Child-role membership requires guardian approval independently of ordinary
+administrator authority.
+
+\subsection{Verification and remaining boundary}
+
+Automated tests exercise signed invite-to-call progression, reconnect key rotation,
+invalid signatures, invalid transitions, membership roles, child denial and
+approval, removal rotation, replies, mentions, reactions, attachment bounds and
+blocking/reporting.  Remaining work is the native authenticated WebRTC media plane,
+an independent encryption audit and representative loss, jitter, reconnect,
+participant-removal and compromised-device field qualification.  Pilot continues to
+label the current media audit state as \texttt{not\_independently\_audited}.

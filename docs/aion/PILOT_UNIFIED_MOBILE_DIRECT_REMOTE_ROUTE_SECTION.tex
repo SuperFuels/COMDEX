@@ -1,0 +1,85 @@
+\section{Customer-Owned Direct Remote Route}
+\label{sec:pilot-mobile-direct-remote-route}
+
+Pilot now provides a direct remote phone-to-mother route as the coded completion of
+\texttt{MOB-0307}.  The route does not copy the mother brain, Personal data, Inbox,
+Workspace or Boardroom state into a Tessaris service.  It allows the same signed mobile
+operations used on the trusted home network to reach a customer-controlled HTTPS
+endpoint when the local endpoint is genuinely unreachable.
+
+\subsection{Configuration and pairing}
+
+An owner may configure up to four externally reachable HTTPS endpoints through the
+mother environment setting \texttt{PILOT\_REMOTE\_ENDPOINTS}.  Pilot rejects HTTP,
+embedded credentials, paths, query strings and fragments.  The local endpoint is
+removed from the remote set and duplicates are suppressed.
+
+During successful local pairing, the mother issues a bounded descriptor containing the
+mother identifier, public-key fingerprint, ordered endpoint set, transport and
+application-authentication requirements, issue and expiry times, and a random nonce.
+The descriptor states that no relay is used and no mother secret is present.  Its
+canonical payload hash and Ed25519 mother signature bind every field.  The descriptor
+is delivered only with the successful paired-phone response and stored with that
+phone's protected connection record.
+
+The route is configuration, not an automatic router modification.  The owner or
+organization remains responsible for a valid public certificate, DNS and an authorized
+customer-controlled reverse proxy or direct service exposure.  Automatic rendezvous,
+relay fallback and Wi-Fi/mobile-data roaming are separate later tasks.
+
+\subsection{Connection selection}
+
+For every ordinary mobile request, the phone follows this order:
+\begin{enumerate}
+  \item call the paired trusted-LAN endpoint;
+  \item if and only if the network connection itself fails, inspect the cached remote
+        descriptor;
+  \item verify descriptor expiry, schema, endpoint bounds, mother identity, payload
+        signature, no-relay declaration and absence of embedded secrets;
+  \item connect to a signed candidate over browser-validated HTTPS;
+  \item request that endpoint's fresh signed mother descriptor;
+  \item require the original mother identifier and public-key fingerprint;
+  \item submit the unchanged signed mobile operation.
+\end{enumerate}
+
+An authorization error, validation error or application failure on the local mother is
+not treated as a reason to try another endpoint.  This prevents failover from bypassing
+policy and avoids duplicating a consequential request merely because the mother refused
+it.  Existing idempotency keys continue to protect operations if a genuine network
+failure leaves the client uncertain.
+
+Let $D$ be the signed direct-route descriptor, $M$ the mother identity established at
+pairing, $E$ a candidate endpoint and $Q$ the already possession-signed request.  Remote
+submission is allowed only when
+\[
+  \mathrm{Signature}_{M}(D) \land \mathrm{Fresh}(D) \land E\in D
+  \land \mathrm{TLS}(E) \land \mathrm{Identity}(E)=M \land \mathrm{Valid}(Q).
+\]
+The network endpoint therefore transports authority but cannot create it.
+
+\subsection{Security and ownership properties}
+
+TLS 1.2 or newer protects the direct channel, while the existing phone certificate,
+short-lived capability lease and Ed25519 request signature provide application-level
+mutual authentication.  A DNS, QR or endpoint substitution cannot succeed without both
+the original mother's signature and its private identity key.  Revoking the phone or
+lease continues to reject requests on local and remote addresses alike because both
+addresses terminate at the same authoritative mother.
+
+The descriptor contains no credentials, provider tokens or mother-private key.  It is
+valid for at most 72 hours and normally 24 hours.  The route uses no central Pilot
+plaintext store and declares \texttt{relay\_used=false}.  A future unreadable relay may
+be selected only through the separately governed \texttt{MOB-0308} design.
+
+\subsection{Verification and remaining work}
+
+Automated tests cover signed route creation, unsafe endpoint rejection, bounded endpoint
+sets, secret absence, descriptor tampering, pairing delivery, LAN-first ordering, mother
+substitution refusal and routing of existing mobile requests through the failover
+boundary.  All 560 AION Fabric tests pass.  The optimized phone build type-checks and
+generates the mobile route, and this append-only section compiles cleanly.
+
+This is coded direct-route completion, not a claim that the current household router or
+public Internet endpoint has been configured.  \texttt{MOB-0308} remains responsible for
+an end-to-end encrypted unreadable relay fallback, and \texttt{MOB-0309} remains
+responsible for automatic Wi-Fi/mobile-data roaming, bounded reconnect and field proof.

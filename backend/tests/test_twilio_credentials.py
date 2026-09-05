@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import keyring
+import backend.modules.aion_business.runtime.twilio_credentials as twilio_credentials
 
 from backend.modules.aion_business.runtime.twilio_credentials import (
     TWILIO_KEYCHAIN_SERVICE,
@@ -11,6 +12,8 @@ from backend.modules.aion_business.runtime.twilio_credentials import (
     get_twilio_carrier_number,
     get_twilio_from_number,
     get_twilio_trunk,
+    get_twilio_credential_readiness,
+    set_twilio_credentials,
 )
 
 
@@ -79,3 +82,54 @@ def test_twilio_trunk_reads_workspace_keychain(monkeypatch):
         "sip_username": "homefixed-test",
         "sip_password": "secret-test",
     }
+
+
+def test_passive_twilio_readiness_never_reads_keychain_secrets(monkeypatch):
+    for name in (
+        "TWILIO_ACCOUNT_SID", "TWILIO_API_KEY_SID", "TWILIO_API_KEY_SECRET",
+        "TWILIO_AUTH_TOKEN", "TWILIO_FROM_NUMBER", "TWILIO_CALLER_ID",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+    present = {
+        "account-sid", "api-key-sid", "api-key-secret", "from-number",
+        "carrier-number", "caller-id", "trunk-sid", "termination-uri",
+        "sip-username", "sip-password",
+    }
+    monkeypatch.setattr(
+        twilio_credentials,
+        "_keychain_item_exists",
+        lambda workspace_id, suffix: workspace_id == "home-fixed" and suffix in present,
+    )
+    monkeypatch.setattr(
+        keyring,
+        "get_password",
+        lambda *_args: (_ for _ in ()).throw(AssertionError("passive status read a secret")),
+    )
+
+    assert get_twilio_credential_readiness("home-fixed") == {
+        "credential_ready": True,
+        "configured": True,
+        "phone_number_configured": True,
+        "carrier_number_configured": True,
+        "verified_caller_id_configured": True,
+        "sip_trunk_configured": True,
+    }
+
+
+def test_twilio_credentials_are_written_to_workspace_keychain(monkeypatch):
+    stored = []
+    monkeypatch.setattr(keyring, "set_password", lambda service, account, value: stored.append((service, account, value)))
+
+    set_twilio_credentials("home-fixed", {
+        "account_sid": "AC-test",
+        "api_key_secret": "secret-test",
+        "from_number": "+34711269364",
+        "unused": "must-not-be-stored",
+    })
+
+    assert stored == [
+        (TWILIO_KEYCHAIN_SERVICE, "home-fixed.account-sid", "AC-test"),
+        (TWILIO_KEYCHAIN_SERVICE, "home-fixed.api-key-secret", "secret-test"),
+        (TWILIO_KEYCHAIN_SERVICE, "home-fixed.from-number", "+34711269364"),
+    ]

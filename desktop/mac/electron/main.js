@@ -41,11 +41,14 @@ function aionO25NLocalVoiceBackendEnv() {
     HF_HUB_OFFLINE: "1",
     TRANSFORMERS_OFFLINE: "1",
     HF_DATASETS_OFFLINE: "1",
+    TESSARIS_AION_FLOW_SESSION_KEY_PATH: process.env.TESSARIS_AION_FLOW_SESSION_KEY_PATH
+      || path.join(os.homedir(), ".tessaris", "security", "aion-flow-desktop-session.key"),
   };
 }
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
+const crypto = require("crypto");
 const { spawn } = require("child_process");
 const http = require("http");
 const { pathToFileURL } = require("url");
@@ -69,6 +72,45 @@ const BACKEND_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}${BACKEND_HEALTH_PATH
 // Historical full-stack fallback retained for explicit research sessions only.
 const LEGACY_FULL_BACKEND_APP = "backend.main:app";
 const DESKTOP_BACKEND_APP = process.env.TESSARIS_BACKEND_APP || "backend.desktop_app:app";
+const AION_FLOW_SESSION_KEY_PATH = process.env.TESSARIS_AION_FLOW_SESSION_KEY_PATH
+  || path.join(os.homedir(), ".tessaris", "security", "aion-flow-desktop-session.key");
+
+function ensureAionFlowSessionKey() {
+  fs.mkdirSync(path.dirname(AION_FLOW_SESSION_KEY_PATH), { recursive: true, mode: 0o700 });
+  if (!fs.existsSync(AION_FLOW_SESSION_KEY_PATH)) {
+    fs.writeFileSync(AION_FLOW_SESSION_KEY_PATH, crypto.randomBytes(32), { mode: 0o600, flag: "wx" });
+  }
+  fs.chmodSync(AION_FLOW_SESSION_KEY_PATH, 0o600);
+  const value = fs.readFileSync(AION_FLOW_SESSION_KEY_PATH);
+  if (value.length < 32) throw new Error("AION Flow desktop session key is invalid");
+  return value;
+}
+
+function signAionFlowRequest(payload = {}) {
+  const method = String(payload.method || "GET").toUpperCase();
+  const target = String(payload.target || payload.path || "");
+  const body = String(payload.body || "");
+  const personId = String(payload.person_id || "").trim();
+  const workspaceId = String(payload.workspace_id || "").trim();
+  if (!target.startsWith("/api/workflow-capsules/aion-flow/")) throw new Error("AION Flow request target is outside the signed boundary");
+  if (!personId || !workspaceId) throw new Error("Select an authenticated Boardroom person and workspace first");
+  const key = ensureAionFlowSessionKey();
+  const issuedAt = Math.floor(Date.now() / 1000);
+  const nonce = crypto.randomBytes(16).toString("hex");
+  const deviceId = `tessaris-desktop-${crypto.createHash("sha256").update(key).digest("hex").slice(0, 16)}`;
+  const bodyHash = crypto.createHash("sha256").update(body).digest("hex");
+  const message = ["aion.flow.desktop-session.v1", method, target, bodyHash, deviceId, personId, workspaceId, String(issuedAt), nonce].join("\n");
+  const signature = crypto.createHmac("sha256", key).update(message).digest("hex");
+  return {
+    "x-aion-flow-device-id": deviceId,
+    "x-aion-flow-person-id": personId,
+    "x-aion-flow-workspace-id": workspaceId,
+    "x-aion-flow-issued-at": String(issuedAt),
+    "x-aion-flow-nonce": nonce,
+    "x-aion-flow-body-sha256": bodyHash,
+    "x-aion-flow-signature": signature,
+  };
+}
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -1383,6 +1425,10 @@ ipcMain.handle("desktop-backend-status", async () => {
 
 ipcMain.handle("desktop-runtime-info", async () => {
   return runtimeInfo();
+});
+
+ipcMain.handle("aion-flow-sign-request", async (_event, payload = {}) => {
+  return signAionFlowRequest(payload);
 });
 
 ipcMain.handle("aion-open-external-url", async (_event, rawUrl = "") => {

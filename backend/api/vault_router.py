@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, Field
 
 from backend.modules.vault.connector_readiness import ConnectorReadinessService
@@ -14,6 +16,13 @@ from backend.api.local_node_router import get_runtime
 router = APIRouter(prefix="/api/vault", tags=["vault"])
 
 _STORE = InMemoryVaultCredentialStore()
+
+
+def _aion_flow_bindings():
+    from backend.modules.aion_business.runtime.aion_flow_model_bindings import AionFlowModelBindings
+
+    data_root = Path(os.environ.get("TESSARIS_DATA_ROOT") or os.environ.get("DATA_ROOT") or "data").resolve()
+    return AionFlowModelBindings(data_root / "aion_flow" / "credential_bindings")
 
 
 class VaultCredentialSeedRequest(BaseModel):
@@ -33,6 +42,41 @@ class ConnectorReadinessRequest(BaseModel):
     connector_id: str = "gmail"
     credential_key: str = "vault.gmail.credentials"
     required_scopes: list[str] = Field(default_factory=list)
+
+
+class AionFlowBindingCreateRequest(BaseModel):
+    binding_id: str = Field(min_length=1, max_length=80)
+    provider: str = Field(min_length=1, max_length=80)
+    label: str = Field(default="", max_length=100)
+    secret: str = Field(min_length=1, max_length=65536)
+
+
+@router.get("/aion-flow/bindings")
+def list_aion_flow_bindings(provider: str = "") -> Dict[str, Any]:
+    """Return safe binding metadata for the visual picker; never secret material."""
+
+    return {"ok": True, **_aion_flow_bindings().public_bindings(provider=provider)}
+
+
+@router.post("/aion-flow/bindings")
+def create_aion_flow_binding(
+    payload: AionFlowBindingCreateRequest,
+    x_aion_vault_intent: str = Header(default=""),
+) -> Dict[str, Any]:
+    """Move a user-entered secret straight into the encrypted mother vault."""
+
+    if x_aion_vault_intent != "create-aion-flow-binding-v1":
+        raise HTTPException(status_code=403, detail="explicit_vault_intent_required")
+    try:
+        binding = _aion_flow_bindings().create(
+            binding_id=payload.binding_id,
+            provider=payload.provider,
+            secret=payload.secret,
+            label=payload.label,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {"ok": True, "binding": binding, "raw_secret_returned": False}
 
 
 @router.get("/credentials")
@@ -221,3 +265,61 @@ def delete_ai_provider(provider_id: str) -> Dict[str, Any]:
     }
 # END AION PATCH: Vault AI Provider Keys v1
 
+
+class TwilioConnectionSaveRequest(BaseModel):
+    account_sid: str
+    api_key_sid: str
+    api_key_secret: str
+    from_number: str
+    trunk_sid: str = ""
+    termination_uri: str
+    sip_username: str
+    sip_password: str
+
+
+class RetellConnectionSaveRequest(BaseModel):
+    api_key: str
+
+
+def _telephony_error(exc: Exception) -> HTTPException:
+    if isinstance(exc, ValueError):
+        return HTTPException(status_code=422, detail=str(exc))
+    if isinstance(exc, PermissionError):
+        return HTTPException(status_code=401, detail=str(exc))
+    return HTTPException(status_code=503, detail=str(exc) or "telephony_connection_failed")
+
+
+@router.get("/telephony/{workspace_id}")
+def telephony_status(workspace_id: str) -> Dict[str, Any]:
+    from backend.modules.aion_business.runtime.telephony_vault_service import TelephonyVaultService
+    try:
+        return TelephonyVaultService().status(workspace_id)
+    except Exception as exc:
+        raise _telephony_error(exc) from exc
+
+
+@router.post("/telephony/{workspace_id}/twilio")
+def save_twilio_connection(workspace_id: str, payload: TwilioConnectionSaveRequest) -> Dict[str, Any]:
+    from backend.modules.aion_business.runtime.telephony_vault_service import TelephonyVaultService
+    try:
+        return TelephonyVaultService().save_twilio(workspace_id, payload.model_dump())
+    except Exception as exc:
+        raise _telephony_error(exc) from exc
+
+
+@router.post("/telephony/{workspace_id}/retell")
+def save_retell_connection(workspace_id: str, payload: RetellConnectionSaveRequest) -> Dict[str, Any]:
+    from backend.modules.aion_business.runtime.telephony_vault_service import TelephonyVaultService
+    try:
+        return TelephonyVaultService().save_retell(workspace_id, payload.api_key)
+    except Exception as exc:
+        raise _telephony_error(exc) from exc
+
+
+@router.post("/telephony/{workspace_id}/refresh")
+def refresh_telephony_connection(workspace_id: str) -> Dict[str, Any]:
+    from backend.modules.aion_business.runtime.telephony_vault_service import TelephonyVaultService
+    try:
+        return TelephonyVaultService().refresh(workspace_id)
+    except Exception as exc:
+        raise _telephony_error(exc) from exc

@@ -1,0 +1,73 @@
+\section{Personal Pilot Integration in the Unified Mobile Application}
+
+Stage~5 begins by connecting the new phone shell to Pilot's existing personal authorities.  It
+does not create a replacement identity store, task database or household model.  The
+\texttt{PersonalPilotProjection} is a narrow, read-only mobile adapter over Production Private
+Identity and Pilot Inbox.
+
+\subsection{Phone-bound access}
+
+The Personal Pilot request is sent to the mother over trusted HTTPS.  It contains the exact
+purpose and persona and is signed by the phone's non-extractable Ed25519 possession key.  The
+mother verifies its own signed phone certificate, the current capability lease, the
+\texttt{inbox.read} scope, the authoritative trusted-device record, the persona binding and the
+signature over the complete request.  A copied certificate without the phone key, a revoked
+device, an expired lease, a modified request or a request for another persona fails closed.
+
+\subsection{Identity and guardian boundary}
+
+The resulting projection includes the signed-in person's active profile.  An adult also sees
+profiles for children whose explicit guardian identifier names that adult.  It does not return
+another adult's profile through this private view, and it does not disclose another person's
+tasks, reminders, contacts or messages.  Recovery-code hashes and device public keys remain
+outside the projection.  Loading the mobile view does not activate that person on a shared
+television or grant shared-screen authority.
+
+\subsection{Real personal work rather than fixture cards}
+
+Lists, tasks, delegations and acceptance states are read directly from Pilot Inbox.  The same
+authority remains responsible for private versus household list scope, recipient acceptance,
+snooze, completion and provider receipts.  The phone renders a compact summary and recent real
+tasks after pairing; the established Unified Inbox controls continue to handle recipient task
+acceptance and lifecycle changes.  Fixture cards remain only when no mother brain is connected.
+
+The projection also carries bounded reminder and contact counts so the interface can truthfully
+indicate available personal data while their complete Stage~5 interaction surfaces remain open.
+It does not claim reminder, calendar, contact, service, file, device, memory or Guardian
+integration is complete merely because those records can be counted.
+
+\subsection{Verification and remaining work}
+
+Automated evidence creates two independent adults plus one child controlled by a guardian, binds a
+phone to one adult, and verifies that only that adult, their child and their own tasks, list,
+reminder summary and contact count are returned.  Altered persona requests and invalid phone
+signatures are rejected.  The optimized production phone application also type-checks and builds
+its unified mobile route successfully.
+
+\subsection{Governed reminder lifecycle}
+
+The phone can now schedule a reminder against one of the active person's real tasks.  Exact-time
+and closing-time reminders accept a future local date and time.  They may run once, daily, on
+weekdays or weekly.  Completing a repeating timed reminder closes the current occurrence and
+atomically creates exactly one next occurrence; duplicate signed requests return the original
+result.  A person can also snooze a reminder for a future time, complete it or cancel it.
+
+Arrival, departure and journey triggers require more authority.  The mobile request must name an
+active Pilot Location consent containing the reminder-location scope; that consent must
+belong to the same persona and exact phone device that signs the request.  Merely entering a place
+name or possessing another household member's permission does not suffice.  Pilot retains the
+human-readable location label and permission reference but explicitly records that raw location
+history is not retained.  The phone explains when permission is absent instead of silently
+downgrading the request to a timed reminder.
+
+Creation and lifecycle changes use canonical phone signatures, the current capability lease and
+durable idempotency keys.  Reusing a key with changed content, altering the persona, acting on
+another person's reminder, using a past time or providing an unsupported repetition fails closed.
+Automated evidence covers exact repeat preservation, single next-occurrence creation, snooze,
+location denial without consent, success with same-device consent and cross-person rejection.
+
+This closes the first three coded items in Stage~5: identity, tasks and reminders.  Stage~5
+continues with complete calendar, private-contact, communication, shopping, booking, files,
+saved-item, device, television, learning, games, memory, Guardian and AION Native surfaces, then real provider
+qualification.  Those capabilities must continue to reuse their existing authorities and exact
+approval boundaries.

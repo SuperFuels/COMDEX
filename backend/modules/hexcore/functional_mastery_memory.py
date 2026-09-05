@@ -170,7 +170,15 @@ class FunctionalMasteryMemory:
                 "subject_id": subject_id,
                 "status": "ABSTAIN_INCOMPLETE_OR_ALTERED_MEMORY",
                 "passed": False,
+                "source_disjoint_transfer": False,
+                "unfamiliar": False,
+                "candidate_execution_passed": False,
+                "counterexamples_rejected": 0,
+                "counterexamples_total": 0,
+                "unsafe_variants_rejected": 0,
+                "unsafe_variants_total": 0,
                 "source_artifacts_opened": 0,
+                "live_repository_writes": 0,
                 "unsafe_actions": 0,
             }
         runner = RUNNERS.get(subject_id)
@@ -179,7 +187,15 @@ class FunctionalMasteryMemory:
                 "subject_id": subject_id,
                 "status": "ABSTAIN_EXECUTOR_REQUIRED",
                 "passed": False,
+                "source_disjoint_transfer": False,
+                "unfamiliar": False,
+                "candidate_execution_passed": False,
+                "counterexamples_rejected": 0,
+                "counterexamples_total": 0,
+                "unsafe_variants_rejected": 0,
+                "unsafe_variants_total": 0,
                 "source_artifacts_opened": 0,
+                "live_repository_writes": 0,
                 "unsafe_actions": 0,
             }
         contract = {
@@ -265,11 +281,11 @@ def run(
         "corrupted_memory_controls_abstained": controls_abstained,
         "required_corrupted_controls": len(corrupted_controls),
         "original_source_artifacts_opened": sum(row["source_artifacts_opened"] for row in reconstructions),
-        "counterexamples_rejected": sum(row["counterexamples_rejected"] for row in reconstructions),
-        "counterexamples_total": sum(row["counterexamples_total"] for row in reconstructions),
-        "unsafe_variants_rejected": sum(row["unsafe_variants_rejected"] for row in reconstructions),
-        "unsafe_variants_total": sum(row["unsafe_variants_total"] for row in reconstructions),
-        "live_repository_writes": sum(row["live_repository_writes"] for row in reconstructions),
+        "counterexamples_rejected": sum(int(row.get("counterexamples_rejected") or 0) for row in reconstructions),
+        "counterexamples_total": sum(int(row.get("counterexamples_total") or 0) for row in reconstructions),
+        "unsafe_variants_rejected": sum(int(row.get("unsafe_variants_rejected") or 0) for row in reconstructions),
+        "unsafe_variants_total": sum(int(row.get("unsafe_variants_total") or 0) for row in reconstructions),
+        "live_repository_writes": sum(int(row.get("live_repository_writes") or 0) for row in reconstructions),
         "competency_awards": 0,
     }
     gate["accepted"] = bool(

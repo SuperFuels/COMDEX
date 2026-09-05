@@ -67,6 +67,24 @@
     return ({ owner: 'Owner / director', employee: 'Employee', self_employed: 'Self-employed', contractor: 'Contractor', freelancer: 'Freelancer', external_adviser: 'External adviser' })[value] || value;
   }
 
+  function operations() {
+    if (!state.model.people_operations) state.model.people_operations = { leave_requests: [], appraisals: [], escalations: [], onboarding_templates: [] };
+    return state.model.people_operations;
+  }
+
+  function dateLabel(value) {
+    if (!value) return 'Not scheduled';
+    const parsed = new Date(`${String(value).slice(0, 10)}T12:00:00`);
+    return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function onboardingProgress(person) {
+    const checks = person.onboarding?.checks || {};
+    const keys = ['contract', 'identity', 'health_safety', 'handbook', 'payroll', 'accounts', 'equipment'];
+    const completed = keys.filter((key) => checks[key] === true).length;
+    return { completed, total: keys.length, percent: Math.round((completed / keys.length) * 100) };
+  }
+
   function layout(content) {
     const summary = state.model?.summary || {};
     return `
@@ -85,7 +103,7 @@
           <article><strong>${summary.assigned_cards || 0}</strong><span>Assigned cards</span></article>
         </section>
         <nav class="hrw-tabs">
-          ${[['people','People'],['chart','Organisation chart'],['permissions','Roles & permissions'],['assets','Cards & assets'],['access','Access check']].map(([key,label]) => `<button data-hrw-tab="${key}" class="${state.tab === key ? 'active' : ''}">${label}</button>`).join('')}
+          ${[['people','People'],['operations','People operations'],['chart','Organisation chart'],['permissions','Roles & permissions'],['assets','Cards & assets'],['access','Access check']].map(([key,label]) => `<button data-hrw-tab="${key}" class="${state.tab === key ? 'active' : ''}">${label}</button>`).join('')}
         </nav>
         <main class="hrw-content">${content}</main>
         ${renderPanel()}
@@ -120,6 +138,32 @@
           <button data-hrw-edit-person="${esc(person.id)}">Edit person & authority</button>
         </article>`).join('')}</div>
       ${(state.model.summary?.authority_gaps || []).length ? `<div class="hrw-alert"><b>Authority checks</b>${state.model.summary.authority_gaps.map((gap) => `<p>${esc(gap)}</p>`).join('')}</div>` : ''}
+    </section>`;
+  }
+
+  function operationsView() {
+    const ledger = operations();
+    const people = state.model?.people || [];
+    const now = new Date();
+    const horizon = new Date(now.getTime() + 14 * 86400000);
+    const leave = (ledger.leave_requests || []).map((item) => ({ ...item, person_name: personName(item.person_id) }));
+    const upcoming = leave.filter((item) => item.status === 'approved' && new Date(`${item.end_date}T23:59:59`) >= now && new Date(`${item.start_date}T00:00:00`) <= horizon).sort((a,b) => String(a.start_date).localeCompare(String(b.start_date)));
+    const requested = leave.filter((item) => (item.status || 'requested') === 'requested');
+    const recordedAppraisals = (ledger.appraisals || []).filter((item) => item.status !== 'completed');
+    const recordedPeople = new Set(recordedAppraisals.map((item) => item.person_id));
+    const appraisals = [...recordedAppraisals, ...people.filter((person) => person.next_appraisal_date && !recordedPeople.has(person.id)).map((person) => ({ person_id: person.id, due_date: person.next_appraisal_date, review_type: 'Appraisal / check-in', owner: personName(person.manager_id) }))].sort((a,b) => String(a.due_date).localeCompare(String(b.due_date)));
+    const escalations = (ledger.escalations || []).filter((item) => !['resolved','closed'].includes(item.status || 'open'));
+    const onboarding = people.filter((item) => item.status === 'active').map((person) => ({ person, progress: onboardingProgress(person) })).filter((item) => item.progress.completed < item.progress.total);
+    return `<section class="hrw-operations">
+      <div class="hrw-section-head"><div><span>PEOPLE OPERATIONS</span><h2>What needs attention next</h2><p>Upcoming absence, approvals, onboarding and review deadlines. Confidential case detail remains inside the authorised person record.</p></div><div class="hrw-actions"><button data-hrw-add-leave>+ Leave request</button><button data-hrw-add-escalation>+ Restricted issue</button></div></div>
+      <div class="hrw-ops-metrics"><article><strong>${requested.length}</strong><span>Leave approvals</span></article><article><strong>${upcoming.length}</strong><span>Off in next 14 days</span></article><article><strong>${appraisals.length}</strong><span>Reviews due</span></article><article><strong>${onboarding.length}</strong><span>Onboarding incomplete</span></article><article><strong>${escalations.length}</strong><span>Restricted escalations</span></article></div>
+      <div class="hrw-ops-grid">
+        <section><header><strong>Upcoming absence and cover</strong><small>Next 14 days</small></header>${upcoming.length ? upcoming.map((item) => `<article><span><b>${esc(item.person_name)}</b><small>${esc(item.leave_type || 'Annual leave')} · ${esc(dateLabel(item.start_date))}–${esc(dateLabel(item.end_date))}</small></span><em>${esc(item.cover_owner || 'Cover not assigned')}</em></article>`).join('') : '<p class="hrw-muted">No approved absence is recorded for the next 14 days.</p>'}</section>
+        <section><header><strong>Approval queue</strong><small>Human decision required</small></header>${requested.length ? requested.map((item) => `<article><span><b>${esc(item.person_name)}</b><small>${esc(dateLabel(item.start_date))}–${esc(dateLabel(item.end_date))}</small></span><button data-hrw-review-leave="${esc(item.id)}">Review</button></article>`).join('') : '<p class="hrw-muted">No leave request is waiting for approval.</p>'}</section>
+        <section><header><strong>Appraisals and check-ins</strong><small>Scheduled reviews</small></header>${appraisals.length ? appraisals.map((item) => `<article><span><b>${esc(personName(item.person_id))}</b><small>${esc(item.review_type || 'Performance review')} · ${esc(dateLabel(item.due_date))}</small></span><em>${esc(item.owner || 'Manager')}</em></article>`).join('') : '<p class="hrw-muted">No appraisal or check-in deadline is recorded.</p>'}</section>
+        <section><header><strong>Onboarding readiness</strong><small>Evidence checklist</small></header>${onboarding.length ? onboarding.map(({person,progress}) => `<article><span><b>${esc(person.name)}</b><small>${progress.completed}/${progress.total} verified · ${esc(person.email || 'work email missing')}</small></span><button data-hrw-review-person="${esc(person.id)}">Open</button></article>`).join('') : '<p class="hrw-muted">Every active person has a complete onboarding checklist.</p>'}</section>
+      </div>
+      <div class="hrw-policy"><b>Human authority boundary</b><p>Tessaris may remind, assemble evidence and recommend cover. Leave decisions, performance action, contract changes, disciplinary action, access grants and employee messages require an authorised person.</p></div>
     </section>`;
   }
 
@@ -187,6 +231,9 @@
         <fieldset><legend>Departments</legend><div class="hrw-checks">${(state.model.departments || []).map((item) => `<label><input type="checkbox" name="department_ids" value="${esc(item.id)}" ${(person.department_ids || []).includes(item.id) ? 'checked' : ''}>${esc(item.name)}</label>`).join('') || '<small>Add departments later if the business is still very small.</small>'}</div></fieldset>
         <fieldset><legend>Application roles</legend><div class="hrw-checks">${(state.model.roles || []).map((role) => `<label><input type="checkbox" name="role_ids" value="${esc(role.id)}" ${selectedRoles.has(role.id) ? 'checked' : ''}><span><b>${esc(role.name)}</b><small>${esc(role.description || '')}</small></span></label>`).join('')}</div></fieldset>
         <div class="hrw-two"><label>Work location<input name="work_location" value="${esc(person.work_location || '')}" placeholder="Office, remote, site"></label><label>Cost centre<input name="cost_center" value="${esc(person.cost_center || '')}" placeholder="Optional"></label></div>
+        <div class="hrw-two"><label>Start date<input name="start_date" type="date" value="${esc(person.start_date || '')}"></label><label>Next appraisal / check-in<input name="next_appraisal_date" type="date" value="${esc(person.next_appraisal_date || '')}"></label></div>
+        <fieldset><legend>Onboarding evidence</legend><p>Mark only items that are actually complete or verified.</p><div class="hrw-checks">${[['contract','Contract signed'],['identity','Identity / right-to-work'],['health_safety','Health & safety'],['handbook','Handbook / induction'],['payroll','Payroll details'],['accounts','Software accounts'],['equipment','Equipment / assets']].map(([key,label]) => `<label><input type="checkbox" name="onboarding_checks" value="${key}" ${person.onboarding?.checks?.[key] === true ? 'checked' : ''}>${label}</label>`).join('')}</div></fieldset>
+        <label>Allocated software accounts<textarea name="software_accounts" rows="3" placeholder="One system or account per line">${esc((person.software_accounts || []).join('\n'))}</textarea></label>
         <fieldset class="hrw-costing"><legend>Confidential workforce costing</legend>
           <p>Used by Finance and job profitability calculations. Individual pay is not copied into the general Business Map.</p>
           <div class="hrw-two"><label>Pay / cost basis<select name="workforce_costing_basis">${[['hourly','Hourly'],['daily','Daily'],['monthly','Monthly salary / cost'],['per_job','Per job']].map(([key,label]) => `<option value="${key}" ${(person.workforce_costing?.basis || 'hourly') === key ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
@@ -209,12 +256,19 @@
       const asset = panel.item || { id: id('asset'), asset_type: 'company_card', name: '', assigned_person_id: '', last_four: '', transaction_limit: '', monthly_limit: '', status: 'active' };
       return `<aside class="hrw-panel"><form data-hrw-asset-form data-asset-id="${esc(asset.id)}"><header><div><span>${panel.item ? 'EDIT ASSET' : 'ADD ASSET'}</span><h2>Assign responsibility</h2></div><button type="button" data-hrw-close>×</button></header><label>Name<input name="name" value="${esc(asset.name)}" required placeholder="Operations company card"></label><label>Type<select name="asset_type">${[['company_card','Company card'],['vehicle','Vehicle'],['tool','Tool or equipment'],['device','Computer or phone'],['financial_account','Financial account'],['other','Other']].map(([key,label]) => `<option value="${key}" ${asset.asset_type === key ? 'selected' : ''}>${label}</option>`).join('')}</select></label><label>Responsible person<select name="assigned_person_id"><option value="">Unassigned</option>${(state.model.people || []).filter((item) => item.status === 'active').map((item) => `<option value="${esc(item.id)}" ${asset.assigned_person_id === item.id ? 'selected' : ''}>${esc(item.name)}</option>`).join('')}</select></label><label>Last four digits only<input name="last_four" inputmode="numeric" maxlength="4" value="${esc(asset.last_four || '')}" placeholder="1234"></label><div class="hrw-two"><label>Transaction limit<input name="transaction_limit" type="number" min="0" step="0.01" value="${asset.transaction_limit ?? ''}"></label><label>Monthly limit<input name="monthly_limit" type="number" min="0" step="0.01" value="${asset.monthly_limit ?? ''}"></label></div><footer><button type="button" data-hrw-close>Cancel</button><button class="primary" type="submit">Save asset</button></footer></form></aside>`;
     }
+    if (panel.type === 'leave') {
+      const leave = panel.item || { id: id('leave'), person_id: '', leave_type: 'Annual leave', start_date: '', end_date: '', cover_owner: '', status: 'requested' };
+      return `<aside class="hrw-panel"><form data-hrw-leave-form data-leave-id="${esc(leave.id)}"><header><div><span>LEAVE REQUEST</span><h2>${panel.item ? 'Review time away' : 'Record time away'}</h2></div><button type="button" data-hrw-close>×</button></header><label>Person<select name="person_id" required><option value="">Select person</option>${(state.model.people || []).filter((item) => item.status === 'active').map((item) => `<option value="${esc(item.id)}" ${leave.person_id === item.id ? 'selected' : ''}>${esc(item.name)}</option>`).join('')}</select></label><label>Leave type<select name="leave_type">${['Annual leave','Other approved absence','Private / restricted absence'].map((label) => `<option ${leave.leave_type === label ? 'selected' : ''}>${label}</option>`).join('')}</select></label><div class="hrw-two"><label>Start<input name="start_date" type="date" required value="${esc(leave.start_date)}"></label><label>End<input name="end_date" type="date" required value="${esc(leave.end_date)}"></label></div><label>Cover owner<input name="cover_owner" value="${esc(leave.cover_owner || '')}" placeholder="Who will cover essential work?"></label><label>Status<select name="status"><option value="requested" ${leave.status === 'requested' ? 'selected' : ''}>Requested — needs approval</option><option value="approved" ${leave.status === 'approved' ? 'selected' : ''}>Approved by authorised person</option><option value="declined" ${leave.status === 'declined' ? 'selected' : ''}>Declined</option></select></label><footer><button type="button" data-hrw-close>Cancel</button><button class="primary" type="submit">Save human decision</button></footer></form></aside>`;
+    }
+    if (panel.type === 'escalation') {
+      return `<aside class="hrw-panel"><form data-hrw-escalation-form><header><div><span>RESTRICTED PEOPLE ISSUE</span><h2>Record an escalation</h2></div><button type="button" data-hrw-close>×</button></header><label>Person<select name="person_id" required><option value="">Select person</option>${(state.model.people || []).filter((item) => item.status === 'active').map((item) => `<option value="${esc(item.id)}">${esc(item.name)}</option>`).join('')}</select></label><label>Category<select name="category"><option value="employee_request">Employee request</option><option value="wellbeing">Wellbeing / welfare</option><option value="performance">Performance concern</option><option value="conduct">Conduct concern</option><option value="safety">Safety concern</option><option value="other">Other restricted issue</option></select></label><label>Dashboard-safe title<input name="title" required placeholder="Brief neutral description — no medical or sensitive detail"></label><label>Accountable owner<input name="owner" required placeholder="Authorised manager or People lead"></label><label>Review due<input name="due_date" type="date"></label><footer><button type="button" data-hrw-close>Cancel</button><button class="primary" type="submit">Save restricted flag</button></footer></form></aside>`;
+    }
     return '';
   }
 
   function view() {
     if (!state.model) return '<div class="hrw-loading">Loading organisation…</div>';
-    return layout(({ people: peopleView, chart: chartView, permissions: permissionsView, assets: assetsView, access: accessView })[state.tab]());
+    return layout(({ people: peopleView, operations: operationsView, chart: chartView, permissions: permissionsView, assets: assetsView, access: accessView })[state.tab]());
   }
 
   function render() {
@@ -238,11 +292,11 @@
     }
   }
 
-  async function load() {
+  async function load(requireVisibleMount = true) {
     const workspaceId = businessId();
     state.workspaceId = workspaceId;
     state.error = '';
-    if (!workspaceId) { state.model = null; render(); state.error = 'Complete the Business Foundation first so people are saved to the correct business.'; render(); return; }
+    if (!workspaceId) { state.model = null; if (requireVisibleMount) render(); state.error = 'Complete the Business Foundation first so people are saved to the correct business.'; if (requireVisibleMount) render(); return; }
     try {
       const [modelResult, templateResult] = await Promise.all([
         request(`/api/aion/business/organisation/${encodeURIComponent(workspaceId)}`),
@@ -251,7 +305,15 @@
       state.model = modelResult.model;
       state.templates = templateResult;
     } catch (error) { state.error = `HR Pilot could not load: ${error.message}`; }
-    render();
+    if (requireVisibleMount) {
+      render();
+    } else {
+      // A background dashboard hydration needs to announce that data is ready.
+      // A visible-workspace load must not: app.js responds to this event by
+      // rendering the whole application, which replaces this mount and would
+      // otherwise create an endless load -> redraw -> remount loop.
+      global.dispatchEvent(new CustomEvent('aion:people-workspace-updated', { detail: { workspace_id: state.workspaceId, revision: state.model?.revision || 0 } }));
+    }
   }
 
   async function save() {
@@ -267,7 +329,7 @@
       } catch {}
     } catch (error) {
       state.error = error.message.includes('organization_revision_conflict') ? 'The organisation changed elsewhere. Reload the HR Pilot before saving again.' : `Could not save: ${error.message}`;
-    } finally { state.saving = false; render(); }
+    } finally { state.saving = false; render(); global.dispatchEvent(new CustomEvent('aion:people-workspace-updated', { detail: { workspace_id: state.workspaceId, revision: state.model?.revision || 0 } })); }
   }
 
   function formObject(form) {
@@ -281,6 +343,13 @@
     values.department_ids = [...form.querySelectorAll('[name="department_ids"]:checked')].map((item) => item.value);
     values.role_ids = [...form.querySelectorAll('[name="role_ids"]:checked')].map((item) => item.value);
     values.manager_id = values.manager_id || null;
+    values.onboarding = {
+      ...(state.panel.draft?.onboarding || {}),
+      checks: Object.fromEntries(['contract','identity','health_safety','handbook','payroll','accounts','equipment'].map((key) => [key, Boolean(form.querySelector(`[name="onboarding_checks"][value="${key}"]`)?.checked)])),
+      updated_at: new Date().toISOString(),
+    };
+    values.software_accounts = String(values.software_accounts || '').split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+    delete values.onboarding_checks;
     values.workforce_costing = {
       ...(state.panel.draft?.workforce_costing || {}),
       basis: values.workforce_costing_basis || 'hourly',
@@ -330,6 +399,10 @@
     if (target.hasAttribute('data-hrw-close')) { state.panel = null; render(); return; }
     if (target.dataset.hrwAddPerson) { state.panel = { type: 'person', employmentType: target.dataset.hrwAddPerson }; render(); return; }
     if (target.dataset.hrwEditPerson) { state.panel = { type: 'person', item: clone(state.model.people.find((item) => item.id === target.dataset.hrwEditPerson)) }; render(); return; }
+    if (target.dataset.hrwReviewPerson) { state.tab = 'people'; state.panel = { type: 'person', item: clone(state.model.people.find((item) => item.id === target.dataset.hrwReviewPerson)) }; render(); return; }
+    if (target.hasAttribute('data-hrw-add-leave')) { state.panel = { type: 'leave' }; render(); return; }
+    if (target.dataset.hrwReviewLeave) { state.panel = { type: 'leave', item: clone(operations().leave_requests.find((item) => item.id === target.dataset.hrwReviewLeave)) }; render(); return; }
+    if (target.hasAttribute('data-hrw-add-escalation')) { state.panel = { type: 'escalation' }; render(); return; }
     if (target.hasAttribute('data-hrw-deactivate-person')) {
       const personId = target.closest('form')?.dataset.personId;
       const person = state.model.people.find((item) => item.id === personId);
@@ -356,6 +429,13 @@
       values.department_ids = [...form.querySelectorAll('[name="department_ids"]:checked')].map((item) => item.value);
       values.role_ids = [...form.querySelectorAll('[name="role_ids"]:checked')].map((item) => item.value);
       values.manager_id = values.manager_id || null; values.status = state.panel?.item?.status || 'active';
+      values.onboarding = {
+        ...(state.panel?.item?.onboarding || {}),
+        checks: Object.fromEntries(['contract','identity','health_safety','handbook','payroll','accounts','equipment'].map((key) => [key, Boolean(form.querySelector(`[name="onboarding_checks"][value="${key}"]`)?.checked)])),
+        updated_at: new Date().toISOString(),
+      };
+      values.software_accounts = String(values.software_accounts || '').split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+      delete values.onboarding_checks;
       values.expense_approval_limit = values.expense_approval_limit === '' ? null : Number(values.expense_approval_limit);
       values.workforce_costing = {
         basis: values.workforce_costing_basis || 'hourly',
@@ -370,6 +450,16 @@
       const index = state.model.people.findIndex((item) => item.id === values.id);
       if (index >= 0) state.model.people[index] = { ...state.model.people[index], ...values }; else state.model.people.push(values);
       state.panel = null; await save(); return;
+    }
+    if (form.matches('[data-hrw-leave-form]')) {
+      const values = formObject(form); values.id = form.dataset.leaveId || id('leave'); values.created_at = state.panel?.item?.created_at || new Date().toISOString(); values.updated_at = new Date().toISOString();
+      const index = operations().leave_requests.findIndex((item) => item.id === values.id);
+      if (index >= 0) operations().leave_requests[index] = { ...operations().leave_requests[index], ...values }; else operations().leave_requests.push(values);
+      state.panel = null; await save(); return;
+    }
+    if (form.matches('[data-hrw-escalation-form]')) {
+      const values = formObject(form); values.id = id('people-issue'); values.status = 'open'; values.created_at = new Date().toISOString(); values.restricted = true;
+      operations().escalations.push(values); state.panel = null; await save(); return;
     }
     if (form.matches('[data-hrw-department-form]')) {
       const values = formObject(form); values.id = id('department'); values.status = 'active'; values.parent_department_id = values.parent_department_id || null;
@@ -399,6 +489,13 @@
     const target = host();
     if (!target || target.hasAttribute('data-aion-hr-authority-installed')) return;
     target.setAttribute('data-aion-hr-authority-installed', 'true');
+    if (state.model && state.workspaceId === businessId()) {
+      // Rehydrate synchronously from the canonical in-memory model if another
+      // legitimate application render replaced the mount. This avoids a white
+      // loading flash and an unnecessary API round trip.
+      target.innerHTML = view();
+      return;
+    }
     target.innerHTML = '<div class="hrw-loading">Loading organisation…</div>';
     load();
   }
@@ -416,7 +513,8 @@
     style.textContent = `
       html body [data-aion-o18ad-department="hr"]{max-width:1680px!important;margin:0 auto!important;background:#f8fafc!important;border:0!important;padding:0!important;color:#102a43!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
       .hrw-shell{min-height:760px;background:#f8fafc;color:#102a43;padding:26px;position:relative}.hrw-shell *{box-sizing:border-box}.hrw-hero{display:flex;justify-content:space-between;align-items:flex-start;gap:28px;background:#fff;border:2px solid #f59e0b;padding:26px 30px}.hrw-hero>div:first-child{max-width:900px}.hrw-hero span,.hrw-section-head span,.hrw-empty>span,.hrw-panel header span{display:block;color:#0f766e;font-size:11px;font-weight:900;letter-spacing:.25em}.hrw-hero h1{margin:8px 0 6px;font-size:30px;color:#102a43;letter-spacing:-.02em}.hrw-hero p,.hrw-section-head p{margin:0;color:#52677e;line-height:1.55}.hrw-status{min-width:180px;padding:13px 16px;background:#fff7ed;border:1px solid #fdba74;text-align:right}.hrw-status.ready{background:#ecfdf5;border-color:#86efac}.hrw-status b,.hrw-status small{display:block;color:#9a3412;font-size:11px;letter-spacing:.1em}.hrw-status.ready b{color:#166534}.hrw-status small{margin-top:5px;color:#64748b;letter-spacing:0}.hrw-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:18px 0}.hrw-metrics article{background:#fff;border:1px solid #cbd5e1;padding:16px}.hrw-metrics strong{display:block;font-size:24px;color:#0f766e}.hrw-metrics span{font-size:12px;color:#64748b}.hrw-tabs{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #cbd5e1;padding:0 0 12px}.hrw-shell button{appearance:none;border:1px solid #94a3b8;background:#fff;color:#334e68;padding:10px 14px;font-weight:800;cursor:pointer}.hrw-shell button:hover{border-color:#0284c7;color:#0369a1}.hrw-shell button.primary{background:#15803d;border-color:#15803d;color:#fff}.hrw-shell button.danger{border-color:#ef4444;color:#b91c1c;margin-right:auto}.hrw-tabs button.active{background:#0f766e;border-color:#0f766e;color:#fff}.hrw-content{background:#fff;border:1px solid #cbd5e1;border-top:4px solid #0284c7;margin-top:14px;padding:28px;min-height:520px}.hrw-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:22px}.hrw-section-head>div{max-width:760px}.hrw-section-head h2{font-size:24px;margin:5px 0;color:#102a43}.hrw-section-head.compact{align-items:center;margin:0 0 12px}.hrw-section-head.compact h3{margin:0}.hrw-actions{display:flex;gap:9px;flex-wrap:wrap}.hrw-empty{text-align:center;max-width:760px;margin:55px auto;padding:35px;border:1px dashed #7dd3fc;background:#f0f9ff}.hrw-empty.small{margin:30px auto}.hrw-empty h2{font-size:28px;margin:8px}.hrw-empty p{color:#52677e;line-height:1.6}.hrw-empty .hrw-actions{justify-content:center;margin-top:24px}.hrw-people-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}.hrw-person{border:1px solid #cbd5e1;padding:18px;display:grid;grid-template-columns:50px 1fr;gap:14px;background:#fff}.hrw-person.inactive{opacity:.58}.hrw-avatar{width:50px;height:50px;background:#dbeafe;border:1px solid #7dd3fc;color:#075985;display:grid;place-items:center;font-weight:900}.hrw-person-main>div{display:flex;justify-content:space-between;gap:10px}.hrw-person-main strong{font-size:17px}.hrw-person-main em{font-size:10px;text-transform:uppercase;color:#15803d}.hrw-person-main p{margin:4px 0;color:#334e68}.hrw-person-main small{color:#64748b}.hrw-person dl{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0}.hrw-person dl div{background:#f8fafc;padding:9px}.hrw-person dt{font-size:10px;text-transform:uppercase;color:#64748b}.hrw-person dd{margin:3px 0 0;font-size:12px}.hrw-person>button{grid-column:1/-1}.hrw-alert{margin:18px 0 0;border-left:4px solid #f59e0b;background:#fffbeb;padding:14px 18px}.hrw-alert.error{border-color:#ef4444;background:#fef2f2;margin:14px 0}.hrw-alert p{margin:5px 0;color:#7c2d12}.hrw-chart{overflow:auto;padding:25px;background:#f8fafc;border:1px solid #e2e8f0}.hrw-chart ul{display:flex;justify-content:center;gap:18px;list-style:none;padding:0;margin:0}.hrw-chart ul ul{margin-top:28px;position:relative}.hrw-chart ul ul:before{content:"";position:absolute;top:-18px;left:50%;height:18px;border-left:2px solid #94a3b8}.hrw-chart li{min-width:190px}.hrw-chart article{background:#fff;border:1px solid #7dd3fc;border-top:4px solid #0f766e;padding:13px;text-align:center}.hrw-chart article strong,.hrw-chart article span,.hrw-chart article small{display:block}.hrw-chart article span{font-size:12px;margin:4px}.hrw-chart article small{color:#64748b}.hrw-departments{margin-top:24px}.hrw-departments>article{display:flex;justify-content:space-between;padding:13px;border-bottom:1px solid #e2e8f0}.hrw-departments>article small{display:block;color:#64748b;margin-top:3px}.hrw-departments>article>span{color:#0f766e;font-weight:800}.hrw-role-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}.hrw-role-grid article{border:1px solid #cbd5e1;padding:17px}.hrw-role-grid header{display:flex;justify-content:space-between;gap:12px}.hrw-role-grid header span{font-size:10px;text-transform:uppercase;color:#0f766e}.hrw-role-grid p{color:#52677e;min-height:42px}.hrw-role-grid article>div{display:flex;flex-wrap:wrap;gap:5px}.hrw-role-grid article>div small{background:#eff6ff;color:#1e40af;padding:4px 7px}.hrw-role-grid footer{border-top:1px solid #e2e8f0;margin-top:14px;padding-top:10px}.hrw-policy{margin-top:20px;border-left:4px solid #15803d;background:#ecfdf5;padding:16px}.hrw-policy p{margin:5px 0}.hrw-assets{display:grid;gap:10px}.hrw-assets article{display:grid;grid-template-columns:70px 1fr auto;align-items:center;gap:15px;border:1px solid #cbd5e1;padding:15px}.hrw-asset-icon{height:44px;display:grid;place-items:center;background:#102a43;color:#fff;font-size:10px;letter-spacing:.12em}.hrw-assets p{margin:4px 0;color:#334e68}.hrw-assets small{color:#64748b}.hrw-access-form{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr)) auto;gap:12px;align-items:end;background:#f8fafc;border:1px solid #cbd5e1;padding:18px}.hrw-shell label{display:grid;gap:6px;font-size:11px;font-weight:800;color:#334e68}.hrw-shell input,.hrw-shell select{width:100%;border:1px solid #94a3b8;background:#fff;color:#102a43;padding:10px;font:inherit}.hrw-decision{margin:20px 0;padding:20px;border-left:6px solid}.hrw-decision.allowed{background:#ecfdf5;border-color:#16a34a}.hrw-decision.denied{background:#fef2f2;border-color:#dc2626}.hrw-decision p{margin:5px 0;text-transform:capitalize}.hrw-panel{position:fixed;z-index:10000;inset:0 0 0 auto;width:min(620px,96vw);background:#fff;box-shadow:-20px 0 60px rgba(15,23,42,.28);overflow:auto;padding:0}.hrw-panel form{padding:26px;display:grid;gap:16px}.hrw-panel header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #e2e8f0;padding-bottom:15px}.hrw-panel header h2{margin:5px 0 0}.hrw-panel header button{font-size:24px;padding:2px 10px}.hrw-panel fieldset{border:1px solid #cbd5e1;padding:14px}.hrw-panel legend{padding:0 7px;font-weight:900}.hrw-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hrw-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hrw-checks label{display:flex;align-items:flex-start;gap:8px;background:#f8fafc;padding:9px}.hrw-checks input{width:auto;margin-top:2px}.hrw-checks span,.hrw-checks b,.hrw-checks small{display:block}.hrw-checks small{font-weight:400;color:#64748b}.hrw-panel footer{display:flex;justify-content:flex-end;gap:9px;border-top:1px solid #e2e8f0;padding-top:18px}.hrw-loading{min-height:500px;display:grid;place-items:center;background:#fff;color:#0f766e;font-weight:900}.hrw-muted{color:#64748b}
-      @media(max-width:900px){.hrw-hero{display:block}.hrw-status{margin-top:14px;text-align:left}.hrw-metrics{grid-template-columns:repeat(2,1fr)}.hrw-section-head{display:block}.hrw-actions{margin-top:14px}.hrw-access-form{grid-template-columns:1fr 1fr}.hrw-chart ul{display:grid}.hrw-chart ul ul{margin-left:28px}.hrw-two,.hrw-checks{grid-template-columns:1fr}}
+      .hrw-shell textarea{width:100%;border:1px solid #94a3b8;background:#fff;color:#102a43;padding:10px;font:inherit;resize:vertical}.hrw-ops-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:18px}.hrw-ops-metrics article{border:1px solid #cbd5e1;padding:14px}.hrw-ops-metrics strong,.hrw-ops-metrics span{display:block}.hrw-ops-metrics strong{font-size:23px}.hrw-ops-metrics span{font-size:11px;color:#64748b}.hrw-ops-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.hrw-ops-grid>section{border:1px solid #cbd5e1}.hrw-ops-grid>section>header{display:flex;justify-content:space-between;gap:12px;padding:13px 15px;background:#f8fafc;border-bottom:1px solid #e2e8f0}.hrw-ops-grid>section>header small{color:#64748b}.hrw-ops-grid>section>article{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 15px;border-bottom:1px solid #e2e8f0}.hrw-ops-grid>section>article:last-child{border-bottom:0}.hrw-ops-grid article span,.hrw-ops-grid article b,.hrw-ops-grid article small{display:block}.hrw-ops-grid article small{margin-top:3px;color:#64748b}.hrw-ops-grid article em{font-size:11px;color:#475569}.hrw-ops-grid .hrw-muted{padding:16px;margin:0}
+      @media(max-width:900px){.hrw-hero{display:block}.hrw-status{margin-top:14px;text-align:left}.hrw-metrics,.hrw-ops-metrics{grid-template-columns:repeat(2,1fr)}.hrw-ops-grid{grid-template-columns:1fr}.hrw-section-head{display:block}.hrw-actions{margin-top:14px}.hrw-access-form{grid-template-columns:1fr 1fr}.hrw-chart ul{display:grid}.hrw-chart ul ul{margin-left:28px}.hrw-two,.hrw-checks{grid-template-columns:1fr}}
     `;
     document.head.appendChild(style);
   }
@@ -425,5 +523,18 @@
   const observer = new MutationObserver(scheduleInstall);
   observer.observe(document.getElementById('app') || document.body, { childList: true, subtree: true });
   scheduleInstall();
-  global.AionHrPeopleWorkspace = { load, save, state, render };
+  global.AionHrPeopleWorkspace = {
+    load, save, state, render,
+    snapshot() { return state.model ? clone(state.model) : null; },
+    ensureDashboardData() { if (!state.model && !state.saving) load(false); },
+    openPerson(personId) {
+      const item = state.model?.people?.find((person) => person.id === personId);
+      if (item) { state.tab = 'people'; state.panel = { type: 'person', item: clone(item) }; render(); }
+    },
+    openOperations() { state.tab = 'operations'; state.panel = null; render(); },
+    openLeave(leaveId) {
+      const item = state.model?.people_operations?.leave_requests?.find((row) => row.id === leaveId);
+      if (item) { state.tab = 'operations'; state.panel = { type: 'leave', item: clone(item) }; render(); }
+    },
+  };
 })(window);

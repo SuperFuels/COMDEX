@@ -10,6 +10,7 @@ from backend.modules.hexcore.autonomous_general_apprentice import (
     AutonomousGeneralApprentice,
 )
 from backend.modules.hexcore.wall_clock_scheduler import wait_for_wall_clock
+from backend.modules.hexcore.standalone_task_governance import governed_standalone_task
 
 
 def run_service() -> None:
@@ -19,11 +20,22 @@ def run_service() -> None:
     while True:
         apprentice = AutonomousGeneralApprentice(state_path=state_path, repo_root=repo_root)
         if apprentice.state.get("mission"):
-            apprentice.refresh_evidence()
-            outcome = apprentice.bind_new_delayed_outcome()
-            if outcome.get("status") == "bound":
-                apprentice.close_generation()
-                apprentice.next_task()
+            mission = apprentice.state.get("mission") or {}
+            task_text = str(
+                mission.get("objective") or mission.get("description")
+                or mission.get("mission_id") or "Refresh apprentice evidence and bind delayed outcome"
+            )
+            with governed_standalone_task(
+                repo_root=repo_root,
+                service_id="general_apprentice",
+                task_text=task_text,
+            ) as governed:
+                apprentice.refresh_evidence()
+                outcome = apprentice.bind_new_delayed_outcome()
+                if outcome.get("status") == "bound":
+                    apprentice.close_generation()
+                    apprentice.next_task()
+                governed.finish(outcome, verified=False)
         wait_for_wall_clock(interval)
 
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import re
 import time
@@ -42,6 +43,24 @@ class BoardroomAskRequest(BaseModel):
         "Analyse the business context and produce a boardroom response with "
         "position, recommendations, risks, missing inputs, and confidence."
     )
+
+
+class PilotDraftRequest(BaseModel):
+    business_id: str = "business_not_registered"
+    request: str = Field(min_length=1, max_length=12000)
+    actor_scope: str = "pilot"
+    approved_facts: List[Dict[str, Any]] = Field(default_factory=list)
+    business_context: Dict[str, Any] = Field(default_factory=dict)
+    requested_providers: List[str] = Field(default_factory=list)
+
+
+class QuoteInterviewRequest(BaseModel):
+    business_id: str = "business_not_registered"
+    stage: str = "scope"
+    user_turn: str = Field(min_length=1, max_length=6000)
+    currency: str = "GBP"
+    current_draft: Dict[str, Any] = Field(default_factory=dict)
+    requested_providers: List[str] = Field(default_factory=list)
 
 
 def _env_present(name: str) -> bool:
@@ -299,6 +318,173 @@ def _validate_board_response(content: str) -> Dict[str, Any]:
     return parsed
 
 
+def _pilot_draft_prompt(req: PilotDraftRequest, provider_label: str) -> str:
+    facts = []
+    for item in req.approved_facts[:20]:
+        text = str(item.get("text") or "").strip()[:2000]
+        if not text:
+            continue
+        facts.append({
+            "claim_id": str(item.get("claim_id") or "approved_fact")[:200],
+            "text": text,
+            "source_hash": str(item.get("source_hash") or "")[:200],
+        })
+    allowed_business_context = (
+        "business_name",
+        "legal_name",
+        "website_url",
+        "primary_email",
+        "business_type",
+        "sector",
+        "sender_name",
+        "sender_title",
+        "sender_email",
+    )
+    business_context = {
+        key: str(req.business_context.get(key) or "").strip()[:500]
+        for key in allowed_business_context
+        if str(req.business_context.get(key) or "").strip()
+    }
+    return (
+        "You are the connected drafting model serving AION Central Pilot.\n"
+        "Create the complete artifact requested by the user now. This is safe draft work only: "
+        "do not claim it was sent, published, purchased, deployed, or otherwise executed.\n"
+        "Do not invent company-specific facts. Use only the approved company facts and verified business "
+        "identity supplied below for claims about this business, product, or sender. If essential information "
+        "is absent, write a useful draft and put the gap in missing_inputs. Do not replace a known identity "
+        "value with a placeholder. Omit unknown optional signature fields rather than printing a placeholder.\n"
+        "Match the requested format and audience. For an email, include a useful subject line, greeting, "
+        "persuasive body, clear call to action, and the verified sender/company sign-off when supplied. "
+        "Return the finished artifact, "
+        "not a plan explaining how to create it.\n\n"
+        f"PROVIDER: {provider_label}\n"
+        f"BUSINESS ID: {req.business_id}\n"
+        f"ACTOR SCOPE: {req.actor_scope}\n"
+        f"USER REQUEST: {req.request.strip()}\n\n"
+        "APPROVED COMPANY FACTS JSON:\n"
+        f"{json.dumps(facts, ensure_ascii=False, indent=2)}\n\n"
+        "VERIFIED BUSINESS IDENTITY JSON:\n"
+        f"{json.dumps(business_context, ensure_ascii=False, indent=2)}\n\n"
+        "Return one JSON object with exactly these fields:\n"
+        "- position: the entire finished artifact requested by the user, including every useful line of the email, "
+        "document, message, or other deliverable. It must never be a label, placeholder, summary, or description "
+        "such as 'complete draft' or 'draft goes here'.\n"
+        "- recommendations: a JSON array of optional revision suggestions.\n"
+        "- risks: a JSON array of claims or details requiring verification.\n"
+        "- missing_inputs: a JSON array of essential missing inputs.\n"
+        "- plan_changes: a JSON array containing the draft-only boundary or other material plan change.\n"
+        "- confidence: a JSON number from 0 to 1.\n"
+        "Every list must contain concise strings; use an empty list when there is nothing to report. "
+        "Do not include any keys beyond those six fields."
+    )
+
+
+def _validate_pilot_draft_response(content: str) -> Dict[str, Any]:
+    structured = _validate_board_response(content)
+    draft = str(structured.get("position") or "").strip()
+    placeholder = re.fullmatch(
+        r"(?:complete|completed|finished|full|final|requested|reviewable|safe|client|email|document|artifact|draft|response|output|text|goes|here|ready|for|review|the|a|an|\s|[-_.:])+",
+        draft,
+        flags=re.IGNORECASE,
+    )
+    if len(draft) < 80 or placeholder:
+        raise RuntimeError("incomplete_pilot_draft_response")
+    return structured
+
+
+def _call_connected_provider(provider_id: str, prompt: str) -> Dict[str, Any]:
+    if provider_id == "gemma":
+        return _call_ollama(prompt)
+    if provider_id == "gemini":
+        return _call_gemini(prompt)
+    if provider_id == "claude":
+        return _call_claude(prompt)
+    if provider_id == "meta":
+        return _call_meta(prompt)
+    if provider_id in {"openai", "grok", "kimi", "mistral", "deepseek"}:
+        return _call_openai_compatible(provider_id, prompt)
+    raise RuntimeError("provider_call_not_implemented_yet")
+
+
+_QUOTE_STAGES = {"scope", "exclusions_duration", "customer_charges", "internal_costs", "evidence", "review"}
+_QUOTE_CATEGORIES = {"labour", "materials", "parking", "congestion_charge", "ulez", "supplier_subcontractor", "scaffolding", "skip_waste", "other"}
+
+
+def _quote_interview_prompt(req: QuoteInterviewRequest) -> str:
+    stage = req.stage if req.stage in _QUOTE_STAGES else "scope"
+    return (
+        "You extract one spoken turn into an in-progress customer quotation. Return JSON only.\n"
+        "Remove speech fillers, repetitions and false starts. Never invent work, exclusions, time, prices, quantities, people or terms. "
+        "The original customer enquiry is not supplied and must not be inferred. Use only the latest user turn and existing structured draft.\n"
+        "For scope answers, turn the user's description into a short customer-friendly scope_summary plus specific scope_items. "
+        "Each scope item must begin with an action such as Remove, Prepare, Supply, Install, Test, Dispose or Erect. Preserve useful sequencing and access details, "
+        "but do not pad a simple job or add work the user did not state.\n"
+        "A price described as cost, budget, wage, supplier cost or what someone costs belongs in internal_unit_cost. "
+        "A price described as charge, sell price, quote price, customer price or total to customer belongs in customer_unit_price.\n"
+        f"CURRENT STAGE: {stage}\nCURRENCY: {req.currency[:3].upper()}\n"
+        f"EXISTING DRAFT JSON: {json.dumps(req.current_draft, ensure_ascii=False)[:12000]}\n"
+        f"LATEST USER TURN: {json.dumps(req.user_turn, ensure_ascii=False)}\n"
+        "Return exactly these keys: scope_summary (string), scope_items (array of strings), exclusions (array of strings), duration (string), "
+        "charge_lines (array), terms (string), next_stage (scope|exclusions_duration|customer_charges|internal_costs|evidence|review), "
+        "quote_complete_requested (boolean). Each charge line must contain exactly category, description, quantity, "
+        "internal_unit_cost, customer_unit_price and person_name. Category must be labour, materials, parking, congestion_charge, "
+        "ulez, supplier_subcontractor, scaffolding, skip_waste or other. Use null for every number or name not explicitly stated."
+    )
+
+
+def _validate_quote_interview_response(content: str) -> Dict[str, Any]:
+    clean = re.sub(r"^```(?:json)?\s*|\s*```$", "", str(content or "").strip(), flags=re.IGNORECASE)
+    parsed = json.loads(clean)
+    if not isinstance(parsed, dict):
+        raise RuntimeError("invalid_quote_interview_response")
+    next_stage = str(parsed.get("next_stage") or "").strip()
+    if next_stage not in _QUOTE_STAGES:
+        raise RuntimeError("invalid_quote_interview_next_stage")
+    scope_items = parsed.get("scope_items")
+    exclusions = parsed.get("exclusions")
+    charge_lines = parsed.get("charge_lines")
+    if not isinstance(scope_items, list) or not isinstance(exclusions, list) or not isinstance(charge_lines, list):
+        raise RuntimeError("invalid_quote_interview_lists")
+    validated_lines: List[Dict[str, Any]] = []
+    for line in charge_lines[:30]:
+        if not isinstance(line, dict):
+            continue
+        category = str(line.get("category") or "other").strip().lower()
+        if category not in _QUOTE_CATEGORIES:
+            category = "other"
+        numbers: Dict[str, Optional[float]] = {}
+        for key in ("quantity", "internal_unit_cost", "customer_unit_price"):
+            value = line.get(key)
+            if value in (None, ""):
+                numbers[key] = None
+                continue
+            try:
+                number = float(str(value).replace(",", ""))
+            except (TypeError, ValueError):
+                raise RuntimeError(f"invalid_quote_interview_{key}")
+            if number < 0 or number > 100000000:
+                raise RuntimeError(f"invalid_quote_interview_{key}")
+            numbers[key] = number
+        validated_lines.append({
+            "category": category,
+            "description": str(line.get("description") or "").strip()[:500],
+            "quantity": numbers["quantity"],
+            "internal_unit_cost": numbers["internal_unit_cost"],
+            "customer_unit_price": numbers["customer_unit_price"],
+            "person_name": str(line.get("person_name") or "").strip()[:200],
+        })
+    return {
+        "scope_summary": str(parsed.get("scope_summary") or "").strip()[:2000],
+        "scope_items": [str(item).strip()[:1000] for item in scope_items[:40] if str(item).strip()],
+        "exclusions": [str(item).strip()[:1000] for item in exclusions[:30] if str(item).strip()],
+        "duration": str(parsed.get("duration") or "").strip()[:500],
+        "charge_lines": validated_lines,
+        "terms": str(parsed.get("terms") or "").strip()[:2000],
+        "next_stage": next_stage,
+        "quote_complete_requested": parsed.get("quote_complete_requested") is True,
+    }
+
+
 def _meeting_path(business_id: str) -> Path:
     safe_id = re.sub(r"[^a-zA-Z0-9._-]+", "-", str(business_id or "business")).strip(".-") or "business"
     return _MEETING_ROOT / f"{safe_id}.json"
@@ -516,6 +702,42 @@ def boardroom_provider_status() -> Dict[str, Any]:
     }
 
 
+@router.post("/quote-interview")
+def quote_interview(req: QuoteInterviewRequest) -> Dict[str, Any]:
+    providers = {item["id"]: item for item in _provider_status()}
+    priority = [str(item).strip() for item in req.requested_providers if str(item).strip()] or ["gemini", "openai", "gemma"]
+    attempts: List[Dict[str, str]] = []
+    prompt = _quote_interview_prompt(req)
+    for provider_id in priority:
+        provider = providers.get(provider_id) or {}
+        if provider.get("connected") is not True:
+            continue
+        try:
+            result = _call_connected_provider(provider_id, prompt)
+            extraction = _validate_quote_interview_response(str(result.get("content") or ""))
+            receipt_material = json.dumps({"business_id": req.business_id, "stage": req.stage, "user_turn": req.user_turn, "provider_id": provider_id, "extraction": extraction}, ensure_ascii=False, sort_keys=True)
+            return {
+                "schema_version": "aion.quote_interview_turn.v1",
+                "status": "extracted",
+                "provider_id": provider_id,
+                "provider_label": provider.get("label") or provider_id,
+                "model": result.get("model") or provider.get("model"),
+                "latency_ms": result.get("latency_ms"),
+                "extraction": extraction,
+                "receipt_hash": hashlib.sha256(receipt_material.encode("utf-8")).hexdigest(),
+                "external_action_performed": False,
+            }
+        except Exception as exc:
+            attempts.append({"provider_id": provider_id, "reason": str(exc)[:300]})
+    return {
+        "schema_version": "aion.quote_interview_turn.v1",
+        "status": "unavailable",
+        "reason": "no_provider_returned_valid_quote_extraction",
+        "attempts": attempts,
+        "external_action_performed": False,
+    }
+
+
 @router.get("/meetings/{business_id}/latest")
 def latest_boardroom_meeting(business_id: str) -> Dict[str, Any]:
     path = _meeting_path(business_id)
@@ -523,6 +745,91 @@ def latest_boardroom_meeting(business_id: str) -> Dict[str, Any]:
         return {"schema_version": "aion.boardroom_meeting_latest.v1", "status": "not_found", "item": None}
     payload = json.loads(path.read_text(encoding="utf-8"))
     return {"schema_version": "aion.boardroom_meeting_latest.v1", "status": "ok", "item": payload.get("latest")}
+
+
+@router.post("/pilot-draft")
+def pilot_draft(req: PilotDraftRequest) -> Dict[str, Any]:
+    """Create one provider-backed draft without performing an external action."""
+    providers = {item["id"]: item for item in _provider_status()}
+    requested = [str(item).strip() for item in req.requested_providers if str(item).strip()]
+    priority = requested or ["openai", "gemini", "claude", "grok", "kimi", "meta", "mistral", "deepseek", "gemma"]
+    provider = next((providers.get(item) for item in priority if providers.get(item, {}).get("connected")), None)
+    if not provider:
+        return {
+            "schema_version": "aion.pilot_draft_result.v1",
+            "status": "unavailable",
+            "reason": "no_connected_drafting_provider",
+            "external_action_performed": False,
+        }
+
+    provider_id = str(provider.get("id") or "")
+    prompt = _pilot_draft_prompt(req, str(provider.get("label") or provider_id))
+    try:
+        result = _call_connected_provider(provider_id, prompt)
+        structured = _validate_pilot_draft_response(str(result.get("content") or ""))
+    except urllib.error.HTTPError as exc:
+        return {
+            "schema_version": "aion.pilot_draft_result.v1",
+            "status": "failed",
+            "reason": f"http_error_{exc.code}",
+            "provider_id": provider_id,
+            "external_action_performed": False,
+        }
+    except Exception as exc:
+        return {
+            "schema_version": "aion.pilot_draft_result.v1",
+            "status": "failed",
+            "reason": str(exc),
+            "provider_id": provider_id,
+            "external_action_performed": False,
+        }
+
+    approved_facts = [item for item in req.approved_facts[:20] if str(item.get("text") or "").strip()]
+    allowed_business_context = {
+        "business_name",
+        "legal_name",
+        "website_url",
+        "primary_email",
+        "business_type",
+        "sector",
+        "sender_name",
+        "sender_title",
+        "sender_email",
+    }
+    business_context = {
+        key: str(value).strip()[:500]
+        for key, value in req.business_context.items()
+        if key in allowed_business_context and str(value or "").strip()
+    }
+    receipt_material = json.dumps({
+        "business_id": req.business_id,
+        "request": req.request,
+        "actor_scope": req.actor_scope,
+        "provider_id": provider_id,
+        "model": result.get("model") or provider.get("model"),
+        "fact_ids": [str(item.get("claim_id") or "") for item in approved_facts],
+        "business_context": business_context,
+        "draft": structured["position"],
+    }, ensure_ascii=False, sort_keys=True)
+    receipt_hash = hashlib.sha256(receipt_material.encode("utf-8")).hexdigest()
+    return {
+        "schema_version": "aion.pilot_draft_result.v1",
+        "status": "draft_ready",
+        "draft": structured["position"],
+        "recommendations": structured["recommendations"],
+        "risks": structured["risks"],
+        "missing_inputs": structured["missing_inputs"],
+        "provider_id": provider_id,
+        "provider_label": provider.get("label") or provider_id,
+        "model": result.get("model") or provider.get("model"),
+        "latency_ms": result.get("latency_ms"),
+        "approved_fact_count": len(approved_facts),
+        "approved_fact_ids": [str(item.get("claim_id") or "") for item in approved_facts],
+        "business_context_fields_used": sorted(business_context),
+        "receipt_hash": f"sha256:{receipt_hash}",
+        "external_action_performed": False,
+        "boundary": "draft_only_not_sent",
+    }
 
 
 @router.post("/ask")

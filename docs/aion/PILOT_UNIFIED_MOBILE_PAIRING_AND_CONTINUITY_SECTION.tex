@@ -1,0 +1,118 @@
+\section{Secure Mobile Pairing and Mother-Brain Continuity}
+
+The unified Pilot application treats a phone as a private cryptographic key and user interface,
+not as an independent source of authority.  The user-selected mother brain remains authoritative
+for identity, memory, capabilities, approvals, execution and receipts.  This stage reuses Pilot's
+existing private-identity, local TLS, recovery and shared-screen systems and adds one coherent
+phone-to-mother trust protocol around them.
+
+\subsection{Security objectives}
+
+The pairing design has five primary objectives:
+\begin{enumerate}
+  \item connect a phone without exposing a mother-brain password or private key;
+  \item allow the phone to prove possession of its own key;
+  \item allow the phone to verify that it is connecting to the intended mother brain;
+  \item issue only explicit, time-bounded capabilities; and
+  \item make loss, theft, expiry and revocation fail closed across messaging, approvals and shared
+  television sessions.
+\end{enumerate}
+
+The protocol does not treat knowledge of a URL, QR code or six-digit number as durable authority.
+Durable trust is established only after a signed challenge and is represented by a mother-signed
+phone certificate plus a short-lived capability lease.
+
+\subsection{Signed mother discovery}
+
+The local HTTPS service publishes a short-lived descriptor at
+\texttt{/.well-known/pilot-mother}.  The descriptor contains the mother identifier, Ed25519 public
+key, key fingerprint, HTTPS endpoint, household certificate-authority fingerprint and bounded
+timestamps.  The whole descriptor is signed by the mother.  The phone verifies the signature,
+recomputes the fingerprint, rejects expired descriptors and accepts only a path-free HTTPS
+endpoint.  Altering either the endpoint or key therefore invalidates verification.
+
+Pilot also derives a small set of human-readable trust words from the mother public key.  The
+same words are displayed on the phone and trusted household surface so that a user can detect a
+substituted QR code or unexpected mother brain without reading hexadecimal fingerprints.
+
+\subsection{Pairing ceremony}
+
+The connection sequence is:
+\begin{enumerate}
+  \item The phone discovers or scans the signed mother descriptor and verifies it locally.
+  \item The phone creates an Ed25519 device key.  In the web demonstrator the temporary exported
+  key bytes are erased and the private key is re-imported as non-extractable before storage in
+  IndexedDB.  Native applications will use the platform key store where available.
+  \item The phone requests a five-minute, single-use challenge containing its public key, selected
+  persona and requested capability scopes.
+  \item The mother signs the challenge.  A random six-digit confirmation code is shown through a
+  trusted local presenter on the mother side.  The HTTPS response deliberately never contains the
+  code.
+  \item The user enters the code on the phone, which signs the canonical challenge payload.
+  \item The mother verifies the code, expiry, attempt count and phone signature, then records the
+  phone in the existing Production Private Identity registry.
+  \item The mother returns a signed phone certificate and an eight-hour capability lease.
+\end{enumerate}
+
+A challenge can be consumed only once.  Five incorrect confirmation attempts lock it.  A newer
+challenge for the same persona and phone supersedes an older pending challenge.  This bounds both
+brute-force attempts and accidental duplicate enrollment.
+
+\subsection{Certificates, leases and reconnection}
+
+The phone certificate binds the device identifier, persona, public key, mother, household TLS
+fingerprint and validity interval.  The separate capability lease binds that certificate to an
+ordered list of allowed scopes and expires after eight hours by default, with a hard maximum of
+twenty-four hours.
+
+Lease renewal requires a fresh nonce and a phone signature.  The previous lease is rotated rather
+than silently reused, replayed renewal nonces are rejected, and a renewal may retain or reduce
+scope but may not add a new permission.  Every protected request validates both mother signatures,
+both expiry times, the stored active lease and the authoritative private-identity device status.
+
+Direct trusted-LAN access is preferred at home.  The interface uses ordinary descriptions such as
+``Connected securely'', ``Needs reconnecting'', ``Offline'' and ``Phone removed'' instead of
+exposing certificate terminology to ordinary users.
+
+\subsection{Revocation and recovery}
+
+There is one authoritative device lifecycle.  Revoking a lost phone through Pilot's private
+identity settings marks the device revoked, invalidates every active mobile lease and terminates
+its shared-screen authority.  The pairing layer checks that authoritative status on validation,
+renewal and connection-state queries, so a stale local certificate cannot restore access.
+
+Existing one-time recovery codes and explicit identity recovery remain the recovery mechanism.
+Recovery does not copy an old private key onto a replacement device.  The replacement completes a
+new possession ceremony, and the lost device remains revoked.
+
+\subsection{Network and implementation controls}
+
+The local pairing API requires TLS~1.2 or newer, exact-origin allowlisting, JSON requests below
+32~KiB, no-store responses, strict transport security, frame denial and a bounded per-address
+request rate.  Private mother and certificate-authority keys never enter the HTTP response.
+Persisted pairing state and identity state use owner-only file permissions.
+
+Automated adversarial tests cover endpoint and public-key substitution, incorrect-code locking,
+single-use challenges, phone-possession signatures, certificate and lease mismatch, scope
+expansion, renewal replay, direct identity-registry revocation, public inventory redaction and a
+real local HTTPS round trip whose phone response is inspected to prove that it does not contain the
+confirmation code.
+
+\subsection{Completion boundary and remaining continuity work}
+
+This stage completes local mother discovery, the pairing ceremony, certificate and lease lifecycle,
+non-technical connection states, device inventory, recovery integration and lost-phone revocation.
+It does not claim that remote continuity is complete.  The following items remain:
+\begin{itemize}
+  \item an encrypted peer-to-peer route outside the home;
+  \item an end-to-end encrypted relay fallback whose operator cannot read application content;
+  \item automatic Wi-Fi to mobile-data roaming with bounded retry and route health;
+  \item resumable subscriptions with message and action duplicate suppression;
+  \item hardware-backed native iOS and Android keys and biometric approval; and
+  \item field exercises across home Wi-Fi, external Wi-Fi, mobile data, relay failure and mother
+  migration.
+\end{itemize}
+
+These remaining network transports must reuse the certificate, lease and revocation rules above.
+They must not introduce a second identity authority or turn a relay account into authority over a
+user's Pilot.

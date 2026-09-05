@@ -1,0 +1,52 @@
+{
+  "marketing_content": {
+    "name": "Marketing Content",
+    "department": "marketing",
+    "industry": "general",
+    "purpose": "prepare evidence-backed campaign material",
+    "read_tools": ["business_map.read", "marketing_evidence.read", "brand_foundation.read"],
+    "draft_tool": "marketing.prepare_draft",
+    "external_action": "marketing.publish_approved",
+    "forbidden_claim": "Do not invent customer results, endorsements, prices or availability."
+  },
+  "customer_support_triage": {
+    "name": "Customer Support Triage",
+    "department": "customer_support",
+    "industry": "general",
+    "purpose": "classify support requests and prepare a supported response",
+    "read_tools": ["business_map.read", "support_case.read", "customer_history.read_scoped"],
+    "draft_tool": "support.prepare_reply",
+    "external_action": "support.send_approved",
+    "forbidden_claim": "Do not close a case, promise a remedy or expose another customer's information."
+  },
+  "finance_monitoring": {
+    "name": "Finance Monitoring",
+    "department": "finance_monitoring",
+    "industry": "general",
+    "purpose": "identify evidenced finance exceptions for accountable review",
+    "read_tools": ["business_map.read", "finance_ledger.read", "finance_policy.read"],
+    "draft_tool": "finance.prepare_exception_report",
+    "external_action": "finance.record_reviewed_exception",
+    "forbidden_claim": "Do not initiate payment, alter the ledger or present inference as audited fact."
+  },
+  "operations_coordination": {
+    "name": "Operations Coordination",
+    "department": "operations",
+    "industry": "general",
+    "purpose": "prepare bounded operational work and dependencies",
+    "read_tools": ["business_map.read", "operations_queue.read", "availability.read"],
+    "draft_tool": "operations.prepare_work",
+    "external_action": "operations.commit_approved_work",
+    "forbidden_claim": "Do not allocate a person, spend budget or promise a delivery time without authority."
+  },
+  "field_services_dispatch": {
+    "name": "Field Services Dispatch",
+    "department": "operations",
+    "industry": "field_services",
+    "purpose": "prepare a verified visit or dispatch proposal",
+    "read_tools": ["business_map.read", "service_request.read", "engineer_availability.read", "travel_time.read"],
+    "draft_tool": "dispatch.prepare_visit",
+    "external_action": "dispatch.book_approved_visit",
+    "forbidden_claim": "Do not confirm a price, engineer, arrival time or emergency response without verified authority."
+  }
+}

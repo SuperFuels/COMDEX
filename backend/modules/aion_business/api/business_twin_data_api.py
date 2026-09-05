@@ -35,6 +35,13 @@ from backend.modules.aion_business.runtime.finance_completion_service import (
     seed_operating_model,
 )
 from backend.modules.aion_business.runtime.finance_director_service import FinanceDirectorService
+from backend.modules.aion_business.runtime.business_knowledge_service import BusinessKnowledgeService
+from backend.modules.aion_business.runtime.business_map_governance_service import BusinessMapGovernanceService
+from backend.modules.aion_business.runtime.business_connector_onboarding_service import BusinessConnectorOnboardingService
+from backend.modules.aion_business.runtime.foundation_onboarding_session_service import (
+    FoundationOnboardingSessionService,
+    FoundationSessionRevisionConflict,
+)
 
 
 router = APIRouter(prefix="/api/aion/business/data", tags=["aion-business-data"])
@@ -482,6 +489,20 @@ class FoundationCommitRequest(BaseModel):
     source: str = "business_foundation"
 
 
+class FoundationSessionWriteRequest(BaseModel):
+    packet: Dict[str, Any]
+    expected_revision: int | None = None
+    actor_id: str = Field(default="local_owner", min_length=1, max_length=160)
+    device_id: str = Field(default="unknown_device", min_length=1, max_length=160)
+    complete: bool = False
+
+
+class FoundationSessionResetRequest(BaseModel):
+    expected_revision: int | None = None
+    actor_id: str = Field(default="local_owner", min_length=1, max_length=160)
+    confirm_reset: bool = False
+
+
 class ContainerWriteRequest(BaseModel):
     payload: Dict[str, Any]
     source: str = "desktop_runtime"
@@ -493,6 +514,63 @@ class BusinessMapFactsRequest(BaseModel):
     source: str = "desktop_runtime"
 
 
+class BusinessMapFactProposalRequest(BaseModel):
+    field: str = Field(..., min_length=1, max_length=160)
+    value: Any
+    source_ref: str = Field(..., min_length=1, max_length=500)
+    confidence: float = Field(..., ge=0, le=1)
+    proposed_by: str = Field(..., min_length=1, max_length=160)
+    function: str = Field(default="business", max_length=100)
+    category: str = Field(default="foundation", max_length=100)
+    review_owner_id: str | None = Field(default=None, max_length=160)
+    effective_from: str | None = None
+    effective_until: str | None = None
+    expected_revision: int | None = None
+
+
+class BusinessMapFactReviewRequest(BaseModel):
+    action: str
+    actor_id: str = Field(..., min_length=1, max_length=160)
+    expected_revision: int | None = None
+    corrected_value: Any = None
+    reason: str = Field(default="", max_length=500)
+    confirm_delete: bool = False
+
+
+class BusinessMapFactMergeRequest(BaseModel):
+    primary_fact_id: str = Field(..., min_length=1, max_length=160)
+    duplicate_fact_id: str = Field(..., min_length=1, max_length=160)
+    actor_id: str = Field(..., min_length=1, max_length=160)
+    expected_revision: int | None = None
+
+
+class BusinessMapRelationshipProposalRequest(BaseModel):
+    from_id: str = Field(..., min_length=1, max_length=240)
+    relationship_type: str = Field(..., min_length=1, max_length=160)
+    to_id: str = Field(..., min_length=1, max_length=240)
+    source_ref: str = Field(..., min_length=1, max_length=500)
+    confidence: float = Field(..., ge=0, le=1)
+    proposed_by: str = Field(..., min_length=1, max_length=160)
+    review_owner_id: str | None = Field(default=None, max_length=160)
+    expected_revision: int | None = None
+
+
+class BusinessMapRelationshipReviewRequest(BaseModel):
+    action: str
+    actor_id: str = Field(..., min_length=1, max_length=160)
+    expected_revision: int | None = None
+    corrected_from_id: str | None = Field(default=None, max_length=240)
+    corrected_relationship_type: str | None = Field(default=None, max_length=160)
+    corrected_to_id: str | None = Field(default=None, max_length=240)
+    reason: str = Field(default="", max_length=500)
+    confirm_delete: bool = False
+
+
+class BusinessMapRelationshipNormalizeRequest(BaseModel):
+    actor_id: str = Field(..., min_length=1, max_length=160)
+    expected_revision: int | None = None
+
+
 class FinanceAgentTurnRequest(BaseModel):
     user_text: str = Field(..., min_length=1, max_length=4000)
 
@@ -501,12 +579,64 @@ class FinanceArtifactAcceptanceRequest(BaseModel):
     fact_ids: list[str] = Field(default_factory=list)
 
 
+class BusinessKnowledgeTextRequest(BaseModel):
+    title: str = Field(default="Owner-provided business knowledge", max_length=240)
+    text: str = Field(..., min_length=1, max_length=500_000)
+    scopes: list[str] = Field(default_factory=lambda: ["all"])
+    confidentiality: str = "internal"
+    effective_from: str | None = None
+    effective_until: str | None = None
+
+
+class BusinessKnowledgeApprovalRequest(BaseModel):
+    claim_ids: list[str] = Field(default_factory=list)
+    actor: str = "business_owner"
+
+
+class BusinessKnowledgeSearchRequest(BaseModel):
+    query: str = Field(..., min_length=1, max_length=4000)
+    actor_scope: str = "pilot"
+    limit: int = Field(default=8, ge=1, le=25)
+
+
+class BusinessKnowledgeEntityLinkRequest(BaseModel):
+    actor: str = Field(default="business_owner", min_length=1, max_length=160)
+
+
+class BusinessKnowledgeSourcePolicyRequest(BaseModel):
+    actor: str = Field(default="business_owner", min_length=1, max_length=160)
+    legal_hold: bool | None = None
+    retention_until: str | None = None
+
+
+class BusinessKnowledgeSourceRevokeRequest(BaseModel):
+    actor: str = Field(default="business_owner", min_length=1, max_length=160)
+    confirm_revoke: bool = False
+    reason: str = Field(default="", max_length=500)
+
+
+class BusinessKnowledgeRetentionRequest(BaseModel):
+    actor: str = Field(default="business_owner", min_length=1, max_length=160)
+
+
 def _repo() -> BusinessContainerRepository:
     return BusinessContainerRepository()
 
 
 def _workspaces() -> WorkspaceRepository:
     return WorkspaceRepository()
+
+
+def _business_knowledge() -> BusinessKnowledgeService:
+    return BusinessKnowledgeService()
+
+
+def _business_map_governance() -> BusinessMapGovernanceService:
+    return BusinessMapGovernanceService(_repo())
+
+
+def _connector_onboarding() -> BusinessConnectorOnboardingService:
+    return BusinessConnectorOnboardingService()
 
 
 def _ensure_workspace(business_id: str, draft: Dict[str, Any]) -> None:
@@ -794,6 +924,71 @@ def resolve_business_identity(candidate: str) -> Dict[str, Any]:
     }
 
 
+def _foundation_sessions() -> FoundationOnboardingSessionService:
+    return FoundationOnboardingSessionService()
+
+
+@router.get("/foundation-session/{candidate}")
+def get_foundation_session(candidate: str) -> Dict[str, Any]:
+    try:
+        session = _foundation_sessions().get(candidate)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "session": session}
+
+
+@router.put("/foundation-session/{candidate}")
+def put_foundation_session(
+    candidate: str, request: FoundationSessionWriteRequest
+) -> Dict[str, Any]:
+    try:
+        session = _foundation_sessions().save(
+            candidate,
+            packet=request.packet,
+            expected_revision=request.expected_revision,
+            actor_id=request.actor_id,
+            device_id=request.device_id,
+            complete=request.complete,
+        )
+    except FoundationSessionRevisionConflict as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "reason": "foundation_session_revision_conflict",
+                "expected": exc.expected,
+                "current": exc.current,
+            },
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "session": session}
+
+
+@router.post("/foundation-session/{candidate}/reset")
+def reset_foundation_session(
+    candidate: str, request: FoundationSessionResetRequest
+) -> Dict[str, Any]:
+    try:
+        session = _foundation_sessions().reset(
+            candidate,
+            expected_revision=request.expected_revision,
+            actor_id=request.actor_id,
+            confirm_reset=request.confirm_reset,
+        )
+    except FoundationSessionRevisionConflict as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "reason": "foundation_session_revision_conflict",
+                "expected": exc.expected,
+                "current": exc.current,
+            },
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "session": session}
+
+
 @router.post("/foundation/{candidate}")
 def commit_foundation(candidate: str, request: FoundationCommitRequest) -> Dict[str, Any]:
     try:
@@ -964,6 +1159,14 @@ def get_business_map(candidate: str) -> Dict[str, Any]:
     return _read_container(candidate, "business_map")
 
 
+@router.get("/connector-onboarding/{candidate}")
+def get_business_connector_onboarding(candidate: str) -> Dict[str, Any]:
+    try:
+        return _connector_onboarding().snapshot(candidate)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @router.put("/business-map/{candidate}")
 def put_business_map(candidate: str, request: ContainerWriteRequest) -> Dict[str, Any]:
     business_id = canonical_business_id(candidate)
@@ -1022,6 +1225,263 @@ def append_business_map_facts(candidate: str, request: BusinessMapFactsRequest) 
         repository.save_model(model)
     payload = model.model_dump(mode="json")
     return {"ok": True, "business_id": business_id, "appended": appended, "payload": payload, "receipt": _receipt(business_id=business_id, kind="business_map", payload=payload)}
+
+
+@router.post("/business-map/{candidate}/governance/facts")
+def propose_governed_business_map_fact(candidate: str, request: BusinessMapFactProposalRequest) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        return _business_map_governance().propose_fact(business_id, **request.model_dump())
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="business_map_not_found") from exc
+    except ValueError as exc:
+        status = 409 if "revision_conflict" in str(exc) else 400
+        raise HTTPException(status_code=status, detail=str(exc)) from exc
+
+
+@router.post("/business-map/{candidate}/governance/facts/{fact_id}/review")
+def review_governed_business_map_fact(
+    candidate: str, fact_id: str, request: BusinessMapFactReviewRequest
+) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        return _business_map_governance().review_fact(
+            business_id, fact_id, **request.model_dump()
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="business_map_not_found") from exc
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc).strip("'")) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        status = 409 if "revision_conflict" in str(exc) else 400
+        raise HTTPException(status_code=status, detail=str(exc)) from exc
+
+
+@router.post("/business-map/{candidate}/governance/facts/merge")
+def merge_governed_business_map_facts(candidate: str, request: BusinessMapFactMergeRequest) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        return _business_map_governance().merge_facts(business_id, **request.model_dump())
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="business_map_not_found") from exc
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc).strip("'")) from exc
+    except ValueError as exc:
+        status = 409 if "revision_conflict" in str(exc) else 400
+        raise HTTPException(status_code=status, detail=str(exc)) from exc
+
+
+@router.post("/business-map/{candidate}/governance/relationships")
+def propose_governed_business_map_relationship(candidate: str, request: BusinessMapRelationshipProposalRequest) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        return _business_map_governance().propose_relationship(business_id, **request.model_dump())
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="business_map_not_found") from exc
+    except ValueError as exc:
+        status = 409 if "revision_conflict" in str(exc) else 400
+        raise HTTPException(status_code=status, detail=str(exc)) from exc
+
+
+@router.post("/business-map/{candidate}/governance/relationships/{relationship_id}/review")
+def review_governed_business_map_relationship(candidate: str, relationship_id: str, request: BusinessMapRelationshipReviewRequest) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        return _business_map_governance().review_relationship(business_id, relationship_id, **request.model_dump())
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="business_map_not_found") from exc
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc).strip("'")) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        status = 409 if "revision_conflict" in str(exc) else 400
+        raise HTTPException(status_code=status, detail=str(exc)) from exc
+
+
+@router.post("/business-map/{candidate}/governance/relationships/normalize-legacy")
+def normalize_legacy_business_map_relationships(candidate: str, request: BusinessMapRelationshipNormalizeRequest) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        return _business_map_governance().normalize_legacy_relationships(business_id, **request.model_dump())
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="business_map_not_found") from exc
+    except ValueError as exc:
+        status = 409 if "revision_conflict" in str(exc) else 400
+        raise HTTPException(status_code=status, detail=str(exc)) from exc
+
+
+@router.get("/business-map/{candidate}/governance/queues")
+def get_business_map_governance_queues(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        return _business_map_governance().queues(business_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="business_map_not_found") from exc
+
+
+@router.get("/business-map/{candidate}/governance/export")
+def export_governed_business_map(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        return _business_map_governance().export(business_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="business_map_not_found") from exc
+
+
+@router.get("/business-knowledge/{candidate}")
+def get_business_knowledge(candidate: str) -> Dict[str, Any]:
+    try:
+        business_id = canonical_business_id(candidate)
+        summary = _business_knowledge().summary(business_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, "payload": summary}
+
+
+@router.post("/business-knowledge/{candidate}/text")
+def ingest_business_knowledge_text(candidate: str, request: BusinessKnowledgeTextRequest) -> Dict[str, Any]:
+    try:
+        business_id = canonical_business_id(candidate)
+        result = _business_knowledge().ingest_text(
+            business_id,
+            title=request.title,
+            text=request.text,
+            scopes=request.scopes,
+            confidentiality=request.confidentiality,
+            effective_from=request.effective_from,
+            effective_until=request.effective_until,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, **result}
+
+
+@router.post("/business-knowledge/{candidate}/file")
+async def ingest_business_knowledge_file(
+    candidate: str,
+    file: UploadFile = File(...),
+    scopes: str = Form("all"),
+    confidentiality: str = Form("internal"),
+    effective_from: str | None = Form(None),
+    effective_until: str | None = Form(None),
+) -> Dict[str, Any]:
+    try:
+        business_id = canonical_business_id(candidate)
+        data = await file.read()
+        scope_values = [value.strip() for value in scopes.split(",") if value.strip()]
+        result = _business_knowledge().ingest_file(
+            business_id,
+            filename=file.filename or "business-knowledge.txt",
+            data=data,
+            scopes=scope_values,
+            confidentiality=confidentiality,
+            effective_from=effective_from,
+            effective_until=effective_until,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, **result}
+
+
+@router.post("/business-knowledge/{candidate}/claims/approve")
+def approve_business_knowledge_claims(candidate: str, request: BusinessKnowledgeApprovalRequest) -> Dict[str, Any]:
+    try:
+        business_id = canonical_business_id(candidate)
+        result = _business_knowledge().approve(business_id, request.claim_ids, actor=request.actor)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    approved = result.get("approved") or []
+    if approved:
+        append_business_map_facts(
+            business_id,
+            BusinessMapFactsRequest(
+                source="business_knowledge_owner_approval",
+                facts=[
+                    {
+                        "function": (claim.get("scopes") or ["all"])[0],
+                        "category": "business_knowledge",
+                        "field": claim.get("claim_id"),
+                        "value": claim.get("text"),
+                        "classification": "owner_attested_business_knowledge",
+                        "confidence": 1.0,
+                        "verification_status": "owner_attested_not_independently_verified",
+                        "source_ref": f"business_knowledge:{claim.get('source_id')}",
+                        "evidence_refs": [claim.get("source_hash")],
+                        "confidentiality": claim.get("confidentiality"),
+                        "scopes": claim.get("scopes"),
+                        "effective_from": claim.get("effective_from"),
+                        "effective_until": claim.get("effective_until"),
+                    }
+                    for claim in approved
+                ],
+            ),
+        )
+    return {"ok": True, "business_id": business_id, **result}
+
+
+@router.post("/business-knowledge/{candidate}/search")
+def search_business_knowledge(candidate: str, request: BusinessKnowledgeSearchRequest) -> Dict[str, Any]:
+    try:
+        business_id = canonical_business_id(candidate)
+        result = _business_knowledge().search(
+            business_id,
+            request.query,
+            actor_scope=request.actor_scope,
+            limit=request.limit,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, **result}
+
+
+@router.post("/business-knowledge/{candidate}/entity-links/rebuild")
+def rebuild_business_knowledge_entity_links(candidate: str, request: BusinessKnowledgeEntityLinkRequest) -> Dict[str, Any]:
+    try:
+        business_id = canonical_business_id(candidate)
+        result = _business_knowledge().rebuild_entity_links(business_id, actor=request.actor)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, **result}
+
+
+@router.post("/business-knowledge/{candidate}/sources/{source_id}/policy")
+def set_business_knowledge_source_policy(candidate: str, source_id: str, request: BusinessKnowledgeSourcePolicyRequest) -> Dict[str, Any]:
+    try:
+        business_id = canonical_business_id(candidate)
+        result = _business_knowledge().set_source_policy(business_id, source_id, **request.model_dump())
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc).strip("'")) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, **result}
+
+
+@router.post("/business-knowledge/{candidate}/sources/{source_id}/revoke")
+def revoke_business_knowledge_source(candidate: str, source_id: str, request: BusinessKnowledgeSourceRevokeRequest) -> Dict[str, Any]:
+    try:
+        business_id = canonical_business_id(candidate)
+        result = _business_knowledge().revoke_source(business_id, source_id, **request.model_dump())
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc).strip("'")) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, **result}
+
+
+@router.post("/business-knowledge/{candidate}/retention/apply")
+def apply_business_knowledge_retention(candidate: str, request: BusinessKnowledgeRetentionRequest) -> Dict[str, Any]:
+    try:
+        business_id = canonical_business_id(candidate)
+        result = _business_knowledge().apply_retention(business_id, actor=request.actor)
+    except (PermissionError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, **result}
 
 
 @router.get("/department-intelligence/{candidate}")
@@ -1703,6 +2163,15 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
         return repository.load_optional_dict(business_id, kind) or {}
 
     business_map = optional("business_map")
+    boardroom_facts = []
+    for fact in _list(business_map.get("facts")):
+        if not isinstance(fact, dict):
+            continue
+        if fact.get("classification") == "owner_attested_business_knowledge":
+            scopes = {str(value) for value in _list(fact.get("scopes")) or ["all"]}
+            if "all" not in scopes and "boardroom" not in scopes:
+                continue
+        boardroom_facts.append(fact)
     ledger = optional("department_intelligence")
     finance_model = optional("business_financial_model")
     operating_model = optional("business_operating_model")
@@ -1724,7 +2193,7 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
         "business_structure": optional("business_structure"),
         "brand_foundation": optional("brand_foundation"),
         "business_map_projection": {
-            "facts": _list(business_map.get("facts")),
+            "facts": boardroom_facts,
             "assumptions": _list(business_map.get("assumptions")),
             "unknowns": _list(business_map.get("unknowns")),
             "conflicts": _list(business_map.get("conflicts")),

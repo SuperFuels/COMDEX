@@ -1,0 +1,80 @@
+\section{Mother-Authoritative and Resumable Business Onboarding}
+\label{sec:sovereign-resumable-business-onboarding}
+
+\subsection{Purpose and retained Boardroom capability}
+
+The Boardroom already contained a substantial schema-driven Business Foundation
+interview.  It accepts voice or typed turns, extracts candidate fields, calculates
+readiness, asks the next required or optional question, accepts corrections and
+prepares the existing Business Map and departmental hand-off.  This implementation
+is retained.  No second questionnaire, ontology or Business Map has been introduced.
+
+The remaining weakness was storage authority.  Interview packets were primarily
+retained in browser \texttt{localStorage}.  They could survive a refresh on one
+browser, but a trusted telephone, television or second computer could not reliably
+resume the same state.  Clearing that browser could also remove the only working
+copy of unfinished progress.
+
+\subsection{Authoritative session contract}
+
+Pilot now stores each unfinished foundation interview as a revisioned session on
+the customer's mother brain.  A session contains the existing discovery packet,
+workspace identifier, revision, packet hash, completion state, current readiness,
+next question, updater, device reference and timestamps.  The record declares:
+
+\begin{itemize}
+  \item \texttt{authoritative\_store = mother\_brain};
+  \item \texttt{browser\_storage\_role = migration\_cache\_only}; and
+  \item \texttt{external\_actions\_allowed = false}.
+\end{itemize}
+
+The browser still keeps a local copy so the conversation remains usable during a
+temporary backend interruption.  On first connection, an older browser-only packet
+is uploaded once when no mother-brain session exists.  Thereafter the mother copy
+wins.  The interface explicitly reports whether progress is loading, saving,
+synced, using its offline cache or awaiting conflict resolution.
+
+\subsection{Cross-device continuation and conflict control}
+
+Every write supplies the revision from which the user began.  The mother brain
+increments the revision after an atomic write.  If another trusted surface has
+already written a newer revision, the stale request receives a conflict rather than
+silently erasing the newer answers.  The client reloads the authoritative session
+and exposes the conflict state.  Saves from one surface are serialized locally to
+avoid rapid voice turns racing each other.
+
+The mother returns the exact next question and readiness state from the stored
+packet.  Consequently, a user can begin on the desktop and continue on an authorized
+phone or shared screen without reconstructing progress from a new model response.
+The receiving surface must still satisfy the existing identity and workspace
+authority boundary; possession of a workspace name is not an execution grant.
+
+\subsection{Safety, privacy and lifecycle}
+
+Packets are bounded to one megabyte and five hundred transcript turns.  Fields that
+attempt to store passwords, passphrases, API keys, access or refresh tokens, private
+keys, payment-card numbers, CVVs or PINs are rejected.  A completed interview is
+marked \texttt{completed\_pending\_commit}; it does not automatically mutate the
+canonical Business Map.  The existing explicit foundation commit remains a separate
+operation.
+
+Resetting an interview requires explicit confirmation and a current revision.  It
+creates a reset receipt containing the previous packet hash, but does not retain the
+discarded business content inside the receipt.  Save, completion and reset receipts
+also state that the canonical Business Map was not mutated by session persistence.
+
+\subsection{Interfaces}
+
+The local Business Data API now provides:
+
+\begin{itemize}
+  \item \texttt{GET /foundation-session/\{business\}} to resume progress;
+  \item \texttt{PUT /foundation-session/\{business\}} to save a revisioned packet;
+  \item \texttt{POST /foundation-session/\{business\}/reset} for an explicitly
+  confirmed reset; and
+  \item the existing \texttt{POST /foundation/\{business\}} boundary for the
+  separate final commit into Boardroom containers.
+\end{itemize}
+
+This closes \texttt{SBB-0202}: onboarding progress is now durable and resumable
+mother-brain state while the Boardroom Business Map remains the sole business truth.

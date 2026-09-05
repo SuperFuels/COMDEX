@@ -12,10 +12,47 @@ from __future__ import annotations
 import os
 import json
 from pathlib import Path
+import subprocess
 
 
 RETELL_KEYCHAIN_SERVICE = "com.tessaris.sales.retell"
 RETELL_DEPLOYMENT_PATH = Path(__file__).resolve().parents[4] / "data" / "local_vault" / "retell_homefixed_agent.json"
+
+
+def set_retell_api_key(workspace_id: str, api_key: str) -> None:
+    """Store a Retell key for one workspace in the operating-system vault."""
+    try:
+        import keyring
+    except Exception as exc:
+        raise RuntimeError("system_vault_unavailable") from exc
+    workspace = str(workspace_id or "").strip()
+    value = str(api_key or "").strip()
+    if not workspace:
+        raise ValueError("workspace_id_required")
+    if not value:
+        raise ValueError("retell_api_key_required")
+    keyring.set_password(RETELL_KEYCHAIN_SERVICE, workspace, value)
+
+
+def retell_api_key_present(workspace_id: str | None = None) -> bool:
+    """Check for a key without revealing it or triggering a password read."""
+    if str(os.getenv("RETELL_API_KEY") or "").strip():
+        return True
+    workspace = str(workspace_id or "").strip()
+    security = Path("/usr/bin/security")
+    if not workspace or not security.exists():
+        return False
+    try:
+        result = subprocess.run(
+            [str(security), "find-generic-password", "-s", RETELL_KEYCHAIN_SERVICE, "-a", workspace],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+            timeout=2,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return result.returncode == 0
 
 
 def get_retell_api_key(workspace_id: str | None = None) -> str:

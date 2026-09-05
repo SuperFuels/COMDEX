@@ -114,3 +114,23 @@ def test_revision_conflict_prevents_overwrite(tmp_path):
     service.save("acme", _model(service), expected_revision=0)
     with pytest.raises(ValueError, match="organization_revision_conflict"):
         service.save("acme", _model(service), expected_revision=0)
+
+
+def test_people_operations_persist_only_for_known_people_and_remain_human_gated(tmp_path):
+    service = _service(tmp_path)
+    model = _model(service)
+    model["people_operations"] = {
+        "leave_requests": [
+            {"id": "leave.1", "person_id": "person.worker", "status": "requested", "start_date": "2026-09-01", "end_date": "2026-09-02"},
+            {"id": "leave.bad", "person_id": "person.unknown", "status": "approved"},
+        ],
+        "appraisals": [{"id": "review.1", "person_id": "person.worker", "due_date": "2026-09-30"}],
+        "escalations": [{"id": "issue.1", "person_id": "person.worker", "status": "open", "restricted": True}],
+    }
+    saved = service.save("acme", model)
+    ops = saved["people_operations"]
+    assert [item["id"] for item in ops["leave_requests"]] == ["leave.1"]
+    assert saved["summary"]["pending_leave_requests"] == 1
+    assert saved["summary"]["open_people_escalations"] == 1
+    assert ops["governance"]["human_employment_decisions_required"] is True
+    assert ops["governance"]["sensitive_detail_excluded_from_dashboard"] is True

@@ -1,0 +1,28 @@
+\section{Workspace Membership Lifecycle}
+\label{sec:pilot-mobile-workspace-membership-lifecycle}
+\raggedright
+
+Pilot now enforces role changes, suspension, restoration, expiry, and revocation as live
+workspace authority changes.  An administrator must hold an active membership in the
+same workspace and the dedicated \texttt{workspace.members.manage} scope.  A role change
+names both the new role and its complete scope set; the administrator cannot grant a
+scope that their own membership does not hold.
+
+Every change creates a new immutable membership revision and an operation receipt with
+the actor, bounded reason, time, resulting membership hash, and an explicit declaration
+that enforcement is immediate.  Suspension blocks reads and manifest publication but
+can be deliberately restored.  Revocation is terminal for authorization.  Expiry is
+checked on every use, and a replacement expiry must be a valid future time.
+
+The Workspace Gateway does not rely on a cached interface to enforce these changes.
+Every provider read resolves the current membership revision, status, workspace, and
+expiry.  Therefore a previously rendered phone screen cannot continue reading a
+workspace after suspension, revocation, or expiry.  Cross-workspace administration and
+privilege expansion fail closed.
+
+Automated tests exercise role replacement, exact scope loss and gain, immediate
+suspension, deliberate restoration, terminal revocation, cross-client denial, and an
+administrator's attempted grant of authority they do not hold.  This closes
+\texttt{MOB-0605}; later remote-continuity work must propagate the same revision changes
+to relay and offline sessions.
+

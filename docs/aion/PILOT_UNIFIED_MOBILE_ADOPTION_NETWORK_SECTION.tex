@@ -1,0 +1,59 @@
+\section{Pilot Trusted Network and Useful Adoption Loop}
+\label{sec:pilot-mobile-adoption-network}
+
+Pilot's adoption mechanism begins with useful coordination rather than an empty
+social-network invitation.  A recipient sees who invited them, the exact bounded
+request and the role or relationship being proposed.  Joining continues that
+request and does not reveal unrelated sender, household or business information.
+
+\subsection{Contacts and relationship scope}
+
+The trusted-network authority supports household, family, friend and professional
+relationships.  A high-entropy, seven-day invitation token is stored only as a
+hash.  Inspection returns the sender's bounded display name, relationship, request
+kind and summary.  Acceptance requires the intended recipient route and creates a
+specific bilateral relationship rather than general access to either person's
+Pilot.
+
+Employer, client and Boardroom invitations additionally require an exact workspace
+reference and one of participant, reviewer, approver or administrator roles.  The
+accepted result retains the original useful request, such as a particular document
+review, so onboarding has immediate value.
+
+\subsection{Private contact discovery}
+
+Address-book discovery is disabled without explicit consent.  When enabled, email
+addresses and telephone numbers are normalized locally and converted into
+epoch-bound HMAC tokens.  Unsupported entries are discarded, duplicates collapse,
+and the request states that no readable contacts were uploaded.  The rotating
+discovery key remains mother-private.  This is a candidate-discovery mechanism, not
+permission to contact or invite every match.
+
+\subsection{Activation evidence}
+
+The authority records bounded creation and acceptance events for invitations.
+Its activation view is aggregate-only, split by contact, employer, client and
+Boardroom invitation types.  It contains no persona identifiers, addresses or
+message content.  This allows Pilot to measure whether useful TV, task and workspace
+entry points lead to adoption without centralizing conversation data.
+
+\subsection{Export, deletion and revocation}
+
+A person can export their invitations and relationship records with a canonical
+export hash.  Either party can revoke an active relationship.  The relationship
+becomes inactive immediately, future authorization checks fail, and a minimal
+revocation tombstone preserves the audit fact.  Person deletion removes private
+invitations and revokes every affected relationship; it does not silently leave an
+agent-to-agent route open.
+
+\subsection{Verification and remaining work}
+
+Automated tests cover useful contact invitations, exact-request continuation,
+employer/client/Boardroom roles, wrong-recipient denial, one-time acceptance,
+consent-gated contact discovery, absence of readable address-book data, aggregate
+metrics, export, revocation and deletion.  The composed handoff API spanning
+messages, tasks, reminders, files and Moments is documented separately in
+Section~\ref{sec:pilot-universal-handoffs}.  Remaining work comprises household,
+freelancer, employee and Boardroom field pilots and independent security, privacy
+and legal review.  Network growth does not require Tessaris to own the underlying
+conversations or business records.

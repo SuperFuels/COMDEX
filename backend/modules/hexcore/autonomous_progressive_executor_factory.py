@@ -30,6 +30,11 @@ def run(*, repo_root: Path, result_path: Path, state_path: Path) -> dict[str,Any
     }
     installed={row["subject_id"] for row in state["installations"]}
     for subject_id,(source,mutations,family) in SUBJECT_SUITES.items():
+        # A newly verified adapter may arrive just before the corresponding
+        # curriculum revision is activated.  Abstain until the subject exists
+        # instead of crashing the governed factory.
+        if subject_id not in competency["subjects"]:
+            continue
         adapter=fabric.state["adapters"][subject_id]
         subject=competency["subjects"][subject_id]
         declared=set(subject["subskills"]); supported=set(adapter["supported_subskills"])

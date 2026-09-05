@@ -27,6 +27,7 @@ LEVELS = ("unassessed", "beginner", "intermediate", "advanced", "expert")
 LEVEL_INDEX = {level: index for index, level in enumerate(LEVELS)}
 DEFAULT_TARGET = "advanced"
 CURRICULUM_POLICY_VERSION = "cross_domain_depth_acceleration_v4"
+EXPERT_RETENTION_MILESTONES_DAYS = (1, 7, 30, 90)
 
 # Breadth is still dynamic, but the foundational computing sequence is
 # intentional.  Dictionary ordering must never decide what AION learns next.
@@ -408,7 +409,9 @@ class ProgressiveCompetencySystem:
                         retained: bool = False, independent_outcome: bool = False,
                         unfamiliar: bool = False, scaffolding: float = 1.0,
                         trials: int = 1, authority: Iterable[str] = (),
-                        project_family: str | None = None) -> dict[str, Any]:
+                        project_family: str | None = None,
+                        experience_class: str = "bounded_practical_execution",
+                        retention_milestone_days: int | None = None) -> dict[str, Any]:
         if subject_id not in self.state["subjects"]:
             raise KeyError(subject_id)
         if kind not in KNOWLEDGE_KINDS | PRACTICAL_KINDS:
@@ -419,6 +422,11 @@ class ProgressiveCompetencySystem:
             raise ValueError("evidence subskills must be non-empty and declared")
         if not 0.0 <= score <= 1.0 or not 0.0 <= scaffolding <= 1.0:
             raise ValueError("score and scaffolding must be in [0,1]")
+        if retention_milestone_days is not None:
+            if kind != "retention":
+                raise ValueError("retention milestones may only be attached to retention evidence")
+            if retention_milestone_days not in EXPERT_RETENTION_MILESTONES_DAYS:
+                raise ValueError("unsupported retention milestone")
         row = self._append_evidence({
             "subject_id": subject_id, "kind": kind, "subskills": sorted(covered),
             "score": score, "verified": verified, "source_disjoint": source_disjoint,
@@ -427,6 +435,8 @@ class ProgressiveCompetencySystem:
             "artifact": artifact, "artifact_hash": artifact_hash,
             "authority": list(authority), "imported": False,
             "project_family": project_family,
+            "experience_class": experience_class,
+            "retention_milestone_days": retention_milestone_days,
         })
         self._close_matching_contract(subject_id, row)
         self._save()
@@ -441,6 +451,102 @@ class ProgressiveCompetencySystem:
                 contract["evidence_id"] = evidence["evidence_id"]
                 contract["closed_at"] = _utc_timestamp()
                 break
+
+    @_state_transaction
+    def park_executor_blocked_contract(self, contract_id: str, *, reason: str,
+                                       required_authority: str) -> dict[str, Any]:
+        """Park an unexecutable contract without treating it as satisfied.
+
+        An open executor-capability blocker must not let the same contract
+        monopolise every curriculum cycle.  Parking preserves the unmet
+        requirement and its blocker while allowing the scheduler to select a
+        different eligible subject.  No evidence or competence is awarded.
+        """
+        contract = next(
+            row for row in self.state["contracts"]
+            if row.get("contract_id") == contract_id
+        )
+        if contract.get("status") == "open":
+            contract.update({
+                "status": "blocked_executor_capability",
+                "parked_at": _utc_timestamp(),
+                "parked_reason": reason,
+                "required_authority": required_authority,
+            })
+        if self.state.get("active_subject_id") == contract.get("subject_id"):
+            self.state["active_subject_id"] = None
+        self._save()
+        return dict(contract)
+
+    @_state_transaction
+    def reissue_executor_blocked_contract(
+        self, contract_id: str, *, executor_version: str, authority_artifact: str,
+        artifact_hash: str,
+    ) -> dict[str, Any]:
+        """Reissue a parked obligation only after a new executable authority exists.
+
+        The historical contract remains immutable evidence of the earlier gap.
+        Reissuance creates a fresh commitment tied to the upgraded portfolio and
+        resolves only the capability blocker; it awards no competency evidence.
+        """
+        prior = next(
+            row for row in self.state["contracts"]
+            if row.get("contract_id") == contract_id
+        )
+        if prior.get("status") != "blocked_executor_capability":
+            raise ValueError("only an executor-blocked contract can be reissued")
+        existing = next((
+            row for row in self.state["contracts"]
+            if row.get("reissued_from_contract_id") == contract_id
+            and row.get("executor_version") == executor_version
+            and row.get("status") == "open"
+        ), None)
+        if existing:
+            return dict(existing)
+        prior["status"] = "superseded_executor_upgrade"
+        prior["superseded_at"] = _utc_timestamp()
+        prior["superseded_by_executor_version"] = executor_version
+        body = {
+            "subject_id": prior["subject_id"],
+            "target_level": prior.get("target_level"),
+            "current_level": self.assess(prior["subject_id"])["overall_level"],
+            "requirement": dict(prior.get("requirement") or {}),
+            "generation_index": len(self.state["contracts"]),
+            "prior_evidence_commitment": _canonical_hash(
+                [row["evidence_id"] for row in self.evidence_for(prior["subject_id"])]
+            ),
+            "reissued_from_contract_id": contract_id,
+            "executor_version": executor_version,
+            "executor_authority_artifact": authority_artifact,
+            "executor_authority_hash": artifact_hash,
+            "minimum_score": prior.get("minimum_score", 0.90),
+            "teacher_proposal_only": True,
+            "solution_replay_forbidden": True,
+            "requires_transfer": True,
+            "requires_retention": True,
+        }
+        contract = {
+            **body,
+            "contract_id": "competency_contract_" + _canonical_hash(body)[:20],
+            "commitment": _canonical_hash(body),
+            "status": "open", "created_at": _utc_timestamp(),
+            "created_epoch": time.time(), "no_progress_cycles": 0,
+        }
+        self.state["contracts"].append(contract)
+        for blocker in self.state.get("blockers") or []:
+            if (blocker.get("subject_id") == prior["subject_id"]
+                    and blocker.get("blocker_type") == "executor_capability"
+                    and blocker.get("status") == "open"):
+                blocker.update({
+                    "status": "resolved", "resolved_at": _utc_timestamp(),
+                    "authority_artifact": authority_artifact,
+                    "artifact_hash": artifact_hash,
+                    "resolution": "versioned_executor_portfolio_installed",
+                    "executor_version": executor_version,
+                })
+        self.state["active_subject_id"] = prior["subject_id"]
+        self._save()
+        return dict(contract)
 
     @_state_transaction
     def add_practical_blocker(self, *, subject_id: str, subskills: Iterable[str], reason: str,
@@ -484,6 +590,101 @@ class ProgressiveCompetencySystem:
         return gap
 
     @_state_transaction
+    def install_comprehensive_curriculum(
+        self, *, curriculum: Mapping[str, Any], curriculum_artifact: str
+    ) -> dict[str, Any]:
+        """Install curriculum definitions without awarding competence.
+
+        The installer is deliberately catalogue-only. It adds declared
+        capabilities, subjects, domains and bridge metadata, but never writes
+        evidence or changes an assessment directly.
+        """
+        from backend.modules.hexcore.comprehensive_expertise_curriculum import (
+            SCHEMA as COMPREHENSIVE_SCHEMA,
+            validate_curriculum,
+        )
+
+        if curriculum.get("schema_version") != COMPREHENSIVE_SCHEMA:
+            raise ValueError("unsupported comprehensive curriculum schema")
+        validation = validate_curriculum(curriculum)
+        if not validation["valid"]:
+            raise ValueError(validation["errors"])
+        prior_evidence = len(self.state.get("evidence") or [])
+        digest = str(curriculum.get("curriculum_digest") or _canonical_hash(curriculum))
+
+        installed_capabilities = []
+        for capability_id, row in (curriculum.get("learning_capabilities") or {}).items():
+            subject_id = f"capability_{capability_id}"
+            self._add_subject(
+                subject_id,
+                str(row.get("name") or capability_id),
+                "learning_capability",
+                row.get("outcomes") or (),
+                importance=1.0,
+                source="comprehensive_expertise_curriculum",
+            )
+            self.state["subjects"][subject_id]["target_level"] = "expert"
+            installed_capabilities.append(subject_id)
+
+        installed_subjects = []
+        for subject_id, row in (curriculum.get("subjects") or {}).items():
+            self._add_subject(
+                subject_id,
+                str(row.get("name") or subject_id),
+                str(row.get("domain") or "cross_domain"),
+                row.get("competencies") or (),
+                importance=0.9,
+                source="comprehensive_expertise_curriculum",
+            )
+            installed = self.state["subjects"][subject_id]
+            installed["target_level"] = "expert"
+            installed["prerequisites"] = list(row.get("prerequisites") or [])
+            installed["risk"] = str(row.get("risk") or "ordinary")
+            installed_subjects.append(subject_id)
+
+        domain_registry = self.state.setdefault("apprenticeship_domains", {})
+        for domain_id, subject_ids in (curriculum.get("domains") or {}).items():
+            domain_registry[f"comprehensive_{domain_id}"] = {
+                "domain_id": f"comprehensive_{domain_id}",
+                "name": str(domain_id).replace("_", " ").title(),
+                "tier": 2,
+                "subjects": list(subject_ids),
+                "source": "comprehensive_expertise_curriculum",
+            }
+
+        record = {
+            "schema_version": "aion.hexcore.installed_comprehensive_curriculum.v1",
+            "curriculum_digest": digest,
+            "curriculum_artifact": curriculum_artifact,
+            "capability_subjects": installed_capabilities,
+            "subject_academies": installed_subjects,
+            "cross_domain_bridges": list(curriculum.get("cross_domain_bridges") or []),
+            "capstones": list(curriculum.get("capstones") or []),
+            "installed_at": _utc_timestamp(),
+            "catalogue_only": True,
+            "awards_competence": False,
+            "evidence_records_before": prior_evidence,
+            "evidence_records_after": len(self.state.get("evidence") or []),
+        }
+        if record["evidence_records_before"] != record["evidence_records_after"]:
+            raise RuntimeError("curriculum installation attempted to award evidence")
+        self.state.setdefault("external_curricula", {})[digest] = record
+        self.state["active_subject_id"] = "capability_learning_strategy"
+        self.state["programme_stage"] = "comprehensive_learn_to_learn"
+        self._save()
+        return {
+            "curriculum_digest": digest,
+            "capabilities_installed": len(installed_capabilities),
+            "subjects_installed": len(installed_subjects),
+            "domains_installed": len(curriculum.get("domains") or {}),
+            "bridges_registered": len(curriculum.get("cross_domain_bridges") or []),
+            "capstones_registered": len(curriculum.get("capstones") or []),
+            "active_subject_id": self.state["active_subject_id"],
+            "evidence_records_added": 0,
+            "awards_competence": False,
+        }
+
+    @_state_transaction
     def set_active_subject(self, subject_id: str) -> None:
         if subject_id not in self.state["subjects"]:
             raise KeyError(subject_id)
@@ -496,7 +697,23 @@ class ProgressiveCompetencySystem:
 
     def assess(self, subject_id: str) -> dict[str, Any]:
         subject = self.state["subjects"][subject_id]
-        evidence = self.evidence_for(subject_id)
+        raw_evidence = self.evidence_for(subject_id)
+        # A scheduler retry of the same named case is an audit receipt, not a
+        # new learning family.  Preserve all raw rows but score each explicit
+        # family once per kind and subskill set.  Legacy rows without a family
+        # remain distinct because their equivalence cannot be inferred safely.
+        evidence = []
+        seen_families: set[tuple[Any, ...]] = set()
+        for row in raw_evidence:
+            family = row.get("project_family")
+            key = (
+                "family", row.get("kind"), str(family),
+                tuple(sorted(str(skill) for skill in (row.get("subskills") or []))),
+            ) if family else ("receipt", str(row.get("evidence_id")))
+            if key in seen_families:
+                continue
+            seen_families.add(key)
+            evidence.append(row)
         subskills = subject["subskills"]
         per_skill: dict[str, dict[str, int]] = {
             skill: {"knowledge": 0, "practical": 0, "total": 0} for skill in subskills
@@ -521,8 +738,25 @@ class ProgressiveCompetencySystem:
         unfamiliar_projects = len({row.get("project_family") or row.get("evidence_id")
                                    for row in project_rows if row.get("unfamiliar")})
         debugging = sum(row.get("kind") == "debugging" for row in evidence)
-        transfers = sum(bool(row.get("source_disjoint")) or row.get("kind") == "transfer" for row in evidence)
-        retention = sum(bool(row.get("retained")) or row.get("kind") == "retention" for row in evidence)
+        # Source-disjoint assessment is valuable, but it is not automatically
+        # a transfer outcome.  Transfer is credited only when the contract was
+        # explicitly a transfer task; otherwise ordinary lessons and exercises
+        # could silently satisfy this practical gate.
+        transfers = sum(row.get("kind") == "transfer" for row in evidence)
+        retention_rows = [
+            row for row in evidence
+            if bool(row.get("retained")) or row.get("kind") == "retention"
+        ]
+        retention = len(retention_rows)
+        retention_milestones = sorted({
+            int(row["retention_milestone_days"])
+            for row in retention_rows
+            if row.get("retention_milestone_days") in EXPERT_RETENTION_MILESTONES_DAYS
+        })
+        long_term_retention_complete = all(
+            milestone in retention_milestones
+            for milestone in EXPERT_RETENTION_MILESTONES_DAYS
+        )
         independent = sum(bool(row.get("independent_outcome")) for row in evidence)
         trials = sum(int(row.get("trials") or 1) for row in evidence)
         scaffold_values = [float(row.get("scaffolding", 1.0)) for row in evidence if not row.get("imported")]
@@ -537,7 +771,8 @@ class ProgressiveCompetencySystem:
                 and len(evidence) >= 8 and mean_score >= 0.90 and trials >= 8):
             knowledge = "advanced"
         if (knowledge == "advanced" and all(value["knowledge"] >= 4 for value in per_skill.values())
-                and len(evidence) >= 20 and mean_score >= 0.95 and retention >= 2):
+                and len(evidence) >= 20 and mean_score >= 0.95
+                and long_term_retention_complete):
             knowledge = "expert"
 
         practical = "unassessed"
@@ -553,7 +788,7 @@ class ProgressiveCompetencySystem:
             practical = "advanced"
         if (practical == "advanced" and all(value["practical"] >= 4 for value in per_skill.values())
                 and projects >= 12 and unfamiliar_projects >= 8 and debugging >= 6
-                and transfers >= 4 and retention >= 2 and independent >= 8
+                and transfers >= 4 and long_term_retention_complete and independent >= 8
                 and trials >= 25 and latest_scaffolding <= 0.15):
             practical = "expert"
 
@@ -572,10 +807,14 @@ class ProgressiveCompetencySystem:
             "knowledge_level": knowledge, "practical_level": practical,
             "overall_level": overall, "display_level": display, "target_level": target,
             "target_reached": target_reached, "evidence_records": len(evidence),
+            "raw_evidence_records": len(raw_evidence),
             "coverage": {"knowledge": coverage_k, "practical": coverage_p},
             "mean_score": mean_score, "projects": projects,
             "unfamiliar_projects": unfamiliar_projects, "debugging_cases": debugging,
             "transfer_cases": transfers, "retention_cases": retention,
+            "retention_milestones_completed": retention_milestones,
+            "required_expert_retention_milestones": list(EXPERT_RETENTION_MILESTONES_DAYS),
+            "long_term_retention_complete": long_term_retention_complete,
             "independent_outcomes": independent, "trials": trials,
             "latest_scaffolding": latest_scaffolding, "per_subskill": per_skill,
             "open_blockers": open_blockers, "evidence_kinds": sorted(str(kind) for kind in kinds),
@@ -626,6 +865,53 @@ class ProgressiveCompetencySystem:
             row["subject_id"] for row in self.state.get("blockers") or []
             if row.get("status") == "open" and row.get("blocker_type") == "executor_capability"
         }
+        # The comprehensive curriculum allocates a real bootstrapping lane to
+        # learning abilities.  Older depth targets must not monopolise the
+        # scheduler and make the visible learn-to-learn phase cosmetic.  Use a
+        # rolling contract window: when fewer than three of the latest six fresh
+        # contracts concern a learning capability, the next available ability
+        # receives priority.  This reserves half of the primary lane for the
+        # abilities that improve every other curriculum lane while leaving the
+        # other half for domain and real-adapter prerequisites. Blocked
+        # abilities remain fail-closed.
+        available_capabilities = []
+        if self.state.get("external_curricula"):
+            for subject_id, subject in self.state["subjects"].items():
+                if (subject.get("group") != "learning_capability"
+                        or subject_id in future_waiting_subjects
+                        or subject_id in executor_blocked_subjects):
+                    continue
+                result = self.assess(subject_id)
+                if not result["target_reached"]:
+                    available_capabilities.append(subject_id)
+        recent_contracts = self.state.get("contracts", [])[-6:]
+        recent_capability_contracts = sum(
+            str(row.get("subject_id") or "").startswith("capability_")
+            for row in recent_contracts
+        )
+        if available_capabilities and recent_capability_contracts < 3:
+            # Bootstrap breadth before repeatedly deepening one ability. Pick
+            # the least-evidenced, least-recently-contracted available ability;
+            # importance breaks ties. This gives every declared learning
+            # capability practical contact instead of pinning the scheduler to
+            # whichever capability happened to become active first.
+            last_contract_index = {
+                subject_id: max(
+                    (index for index, row in enumerate(self.state.get("contracts") or [])
+                     if row.get("subject_id") == subject_id),
+                    default=-1,
+                )
+                for subject_id in available_capabilities
+            }
+            return min(
+                available_capabilities,
+                key=lambda subject_id: (
+                    self.assess(subject_id)["evidence_records"],
+                    last_contract_index[subject_id],
+                    -float(self.state["subjects"][subject_id].get("importance", 0.5)),
+                    subject_id,
+                ),
+            )
         breadth_ranked = []
         depth_ranked = []
         for subject_id, subject in self.state["subjects"].items():
@@ -678,7 +964,6 @@ class ProgressiveCompetencySystem:
         unfamiliar_target = 8 if expert else 3
         debugging_target = 6 if expert else 3
         transfer_target = 4 if expert else 2
-        retention_target = 2 if expert else 1
         independent_target = 8 if expert else 3
         trial_target = 25 if expert else 10
         scaffolding_ceiling = 0.15 if expert else 0.35
@@ -708,9 +993,26 @@ class ProgressiveCompetencySystem:
         if result["transfer_cases"] < transfer_target:
             return {"kind": "transfer", "subskills": list(result["per_subskill"])[0:4],
                     "authority": "source_disjoint_domain_outcome"}
-        if result["retention_cases"] < retention_target:
-            return {"kind": "retention", "subskills": list(result["per_subskill"]),
-                    "authority": "elapsed_closed_book_fresh_tasks", "not_before_epoch": time.time() + 24 * 3600}
+        completed_milestones = set(result.get("retention_milestones_completed") or [])
+        required_milestones = EXPERT_RETENTION_MILESTONES_DAYS if expert else (1,)
+        missing_milestone = next(
+            (milestone for milestone in required_milestones if milestone not in completed_milestones),
+            None,
+        )
+        if missing_milestone is not None:
+            subject_id = str(result.get("subject_id") or "")
+            timestamps = [
+                float(row.get("recorded_epoch") or 0)
+                for row in self.evidence_for(subject_id)
+                if float(row.get("recorded_epoch") or 0) > 0
+            ]
+            learning_anchor = min(timestamps) if timestamps else time.time()
+            return {
+                "kind": "retention", "subskills": list(result["per_subskill"]),
+                "authority": "elapsed_closed_book_fresh_tasks",
+                "retention_milestone_days": missing_milestone,
+                "not_before_epoch": learning_anchor + missing_milestone * 24 * 3600,
+            }
         if result["independent_outcomes"] < independent_target:
             return {"kind": "project", "subskills": list(result["per_subskill"])[0:4],
                     "authority": "independently_owned_fresh_outcome",

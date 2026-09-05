@@ -100,3 +100,48 @@ def test_readiness_rejects_send_scope() -> None:
     assert data["ok"] is True
     assert data["readiness"]["ready"] is False
     assert data["readiness"]["reason"] == "missing_required_scopes"
+
+
+def test_telephony_status_never_returns_provider_secrets(monkeypatch) -> None:
+    from backend.modules.aion_business.runtime.telephony_vault_service import TelephonyVaultService
+
+    monkeypatch.setattr(TelephonyVaultService, "status", lambda self, workspace_id: {
+        "ok": True,
+        "workspace_id": workspace_id,
+        "twilio": {"connected": True, "phone_number": "+34711269364"},
+        "retell": {"connected": True, "agent_count": 1},
+        "routing": {"ready_to_build_callers": True},
+        "completed_steps": 2,
+        "total_steps": 2,
+    })
+    response = _client().get("/api/vault/telephony/home-fixed")
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["completed_steps"] == 2
+    assert "api_key_secret" not in response.text
+    assert "sip_password" not in response.text
+
+
+def test_twilio_vault_route_passes_required_setup_fields(monkeypatch) -> None:
+    from backend.modules.aion_business.runtime.telephony_vault_service import TelephonyVaultService
+
+    captured = {}
+    def fake_save(self, workspace_id, values):
+        captured.update(values)
+        return {"ok": True, "workspace_id": workspace_id, "completed_steps": 1}
+    monkeypatch.setattr(TelephonyVaultService, "save_twilio", fake_save)
+
+    response = _client().post("/api/vault/telephony/home-fixed/twilio", json={
+        "account_sid": "AC" + "1" * 32,
+        "api_key_sid": "SK" + "2" * 32,
+        "api_key_secret": "secret-value",
+        "from_number": "+34711269364",
+        "termination_uri": "home-fixed.pstn.twilio.com",
+        "sip_username": "tessaris",
+        "sip_password": "sip-secret",
+    })
+
+    assert response.status_code == 200
+    assert captured["from_number"] == "+34711269364"
+    assert captured["sip_password"] == "sip-secret"

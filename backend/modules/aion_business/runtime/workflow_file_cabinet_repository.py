@@ -231,6 +231,70 @@ class WorkflowFileCabinetRepository:
             raise FileNotFoundError("artifact_file_missing")
         return resolved
 
+    @staticmethod
+    def _boardroom_session_blocks(payload: Dict[str, Any]) -> list[Dict[str, Any]]:
+        """Render a governed Board packet as readable minutes without losing the source JSON."""
+        blocks: list[Dict[str, Any]] = []
+
+        def paragraph(text: Any) -> None:
+            value = str(text or "").strip()
+            if value:
+                blocks.append({"type": "paragraph", "text": value})
+
+        def list_lines(title: str, values: Any, prefix: str = "") -> None:
+            rows = values if isinstance(values, list) else []
+            if not rows:
+                return
+            paragraph(title)
+            for value in rows:
+                if isinstance(value, dict):
+                    label = value.get("title") or value.get("step") or value.get("member") or value.get("text")
+                    detail = value.get("action") or value.get("position") or value.get("owner") or ""
+                    line = " — ".join(part for part in (str(label or "").strip(), str(detail or "").strip()) if part)
+                else:
+                    line = str(value or "").strip()
+                if line:
+                    paragraph(f"{prefix}{line}")
+
+        session_type = str(payload.get("session_type") or "business_assessment").replace("_", " ").title()
+        paragraph("Board meeting minutes")
+        paragraph(f"{session_type} · {payload.get('generated_at') or 'Date not recorded'}")
+        paragraph(f"Session: {payload.get('session_id') or 'Unknown'}")
+        list_lines("Board members", payload.get("council_members"), "• ")
+
+        context = payload.get("business_context_packet") if isinstance(payload.get("business_context_packet"), dict) else {}
+        list_lines("Business context reviewed", context.get("lines"), "")
+
+        result = payload.get("boardroom_council_result") if isinstance(payload.get("boardroom_council_result"), dict) else {}
+        consensus = result.get("consensus") if isinstance(result.get("consensus"), dict) else {}
+        summary = consensus.get("consensus_summary") or consensus.get("summary") or result.get("summary")
+        if summary:
+            paragraph("Board conclusion")
+            paragraph(summary)
+        list_lines("Agreements", consensus.get("agreements"), "✓ ")
+        list_lines("Risks", consensus.get("risks"), "! ")
+        list_lines("Open questions", consensus.get("open_questions") or consensus.get("disagreements"), "? ")
+        list_lines("Recommended plan", consensus.get("recommended_plan") or consensus.get("plan"), "• ")
+        list_lines("Board member positions", result.get("council_responses"), "• ")
+
+        debate = payload.get("boardroom_debate_round")
+        if debate:
+            paragraph("Debate and founder direction")
+            paragraph(json.dumps(debate, indent=2, ensure_ascii=False) if isinstance(debate, (dict, list)) else debate)
+        tasks = payload.get("department_task_build")
+        if tasks:
+            paragraph("Delegated departmental work")
+            paragraph(json.dumps(tasks, indent=2, ensure_ascii=False) if isinstance(tasks, (dict, list)) else tasks)
+
+        boundary = payload.get("execution_boundary") if isinstance(payload.get("execution_boundary"), dict) else {}
+        paragraph(
+            "Execution boundary: approval-gated; no live external action was performed."
+            if boundary.get("approval_gated", True)
+            else "Execution boundary recorded in the governed source packet."
+        )
+        paragraph(f"Evidence hash: {payload.get('boardroom_session_packet_hash') or 'not recorded'}")
+        return blocks
+
     @classmethod
     def preview(cls, workspace_id: str, item_id: str) -> Dict[str, Any]:
         node = cls.item(workspace_id, item_id)
@@ -287,6 +351,11 @@ class WorkflowFileCabinetRepository:
                 raise ValueError("image_preview_too_large")
             encoded = base64.b64encode(path.read_bytes()).decode("ascii")
             result.update(kind="image", data_url=f"data:{mime_type};base64,{encoded}")
+        elif suffix == ".json" and str(node.get("document_type") or "").lower() == "boardroom_session":
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(payload, dict):
+                raise ValueError("boardroom_session_payload_invalid")
+            result.update(kind="document", blocks=cls._boardroom_session_blocks(payload))
         elif suffix in {".json", ".jsonl", ".txt", ".md", ".log", ".yaml", ".yml", ".xml", ".html"}:
             text = path.read_text(encoding="utf-8", errors="replace")
             if suffix == ".json":

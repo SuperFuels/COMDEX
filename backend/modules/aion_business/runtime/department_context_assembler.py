@@ -69,8 +69,17 @@ def _project_container(kind: str, selected: Any, department_id: str) -> dict[str
         return {key: selected.get(key) for key in keys if selected.get(key) is not None}
 
     if kind == "business_map":
+        facts = []
+        department_scope = "people" if department_id == "hr" else department_id
+        for fact in selected.get("facts") or []:
+            if not isinstance(fact, dict):
+                continue
+            if fact.get("classification") == "owner_attested_business_knowledge":
+                scopes = {str(value) for value in (fact.get("scopes") or ["all"])}
+                if "all" not in scopes and department_scope not in scopes:
+                    continue
+            facts.append(fact)
         keys = (
-            "facts",
             "assumptions",
             "unknowns",
             "conflicts",
@@ -78,7 +87,7 @@ def _project_container(kind: str, selected: Any, department_id: str) -> dict[str
             "department_discovery_gaps",
             "revision",
         )
-        return _bounded({key: selected.get(key) for key in keys if key in selected})
+        return _bounded({"facts": facts, **{key: selected.get(key) for key in keys if key in selected}})
 
     if kind == "department_intelligence":
         departments = selected.get("departments") or {}

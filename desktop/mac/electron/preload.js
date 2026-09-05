@@ -27,6 +27,10 @@ contextBridge.exposeInMainWorld("aionDesktop", {
     return await ipcRenderer.invoke("desktop-runtime-info");
   },
 
+  async signAionFlowRequest(payload = {}) {
+    return await ipcRenderer.invoke("aion-flow-sign-request", payload);
+  },
+
   async openExternalUrl(url = "") {
     return await ipcRenderer.invoke("aion-open-external-url", url);
   },

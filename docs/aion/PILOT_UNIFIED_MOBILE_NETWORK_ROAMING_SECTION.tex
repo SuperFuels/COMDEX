@@ -1,0 +1,77 @@
+\section{Automatic Mobile Network Roaming and Reconnection}
+\label{sec:pilot-mobile-network-roaming}
+
+Pilot completes the coded portion of \texttt{MOB-0309} with a phone-side continuity
+controller that survives changes between trusted Wi-Fi, customer-owned remote access and
+the optional operator-unreadable relay.  A network change does not create a new identity,
+lease, conversation or action.  The paired phone remains a client of the same authoritative
+mother brain.
+
+\subsection{Route order and automatic transition}
+
+Ordinary operations and fallback Inbox refreshes use one fixed order:
+\begin{enumerate}
+  \item the paired trusted-LAN endpoint;
+  \item each unexpired mother-signed direct HTTPS endpoint; and
+  \item the unexpired mother-signed, end-to-end encrypted relay route.
+\end{enumerate}
+Only a network-level connection failure advances to another route.  An expired lease,
+revoked phone, invalid signature, permission denial or application error remains the
+mother's authoritative result and cannot be bypassed by changing transport.
+
+The browser listens for online, offline and foreground-visibility changes.  A change
+cancels stale work, closes the old local live socket and immediately starts a fresh route
+selection.  When offline, the interface says \emph{offline}; it does not repeatedly claim
+that Pilot is processing a request.
+
+\subsection{Live Inbox continuity}
+
+On the trusted LAN, Pilot prefers the authenticated WebSocket Inbox.  The phone sends a
+fresh possession-signed subscription request containing the last accepted revision.  It
+sends bounded heartbeats so a half-open connection does not remain falsely live.
+
+If the local socket cannot be established, the controller switches to authenticated Inbox
+snapshots over the same LAN--direct--relay selection used by normal requests.  Only one
+poll may be active at a time.  An \texttt{AbortController} cancels an obsolete request when
+the phone changes network, the application returns to the foreground or the surface closes.
+Successful polling continues at a modest cadence while the local live socket independently
+tries to recover.
+
+\subsection{Cursor and duplicate protection}
+
+The last accepted Inbox revision is stored in the phone's protected IndexedDB connection
+store and scoped to the exact mother and device identifiers.  A snapshot is rendered only
+when its revision is newer than the accepted cursor, except for the first legitimate empty
+snapshot.  Reconnect therefore replaces the local projection rather than appending replayed
+messages or actions.
+
+Consequential operations retain their pre-existing idempotency keys and possession
+signatures throughout route selection.  Transport uncertainty cannot mint a second
+authorization.  Server-side packet identifiers and action idempotency remain the final
+authority; the phone cursor is an additional presentation and bandwidth safeguard.
+
+\subsection{Bounded recovery and user state}
+
+Socket and polling retries use independent exponential backoff with jitter and a maximum
+interval of 30 seconds.  A new network event resets recovery for an immediate attempt.
+Generation identifiers prevent callbacks from superseded sockets changing the current
+state.  Poll locks prevent overlapping requests, and all timers, listeners, sockets and
+active requests are released when the surface closes.
+
+The private Inbox shows one simple state---connecting, live, reconnecting, offline or
+closed---and, when live, labels the active route as LAN, direct or relay.  These labels
+describe transport only; they do not weaken the common identity and policy boundary.
+
+\subsection{Verification boundary}
+
+Automated checks cover monotonic cursor acceptance, persisted mother/device-scoped cursors,
+single-flight polling, stale-request cancellation, online/offline and foreground events,
+heartbeats, jittered 30-second retry ceilings, route reporting and LAN--direct--relay order.
+The optimized mobile production build compiles successfully.
+
+All 565 AION Fabric tests pass, and this append-only section compiles without warnings.
+
+This closes the implementation task, not the external field gate.  Formal Stage~3 closure
+still requires a paired physical phone to move from home Wi-Fi to mobile data and back while
+text, voice-note and push-to-talk traffic is active, proving there is no duplicated content,
+lost accepted action or false live state under real carrier and browser conditions.

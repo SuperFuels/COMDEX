@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 from pathlib import Path
+import hashlib
 import json
 import sqlite3
 from backend.modules.local_node.contracts_cloud_sync import CloudSyncRemoteCommand
@@ -27,6 +28,7 @@ from backend.modules.local_node.train_task_approval_store import TrainTaskApprov
 from backend.modules.local_node.tool_registry import ToolRegistryStore
 from backend.modules.local_node.external_tool_discovery import ExternalToolDiscoveryService
 from backend.modules.local_node.connector_registry import ConnectorRegistryStore
+from backend.modules.local_node.pilot_authority_policy import PilotAuthorityPolicyStore
 from backend.modules.aion_agents.runtime.workflow_definition_repository import (
     WorkflowDefinitionRepository,
 )
@@ -75,6 +77,7 @@ class LocalNodeRuntime:
         self.train_task_store = TrainTaskStore(self.base_dir)
         self.train_task_approval_store = TrainTaskApprovalStore(self.base_dir)
         self.external_tool_discovery = ExternalToolDiscoveryService(self.base_dir)
+        self.pilot_authority_policy = PilotAuthorityPolicyStore(self.base_dir)
 
         self.deployment_mode = (
             config.deployment_mode.value
@@ -2933,6 +2936,132 @@ class LocalNodeRuntime:
             "at": utc_now_iso(),
         }
 
+    def prepare_pilot_email_send(
+        self,
+        *,
+        to: str,
+        subject: str,
+        body: str,
+        cc: str = "",
+        bcc: str = "",
+        requested_by: str = "aion_central_pilot",
+    ) -> Dict[str, Any]:
+        """Freeze an exact email payload for a separate, explicit send approval."""
+        from email.utils import getaddresses
+
+        to = str(to or "").strip()
+        subject = str(subject or "").strip()
+        body = str(body or "")
+        cc = str(cc or "").strip()
+        bcc = str(bcc or "").strip()
+        recipient_headers = [value for value in (to, cc, bcc) if value]
+        recipients = [address for _, address in getaddresses(recipient_headers) if address]
+        if not recipients or not to or any("@" not in address for address in recipients):
+            return {"ok": False, "reason": "valid_recipient_required", "sent": False, "at": utc_now_iso()}
+        if not body.strip():
+            return {"ok": False, "reason": "email_body_required", "sent": False, "at": utc_now_iso()}
+
+        payload = {"to": to, "subject": subject or "Message from Aion", "body": body, "cc": cc, "bcc": bcc}
+        canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        payload_hash = f"sha256:{hashlib.sha256(canonical.encode('utf-8')).hexdigest()}"
+        approval_id = f"approval_pilot_email_{uuid4().hex[:16]}"
+        authority = self.pilot_authority_policy.evaluate(self.config.workspace_id, "email_send")
+        if authority.get("decision") == "blocked_by_owner" and authority.get("ask_user") is False:
+            self._append_audit(
+                event_type="local_node.pilot_email_send_blocked_by_owner",
+                message="Pilot email send suppressed by the owner's standing authority policy",
+                payload={"payload_hash": payload_hash, "to": to, "subject": payload["subject"], "sent": False},
+            )
+            return {
+                "ok": False,
+                "reason": "blocked_by_owner",
+                "authority": authority,
+                "payload_hash": payload_hash,
+                "sent": False,
+                "at": utc_now_iso(),
+            }
+        record = {
+            "approval_id": approval_id,
+            "approval_type": "pilot_email_send",
+            "title": f"Send email to {to}",
+            "description": "Exact Gmail payload prepared by AION Central Pilot. It may be sent once by explicit approval or valid standing authority.",
+            "gmail_message": payload,
+            "payload_hash": payload_hash,
+            "status": "standing_authority_ready" if authority.get("authorized") else "pending_exact_payload_approval",
+            "authority_decision": authority,
+            "requested_by": requested_by,
+            "created_at": utc_now_iso(),
+            "sent_email": False,
+            "external_write_type": "gmail_send_message",
+        }
+        saved = self.train_task_approval_store.save_approval(self.config.workspace_id, approval_id, record)
+        self._append_audit(
+            event_type="local_node.pilot_email_send_prepared",
+            message="Pilot email exact payload prepared",
+            payload={"approval_id": approval_id, "payload_hash": payload_hash, "to": to, "subject": payload["subject"], "sent": False},
+        )
+        return {"ok": True, "approval_id": approval_id, "payload_hash": payload_hash, "message": payload, "item": saved, "authority": authority, "sent": False, "at": utc_now_iso()}
+
+    def execute_pilot_email_send(
+        self,
+        *,
+        approval_id: str,
+        payload_hash: str,
+        executed_by: str = "aion_central_pilot",
+        approval_granted: bool = False,
+    ) -> Dict[str, Any]:
+        """Send one previously frozen Gmail payload once, after exact approval."""
+        approval = self.train_task_approval_store.get_approval(self.config.workspace_id, str(approval_id or "").strip())
+        if not approval or approval.get("approval_type") != "pilot_email_send":
+            return {"ok": False, "reason": "approval_not_found", "sent": False, "at": utc_now_iso()}
+        if approval.get("sent_email") is True or approval.get("status") == "executed":
+            return {"ok": False, "reason": "already_sent", "sent": False, "result": approval.get("gmail_send_result"), "at": utc_now_iso()}
+        if approval.get("status") not in {"pending_exact_payload_approval", "standing_authority_ready"}:
+            return {"ok": False, "reason": "approval_not_pending", "sent": False, "at": utc_now_iso()}
+        if str(payload_hash or "") != str(approval.get("payload_hash") or ""):
+            return {"ok": False, "reason": "payload_hash_mismatch", "sent": False, "at": utc_now_iso()}
+
+        authority = self.pilot_authority_policy.evaluate(self.config.workspace_id, "email_send")
+        if not approval_granted and not authority.get("authorized"):
+            return {"ok": False, "reason": "exact_approval_required", "authority": authority, "sent": False, "at": utc_now_iso()}
+
+        health = self.get_gmail_connector_health()
+        if str(health.get("auth_status") or "") != "connected":
+            return {"ok": False, "reason": "gmail_not_connected", "health": health, "sent": False, "at": utc_now_iso()}
+
+        message = approval.get("gmail_message") or {}
+        try:
+            result = self._send_gmail_message(
+                to=str(message.get("to") or ""), subject=str(message.get("subject") or ""), body=str(message.get("body") or ""),
+                cc=str(message.get("cc") or ""), bcc=str(message.get("bcc") or ""),
+            )
+        except Exception as exc:
+            self._append_audit(event_type="local_node.pilot_email_send_failed", message="Pilot Gmail send failed", payload={"approval_id": approval_id, "error": str(exc), "sent": False}, level="error")
+            return {"ok": False, "reason": "gmail_send_failed", "error": str(exc), "sent": False, "at": utc_now_iso()}
+
+        completed_at = utc_now_iso()
+        receipt_payload = {"approval_id": approval_id, "payload_hash": payload_hash, "message_id": result.get("message_id"), "thread_id": result.get("thread_id"), "sent_at": completed_at}
+        receipt_hash = f"sha256:{hashlib.sha256(json.dumps(receipt_payload, sort_keys=True, separators=(',', ':')).encode('utf-8')).hexdigest()}"
+        updated = {**approval, "status": "executed", "sent_email": True, "executed_by": executed_by, "executed_at": completed_at, "gmail_send_result": result, "receipt_hash": receipt_hash}
+        self.train_task_approval_store.save_approval(self.config.workspace_id, approval_id, updated)
+        self._append_audit(event_type="local_node.pilot_email_sent", message="Pilot email sent after exact approval", payload={**receipt_payload, "receipt_hash": receipt_hash, "sent": True})
+        return {"ok": True, "approval_id": approval_id, "payload_hash": payload_hash, "receipt_hash": receipt_hash, "result": result, "sent": True, "at": completed_at}
+
+    def get_pilot_authority_policy(self) -> Dict[str, Any]:
+        return {"ok": True, **self.pilot_authority_policy.get(self.config.workspace_id), "at": utc_now_iso()}
+
+    def update_pilot_authority_policy(self, updates: Dict[str, Any], updated_by: str) -> Dict[str, Any]:
+        try:
+            payload = self.pilot_authority_policy.update(self.config.workspace_id, updates, updated_by)
+        except ValueError as exc:
+            return {"ok": False, "reason": str(exc), "at": utc_now_iso()}
+        self._append_audit(
+            event_type="local_node.pilot_authority_updated",
+            message="Pilot standing authority policy updated",
+            payload={"updated_by": updated_by, "actions": sorted((updates or {}).keys())},
+        )
+        return {"ok": True, **payload, "at": utc_now_iso()}
+
     def resolve_train_task_approval(
         self,
         *,
@@ -3456,6 +3585,36 @@ class LocalNodeRuntime:
             "tool_id": "tool.gmail.create_draft.v1",
             "action_type": "gmail_create_draft",
         }
+
+    def _send_gmail_message(
+        self,
+        *,
+        to: str,
+        subject: str,
+        body: str,
+        cc: str = "",
+        bcc: str = "",
+    ) -> Dict[str, Any]:
+        import base64
+        from email.message import EmailMessage
+
+        token_payload = self._refresh_gmail_access_token_if_needed()
+        access_token = str(token_payload.get("access_token") or "")
+        if not access_token:
+            raise RuntimeError("Gmail access token missing")
+        if not to or "@" not in to:
+            raise ValueError("Valid Gmail recipient is required")
+        msg = EmailMessage()
+        msg["To"] = to
+        msg["Subject"] = subject or "Message from Aion"
+        if cc:
+            msg["Cc"] = cc
+        if bcc:
+            msg["Bcc"] = bcc
+        msg.set_content(body)
+        raw = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
+        result = self._gmail_api_post_json("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", access_token, {"raw": raw})
+        return {"ok": True, "message_id": result.get("id"), "thread_id": result.get("threadId"), "gmail_url": "https://mail.google.com/mail/u/0/#sent", "to": to, "subject": subject, "sent": True, "external_write": True, "tool_id": "tool.gmail.send_message.v1", "action_type": "gmail_send_message"}
 
     def _create_google_calendar_event(
         self,

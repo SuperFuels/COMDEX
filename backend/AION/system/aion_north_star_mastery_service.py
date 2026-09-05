@@ -8,6 +8,7 @@ from pathlib import Path
 
 from backend.modules.hexcore.constitutional_north_star_mastery_registry import run
 from backend.modules.hexcore.wall_clock_scheduler import wait_for_wall_clock
+from backend.modules.hexcore.standalone_task_governance import governed_standalone_task
 
 
 def run_service() -> None:
@@ -16,12 +17,23 @@ def run_service() -> None:
     while True:
         apprentice_state = repo_root / "backend/modules/hexcore/data/autonomous_general_apprentice/state.json"
         if apprentice_state.exists():
-            run(
+            result_path = repo_root / "results/hexcore_constitutional_north_star_mastery_registry.json"
+            with governed_standalone_task(
                 repo_root=repo_root,
-                apprentice_state_path=apprentice_state,
-                state_path=repo_root / "backend/modules/hexcore/data/constitutional_north_star/state.json",
-                result_path=repo_root / "results/hexcore_constitutional_north_star_mastery_registry.json",
-            )
+                service_id="north_star_mastery",
+                task_text="Reconstruct the constitutional North-Star mastery and goal portfolio",
+            ) as governed:
+                result = run(
+                    repo_root=repo_root,
+                    apprentice_state_path=apprentice_state,
+                    state_path=repo_root / "backend/modules/hexcore/data/constitutional_north_star/state.json",
+                    result_path=result_path,
+                )
+                governed.finish(
+                    result,
+                    verified=bool(isinstance(result, dict) and result.get("passed") is True),
+                    evidence_refs=[str(result_path)] if result_path.exists() else [],
+                )
         wait_for_wall_clock(interval)
 
 

@@ -1,0 +1,32 @@
+\section{Governed Workspace Invitations}
+\label{sec:pilot-mobile-workspace-invitations}
+\raggedright
+
+A visible or discoverable business workspace does not grant access.  Pilot now creates a
+separate governed invitation containing the organization, inviter, intended recipient,
+role, requested scopes, operating constraints, expiry, and explicit revocation route.
+This is the only path by which the later phone-acceptance flow may propose a new
+membership.
+
+The inviter must hold an active membership with \texttt{workspace.invite}.  Every scope
+offered to the recipient must also be held by the inviter; possession of invitation
+authority alone cannot manufacture Finance, People, file, approval, or administrative
+access.  Constraints are limited to an allowlist covering departments, regions, project
+references, approval limits, working hours, and bounded explanatory notes.  Unknown or
+oversized constraints fail closed.
+
+Invitations expire between five minutes and 30 days, begin in the pending state, and
+include an opaque revocation route.  The original inviter may revoke a pending invitation;
+another administrator requires the separate \texttt{workspace.invite.revoke} scope in
+the same workspace.  Cross-workspace revocation is denied.  Revocation is idempotent and
+cannot be used to rewrite an accepted or otherwise terminal invitation.
+
+Creation is protected by a content-bound idempotency key.  A transport retry returns the
+same invitation, while reuse of that key with a different person, role, scope, constraint,
+or lifetime is rejected.  No membership is created at invitation time, and neither
+discovery nor an upstream provider response can bypass private recipient acceptance.
+
+Automated tests prove exact metadata, constraint and expiry construction, replay-safe
+creation, explicit revocation, denial of delegated privilege expansion, and rejection of
+changed-scope replay.  This closes \texttt{MOB-0603}.  The next task presents this exact
+invitation privately on the intended phone and records its acceptance or refusal.

@@ -14,6 +14,7 @@ from backend.modules.hexcore.open_mission_compounding_executor import (
     run, run_due_retention, run_public_change, run_repository_repair,
     run_structured_repair_portfolio,
 )
+from backend.modules.hexcore.standalone_task_governance import governed_standalone_task
 
 
 def run_service() -> None:
@@ -27,25 +28,37 @@ def run_service() -> None:
     interval = max(60.0, float(os.getenv("AION_OPEN_MISSION_EXECUTOR_INTERVAL", "900")))
     while True:
         try:
-            result = run(repo_root=repo_root)
-            repository_result = run_repository_repair(repo_root=repo_root)
-            structured_result = run_structured_repair_portfolio(repo_root=repo_root)
-            public_result = run_public_change(repo_root=repo_root)
-            public_snapshot = public_result.get("snapshot")
-            if public_result.get("status") == "bound":
-                # Do not leave a gap between scoring one public outcome and
-                # freezing the next forecast.  The next row must remain unseen
-                # when its commitment is made.
-                next_public = run_public_change(repo_root=repo_root)
-                next_public["last_scored"] = {
-                    "revealed_cycle": public_result.get("revealed_cycle"),
-                    "arms": [
-                        {"arm": row.get("arm"), "score": row.get("score")}
-                        for row in public_result.get("arms") or []
-                    ],
-                }
-                public_result = next_public
-            retention_result = run_due_retention(repo_root=repo_root)
+            with governed_standalone_task(
+                repo_root=repo_root,
+                service_id="open_mission_executor",
+                task_text=(
+                    "Execute the next bounded open mission, repository repair, structured repair, "
+                    "public-change forecast and due closed-book retention check"
+                ),
+            ) as governed:
+                result = run(repo_root=repo_root)
+                repository_result = run_repository_repair(repo_root=repo_root)
+                structured_result = run_structured_repair_portfolio(repo_root=repo_root)
+                public_result = run_public_change(repo_root=repo_root)
+                public_snapshot = public_result.get("snapshot")
+                if public_result.get("status") == "bound":
+                    # Do not leave a gap between scoring one public outcome and
+                    # freezing the next forecast.  The next row must remain unseen
+                    # when its commitment is made.
+                    next_public = run_public_change(repo_root=repo_root)
+                    next_public["last_scored"] = {
+                        "revealed_cycle": public_result.get("revealed_cycle"),
+                        "arms": [
+                            {"arm": row.get("arm"), "score": row.get("score")}
+                            for row in public_result.get("arms") or []
+                        ],
+                    }
+                    public_result = next_public
+                retention_result = run_due_retention(repo_root=repo_root)
+                governed.finish(
+                    {"status": "cycle_complete", "mission_id": result.get("mission_id")},
+                    verified=False,
+                )
             latest_snapshot = public_snapshot or public_result.get("snapshot") or result["snapshot"]
             status = {
                 "status": "cycle_complete",

@@ -22,7 +22,8 @@ def test_support_workspace_replaces_placeholder_with_governed_case_centre():
         "function renderFinanceWorkspaceSurface", 1
     )[0]
     assert 'data-aion-unified-department-director=' in unified_director
-    assert "height:176px" in unified_director
+    assert 'data-aion-unified-department-copy=' in unified_director
+    assert 'data-aion-unified-department-portrait=' in unified_director
     assert "SPATIAL SUPPORT BOARDROOM" not in compact_director
     live_router = app.split("function renderLiveAgentsWorkspaceBody", 1)[1].split(
         "function renderLiveAgentRunRow", 1)[0]
@@ -48,3 +49,21 @@ def test_support_ui_exposes_authority_and_evidence_controls():
     assert "Import support email" in support
     assert "Create secured website door" in support
     assert "Create Gmail draft" in support
+
+
+def test_support_workspace_exposes_read_only_dashboard_bridge_and_case_deep_link():
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    assert "ensureDashboardData" in support
+    assert "snapshot:()=>state.data" in support
+    assert "openCase" in support
+    assert "aion:support-workspace-updated" in support
+    assert "load(false)" in support
+
+
+def test_support_visible_load_does_not_redraw_the_app_or_poll_the_mount_each_second():
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    assert "if (requireVisibleMount) {\n        render();\n      } else {" in support
+    assert "if (!root.querySelector('[data-aion-support-cases]')) render();" in support
+    assert "setInterval(attemptMount, 1000)" not in support
+    assert 'if (state.activeTab === "dashboard") requestRender?.();' in app

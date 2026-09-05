@@ -12,6 +12,7 @@ from pathlib import Path
 from backend.modules.hexcore.long_duration_real_outcome_campaign import run_cycle
 from backend.modules.hexcore.file_locking import acquire_process_lock
 from backend.modules.hexcore.wall_clock_scheduler import wait_for_wall_clock
+from backend.modules.hexcore.standalone_task_governance import governed_standalone_task
 
 
 def _write(path: Path, payload: dict) -> None:
@@ -43,13 +44,23 @@ def run_service() -> None:
     service_path = repo_root / "results/aion_long_duration_campaign_service_status.json"
     while True:
         try:
-            state = run_cycle(
+            with governed_standalone_task(
                 repo_root=repo_root,
-                state_path=state_path,
-                ledger_path=ledger_path,
-                minimum_hours=24.0,
-                minimum_cycles=12,
-            )
+                service_id="long_duration_campaign",
+                task_text="Observe and independently score the next mature long-duration campaign outcome",
+            ) as governed:
+                state = run_cycle(
+                    repo_root=repo_root,
+                    state_path=state_path,
+                    ledger_path=ledger_path,
+                    minimum_hours=24.0,
+                    minimum_cycles=12,
+                )
+                governed.finish(
+                    state,
+                    verified=bool(state.get("status") == "complete"),
+                    evidence_refs=[str(ledger_path)] if ledger_path.exists() else [],
+                )
             status = {
                 "status": "active",
                 "updated_epoch": time.time(),

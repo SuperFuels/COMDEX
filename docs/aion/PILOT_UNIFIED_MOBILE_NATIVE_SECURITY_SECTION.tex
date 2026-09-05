@@ -1,0 +1,60 @@
+\section{Native Phone Security Boundary}
+\label{sec:pilot-mobile-native-security}
+
+The future iOS and Android applications share a platform-neutral security contract
+before platform-specific Swift and Kotlin code is introduced.  This prevents two
+native clients from inventing different rules for links, notification privacy,
+local cache, microphone state or background behavior.  It does not claim that an
+App Store or Play Store application has already been signed or qualified.
+
+\subsection{Signed single-use links}
+
+Pilot deep links support only pairing, invitation, task, approval and television
+takeover.  Each link contains an exact object reference, target device, issue and
+expiry time and random nonce, signed by the mother.  The native boundary verifies
+the signature, target, kind and expiry and maintains a bounded replay ledger.  A
+link can therefore open the exact useful request but cannot grant general inbox,
+workspace or television authority, and a second use is rejected.
+
+\subsection{Lock, cache and system-surface privacy}
+
+Private cache entries are encrypted using AES-256-GCM and authenticated against the
+device and cache identifier.  They cannot be read while the application is locked.
+Locking clears the logical clipboard state and deactivates camera and microphone
+indicators.  The policy requires private clipboard contents to expire after thirty
+seconds and private task-switcher, screenshot and screen-recording surfaces to be
+redacted where the operating system permits it.
+
+The test implementation keeps its cache key in a protected file.  Production apps
+must replace this with Secure Enclave and Keychain or Android Keystore binding.
+That hardware integration remains an explicit open task.
+
+\subsection{Notification and permission discipline}
+
+A locked notification says only that a private Pilot update exists.  Even an
+unlocked preview names only a bounded sender label and update kind; it never embeds
+message, task, calendar, approval or Guardian content.  Actual background inbox and
+push-provider delivery remain native integration work.
+
+Camera observer, continuous voice and push-to-talk microphone authority are tracked
+separately.  An active indicator is valid only when the corresponding permission is
+granted.  Lock, suspension and termination remove active indicators, preventing a
+stale interface from implying that capture continues or has stopped incorrectly.
+
+\subsection{Lifecycle instrumentation}
+
+The shared boundary records foreground, background, suspended, resumed and
+terminated events with bounded battery, thermal and network state.  Background work
+is eligible only with connectivity and without critical thermal pressure.
+Suspension and termination force the private application state back to locked.
+These records support later tests for reconnect duplication, battery impact and
+safe notification behavior.
+
+\subsection{Verification and open platform work}
+
+Automated tests cover every allowed deep-link kind, replay and tamper rejection,
+locked and unlocked notification privacy, encrypted cache content, lock enforcement,
+clipboard and screenshot policy, permission/indicator coupling and lifecycle
+locking.  Still required are the signed native iOS and Android projects,
+hardware-backed key storage and biometric possession, background delivery,
+representative accessibility and child-profile testing, and Apple/Google review.

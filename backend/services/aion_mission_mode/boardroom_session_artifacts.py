@@ -10,6 +10,8 @@ Purpose:
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 from backend.services.aion_mission_mode.business_container_artifacts import (
@@ -76,6 +78,8 @@ def commit_boardroom_session_artifact(
     council_members: list[str] | None = None,
     previous_session_refs: list[dict[str, Any]] | None = None,
     proposed_pilot_actions: list[dict[str, Any]] | None = None,
+    full_session_payload: dict[str, Any] | None = None,
+    platform_root: str | Path | None = None,
 ) -> dict[str, Any]:
     if not business_id:
         raise ValueError("business_id_required")
@@ -98,18 +102,31 @@ def commit_boardroom_session_artifact(
         created_by="aion_pilot",
     )
 
-    artifact_payload = create_boardroom_session_payload(
-        business_id=business_id,
-        session_id=session_id,
-        session_type=session_type,
-        business_context_packet=business_context_packet,
-        department_intelligence_packet=department_intelligence_packet,
-        department_context_packet=department_context_packet,
-        user_added_context=user_added_context,
-        council_members=council_members,
-        previous_session_refs=previous_session_refs,
-        proposed_pilot_actions=proposed_pilot_actions,
-    )
+    if full_session_payload is not None:
+        artifact_payload = dict(full_session_payload)
+        if str(artifact_payload.get("business_id") or "") != str(business_id):
+            raise ValueError("boardroom_payload_business_id_mismatch")
+        if str(artifact_payload.get("session_id") or "") != str(session_id):
+            raise ValueError("boardroom_payload_session_id_mismatch")
+        artifact_payload.setdefault("session_type", session_type)
+        artifact_payload.setdefault("schema_version", "aion.boardroom_session_artifact_payload.v0")
+        artifact_payload.setdefault(
+            "boardroom_session_packet_hash",
+            stable_hash({k: v for k, v in artifact_payload.items() if k != "boardroom_session_packet_hash"}),
+        )
+    else:
+        artifact_payload = create_boardroom_session_payload(
+            business_id=business_id,
+            session_id=session_id,
+            session_type=session_type,
+            business_context_packet=business_context_packet,
+            department_intelligence_packet=department_intelligence_packet,
+            department_context_packet=department_context_packet,
+            user_added_context=user_added_context,
+            council_members=council_members,
+            previous_session_refs=previous_session_refs,
+            proposed_pilot_actions=proposed_pilot_actions,
+        )
 
     source_payload = {
         "source": "boardroom_terminal",
@@ -144,6 +161,27 @@ def commit_boardroom_session_artifact(
     record["boardroom_session_record_hash"] = stable_hash(
         {k: v for k, v in record.items() if k != "boardroom_session_record_hash"}
     )
+
+    if platform_root is not None:
+        from backend.services.aion_mission_mode.business_container_artifacts import (
+            canonical_artifact_real_path,
+        )
+
+        destination = canonical_artifact_real_path(
+            platform_root=str(platform_root),
+            target=target,
+            artifact_id=record["artifact_id"],
+        )
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        temporary = destination.with_suffix(destination.suffix + ".tmp")
+        temporary.write_text(
+            json.dumps(artifact_payload, indent=2, sort_keys=True, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        temporary.replace(destination)
+        record["persisted"] = True
+        record["persisted_path"] = str(destination)
+
     return record
 
 

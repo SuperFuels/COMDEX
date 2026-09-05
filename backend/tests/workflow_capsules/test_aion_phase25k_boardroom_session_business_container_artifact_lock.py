@@ -1,3 +1,5 @@
+import json
+
 from backend.services.aion_mission_mode.boardroom_session_artifacts import (
     commit_boardroom_session_artifact,
     create_boardroom_session_payload,
@@ -70,3 +72,29 @@ def test_phase25k_file_cabinet_pointer_is_index_only_not_truth():
     assert pointer["target"]["artifact_type"] == "boardroom_session"
     assert pointer["target"]["storage_path"].startswith("business_containers/home-fixed/pilot/")
     assert pointer["pointer_hash"].startswith("sha256:")
+
+
+def test_boardroom_session_writes_complete_packet_when_platform_root_is_supplied(tmp_path):
+    payload = create_boardroom_session_payload(
+        business_id="home-fixed",
+        session_id="session_persisted",
+        session_type="business_assessment",
+        business_context_packet={"lines": ["Business name: Home Fixed"]},
+        council_members=["OpenAI", "Gemini / Google"],
+    )
+    payload["boardroom_council_result"] = {
+        "consensus": {"summary": "Proceed with an approval-gated plan."}
+    }
+
+    record = commit_boardroom_session_artifact(
+        business_id="home-fixed",
+        session_id="session_persisted",
+        session_type="business_assessment",
+        full_session_payload=payload,
+        platform_root=tmp_path,
+    )
+
+    destination = __import__("pathlib").Path(record["persisted_path"])
+    assert record["persisted"] is True
+    assert destination.is_file()
+    assert json.loads(destination.read_text(encoding="utf-8")) == payload

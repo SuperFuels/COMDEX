@@ -70,6 +70,37 @@ from backend.modules.hexcore.rgb_articulated_sequence_skill import (
 from backend.modules.hexcore.simulator_disjoint_embodied_scaleup import (
     run as run_simulator_disjoint_scaleup,
 )
+from backend.modules.hexcore.real_world_integration_arena import (
+    run_cycle as run_real_world_integration_arena,
+)
+from backend.modules.hexcore.real_world_experience_adapters import (
+    run_cycle as run_real_world_experience_adapters,
+)
+from backend.modules.hexcore.prediction_market_intelligence_arena import (
+    run as run_prediction_market_intelligence,
+)
+from backend.modules.hexcore.prediction_market_paper_game import (
+    run as run_prediction_market_paper_game,
+)
+from backend.modules.hexcore.prediction_market_research_engine import (
+    run as run_prediction_market_research,
+)
+from backend.modules.hexcore.governed_practical_testing_authority import (
+    run as run_practical_testing_authority,
+)
+from backend.modules.hexcore.continuous_spaced_practice import (
+    run as run_continuous_spaced_practice,
+)
+from backend.modules.hexcore.continuous_knowledge_entanglement import (
+    run as run_continuous_knowledge_entanglement,
+)
+from backend.modules.hexcore.first_class_cognitive_control_plane import (
+    run as run_first_class_cognitive_control_plane,
+)
+from backend.modules.hexcore.standalone_task_governance import (
+    governed_standalone_task,
+    write_migration_status,
+)
 def run_service() -> None:
     repo_root = Path(os.getenv("AION_REPO_ROOT", ".")).resolve()
     process_lock = _STARTUP_PROCESS_LOCK or acquire_process_lock(
@@ -100,7 +131,16 @@ def run_service() -> None:
         result_path=repo_root / "results/hexcore_resource_aware_cognitive_routing.json",
         champion_path=repo_root / "data/aion/canonical_runtime/resource_route_champion.json",
     )
-    compounding_outcome = None
+    # Reuse the last verified compounding checkpoint at startup. Rebuilding
+    # the whole historical/embodied portfolio before every curriculum tick
+    # starved the active advanced subject lane after service restarts.
+    compounding_path = repo_root / "results/hexcore_compounding_intelligence_engine.json"
+    try:
+        compounding_outcome = json.loads(compounding_path.read_text(encoding="utf-8"))
+        last_compounding_epoch = compounding_path.stat().st_mtime
+    except (OSError, json.JSONDecodeError):
+        compounding_outcome = None
+        last_compounding_epoch = 0.0
     campaign_outcome = None
     executive_outcome = None
     authority_factory_outcome = None
@@ -115,7 +155,39 @@ def run_service() -> None:
     rgb_contact_outcome = None
     rgb_articulated_outcome = None
     simulator_disjoint_outcome = None
-    last_compounding_epoch = 0.0
+    real_world_integration_outcome = None
+    real_world_adapter_outcome = None
+    practical_testing_authority_outcome = None
+    spaced_practice_outcome = None
+    knowledge_entanglement_outcome = None
+    cognitive_control_plane_outcome = None
+    cognitive_migration_outcome = None
+    prediction_market_path = repo_root / "results/hexcore_prediction_market_intelligence.json"
+    prediction_paper_game_path = repo_root / "results/hexcore_prediction_market_paper_game.json"
+    prediction_paper_state_path = repo_root / "results/prediction_market_paper_game_state.json"
+    prediction_research_path = repo_root / "results/hexcore_prediction_market_research.json"
+    prediction_research_state_path = repo_root / "results/prediction_market_research_state.json"
+    try:
+        prediction_market_outcome = json.loads(prediction_market_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        prediction_market_outcome = None
+    try:
+        prediction_paper_game_outcome = json.loads(prediction_paper_game_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        prediction_paper_game_outcome = None
+    try:
+        prediction_research_outcome = json.loads(prediction_research_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        prediction_research_outcome = None
+    prediction_market_interval = max(
+        300.0, float(os.getenv("AION_PREDICTION_MARKET_SCAN_INTERVAL", "300"))
+    )
+    last_prediction_market_epoch = (
+        prediction_market_path.stat().st_mtime if prediction_market_path.exists() else 0.0
+    )
+    compounding_interval = max(
+        600.0, float(os.getenv("AION_MASTERY_COMPOUNDING_INTERVAL", "3600"))
+    )
     while True:
         try:
             academy_state_path = repo_root / "backend/modules/hexcore/data/guided_foundation_academy/state.json"
@@ -201,7 +273,21 @@ def run_service() -> None:
                 # successful work or rotates an explicitly blocked subject in
                 # the same wake, eliminating hour-long no-progress loops.
                 competency_outcome = competency.step()
-                competency_executor_outcome = competency_executor.step()
+                task_descriptor = json.dumps(
+                    {
+                        "active_contract": competency.state.get("active_contract"),
+                        "action": (competency_outcome.get("cycle") or {}).get("action"),
+                    },
+                    sort_keys=True,
+                    default=str,
+                )
+                with governed_standalone_task(
+                    repo_root=repo_root,
+                    service_id="mastery_curriculum",
+                    task_text=f"Execute the current governed competency contract: {task_descriptor[:2000]}",
+                ) as governed:
+                    competency_executor_outcome = competency_executor.step()
+                    governed.finish(competency_executor_outcome, verified=False)
                 if (
                     competency_executor_outcome.get("progressed")
                     or competency_executor_outcome.get("status") in {
@@ -215,6 +301,180 @@ def run_service() -> None:
                 competency_temp.write_text(json.dumps(competency_snapshot, indent=2, sort_keys=True), encoding="utf-8")
                 json.loads(competency_temp.read_text(encoding="utf-8"))
                 os.replace(competency_temp, _atomic_competency)
+                try:
+                    practical_testing_authority_outcome = run_practical_testing_authority(
+                        competency_state_path=(
+                            repo_root / "backend/modules/hexcore/data/progressive_competency/state.json"
+                        ),
+                        executor_registry_path=(
+                            repo_root / "backend/modules/hexcore/data/progressive_competency/executor_registry.json"
+                        ),
+                        result_path=(
+                            repo_root / "results/hexcore_governed_practical_testing_authority.json"
+                        ),
+                    )
+                except Exception as authority_error:
+                    practical_testing_authority_outcome = {
+                        "status": "failed_closed", "passed": False,
+                        "error": type(authority_error).__name__, "detail": str(authority_error),
+                        "practice_authorized": 0, "unrestricted_live_authorities": 0,
+                    }
+                try:
+                    spaced_practice_outcome = run_continuous_spaced_practice(
+                        repo_root=repo_root,
+                        competency_state_path=(
+                            repo_root / "backend/modules/hexcore/data/progressive_competency/state.json"
+                        ),
+                        state_path=(
+                            repo_root / "backend/modules/hexcore/data/progressive_competency/spaced_practice.json"
+                        ),
+                        result_path=repo_root / "results/hexcore_continuous_spaced_practice.json",
+                        minimum_interval_seconds=max(
+                            60.0, float(os.getenv("AION_SPACED_PRACTICE_INTERVAL", "300"))
+                        ),
+                    )
+                except Exception as practice_error:
+                    spaced_practice_outcome = {
+                        "status": "failed_closed", "passed": False, "progressed": False,
+                        "error": type(practice_error).__name__, "detail": str(practice_error),
+                        "awards_competence": False, "external_actions": 0,
+                    }
+                try:
+                    knowledge_entanglement_outcome = run_continuous_knowledge_entanglement(
+                        competency_state_path=(
+                            repo_root / "backend/modules/hexcore/data/progressive_competency/state.json"
+                        ),
+                        curriculum_path=(
+                            repo_root / "backend/modules/hexcore/data/comprehensive_expertise_curriculum/curriculum.json"
+                        ),
+                        state_path=(
+                            repo_root / "backend/modules/hexcore/data/expertise_containers/dynamic_association_state.json"
+                        ),
+                        container_path=(
+                            repo_root / "backend/modules/hexcore/data/expertise_containers/aion__dynamic_associations.json"
+                        ),
+                        index_path=(
+                            repo_root / "backend/modules/hexcore/data/expertise_containers/index.json"
+                        ),
+                        result_path=repo_root / "results/hexcore_continuous_knowledge_entanglement.json",
+                    )
+                except Exception as entanglement_error:
+                    knowledge_entanglement_outcome = {
+                        "status": "failed_closed", "passed": False,
+                        "error": type(entanglement_error).__name__,
+                        "detail": str(entanglement_error), "competence_awarded": False,
+                    }
+                try:
+                    cognitive_control_plane_outcome = run_first_class_cognitive_control_plane(
+                        repo_root=repo_root,
+                        canonical_state_path=(
+                            repo_root / "data/hexcore/persistent_learning_state.json"
+                        ),
+                        state_path=(
+                            repo_root / "data/hexcore/first_class_cognitive_control_plane.json"
+                        ),
+                        result_path=(
+                            repo_root / "results/hexcore_first_class_cognitive_control_plane.json"
+                        ),
+                    )
+                except Exception as control_plane_error:
+                    cognitive_control_plane_outcome = {
+                        "status": "failed_closed", "passed": False,
+                        "error": type(control_plane_error).__name__,
+                        "detail": str(control_plane_error),
+                        "repetition_promotions": 0,
+                    }
+                cognitive_migration_outcome = write_migration_status(repo_root)
+                # A second, non-blocking lane converts sufficiently learned
+                # subject bundles into bounded applied-experience capsules.
+                # It never writes competency evidence or delays the curriculum.
+                try:
+                    real_world_integration_outcome = run_real_world_integration_arena(
+                        repo_root=repo_root,
+                        progress_path=_atomic_competency,
+                        result_path=repo_root / "results/hexcore_real_world_integration_arena.json",
+                    )
+                except Exception as arena_error:
+                    # Applied experience is parallel support work. It must fail
+                    # closed and remain visible, never stop subject learning.
+                    real_world_integration_outcome = {
+                        "status": "failed_closed",
+                        "passed": False,
+                        "error": type(arena_error).__name__,
+                        "detail": str(arena_error),
+                        "parallel_to_curriculum": True,
+                        "awards_subject_competence": False,
+                        "unsafe_actions": 0,
+                    }
+                try:
+                    real_world_adapter_outcome = run_real_world_experience_adapters(
+                        repo_root=repo_root,
+                        progress_path=_atomic_competency,
+                        result_path=repo_root / "results/hexcore_real_world_experience_adapters.json",
+                    )
+                    # Follow the portfolio's explicit strategic order. This
+                    # keeps low-value repair work from winning merely because
+                    # it has the smallest numerical prerequisite gap.
+                    next_gate = real_world_adapter_outcome.get("next_learning_gate") or {}
+                    if next_gate.get("subject_id") and next_gate.get("adapter_id"):
+                        selected_adapter = next(
+                            row for row in real_world_adapter_outcome.get("adapters") or []
+                            if row.get("adapter_id") == next_gate["adapter_id"]
+                        )
+                        demand = competency.prioritize_for_mission(
+                            subject_id=str(next_gate["subject_id"]),
+                            mission=str(selected_adapter["title"]),
+                            evidence=f"real_world_adapter:{selected_adapter['adapter_id']}",
+                        )
+                        real_world_adapter_outcome["learning_dispatch"] = {
+                            "status": "real_world_prerequisite_prioritised",
+                            "adapter_id": selected_adapter["adapter_id"],
+                            "subject_id": next_gate["subject_id"],
+                            "demand_id": demand["demand_id"],
+                        }
+                except Exception as adapter_error:
+                    real_world_adapter_outcome = {
+                        "status": "failed_closed", "passed": False,
+                        "error": type(adapter_error).__name__, "detail": str(adapter_error),
+                        "external_writes": 0, "live_capital_at_risk": 0, "physical_actions": 0,
+                    }
+                if time.time() - last_prediction_market_epoch >= prediction_market_interval:
+                    try:
+                        prediction_market_outcome = run_prediction_market_intelligence(
+                            output_path=prediction_market_path,
+                        )
+                        prediction_research_outcome = run_prediction_market_research(
+                            market_snapshot_path=prediction_market_path,
+                            state_path=prediction_research_state_path,
+                            result_path=prediction_research_path,
+                        )
+                        prediction_paper_game_outcome = run_prediction_market_paper_game(
+                            market_snapshot_path=prediction_market_path,
+                            research_path=prediction_research_path,
+                            state_path=prediction_paper_state_path,
+                            result_path=prediction_paper_game_path,
+                        )
+                        last_prediction_market_epoch = time.time()
+                    except Exception as prediction_market_error:
+                        prediction_market_outcome = {
+                            "status": "failed_closed",
+                            "passed": False,
+                            "error": type(prediction_market_error).__name__,
+                            "orders_submitted": 0,
+                            "live_capital_at_risk": 0,
+                        }
+                        prediction_paper_game_outcome = {
+                            "status": "failed_closed",
+                            "passed": False,
+                            "error": type(prediction_market_error).__name__,
+                            "orders_submitted": 0,
+                            "live_capital_at_risk": 0,
+                        }
+                        prediction_research_outcome = {
+                            "status": "failed_closed", "passed": False,
+                            "error": type(prediction_market_error).__name__,
+                            "orders_submitted": 0, "live_capital_at_risk": 0,
+                        }
                 # Publish a truthful checkpoint before the slower compounding
                 # and embodied tasks complete. A stale error must not remain
                 # visible after the competency transaction has succeeded.
@@ -224,6 +484,16 @@ def run_service() -> None:
                     "progressive_competency": competency_outcome,
                     "progressive_competency_executor": competency_executor_outcome,
                     "progressive_summary": competency_snapshot.get("summary") or {},
+                    "real_world_integration_arena": real_world_integration_outcome,
+                    "real_world_experience_adapters": real_world_adapter_outcome,
+                    "governed_practical_testing_authority": practical_testing_authority_outcome,
+                    "continuous_spaced_practice": spaced_practice_outcome,
+                    "continuous_knowledge_entanglement": knowledge_entanglement_outcome,
+                    "first_class_cognitive_control_plane": cognitive_control_plane_outcome,
+                    "active_runtime_cognitive_migration": cognitive_migration_outcome,
+                    "prediction_market_intelligence": prediction_market_outcome or {},
+                    "prediction_market_paper_game": prediction_paper_game_outcome or {},
+                    "prediction_market_research": prediction_research_outcome or {},
                     "updated_at": time.time(),
                     "cycle_complete": False,
                     "next_run_after_seconds": interval,
@@ -305,7 +575,7 @@ def run_service() -> None:
             # Functional reconstruction is deliberately more expensive than a
             # curriculum tick. Run it periodically and reuse the matched local
             # substrate tournament rather than repeatedly querying models.
-            if compounding_outcome is None or time.time() - last_compounding_epoch >= 600.0:
+            if compounding_outcome is None or time.time() - last_compounding_epoch >= compounding_interval:
                 dual_track_outcome = run_dual_track_portfolio(
                     repo_root=repo_root,
                     state_path=repo_root / "backend/modules/hexcore/data/dual_track_intelligence/state.json",
@@ -425,6 +695,16 @@ def run_service() -> None:
                       "executor_worker": {"outcomes": worker_outcomes, **worker_status},
                       "progressive_competency": competency_outcome,
                       "progressive_competency_executor": competency_executor_outcome,
+                      "real_world_integration_arena": real_world_integration_outcome or {},
+                      "real_world_experience_adapters": real_world_adapter_outcome or {},
+                      "governed_practical_testing_authority": practical_testing_authority_outcome or {},
+                      "continuous_spaced_practice": spaced_practice_outcome or {},
+                      "continuous_knowledge_entanglement": knowledge_entanglement_outcome or {},
+                      "first_class_cognitive_control_plane": cognitive_control_plane_outcome or {},
+                      "active_runtime_cognitive_migration": cognitive_migration_outcome or {},
+                      "prediction_market_intelligence": prediction_market_outcome or {},
+                      "prediction_market_paper_game": prediction_paper_game_outcome or {},
+                      "prediction_market_research": prediction_research_outcome or {},
                       "progressive_executor_registry": (
                           competency_executor.registry.summary(subjects=competency.state["subjects"])
                           if academy.state.get("primary_academy_complete") else {}

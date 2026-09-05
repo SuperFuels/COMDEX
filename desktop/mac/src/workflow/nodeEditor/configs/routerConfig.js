@@ -11,24 +11,20 @@
   }
 
   function canRender(node) {
-    const haystack = [
-      node?.title,
-      node?.type,
-      node?.app,
-      node?.connector,
-      node?.action_id,
-      node?.module_id,
-      node?.kind,
-      node?.config?.title,
-      node?.config?.type,
-      node?.config?.app,
-      node?.config?.connector,
-      node?.config?.action_id,
-      node?.config?.module_id,
-      node?.config?.kind,
-    ].map((value) => String(value || "").toLowerCase()).join(" ");
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    const actionId = String(config.action_id || node?.action_id || node?.action || "").toLowerCase();
+    const moduleId = String(config.module_id || node?.module_id || "").toLowerCase();
+    const kind = String(config.kind || node?.kind || "").toLowerCase();
+    const type = String(config.type || node?.type || "").toLowerCase();
 
-    return haystack.includes("router") || haystack.includes("logic.router");
+    // Do not use substring matching here: connectors such as `model_router`
+    // are model nodes, not Flow Control routers.
+    return (
+      actionId === "logic.router" ||
+      moduleId === "flow.router" ||
+      kind === "router" ||
+      type === "router"
+    );
   }
 
   function normaliseRoutes(config) {

@@ -21,7 +21,16 @@ from backend.modules.hexcore.progressive_executor_registry import ProgressiveExe
 from backend.modules.hexcore.progressive_outcome_authority_fabric import build_subject_runners
 from backend.modules.hexcore.open_toolchain_progressive_authority import build_toolchain_runners
 from backend.modules.hexcore.software_system_project_authority import build_system_project_runners
+from backend.modules.hexcore.learning_strategy_outcome_authority import build_learning_capability_runners
+from backend.modules.hexcore.general_learning_capability_outcome_authority import (
+    build_general_learning_capability_runners,
+)
 from backend.modules.hexcore.advanced_python_apprenticeship import run as run_advanced_python
+from backend.modules.hexcore.diverse_practical_executor_portfolios import (
+    event_resolution_runner, forecasting_runner,
+    runner_has_fresh_family,
+    runner_portfolio_version,
+)
 
 
 BASE_PROGRAM = r'''
@@ -227,6 +236,44 @@ assert fulfil([("o1",True),("o1",True),("o2",False),("o3",True)]) == ["o1","o3"]
 print("passed")
 ''', "and order_id not in completed", "")
 
+TRANSFER_PROJECTS = (
+    TRANSFER_PROJECT,
+    ("cross_domain_telemetry_deduplication", r'''
+def accept(frames):
+    seen=set(); accepted=[]
+    for device,sequence,payload in frames:
+        key=(device,sequence)
+        if key not in seen and payload is not None:
+            seen.add(key); accepted.append((device,sequence))
+    return accepted
+assert accept([("d1",1,"a"),("d1",1,"a"),("d1",2,None),("d2",1,"b")]) == [("d1",1),("d2",1)]
+print("passed")
+''', "if key not in seen and payload is not None", "if payload is not None"),
+    ("cross_domain_lab_chain_of_custody", r'''
+def valid_chain(events):
+    expected=0
+    for sequence,signed in events:
+        if sequence != expected or not signed: return False
+        expected += 1
+    return bool(events)
+assert valid_chain([(0,True),(1,True),(2,True)])
+assert not valid_chain([(0,True),(2,True)])
+assert not valid_chain([(0,False)])
+print("passed")
+''', "if sequence != expected or not signed", "if not signed"),
+    ("cross_domain_bounded_capacity_reservation", r'''
+def reserve(capacity, requests):
+    used=0; accepted=[]
+    for request_id,amount in requests:
+        if amount > 0 and used + amount <= capacity:
+            used += amount; accepted.append(request_id)
+    return accepted, capacity-used
+assert reserve(10,[("a",4),("b",8),("c",6)]) == (["a","c"],0)
+assert reserve(2,[("x",-1)]) == ([],2)
+print("passed")
+''', "if amount > 0 and used + amount <= capacity", "if amount > 0"),
+)
+
 RETENTION_PROJECT = ("delayed_cache_invalidation", r'''
 def read_cache(entries, key, now):
     row=entries.get(key)
@@ -258,6 +305,76 @@ except ValueError: pass
 else: raise AssertionError("negative accepted")
 print("passed")
 ''', "if event_id in seen: continue", "if False: continue"),
+    ("delayed_checkpoint_recovery", r'''
+def recover(checkpoints, events):
+    state=dict(checkpoints[-1]) if checkpoints else {}
+    for key,value in events: state[key]=value
+    return state
+assert recover([{"a":1}],[("b",2),("a",3)]) == {"a":3,"b":2}
+assert recover([{"a":1}],[]) == {"a":1}
+assert recover([],[]) == {}
+print("passed")
+''', "state=dict(checkpoints[-1])", "state={}"),
+    ("delayed_schema_compatibility", r'''
+def decode(row):
+    version=row.get("version",1)
+    if version==1:return {"name":row["name"],"enabled":True}
+    if version==2:return {"name":row["label"],"enabled":bool(row["enabled"])}
+    raise ValueError("unsupported version")
+assert decode({"name":"alpha"}) == {"name":"alpha","enabled":True}
+assert decode({"version":2,"label":"beta","enabled":0}) == {"name":"beta","enabled":False}
+try:decode({"version":3})
+except ValueError:pass
+else:raise AssertionError("future schema accepted")
+print("passed")
+''', "if version==2", "if version>=2"),
+    ("delayed_out_of_order_watermark", r'''
+def complete(events, watermark):
+    accepted={}
+    for event_id,event_time,value in events:
+        if event_time <= watermark: accepted[event_id]=value
+    return [accepted[key] for key in sorted(accepted)]
+events=[("b",9,2),("a",7,1),("c",12,3),("a",8,99)]
+assert complete(events,10)==[99,2]
+assert complete(events,6)==[]
+print("passed")
+''', "if event_time <= watermark", "if event_time >= watermark"),
+    ("delayed_circuit_breaker_repair", r'''
+def transition(state,failures,success=False,limit=3):
+    if state=="half_open": return ("closed",0) if success else ("open",failures+1)
+    if failures>=limit:return "open",failures
+    return state,failures
+assert transition("closed",3)==("open",3)
+assert transition("half_open",3,True)==("closed",0)
+assert transition("half_open",3,False)==("open",4)
+print("passed")
+''', "if failures>=limit", "if failures>limit"),
+    ("delayed_signed_event_chain", r'''
+import hashlib,hmac
+KEY=b"retention-key"
+def sign(previous,payload):return hmac.new(KEY,previous+payload,hashlib.sha256).digest()
+def verify(events):
+    previous=b""
+    for payload,signature in events:
+        if not hmac.compare_digest(signature,sign(previous,payload)):return False
+        previous=signature
+    return bool(events)
+p1=b"one";s1=sign(b"",p1);p2=b"two";s2=sign(s1,p2)
+assert verify([(p1,s1),(p2,s2)])
+assert not verify([(p1,s1),(b"changed",s2)])
+print("passed")
+''', "hmac.compare_digest(signature,sign(previous,payload))", "bool(signature)"),
+    ("delayed_bounded_worker_pool", r'''
+from concurrent.futures import ThreadPoolExecutor
+def execute(values,workers=3):
+    if not 1<=workers<=4:raise ValueError("worker bound")
+    with ThreadPoolExecutor(max_workers=workers) as pool:return list(pool.map(lambda x:x*x,values))
+assert execute([3,1,2])==[9,1,4]
+try:execute([1],9)
+except ValueError:pass
+else:raise AssertionError("unbounded workers")
+print("passed")
+''', "if not 1<=workers<=4", "if workers<1"),
 )
 
 MUTATIONS = {
@@ -499,7 +616,12 @@ def _testing_debugging(contract: dict[str, Any], existing_evidence: list[dict[st
         mutation_results = {family: _run_program(project_source.replace(old, new, 1))}
         source_disjoint = True; unfamiliar = True
     elif kind == "transfer":
-        family, project_source, old, new = TRANSFER_PROJECT
+        used = {row.get("project_family") for row in existing_evidence if row.get("kind") == "transfer"}
+        selected = next((row for row in TRANSFER_PROJECTS if row[0] not in used), None)
+        if selected is None:
+            return {"status": "diverse_project_executor_required", "passed": False,
+                    "reason": "The source-disjoint transfer portfolio is exhausted before the competency gate was met."}
+        family, project_source, old, new = selected
         candidate = _run_program(project_source)
         mutation_results = {family: _run_program(project_source.replace(old, new, 1))}
         source_disjoint = True; unfamiliar = True
@@ -744,6 +866,29 @@ def _software_engineering(
     }
 
 
+def _install_portfolio_metadata(
+    runner: Callable[[dict[str, Any], list[dict[str, Any]]], dict[str, Any]],
+    families: dict[str, set[str]],
+) -> None:
+    material = {kind: sorted(values) for kind, values in families.items()}
+    runner.aion_portfolio_families = {  # type: ignore[attr-defined]
+        kind: frozenset(values) for kind, values in material.items()
+    }
+    runner.aion_portfolio_version = hashlib.sha256(  # type: ignore[attr-defined]
+        json.dumps(material, sort_keys=True).encode("utf-8")
+    ).hexdigest()
+
+
+_builtin_families = {
+    "project": set(PROJECTS),
+    "debugging": set(PROJECTS),
+    "transfer": {row[0] for row in TRANSFER_PROJECTS},
+    "retention": {row[0] for row in RETENTION_PROJECTS},
+}
+_install_portfolio_metadata(_testing_debugging, _builtin_families)
+_install_portfolio_metadata(_python_core, _builtin_families)
+
+
 RUNNERS: dict[str, Callable[[dict[str, Any], list[dict[str, Any]]], dict[str, Any]]] = {
     "testing_debugging": _testing_debugging,
     "python_core": _python_core,
@@ -762,6 +907,48 @@ RUNNERS.update(build_system_project_runners(
     repo_root=Path(__file__).resolve().parents[3],
     state_path=Path(__file__).with_name("data") / "software_system_project_authority.json",
 ))
+RUNNERS.update(build_learning_capability_runners())
+RUNNERS.update(build_general_learning_capability_runners())
+# The generic forecasting suite remains the concept authority.  Projects that
+# require novelty use the source-distinct v2 portfolio instead of manufacturing
+# new family names from repeated executions of the same bounded case.
+_generic_forecasting_runner = RUNNERS["probabilistic_forecasting_calibration"]
+
+
+def _forecasting_with_diverse_projects(
+    contract: dict[str, Any], evidence: list[dict[str, Any]]
+) -> dict[str, Any]:
+    if (contract.get("requirement") or {}).get("kind") == "project":
+        return forecasting_runner(contract, evidence)
+    return _generic_forecasting_runner(contract, evidence)
+
+
+_forecasting_with_diverse_projects.aion_portfolio_version = (  # type: ignore[attr-defined]
+    forecasting_runner.aion_portfolio_version  # type: ignore[attr-defined]
+)
+_forecasting_with_diverse_projects.aion_portfolio_families = (  # type: ignore[attr-defined]
+    forecasting_runner.aion_portfolio_families  # type: ignore[attr-defined]
+)
+RUNNERS["probabilistic_forecasting_calibration"] = _forecasting_with_diverse_projects
+
+_generic_event_resolution_runner = RUNNERS["event_evidence_resolution_research"]
+
+
+def _event_resolution_with_diverse_projects(
+    contract: dict[str, Any], evidence: list[dict[str, Any]]
+) -> dict[str, Any]:
+    if (contract.get("requirement") or {}).get("kind") == "project":
+        return event_resolution_runner(contract, evidence)
+    return _generic_event_resolution_runner(contract, evidence)
+
+
+_event_resolution_with_diverse_projects.aion_portfolio_version = (  # type: ignore[attr-defined]
+    event_resolution_runner.aion_portfolio_version  # type: ignore[attr-defined]
+)
+_event_resolution_with_diverse_projects.aion_portfolio_families = (  # type: ignore[attr-defined]
+    event_resolution_runner.aion_portfolio_families  # type: ignore[attr-defined]
+)
+RUNNERS["event_evidence_resolution_research"] = _event_resolution_with_diverse_projects
 
 
 class ProgressiveCompetencyExecutor:
@@ -787,6 +974,8 @@ class ProgressiveCompetencyExecutor:
         """Resume subjects whose previously missing adapter is now installed."""
         source = Path(__file__)
         source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+        portfolio_source = Path(__file__).with_name("diverse_practical_executor_portfolios.py")
+        portfolio_hash = hashlib.sha256(portfolio_source.read_bytes()).hexdigest()
         resolved = 0
         for blocker in list(self.system.state.get("blockers") or []):
             reason = str(blocker.get("reason") or "")
@@ -802,6 +991,38 @@ class ProgressiveCompetencyExecutor:
                     artifact_hash=source_hash,
                 )
                 resolved += 1
+        for contract in list(self.system.state.get("contracts") or []):
+            if (contract.get("status") != "blocked_executor_capability"
+                    or contract.get("required_authority") != "genuinely_diverse_hidden_project_portfolio"):
+                continue
+            subject_id = str(contract.get("subject_id") or "")
+            runner = RUNNERS.get(subject_id)
+            requirement = dict(contract.get("requirement") or {})
+            kind = str(requirement.get("kind") or "")
+            if runner is None or not runner_has_fresh_family(
+                    runner, kind, self.system.evidence_for(subject_id)):
+                continue
+            version = runner_portfolio_version(runner)
+            if version is None:
+                continue
+            artifact = (
+                portfolio_source
+                if subject_id in {"probabilistic_forecasting_calibration", "event_evidence_resolution_research"}
+                else source
+            )
+            artifact_hash = portfolio_hash if artifact == portfolio_source else source_hash
+            try:
+                authority_artifact = str(artifact.relative_to(self.system.repo_root))
+            except ValueError:
+                # Unit-test repositories use a temporary root while executing
+                # the installed authority module from this checkout.
+                authority_artifact = str(artifact)
+            self.system.reissue_executor_blocked_contract(
+                contract["contract_id"], executor_version=version,
+                authority_artifact=authority_artifact,
+                artifact_hash=artifact_hash,
+            )
+            resolved += 1
         return resolved
 
     def _save(self) -> None:
@@ -861,6 +1082,11 @@ class ProgressiveCompetencyExecutor:
             gap = self.registry.observe_contract(
                 contract=contract, subject=subject, available_subjects=RUNNERS,
             )
+            blocker_reason = (
+                "No verified progressive executor currently grounds this active requirement; "
+                f"acquisition queued as {gap['gap_id']}."
+            )
+            required_authority = f"verified_{gap['family']}_adapter"
             already = any(
                 row.get("subject_id") == subject_id
                 and row.get("blocker_type") == "executor_capability"
@@ -871,13 +1097,14 @@ class ProgressiveCompetencyExecutor:
                 self.system.add_practical_blocker(
                     subject_id=subject_id,
                     subskills=(contract.get("requirement") or {}).get("subskills") or [],
-                    reason=(
-                        "No verified progressive executor currently grounds this active requirement; "
-                        f"acquisition queued as {gap['gap_id']}."
-                    ),
-                    required_authority=f"verified_{gap['family']}_adapter",
+                    reason=blocker_reason,
+                    required_authority=required_authority,
                     blocker_type="executor_capability",
                 )
+            self.system.park_executor_blocked_contract(
+                contract["contract_id"], reason=blocker_reason,
+                required_authority=required_authority,
+            )
             self.state["status"] = "executor_acquisition_required"
             self.state["consecutive_no_progress"] = 0
             outcome = {**gap, "status": self.state["status"], "progressed": False,
@@ -889,6 +1116,20 @@ class ProgressiveCompetencyExecutor:
         execution_contract = {**contract, "_repo_root": str(self.system.repo_root)}
         result = RUNNERS[subject_id](execution_contract, existing_evidence)
         requirement = contract.get("requirement") or {}
+        result_family = result.get("project_family")
+        if result.get("passed") is True and result_family and any(
+            row.get("kind") == requirement.get("kind")
+            and row.get("project_family") == result_family
+            for row in existing_evidence
+        ):
+            result = {
+                "status": "duplicate_evidence_rejected",
+                "passed": False,
+                "reason": (
+                    f"Evidence family {result_family} already exists for this subject and kind; "
+                    "a fresh independently distinct case is required."
+                ),
+            }
         if requirement.get("novelty_required") and not result.get("unfamiliar"):
             result = {
                 "status": "diverse_project_executor_required",
@@ -908,6 +1149,10 @@ class ProgressiveCompetencyExecutor:
                     reason=result["reason"],
                     required_authority="genuinely_diverse_hidden_project_portfolio",
                     blocker_type="executor_capability",
+                )
+                self.system.park_executor_blocked_contract(
+                    contract["contract_id"], reason=result["reason"],
+                    required_authority="genuinely_diverse_hidden_project_portfolio",
                 )
             outcome = {**result, "progressed": False, "subject_id": subject_id,
                        "contract_id": contract["contract_id"]}
@@ -930,10 +1175,13 @@ class ProgressiveCompetencyExecutor:
                 subskills=evidenced_subskills, score=float(result["gate"]["score"]),
                 artifact=str(result_path.relative_to(self.system.repo_root)), artifact_hash=artifact_hash,
                 verified=True, source_disjoint=bool(result["gate"]["source_disjoint_transfer"]),
-                retained=requirement["kind"] == "retention", independent_outcome=True,
+                retained=requirement["kind"] == "retention",
+                independent_outcome=bool(result["gate"].get("independent_outcome")),
                 unfamiliar=bool(result.get("unfamiliar")), scaffolding=float(result["scaffolding"]), trials=3,
                 authority=["fresh_python_subprocess", "counterexample_mutations", "security_scan"],
                 project_family=result.get("project_family"),
+                experience_class=str(result.get("experience_class") or "bounded_practical_execution"),
+                retention_milestone_days=requirement.get("retention_milestone_days"),
             )
             for blocker in list(self.system.state.get("blockers") or []):
                 if (blocker.get("subject_id") == subject_id
@@ -974,6 +1222,11 @@ class ProgressiveCompetencyExecutor:
                         required_authority="repaired_or_replaced_verified_executor",
                         blocker_type="executor_capability",
                     )
+                self.system.park_executor_blocked_contract(
+                    contract["contract_id"],
+                    reason="The same progressive executor contract failed three independent attempts; curriculum rotated pending executor criticism or replacement.",
+                    required_authority="repaired_or_replaced_verified_executor",
+                )
                 row["status"] = "rejected_and_parked"
                 row["repeated_rejections"] = repeated
                 self.state["status"] = "rejected_and_parked"

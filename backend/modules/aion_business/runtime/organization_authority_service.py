@@ -55,6 +55,11 @@ ROLE_TEMPLATES: list[dict[str, Any]] = [
             "marketing.approve_publish", "marketing.approve_spend",
             "support.read", "support.manage", "support.approve_communication", "support.approve_remedy",
             "department.view_all", "department.manage_all",
+            "aion_flow.review", "aion_flow.author", "aion_flow.commit",
+            "aion_flow.export", "aion_flow.import", "aion_flow.benchmark",
+            "aion_flow.prepare", "aion_flow.execute", "aion_flow.approve",
+            "aion_flow.control", "aion_flow.view_runs", "aion_flow.evaluate",
+            "aion_flow.template_manage", "aion_flow.policy_manage",
         ],
     },
     {
@@ -167,6 +172,14 @@ class OrganizationAuthorityService:
         if not existing:
             return self.empty(workspace_id)
         model = deepcopy(existing)
+        model.setdefault("people_operations", {
+            "leave_requests": [], "appraisals": [], "escalations": [], "onboarding_templates": [],
+            "governance": {
+                "human_employment_decisions_required": True,
+                "sensitive_detail_excluded_from_dashboard": True,
+                "external_messages_approval_required": True,
+            },
+        })
         templates = {item["id"]: item for item in ROLE_TEMPLATES}
         for role in model.get("roles") or []:
             template = templates.get(role.get("id"))
@@ -190,6 +203,15 @@ class OrganizationAuthorityService:
                 "exact_action_approval_required": True,
                 "sensitive_hr_data_excluded": True,
                 "viewer_context_source": "authenticated_person",
+            },
+            people_operations={
+                "leave_requests": [], "appraisals": [], "escalations": [],
+                "onboarding_templates": [],
+                "governance": {
+                    "human_employment_decisions_required": True,
+                    "sensitive_detail_excluded_from_dashboard": True,
+                    "external_messages_approval_required": True,
+                },
             },
             provenance={"created_at": now, "source": "hr_pilot_manual_setup"},
             revision=0,
@@ -379,12 +401,33 @@ class OrganizationAuthorityService:
 
         model.update({
             "people": people, "departments": departments, "roles": roles, "assets": assets,
+            "people_operations": self._normalise_people_operations(source.get("people_operations"), people_ids),
             "authority_policies": [deepcopy(item) for item in (source.get("authority_policies") or []) if isinstance(item, dict)],
             "external_sources": [deepcopy(item) for item in (source.get("external_sources") or []) if isinstance(item, dict)],
             "governance": {**model["governance"], **(source.get("governance") or {})},
             "provenance": {**model["provenance"], **(source.get("provenance") or {})},
         })
         return model
+
+    @staticmethod
+    def _normalise_people_operations(value: Any, people_ids: set[str]) -> dict[str, Any]:
+        source = deepcopy(value) if isinstance(value, dict) else {}
+        result: dict[str, Any] = {
+            "leave_requests": [], "appraisals": [], "escalations": [],
+            "onboarding_templates": [deepcopy(item) for item in (source.get("onboarding_templates") or []) if isinstance(item, dict)],
+            "governance": {
+                "human_employment_decisions_required": True,
+                "sensitive_detail_excluded_from_dashboard": True,
+                "external_messages_approval_required": True,
+                **(source.get("governance") or {}),
+            },
+        }
+        for key in ("leave_requests", "appraisals", "escalations"):
+            for item in source.get(key) or []:
+                if not isinstance(item, dict) or item.get("person_id") not in people_ids:
+                    continue
+                result[key].append(deepcopy(item))
+        return result
 
     @staticmethod
     def _validate_reporting_lines(people: list[dict[str, Any]]) -> None:
@@ -475,6 +518,14 @@ class OrganizationAuthorityService:
             "authority_ready": bool(active and owner_ids and not any(not item.get("role_ids") for item in active)),
             "workforce_costing_ready": sum(
                 bool((item.get("workforce_costing") or {}).get("base_rate")) for item in active
+            ),
+            "pending_leave_requests": sum(
+                str(item.get("status") or "requested") == "requested"
+                for item in (model.get("people_operations") or {}).get("leave_requests", [])
+            ),
+            "open_people_escalations": sum(
+                str(item.get("status") or "open") not in {"resolved", "closed"}
+                for item in (model.get("people_operations") or {}).get("escalations", [])
             ),
         }
 

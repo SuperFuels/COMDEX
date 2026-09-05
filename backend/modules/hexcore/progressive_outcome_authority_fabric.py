@@ -242,6 +242,369 @@ ML_MUTATIONS = {
     "deep_learning": ("-.5+1.2*a+1.2*b", ".5-1.2*a-1.2*b"),
 }
 
+MARKETS_SUITE = r'''
+from fractions import Fraction
+
+def asset_return(entry, exit): return Fraction(exit-entry, entry)
+def loss_averse_utility(gain, loss, aversion=2): return gain-aversion*loss
+def forward_payoff(spot, strike): return spot-strike
+def limit_order_executes(side, limit, market):
+    return market <= limit if side == "buy" else market >= limit
+def equal_weight_portfolio(returns): return sum(map(Fraction, returns))/len(returns)
+def regulated_order(notional, approved, limit=10_000): return approved and notional <= limit
+def position_size(capital, risk_fraction, stop_distance):
+    if capital <= 0 or stop_distance <= 0 or not 0 < risk_fraction <= 1: raise ValueError("invalid risk")
+    return Fraction(capital)*Fraction(risk_fraction)/Fraction(stop_distance)
+
+assert asset_return(100,110) == Fraction(1,10)
+assert loss_averse_utility(5,3) == -1
+assert forward_payoff(120,100) == 20
+assert limit_order_executes("buy",100,99) and not limit_order_executes("buy",100,101)
+assert limit_order_executes("sell",100,101) and not limit_order_executes("sell",100,99)
+assert equal_weight_portfolio([Fraction(1,10),Fraction(-1,20)]) == Fraction(1,40)
+assert regulated_order(5000,True) and not regulated_order(5000,False) and not regulated_order(15000,True)
+assert position_size(10000,Fraction(1,100),5) == 20
+try: position_size(10000,Fraction(2,1),5); raise AssertionError("unsafe risk accepted")
+except ValueError: pass
+print("passed")
+'''
+
+MARKETS_MUTATIONS = {
+    "assets": ("Fraction(exit-entry, entry)", "Fraction(entry-exit, entry)"),
+    "behaviour": ("gain-aversion*loss", "gain+aversion*loss"),
+    "derivatives": ("spot-strike", "strike-spot"),
+    "market_structure": ("market <= limit if side == \"buy\" else market >= limit",
+                         "market >= limit if side == \"buy\" else market <= limit"),
+    "portfolio_theory": ("sum(map(Fraction, returns))/len(returns)",
+                         "sum(map(Fraction, returns))"),
+    "regulation": ("approved and notional <= limit", "approved or notional <= limit"),
+    "risk": ("not 0 < risk_fraction <= 1", "not risk_fraction > 0"),
+}
+
+PROBABILITY_SUITE = r'''
+from fractions import Fraction
+from math import comb
+
+def independent_joint(p, q): return Fraction(p)*Fraction(q)
+def binomial_pmf(n, k, p): return Fraction(comb(n,k))*Fraction(p)**k*(1-Fraction(p))**(n-k)
+def estimate_mean(values): return Fraction(sum(values),len(values))
+def reject_null(observed, null, tolerance): return abs(Fraction(observed)-Fraction(null)) > Fraction(tolerance)
+def bayes(prior, likelihood, false_positive):
+    prior=Fraction(prior); likelihood=Fraction(likelihood); false_positive=Fraction(false_positive)
+    return prior*likelihood/(prior*likelihood+(1-prior)*false_positive)
+def bounded_interval(values): return min(values),max(values)
+
+assert independent_joint(Fraction(1,2),Fraction(1,3)) == Fraction(1,6)
+assert binomial_pmf(4,2,Fraction(1,2)) == Fraction(3,8)
+assert estimate_mean([1,2,6]) == 3
+assert reject_null(12,10,1) and not reject_null(11,10,1)
+assert bayes(Fraction(1,100),Fraction(9,10),Fraction(1,10)) == Fraction(1,12)
+assert bounded_interval([3,1,5,2]) == (1,5)
+print("passed")
+'''
+
+PROBABILITY_MUTATIONS = {
+    "probability": ("Fraction(p)*Fraction(q)", "Fraction(p)+Fraction(q)"),
+    "distributions": ("Fraction(comb(n,k))", "Fraction(n*k)"),
+    "estimation": ("Fraction(sum(values),len(values))", "Fraction(sum(values),len(values)-1)"),
+    "hypothesis_testing": ("> Fraction(tolerance)", ">= Fraction(tolerance)"),
+    "bayesian_reasoning": ("(1-prior)*false_positive", "prior*false_positive"),
+    "uncertainty": ("min(values),max(values)", "max(values),min(values)"),
+}
+
+ACCOUNTING_SUITE = r'''
+from fractions import Fraction
+
+def balanced(entries): return sum(Fraction(row[0]) for row in entries)==sum(Fraction(row[1]) for row in entries)
+def accounting_equation(assets, liabilities, equity): return assets == liabilities+equity
+def contribution(price, variable_cost): return price-variable_cost
+def discounted_cash_flow(cashflows, rate):
+    rate=Fraction(rate)
+    return sum(Fraction(value)/(1+rate)**period for period,value in enumerate(cashflows,1))
+def net_present_value(initial, cashflows, rate): return -Fraction(initial)+discounted_cash_flow(cashflows,rate)
+def runway(cash, monthly_burn):
+    if monthly_burn <= 0: raise ValueError("invalid burn")
+    return Fraction(cash,monthly_burn)
+def approved_payment(requester, approver, amount, limit): return requester != approver and amount <= limit
+
+assert balanced([(100,0),(0,100)]) and not balanced([(100,0)])
+assert accounting_equation(150,70,80) and not accounting_equation(150,80,80)
+assert contribution(150,90) == 60
+assert discounted_cash_flow([110],Fraction(1,10)) == 100
+assert net_present_value(90,[110],Fraction(1,10)) == 10
+assert runway(12000,3000) == 4
+assert approved_payment("alice","bob",500,1000)
+assert not approved_payment("alice","alice",500,1000)
+assert not approved_payment("alice","bob",1500,1000)
+print("passed")
+'''
+
+ACCOUNTING_MUTATIONS = {
+    "bookkeeping": ("sum(Fraction(row[0]) for row in entries)==sum(Fraction(row[1]) for row in entries)",
+                    "sum(Fraction(row[0]) for row in entries)>=sum(Fraction(row[1]) for row in entries)"),
+    "statements": ("assets == liabilities+equity", "assets == liabilities-equity"),
+    "cost_accounting": ("price-variable_cost", "price+variable_cost"),
+    "valuation": ("/(1+rate)**period", "*(1+rate)**period"),
+    "capital_budgeting": ("-Fraction(initial)+discounted_cash_flow", "Fraction(initial)+discounted_cash_flow"),
+    "cash": ("Fraction(cash,monthly_burn)", "Fraction(monthly_burn,cash)"),
+    "controls": ("requester != approver and amount <= limit", "requester == approver or amount <= limit"),
+}
+
+FINANCIAL_MATH_SUITE = r'''
+from fractions import Fraction
+
+def discount(value, rate, periods): return Fraction(value)/(1+Fraction(rate))**periods
+def simple_return(start, end): return Fraction(end-start,start)
+def call_bounds(spot, strike, price): return max(0,spot-strike) <= price <= spot
+def state_price(up_payoff, down_payoff, up_price, down_price):
+    return Fraction(up_price,up_payoff),Fraction(down_price,down_payoff)
+def martingale(values, probabilities): return sum(Fraction(v)*Fraction(p) for v,p in zip(values,probabilities))
+def change_measure(weights):
+    total=sum(map(Fraction,weights)); return [Fraction(w,total) for w in weights]
+def convexity_check(low, high):
+    midpoint=Fraction(low+high,2); return midpoint**2 <= Fraction(low**2+high**2,2)
+def one_step_option(spot_up, spot_down, strike, q, rate):
+    payoff_up=max(0,spot_up-strike); payoff_down=max(0,spot_down-strike)
+    return (Fraction(q)*payoff_up+(1-Fraction(q))*payoff_down)/(1+Fraction(rate))
+
+assert discount(110,Fraction(1,10),1) == 100
+assert simple_return(100,110) == Fraction(1,10)
+assert call_bounds(100,90,15) and not call_bounds(100,90,105)
+assert state_price(2,4,1,1) == (Fraction(1,2),Fraction(1,4))
+assert martingale([80,120],[Fraction(1,2),Fraction(1,2)]) == 100
+assert change_measure([2,3]) == [Fraction(2,5),Fraction(3,5)]
+assert convexity_check(1,3)
+assert one_step_option(121,81,101,Fraction(1,2),Fraction(1,10)) == Fraction(100,11)
+print("passed")
+'''
+
+FINANCIAL_MATH_MUTATIONS = {
+    "discounting": ("/(1+Fraction(rate))**periods", "*(1+Fraction(rate))**periods"),
+    "returns": ("Fraction(end-start,start)", "Fraction(start-end,start)"),
+    "no_arbitrage": ("<= price <= spot", ">= price >= spot"),
+    "state_prices": ("Fraction(up_price,up_payoff),Fraction(down_price,down_payoff)",
+                     "Fraction(up_payoff,up_price),Fraction(down_payoff,down_price)"),
+    "martingales": ("Fraction(v)*Fraction(p)", "Fraction(v)+Fraction(p)"),
+    "change_of_measure": ("Fraction(w,total)", "Fraction(total,w)"),
+    "convexity": ("<= Fraction(low**2+high**2,2)", ">= Fraction(low**2+high**2,2)"),
+    "numerical_pricing": ("/(1+Fraction(rate))", "*(1+Fraction(rate))"),
+}
+
+STRATEGIC_STEWARDSHIP_SUITE = r'''
+from fractions import Fraction
+
+def npv(cashflows, rate):
+    return sum(Fraction(value)/(1+Fraction(rate))**period for period,value in enumerate(cashflows,1))
+def concentration(weights): return max(map(Fraction,weights))
+def dependency_reduction(before, after): return Fraction(before)-Fraction(after)
+def option_value(options): return len(set(options))
+def legitimate(lawful, transparent, harm_reviewed): return lawful and transparent and harm_reviewed
+def approval_gate(valuation, legal, owner, capital): return valuation and legal and owner and capital
+def evidence_score(independent, current, traceable): return sum((independent,current,traceable))
+def scenario_floor(outcomes): return min(map(Fraction,outcomes))
+def platform_dependency(switching_cost, lock_in): return Fraction(switching_cost)+Fraction(lock_in)
+def resilience(redundancy, liquidity, supplier_concentration):
+    return Fraction(redundancy)+Fraction(liquidity)-Fraction(supplier_concentration)
+def incentive_compatible(outcomes): return all(value >= 0 for value in outcomes)
+def exit_trigger(price, intrinsic, thesis_broken):
+    return thesis_broken or Fraction(price) > Fraction(3,2)*Fraction(intrinsic)
+
+assert npv([110],Fraction(1,10)) == 100
+assert concentration([Fraction(1,2),Fraction(1,3),Fraction(1,6)]) == Fraction(1,2)
+assert dependency_reduction(8,3) == 5
+assert option_value(["build","buy","partner","partner"]) == 3
+assert legitimate(True,True,True) and not legitimate(True,False,True)
+assert approval_gate(True,True,True,True) and not approval_gate(True,True,False,True)
+assert evidence_score(1,1,1) == 3
+assert scenario_floor([4,-2,7]) == -2
+assert platform_dependency(3,4) == 7
+assert resilience(5,4,3) == 6
+assert incentive_compatible([2,0,4]) and not incentive_compatible([2,-1,4])
+assert exit_trigger(160,100,False) and exit_trigger(80,100,True) and not exit_trigger(120,100,False)
+print("passed")
+'''
+
+_STRATEGIC_MUTATION_POOL = (
+    ("/(1+Fraction(rate))**period", "*(1+Fraction(rate))**period"),
+    ("max(map(Fraction,weights))", "sum(map(Fraction,weights))"),
+    ("Fraction(before)-Fraction(after)", "Fraction(before)+Fraction(after)"),
+    ("len(set(options))", "len(options)"),
+    ("lawful and transparent and harm_reviewed", "lawful or transparent or harm_reviewed"),
+    ("valuation and legal and owner and capital", "valuation or legal or owner or capital"),
+    ("sum((independent,current,traceable))", "independent*current*traceable"),
+    ("min(map(Fraction,outcomes))", "max(map(Fraction,outcomes))"),
+    ("Fraction(switching_cost)+Fraction(lock_in)", "Fraction(switching_cost)-Fraction(lock_in)"),
+    ("Fraction(redundancy)+Fraction(liquidity)-Fraction(supplier_concentration)",
+     "Fraction(redundancy)-Fraction(liquidity)-Fraction(supplier_concentration)"),
+    ("all(value >= 0 for value in outcomes)", "any(value >= 0 for value in outcomes)"),
+    ("thesis_broken or Fraction(price) >", "thesis_broken and Fraction(price) >"),
+)
+
+def _strategic_mutations(*skills: str) -> dict[str, tuple[str, str]]:
+    return {skill: _STRATEGIC_MUTATION_POOL[index % len(_STRATEGIC_MUTATION_POOL)]
+            for index, skill in enumerate(skills)}
+
+POWER_INSTITUTIONS_MUTATIONS = _strategic_mutations(
+    "institutional_power", "law_and_rules", "legitimacy", "trust", "accountability",
+    "state_capacity", "governance", "power_failure_modes")
+INFORMATION_INTELLIGENCE_MUTATIONS = _strategic_mutations(
+    "intelligence_collection", "source_criticism", "uncertainty", "confidentiality",
+    "narrative_analysis", "attention_systems", "misinformation_defence", "transparency")
+STRATEGIC_ASSET_MUTATIONS = _strategic_mutations(
+    "asset_thesis", "valuation", "control_rights", "optionality", "dependency_reduction",
+    "build_buy_partner", "portfolio_allocation", "exit_discipline")
+TECHNOLOGY_INDUSTRY_MUTATIONS = _strategic_mutations(
+    "technology_forecasting", "industry_structure", "platform_economics", "standards_strategy",
+    "intellectual_property", "compute_data_energy", "manufacturing_scale", "distribution_power")
+NETWORKS_TALENT_MUTATIONS = _strategic_mutations(
+    "alliances", "talent_systems", "organisation_design", "incentive_alignment", "negotiation",
+    "coordination", "culture", "succession")
+RESILIENCE_GEOGRAPHY_MUTATIONS = _strategic_mutations(
+    "geographic_advantage", "logistics", "resource_security", "supply_dependencies",
+    "defensive_security", "scenario_planning", "resilience", "strategic_patience")
+
+CYBER_RANGE_SUITE = r'''
+from hashlib import sha256
+from hmac import compare_digest
+from pathlib import PurePosixPath
+
+def authorized(scope, target):
+    return scope.get("active") is True and scope.get("isolated") is True and target in scope.get("targets", [])
+def safe_path(value):
+    path=PurePosixPath(value); return not path.is_absolute() and ".." not in path.parts
+def parameterized(query, parameters): return "?" in query and len(parameters) == query.count("?")
+def secret_equal(left, right): return compare_digest(left.encode(),right.encode())
+def least_privilege(granted, required, allowed):
+    return set(required) <= set(granted) and set(granted) <= set(allowed)
+def segmented(source, destination, allowed_flows): return (source,destination) in allowed_flows
+def brute_force_detected(failures, window_seconds): return failures >= 5 and window_seconds <= 60
+def contained(compromised, isolated): return compromised <= isolated
+def approved_artifact(payload, expected): return sha256(payload).hexdigest() == expected
+def replay_safe(nonces): return len(nonces) == len(set(nonces))
+def safe_iam(actions, resources): return "*" not in actions and "*" not in resources
+def severity(impact, likelihood): return min(10, max(0, impact*likelihood))
+def disclosure_allowed(authorized_research, minimal_proof, vendor_notified):
+    return authorized_research and minimal_proof and vendor_notified
+def detected(events): return any(row.get("kind")=="denied_access" and row.get("count",0)>=3 for row in events)
+def repaired(vulnerable_failed, patched_passed, variant_passed):
+    return vulnerable_failed and patched_passed and variant_passed
+
+scope={"active":True,"isolated":True,"targets":["lab.local"]}
+assert authorized(scope,"lab.local") and not authorized(scope,"external.example")
+assert safe_path("assets/report.txt") and not safe_path("../../etc/passwd") and not safe_path("/etc/passwd")
+assert parameterized("select * from users where id=?",[7]) and not parameterized("select * from users where id=7",[])
+assert secret_equal("token","token") and not secret_equal("token","other") and not secret_equal("token","tok")
+assert least_privilege({"read"},{"read"},{"read","write"}) and not least_privilege({"admin"},{"read"},{"read","write"}) and not least_privilege(set(),{"read"},{"read"})
+assert segmented("web","api",{("web","api")}) and not segmented("web","db",{("web","api")})
+assert brute_force_detected(6,30) and not brute_force_detected(2,30)
+assert contained({"host-a"},{"host-a","host-b"}) and not contained({"host-c"},{"host-a","host-b"})
+payload=b"signed-package"; assert approved_artifact(payload,sha256(payload).hexdigest())
+assert replay_safe(["a","b"]) and not replay_safe(["a","a"])
+assert safe_iam({"read"},{"bucket/a"}) and not safe_iam({"*"},{"*"})
+assert severity(2,3)==6 and severity(5,3)==10
+assert disclosure_allowed(True,True,True) and not disclosure_allowed(False,True,True)
+assert detected([{"kind":"denied_access","count":4}]) and not detected([{"kind":"login","count":4}])
+assert repaired(True,True,True) and not repaired(True,True,False)
+print("passed")
+'''
+
+_CYBER_MUTATION_POOL = (
+    ('scope.get("active") is True and scope.get("isolated") is True and target in',
+     'scope.get("active") is True or scope.get("isolated") is True or target in'),
+    ('not path.is_absolute() and ".." not in path.parts', 'not path.is_absolute() or ".." not in path.parts'),
+    ('"?" in query and len(parameters) == query.count("?")', '"?" not in query or len(parameters) == 0'),
+    ('compare_digest(left.encode(),right.encode())', 'left.startswith(right)'),
+    ('set(required) <= set(granted) and set(granted) <= set(allowed)', 'set(granted) <= set(required) or set(allowed) <= set(granted)'),
+    ('(source,destination) in allowed_flows', '(source,destination) not in allowed_flows'),
+    ('failures >= 5 and window_seconds <= 60', 'failures < 5 or window_seconds > 60'),
+    ('compromised <= isolated', 'isolated <= compromised'),
+    ('sha256(payload).hexdigest() == expected', 'sha256(payload).hexdigest() != expected'),
+    ('len(nonces) == len(set(nonces))', 'len(nonces) >= len(set(nonces))'),
+    ('"*" not in actions and "*" not in resources', '"*" in actions or "*" in resources'),
+    ('min(10, max(0, impact*likelihood))', 'max(10, impact+likelihood)'),
+    ('authorized_research and minimal_proof and vendor_notified', 'authorized_research or minimal_proof or vendor_notified'),
+    ('row.get("kind")=="denied_access" and row.get("count",0)>=3', 'row.get("kind")=="login" or row.get("count",0)<3'),
+    ('vulnerable_failed and patched_passed and variant_passed', 'vulnerable_failed or patched_passed or variant_passed'),
+)
+
+def _cyber_mutations(*skills: str) -> dict[str, tuple[str, str]]:
+    return {skill: _CYBER_MUTATION_POOL[index % len(_CYBER_MUTATION_POOL)]
+            for index, skill in enumerate(skills)}
+
+APPSEC_MUTATIONS = _cyber_mutations("secure_coding", "authentication", "authorization", "session_security", "injection_defence", "browser_security", "api_security", "security_testing")
+NETWORK_SECURITY_MUTATIONS = _cyber_mutations("network_reconnaissance", "protocol_analysis", "segmentation", "firewalls", "secure_routing", "wireless_security", "vpn_zero_trust", "network_validation")
+CLOUD_SECURITY_MUTATIONS = _cyber_mutations("identity_access_management", "secrets", "cloud_posture", "container_security", "kubernetes_security", "serverless_security", "tenant_isolation", "continuous_assurance")
+ADVERSARY_EMULATION_MUTATIONS = _cyber_mutations("scope_authorization", "reconnaissance", "attack_surface_mapping", "vulnerability_validation", "controlled_exploitation", "privilege_boundary_testing", "evidence_preservation", "remediation_verification")
+REVERSE_ENGINEERING_MUTATIONS = _cyber_mutations("assembly_fundamentals", "debugging", "memory_safety", "binary_formats", "static_analysis", "dynamic_analysis", "exploit_mitigation", "malware_triage")
+DETECTION_RESPONSE_MUTATIONS = _cyber_mutations("telemetry", "detection_logic", "threat_hunting", "triage", "containment", "eradication", "recovery", "post_incident_learning")
+CRYPTO_PROTOCOL_MUTATIONS = _cyber_mutations("cryptographic_primitives", "key_management", "tls", "authentication_protocols", "protocol_state_machines", "nonce_replay_safety", "side_channels", "formal_protocol_review")
+HARDWARE_OT_MUTATIONS = _cyber_mutations("firmware_analysis", "hardware_roots_of_trust", "debug_interfaces", "embedded_networks", "industrial_protocols", "safety_boundaries", "secure_updates", "physical_cyber_incidents")
+DISCLOSURE_MUTATIONS = _cyber_mutations("research_ethics", "authorization", "reproducibility", "severity", "minimal_proof", "vendor_coordination", "embargo", "public_disclosure")
+SECURITY_ARCHITECTURE_MUTATIONS = _cyber_mutations("zero_trust_architecture", "security_controls", "asset_inventory", "vulnerability_management", "supply_chain_assurance", "business_continuity", "metrics", "security_governance")
+BASE_CYBERSECURITY_MUTATIONS = _cyber_mutations("threat_models", "secure_design", "cryptography", "network_security", "identity", "privacy", "incident_response", "supply_chain")
+
+PREDICTION_MARKET_SUITE = r'''
+from fractions import Fraction
+
+def probability(value):
+    value=Fraction(value)
+    if not 0 <= value <= 1: raise ValueError("probability outside unit interval")
+    return value
+def brier(probability_value,outcome): return (probability(probability_value)-int(outcome))**2
+def bayes(prior,likelihood_ratio):
+    prior=probability(prior); odds=prior/(1-prior)
+    posterior_odds=odds*Fraction(likelihood_ratio)
+    return posterior_odds/(1+posterior_odds)
+def net_edge(forecast,price,fee): return probability(forecast)-probability(price)-Fraction(fee)
+def executable(edge,threshold,liquidity,minimum_liquidity):
+    return Fraction(edge) >= Fraction(threshold) and liquidity >= minimum_liquidity
+def capped_fraction(edge,loss_if_wrong,cap=Fraction(1,100)):
+    if loss_if_wrong <= 0: raise ValueError("invalid downside")
+    return min(cap,max(Fraction(0),Fraction(edge)/Fraction(loss_if_wrong)))
+def resolution_valid(source,objective,known_before_close):
+    return bool(source) and bool(objective) and not known_before_close
+def live_authorized(eligible,owner_approved,stake,loss_limit):
+    return bool(eligible and owner_approved and 0 < stake <= loss_limit)
+
+assert probability(Fraction(3,5)) == Fraction(3,5)
+try: probability(Fraction(6,5)); raise AssertionError("invalid probability accepted")
+except ValueError: pass
+assert brier(Fraction(3,4),1) == Fraction(1,16)
+assert bayes(Fraction(1,2),3) == Fraction(3,4)
+assert net_edge(Fraction(7,10),Fraction(3,5),Fraction(1,100)) == Fraction(9,100)
+assert executable(Fraction(3,100),Fraction(2,100),1000,500)
+assert not executable(Fraction(1,100),Fraction(2,100),1000,500)
+assert not executable(Fraction(3,100),Fraction(2,100),100,500)
+assert capped_fraction(Fraction(1,10),1) == Fraction(1,100)
+assert resolution_valid("official_source",True,False)
+assert not resolution_valid("",True,False) and not resolution_valid("official",False,False)
+assert live_authorized(True,True,5,10)
+assert not live_authorized(False,True,5,10) and not live_authorized(True,False,5,10)
+assert not live_authorized(True,True,15,10)
+print("passed")
+'''
+
+_PREDICTION_MUTATION_POOL = (
+    ("not 0 <= value <= 1", "not value >= 0"),
+    ("**2", "**1"),
+    ("odds*Fraction(likelihood_ratio)", "odds/Fraction(likelihood_ratio)"),
+    ("-probability(price)-Fraction(fee)", "+probability(price)-Fraction(fee)"),
+    ("and liquidity >= minimum_liquidity", "or liquidity >= minimum_liquidity"),
+    ("min(cap,max(Fraction(0),Fraction(edge)/Fraction(loss_if_wrong)))", "max(cap,Fraction(edge)/Fraction(loss_if_wrong))"),
+    ("bool(source) and bool(objective) and not known_before_close", "bool(source) or bool(objective) or not known_before_close"),
+    ("eligible and owner_approved and 0 < stake <= loss_limit", "eligible or owner_approved or stake <= loss_limit"),
+)
+
+def _prediction_mutations(*skills: str) -> dict[str, tuple[str, str]]:
+    return {skill: _PREDICTION_MUTATION_POOL[index % len(_PREDICTION_MUTATION_POOL)]
+            for index,skill in enumerate(skills)}
+
+FORECASTING_MUTATIONS = _prediction_mutations("base_rates", "reference_classes", "bayesian_updates", "forecast_decomposition", "proper_scoring_rules", "calibration", "aggregation", "decision_thresholds")
+PREDICTION_MICROSTRUCTURE_MUTATIONS = _prediction_mutations("binary_contracts", "order_books", "implied_probability", "fees_slippage", "liquidity", "position_sizing", "cross_market_coherence", "execution_controls")
+EVENT_RESOLUTION_MUTATIONS = _prediction_mutations("question_decomposition", "source_hierarchy", "resolution_rules", "timeline_evidence", "conflicting_sources", "manipulation_risk", "audit_trail", "settlement_review")
+ELECTIONS_MUTATIONS = _prediction_mutations("electoral_systems", "poll_sampling", "turnout_models", "poll_aggregation", "demographics", "campaign_dynamics", "forecast_error", "institutional_scenarios")
+PREDICTION_DESIGN_MUTATIONS = _prediction_mutations("objective_question_design", "resolution_authority", "market_demand", "manipulation_resistance", "insider_information", "jurisdiction", "proposal_governance", "post_settlement_review")
+
 
 SUBJECT_SUITES: dict[str, tuple[str, dict[str, tuple[str, str]], str]] = {
     "mathematics": (MATH_SUITE, MATH_MUTATIONS, "proof_and_calculation"),
@@ -250,6 +613,32 @@ SUBJECT_SUITES: dict[str, tuple[str, dict[str, tuple[str, str]], str]] = {
     "scientific_method": (SCIENCE_SUITE, SCIENCE_MUTATIONS, "empirical_dataset_or_experiment"),
     "data_statistics": (SCIENCE_SUITE, SCIENCE_MUTATIONS, "data_and_statistical_outcome"),
     "machine_learning_ai": (ML_SUITE, ML_MUTATIONS, "code_and_system_execution"),
+    "markets_investing": (MARKETS_SUITE, MARKETS_MUTATIONS, "market_and_risk_execution"),
+    "probability_statistics": (PROBABILITY_SUITE, PROBABILITY_MUTATIONS, "probability_and_inference"),
+    "accounting_corporate_finance": (ACCOUNTING_SUITE, ACCOUNTING_MUTATIONS, "accounting_and_valuation"),
+    "financial_mathematics": (FINANCIAL_MATH_SUITE, FINANCIAL_MATH_MUTATIONS, "financial_proof_and_pricing"),
+    "power_institutions_legitimacy": (STRATEGIC_STEWARDSHIP_SUITE, POWER_INSTITUTIONS_MUTATIONS, "strategic_stewardship_decision"),
+    "information_intelligence_attention": (STRATEGIC_STEWARDSHIP_SUITE, INFORMATION_INTELLIGENCE_MUTATIONS, "strategic_stewardship_decision"),
+    "strategic_assets_capital_allocation": (STRATEGIC_STEWARDSHIP_SUITE, STRATEGIC_ASSET_MUTATIONS, "strategic_stewardship_decision"),
+    "technology_industry_platforms": (STRATEGIC_STEWARDSHIP_SUITE, TECHNOLOGY_INDUSTRY_MUTATIONS, "strategic_stewardship_decision"),
+    "networks_talent_coordination": (STRATEGIC_STEWARDSHIP_SUITE, NETWORKS_TALENT_MUTATIONS, "strategic_stewardship_decision"),
+    "resilience_geography_long_horizon": (STRATEGIC_STEWARDSHIP_SUITE, RESILIENCE_GEOGRAPHY_MUTATIONS, "strategic_stewardship_decision"),
+    "application_web_api_security": (CYBER_RANGE_SUITE, APPSEC_MUTATIONS, "authorized_cyber_range"),
+    "cybersecurity": (CYBER_RANGE_SUITE, BASE_CYBERSECURITY_MUTATIONS, "authorized_cyber_range"),
+    "network_wireless_security": (CYBER_RANGE_SUITE, NETWORK_SECURITY_MUTATIONS, "authorized_cyber_range"),
+    "cloud_identity_container_security": (CYBER_RANGE_SUITE, CLOUD_SECURITY_MUTATIONS, "authorized_cyber_range"),
+    "adversary_emulation_penetration_testing": (CYBER_RANGE_SUITE, ADVERSARY_EMULATION_MUTATIONS, "authorized_cyber_range"),
+    "exploit_analysis_reverse_engineering": (CYBER_RANGE_SUITE, REVERSE_ENGINEERING_MUTATIONS, "authorized_cyber_range"),
+    "detection_threat_hunting_incident_response": (CYBER_RANGE_SUITE, DETECTION_RESPONSE_MUTATIONS, "authorized_cyber_range"),
+    "cryptography_protocol_security": (CYBER_RANGE_SUITE, CRYPTO_PROTOCOL_MUTATIONS, "authorized_cyber_range"),
+    "hardware_embedded_ot_security": (CYBER_RANGE_SUITE, HARDWARE_OT_MUTATIONS, "authorized_cyber_range"),
+    "security_research_disclosure": (CYBER_RANGE_SUITE, DISCLOSURE_MUTATIONS, "authorized_cyber_range"),
+    "security_architecture_operations": (CYBER_RANGE_SUITE, SECURITY_ARCHITECTURE_MUTATIONS, "authorized_cyber_range"),
+    "probabilistic_forecasting_calibration": (PREDICTION_MARKET_SUITE, FORECASTING_MUTATIONS, "governed_prediction_market"),
+    "prediction_market_microstructure": (PREDICTION_MARKET_SUITE, PREDICTION_MICROSTRUCTURE_MUTATIONS, "governed_prediction_market"),
+    "event_evidence_resolution_research": (PREDICTION_MARKET_SUITE, EVENT_RESOLUTION_MUTATIONS, "governed_prediction_market"),
+    "elections_polling_public_opinion": (PREDICTION_MARKET_SUITE, ELECTIONS_MUTATIONS, "governed_prediction_market"),
+    "prediction_market_design_compliance": (PREDICTION_MARKET_SUITE, PREDICTION_DESIGN_MUTATIONS, "governed_prediction_market"),
 }
 
 

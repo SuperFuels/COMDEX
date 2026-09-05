@@ -1,0 +1,312 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=25mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{aionblue}{HTML}{2368FF}
+\definecolor{aiongreen}{HTML}{16834A}
+\definecolor{aionred}{HTML}{C52F46}
+
+\title{\textbf{AION Device Fabric}\\Games and Education Proof-of-Concept Supplement}
+\author{Tessaris / AION Technical Record}
+\date{29 August 2026\\Fabric implementation version 0.14.0}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This supplement records two application proofs implemented on top of the AION
+Device Fabric: a governed cloud-gaming surface and an interactive Spanish
+learning centre.  Neither proof requires additional television hardware.  The
+existing LG webOS television is represented by a permissioned gateway, the
+laptop operates as the mother node, and an iPhone provides a private control
+surface.  The proofs demonstrate that a restricted television can become a
+room-scale surface for composed intelligence, external services, local state,
+and cross-device interaction.
+\end{abstract}
+
+\section{Common Fabric Substrate}
+
+Both applications reuse the same Device Fabric rather than installing separate
+systems.  The relevant topology is:
+
+\begin{center}
+\begin{tabular}{c}
+User intent (voice, television remote, or private phone)\\
+$\downarrow$\\
+AION mother brain (planning, policy, memory, and audit)\\
+$\downarrow$\\
+Signed capability boundary and webOS gateway\\
+$\downarrow$\\
+LG television browser or third-party television application\\
+$\updownarrow$\\
+Private iPhone controller and, where supported, LG Mobile Gamepad
+\end{tabular}
+\end{center}
+
+The mother brain retains the intelligence, policies, service state, and audit
+evidence.  The television receives a temporary, token-protected presentation
+surface.  The phone receives a separate private companion token and CSRF
+secret.  Television display state therefore does not contain the webOS pairing
+key, COMDEX credentials, payment data, or private service credentials.
+
+\section{AION Games}
+
+\subsection{Objective and demonstrated result}
+
+AION Games composes an existing television, the NVIDIA GeForce NOW web client,
+the AION webOS gateway, and a phone-based controller into a low-hardware cloud
+gaming experience.  A command such as \emph{``Pilot, open games''} causes AION
+to open the allowlisted GeForce NOW surface at
+\texttt{https://play.geforcenow.com/}.  Game rendering and streaming remain an
+NVIDIA service; AION supplies discovery, navigation, private text delivery,
+controller composition, and governance.
+
+The proof established that a compatible household television can expose a
+large cloud-game catalogue without a console.  The user still requires a valid
+NVIDIA account, any applicable subscription, a supported game entitlement,
+sufficient network quality, and a controller path accepted by the television
+and streaming service.
+
+\subsection{Execution flow}
+
+\begin{enumerate}[leftmargin=*,label=\arabic*.]
+  \item A voice or phone command is parsed as the governed
+        \texttt{open\_games} intent.
+  \item The mother selects the enrolled LG gateway and verifies that the
+        games capability is present.
+  \item The webOS adapter opens the fixed GeForce NOW URL in the television
+        browser and records a verified action receipt.
+  \item The private phone companion supplies directional navigation, OK,
+        back, pointer movement, pointer click, and game search controls.
+  \item If typed sign-in is necessary, the user enters the username or
+        password on the phone.  AION sends that value once to the currently
+        focused television field.  The value is cleared from the form and is
+        not placed in the Fabric audit ledger.
+  \item CAPTCHA, two-factor authentication, legal consent, account selection,
+        purchases, and the final sign-in decision remain explicit user acts.
+  \item Once a stream begins, gameplay input can transfer to the LG Mobile
+        Gamepad or another controller exposed by the platform.
+\end{enumerate}
+
+\subsection{Control and trust boundaries}
+
+The GeForce NOW URL is allowlisted; arbitrary URL execution is not granted by
+the games command.  The TV touchpad exists because some third-party pages
+require pointer input, but it does not authorize AION to accept contracts,
+purchase subscriptions, defeat access controls, or infer consent.  Account
+secrets are intentionally excluded from normal Fabric state, telemetry,
+screen projection, and audit receipts.
+
+The phone controller is delivered on the private LAN through a rotating
+session URL.  Each state-changing request carries a CSRF value, is rate
+limited, returns to the mother brain, and passes through the same signed TV
+policy used by voice commands.  A phone waking from sleep performs bounded
+retries and a state refresh; loss of a transient browser connection therefore
+does not create a new television enrollment.
+
+\subsection{Implemented components}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+Component & Responsibility\\
+\midrule
+\texttt{runtime.py} & Governed companion commands, games capability routing,
+and signed action policy.\\
+\texttt{webos\_gateway.py} & LG pairing, application and browser launch,
+remote-key delivery, pointer input, and verified receipts.\\
+\texttt{companion.py} & Private remote, touchpad, one-shot credential delivery,
+game search input, reconnect behaviour, and CSRF enforcement.\\
+\texttt{tv\_canvas.py} & Room-scale AION Games status and phone-pairing
+projection.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Proof boundary and production work}
+
+The proof demonstrates composition, not a replacement for NVIDIA, LG, or game
+licensing.  Browser compatibility, codec support, controller exposure, network
+latency, service-region restrictions, account status, and vendor UI changes
+remain external dependencies.  A production release requires TLS on the phone
+surface, durable device discovery, controller compatibility testing across LG
+and Samsung models, accessible sign-in handoff, service health monitoring, and
+clear subscription and data-use disclosures.
+
+\section{AION Education: Spanish Learning Centre}
+
+\subsection{Objective and demonstrated result}
+
+The Spanish Learning Centre is a dedicated television application surface for
+children approximately six to eight years old who speak English and are
+learning Spanish.  It combines pictures, spoken Spanish, multiple-choice
+interaction, immediate correction, gamified progress, adaptive repetition,
+and short conversations.  The proof demonstrates that the same Fabric used to
+control a restricted television can also host a stateful, personalised
+learning experience.
+
+\subsection{Learning model}
+
+The current curriculum contains foundational greetings, kind words, food and
+drink, home, school, people, and feelings.  Each word card contains a canonical
+identifier, Spanish form, English meaning, category, and visual cue.  For
+example, \emph{manzana} is presented together with an apple image cue.  Every
+fourth round is a short conversation challenge rather than a vocabulary card.
+
+Two anonymous local learner profiles are provided.  Each profile maintains:
+
+\begin{itemize}[leftmargin=*]
+  \item attempts and correct answers;
+  \item stars and current answer streak;
+  \item per-card mastery values;
+  \item a 50-question session score; and
+  \item the current lesson phase and round.
+\end{itemize}
+
+Cards with lower mastery are selected earlier.  A correct answer raises card
+mastery and an incorrect answer reduces it slightly, causing weak material to
+return sooner.  This is deliberately a small deterministic adaptive loop for
+the proof; it does not claim to be a validated educational assessment model.
+
+\subsection{Television interaction}
+
+The dedicated application is served at the temporary Fabric path
+\texttt{/tv/<session>/education}.  It exposes large focusable answer controls,
+visual cues, score and question progress, and controller connection status.
+Input is accepted from legacy webOS remote key codes, normal browser arrow and
+Enter events, or the browser Gamepad API when LG exposes a compatible gamepad.
+
+After selection, the interface:
+
+\begin{enumerate}[leftmargin=*,label=\arabic*.]
+  \item disables further answers for the current round;
+  \item shows a green tick for a correct answer or a red cross for an
+        incorrect answer;
+  \item always identifies the correct answer;
+  \item updates the score, stars, streak, attempts, and mastery;
+  \item speaks the feedback; and
+  \item advances automatically after speech finishes, with a bounded timeout
+        fallback.
+\end{enumerate}
+
+Automatic advancement includes the expected round number.  The mother rejects
+a duplicate or stale advance from a second browser or reconnecting controller,
+preventing accidental skipped questions.  Periodic state refreshes also
+preserve the currently focused answer instead of rebuilding focus every cycle.
+
+\subsection{Natural speech pipeline}
+
+The television does not need native speech synthesis.  It requests the current
+bounded lesson phrase from the mother at
+\texttt{/education/audio}.  The mother applies the following provider chain:
+
+\begin{enumerate}[leftmargin=*]
+  \item configured ElevenLabs \texttt{eleven\_multilingual\_v2} natural voice;
+  \item configured OpenAI \texttt{gpt-4o-mini-tts} natural voice;
+  \item local macOS Spanish speech as an offline fallback.
+\end{enumerate}
+
+Cloud requests contain only the fixed lesson phrase, limited to 240
+characters.  They do not contain a child's name, recorded voice, microphone
+audio, profile history, answer history, or household identity.  Returned audio
+is limited to 2 MB and cached only in process memory with a bounded 96-entry
+cache.  The television interface discloses that the natural learning voice is
+AI-generated.  The audio control also permits an explicit \emph{Hear AI voice
+again} action.
+
+\subsection{State, actions, and security}
+
+Persistent learning state is stored beneath the Fabric runtime directory in
+\path{education/learning_centre.json}.  State writes use a temporary file
+followed by an atomic replacement.  The public session projection removes the
+hidden correct-answer index before it is sent to a client.
+
+The television action endpoint accepts only \texttt{start}, \texttt{answer},
+\texttt{next}, and \texttt{repeat}.  Requests must include the independent
+\texttt{X-AION-Education} session secret and remain below the request-size
+limit.  The phone uses the separate companion token and CSRF secret.  Education
+actions are recorded in the Fabric audit chain without recording private
+speech or credentials.
+
+The child-safety posture currently enforces no child account, no advertising,
+no open-web link, no purchase path, and no retained raw voice.  Learner labels
+are abstract local profiles rather than legal identities.  The mother
+microphone can remain physically closed while the lesson's output voice
+continues to operate.
+
+\subsection{Implemented components}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+Component & Responsibility\\
+\midrule
+\texttt{education.py} & Curriculum, anonymous profiles, mastery selection,
+50-question sessions, scoring, feedback, and atomic persistence.\\
+\texttt{tv\_canvas.py} & Dedicated visual learning application, remote and
+gamepad mapping, protected actions, natural speech delivery, focus retention,
+and automatic progression.\\
+\texttt{companion.py} & Phone-based answers, lesson controls, private session
+state, and wake/reconnect behaviour.\\
+\texttt{runtime.py} & Education capability registration and governed routing
+from voice or phone intent.\\
+\texttt{cli.py} & Live service composition, television lesson handler, audit
+events, and stale-advance protection.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Verified proof status}
+
+At the time of this record, the implementation has demonstrated:
+
+\begin{itemize}[leftmargin=*]
+  \item discovery, pairing, and verified control of the LG webOS television;
+  \item launch of a dedicated learning page on the television;
+  \item persistent independent progress for two anonymous learners;
+  \item remote, phone, and compatible gamepad answer navigation;
+  \item picture-supported vocabulary and conversation rounds;
+  \item correct/incorrect visual feedback and explicit correction;
+  \item automatic, duplicate-safe progression;
+  \item natural Spanish speech with provider fallback;
+  \item phone reconnection after browser sleep; and
+  \item 127 passing automated Fabric tests with a valid audit chain.
+\end{itemize}
+
+\subsection{Remaining production work}
+
+The next education phase should replace pictographic cues with a curated,
+licensed illustration library; expand the curriculum and sentence model;
+introduce age-appropriate difficulty bands; test pronunciation and regional
+Spanish variants with educators; add parent-visible learning summaries;
+measure retention across days; add accessibility controls; prefetch speech to
+remove first-play latency; and conduct child-safety, privacy, and educational
+efficacy review.  Natural speech providers also require explicit account,
+quota, disclosure, retention, and offline-mode configuration in a consumer
+installer.
+
+\section{Conclusion}
+
+The two proofs show the same architectural result from different directions.
+AION Games composes a television, cloud service, phone, and controller into a
+new entertainment surface.  AION Education composes the television, local
+learner state, visual interaction, adaptive sequencing, and natural speech
+into a new household learning surface.  The television is therefore not the
+intelligence host by necessity; it is a governed room-scale endpoint of the
+Fabric, while the mother brain supplies intelligence, memory, permissions,
+recovery, and evidence.
+
+\end{document}

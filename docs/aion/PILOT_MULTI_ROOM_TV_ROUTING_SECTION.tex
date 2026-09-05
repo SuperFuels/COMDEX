@@ -1,0 +1,58 @@
+\section{Multi-Room Television Routing and Verified Handoff}
+\label{sec:pilot-multi-room-tv}
+
+Pilot Fabric 0.37 introduces the mother-brain contract for households containing
+more than one television.  Each enrolled television remains an independent
+Fabric node; the mother stores a local mapping from node identity to a unique
+human room name, current endpoint and optional default status.  The mapping does
+not duplicate the television's pairing secret and is not exported to other
+mother brains.
+
+\subsection{Deterministic Target Resolution}
+
+The phrases \emph{this TV}, an exact room name and an omitted target have distinct
+semantics.  \emph{This TV} resolves only when the requesting surface supplies its
+node identity.  A room name must match exactly one registered television.  An
+omitted target uses one explicit default or, in a single-TV household, the sole
+registered device.  Missing and ambiguous resolutions fail closed rather than
+operating whichever device was most recently active.
+
+Room names are entered on the persona-bound private controller.  They are limited
+to bounded household-readable text and must be unique.  Endpoint changes update
+the existing node record while preserving its room identity, allowing the normal
+webOS rediscovery and self-healing path to coexist with stable room commands.
+
+\subsection{Verified Playback Handoff}
+
+A handoff from one room to another is represented by
+\texttt{pilot.tv-handoff.v1}.  Preparation requires signed provider telemetry
+that establishes a title and an active playing state for the requesting persona.
+The bounded record contains source node, destination node and room, provider,
+content identifier, title and position.  It explicitly records that credentials
+were not projected and destination playback has not been established.
+
+Pilot hashes this scope and presents it on the private phone.  The owner must
+confirm the same handoff identifier, persona and hash.  A successful decision
+advances the state only to
+\texttt{approved\_pending\_destination\_adapter}.  The operation is not described
+as complete until a separately authorized destination adapter opens the provider
+and supplies fresh signed playback evidence.  Thus a network delivery receipt is
+not confused with visible playback success.
+
+\subsection{Isolation and Replay Protection}
+
+Room and handoff stores are mother-local and bounded.  A handoff prepared for one
+persona cannot be confirmed by another.  A confirmation is single-use; attempts
+to repeat it after the state changes fail.  Audit records include node, room,
+handoff identifier, state and verification flags but no credentials or raw
+provider response.
+
+\subsection{Universal Nodes and Remaining Field Work}
+
+The room registry complements the universal-node handshake.  A device node can
+lease capabilities independently to more than one trusted mother without being
+reinstalled, while each mother retains its own room naming, preferences and
+persona-bound service state.  The present release establishes and tests the
+routing and approval boundary.  Actual two-room handoff and synchronized-surface
+testing require a second enrolled television plus an authorized provider adapter
+on the destination; those conditions are not fabricated in a single-TV home.

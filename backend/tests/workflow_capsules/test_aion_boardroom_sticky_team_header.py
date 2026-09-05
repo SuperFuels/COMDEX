@@ -15,7 +15,7 @@ def test_spatial_room_collapses_into_sticky_executive_presence():
     assert 'data-aion-boardroom-full-room-region="true"' in spatial
     assert '${fullRoomExpanded ? "" : "hidden"}' in spatial
     assert 'data-aion-boardroom-sticky-team-header="true"' in spatial
-    assert "Board in session" in spatial
+    assert "Board in session" not in spatial
     for department in ("marketing", "sales", "finance", "operations", "support", "hr"):
         assert f'key: "{department}"' in spatial
 
@@ -77,7 +77,7 @@ def test_sticky_boardroom_header_is_responsive_and_visually_distinct():
     assert "position: sticky" in STYLES
     assert "top: 0" in STYLES
     assert "backdrop-filter: blur(18px)" in STYLES
-    assert '[data-aion-boardroom-sticky-member][data-active="true"]' in STYLES
+    assert '.aion-executive-sticky-header .aion-executive-sticky-member[data-active="true"]' in STYLES
     assert "@media (max-width: 1080px)" in STYLES
     assert "@media (max-width: 760px)" in STYLES
 

@@ -1,0 +1,16 @@
+{
+  "schema_version": "aion.sales_lead_response.policy.v1",
+  "department": "sales",
+  "purpose": "respond_to_admitted_inbound_leads",
+  "default_mode": "prepare_for_review",
+  "external_send_requires": [
+    "exact_recipient_resolution",
+    "exact_content_approval",
+    "unexpired_private_approval",
+    "authorized_delivery_adapter"
+  ],
+  "pricing_claims_require_business_map_evidence": true,
+  "customer_content_may_not_enter_package_state": true,
+  "model_may_not_write_canonical_memory": true,
+  "verified_delivery_receipt_required": true
+}

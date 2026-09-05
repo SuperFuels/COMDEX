@@ -1,0 +1,249 @@
+\section{GlyphNet Unified Inbox: Encrypted Pilot-to-Pilot Work}
+
+The first Unified Inbox vertical slice connects Pilot's existing personal task authority to an
+encrypted mother-to-mother transport.  It proves the intended product behaviour: one person can
+ask Pilot to give another person a task; the recipient's Pilot can receive it privately; and the
+recipient decides whether it becomes their task.  No browser development token, static Wave
+identity or shared television utterance grants messaging authority.
+
+\subsection{Authority boundaries}
+
+The implementation deliberately preserves two separate responsibilities.  The established
+Pilot Inbox remains authoritative for personal lists, tasks, reminders and recipient
+acceptance.  The Unified Inbox bridge is responsible for encrypted transport, message
+envelopes, delivery receipts, replay prevention and reconciliation between mother brains.  A
+verified incoming proposal is imported into the recipient's Pilot Inbox exactly once and remains
+awaiting recipient acceptance until that recipient acts from a trusted phone.
+
+Every private operation is bound to the mobile trust system described in the preceding section.
+The phone certificate and current capability lease must validate, the requested scope must be
+present, the request persona must match the certificate persona, and the phone must sign the exact
+canonical request.  Removing the phone from Production Private Identity therefore blocks later
+message, task and response operations immediately.
+
+\subsection{Encrypted peer relationship}
+
+Each mother brain maintains two independent key roles:
+\begin{itemize}
+  \item its existing Ed25519 identity signs descriptors, packets and receipts; and
+  \item a dedicated X25519 transport key establishes encryption keys for Inbox payloads.
+\end{itemize}
+
+A peer descriptor contains the mother identifier, signing public key, transport public key and
+issue time.  The descriptor is Ed25519 signed and verified before it enters the local trusted-peer
+registry.  Private keys remain in owner-only local files.
+
+Each outbound packet uses a new ephemeral X25519 key.  The sender combines that key with the
+recipient mother's transport public key, then derives a 256-bit content key through HKDF-SHA-256.
+The message or structured task is encrypted with AES-256-GCM.  Packet routing metadata is supplied
+as authenticated additional data, and the complete packet is signed by the sending mother.  The
+recipient verifies the packet hash, signature, intended mother and intended persona before
+decryption.  Changing any destination, ciphertext or routing field causes the operation to fail.
+
+The local Unified Inbox state also encrypts message bodies and task titles with AES-256-GCM.
+Receipts contain identifiers, states, timestamps and evidence hashes, never message text or task
+content.  The existing personal task store still retains the accepted task information required
+to operate the user's task list; it is not copied into a public chain or transport journal.
+
+\subsection{Typed-message flow}
+
+For an ordinary Pilot-to-Pilot message, the sender's phone signs an idempotent request containing
+the exact sender, recipient, recipient mother and message body.  The sender mother checks
+\texttt{message.send}, encrypts one recipient-specific packet and records the local encrypted
+envelope.  The receiving mother verifies, decrypts and stores one encrypted local copy.  Repeating
+the same request returns the original message; reusing its idempotency key with different content
+is rejected.
+
+\subsection{Structured task flow}
+
+The task journey is intentionally more explicit:
+\begin{enumerate}
+  \item The sender chooses one resolved Pilot recipient and describes the task.
+  \item Pilot creates an encrypted prepared action and computes a scope hash over the sender,
+  recipient, destination mother, title and personal space.
+  \item The private phone displays that exact scope.  Sending requires a new signed approval whose
+  scope hash still matches the prepared task.
+  \item The sender mother encrypts and signs one task packet and records a private delivery receipt.
+  \item The recipient mother verifies and decrypts the packet, then imports one pending delegation
+  into the recipient's established Pilot task store.
+  \item The recipient independently accepts or declines from a phone holding
+  \texttt{task.respond}.  Acceptance makes the local task open; decline leaves it declined.
+  \item The recipient mother signs a content-free response receipt.  The sender mother verifies
+  the peer signature and reconciles its copy to the same state.
+\end{enumerate}
+
+Knowledge of the sender's contact name is not sufficient authority, and receipt of a task is not
+treated as acceptance.  A shared screen may show a privacy-safe count but cannot expose or accept
+the private request without the recipient's active identity and phone authority.
+
+\subsection{Replay, isolation and failure behaviour}
+
+Durable idempotency records prevent duplicate sender actions across retries.  Durable packet
+identifiers prevent duplicate imports after reconnection.  A repeated valid packet returns the
+existing object instead of creating a second message or task.  Reusing an idempotency key for
+different content, modifying an encrypted packet, using an untrusted mother, reading another
+persona's stream or acting from a revoked phone fails closed.
+
+The automated vertical-slice exercise creates two isolated mothers, two private identities and two
+independently paired phones.  It sends an encrypted task from Alice to Bob, proves that neither the
+sender's persisted transport state nor the network packet contains the task title, verifies the
+single import, accepts it on Bob's phone and reconciles the signed receipt back to Alice.  Separate
+tests cover encrypted typed messages, duplicate retries, transport tampering, cross-person access
+and lost-phone revocation.
+
+\subsection{Remaining Stage 4 work}
+
+The coded vertical slice is operational, but Stage~4 is not yet formally closed.  One field gate
+remains explicitly open:
+\begin{itemize}
+  \item exercise text, voice-note and push-to-talk reconnection without duplication on real phones.
+\end{itemize}
+
+PHO, PhotonPay, wallets, balances, staking, bonds and minting remain excluded from the Unified
+Inbox feature policy and routes.  The encrypted communications foundation does not activate the
+dormant economic layer.
+
+\subsection{Live mobile binding}
+
+The mobile reference application is now bound to the production pairing boundary rather than a
+visual pairing simulation.  The phone first retrieves the mother's short-lived discovery
+descriptor over trusted HTTPS and verifies its Ed25519 signature, endpoint and fingerprint.  It
+then creates or reuses a non-extractable browser-held Ed25519 possession key and requests one
+five-minute challenge for the active persona.  The mother displays the six-digit confirmation
+locally; the API never returns that code to the phone.
+
+After the user checks the displayed trust words and enters the local code, the phone signs the
+complete challenge.  The mother verifies possession, consumes the challenge exactly once and
+returns a signed phone certificate plus an eight-hour, least-privilege lease.  The phone verifies
+both mother signatures before retaining the connection in protected IndexedDB storage.  A copied
+code without the original phone key cannot complete the exchange.
+
+The same HTTPS service now exposes a persona-bound Unified Inbox stream.  A request must contain
+the signed certificate and current lease and must carry \texttt{inbox.read}; the mother rejects
+expired, revoked, cross-person or scope-incomplete connections.  Only after this check does the
+mobile Inbox replace preview cards with that person's decrypted messages, task proposals and
+content-free receipts.  If discovery, certificate validation, lease validation or Inbox loading
+fails, the interface says that the preview remains active or that reconnection is required.  It
+does not present fixture content as a live personal stream.
+
+This completes the secure polling boundary and the phone-to-Inbox product binding.  It does not
+close Stage~4: encrypted attachments, unified search, voice notes and push-to-talk remain
+intentionally open.
+
+\subsection{Authenticated live delivery and reconnection}
+
+The Inbox now has a dedicated TLS WebSocket channel alongside the signed HTTPS action boundary.
+The discovery descriptor advertises the live address only when the service is active, and the
+phone accepts it only when it uses \texttt{wss}, names the same verified mother host and exposes
+the exact versioned Inbox path.
+
+Opening the socket is not authentication.  The first frame contains a narrowly defined request
+with the persona, device, lease, fresh nonce and last observed Inbox revision.  The phone signs
+that request with its non-extractable possession key.  The mother validates the certificate,
+active lease, \texttt{inbox.read} scope, identity binding, device binding, lease binding and phone
+signature before sending any private item.  An unknown origin, altered request, copied
+certificate without its key, expired lease or revoked phone closes with a policy violation.
+
+After authentication the mother sends only revisions newer than the phone's cursor.  The phone
+retains the last applied revision during a connection, reconnects with bounded exponential
+backoff and supplies that cursor in its newly signed opening request.  The server reports the
+resume revision and explicitly records zero replayed duplicates.  A separate signed polling
+request remains available as a recovery path when WebSocket transport is unavailable.
+
+Live sockets are read-only notification surfaces.  They cannot send a message, accept a task or
+perform an external action.  Every mutation continues through a separately scoped, signed and
+idempotent action request.  This separation prevents a long-lived display connection from
+becoming ambient authority.
+
+\subsection{Bilateral task lifecycle}
+
+The structured-task flow now continues beyond first delivery and acceptance.  A sender may
+correct the task title or cancel the request while it remains active.  Those changes are carried
+to the recipient mother as new authenticated and encrypted task-update packets.  The recipient
+verifies the sending mother, destination persona and original action relationship before changing
+either the private Unified Inbox projection or the authoritative Pilot task record.
+
+The recipient may mark the request read, accept or decline it, snooze an accepted task, complete
+it, report a bounded failure or record expiry after the declared deadline.  These state changes
+return to the sender as Ed25519-signed receipts.  Receipts contain the action identifier, state,
+time and evidence hash but never the task title or other private content.  The sender verifies the
+trusted peer signature and destination mother before reconciling its own copy.
+
+All phone mutations use a canonical signed request and a durable idempotency key.  Repeating the
+same request returns its original receipt; reusing its key for different content fails closed.
+Packet identifiers similarly suppress repeated imports after transport reconnection.  Automated
+two-mother tests cover correction, duplicate update delivery, read, accept, snooze, completion,
+cancellation, failure, expiry, altered receipts and synchronization with the existing personal
+task authority.  The reference phone interface exposes only state-appropriate controls so that a
+recipient cannot correct the sender's request and a sender cannot accept work on the recipient's
+behalf.
+
+\subsection{Encrypted attachments and unified private search}
+
+The same Inbox can now carry bounded document, text and image attachments.  Before sending, Pilot
+normalizes the filename, accepts only an explicit media-type allowlist, rejects empty or oversized
+content and computes a SHA-256 digest over the exact bytes.  The bytes are included only inside
+the recipient-specific X25519 and AES-GCM packet.  The network envelope therefore exposes routing
+metadata and ciphertext, not the file or its filename.
+
+Each mother stores its local copy as a separate AES-256-GCM blob with owner-only filesystem
+permissions.  The attachment identifier, owner and content hash form authenticated additional
+data.  Opening a file requires a fresh request signed by a phone with \texttt{inbox.read}; Pilot
+then confirms that the phone's persona is a participant in the parent message.  Authentication
+failure, an altered blob, a changed network packet, a disallowed media type, an invalid filename
+or a size above one megabyte fails closed.  The mobile client receives verified bytes only after
+that check and creates a short-lived local download URL which it revokes after use.
+
+Inbox search is similarly executed behind the persona-bound read authority.  It decrypts only
+that person's bounded recent window and searches messages, task titles and attachment filenames
+as one mixed result set.  Filters for all items, messages, tasks and files change the projection,
+not the underlying data owner.  Results are capped at fifty and ordered by creation time.  No
+plaintext search index, provider-side content copy or separate files Inbox is created.
+
+Automated evidence covers encrypted storage and transport, successful recipient retrieval,
+content-hash verification, local-blob and packet tampering, media-type rejection, cross-person
+denial and mixed search filtering.  Actual peer delivery still uses the surrounding Pilot
+transport adapter; adding a file does not grant the mobile display ambient send authority.
+
+\subsection{Encrypted voice notes and production push-to-talk authority}
+
+Voice notes now use the authenticated Inbox attachment channel rather than a parallel audio
+store.  The sender supplies an allowlisted audio format, a duration between one tenth of a second
+and two minutes, and no more than 1.5 megabytes of encoded audio.  Retention is constrained to a
+minimum of five minutes and a maximum of seven days, with one day as the default.  The mother
+encrypts the bytes before local persistence, transports them only inside the recipient-specific
+authenticated packet, and refuses to release expired content.  On expiry its local encrypted
+blob is removed; raw microphone audio is not written to logs or a public proof rail.
+
+Push-to-talk is governed by a short-lived floor issued by the mother brain.  Acquisition names one
+exact recipient and conversation, and the floor is bound to the active persona, signed phone
+device identifier and capability-lease identifier.  A different browser, phone, persona or lease
+cannot renew, release or attach audio to that floor.  The floor lasts fifteen seconds, can be
+renewed only by its holder, expires before the next floor decision when abandoned, and is released
+atomically when its voice note is accepted.  Durable idempotency prevents repeated press, renew,
+release or send requests from creating duplicate state.
+
+The mobile control makes this lifecycle visible.  Pressing and holding requests the governed
+floor before opening the microphone; recording is visibly indicated and the floor renews during a
+long hold.  Release stops the recorder and all microphone tracks, submits one encrypted note and
+refreshes the Inbox.  Failure also stops local capture and relinquishes the floor.  Playback first
+performs a fresh possession-authorized attachment read and uses a temporary local object URL.
+
+\subsection{Structured reminder, follow-up, calendar and document-review cards}
+
+Four additional private envelope types now share the same signed and encrypted mother-to-mother
+path.  Reminder and follow-up cards require an exact due time.  Calendar cards require parseable
+start and end times with the end strictly after the start.  Document-review cards carry a bounded
+title and private detail without pretending that a document provider has been changed.  The
+receiver verifies the encrypted card hash before rendering it in the unified chronological Inbox.
+
+These cards are proposals, not execution receipts.  Their transport does not send an email,
+create a provider calendar event, schedule an operating-system notification or modify a document.
+Those effects remain subject to their respective provider adapters, exact private approval and
+verified execution receipts.  Automated two-mother evidence covers encrypted voice delivery,
+retention and duration bounds, floor replay, device and lease isolation, forced floor expiry and
+replacement, all four card types, card search and invalid calendar scope.
+
+Stage~4 therefore has all seventeen coded items implemented.  Formal closure still waits for one
+real-phone field exercise in which text, voice-note and push-to-talk delivery reconnect without a
+duplicate.  This unresolved physical test remains recorded rather than being replaced by a mock.

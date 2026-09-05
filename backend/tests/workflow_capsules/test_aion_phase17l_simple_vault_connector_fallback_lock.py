@@ -11,10 +11,10 @@ def test_phase17l_vault_connector_fallback_exists() -> None:
     assert "data-aion-phase17l-vault-connector-fallback" in text
     assert "Fallback panel active" in text
 
-def test_operations_flow_can_call_phase17l_connector_panel() -> None:
+def test_operations_flow_no_longer_renders_the_legacy_connector_panel() -> None:
     text = source()
-    call_index = text.find("renderAionPhase17LSimpleVaultConnectorPanel")
     surface_index = text.find("function renderOperationsFlowSurface")
-    assert call_index != -1
+    surface_end = text.find("function readAionBusinessFoundationStorage", surface_index)
+    surface = text[surface_index:surface_end]
     assert surface_index != -1
-    assert call_index < surface_index
+    assert "renderAionPhase17LSimpleVaultConnectorPanel()" not in surface

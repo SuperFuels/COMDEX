@@ -212,6 +212,38 @@ def _composer_known_facts_from_turn_ctx(turn_ctx: Dict[str, Any]) -> List[str]:
                 f"{_truncate_text(answer, 240)}"
             )
 
+    task_intelligence = dict(governed.get("task_intelligence") or {})
+    for item in list(task_intelligence.get("canonical_truth") or [])[:5]:
+        claim = dict(item.get("claim") or {}) if isinstance(item, dict) else {}
+        if claim:
+            facts.append(
+                "Canonical verified claim: "
+                f"{claim.get('subject')} {claim.get('predicate')} {claim.get('object')}"
+            )
+    for item in list(task_intelligence.get("experiential_memory") or [])[:4]:
+        if not isinstance(item, dict):
+            continue
+        lesson = item.get("lesson") or item.get("experience_claim")
+        facts.append(
+            "Relevant prior experience "
+            f"({item.get('capsule_id') or 'unknown'}): "
+            f"{_truncate_text(lesson or item.get('title') or '', 240)}"
+        )
+    skills = [
+        str(item.get("name") or item.get("skill_id") or "")
+        for item in list(task_intelligence.get("required_skills") or [])[:8]
+        if isinstance(item, dict)
+    ]
+    if skills:
+        facts.append(f"Task-relevant skills selected before execution: {', '.join(skills)}")
+    gaps = [str(v) for v in list(task_intelligence.get("missing_capabilities") or [])[:8]]
+    if gaps:
+        facts.append(f"Known execution capability gaps: {', '.join(gaps)}")
+    if task_intelligence.get("encountered_unverified"):
+        facts.append(
+            "Unverified encountered material exists for this task; use it only as a research lead, never as fact."
+        )
+
     # dedupe preserve order
     out: List[str] = []
     for f in facts:
@@ -261,6 +293,13 @@ def _composer_goals_from_turn_ctx(turn_ctx: Dict[str, Any]) -> List[str]:
     if "prefer_meta_reflection" in hints:
         goals.append("provide concise meta reflection grounded in state")
 
+    governed = dict(turn_ctx.get("hexcore_governance") or {})
+    task_intelligence = dict(governed.get("task_intelligence") or {})
+    if task_intelligence.get("status") == "prepared":
+        goals.append("reuse relevant verified experience and recorded lessons before improvising")
+        goals.append("use canonical claims as facts and keep unverified encounters labelled as research leads")
+        goals.append("report a required capability honestly when no verified executor is available")
+
     # Deduplicate while preserving order
     out: List[str] = []
     for g in goals:
@@ -298,6 +337,9 @@ def _composer_source_refs(turn_ctx: Dict[str, Any]) -> List[str]:
         refs.append("hexcore:pattern_engine")
     if governed.get("tessaris_rules") and "hexcore:tessaris_rules" not in refs:
         refs.append("hexcore:tessaris_rules")
+    task_intelligence = dict(governed.get("task_intelligence") or {})
+    if task_intelligence.get("trace_id") and "hexcore:task_intelligence" not in refs:
+        refs.append("hexcore:task_intelligence")
 
     return refs
 
@@ -2185,6 +2227,9 @@ class ConversationOrchestrator:
                 "reasoning_providers": list(governed_context.reasoning_providers),
                 "cognitive_foundation": dict(governed_context.cognitive_foundation),
                 "learning_layers": dict(getattr(governed_context, "learning_layers", {}) or {}),
+                "task_intelligence": dict(
+                    getattr(governed_context, "task_intelligence", {}) or {}
+                ),
             }
 
         # Phase D Sprint 2: read-only learning context (debug/trace + compact metadata summary)

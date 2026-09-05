@@ -94,6 +94,26 @@ class MissionCapabilityActionHarness:
             except (OSError, ValueError, TypeError):
                 retained = {}
         self.routing_policy = {**DEFAULT_ROUTING_POLICY, **retained, **dict(routing_policy or {})}
+        # A promoted routing policy may improve recall, but it must not weaken
+        # the precision floor that prevents a generic token (for example
+        # "dependency" or "allocation") from importing unrelated domains.
+        # These are governance bounds, not tournament-tunable hyperparameters.
+        self.routing_policy["semantic_floor"] = max(
+            float(DEFAULT_ROUTING_POLICY["semantic_floor"]),
+            float(self.routing_policy["semantic_floor"]),
+        )
+        self.routing_policy["peak_ratio"] = max(
+            float(DEFAULT_ROUTING_POLICY["peak_ratio"]),
+            float(self.routing_policy["peak_ratio"]),
+        )
+        self.routing_policy["minimum_overlap"] = max(
+            int(DEFAULT_ROUTING_POLICY["minimum_overlap"]),
+            int(self.routing_policy["minimum_overlap"]),
+        )
+        self.routing_policy["maximum_subjects"] = min(
+            int(DEFAULT_ROUTING_POLICY["maximum_subjects"]),
+            max(1, int(self.routing_policy["maximum_subjects"])),
+        )
 
     def _explicit_requirements(self, plan: Mapping[str, Any]) -> list[str]:
         raw = plan.get("required_capabilities") or plan.get("capability_requirements") or []

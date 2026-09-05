@@ -7,6 +7,8 @@ from backend.modules.aion_business.runtime.telephony_credentials import (
     get_retell_agent_id,
     get_retell_api_key,
     get_retell_from_number,
+    retell_api_key_present,
+    set_retell_api_key,
 )
 
 
@@ -48,3 +50,19 @@ def test_retell_nonsecret_runtime_values_prefer_environment(monkeypatch):
 
     assert get_retell_agent_id("homefixed") == "agent-env"
     assert get_retell_from_number("homefixed") == "+34950000000"
+
+
+def test_retell_key_is_written_to_workspace_keychain(monkeypatch):
+    stored = []
+    monkeypatch.setattr(keyring, "set_password", lambda service, account, value: stored.append((service, account, value)))
+
+    set_retell_api_key("homefixed", "retell-secret")
+
+    assert stored == [(RETELL_KEYCHAIN_SERVICE, "homefixed", "retell-secret")]
+
+
+def test_retell_passive_presence_uses_environment_without_reading_keychain(monkeypatch):
+    monkeypatch.setenv("RETELL_API_KEY", "environment-secret")
+    monkeypatch.setattr(keyring, "get_password", lambda *_args: (_ for _ in ()).throw(AssertionError("secret read")))
+
+    assert retell_api_key_present("homefixed") is True

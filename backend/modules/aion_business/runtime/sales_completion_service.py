@@ -30,6 +30,7 @@ from backend.modules.aion_business.runtime.telephony_credentials import (
     get_retell_from_number,
 )
 from backend.modules.aion_business.runtime.twilio_credentials import (
+    get_twilio_credential_readiness,
     get_twilio_account_sid,
     get_twilio_api_secret,
     get_twilio_api_username,
@@ -647,13 +648,10 @@ class SalesCompletionService:
             })
         except Exception:
             pass
-        twilio_account = get_twilio_account_sid(workspace_id)
-        twilio_username = get_twilio_api_username(workspace_id)
-        twilio_secret = get_twilio_api_secret(workspace_id)
-        twilio_from = get_twilio_from_number(workspace_id)
-        twilio_trunk = get_twilio_trunk(workspace_id)
-        twilio_credentials_ready = bool(twilio_account and twilio_username and twilio_secret)
-        twilio_ready = bool(twilio_credentials_ready and twilio_from)
+        # Passive workspace rendering must never unlock a Keychain secret.
+        # Credential values are read only inside the approved execution path.
+        twilio = get_twilio_credential_readiness(workspace_id)
+        twilio_ready = bool(twilio["configured"])
         return {
             "gmail": gmail,
             "hubspot": hubspot,
@@ -661,11 +659,11 @@ class SalesCompletionService:
                          "provider_write_enabled": gmail.get("live_draft_ready", False),
                          "guest_notifications_automatic": False},
             "sms": {"provider": "twilio", "configured": twilio_ready,
-                    "credential_ready": twilio_credentials_ready,
-                    "phone_number_configured": bool(twilio_from),
-                    "carrier_number_configured": bool(get_twilio_carrier_number(workspace_id)),
-                    "verified_caller_id_configured": bool(get_twilio_caller_id(workspace_id)),
-                    "sip_trunk_configured": all(twilio_trunk.values()),
+                    "credential_ready": twilio["credential_ready"],
+                    "phone_number_configured": twilio["phone_number_configured"],
+                    "carrier_number_configured": twilio["carrier_number_configured"],
+                    "verified_caller_id_configured": twilio["verified_caller_id_configured"],
+                    "sip_trunk_configured": twilio["sip_trunk_configured"],
                     "live_send_enabled": bool(twilio_ready and str(os.getenv("AION_SALES_LIVE_SMS_ENABLED") or "").lower() in {"1", "true", "yes"})},
             "telephone": {"provider": "retell", "configured": bool(get_retell_api_key() and get_retell_from_number() and get_retell_agent_id()),
                           "agent_configured": bool(get_retell_agent_id()),

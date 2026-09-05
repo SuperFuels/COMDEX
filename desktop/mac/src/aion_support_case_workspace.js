@@ -1,7 +1,7 @@
 (function installAionSupportWorkspace(global) {
   'use strict';
   const API = 'http://127.0.0.1:8080';
-  const state = { workspaceId: '', data: null, voice: null, actorId: '', selectedId: '', panel: '', busy: false, error: '', message: '' };
+  const state = { workspaceId: '', data: null, voice: null, actorId: '', selectedId: '', panel: '', busy: false, loading: false, loadedAt: 0, error: '', message: '' };
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[ch]));
   const label = (value) => String(value || '').replaceAll('_', ' ').replace(/\b\w/g, (ch) => ch.toUpperCase());
   const businessId = () => global.AionBusinessContainerClient?.resolveBusinessId?.()
@@ -74,16 +74,27 @@
     document.head.appendChild(style);
   }
 
-  async function load() {
-    const id = businessId(); if (!id || !mount()) return; state.workspaceId = id;
+  async function load(requireVisibleMount = true) {
+    const id = businessId(); if (!id || (requireVisibleMount && !mount())) return; state.workspaceId = id;
+    if (state.loading) return;
+    state.loading = true;
     try {
       const [data, voice] = await Promise.all([
         request(`/api/aion/support/${encodeURIComponent(id)}`),
         request(`/api/aion/support/${encodeURIComponent(id)}/voice`).catch(() => null),
       ]);
-      state.data = data; state.voice = voice || null; render();
+      state.data = data; state.voice = voice || null; state.loadedAt = Date.now();
+      if (requireVisibleMount) {
+        render();
+      } else {
+        // Only background dashboard hydration announces that its data is ready.
+        // A visible Support load must not request a whole-application redraw:
+        // that replaces this mount and used to make the Case Centre disappear.
+        global.dispatchEvent(new CustomEvent('aion:support-workspace-updated', { detail: { workspaceId: id } }));
+      }
     }
     catch (error) { state.error = error.message; if (state.data) render(); }
+    finally { state.loading = false; }
   }
   function render() { const root = mount(); if (!root || !state.data) return; styles(); const old = root.querySelector('[data-aion-support-cases]'); if (old) old.outerHTML = markup(); else root.insertAdjacentHTML('afterbegin', markup()); }
   async function post(path, body, message, method='POST') { state.busy=true; state.error=''; render(); try { await request(path,{method,body:JSON.stringify(body)}); state.message=message; state.panel=''; await load(); } catch(e){state.error=e.message;} finally{state.busy=false;render();} }
@@ -131,9 +142,32 @@
     if(form.dataset.scwForm==='escalate') return post(`${base}/cases/${encodeURIComponent(state.selectedId)}/escalate`,{destination:value.destination,reason:value.reason,assigned_person_id:value.assigned_person_id||null,escalated_by_person_id:state.actorId},'Case escalated internally.');
     if(form.dataset.scwForm==='resolve') return post(`${base}/cases/${encodeURIComponent(state.selectedId)}/resolve`,{outcome:value.outcome,evidence_reference:value.evidence_reference,authority_type:value.authority_type,resolved_by_person_id:state.actorId},'Verified resolution recorded.');
   });
-  const attemptMount = () => { const id=businessId(); if(mount()&&id&&(state.workspaceId!==id||!state.data))load(); };
+  const attemptMount = () => {
+    const root = mount();
+    const id = businessId();
+    if (!root || !id) return;
+    if (state.workspaceId === id && state.data) {
+      // A legitimate parent render may replace the mount. Restore from the
+      // canonical in-memory snapshot immediately instead of flashing blank or
+      // fetching again.
+      if (!root.querySelector('[data-aion-support-cases]')) render();
+      return;
+    }
+    if (!state.loading) load();
+  };
   new MutationObserver(attemptMount).observe(document.documentElement, { childList: true, subtree: true });
   global.addEventListener('load', attemptMount);
-  setInterval(attemptMount, 1000);
-  global.AionSupportCaseWorkspace={load};
+  attemptMount();
+  function ensureDashboardData() {
+    const id = businessId();
+    if (!id) return Promise.resolve(null);
+    if (state.workspaceId === id && state.data && Date.now() - state.loadedAt < 30000) return Promise.resolve(state.data);
+    return load(false);
+  }
+  function openCase(caseId) {
+    state.selectedId = String(caseId || '');
+    state.panel = '';
+    render();
+  }
+  global.AionSupportCaseWorkspace={load,ensureDashboardData,openCase,snapshot:()=>state.data};
 })(window);
