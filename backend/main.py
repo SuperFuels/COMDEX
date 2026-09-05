@@ -48,6 +48,7 @@ from fastapi import FastAPI, APIRouter, Request, HTTPException, WebSocket, WebSo
 from backend.api.workflow_architect_router import router as workflow_architect_router
 from backend.api.vault_router import router as vault_router
 from backend.api.boardroom_provider_router import router as boardroom_provider_router
+from backend.api.aion_inference_router import router as aion_inference_router
 from backend.api import workflow_capsule_router
 from backend.api import workflow_glyph_router
 from fastapi.middleware.cors import CORSMiddleware
@@ -258,6 +259,7 @@ app.include_router(workflow_glyph_router.router)
 app.include_router(workflow_architect_router)
 app.include_router(vault_router)
 app.include_router(boardroom_provider_router)
+app.include_router(aion_inference_router)
 
 RUNTIME_DIR = Path(".runtime").resolve()
 

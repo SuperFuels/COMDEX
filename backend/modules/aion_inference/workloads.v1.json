@@ -1,0 +1,68 @@
+{
+  "schema_version": "aion.inference.workloads.v1",
+  "cases": [
+    {
+      "case_id": "arithmetic-001",
+      "category": "simple_arithmetic",
+      "prompt": "Return only the result of 437 + 286.",
+      "quality_check": {"type": "contains_all", "values": ["723"]},
+      "max_output_tokens": 16
+    },
+    {
+      "case_id": "business-profit-001",
+      "category": "structured_business_calculation",
+      "prompt": "A job has revenue of EUR 4000, material cost EUR 1700, and labour cost EUR 900. State the profit and profit margin on revenue, briefly.",
+      "quality_check": {"type": "contains_all", "values": ["1400", "35"]},
+      "max_output_tokens": 192
+    },
+    {
+      "case_id": "classification-001",
+      "category": "classification",
+      "prompt": "Classify this request as QUOTE, BOOKING, PAYMENT, or OTHER. Return one label only: 'Please price a 24 square metre tiled patio.'",
+      "quality_check": {"type": "contains_all", "values": ["QUOTE"]},
+      "max_output_tokens": 16
+    },
+    {
+      "case_id": "document-interpretation-001",
+      "category": "document_interpretation",
+      "prompt": "Read the note and state the only authorised next action: 'Customer wants an estimate. No booking is authorised. Do not take payment. A human must approve the quotation.'",
+      "quality_check": {"type": "contains_all", "values": ["approve", "quotation"]},
+      "max_output_tokens": 64
+    },
+    {
+      "case_id": "planning-001",
+      "category": "planning",
+      "prompt": "Give a concise, ordered plan to measure whether a local inference optimisation reduces latency without reducing answer quality.",
+      "quality_check": {"type": "human_review"},
+      "max_output_tokens": 128
+    },
+    {
+      "case_id": "tool-selection-001",
+      "category": "tool_selection",
+      "prompt": "Choose one tool only for exact arithmetic over a known formula: CALCULATOR, WEB_SEARCH, or LANGUAGE_MODEL.",
+      "quality_check": {"type": "contains_all", "values": ["CALCULATOR"]},
+      "max_output_tokens": 16
+    },
+    {
+      "case_id": "novel-reasoning-001",
+      "category": "novel_reasoning",
+      "prompt": "A routing system saves 80 ms on 70% of requests but adds 25 ms on every request. Begin with the numeric mean latency change and whether it is beneficial, then explain in one sentence.",
+      "quality_check": {"type": "contains_all", "values": ["31", "beneficial"]},
+      "max_output_tokens": 256
+    },
+    {
+      "case_id": "long-context-001",
+      "category": "long_context",
+      "prompt": "Policy A: quotations need human approval; bookings require explicit customer consent; payments require a second confirmation. Context: the customer asked for an estimate, rejected scheduling, and supplied measurements. Summarise the allowed next action and preserve every restriction.",
+      "quality_check": {"type": "contains_all", "values": ["quotation", "human", "booking", "payment"]},
+      "max_output_tokens": 96
+    },
+    {
+      "case_id": "repeat-profit-002",
+      "category": "repeated_task_variation",
+      "prompt": "Compute job profit from EUR 5200 revenue, EUR 2100 materials, and EUR 1300 labour. Return only the numeric profit with no workings or explanation.",
+      "quality_check": {"type": "regex", "pattern": "1[,.]?800"},
+      "max_output_tokens": 128
+    }
+  ]
+}

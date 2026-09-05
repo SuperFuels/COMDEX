@@ -1,0 +1,128 @@
+from __future__ import annotations
+
+import json
+
+import pytest
+
+from backend.modules.aion_inference import (
+    AdaptiveInferenceRuntime,
+    ContextSelector,
+    VerifiedCalculationRouter,
+)
+
+
+@pytest.mark.parametrize(
+    ("prompt", "intent", "expected"),
+    [
+        ("What is 15% of 240?", "CALCULATE_PERCENTAGE", {"value": "36", "unit": "scalar"}),
+        ("Calculate the area of 5 m by 4 m.", "CALCULATE_RECTANGLE_AREA", {"area": "20", "unit": "m²"}),
+        ("Calculate volume of 5 m by 4 m by 2.5 m.", "CALCULATE_RECTANGULAR_VOLUME", {"volume": "50", "unit": "m³"}),
+        ("Convert 2.5 metres to centimetres.", "CONVERT_LENGTH", {"value": "250", "unit": "cm"}),
+        ("Calculate the area of 10 ft by 12 ft.", "CALCULATE_RECTANGLE_AREA", {"area": "11.1483648", "unit": "m²"}),
+    ],
+)
+def test_verified_calculation_catalog(prompt, intent, expected):
+    result = VerifiedCalculationRouter().route(prompt)
+    assert result.route == "verified_atomsheet"
+    assert result.model_call_required is False
+    assert result.intent == intent
+    assert result.structured_result == expected
+    assert result.proof_receipt["inverse_verified"] is True
+    assert result.proof_receipt["model_calls"] == 0
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "What percentage should I use?",
+        "Calculate the area of 5 m.",
+        "Calculate the area of -5 m by 4 m.",
+        "Convert roughly a few metres to centimetres.",
+        "Calculate volume of 5 m by 4 m.",
+    ],
+)
+def test_ambiguous_or_invalid_calculations_require_model(prompt):
+    result = VerifiedCalculationRouter().route(prompt)
+    assert result.route == "full_model"
+    assert result.model_call_required is True
+    assert result.proof_receipt["gate_passed"] is False
+
+
+def test_adaptive_runtime_mints_then_replays_verified_result(tmp_path):
+    runtime = AdaptiveInferenceRuntime(
+        replay_path=tmp_path / "replay.sqlite3",
+        trace_path=tmp_path / "trace.jsonl",
+    )
+    prompt = "What is 15% of 240?"
+    first = runtime.route(prompt)
+    second = runtime.route(prompt)
+
+    assert first.route == "verified_atomsheet"
+    assert first.proof_receipt["replay_hit"] is False
+    assert second.route == "verified_replay"
+    assert second.answer == first.answer == "36"
+    assert second.proof_receipt["replay_hit"] is True
+    assert second.model_call_required is False
+
+    events = [json.loads(line) for line in (tmp_path / "trace.jsonl").read_text().splitlines()]
+    assert [event["route"] for event in events] == ["verified_atomsheet", "verified_replay"]
+    assert all(event["model_call_required"] is False for event in events)
+
+
+def test_context_selection_deduplicates_and_never_drops_policy_for_size_limit():
+    selector = ContextSelector()
+    selection = selector.select(
+        "Prepare the patio quotation",
+        [
+            "Patio dimensions are 5 m by 4 m.",
+            "Patio dimensions are 5 m by 4 m.",
+            "Policy: a human must approve every quotation.",
+            "The office coffee machine is blue.",
+            "Do not take payment and do not make a booking.",
+        ],
+        max_bytes=140,
+    )
+    combined = " ".join(selection.selected)
+    assert combined.count("Patio dimensions") == 1
+    assert "human must approve" in combined
+    assert "Do not take payment" in combined
+    assert selection.policy_passages_preserved == 2
+    assert selection.selected_utf8_bytes < selection.original_utf8_bytes
+
+
+def test_full_model_fallback_preserves_policy_context_and_emits_trace(tmp_path):
+    runtime = AdaptiveInferenceRuntime(
+        replay_path=tmp_path / "replay.sqlite3",
+        trace_path=tmp_path / "trace.jsonl",
+    )
+    result = runtime.route(
+        "Write a customer response. Do not book or take payment; human review is required.",
+        context=[
+            "Customer asked about a patio.",
+            "Policy: quotations must receive human approval.",
+            "Unrelated warehouse note.",
+        ],
+    )
+    assert result.route == "full_model"
+    assert result.model_call_required is True
+    assert "BOOKING_PROHIBITED" in result.fallback_prompt
+    assert "PAYMENT_PROHIBITED" in result.fallback_prompt
+    assert "HUMAN_REVIEW_REQUIRED" in result.fallback_prompt
+    assert "quotations must receive human approval" in result.fallback_prompt
+    event = json.loads((tmp_path / "trace.jsonl").read_text().strip())
+    assert event["route"] == "full_model"
+    assert event["model_call_required"] is True
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "What is 15% of 240 and then book the job?",
+        "What is 15% of 240 and 20% of 100?",
+        "Convert 2 m to cm and send the result by email.",
+    ],
+)
+def test_fast_path_rejects_compound_or_multiple_requests(prompt):
+    result = VerifiedCalculationRouter().route(prompt)
+    assert result.route == "full_model"
+    assert result.model_call_required is True

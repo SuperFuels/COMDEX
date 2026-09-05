@@ -1,0 +1,19 @@
+{
+  "schema_version": "aion.atomsheet.v1",
+  "sheet_id": "aion.profit.basic.v1",
+  "intent": "CALCULATE_PROFIT",
+  "required_inputs": ["revenue", "materials", "labour"],
+  "operations": {
+    "profit": "revenue - materials - labour",
+    "margin_percent": "profit / revenue * 100"
+  },
+  "validity": {
+    "single_currency": true,
+    "revenue_must_be_positive": true,
+    "costs_must_be_non_negative": true,
+    "maximum_absolute_input": 1000000000000
+  },
+  "precision": "decimal",
+  "verification": "independent_inverse_sum",
+  "fallback_route": "full_model"
+}
