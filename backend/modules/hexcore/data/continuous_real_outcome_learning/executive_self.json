@@ -2387,12 +2387,2184 @@
       "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
       "mode": "work",
       "recorded_at": "2026-08-20T11:05:59.541065+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:93e158889fb5ba69f3ec79ccc0015f8e362064b723424ecb66358cd89034cf5d",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-20T13:11:40.838398+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:92473267635d8a3adadb78261b3752dfafafb199b3af5ff4f2153b6893aa844d",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-20T15:57:06.738301+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f6a20a691af6bdf6d9461893ba3dd02dbd0b5e9a8cf9ccef9a0f425585b3ee4c",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-20T17:40:49.806238+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:2cc4d8d06a506cc2e2bbfacdee8ce2e5685d03924ca06995ea4aea23cdce2856",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-20T20:18:22.380397+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:893695cc60d487c1189804d7e8a8ffa513bd843dc1a38d4614a2b2d7f186475e",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-20T22:21:34.642616+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:ccbe0e34e623dbeafa5637ed80f40b40edcd21bda28f7bef9b78c5e823681b31",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-20T23:54:54.235610+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:de43bbef4fda084612a0be90ecf4c877b132fc52c5f5dee0179af65cb07857f0",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-21T01:59:04.527695+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:43b2a57111f7701999bcca8d7d270d5b1bb6c0239a61c974f2332c49b402b70e",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-21T04:17:32.790625+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:80508b0b16c83b8c6c1b75ef274e03d5c0d63cb3c63aaa7d0ccdd5fec8de34e8",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-21T06:20:08.237650+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:67c78e76764569ee99e4366b7d2e38b7f80d1f8c8bdf1b229756242aef42a8c2",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-21T08:21:43.467846+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:e7be9cdbe422dc8d43d58775e41cf90c278c627fdfe2aa849952d8a2e5f15797",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-21T10:31:24.816569+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:b396c125a671366d2d4b4f4beae5314ce83511bd88d8c40b32f7f23398cce2ce",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-21T12:26:21.915058+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:175eb5ef0271940be993d0383fc99916d6d19358434206000912b2ebdd0f70ab",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-21T14:38:51.350027+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:c0a5822952b4659166b4a734cddd88facc9a3a10454dc15c944bc1fe34adda18",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-21T16:42:01.674552+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:d9558d8fe719a67f14f8071fd9769d89b870317c0345c6583cdd96ed177d9572",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-21T19:16:29.026890+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:b0832919ca03fa72dfbed32ed3610e773eff02a18ae7da1195f67087011f4c50",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-21T20:43:13.460743+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:09c4eed2cd47304cee18fb0619a7db2e8eb050ed05de0e01c696f1ebe2275d56",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-21T22:45:15.083906+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:821fa8912e9c638a73cd2deddf186413bf246a13e63b205f6bca1292ec092ec3",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T01:01:04.554441+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:fd28ef6e6e4ec6abe032908d71dc0796e247b3182969c23def124252f53e8219",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T03:14:45.300946+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:8d1da9e065f43b5449e141d6fd03945bc5517495a9d83d0bd1e5e4ffaea3cdaf",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T05:17:00.103757+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:a9664835edb7f203f04885a60df2d02f141edaed6d08a93db17683f69caffa1c",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T07:15:44.097048+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:d0e64cd8eac8875bb412caa9932c6fa7d6bb8c74d9a3f2cd760a4bd423a4bb27",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T09:18:55.094411+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:c3693feebee7df4caf0179305100913a9ffeba4ee9d4af732941087cf75eb97f",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T12:00:17.770010+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:cf1d5c12c400c129973cf9375259a95ddc384ec4bf7c25669fd9df94336e0388",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T13:30:27.078747+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:4b228ff704324aa56bfca419c2f81e69c351c44e462f1cd32407f47af8647e02",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T15:57:00.232701+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:1f178ad48b52befc7bd98f0fc06d649dd33d562f6af8e8cbc378d3d98d06fbc7",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T17:40:15.056819+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f6c3498604f00d68b5965c63f18e76f4eb1d2799eee5c1eb86c504557d69ee41",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T18:05:53.321683+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:a259c48afd58c34edabf0f38b13b5f50e398e7f3bc789ffe161b04872c4e2cc5",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T20:02:59.004508+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:4d129c84375d3168ae99b701a54f781488267aefd8916e0604926c70ca4b8881",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-22T22:01:20.665581+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:563826fe1869b50934fa3a9e8d441a857345abd338d3379636be8d9a5956d0cd",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T00:42:21.991585+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:20a0582610a67e9b3c3baf088cdf14262d104eebc6702ecb494ad44c023c6b53",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T02:49:08.618947+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:06150fb217be72363e9aa72f30bad164550b0352b59affbaa69652b69b8384d5",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T04:51:02.605514+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:eae82f76e43a059d1b34484ffa9d6b3b394d92629df8a260026ad9bcc57d3a55",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T06:27:41.419451+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:19599ec08b62e6f71a29158c430e98bedc7f17b3d98b0f66991bbc11b1f98d03",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T09:17:20.643848+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f48fe73190139846068852dbf585d01ee655e0ef1c2dcaf5895cdf755f16b50c",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T11:41:32.183385+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:5d18116105f4599644f3bc26cce3824ed592c92e53f56c15acf8f7604a509c39",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T13:56:13.094406+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:e394db99febc23c4cfd241fb4d16959a5be1cdce566cb1883c6b382277fa9a39",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T14:56:42.771141+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:620d5874ed0c98e859e8b6994de58ede0eb07b67196a2ae3050527bade1942ab",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T17:42:48.323607+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:fc0bd09c6d2c553b125d5bed641ae0d90f5bad14a9d68a0c6caf5b2ce20ea521",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T19:08:55.267451+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:d834914b48e07ea4e0e5be5c46c60d2b731d46fafbd518209ee9f0a069c9936e",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T21:06:47.570846+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:59a11d7d6018701e01745dae2c0687703528968485656f9bc46d8afc1ada60e3",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-23T23:51:05.149480+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f1268358b8097c3f340be4e96646b10cd7a073d58c95ceabe0e029dafbe03afb",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-24T02:12:16.853298+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:bf461302ede36a9820aa3a944c940ce8b6d337f84dfc17b636ccf5bf34492536",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-24T03:29:09.544535+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:a41713d6cc74e0194be878c009be3de26f97eb208c63bbd0cd454f3d447ff484",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-24T05:38:48.508822+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:7928e181354f67d5075f4040bc445cc1208e5b4ce6e9c65cf0feb19976caa498",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-24T07:39:35.001936+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f3fb40547a51cfa7649027b5b1b482520b4ee04229764406a2b93b93a2d93231",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-24T09:52:58.733192+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:c02f6c207baa267005595d7e51a09a44343665ea9bbed36ec94a270bea6e51d8",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-24T12:56:03.238136+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:3faece578ad6e10449274233517ef73604acf58b7e462ab2455b9bc5aab62f96",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-24T14:05:21.930291+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:7715c8600156da0d2d21ac08c0a452cc461941a615eb7ab6bcc879f38c18a862",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-24T16:15:16.303088+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:537e0fa37c42a9581841685321c6edecc503536dfb1078d6022604623c0101a5",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-24T18:23:34.947413+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:17888d5e3aed6c3e27b41517ade21d56ddd86ed95da4caa51d804e8f4c5ee5af",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-24T20:17:45.951221+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:351732aef320b31899034c46faf60c807cb9a9e3a3d8ff7d00ddeadb8f777f42",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-24T23:26:28.142354+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:b16890693773b12212e897542bb9329d4e29212cd24191ec615784889f88edc7",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-25T00:27:12.964783+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:65642345ebb7c2c8637cffd17d7e055c65c123b5c780b0c1bbd8dbe9d3f144c7",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-25T03:05:53.562789+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:0db9d2d99930951bbd7da3569a5a3a7acc919e0ee2a357d08676e87f41d9b6d1",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-25T04:31:20.187069+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:97d8858f2d3344667a7df309ae0aa8340254837d6efb2b1444050224e2113d9d",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-25T06:28:01.440868+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:dcc27f4688ea2e4372503e73234f770654cb14f55d7706391c4668e9acf3b0bd",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-25T08:42:16.907642+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f6b55fa6c2910d1ad802eb27350a55710083c92e99bfc4b6f8673a612eb4ac50",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-25T10:39:42.990662+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:22eedc5b2e751f7f0b16640f0489000c07af622fe8ae6916647b9c704371543f",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-25T14:21:43.749237+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:eb8be1df41296bae788e717849d000f79d6893d11232d53083cc952b9daa4e7c",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-25T15:47:11.821363+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:5973a65c99a4177531ec88f6029e56f578eacd9175caf00d390def991238decd",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-25T17:46:58.342433+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:8f4093688bcbbdc32e47a487b9d0a894305355bacc5b2df41286e50510999482",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-25T19:48:30.638148+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:a938cb195fa56e024be289ff499ce1b8c3a1c31d6fe3525249b4804f2a14c679",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-25T21:45:30.234421+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:fb5234b42dde663d480ec79652fe68d320b89c29b7e5c46f83125b7d6bd3ee2d",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T00:21:43.751159+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:690af47b3e7e712654074dec1ec08831156d9ccbd36201a5a2a3c7246b776ccf",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T02:17:19.808830+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:e030717b81dc8e7b989ed3dead5312553228e8ae2feabeea3fb805b72f394ba6",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T04:42:33.125231+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:a3cad22e8cf0c85f57afcb7935fbfd8fa6088e92f34446cd40d80006f21499a4",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T06:45:45.664129+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:e8066bfddf433cebcd570e21c50ada948b70235f989efc8c5c8bfc7589251356",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T08:53:45.817674+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:133d44b0b0d4909a50edf6b10930c5ddd171abe3baad388787818d3aa4e328ba",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T11:11:53.328455+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:9b8c663cddaaf978cbbade424334dc4c5a157a11e1e85dc7371c172796ae9eed",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T13:25:59.997949+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:1c609fe7135439693e12b6cdcf5dd3aaddf538f867add3a493e50d30594972e5",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T15:27:40.521864+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:b2fa135429fbeeb66d65bee13bb9c905a46dc74ba604c37d7e98447956050329",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T16:58:54.847183+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:18d6ac3570895d78068cbf65cdf003ef42290252a50dc9eaaf312775a31d4ba7",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T18:55:49.916664+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:e3d48c5d7f8fb00004ea145081bdbd38aa1c19fd869d7ef0ca0361f6996da894",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T21:00:42.567737+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:d622a4d0ea5b08d4f188d84283590acaceaf1f99643ec118989cb10a1db20824",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-26T23:32:17.104096+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:faca18e7758d8ae46f60c15fcc9c4fe5737f470d04d99c3850524fcd80c215e4",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-27T02:32:43.268424+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:e2d84da17d2eb03af47f13576914b1ab011f4d0f28a080e8183cc38fa1135a01",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-27T03:25:10.202687+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:b41973416cc4cc49ac094eba1b0d43d7e20526bd354c1b293bd9b97acf990ac6",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-27T05:26:33.523911+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:16139484273f48ea9ab0334a8df62289bd14fd13ff311d6ce6696bc13c8faadb",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-27T07:47:54.727865+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:e12927d807ebb42b903cc1404f9087e76c22f70ef2f1b3060158be1e081ba40c",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-27T09:45:29.453943+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:b2911167e6ff1e06688c324d3fd173419e5dcac9aa5b2fb74c4413d2e6e42238",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-27T11:57:43.617166+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:b7e3906c2f32f408fc55d4d783be250955e9016482ae8c06fb9b3fe789b3e265",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-27T13:44:13.294073+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:ae65ff05e072098245b23df00edeffa5db5a04a39a6307abff3c120f73d7259e",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-27T16:29:49.606231+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:754182b9b1ea4a47bb4e3d4342fff7c40daa08f20bc6dff8e519ae1b1c180ae6",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-27T18:10:30.347057+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:8af1a7abf0f22a1c3f253e99f9b1309e2fd6f94c54fe36a29691f0b04df32a84",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-27T19:54:50.304701+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:c4ec0020b25804472640f4c83c71c5fb64adbf57234de79b3ed619369eb0e723",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-28T05:23:36.523533+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:19beb2c7af74b7192422e69e7f544ad309f66c95c51642d7c3845ca7c47dc75c",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-28T06:36:56.148459+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:eb9e8f46d6ab63363a2510394ca38161b920f8ca88d6e21876ed80114bcb3d73",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-28T08:50:13.908694+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:5cb2ff15b56b047c963111287b7a74eed722c516405533d72722493f55bfe8f9",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-28T10:52:25.707006+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:fda3cd2f12104f975e1cbbba5e0d8ba163cc199fdb66aa7df13611eb83521736",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-28T12:54:36.774721+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:034a28b998c6676834bd0f2812cc1f12ac994a871bb145f51223d4ea946f74f7",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-28T14:44:47.295082+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f4a111f60c0b2435c15f359509fbea4afeed165dc18fad064e2bd0373db7fe91",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-28T16:49:41.412633+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:7b7f8abea595509e9d85acac2190579a25da25c973e1005010d4f744bb26bff4",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-28T18:42:41.691850+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:88c6ae9bb33ae48ef8993a14536cf9074b2719d6bcc0d3a1718fd2aa8ddc4ffa",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-28T20:40:38.168591+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:0f0969e9233f0d9ca8aec88443f2a76f8bc9733deb515df6fae4fd84d713ac01",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-28T22:42:00.442042+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:8b2deed35a01ad03fe05acd500c4700962d26d36797cae56a8aac4ebb309ca4d",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T00:46:55.543269+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:01dc0d32930a8dae3c8aa1ab760c3238c5319a086923b21c21944635abd65656",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T02:43:33.234825+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:de72c2638cd2f8a39dedd24508db4698dae02edc02a68a3b4c11f9fa29b69c9b",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T04:47:33.550518+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f4d0804dc4791178d56a4d68e7bf7a1a5bf83af9e74bf3061dd15eb3a5f50df9",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T06:43:49.201948+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:aec75f52739aedecb70b67bb40d854c7a3cecdc53c54bfb28bd117d123cd99e7",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T08:48:07.553484+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:9322262b297dd3e7897dcd381b5fd3ecbdc0804b05d3c496ada119feeac957d2",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T10:45:32.419459+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f415a5295c9810976ea37338dead247bffac31ffd73dda497460a7ef8f1322c0",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T12:41:32.997413+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:686a9a4a62661607e237a46e631396b4cf5e19b38d70a5df931afa1459c8b705",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T14:46:55.146798+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:6e87cea14abd28b5df0592115721b2247f1a721aa4b543472f5d2c08e2f97bfa",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T16:47:26.547110+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:54da47ae0eef52d7d55bb6617272bc1b843b205e8c123f023395140dea90b21e",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T18:41:06.636441+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:1be8152b8c63362af8ac6992f1b58021f1951673d2ad49330dad3216d7e87af1",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T20:44:57.591759+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:a2dbea10112a8948768d98c1f4f561d65c33a8bbd48a0d54d31e78e5cf25df0e",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-29T22:47:26.915895+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:7a033ea0f6d91a1f473e782548f86afef5da1539069ddbd478b66ed1990db605",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T01:10:16.618742+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:e8562a7aeff41da240ac5658e235b7fe2788692b7f98e33834421c0481e5d563",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T03:19:34.754211+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:b6666af3db47a5b47752d53bb176857848456586a1c4090032af6c11d5e2876f",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T05:18:46.566532+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:8bfd35b81399c1352007295e7ef7ba0ebcdb2e63fd3cc37c73c5bb54002f6840",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T07:38:33.327470+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:4e66f77997b6b67470aa977488a7f54536173af4224c70b00a1e3a8e228e858c",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T09:11:01.236478+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:8367651f1d84d8b90917a67cdfcb1ca349b838699c48379c599687087337ba36",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T11:05:08.736188+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:7cafdedbec3c45b11dad707ebbcbbe192c4808210bbeab353b19ef9e7787e400",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T13:41:41.638468+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:0862bc3b88972eaac264d2fc4d362f4fc9f387e8fb44500aaeaaaf83c575fd06",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T15:06:55.660441+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:7113b132896168d55a6415beb581256886d81c09d5e0584ee46de9a0faf14737",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T17:08:37.477625+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:a12c658b0f7c5e12041d829cd1153e563e516fad6ffb90fd098d2f9a4de04bb5",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T19:09:04.277658+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:845a367689f7474ff5ca442deeff868e326a3af99d5f24863027fb2f681e6632",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T21:13:58.729990+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:c1e13a88c60ad2c958679c8767aa5dc27f3ba32e78a50bfeac467fd06da58528",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-30T23:12:03.486166+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:7d3e430af3c01b6e4058bcf38cf2266b6bdf2d24d33243c1bba0e9ab79f01c22",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T01:07:31.264019+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:87f744b089d7e5e5bb000b7e5a2b9d32c71de15c7f3a49d6c4dd2a4b82d563dd",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T03:10:36.991766+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:5b0827bc63d66c11ed9bb1fdbdc0a46a6674f24e45820d68baa767f9cfa4c428",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T05:13:52.265461+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:96d35cac7d9baf9f5ba026f0e101effb69664f134b7115c382ee36f78c518112",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T07:09:21.687640+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:633ff547438669145796de85c29b5e52e445e86af98289cae16ac4afe25640b2",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T09:12:15.788577+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:9790e634cdaea6450a0a6f43a5243b70dab742aaef8bf75fac503c45c65fd27d",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T11:08:17.278123+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:2a76dfe691c5fe0060726fbe738aa2ffdb4ef100e1162122ba652852937fc496",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T13:12:05.386146+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:23cdbd747bda90241b49fd6acfa57b377ec2eac744b073c9c5ff9556f126b00e",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T15:09:35.525481+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:34b5552bd5c151fb2265e81a3f7c002d2e088e3cd62fbf39e5d822d5a16dc338",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T17:12:23.922916+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:6de0efdd9483b11a00301ebfef8ea23a3137d0e607310c8584fa51406e520799",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T19:15:21.560343+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:755e945d7a447434c427fc0ed12da2cf9fa5ed1cd2273db676d69700a5c5ce44",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T21:11:47.270823+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:9e2c7a538737ccb60f508efc8accecb878b8c8c5e4546957f6b188cebbd8035a",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-08-31T23:08:50.811401+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:c72efc93154f95289768a30db47d6a3e02dc6c72febaac1e5cad7f879f084768",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T01:13:43.432168+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f9f3d74e0276b6cacb58658433653787cf38b657d398d65cf6d922a8a6b0ef16",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T03:11:00.013371+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:aa867b5bac78d3e721ccdb6e7a20da8785e6726033ddb346dbdfd6101febc2c7",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T05:08:25.332070+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:70ff77fb2551e7b5ad1c43971c9c189addbeb4dfa74c7f49619a3f601c47af91",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T07:13:46.727868+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:6d0b36dc231ace59587a9ba4926e2ba4643d31ea2bda15b0d36b5ac3070123df",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T09:10:58.107185+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:b7852b1e0225ab7af6a3a05ab7b097c6ac7cf93f98231df2dfcf88001124886e",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T11:15:58.354137+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:35d397d567d23e254fe7e27e35a4a9ebde731cd1a55b32037a19c5f89e3eb44e",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T13:13:18.618269+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:a17cb386125ad0a59249ef5e078d0d3a251e1df857edec7f00b6b334ff3f47fc",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T15:10:53.896273+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:788d158fccf4e34e71925ac91c69245f79d1a25e4f3939a68856ad26ba50c423",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T17:16:09.803055+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:40c21620cc39a21fb5088c81aa8d0c4100511d7407468c2e4108f70482b546de",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T19:14:49.985593+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:117ab33c1b9c009a858c9810c8e10b4c7a9651aa4abd801d342910e150d99041",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T21:12:44.031682+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:61a2314b3bc5848db9ba6aa694ee8a7cf2d98d4bedf0beab8fb1764dfcbcec3f",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-01T23:10:10.942957+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:aa22276238338335661a83729ff30634750235153aa26dbd27e8817504efb05c",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T01:15:21.303969+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:2538dae45b2a67720ba0c165d312c2e42bbc5dbc9b5c6a2a7f4ffc334ca91749",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T03:12:52.317228+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:e68b30a94d34335ed56d39606824107ed014f4e71499d4478f045efbcfd705e6",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T05:10:03.356100+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:0edb68890c16fef5bc4db2d05edd5d21a577b1a39911595bbd6621ec4052010d",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T07:15:39.893495+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f124b4716c93084b8c18cc79abb1bef56108cd9feec3abab558b5be225188d70",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T09:15:10.418430+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:11ca64fcd08372979be421d4700383f2818138f604d17cc590b70d16e59cda6e",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T11:14:57.304043+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:cbab7d133270a344663a3ae6cf0acfb0b06d9eaffc2e56586b4e6e00ca6084cc",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T13:22:58.251711+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:71a19b880f380755b73ad969482f86bdc8ddf7608eb86890150fc30aec92d275",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T15:15:15.050316+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:7b4e8949dbe5ca347aa0682e8446c42ca2ac875ba3b411b2e684fdba65470e81",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T17:20:33.669347+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:7caf149b67154302a05665fb205913455c788e211b8c2c89d9768c6a47de9be9",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T19:19:08.457519+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:31a636eee810771fd25a12efad4905cbc54864c2403b3916dc154bf035c72c56",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T21:17:13.161102+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:edb3903da5b03a62f5452889ae9f4fd8b888ef0b9c6d9847ba8dca38b9a0bd87",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-02T23:17:16.260557+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:9158741ecfa8f2a62010480be02710c35dc8da8354310dae710b195f4adb5dbc",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T01:15:58.518035+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:52f4bf9e952b6991c7f1a43357561376c86fb3ea701d46209668db0db8ca4355",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T03:21:37.558962+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:9b330020128d464fb4003c742c95261e7141b6a8710df31466ca0bcb012575f0",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T05:19:11.809050+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:d8b20ba800fc162a602c36dd96c57d1d038c5d2483ec3356e668f8e35a686e29",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T07:17:10.647194+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:92810f5590e73fdb7bd1f3d7fcaeabef01ec426a0c022398751bd52fe7d942fb",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T09:16:15.725356+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:db942d4ae78c3f7345b7672574d2624bc81f71df5844a8f3e2397cdccac0f05c",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T11:23:06.204978+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:346f349e552d51882a923b63f4924b2d41f90daa89cbed76f3849138c8d16b74",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T13:18:41.990854+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:2362be488e76d644e39205a2af7b070b00267abe81134eddb8002aa178a752de",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T15:18:11.926021+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:17a7e3baa696fcdf5375d788f4f7358f67ca195e812ee7605c6356487c99de1f",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T17:17:53.596548+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:aaed8596d64b16122de3795d9850a2763cf3bfaf9e500749100a9e4a68ffdb93",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T19:17:22.378217+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:98f92313521abe79c0d9af79f5b98a2eee2cfb9c601a75e66b806687b7a5f4a4",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T21:17:58.071136+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:db7e3904bd2e171a09ddefbe33a40802feffec1532d1c8a51ee896c161fc31fc",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-03T23:18:35.727133+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:60f1ac8658908589457439bf55de7197f4dab658af70f85e79565a2a5bb86210",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-04T01:25:10.734423+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:a95ceda3d73d8ad546722145fcd17b7b6ccf61d76323e2a0ea02e502064fd529",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-04T04:06:14.019400+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:1c6b51e3eb44587a173d74c28cf48d4f475bc0b0c3188ff3bbcfbfc2f27bdc61",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-04T06:08:36.771264+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:50ff5c0b68abc4345bba85621f2d54c033490408880379493e81d8740f98945d",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-04T07:32:43.872488+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:3b3536e2fcc5cc370e6fea934ce7bc0234b552e1bfa1be6722e536267636949e",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-04T10:18:37.271179+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f8c72bfc64e30bf3e6ada1581d82f858c4bd69e6c2c0c9bf8919cd42ec51e287",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-04T12:17:52.630637+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:ff3f9874e58913cf35a4ad725f5876c7bec1d9ea88a0d8d200feeb8883ee14b8",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-04T13:55:09.283835+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f2696ded9520b274ac85f84661a05fa79707b563fc300168649b4572e9818273",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-04T15:55:34.500421+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:4e5abc3ad3cff025cd1a9c75f20dbd2eb545bf032f38e6ae11cc991485486606",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-04T17:56:26.347380+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:8f2c7c7c6d271d9db6cf5757bfc358a3ae3c6c9a2a7f20e57c1c4ee622528461",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-04T19:55:59.738059+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f9935d1daa5375950f6aa87ddcb39b1fa5b3c22ff670ce4261ee74e2a362f9ab",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-04T22:15:03.458006+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:46932e9a9b660a92eb41169d8f936692c636658bcc8727c430682a1f4000f260",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-05T00:28:33.156346+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:f68334bc0e84ed9399f0f34182fcaffd87df1d53edcb299d47afbefc0d3e06df",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-05T02:45:11.529415+00:00"
+    },
+    {
+      "attention": {
+        "attention_score": 9.215,
+        "id": "outcome:04cf6b8787d45c234a3afc23efd308b035764f0c2682f3226a055ce20e741e35",
+        "priority": 9.0,
+        "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
+        "type": "goal"
+      },
+      "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
+      "mode": "work",
+      "recorded_at": "2026-09-05T05:04:26.585929+00:00"
     }
   ],
   "commitments": {},
   "current_attention": {
     "attention_score": 9.215,
-    "id": "outcome:9f55280f625382e8453bf61cbf87b5f997c470a6bdce31b81e668362ab94096a",
+    "id": "outcome:04cf6b8787d45c234a3afc23efd308b035764f0c2682f3226a055ce20e741e35",
     "priority": 9.0,
     "summary": "Determine whether the committed consequence represents external change or an internal failure, then perform and retain the governed response.",
     "type": "goal"
@@ -2436,12 +4608,12 @@
   "identity_hash": "6010ce8744497a4aa8ed2288318162515b4ad523513f666c49e012fb34a5ca81",
   "identity_immutable": true,
   "instrumental_goal_proposals": [],
-  "last_wake_at": "2026-08-20T11:05:59.541065+00:00",
+  "last_wake_at": "2026-09-05T05:04:26.585929+00:00",
   "mode": "work",
   "reflection_history": [],
-  "revision": 199,
+  "revision": 380,
   "schema_version": "aion.hexcore.persistent_executive_self.v1",
   "signals": [],
   "strategy_questions": [],
-  "updated_at": "2026-08-20T11:05:59.541086+00:00"
+  "updated_at": "2026-09-05T05:04:26.585941+00:00"
 }
