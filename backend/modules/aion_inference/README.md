@@ -154,3 +154,20 @@ PYTHONPATH=. python backend/scripts/run_aion_multifamily_text_routing_experiment
   --storage-root "/Volumes/EXTERNAL/AION-Inference" \
   --run-id multifamily-v4-domain-bounds
 ```
+
+To measure whether context selection reduces tokens actually consumed by the
+local model, run the paired full-versus-selected experiment against the
+isolated SD-backed Ollama endpoint:
+
+```bash
+PYTHONPATH=. python backend/scripts/run_aion_selected_context_model_experiment.py \
+  --storage-root "/Volumes/EXTERNAL/AION-Inference" \
+  --base-url http://127.0.0.1:11435 \
+  --model qwen3:1.7b
+```
+
+The first 12-case run preserved all three mandatory policies and produced
+identical correct structured answers in both arms. Selected context reduced
+Qwen's measured prompt-token count by 62.77% at the median and by at least
+62.54% in every case. This is prompt-token evidence; it is not a claim of
+Glyph-native model vocabulary, KV-cache compression, or weight compression.
