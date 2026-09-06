@@ -119,7 +119,23 @@ class SemanticGateway:
     def compile(self, text: str) -> MeaningCapsule:
         extracted = {name: self._extract_field(text, name) for name in self._FIELD_PATTERNS}
         present = {name: item for name, item in extracted.items() if item is not None}
-        intent = "CALCULATE_PROFIT" if "profit" in text.casefold() and present else "UNKNOWN"
+        lowered = text.casefold()
+        if "profit" in lowered and present:
+            intent = "CALCULATE_PROFIT"
+        elif re.search(r"\b(quote|quotation|estimate)\b", lowered):
+            intent = "PREPARE_QUOTATION"
+        elif re.search(r"\b(book|booking|schedule|installation)\b", lowered):
+            intent = "MANAGE_BOOKING"
+        elif re.search(r"\b(customer|client)\b.*\b(response|reply)\b|\b(response|reply)\b.*\b(customer|client)\b", lowered):
+            intent = "DRAFT_CUSTOMER_RESPONSE"
+        elif re.search(r"\b(calculate|compute|percent|tax|discount|times|plus)\b", lowered):
+            intent = "CALCULATION_REQUEST"
+        elif re.search(r"\b(code|python|javascript|function|unit test|debug)\b", lowered):
+            intent = "CODING_REQUEST"
+        elif re.search(r"\b(plan|steps|organize|organise)\b", lowered):
+            intent = "PLAN_REQUEST"
+        else:
+            intent = "GENERAL_REQUEST"
         currencies = {currency for _, currency in present.values() if currency}
         missing = len(self._FIELD_PATTERNS) - len(present)
         duplicate_role = any(
@@ -127,13 +143,31 @@ class SemanticGateway:
             for pattern in (r"\brevenue\b", r"\bmaterials?\b", r"\blabou?r\b")
         )
         alternative_values = bool(re.search(r"\d[\d,.]*\s+or\s+(?:EUR|GBP|USD|€|£|\$)?\s*\d", text, re.I))
-        ambiguity = min(
-            1.0,
-            missing / len(self._FIELD_PATTERNS)
-            + (0.5 if len(currencies) > 1 else 0.0)
-            + (0.5 if duplicate_role or alternative_values else 0.0),
-        )
-        entities = {name: _display(value) for name, (value, _) in present.items()}
+        if intent == "CALCULATE_PROFIT":
+            ambiguity = min(
+                1.0,
+                missing / len(self._FIELD_PATTERNS)
+                + (0.5 if len(currencies) > 1 else 0.0)
+                + (0.5 if duplicate_role or alternative_values else 0.0),
+            )
+            entities = {name: _display(value) for name, (value, _) in present.items()}
+        else:
+            ambiguity = min(1.0, (0.5 if alternative_values else 0.0) + (0.25 if duplicate_role else 0.0))
+            quantities = re.findall(
+                r"(?<![a-z0-9])(?:EUR|GBP|USD|€|£|\$)?\s*(\d[\d,]*(?:\.\d+)?)\s*(%|percent|metres?|meters?|cm|mm|feet|ft|hours?|hrs?)?",
+                text,
+                re.I,
+            )
+            entities = {}
+            for index, (value, unit) in enumerate(quantities[:8], start=1):
+                entities[f"quantity_{index}"] = _display(_decimal(value))
+                if unit:
+                    entities[f"quantity_{index}_unit"] = unit.casefold()
+            generic_currencies = {
+                normalized for token in re.findall(r"EUR|GBP|USD|€|£|\$", text, re.I)
+                if (normalized := _normalise_currency(token.upper()))
+            }
+            currencies = generic_currencies
         canonical = {
             "intent": intent,
             "entities": entities,
@@ -141,6 +175,10 @@ class SemanticGateway:
             "constraints": self._constraints(text),
             "ambiguity_score": ambiguity,
         }
+        if intent == "GENERAL_REQUEST":
+            canonical["normalized_request_sha256"] = hashlib.sha256(
+                " ".join(lowered.split()).encode("utf-8")
+            ).hexdigest()
         return MeaningCapsule(
             schema_version="aion.meaning_capsule.v1",
             glyph_address=f"glyph:sha256:{_hash(canonical)}",

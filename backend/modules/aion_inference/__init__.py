@@ -19,6 +19,8 @@ from .adaptive_runtime import (
     ContextSelection,
     ContextSelector,
     ReplayStore,
+    verify_proof_receipt,
+    verify_trace_chain,
 )
 from .learned_atomsheets import (
     LearnedAtomSheetStore,
@@ -28,6 +30,15 @@ from .learned_atomsheets import (
 )
 from .glyph_context import GlyphContextDictionary, GlyphContextPacket, GlyphContextPassage
 from .shard_selection import AddressedShard, AddressedShardExperiment, ShardReadMeasurement
+from .sqi_beams import (
+    ModelRoutePrediction,
+    ModelRoutePredictor,
+    RouteCollapse,
+    SQICandidateBeam,
+    WorkflowCatalog,
+    WorkflowMatch,
+    collapse_beams,
+)
 
 __all__ = [
     "BenchmarkReport",
@@ -49,6 +60,8 @@ __all__ = [
     "ContextSelection",
     "ContextSelector",
     "ReplayStore",
+    "verify_proof_receipt",
+    "verify_trace_chain",
     "LearnedAtomSheetStore",
     "LearnedExecutionResult",
     "LearningDecision",
@@ -59,4 +72,11 @@ __all__ = [
     "AddressedShard",
     "AddressedShardExperiment",
     "ShardReadMeasurement",
+    "ModelRoutePrediction",
+    "ModelRoutePredictor",
+    "RouteCollapse",
+    "SQICandidateBeam",
+    "WorkflowCatalog",
+    "WorkflowMatch",
+    "collapse_beams",
 ]

@@ -77,6 +77,48 @@ Requests containing a second action, multiple calculations, missing values,
 invalid dimensions, mixed profit currencies, or unresolved ambiguity cannot
 take the deterministic bypass.
 
+## AION Semantic Gateway and SQI route beams
+
+The public adaptive route now executes the complete bounded gateway sequence:
+
+```text
+Public Intent Gateway
+        ↓
+Semantic Transformer
+        ↓
+Glyph Meaning Compiler
+        ↓
+SQI Candidate Beams
+        ↓
+Route Collapse
+        ↓
+Replay / AtomSheet / bounded CodexCore operator / Model
+```
+
+Profit, calculation, learned-AtomSheet, workflow, and model-fallback candidates
+are evaluated as independent deterministic beams. Collapse selects the
+highest-scoring eligible beam; ineligible or unsafe beams remain in the proof
+receipt with their rejection reasons. Candidate and collapse events are also
+published through the existing `BeamEventBus`.
+
+These are parallel symbolic route candidates, not token-sampling beams,
+physical light measurements, or quantum computation. Their event metadata
+explicitly records that boundary. Workflow lookup is discovery-only until a
+governed executor is explicitly bound, so a matching workflow cannot silently
+gain execution authority. Model-route prediction chooses a fallback class and
+an expert-prefetch profile for later MoE optimization. Every result records all
+ten gateway stages, candidate scores, collapse evidence, workflow catalog hash,
+model-route prediction, selected context, minimal prompt, trace, and proof
+receipt.
+
+Run the SD-backed acceptance experiment with a fresh run ID:
+
+```bash
+PYTHONPATH=. python backend/scripts/run_aion_sqi_gateway_experiment.py \
+  --storage-root "/Volumes/EXTERNAL/AION-Inference" \
+  --run-id sqi-semantic-gateway-v2
+```
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts

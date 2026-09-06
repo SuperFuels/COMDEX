@@ -37,6 +37,11 @@ def test_capabilities_publish_strict_bypass_boundary(client):
     assert body["compound_actions_bypass_allowed"] is False
     assert body["ambiguous_inputs_bypass_allowed"] is False
     assert body["learned_atomsheet_promotion"] is True
+    assert body["sqi_candidate_beams"] == "bounded_deterministic_parallel_candidates"
+    assert body["beam_event_bus_integration"] is True
+    assert body["workflow_lookup"] is True
+    assert body["workflow_execution_bound"] is False
+    assert body["model_route_prediction"] is True
     assert body["learned_verified_routes"] == [
         "CALCULATE_MARKED_UP_PRICE", "CALCULATE_DISCOUNTED_PRICE",
         "CALCULATE_PRICE_WITH_TAX", "CALCULATE_LABOUR_COST",
