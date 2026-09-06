@@ -58,6 +58,7 @@ class LayerScopedStore:
         self.usage_counts: dict[int, int] = {}
         self.last_used: dict[int, int] = {}
         self.usage_clock = 0
+        self.route_batches: list[tuple[tuple[int, ...], ...]] = []
         self.events: list[dict[str, Any]] = []
         self._lock = threading.Lock()
 
@@ -205,6 +206,7 @@ class LayerScopedStore:
         self.usage_counts.clear()
         self.last_used.clear()
         self.usage_clock = 0
+        self.route_batches.clear()
         with self._lock:
             self.cpu_prefetch.clear()
 
@@ -265,6 +267,11 @@ def _layer_scoped_forward(
         batch_size, length, embedding_size = layer_input.size()
         flattened = layer_input.reshape(-1, embedding_size)
         _, batch_index, batch_gates, expert_size, router_logits = router(flattened)
+        observed_routes = tuple(
+            tuple(sorted(row.topk(router.top_k, dim=-1).indices.tolist()))
+            for row in router_logits
+        )
+        store.route_batches.append(observed_routes)
         expert_inputs = flattened[batch_index]
         input_list = expert_inputs.split(expert_size, dim=0)
         required = tuple(expert for expert, value in enumerate(input_list) if value.shape[0])
@@ -293,16 +300,9 @@ def _layer_scoped_forward(
         if retain_request_scope:
             store.retain_request_scope()
         elif retention_capacity:
-            observed_routes = tuple(
-                tuple(sorted(row.topk(router.top_k, dim=-1).indices.tolist()))
-                for row in router_logits
-            )
             store.release_with_frequency_capacity(observed_routes, retention_capacity)
         elif retention_depth:
-            recent_routes = tuple(
-                tuple(sorted(row.topk(router.top_k, dim=-1).indices.tolist()))
-                for row in router_logits[-retention_depth:]
-            )
+            recent_routes = observed_routes[-retention_depth:]
             store.release_with_lru_routes(recent_routes, retention_depth)
         else:
             store.release_layer()

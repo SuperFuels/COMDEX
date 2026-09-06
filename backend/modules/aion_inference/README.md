@@ -206,6 +206,17 @@ was 7.49% faster than depth eight at 1.84% more peak memory. Every token ID and
 every generation-step logit remained exact. These are single-prompt warm-cache
 results and require corpus-scale and controlled-storage replication.
 
+The cache now has a deterministic global-budget planner. It replays measured
+route batches without loading tensors, evaluates every capacity from zero to
+40 for each layer, and uses dynamic programming to minimize predicted demand
+bytes under an exact global expert-slot budget. In the first transfer test it
+learned a non-uniform 512-slot allocation from one policy prompt and was tested
+against uniform 16-per-layer retention on held-out arithmetic and coding
+prompts. The learned plan reduced held-out median time by 7.54% and demand bytes
+by 0.96%, with a 1.75% peak-Metal increase. It improved time on both held-out
+cases and preserved every token and generation-step logit exactly. This is the
+current reference cache controller, subject to larger-corpus replication.
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts

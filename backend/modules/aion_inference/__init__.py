@@ -45,6 +45,11 @@ from .expert_prefetch import (
     broad_expert_prefetch_plan,
     build_expert_prefetch_plan,
 )
+from .expert_cache_budget import (
+    ExpertCacheBudgetPlan,
+    optimize_expert_cache_budget,
+    simulate_frequency_cache_demand_bytes,
+)
 
 __all__ = [
     "BenchmarkReport",
@@ -89,4 +94,7 @@ __all__ = [
     "PROFILE_DOMAINS",
     "broad_expert_prefetch_plan",
     "build_expert_prefetch_plan",
+    "ExpertCacheBudgetPlan",
+    "optimize_expert_cache_budget",
+    "simulate_frequency_cache_demand_bytes",
 ]

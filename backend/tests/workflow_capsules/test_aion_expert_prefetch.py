@@ -5,6 +5,8 @@ import pytest
 from backend.modules.aion_inference import (
     broad_expert_prefetch_plan,
     build_expert_prefetch_plan,
+    optimize_expert_cache_budget,
+    simulate_frequency_cache_demand_bytes,
 )
 from backend.scripts.run_aion_layer_scoped_moe_experiment import LayerScopedStore
 
@@ -91,3 +93,25 @@ def test_layer_store_frequency_cache_rejects_zero_capacity():
     store = LayerScopedStore(0, {"experts": []})
     with pytest.raises(ValueError, match="capacity"):
         store.release_with_frequency_capacity(((1,),), 0)
+
+
+def test_frequency_cache_simulator_matches_expected_fault_bytes():
+    entries = {0: {"bytes": 10}, 1: {"bytes": 10}}
+    batches = (((0,),), ((1,),), ((0,),), ((1,),))
+    assert simulate_frequency_cache_demand_bytes(batches, entries, 0) == 40
+    assert simulate_frequency_cache_demand_bytes(batches, entries, 1) == 40
+    assert simulate_frequency_cache_demand_bytes(batches, entries, 2) == 20
+
+
+def test_budget_optimizer_moves_slots_to_the_layer_with_marginal_reuse():
+    entries = ({0: {"bytes": 10}, 1: {"bytes": 10}}, {0: {"bytes": 10}, 1: {"bytes": 10}})
+    routes = (
+        (((0,),), ((1,),), ((0,),), ((1,),)),
+        (),
+    )
+    plan = optimize_expert_cache_budget(routes, entries, total_capacity=2)
+    assert plan.capacities_by_layer == (2, 0)
+    assert plan.predicted_demand_bytes == 20
+    assert plan.uniform_predicted_demand_bytes == 40
+    assert plan.predicted_byte_reduction_percent == 50.0
+    assert len(plan.plan_sha256) == 64
