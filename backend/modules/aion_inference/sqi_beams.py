@@ -123,3 +123,66 @@ def collapse_beams(beams: Iterable[SQICandidateBeam]) -> RouteCollapse:
         reason=f"highest_scoring_eligible_beam:{selected.reason}",
         rejected_beam_ids=tuple(beam.beam_id for beam in ordered if beam.beam_id != selected.beam_id),
     )
+
+
+def fuse_equivalent_beams(
+    beams: Iterable[SQICandidateBeam],
+) -> tuple[tuple[SQICandidateBeam, ...], tuple[dict[str, Any], ...]]:
+    """Fuse beams only when they declare the same exact execution signature."""
+    original = tuple(beams)
+    groups: dict[tuple[str, str, bool], list[SQICandidateBeam]] = {}
+    for beam in original:
+        signature = str(beam.evidence.get("execution_signature") or f"beam:{beam.beam_id}")
+        groups.setdefault((beam.route, signature, beam.eligible), []).append(beam)
+    fused = []
+    receipts = []
+    for (_, signature, _), members in sorted(groups.items(), key=lambda item: item[0]):
+        representative = min(members, key=lambda beam: (-beam.score, beam.beam_id))
+        member_ids = tuple(sorted(beam.beam_id for beam in members))
+        evidence = {**dict(representative.evidence), "fused_beam_ids": member_ids}
+        fused.append(SQICandidateBeam(
+            representative.beam_id,
+            representative.route,
+            representative.score,
+            representative.eligible,
+            representative.reason,
+            evidence,
+        ))
+        receipts.append({
+            "execution_signature": signature,
+            "representative_beam_id": representative.beam_id,
+            "fused_beam_ids": member_ids,
+            "fused_count": len(member_ids),
+        })
+    return tuple(sorted(fused, key=lambda beam: beam.beam_id)), tuple(receipts)
+
+
+def collapse_beams_cost_aware(
+    beams: Iterable[SQICandidateBeam],
+) -> tuple[RouteCollapse, tuple[dict[str, Any], ...]]:
+    """Collapse by assurance first and estimated physical cost second."""
+    original = tuple(beams)
+    fused, fusion_receipts = fuse_equivalent_beams(original)
+    eligible = [beam for beam in fused if beam.eligible]
+    if not eligible:
+        raise ValueError("at least one SQI beam must be eligible")
+
+    def cost(beam: SQICandidateBeam) -> tuple[int, float, float]:
+        estimate = beam.evidence.get("execution_cost") or {}
+        storage = estimate.get("estimated_storage_bytes")
+        ttft = estimate.get("estimated_ttft_ms")
+        return (
+            int(estimate.get("model_calls", 1)),
+            float(storage) if storage is not None else float("inf"),
+            float(ttft) if ttft is not None else float("inf"),
+        )
+
+    selected = min(eligible, key=lambda beam: (-beam.score, *cost(beam), beam.beam_id))
+    return RouteCollapse(
+        selected_beam_id=selected.beam_id,
+        selected_route=selected.route,
+        reason=f"highest_assurance_then_lowest_estimated_cost:{selected.reason}",
+        rejected_beam_ids=tuple(sorted(
+            beam.beam_id for beam in original if beam.beam_id != selected.beam_id
+        )),
+    ), fusion_receipts

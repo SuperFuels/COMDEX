@@ -20,7 +20,7 @@ from .sqi_beams import (
     ModelRoutePredictor,
     SQICandidateBeam,
     WorkflowCatalog,
-    collapse_beams,
+    collapse_beams_cost_aware,
 )
 from backend.modules.codex.beam_event_bus import BeamEvent, beam_event_bus
 
@@ -279,32 +279,62 @@ class AdaptiveInferenceRuntime:
             SQICandidateBeam(
                 "profit_atomsheet", "verified_atomsheet", 1.0 if not profit.model_call_required else 0.0,
                 not profit.model_call_required, str(profit.proof_receipt["gate_reason"]),
-                {"intent": profit.meaning_capsule.intent, "gate_passed": not profit.model_call_required},
+                {
+                    "intent": profit.meaning_capsule.intent,
+                    "gate_passed": not profit.model_call_required,
+                    "execution_signature": f"atomsheet:{profit.proof_receipt['atomsheet_sha256']}",
+                    "execution_cost": {"model_calls": 0, "estimated_storage_bytes": 0, "estimated_ttft_ms": 1.0},
+                },
             ),
             SQICandidateBeam(
                 "calculation_atomsheet", "verified_atomsheet", 0.99 if not calculation.model_call_required else 0.0,
                 not calculation.model_call_required, str(calculation.proof_receipt["gate_reason"]),
-                {"intent": calculation.intent, "gate_passed": not calculation.model_call_required},
+                {
+                    "intent": calculation.intent,
+                    "gate_passed": not calculation.model_call_required,
+                    "execution_signature": f"calculation:{calculation.intent}",
+                    "execution_cost": {"model_calls": 0, "estimated_storage_bytes": 0, "estimated_ttft_ms": 1.0},
+                },
             ),
         ]
         if learned is not None:
             beams.append(SQICandidateBeam(
                 "learned_atomsheet", "verified_atomsheet", 0.98 if not learned.model_call_required else 0.0,
                 not learned.model_call_required, str(learned.proof_receipt["gate_reason"]),
-                {"intent": learned.intent, "gate_passed": not learned.model_call_required},
+                {
+                    "intent": learned.intent,
+                    "gate_passed": not learned.model_call_required,
+                    "execution_signature": f"learned:{learned.proof_receipt.get('contract_sha256')}",
+                    "execution_cost": {"model_calls": 0, "estimated_storage_bytes": 0, "estimated_ttft_ms": 1.0},
+                },
             ))
         beams.append(SQICandidateBeam(
             "workflow_lookup", "governed_workflow", workflow.score if workflow else 0.0,
             bool(workflow and workflow.executor_bound),
             "workflow_executor_bound" if workflow and workflow.executor_bound
             else "workflow_not_found" if workflow is None else "workflow_discovered_executor_not_bound",
-            asdict(workflow) if workflow else {"match": None},
+            {
+                **(asdict(workflow) if workflow else {"match": None}),
+                "execution_signature": f"workflow:{workflow.workflow_id}" if workflow else "workflow:none",
+                "execution_cost": {"model_calls": 0, "estimated_storage_bytes": 0, "estimated_ttft_ms": 2.0},
+            },
         ))
         beams.append(SQICandidateBeam(
             "model_fallback", "full_model", 0.45 + 0.1 * model_prediction.confidence, True,
-            model_prediction.reason, asdict(model_prediction),
+            model_prediction.reason, {
+                **asdict(model_prediction),
+                "execution_signature": (
+                    f"model:{model_prediction.model_role}:{model_prediction.expert_prefetch_profile}"
+                ),
+                "execution_cost": {
+                    "model_calls": 1,
+                    "estimated_storage_bytes": None,
+                    "estimated_ttft_ms": None,
+                    "estimate_status": "model_runtime_measurement_required",
+                },
+            },
         ))
-        collapse = collapse_beams(beams)
+        collapse, fusion_receipts = collapse_beams_cost_aware(beams)
 
         beam_events = []
         for beam in beams:
@@ -355,6 +385,8 @@ class AdaptiveInferenceRuntime:
             "sqi_beam_mode": "bounded_deterministic_parallel_candidates",
             "sqi_candidate_beams": [beam.to_dict() for beam in beams],
             "route_collapse": collapse.to_dict(),
+            "route_collapse_policy": "highest_assurance_then_lowest_estimated_cost",
+            "beam_fusion": fusion_receipts,
             "workflow_lookup": asdict(workflow) if workflow else None,
             "workflow_catalog_sha256": self.workflows.sha256,
             "model_route_prediction": asdict(model_prediction),

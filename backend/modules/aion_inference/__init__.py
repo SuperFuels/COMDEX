@@ -38,6 +38,8 @@ from .sqi_beams import (
     WorkflowCatalog,
     WorkflowMatch,
     collapse_beams,
+    collapse_beams_cost_aware,
+    fuse_equivalent_beams,
 )
 from .expert_prefetch import (
     ExpertPrefetchPlan,
@@ -104,6 +106,8 @@ __all__ = [
     "WorkflowCatalog",
     "WorkflowMatch",
     "collapse_beams",
+    "collapse_beams_cost_aware",
+    "fuse_equivalent_beams",
     "ExpertPrefetchPlan",
     "PROFILE_DOMAINS",
     "broad_expert_prefetch_plan",

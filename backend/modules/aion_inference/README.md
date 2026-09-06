@@ -453,6 +453,32 @@ This confirms that longer generations allow the retained working set to repay
 its initial materialization cost. The run remains warm uncontrolled with one
 observation per family, so replication and a 256-token condition remain open.
 
+The semantic gateway now also supports exact-signature beam fusion and
+cost-aware collapse. Candidate paths may be fused only when their declared
+execution signatures are identical; eligible paths are ranked by assurance
+before model calls, estimated storage demand, and estimated first-token time.
+Unknown model costs remain explicitly unknown rather than being assigned a
+favourable invented estimate. A 12-case deterministic SD-backed fixture routed
+all cases correctly, immediately completed eight verified calculation or replay
+cases without a model call, and correctly deferred four language tasks. All
+answers, proof receipts, trace-chain checks, and collapse-policy checks passed.
+The observed 66.67% model-call avoidance is a property of this declared fixture,
+not an estimate of a real workload, and the deferred tasks were not counted as
+completed. Median gateway latency was 147.34 ms and nearest-rank p95 was
+318.35 ms. This establishes the governed bypass mechanism; it does not yet show
+that beam fusion itself improves end-to-end model throughput.
+
+The first four-prompt 256-token extension was preserved but rejected. It
+generated all 1,024 requested tokens and every token ID matched the full-resident
+control, while three prompt families also retained exact step logits. The
+commercial-risk request reached a maximum step-logit difference of 0.03125, so
+the run failed the zero-error integrity gate and is `INVALID_FOR_PROMOTION`.
+Observed median throughput was 1.2879 tokens/s and the retained-hit rate was
+82.16%, but these figures must not be promoted as an exact-output milestone.
+The accepted 128-token run remains the longest fully exact four-prompt result.
+The next 256-token work must first localize this numerical divergence under a
+bounded reproduction; the integrity threshold must not be relaxed.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \

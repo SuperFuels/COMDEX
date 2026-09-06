@@ -10,6 +10,7 @@ from backend.modules.aion_inference import (
     build_expert_working_set_dictionary,
     build_cross_layer_route_capsule,
     build_expert_prefetch_plan,
+    collapse_beams_cost_aware,
     ExpertRouteCorpus,
     optimize_expert_cache_budget,
     optimize_expert_cache_memory_budget,
@@ -19,6 +20,7 @@ from backend.modules.aion_inference import (
     verify_promoted_expert_cache_plan,
     verify_cross_layer_route_capsule,
     verify_expert_working_set_dictionary,
+    SQICandidateBeam,
 )
 from backend.scripts.run_aion_layer_scoped_moe_experiment import (
     LayerScopedStore,
@@ -222,6 +224,29 @@ def test_working_set_dictionary_is_hash_and_binding_bound():
         verify_expert_working_set_dictionary(
             dictionary, expected_bindings={"model": "b" * 64}
         )
+
+
+def test_cost_aware_collapse_fuses_exact_execution_signatures_and_avoids_model():
+    beams = (
+        SQICandidateBeam(
+            "calculation_a", "verified_atomsheet", 1.0, True, "verified",
+            {"execution_signature": "sheet:tax-v1", "execution_cost": {"model_calls": 0, "estimated_storage_bytes": 0, "estimated_ttft_ms": 1}},
+        ),
+        SQICandidateBeam(
+            "calculation_b", "verified_atomsheet", 0.99, True, "same_contract",
+            {"execution_signature": "sheet:tax-v1", "execution_cost": {"model_calls": 0, "estimated_storage_bytes": 0, "estimated_ttft_ms": 1}},
+        ),
+        SQICandidateBeam(
+            "model", "full_model", 0.55, True, "fallback",
+            {"execution_signature": "model:granite", "execution_cost": {"model_calls": 1, "estimated_storage_bytes": 10_000, "estimated_ttft_ms": 1000}},
+        ),
+    )
+    collapse, fusion = collapse_beams_cost_aware(beams)
+    assert collapse.selected_beam_id == "calculation_a"
+    assert collapse.selected_route == "verified_atomsheet"
+    fused = next(item for item in fusion if item["execution_signature"] == "sheet:tax-v1")
+    assert fused["fused_beam_ids"] == ("calculation_a", "calculation_b")
+    assert fused["fused_count"] == 2
 
 
 def test_frequency_cache_simulator_matches_expected_fault_bytes():
