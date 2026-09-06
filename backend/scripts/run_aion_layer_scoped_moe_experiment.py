@@ -20,7 +20,11 @@ import torch.nn.functional as functional
 from safetensors.torch import load_file
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from backend.modules.aion_inference import AdaptiveInferenceRuntime, build_expert_prefetch_plan
+from backend.modules.aion_inference import (
+    AdaptiveInferenceRuntime,
+    build_expert_prefetch_plan,
+    select_predictive_retention,
+)
 from backend.scripts.run_aion_moe_end_to_end_fault_in import _memory_snapshot, _sha256
 
 
@@ -191,6 +195,28 @@ class LayerScopedStore:
         with self._lock:
             self.cpu_prefetch.clear()
 
+    def release_with_predictive_capacity(
+        self,
+        routes: tuple[tuple[int, ...], ...],
+        capacity: int,
+        layer_dictionary: dict[str, Any],
+    ) -> None:
+        """Protect predicted reuse among resident experts; never trigger a read."""
+        available = {**self.retained, **self.active}
+        ranked, self.usage_clock = select_predictive_retention(
+            routes=routes,
+            available_experts=set(available),
+            usage_counts=self.usage_counts,
+            last_used=self.last_used,
+            usage_clock=self.usage_clock,
+            capacity=capacity,
+            layer_dictionary=layer_dictionary,
+        )
+        self.retained = {expert: available[expert] for expert in ranked}
+        self.active.clear()
+        with self._lock:
+            self.cpu_prefetch.clear()
+
     def clear_all(self) -> None:
         self.active.clear()
         self.retained.clear()
@@ -275,6 +301,7 @@ def _layer_scoped_forward(
     *,
     retention_depth: int = 0,
     retention_capacity: int = 0,
+    working_set_dictionary: dict[str, Any] | None = None,
     retain_request_scope: bool = False,
 ):
     router = block.router
@@ -319,6 +346,10 @@ def _layer_scoped_forward(
             raise ValueError("choose route depth or frequency capacity, not both")
         if retain_request_scope:
             store.retain_request_scope()
+        elif retention_capacity and working_set_dictionary is not None:
+            store.release_with_predictive_capacity(
+                observed_routes, retention_capacity, working_set_dictionary
+            )
         elif retention_capacity:
             store.release_with_frequency_capacity(observed_routes, retention_capacity)
         elif retention_depth:

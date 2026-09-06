@@ -59,6 +59,11 @@ from .expert_route_predictor import (
     predict_cross_layer_experts,
     verify_cross_layer_route_capsule,
 )
+from .expert_working_set import (
+    build_expert_working_set_dictionary,
+    select_predictive_retention,
+    verify_expert_working_set_dictionary,
+)
 
 __all__ = [
     "BenchmarkReport",
@@ -113,4 +118,7 @@ __all__ = [
     "build_cross_layer_route_capsule",
     "predict_cross_layer_experts",
     "verify_cross_layer_route_capsule",
+    "build_expert_working_set_dictionary",
+    "select_predictive_retention",
+    "verify_expert_working_set_dictionary",
 ]

@@ -7,6 +7,7 @@ import pytest
 
 from backend.modules.aion_inference import (
     broad_expert_prefetch_plan,
+    build_expert_working_set_dictionary,
     build_cross_layer_route_capsule,
     build_expert_prefetch_plan,
     ExpertRouteCorpus,
@@ -14,8 +15,10 @@ from backend.modules.aion_inference import (
     optimize_expert_cache_memory_budget,
     predict_cross_layer_experts,
     simulate_frequency_cache_demand_bytes,
+    select_predictive_retention,
     verify_promoted_expert_cache_plan,
     verify_cross_layer_route_capsule,
+    verify_expert_working_set_dictionary,
 )
 from backend.scripts.run_aion_layer_scoped_moe_experiment import (
     LayerScopedStore,
@@ -177,6 +180,48 @@ def test_pre_activation_frequency_selection_matches_post_activation_policy():
 def test_frequency_selection_rejects_zero_capacity():
     with pytest.raises(ValueError, match="capacity"):
         select_frequency_retention(((1,),), {1}, {}, {}, 0, 0)
+
+
+def test_working_set_dictionary_protects_only_available_predicted_experts():
+    observations = [
+        _route_observation(
+            "1" * 64,
+            [
+                [[(0, 1)], [(1, 2)], [(0, 1)]],
+                [[(2, 3)], [(2, 3)]],
+            ],
+        )
+    ]
+    dictionary = build_expert_working_set_dictionary(observations)
+    verify_expert_working_set_dictionary(
+        dictionary, expected_bindings={"model": "a" * 64}
+    )
+    selected, clock = select_predictive_retention(
+        routes=((0, 1),),
+        available_experts={0, 1, 2},
+        usage_counts={},
+        last_used={},
+        usage_clock=0,
+        capacity=2,
+        layer_dictionary=dictionary["layers"][0],
+    )
+    assert selected == (1, 2)
+    assert clock == 1
+    assert set(selected) <= {0, 1, 2}
+
+
+def test_working_set_dictionary_is_hash_and_binding_bound():
+    dictionary = build_expert_working_set_dictionary([
+        _route_observation("2" * 64, [[[(0, 1)], [(1, 2)]], [[(2, 3)], [(2, 3)]]])
+    ])
+    tampered = json.loads(json.dumps(dictionary))
+    tampered["layers"][0]["next_expert_prior"]["2"] = 999
+    with pytest.raises(ValueError, match="hash mismatch"):
+        verify_expert_working_set_dictionary(tampered)
+    with pytest.raises(ValueError, match="binding mismatch"):
+        verify_expert_working_set_dictionary(
+            dictionary, expected_bindings={"model": "b" * 64}
+        )
 
 
 def test_frequency_cache_simulator_matches_expected_fault_bytes():

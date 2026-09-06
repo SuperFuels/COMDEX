@@ -116,6 +116,7 @@ def test_full_model_fallback_preserves_policy_context_and_emits_trace(tmp_path):
     assert "PAYMENT_PROHIBITED" in result.fallback_prompt
     assert "HUMAN_REVIEW_REQUIRED" in result.fallback_prompt
     assert "quotations must receive human approval" in result.fallback_prompt
+    assert "Write a customer response" in result.fallback_prompt
     event = json.loads((tmp_path / "trace.jsonl").read_text().strip())
     assert event["route"] == "full_model"
     assert event["model_call_required"] is True

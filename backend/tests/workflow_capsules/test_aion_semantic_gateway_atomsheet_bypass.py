@@ -62,9 +62,8 @@ def test_mixed_currencies_are_ambiguous_and_cannot_bypass_model():
 
 
 def test_policy_constraints_survive_compilation_and_fallback_prompt():
-    result = SemanticGateway().route(
-        "Prepare a quotation. Do not book anything, do not take payment, and human review is required."
-    )
+    request = "Prepare a quotation. Do not book anything, do not take payment, and human review is required."
+    result = SemanticGateway().route(request)
     assert result.route == "full_model"
     assert result.meaning_capsule.constraints == (
         "BOOKING_PROHIBITED",
@@ -74,6 +73,17 @@ def test_policy_constraints_survive_compilation_and_fallback_prompt():
     assert "BOOKING_PROHIBITED" in result.minimal_model_prompt
     assert "PAYMENT_PROHIBITED" in result.minimal_model_prompt
     assert "HUMAN_REVIEW_REQUIRED" in result.minimal_model_prompt
+    assert request in result.minimal_model_prompt
+    assert result.proof_receipt["source_request_preserved"] is True
+
+
+def test_distinct_general_requests_cannot_collapse_to_same_model_prompt():
+    gateway = SemanticGateway()
+    first = gateway.route("Explain content-addressed storage corruption checks in detail.")
+    second = gateway.route("Diagnose a slow cache and list the measurements to collect.")
+    assert first.minimal_model_prompt != second.minimal_model_prompt
+    assert "content-addressed storage" in first.minimal_model_prompt
+    assert "slow cache" in second.minimal_model_prompt
 
 
 def test_profit_bypass_rejects_positive_compound_action():

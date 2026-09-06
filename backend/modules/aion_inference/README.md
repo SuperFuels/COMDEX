@@ -408,6 +408,40 @@ SD milestone is therefore exceeded for this prompt.  The filesystem state was
 warm uncontrolled and only one prompt was tested, so randomized multi-prompt,
 cold/warm, p95, 128-token, and 256-token validation remain open.
 
+Stage 5 then exposed and repaired a semantic-integrity defect before accepting
+multi-prompt evidence. The first four-prompt run was invalidated because two
+different public requests compiled to the same generic fallback: the gateway
+had bound the source hash but omitted the source text from the model prompt. It
+also generated only 202 of 256 requested tokens. The repaired gateway preserves
+the complete normalized request, records its prompt hash, and the runner rejects
+duplicate compiled inputs or incomplete generations.
+
+The corrected randomized four-family run completed all 256 requested tokens.
+Every token ID and generation-step logit matched the full-resident FP16 controls
+exactly. Under the existing 3 GiB plan it recorded 54,398 retained hits and
+15,148 faults (78.22% hits), 71,480,745,952 logical demand bytes, 0.9015 median
+tokens/s and a 0.4351--1.2588 tokens/s range. The fourth request was 2.89 times
+the first request's throughput, consistent with persistent-cache warming, but
+prompt family and order are confounded, so this is not a causal same-prompt
+speedup claim. Filesystem state remained warm uncontrolled and there is one
+observation per family.
+
+A hash-bound expert working-set dictionary next tested predictive eviction
+protection without speculative reads. Leave-one-observation-out replay predicted
+a 4,053,469,816-byte (13.78%) saving and avoided 859 faults across three winning
+folds. Live execution did not generalize: it caused 376 additional faults and
+1,774,277,824 additional bytes, regressed median time by 6.38%, and regressed
+p95 by 5.20%. Exactness passed, but the policy is `NOT_PROMOTED`.
+
+A route-unaware prompt-slimming probe reduced tokenized input length by
+35.41--37.76%. It reduced first-request TTFT by 4.57% and peak MPS allocation by
+1.86%, but median time regressed by 16.96%, logical demand increased by
+632,322,416 bytes, and one step differed from the full-resident control by
+0.015625 logits despite identical token IDs. The probe is
+`INVALID_FOR_PROMOTION` and was reverted. Prompt length alone is therefore not
+a safe proxy for sparse-MoE expert demand; future Glyph compression must be
+route-aware and pass renewed exactness gates.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \

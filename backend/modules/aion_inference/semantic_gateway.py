@@ -34,6 +34,11 @@ def _display(value: Decimal) -> str:
     return rendered.rstrip("0").rstrip(".")
 
 
+def _normalise_request_text(text: str) -> str:
+    """Preserve public meaning while removing transport-only whitespace."""
+    return " ".join(text.split())
+
+
 @dataclass(frozen=True)
 class MeaningCapsule:
     schema_version: str
@@ -209,9 +214,10 @@ class SemanticGateway:
         return True, "verified_atomsheet_boundary"
 
     @staticmethod
-    def _minimal_prompt(capsule: MeaningCapsule) -> str:
+    def _minimal_prompt(capsule: MeaningCapsule, source_text: str) -> str:
         return json.dumps({
             "task": capsule.intent,
+            "request": _normalise_request_text(source_text),
             "known_entities": capsule.entities,
             "currency": capsule.currency,
             "constraints": capsule.constraints,
@@ -241,7 +247,7 @@ class SemanticGateway:
             "original_utf8_bytes": len(text.encode("utf-8")),
         }
         if not eligible:
-            prompt = self._minimal_prompt(capsule)
+            prompt = self._minimal_prompt(capsule, text)
             return GatewayResult(
                 schema_version="aion.semantic_gateway.result.v1",
                 route="full_model",
@@ -251,7 +257,12 @@ class SemanticGateway:
                 meaning_capsule=capsule,
                 candidates=candidates,
                 minimal_model_prompt=prompt,
-                proof_receipt={**base_receipt, "minimal_prompt_utf8_bytes": len(prompt.encode("utf-8"))},
+                proof_receipt={
+                    **base_receipt,
+                    "minimal_prompt_utf8_bytes": len(prompt.encode("utf-8")),
+                    "minimal_prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
+                    "source_request_preserved": True,
+                },
             )
 
         values = {name: Decimal(value) for name, value in capsule.entities.items()}
