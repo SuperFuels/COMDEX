@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import hashlib
+import json
+
 import pytest
 
 from backend.modules.aion_inference import (
@@ -7,6 +10,7 @@ from backend.modules.aion_inference import (
     build_expert_prefetch_plan,
     optimize_expert_cache_budget,
     simulate_frequency_cache_demand_bytes,
+    verify_promoted_expert_cache_plan,
 )
 from backend.scripts.run_aion_layer_scoped_moe_experiment import LayerScopedStore
 
@@ -115,3 +119,46 @@ def test_budget_optimizer_moves_slots_to_the_layer_with_marginal_reuse():
     assert plan.uniform_predicted_demand_bytes == 40
     assert plan.predicted_byte_reduction_percent == 50.0
     assert len(plan.plan_sha256) == 64
+
+
+def test_promoted_cache_plan_verifier_binds_capacity_and_model():
+    document = {
+        "schema_version": "aion.promoted_expert_cache_plan.v1",
+        "architecture": {"layers": 2, "experts_per_layer": 2},
+        "total_capacity": 2,
+        "capacities_by_layer": [2, 0],
+        "bindings": {
+            "model_config_sha256": "a" * 64,
+            "shard_manifest_sha256": "b" * 64,
+            "pack_manifest_sha256": "c" * 64,
+        },
+        "integrity": {"promotion_gates_passed": True},
+    }
+    document["artifact_sha256"] = hashlib.sha256(
+        json.dumps(document, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    assert verify_promoted_expert_cache_plan(
+        document,
+        expected_model_config_sha256="a" * 64,
+        expected_shard_manifest_sha256="b" * 64,
+        expected_pack_manifest_sha256="c" * 64,
+    ) == (2, 0)
+    with pytest.raises(ValueError, match="model_config_sha256"):
+        verify_promoted_expert_cache_plan(document, expected_model_config_sha256="d" * 64)
+
+
+def test_promoted_cache_plan_verifier_rejects_mutation():
+    document = {
+        "schema_version": "aion.promoted_expert_cache_plan.v1",
+        "architecture": {"layers": 1, "experts_per_layer": 2},
+        "total_capacity": 1,
+        "capacities_by_layer": [1],
+        "bindings": {},
+        "integrity": {"promotion_gates_passed": True},
+    }
+    document["artifact_sha256"] = hashlib.sha256(
+        json.dumps(document, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    document["capacities_by_layer"] = [2]
+    with pytest.raises(ValueError, match="hash mismatch"):
+        verify_promoted_expert_cache_plan(document)

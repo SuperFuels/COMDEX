@@ -49,6 +49,7 @@ from .expert_cache_budget import (
     ExpertCacheBudgetPlan,
     optimize_expert_cache_budget,
     simulate_frequency_cache_demand_bytes,
+    verify_promoted_expert_cache_plan,
 )
 
 __all__ = [
@@ -97,4 +98,5 @@ __all__ = [
     "ExpertCacheBudgetPlan",
     "optimize_expert_cache_budget",
     "simulate_frequency_cache_demand_bytes",
+    "verify_promoted_expert_cache_plan",
 ]

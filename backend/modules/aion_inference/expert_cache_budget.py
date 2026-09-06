@@ -23,6 +23,45 @@ class ExpertCacheBudgetPlan:
     plan_sha256: str
 
 
+def verify_promoted_expert_cache_plan(
+    document: dict[str, Any],
+    *,
+    expected_model_config_sha256: str | None = None,
+    expected_shard_manifest_sha256: str | None = None,
+    expected_pack_manifest_sha256: str | None = None,
+) -> tuple[int, ...]:
+    """Fail closed unless a promoted cache plan and its bindings are intact."""
+    if document.get("schema_version") != "aion.promoted_expert_cache_plan.v1":
+        raise ValueError("unsupported promoted cache plan schema")
+    claimed = document.get("artifact_sha256")
+    payload = {key: value for key, value in document.items() if key != "artifact_sha256"}
+    observed = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    ).hexdigest()
+    if claimed != observed:
+        raise ValueError("promoted cache plan hash mismatch")
+    integrity = document.get("integrity")
+    if not isinstance(integrity, dict) or not integrity or not all(integrity.values()):
+        raise ValueError("promoted cache plan integrity gate failed")
+    capacities = tuple(int(value) for value in document.get("capacities_by_layer", ()))
+    layers = int(document.get("architecture", {}).get("layers", 0))
+    experts_per_layer = int(document.get("architecture", {}).get("experts_per_layer", 0))
+    if len(capacities) != layers or any(value < 0 or value > experts_per_layer for value in capacities):
+        raise ValueError("promoted cache plan capacities invalid")
+    if sum(capacities) != int(document.get("total_capacity", -1)):
+        raise ValueError("promoted cache plan total mismatch")
+    bindings = document.get("bindings", {})
+    expected = {
+        "model_config_sha256": expected_model_config_sha256,
+        "shard_manifest_sha256": expected_shard_manifest_sha256,
+        "pack_manifest_sha256": expected_pack_manifest_sha256,
+    }
+    for name, value in expected.items():
+        if value is not None and bindings.get(name) != value:
+            raise ValueError(f"promoted cache plan {name} binding mismatch")
+    return capacities
+
+
 def simulate_frequency_cache_demand_bytes(
     route_batches: Sequence[RouteBatch],
     entries: dict[int, dict[str, Any]],

@@ -217,6 +217,14 @@ by 0.96%, with a 1.75% peak-Metal increase. It improved time on both held-out
 cases and preserved every token and generation-step logit exactly. This is the
 current reference cache controller, subject to larger-corpus replication.
 
+Passing controller evidence can be promoted into an immutable external-storage
+plan. Promotion requires intact canonical evidence, exact outputs, held-out
+latency and demand-byte improvements, and an unchanged capacity budget. The
+artifact binds the model configuration, routing profile, shard manifest, pack
+manifest, and source evidence hashes. `verify_promoted_expert_cache_plan`
+rejects content mutation, invalid capacities, failed gates, and model or
+manifest substitution before the runtime accepts the per-layer capacities.
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts
