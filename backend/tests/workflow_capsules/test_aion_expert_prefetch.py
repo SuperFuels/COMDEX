@@ -42,8 +42,18 @@ def test_broad_plan_reuses_measured_cross_domain_resident_sets():
     assert plan.coverage_target == 0.95
 
 
+def test_layer_ahead_plan_can_be_capped_at_native_router_top_k():
+    plan = build_expert_prefetch_plan(
+        _routing_profile(), "policy", coverage_target=0.99, max_experts_per_layer=2
+    )
+    assert plan.max_experts_per_layer == 2
+    assert plan.expert_count_by_layer == (2, 2)
+
+
 def test_prefetch_plan_rejects_unknown_profile_and_invalid_coverage():
     with pytest.raises(ValueError, match="unsupported"):
         build_expert_prefetch_plan(_routing_profile(), "imaginary")
     with pytest.raises(ValueError, match="coverage_target"):
         build_expert_prefetch_plan(_routing_profile(), "policy", coverage_target=0.0)
+    with pytest.raises(ValueError, match="max_experts_per_layer"):
+        build_expert_prefetch_plan(_routing_profile(), "policy", max_experts_per_layer=1)

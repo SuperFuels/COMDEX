@@ -144,6 +144,30 @@ prediction-to-loader bridge therefore works, but this profile is not selective
 enough to deliver a meaningful end-to-end speed or request-peak-memory gain.
 Physical SD reads were not isolated from the macOS file cache.
 
+The follow-up changes the memory lifecycle rather than widening the preload.
+`run_aion_layer_scoped_moe_experiment.py` compares immediate layer eviction,
+static one-layer-ahead top-eight prefetch, and bounded retention of the eight
+experts selected by the live router for the final prompt token:
+
+```bash
+PYTHONPATH=. python backend/scripts/run_aion_layer_scoped_moe_experiment.py \
+  --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \
+  --profile "/Volumes/EXTERNAL/AION-Inference/experiments/real-moe-expert-profile-v1.json" \
+  --shard-manifest "/Volumes/EXTERNAL/AION-Inference/expert-shards/granite-3.1-3b-a800m-instruct/manifest.json" \
+  --request-scope-reference "/Volumes/EXTERNAL/AION-Inference/experiments/glyph-moe-prefetch-v1.json" \
+  --storage-root "/Volumes/EXTERNAL/AION-Inference" \
+  --run-id layer-scoped-moe-v2-live-router
+```
+
+On the two tested prompts, pure layer eviction reduced peak Metal allocation
+from 6.60 GB to 0.78 GB but raised median generation from 79.99 s to 92.38 s.
+Static layer-ahead prediction added 9.54% I/O and did not improve speed. Bounded
+live-router retention was the best tradeoff: 2.06 GB peak allocation (68.77%
+below request-wide retention) and 84.88 s median generation. It recovered 8.12%
+against pure eviction and was only 6.11% slower than the request-wide reference.
+All outputs remained exact. This is a two-prompt, warm-file-cache result, not a
+production throughput claim.
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts
