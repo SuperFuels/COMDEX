@@ -235,6 +235,15 @@ run-order/cache variance. The plan remains the promising experimental reference,
 but a population latency claim is explicitly disallowed until repeated,
 randomized, cache-controlled testing is complete.
 
+`ExpertRouteCorpus` now provides the next learning boundary. It stores only
+content-addressed router batches, Glyph addresses, model-input hashes and model
+or manifest bindings; public prompt text and model output are excluded. Exact
+duplicate observations deduplicate automatically, mutation fails hash
+verification, and observations with different model bindings cannot be mixed.
+Multiple verified observations can be combined into one global cache-budget
+optimization, enabling the next controller to learn from a corpus rather than
+one prompt.
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts

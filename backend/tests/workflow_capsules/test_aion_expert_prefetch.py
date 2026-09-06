@@ -8,6 +8,7 @@ import pytest
 from backend.modules.aion_inference import (
     broad_expert_prefetch_plan,
     build_expert_prefetch_plan,
+    ExpertRouteCorpus,
     optimize_expert_cache_budget,
     simulate_frequency_cache_demand_bytes,
     verify_promoted_expert_cache_plan,
@@ -162,3 +163,46 @@ def test_promoted_cache_plan_verifier_rejects_mutation():
     document["capacities_by_layer"] = [2]
     with pytest.raises(ValueError, match="hash mismatch"):
         verify_promoted_expert_cache_plan(document)
+
+
+def test_route_corpus_is_content_addressed_and_prompt_private(tmp_path):
+    corpus = ExpertRouteCorpus(tmp_path / "routes")
+    kwargs = {
+        "route_batches_by_layer": ((((0, 1),),), (((1,),),)),
+        "glyph_address": "glyph:sha256:" + "1" * 64,
+        "model_input_sha256": "2" * 64,
+        "generated_tokens": 2,
+        "model_config_sha256": "3" * 64,
+        "shard_manifest_sha256": "4" * 64,
+        "pack_manifest_sha256": "5" * 64,
+        "experts_per_layer": 2,
+    }
+    first = corpus.record(**kwargs)
+    second = corpus.record(**kwargs)
+    assert first == second
+    observation = corpus.load(first)
+    assert observation["privacy"] == {"prompt_text_stored": False, "model_output_stored": False}
+    assert "prompt" not in observation
+
+
+def test_route_corpus_builds_one_budget_across_multiple_observations(tmp_path):
+    corpus = ExpertRouteCorpus(tmp_path / "routes")
+    base = {
+        "glyph_address": "glyph:sha256:" + "1" * 64,
+        "generated_tokens": 2,
+        "model_config_sha256": "3" * 64,
+        "shard_manifest_sha256": "4" * 64,
+        "pack_manifest_sha256": "5" * 64,
+        "experts_per_layer": 2,
+    }
+    digests = [
+        corpus.record(
+            **base, model_input_sha256=str(number) * 64,
+            route_batches_by_layer=(( ((0,),), ((1,),) ), ()),
+        )
+        for number in (6, 7)
+    ]
+    entries = ({0: {"bytes": 10}, 1: {"bytes": 10}}, {0: {"bytes": 10}, 1: {"bytes": 10}})
+    plan = corpus.optimize(digests, entries, total_capacity=2)
+    assert plan.capacities_by_layer == (2, 0)
+    assert plan.total_capacity == 2

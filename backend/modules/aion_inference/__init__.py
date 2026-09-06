@@ -51,6 +51,7 @@ from .expert_cache_budget import (
     simulate_frequency_cache_demand_bytes,
     verify_promoted_expert_cache_plan,
 )
+from .expert_route_corpus import ExpertRouteCorpus
 
 __all__ = [
     "BenchmarkReport",
@@ -99,4 +100,5 @@ __all__ = [
     "optimize_expert_cache_budget",
     "simulate_frequency_cache_demand_bytes",
     "verify_promoted_expert_cache_plan",
+    "ExpertRouteCorpus",
 ]
