@@ -367,6 +367,24 @@ low-bit packed arithmetic that reduces bytes read; that lossy method is outside
 this programme's exact-FP16 gate unless evaluated later as a separately
 authorized quality track.
 
+Stage 4 then replaced temporary full-checkpoint startup with a true
+storage-first construction path.  The model was created as an unallocated meta
+skeleton, 226 shared/router checkpoint tensors were loaded to Metal, and all 64
+combined expert tensors were skipped.  Verified SD pack addresses were bound to
+the governed layer cache instead.  A first attempt failed closed because the
+deterministic RoPE buffer had also been placed on meta; its failure record is
+preserved.  The corrected build left no meta parameter or buffer at execution.
+
+In the bounded warm-uncontrolled feasibility run, full-checkpoint construction
+took 93.295 s and allocated 6,597,587,456 Metal bytes.  Storage-first
+construction took 6.549 s and peaked at 557,789,184 Metal bytes: 14.25 times
+faster construction and 91.55% lower startup Metal allocation.  All 1,280
+experts remained addressable.  First and subsequent inference reproduced every
+control token and logit exactly.  The first request took 78.563 s; the second
+took 40.199 s with 682 retained hits across both requests.  This passes the
+Stage 4 construction proof, but it is not yet a cold-start, multi-prompt, or
+throughput promotion result.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \
