@@ -16,13 +16,29 @@ from .webos import WebOsActionReceipt, WebOsIntegrationReceipt, WebOsPairingRece
 
 
 class FabricStore:
-    def __init__(self, path: str | Path) -> None:
+    DEFAULT_AUDIT_MAX_ROWS = 4096
+    DEFAULT_AUDIT_PRUNE_TO_ROWS = 3072
+    AUDIT_PRUNE_CHECK_INTERVAL = 256
+
+    def __init__(
+        self,
+        path: str | Path,
+        *,
+        audit_max_rows: int = DEFAULT_AUDIT_MAX_ROWS,
+        audit_prune_to_rows: int = DEFAULT_AUDIT_PRUNE_TO_ROWS,
+    ) -> None:
         self.path = Path(path)
+        if audit_max_rows < 2:
+            raise ValueError("audit_max_rows must be at least 2")
+        if not 1 <= audit_prune_to_rows < audit_max_rows:
+            raise ValueError("audit_prune_to_rows must be positive and smaller than audit_max_rows")
+        self.audit_max_rows = int(audit_max_rows)
+        self.audit_prune_to_rows = int(audit_prune_to_rows)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._initialize()
 
     def connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.path)
+        connection = sqlite3.connect(self.path, timeout=30.0)
         connection.row_factory = sqlite3.Row
         return connection
 
@@ -73,6 +89,15 @@ class FabricStore:
                     event_hash TEXT NOT NULL,
                     created_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS audit_retention_checkpoint (
+                    checkpoint_id INTEGER PRIMARY KEY CHECK(checkpoint_id = 1),
+                    pruned_through_sequence INTEGER NOT NULL,
+                    anchor_hash TEXT NOT NULL,
+                    pruned_rows INTEGER NOT NULL,
+                    checkpoint_json TEXT NOT NULL,
+                    checkpoint_hash TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS discovery_runs (
                     run_id TEXT PRIMARY KEY,
                     run_json TEXT NOT NULL,
@@ -122,6 +147,64 @@ class FabricStore:
                 );
                 """
             )
+            db.execute("PRAGMA journal_size_limit=4194304")
+        pruned = self.prune_audit_ledger(force=True)
+        if pruned and self.path.stat().st_size > 16 * 1024 * 1024:
+            # Startup is the only safe point for a full compaction.  Durable
+            # pairing, device and preference tables are deliberately untouched.
+            with self.connect() as db:
+                db.execute("VACUUM")
+
+    def _prune_audit_with_connection(self, db: sqlite3.Connection, *, force: bool) -> int:
+        row = db.execute(
+            "SELECT COUNT(*) AS total, COALESCE(MAX(sequence), 0) AS head FROM audit_ledger"
+        ).fetchone()
+        total = int(row["total"])
+        head = int(row["head"])
+        if total <= self.audit_max_rows:
+            return 0
+        if not force and head % self.AUDIT_PRUNE_CHECK_INTERVAL:
+            return 0
+        remove_count = total - self.audit_prune_to_rows
+        boundary = db.execute(
+            "SELECT sequence,event_hash FROM audit_ledger ORDER BY sequence LIMIT 1 OFFSET ?",
+            (remove_count - 1,),
+        ).fetchone()
+        if boundary is None:
+            return 0
+        previous = db.execute(
+            "SELECT checkpoint_hash,pruned_rows FROM audit_retention_checkpoint WHERE checkpoint_id=1"
+        ).fetchone()
+        now = utc_now_iso()
+        checkpoint = {
+            "schema_version": "aion.audit-retention-checkpoint.v1",
+            "pruned_through_sequence": int(boundary["sequence"]),
+            "anchor_hash": str(boundary["event_hash"]),
+            "pruned_rows": int(previous["pruned_rows"]) + remove_count if previous else remove_count,
+            "previous_checkpoint_hash": str(previous["checkpoint_hash"]) if previous else "0" * 64,
+            "updated_at": now,
+        }
+        checkpoint_hash = canonical_hash(checkpoint)
+        db.execute("DELETE FROM audit_ledger WHERE sequence <= ?", (boundary["sequence"],))
+        db.execute(
+            "INSERT INTO audit_retention_checkpoint("
+            "checkpoint_id,pruned_through_sequence,anchor_hash,pruned_rows,checkpoint_json,checkpoint_hash,updated_at"
+            ") VALUES(1,?,?,?,?,?,?) ON CONFLICT(checkpoint_id) DO UPDATE SET "
+            "pruned_through_sequence=excluded.pruned_through_sequence,anchor_hash=excluded.anchor_hash,"
+            "pruned_rows=excluded.pruned_rows,checkpoint_json=excluded.checkpoint_json,"
+            "checkpoint_hash=excluded.checkpoint_hash,updated_at=excluded.updated_at",
+            (
+                checkpoint["pruned_through_sequence"], checkpoint["anchor_hash"],
+                checkpoint["pruned_rows"], canonical_bytes(checkpoint).decode(), checkpoint_hash, now,
+            ),
+        )
+        return remove_count
+
+    def prune_audit_ledger(self, *, force: bool = False) -> int:
+        """Bound disposable audit history without touching durable user/device state."""
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            return self._prune_audit_with_connection(db, force=force)
 
     def append_audit(self, event_type: str, payload: Dict[str, Any]) -> str:
         with self.connect() as db:
@@ -143,6 +226,7 @@ class FabricStore:
                 "INSERT INTO audit_ledger(event_type,event_json,previous_hash,event_hash,created_at) VALUES(?,?,?,?,?)",
                 (event_type, canonical_bytes(event).decode(), previous_hash, event_hash, event["created_at"]),
             )
+            self._prune_audit_with_connection(db, force=False)
             return event_hash
 
     def save_node(self, record: NodeRecord) -> None:
@@ -487,11 +571,28 @@ class FabricStore:
         )
 
     def verify_audit_chain(self) -> bool:
-        previous_hash = "0" * 64
         with self.connect() as db:
+            checkpoint_row = db.execute(
+                "SELECT checkpoint_json,checkpoint_hash,anchor_hash,pruned_through_sequence "
+                "FROM audit_retention_checkpoint WHERE checkpoint_id=1"
+            ).fetchone()
             rows = db.execute(
-                "SELECT event_json,previous_hash,event_hash FROM audit_ledger ORDER BY sequence"
+                "SELECT sequence,event_json,previous_hash,event_hash FROM audit_ledger ORDER BY sequence"
             ).fetchall()
+        previous_hash = "0" * 64
+        pruned_through = 0
+        if checkpoint_row:
+            checkpoint = json.loads(checkpoint_row["checkpoint_json"])
+            if canonical_hash(checkpoint) != checkpoint_row["checkpoint_hash"]:
+                return False
+            if checkpoint.get("anchor_hash") != checkpoint_row["anchor_hash"]:
+                return False
+            if int(checkpoint.get("pruned_through_sequence", -1)) != int(checkpoint_row["pruned_through_sequence"]):
+                return False
+            previous_hash = str(checkpoint_row["anchor_hash"])
+            pruned_through = int(checkpoint_row["pruned_through_sequence"])
+        if rows and int(rows[0]["sequence"]) != pruned_through + 1:
+            return False
         for row in rows:
             event = json.loads(row["event_json"])
             if row["previous_hash"] != previous_hash:

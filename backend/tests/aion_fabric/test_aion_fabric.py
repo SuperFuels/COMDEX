@@ -11,6 +11,7 @@ from backend.modules.aion_fabric.contracts import (
     CapabilityKind,
     DeviceProfile,
     EnrollmentState,
+    NodeRecord,
     NodeRole,
     RiskLevel,
     select_role,
@@ -49,6 +50,53 @@ def test_concurrent_audit_appends_keep_one_linear_chain(tmp_path):
     with ThreadPoolExecutor(max_workers=8) as workers:
         list(workers.map(lambda number: store.append_audit("concurrent_test", {"number": number}), range(80)))
     assert store.counts()["audit_ledger"] == 80
+    assert store.verify_audit_chain() is True
+
+
+def test_audit_retention_is_bounded_and_preserves_chain_checkpoint(tmp_path):
+    store = FabricStore(
+        tmp_path / "bounded-audit.sqlite3",
+        audit_max_rows=12,
+        audit_prune_to_rows=8,
+    )
+    store.AUDIT_PRUNE_CHECK_INTERVAL = 1
+    for number in range(40):
+        store.append_audit("microphone_activity", {"number": number})
+
+    assert store.counts()["audit_ledger"] <= 12
+    assert store.verify_audit_chain() is True
+    with store.connect() as db:
+        checkpoint = db.execute(
+            "SELECT pruned_rows,pruned_through_sequence FROM audit_retention_checkpoint WHERE checkpoint_id=1"
+        ).fetchone()
+    assert checkpoint is not None
+    assert checkpoint["pruned_rows"] > 0
+    assert checkpoint["pruned_through_sequence"] > 0
+
+
+def test_audit_retention_does_not_remove_durable_pairing_tables(tmp_path):
+    store = FabricStore(
+        tmp_path / "durable-state.sqlite3",
+        audit_max_rows=8,
+        audit_prune_to_rows=4,
+    )
+    store.AUDIT_PRUNE_CHECK_INTERVAL = 1
+    record = NodeRecord(
+        profile=device(node_id="paired-tv", name="Living room TV"),
+        role=NodeRole.GATEWAY,
+        public_key="public-key",
+        enrollment=EnrollmentState.ENROLLED,
+        mother_id="mother",
+        last_seen_at="2026-09-06T00:00:00+00:00",
+    )
+    store.save_node(record)
+    for number in range(30):
+        store.append_audit("microphone_activity", {"number": number})
+
+    restored = store.get_node("paired-tv")
+    assert restored is not None
+    assert restored.profile.name == "Living room TV"
+    assert restored.enrollment is EnrollmentState.ENROLLED
     assert store.verify_audit_chain() is True
 
 
