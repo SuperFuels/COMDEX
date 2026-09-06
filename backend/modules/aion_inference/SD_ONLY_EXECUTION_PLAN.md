@@ -201,6 +201,35 @@ Report:
 
 This is the primary commercial metric for the SD prototype.
 
+### Stage 8 - Glyph-addressed Business Map cartridge
+
+After Stages 5--7 pass, prototype the Boardroom Business Map as a signed,
+tenant-bound expert cartridge rather than modifying the foundation model
+directly. Its first version combines:
+
+- provenance-bound retrieval over company documents;
+- promoted AtomSheets for exact rules and calculations;
+- governed workflows, permissions and human-approval boundaries;
+- minimal selected context and reusable prefix artifacts;
+- content-addressed evidence and revocation records; and
+- an optional adapter interface that remains disabled until separately trained,
+  evaluated and authorized.
+
+The cartridge router must select the correct business identity and fail closed
+on cross-tenant, stale, unsigned or ambiguous evidence. Mutable business facts
+remain in retrieval or AtomSheets rather than being hidden in neural weights.
+No generated or replacement MoE expert may be injected into Granite without a
+new training protocol, router integration, capability evaluation and safety
+gate.
+
+Define a separate Personal Map schema for Pilot, but do not ingest personal
+data or train personal weights during this stage. Business and personal maps
+must have distinct keys, storage roots, permissions and deletion boundaries.
+
+Exit gate: a blinded business-task set shows improved completed-task latency or
+resource use without reduced accepted-task success, every answer carries
+source/contract provenance, and cross-map isolation tests pass.
+
 ## Stop and pivot rules
 
 Stop optimizing a strategy when any of the following is demonstrated twice in

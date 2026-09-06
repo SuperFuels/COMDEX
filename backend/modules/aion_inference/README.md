@@ -494,6 +494,24 @@ four-prompt failure remains invalid and differs from this stable sequence after
 zero-based step 243. This promotes a replicated exact single-family 256-token
 milestone, not a four-family or cold-cache result.
 
+Two fresh four-family 256-token runs then used contrasting prompt orders. Both
+runs completed all 1,024 requested tokens with exact token IDs and exact
+generation-step logits. Across 2,048 accepted SD-backed tokens, the median of
+the two run medians was 1.2972 tokens/s; the individual medians were 1.4102 and
+1.1842 tokens/s. Combined retained-hit rate was 82.11%, with 95,208 faults,
+437,100 hits and 449,269,795,392 logical demand bytes. Every family remained
+exact whether placed early or late. This is the first replicated exact
+four-family 256-token milestone. It remains warm uncontrolled, and its median
+throughput is 50.23% below the earlier 128-token aggregate median, so it proves
+robust sustained correctness rather than a universal longer-is-faster result.
+
+The existing SD-backed Qwen route was revalidated immediately afterwards. All
+12 full-context and all 12 selected-context structured answers were correct and
+equivalent. Context selection preserved every mandatory policy and reduced
+Qwen prompt tokens by 62.77% at the median and at least 62.54% in every case.
+This confirms readiness for Stage 6 task routing but is not yet a mixed-workload
+completed-task economics result.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \
