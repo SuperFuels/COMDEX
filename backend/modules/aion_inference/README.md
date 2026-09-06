@@ -294,6 +294,24 @@ system-wide, and the inserted synchronization barriers perturb latency.  These
 results select Metal materialisation—not file opens or cache-policy overhead—as
 the next bounded optimization target; they are not production throughput data.
 
+The first single-change probe requested non-blocking copies for each expert
+tensor while retaining the layer synchronization barrier.  It was rejected
+immediately: the 24-token output diverged, maximum step-logit error reached
+25.59375, and instrumented time increased by 2.04% relative to the corrected
+blocking reference.  Its report and `INVALID` sidecar remain on the SD evidence
+volume.  No ABBA replication is warranted because exactness failed; subsequent
+Metal work must use an explicitly synchronized batch or arena design.
+
+A second probe fused each expert's input and output matrices into one owned CPU
+buffer, then made one blocking Metal transfer whose two device views remain
+independently evictable as a single expert.  It preserved exact tokens and
+logits, halved transfer operations from 4,922 to 2,461, reduced attributed Metal
+materialisation time by 11.52%, and reduced total instrumented time by 6.92%
+against the corrected v2 reference (135.010 s to 125.663 s).  However, it was
+5.14% slower than the earlier immutable v1 reference.  It therefore remains an
+unpromoted candidate below the 10% live-time gate pending balanced ABBA
+replication; no general speedup is claimed.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \

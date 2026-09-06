@@ -71,6 +71,19 @@ def _disk_snapshot(device: str) -> dict[str, int]:
 class TimedPackedLayerStore(PackedLayerScopedStore):
     """Packed store with non-overlapping lookup, read and Metal-transfer timing."""
 
+    def __init__(
+        self,
+        layer: int,
+        index: dict[str, Any],
+        pack: dict[str, Any],
+        *,
+        transfer_mode: str = "blocking",
+    ) -> None:
+        super().__init__(layer, index, pack)
+        if transfer_mode not in {"blocking", "non_blocking", "fused_blocking"}:
+            raise ValueError("unsupported transfer mode")
+        self.transfer_mode = transfer_mode
+
     def activate_timed(
         self,
         experts: tuple[int, ...],
@@ -103,11 +116,29 @@ class TimedPackedLayerStore(PackedLayerScopedStore):
         storage_read_seconds = time.perf_counter() - read_started
 
         transfer_started = time.perf_counter()
+        transfer_operations = 0
         for expert, cpu_weights in cpu_for_transfer.items():
-            self.active[expert] = (
-                cpu_weights[0].to(device=device, dtype=dtype),
-                cpu_weights[1].to(device=device, dtype=dtype),
-            )
+            if self.transfer_mode == "fused_blocking":
+                input_weight, output_weight = cpu_weights
+                input_elements = input_weight.numel()
+                fused = torch.cat((input_weight.reshape(-1), output_weight.reshape(-1)))
+                transferred = fused.to(device=device, dtype=dtype)
+                self.active[expert] = (
+                    transferred[:input_elements].view(input_weight.shape),
+                    transferred[input_elements:].view(output_weight.shape),
+                )
+                transfer_operations += 1
+            else:
+                non_blocking = self.transfer_mode == "non_blocking"
+                self.active[expert] = (
+                    cpu_weights[0].to(
+                        device=device, dtype=dtype, non_blocking=non_blocking
+                    ),
+                    cpu_weights[1].to(
+                        device=device, dtype=dtype, non_blocking=non_blocking
+                    ),
+                )
+                transfer_operations += 2
         transfer_enqueue_seconds = time.perf_counter() - transfer_started
         sync_started = time.perf_counter()
         torch.mps.synchronize()
@@ -126,6 +157,7 @@ class TimedPackedLayerStore(PackedLayerScopedStore):
             "storage_read_seconds": storage_read_seconds,
             "transfer_enqueue_seconds": transfer_enqueue_seconds,
             "transfer_sync_seconds": transfer_sync_seconds,
+            "transfer_operations": transfer_operations,
             "total_seconds": time.perf_counter() - total_started,
         }
         self.events.append(event)
@@ -223,6 +255,12 @@ def main() -> int:
         choices=("warm_uncontrolled",),
         default="warm_uncontrolled",
         help="Explicit cache label; this stage does not claim privileged OS-cache eviction",
+    )
+    parser.add_argument(
+        "--transfer-mode",
+        choices=("blocking", "non_blocking", "fused_blocking"),
+        default="blocking",
+        help="Whether individual CPU-to-Metal tensor copies may enqueue asynchronously",
     )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
@@ -348,7 +386,12 @@ def main() -> int:
     for number, (layer, index, pack_layer) in enumerate(
         zip(layers, indexes, packs["layers"], strict=True)
     ):
-        store = TimedPackedLayerStore(number, index, pack_layer)
+        store = TimedPackedLayerStore(
+            number,
+            index,
+            pack_layer,
+            transfer_mode=args.transfer_mode,
+        )
         store.preverify(root)
         stores.append(store)
         layer.block_sparse_moe.input_linear = None
@@ -441,6 +484,7 @@ def main() -> int:
             "generated_tokens": args.generated_tokens,
             "cache_capacity": sum(capacities), "stage_boundary_synchronization": True,
             "cache_condition": args.cache_condition,
+            "transfer_mode": args.transfer_mode,
             "os_file_cache_controlled": False,
         },
         "capacity_source": capacity_source,
@@ -458,6 +502,7 @@ def main() -> int:
             "demand_logical_bytes": sum(event["demand_logical_bytes"] for event in activations),
             "retained_hits": sum(event["retained_hits"] for event in activations),
             "pack_open_operations": sum(store.pack_opens for store in stores),
+            "metal_transfer_operations": sum(event["transfer_operations"] for event in activations),
         },
         "attribution": attribution,
         "physical_disk_observation": physical,
