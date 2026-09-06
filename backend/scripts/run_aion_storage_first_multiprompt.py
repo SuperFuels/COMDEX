@@ -84,6 +84,22 @@ def _nearest_rank_p95(values: list[float]) -> float:
     return sorted(values)[max(0, int(0.95 * len(values) + 0.999999) - 1)]
 
 
+def _step_error_summary(errors: list[float], token_ids: list[int]) -> dict[str, Any]:
+    """Retain bounded localization evidence without serializing full logits."""
+    nonzero = [
+        {"step_index": index, "maximum_absolute_error": error, "selected_token_id": token_ids[index]}
+        for index, error in enumerate(errors)
+        if error != 0.0
+    ]
+    maximum_index = max(range(len(errors)), key=errors.__getitem__) if errors else None
+    return {
+        "nonzero_step_logit_error_count": len(nonzero),
+        "first_nonzero_step_logit_error": nonzero[0] if nonzero else None,
+        "maximum_step_logit_error_index": maximum_index,
+        "nonzero_step_logit_errors": nonzero,
+    }
+
+
 class _Timeline(LogitsProcessor):
     def __init__(self) -> None:
         self.started = time.perf_counter()
@@ -295,6 +311,7 @@ def main() -> int:
             float((actual - expected).abs().max().item())
             for actual, expected in zip(observed["scores"], control["scores"], strict=True)
         ]
+        error_summary = _step_error_summary(errors, observed["token_ids"])
         results.append({
             "family": request["family"],
             "glyph_address": request["glyph_address"],
@@ -312,6 +329,7 @@ def main() -> int:
             "token_ids_exact_match": observed["token_ids"] == control["token_ids"],
             "all_step_logits_exact_match": all(error == 0.0 for error in errors),
             "maximum_step_logit_error": max(errors, default=0.0),
+            **error_summary,
             "demand_faults": sum(int(event["demand_faults"]) for event in events),
             "retained_hits": sum(int(event["retained_hits"]) for event in events),
             "demand_logical_bytes": sum(int(event["demand_logical_bytes"]) for event in events),
@@ -415,9 +433,10 @@ def main() -> int:
         "integrity": integrity,
         "validation_passed": all(integrity.values()),
         "claim_boundary": (
-            "Four randomized prompt families at 64 tokens with one persistent cache. Filesystem "
+            f"Four randomized prompt families at {args.generated_tokens} generated tokens per prompt "
+            "with one persistent cache. Filesystem "
             "state is warm uncontrolled and there is one observation per family; this is not "
-            "cold-cache, replicated p95, 128-token, or 256-token evidence."
+            "cold-cache or replicated population-level p95 evidence."
         ),
     }
     report["report_sha256"] = _canonical_sha256(report)

@@ -26,6 +26,7 @@ from backend.scripts.run_aion_layer_scoped_moe_experiment import (
     LayerScopedStore,
     select_frequency_retention,
 )
+from backend.scripts.run_aion_storage_first_multiprompt import _step_error_summary
 from backend.scripts.run_aion_promoted_cache_plan_replication import CASES, _comparison_cases
 from backend.scripts.run_aion_moe_latency_attribution import summarize_stage_seconds
 from backend.scripts.run_aion_metal_transfer_abba import _p95
@@ -247,6 +248,18 @@ def test_cost_aware_collapse_fuses_exact_execution_signatures_and_avoids_model()
     fused = next(item for item in fusion if item["execution_signature"] == "sheet:tax-v1")
     assert fused["fused_beam_ids"] == ("calculation_a", "calculation_b")
     assert fused["fused_count"] == 2
+
+
+def test_step_error_summary_localizes_first_and_maximum_divergence():
+    summary = _step_error_summary([0.0, 0.015625, 0.0, 0.03125], [10, 11, 12, 13])
+    assert summary["nonzero_step_logit_error_count"] == 2
+    assert summary["first_nonzero_step_logit_error"] == {
+        "step_index": 1,
+        "maximum_absolute_error": 0.015625,
+        "selected_token_id": 11,
+    }
+    assert summary["maximum_step_logit_error_index"] == 3
+    assert summary["nonzero_step_logit_errors"][-1]["selected_token_id"] == 13
 
 
 def test_frequency_cache_simulator_matches_expected_fault_bytes():
