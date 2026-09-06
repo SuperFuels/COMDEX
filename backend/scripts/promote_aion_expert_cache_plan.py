@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from backend.modules.aion_inference import verify_promoted_expert_cache_plan
+from backend.modules.aion_inference import ExpertRouteCorpus, verify_promoted_expert_cache_plan
 
 
 def _sha256(path: Path) -> str:
@@ -42,7 +42,10 @@ def main() -> int:
     if output.exists():
         raise SystemExit(f"refusing to overwrite promoted plan: {output}")
     source = json.loads(source_path.read_text(encoding="utf-8"))
-    if source.get("schema_version") != "aion.adaptive_cache_budget_experiment.v1":
+    if source.get("schema_version") not in {
+        "aion.adaptive_cache_budget_experiment.v1",
+        "aion.adaptive_cache_budget_experiment.v2",
+    }:
         raise RuntimeError("unsupported adaptive-cache evidence schema")
     claimed_report_hash = source.get("report_sha256")
     report_payload = {key: value for key, value in source.items() if key != "report_sha256"}
@@ -50,17 +53,6 @@ def main() -> int:
         raise RuntimeError("source evidence canonical hash failed")
     if not source.get("integrity") or not all(source["integrity"].values()):
         raise RuntimeError("source evidence integrity gate failed")
-    outcomes = source["outcomes"]
-    promotion_gates = {
-        "source_integrity_passed": all(source["integrity"].values()),
-        "all_outputs_exact": source["integrity"]["all_token_ids_and_step_logits_exact"],
-        "held_out_median_time_improved": outcomes["adaptive_improves_held_out_median_time"],
-        "held_out_demand_bytes_improved": outcomes["adaptive_improves_held_out_demand_bytes"],
-        "capacity_preserved": source["integrity"]["global_capacity_exactly_512"],
-    }
-    if not all(promotion_gates.values()):
-        raise RuntimeError("adaptive cache plan failed promotion gates")
-
     model_path = Path(source["paths"]["model"])
     shard_path = Path(source["paths"]["shards"])
     pack_path = Path(source["paths"]["packs"])
@@ -68,6 +60,49 @@ def main() -> int:
     bound_paths = (model_path / "config.json", shard_path, pack_path, profile_path)
     if any(root not in path.resolve().parents for path in bound_paths):
         raise RuntimeError("source bindings escaped external storage")
+
+    corpus_verified = source["schema_version"].endswith(".v1")
+    corpus_observation_sha256s: list[str] = []
+    if source["schema_version"].endswith(".v2"):
+        corpus_evidence = source.get("route_corpus") or {}
+        corpus_root = Path(corpus_evidence.get("root", "")).resolve()
+        corpus_observation_sha256s = list(corpus_evidence.get("observation_sha256s") or [])
+        if root not in corpus_root.parents or not corpus_observation_sha256s:
+            raise RuntimeError("v2 evidence is missing an external route corpus")
+        corpus = ExpertRouteCorpus(corpus_root)
+        observations = [corpus.load(digest) for digest in corpus_observation_sha256s]
+        expected_bindings = {
+            "model_config_sha256": _sha256(model_path / "config.json"),
+            "shard_manifest_sha256": _sha256(shard_path),
+            "pack_manifest_sha256": _sha256(pack_path),
+        }
+        expected_observations = len(source.get("method", {}).get("training_cases", ()))
+        corpus_verified = (
+            expected_observations > 0
+            and len(corpus_observation_sha256s) == expected_observations
+            and len(set(corpus_observation_sha256s)) == expected_observations
+            and all(
+                observation["bindings"] == expected_bindings
+                and len(observation["route_batches_by_layer"]) == 32
+                and all(observation["route_batches_by_layer"])
+                for observation in observations
+            )
+        )
+        if not corpus_verified:
+            raise RuntimeError("route corpus binding or completeness gate failed")
+
+    outcomes = source["outcomes"]
+    promotion_gates = {
+        "source_integrity_passed": all(source["integrity"].values()),
+        "all_outputs_exact": source["integrity"]["all_token_ids_and_step_logits_exact"],
+        "held_out_median_time_improved": outcomes["adaptive_improves_held_out_median_time"],
+        "held_out_demand_bytes_improved": outcomes["adaptive_improves_held_out_demand_bytes"],
+        "capacity_preserved": source["integrity"]["global_capacity_exactly_512"],
+        "route_corpus_verified": corpus_verified,
+    }
+    if not all(promotion_gates.values()):
+        raise RuntimeError("adaptive cache plan failed promotion gates")
+
     plan = source["budget_plan"]
     document: dict[str, Any] = {
         "schema_version": "aion.promoted_expert_cache_plan.v1",
@@ -89,6 +124,7 @@ def main() -> int:
             "source_evidence_path": str(source_path),
             "source_evidence_file_sha256": _sha256(source_path),
             "source_evidence_report_sha256": claimed_report_hash,
+            "route_corpus_observation_sha256s": corpus_observation_sha256s,
         },
         "measured_outcomes": {
             "held_out_median_time_change_percent": outcomes["adaptive_time_change_percent_vs_uniform"],

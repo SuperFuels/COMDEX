@@ -244,6 +244,17 @@ Multiple verified observations can be combined into one global cache-budget
 optimization, enabling the next controller to learn from a corpus rather than
 one prompt.
 
+The first live three-prompt capture was invalidated after audit found that two
+observations contained empty layer histories: cache reset had cleared the route
+lists before offsets were applied. The original report is preserved with an
+external `INVALID` sidecar. Both the runner and corpus now reject any empty
+layer. The corrected SD-backed run recorded 16 batches for every one of 32
+layers in each of three prompt-private observations. Its distinct 512-slot plan
+reduced held-out logical demand bytes by 1.226%, versus 0.963% for the original
+single-prompt plan on the same routes, and improved same-run median time by
+2.26% with 0.29% peak-Metal overhead. Every token and step logit was exact. The
+plan is promoted only as a corpus candidate pending direct broader comparison.
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts

@@ -16,7 +16,11 @@ from typing import Any
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from backend.modules.aion_inference import AdaptiveInferenceRuntime, optimize_expert_cache_budget
+from backend.modules.aion_inference import (
+    AdaptiveInferenceRuntime,
+    ExpertRouteCorpus,
+    optimize_expert_cache_budget,
+)
 from backend.scripts.run_aion_layer_pack_experiment import PackedLayerScopedStore
 from backend.scripts.run_aion_layer_scoped_moe_experiment import (
     LayerAheadCoordinator,
@@ -30,6 +34,17 @@ TRAINING_CASE = {
     "prompt": "Human review is required and payment is forbidden. What can happen next?",
     "generated_tokens": 16,
 }
+CORPUS_TRAINING_CASES = (
+    TRAINING_CASE,
+    {
+        "prompt": "Explain why dividing a quantity into four equal parts produces quarters.",
+        "generated_tokens": 16,
+    },
+    {
+        "prompt": "Write a Python function that returns the absolute difference between two integers.",
+        "generated_tokens": 16,
+    },
+)
 HELD_OUT_CASES = (
     {
         "prompt": "Explain how a 7 percent tax changes a quoted price without calculating it.",
@@ -58,6 +73,11 @@ def main() -> int:
     parser.add_argument("--storage-root", type=Path, required=True)
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--total-capacity", type=int, default=512)
+    parser.add_argument(
+        "--training-corpus",
+        action="store_true",
+        help="learn from three prompt-private route observations instead of one prompt",
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
@@ -88,7 +108,8 @@ def main() -> int:
         replay_path=evidence_root / "replay.sqlite3",
         trace_path=evidence_root / "trace.jsonl",
     )
-    cases = [TRAINING_CASE, *HELD_OUT_CASES]
+    training_cases = CORPUS_TRAINING_CASES if args.training_corpus else (TRAINING_CASE,)
+    cases = [*training_cases, *HELD_OUT_CASES]
     requests = []
     for case in cases:
         routed = runtime.route(case["prompt"])
@@ -197,18 +218,64 @@ def main() -> int:
         }
 
     uniform_capacities = tuple(args.total_capacity // len(stores) for _ in stores)
-    training_trial = run_condition(requests[0], controls[0], uniform_capacities, "training_uniform")
-    training_routes = tuple(tuple(store.route_batches) for store in stores)
-    budget_plan = optimize_expert_cache_budget(
-        training_routes,
-        tuple(store.entries for store in stores),
-        total_capacity=args.total_capacity,
-    )
+    training_trials = []
+    training_route_sets = []
+    for training_number, (request, control) in enumerate(
+        zip(requests[:len(training_cases)], controls[:len(training_cases)], strict=True)
+    ):
+        trial = run_condition(
+            request, control, uniform_capacities, f"training_uniform_{training_number}"
+        )
+        trial["training_case_number"] = training_number
+        training_trials.append(trial)
+        training_routes = tuple(tuple(store.route_batches) for store in stores)
+        if any(not layer_batches for layer_batches in training_routes):
+            raise RuntimeError("training route capture is incomplete")
+        training_route_sets.append(training_routes)
+
+    corpus_observation_sha256s = []
+    corpus_root = root / "route-corpora" / args.run_id
+    if args.training_corpus:
+        corpus = ExpertRouteCorpus(corpus_root)
+        model_config_sha256 = _sha256(paths["model"] / "config.json")
+        shard_manifest_sha256 = _sha256(paths["shards"])
+        pack_manifest_sha256 = _sha256(paths["packs"])
+        for request, trial, training_routes in zip(
+            requests[:len(training_cases)], training_trials, training_route_sets, strict=True
+        ):
+            if not trial["token_ids_exact_match"] or not trial["all_step_logits_exact_match"]:
+                raise RuntimeError("refusing to record a non-equivalent route observation")
+            corpus_observation_sha256s.append(corpus.record(
+                route_batches_by_layer=training_routes,
+                glyph_address=request["glyph_address"],
+                model_input_sha256=request["model_input_sha256"],
+                generated_tokens=request["generated_tokens"],
+                model_config_sha256=model_config_sha256,
+                shard_manifest_sha256=shard_manifest_sha256,
+                pack_manifest_sha256=pack_manifest_sha256,
+                experts_per_layer=len(stores[0].entries),
+            ))
+        budget_plan = corpus.optimize(
+            corpus_observation_sha256s,
+            tuple(store.entries for store in stores),
+            total_capacity=args.total_capacity,
+        )
+    else:
+        budget_plan = optimize_expert_cache_budget(
+            training_route_sets[0],
+            tuple(store.entries for store in stores),
+            total_capacity=args.total_capacity,
+        )
     adaptive_capacities = budget_plan.capacities_by_layer
 
     trials = []
     for case_number, (case, request, control) in enumerate(
-        zip(HELD_OUT_CASES, requests[1:], controls[1:], strict=True)
+        zip(
+            HELD_OUT_CASES,
+            requests[len(training_cases):],
+            controls[len(training_cases):],
+            strict=True,
+        )
     ):
         for condition in case["order"]:
             capacities = uniform_capacities if condition == "uniform_16" else adaptive_capacities
@@ -257,6 +324,13 @@ def main() -> int:
     }
     integrity = {
         "training_and_two_held_out_cases_completed": len(trials) == 4,
+        "requested_training_cases_completed": len(training_trials) == len(training_cases),
+        "corpus_observations_content_addressed": (
+            not args.training_corpus
+            or len(corpus_observation_sha256s) == len(training_cases)
+            and len(set(corpus_observation_sha256s)) == len(training_cases)
+            and all(len(digest) == 64 for digest in corpus_observation_sha256s)
+        ),
         "opposite_held_out_condition_orders_completed": (
             [trial["condition"] for trial in trials]
             == ["uniform_16", "adaptive_512", "adaptive_512", "uniform_16"]
@@ -265,8 +339,10 @@ def main() -> int:
         "all_32_layer_packs_verified": len(stores) == 32,
         "all_1280_experts_addressable": sum(len(store.verified) for store in stores) == 1280,
         "all_token_ids_and_step_logits_exact": (
-            training_trial["token_ids_exact_match"]
-            and training_trial["all_step_logits_exact_match"]
+            all(
+                trial["token_ids_exact_match"] and trial["all_step_logits_exact_match"]
+                for trial in training_trials
+            )
             and all(
                 trial["token_ids_exact_match"] and trial["all_step_logits_exact_match"]
                 for trial in trials
@@ -274,10 +350,14 @@ def main() -> int:
         ),
         "all_artifacts_on_external_storage": all(
             root in path.parents for path in (*paths.values(), output)
-        ),
+        ) and (not args.training_corpus or root in corpus_root.parents),
     }
     report = {
-        "schema_version": "aion.adaptive_cache_budget_experiment.v1",
+        "schema_version": (
+            "aion.adaptive_cache_budget_experiment.v2"
+            if args.training_corpus
+            else "aion.adaptive_cache_budget_experiment.v1"
+        ),
         "run_id": args.run_id,
         "storage_root": str(root),
         "paths": {name: str(path) for name, path in paths.items()},
@@ -285,7 +365,8 @@ def main() -> int:
         "gateway_trace_path": str(evidence_root / "trace.jsonl"),
         "gateway_trace_sha256": _sha256(evidence_root / "trace.jsonl"),
         "method": {
-            "training_case": TRAINING_CASE,
+            "training_cases": training_cases,
+            "prompt_private_route_corpus": args.training_corpus,
             "held_out_cases": HELD_OUT_CASES,
             "global_expert_capacity": args.total_capacity,
             "uniform_capacity_per_layer": args.total_capacity // len(stores),
@@ -295,7 +376,13 @@ def main() -> int:
         },
         "requests": [{k: v for k, v in request.items() if k != "model_input"} for request in requests],
         "controls": controls,
-        "training_trial": training_trial,
+        "training_trials": training_trials,
+        "route_corpus": {
+            "root": str(corpus_root) if args.training_corpus else None,
+            "observation_sha256s": corpus_observation_sha256s,
+            "prompt_text_stored": False,
+            "model_output_stored": False,
+        },
         "budget_plan": asdict(budget_plan),
         "trials": trials,
         "aggregates": aggregates,
@@ -307,7 +394,8 @@ def main() -> int:
         "memory": {"unrestricted": unrestricted_memory, "experts_removed": stripped_memory},
         "integrity": integrity,
         "claim_boundary": (
-            "The allocation was learned from one prompt and tested on two held-out prompts under "
+            f"The allocation was learned from {len(training_cases)} prompt-private route "
+            "observation(s) and tested on two held-out prompts under "
             "opposite condition orders. This is a transfer probe, not population-level proof; OS "
             "file cache, physical SD reads and thermal state were not controlled."
         ),

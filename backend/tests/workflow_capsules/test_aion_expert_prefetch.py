@@ -198,7 +198,7 @@ def test_route_corpus_builds_one_budget_across_multiple_observations(tmp_path):
     digests = [
         corpus.record(
             **base, model_input_sha256=str(number) * 64,
-            route_batches_by_layer=(( ((0,),), ((1,),) ), ()),
+            route_batches_by_layer=(( ((0,),), ((1,),) ), (((0,),),)),
         )
         for number in (6, 7)
     ]
@@ -206,3 +206,18 @@ def test_route_corpus_builds_one_budget_across_multiple_observations(tmp_path):
     plan = corpus.optimize(digests, entries, total_capacity=2)
     assert plan.capacities_by_layer == (2, 0)
     assert plan.total_capacity == 2
+
+
+def test_route_corpus_rejects_an_observation_with_an_empty_layer(tmp_path):
+    corpus = ExpertRouteCorpus(tmp_path / "routes")
+    with pytest.raises(ValueError, match="every layer"):
+        corpus.record(
+            route_batches_by_layer=(( ((0,),), ), ()),
+            glyph_address="glyph:sha256:" + "1" * 64,
+            model_input_sha256="2" * 64,
+            generated_tokens=1,
+            model_config_sha256="3" * 64,
+            shard_manifest_sha256="4" * 64,
+            pack_manifest_sha256="5" * 64,
+            experts_per_layer=1,
+        )

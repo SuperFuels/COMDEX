@@ -46,6 +46,8 @@ class ExpertRouteCorpus:
             raise ValueError("route observation bindings must be SHA-256 digests")
         normalized = []
         for layer_batches in route_batches_by_layer:
+            if not layer_batches:
+                raise ValueError("route observation must contain batches for every layer")
             normalized_batches = []
             for batch in layer_batches:
                 normalized_routes = []
