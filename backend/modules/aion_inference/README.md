@@ -168,6 +168,27 @@ against pure eviction and was only 6.11% slower than the request-wide reference.
 All outputs remained exact. This is a two-prompt, warm-file-cache result, not a
 production throughput claim.
 
+The longer-generation experiment compares request-wide retention with a
+one-route cache and an LRU union of the two most recent live token routes under
+one model load:
+
+```bash
+PYTHONPATH=. python backend/scripts/run_aion_live_router_lru_experiment.py \
+  --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \
+  --profile "/Volumes/EXTERNAL/AION-Inference/experiments/real-moe-expert-profile-v1.json" \
+  --shard-manifest "/Volumes/EXTERNAL/AION-Inference/expert-shards/granite-3.1-3b-a800m-instruct/manifest.json" \
+  --storage-root "/Volumes/EXTERNAL/AION-Inference" \
+  --run-id live-router-lru-long-v1
+```
+
+For exact 8-token and 16-token generations, the two-route LRU was 17.72% faster
+and issued 18.09% fewer logical shard bytes than one-route retention. Its
+decode-only retained-hit rate was 61.34%, versus 42.96% for one route. Peak
+Metal allocation was 2.89 GB, 56.38% below the same-run request-wide control,
+but median generation remained 80.51% slower than that high-memory control.
+The two-route LRU is therefore the current memory-saving mode, not the default
+throughput mode. All token IDs and every step's logits matched exactly.
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts

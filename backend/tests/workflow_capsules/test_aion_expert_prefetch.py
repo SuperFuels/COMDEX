@@ -6,6 +6,7 @@ from backend.modules.aion_inference import (
     broad_expert_prefetch_plan,
     build_expert_prefetch_plan,
 )
+from backend.scripts.run_aion_layer_scoped_moe_experiment import LayerScopedStore
 
 
 def _routing_profile():
@@ -57,3 +58,18 @@ def test_prefetch_plan_rejects_unknown_profile_and_invalid_coverage():
         build_expert_prefetch_plan(_routing_profile(), "policy", coverage_target=0.0)
     with pytest.raises(ValueError, match="max_experts_per_layer"):
         build_expert_prefetch_plan(_routing_profile(), "policy", max_experts_per_layer=1)
+
+
+def test_layer_store_retains_bounded_union_of_two_live_routes():
+    store = LayerScopedStore(0, {"experts": []})
+    store.active = {1: ("i1", "o1"), 2: ("i2", "o2"), 3: ("i3", "o3")}
+    store.release_with_lru_routes(((1, 2),), 2)
+    assert set(store.retained) == {1, 2}
+
+    store.active = {2: ("i2-new", "o2-new"), 3: ("i3", "o3")}
+    store.release_with_lru_routes(((2, 3),), 2)
+    assert set(store.retained) == {1, 2, 3}
+
+    store.active = {3: ("i3-new", "o3-new")}
+    store.release_with_lru_routes(((3,),), 2)
+    assert set(store.retained) == {2, 3}

@@ -54,6 +54,7 @@ class LayerScopedStore:
         self.cpu_prefetch: dict[int, tuple[torch.Tensor, torch.Tensor]] = {}
         self.active: dict[int, tuple[torch.Tensor, torch.Tensor]] = {}
         self.retained: dict[int, tuple[torch.Tensor, torch.Tensor]] = {}
+        self.route_history: list[tuple[int, ...]] = []
         self.events: list[dict[str, Any]] = []
         self._lock = threading.Lock()
 
@@ -133,9 +134,34 @@ class LayerScopedStore:
         with self._lock:
             self.cpu_prefetch.clear()
 
+    def release_with_lru_routes(
+        self,
+        routes: tuple[tuple[int, ...], ...],
+        retention_depth: int,
+    ) -> None:
+        """Retain the bounded union of the most recent live token routes."""
+        if retention_depth < 1:
+            raise ValueError("retention_depth must be positive")
+        self.route_history.extend(routes)
+        self.route_history = self.route_history[-retention_depth:]
+        desired = {expert for route in self.route_history for expert in route}
+        available = {**self.retained, **self.active}
+        self.retained = {expert: available[expert] for expert in desired if expert in available}
+        self.active.clear()
+        with self._lock:
+            self.cpu_prefetch.clear()
+
+    def retain_request_scope(self) -> None:
+        """Retain every expert touched so far as the high-memory control."""
+        self.retained.update(self.active)
+        self.active.clear()
+        with self._lock:
+            self.cpu_prefetch.clear()
+
     def clear_all(self) -> None:
         self.active.clear()
         self.retained.clear()
+        self.route_history.clear()
         with self._lock:
             self.cpu_prefetch.clear()
 
@@ -182,7 +208,8 @@ def _layer_scoped_forward(
     store: LayerScopedStore,
     coordinator: LayerAheadCoordinator,
     *,
-    retain_live_router_topk: bool,
+    retention_depth: int = 0,
+    retain_request_scope: bool = False,
 ):
     router = block.router
     activation = block.activation
@@ -217,12 +244,16 @@ def _layer_scoped_forward(
             device=expert_outputs.device,
         )
         result = zeros.index_add(0, batch_index, expert_outputs).view(batch_size, length, input_size)
-        retain = ()
-        if retain_live_router_topk:
-            retain = tuple(
-                sorted(router_logits[-1].topk(router.top_k, dim=-1).indices.tolist())
+        if retain_request_scope:
+            store.retain_request_scope()
+        elif retention_depth:
+            recent_routes = tuple(
+                tuple(sorted(row.topk(router.top_k, dim=-1).indices.tolist()))
+                for row in router_logits[-retention_depth:]
             )
-        store.release_layer(retain)
+            store.release_with_lru_routes(recent_routes, retention_depth)
+        else:
+            store.release_layer()
         return result
 
     return forward
@@ -368,7 +399,7 @@ def main() -> int:
                     layer.block_sparse_moe,
                     store,
                     coordinator,
-                    retain_live_router_topk=condition == "live_router_bounded_retention",
+                    retention_depth=1 if condition == "live_router_bounded_retention" else 0,
                 )
             result = generate(request["model_input"])
             coordinator.close()
