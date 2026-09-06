@@ -91,7 +91,11 @@ def _step_error_summary(errors: list[float], token_ids: list[int]) -> dict[str, 
         for index, error in enumerate(errors)
         if error != 0.0
     ]
-    maximum_index = max(range(len(errors)), key=errors.__getitem__) if errors else None
+    maximum_index = max(
+        (index for index, error in enumerate(errors) if error != 0.0),
+        key=errors.__getitem__,
+        default=None,
+    )
     return {
         "nonzero_step_logit_error_count": len(nonzero),
         "first_nonzero_step_logit_error": nonzero[0] if nonzero else None,
