@@ -66,6 +66,7 @@ from .expert_working_set import (
     select_predictive_retention,
     verify_expert_working_set_dictionary,
 )
+from .task_model_router import TaskModelRoute, select_task_model, verify_task_model_route
 
 __all__ = [
     "BenchmarkReport",
@@ -125,4 +126,7 @@ __all__ = [
     "build_expert_working_set_dictionary",
     "select_predictive_retention",
     "verify_expert_working_set_dictionary",
+    "TaskModelRoute",
+    "select_task_model",
+    "verify_task_model_route",
 ]

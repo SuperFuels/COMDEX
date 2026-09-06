@@ -12,7 +12,9 @@ from backend.modules.aion_inference import (
     LearnedAtomSheetStore,
     VerifiedModelOutcome,
     VerifiedCalculationRouter,
+    select_task_model,
     verify_proof_receipt,
+    verify_task_model_route,
     verify_trace_chain,
 )
 from backend.modules.codex.beam_event_bus import beam_event_bus
@@ -242,3 +244,31 @@ def test_canonical_receipt_binding_and_trace_ancestry_reject_tampering(tmp_path)
     events[0]["route"] = "tampered"
     trace_path.write_text("\n".join(json.dumps(event, sort_keys=True) for event in events) + "\n")
     assert verify_trace_chain(trace_path) is False
+
+
+def test_task_model_router_uses_verified_qwen_and_granite_capability_gates(tmp_path):
+    runtime = AdaptiveInferenceRuntime(
+        replay_path=tmp_path / "replay.sqlite3",
+        trace_path=tmp_path / "trace.jsonl",
+    )
+    exact = select_task_model(runtime.route("What is 15% of 240?"), "What is 15% of 240?")
+    short = select_task_model(
+        runtime.route("Extract the customer name and invoice number from this note."),
+        "Extract the customer name and invoice number from this note.",
+    )
+    deep = select_task_model(
+        runtime.route("Write a detailed diagnostic guide with at least ten measurements."),
+        "Write a detailed diagnostic guide with at least ten measurements.",
+    )
+    policy = select_task_model(
+        runtime.route("Explain the payment approval policy."),
+        "Explain the payment approval policy.",
+    )
+    assert exact.model is None and exact.route == "verified_atomsheet"
+    assert short.model == "qwen3:1.7b" and short.route == "qwen_low_cost"
+    assert deep.route == "granite_storage_first"
+    assert policy.route == "granite_storage_first"
+    assert all(verify_task_model_route(item) for item in (exact, short, deep, policy))
+    tampered = short.to_dict()
+    tampered["model"] = "unverified"
+    assert verify_task_model_route(tampered) is False
