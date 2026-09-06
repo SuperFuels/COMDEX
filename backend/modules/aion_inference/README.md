@@ -385,6 +385,18 @@ took 40.199 s with 682 retained hits across both requests.  This passes the
 Stage 4 construction proof, but it is not yet a cold-start, multi-prompt, or
 throughput promotion result.
 
+The corrected FP16 execution-format packs were also tested on the live Metal
+path rather than only in the rejected CPU-streaming design.  A same-load
+BF16/FP16/FP16/BF16 24-token comparison showed that preconversion reduced
+median attributed Metal-transfer time by 13.71%, but total instrumented time by
+only 5.79%.  A second production-like ABBA run removed attribution-only stage
+barriers.  Its median improved by only 2.07% (121.981 s to 119.459 s, or
+0.1977 to 0.2009 tokens/s), while p95 improved from 130.257 s to 120.502 s.
+Every token and logit was exact, logical demand and peak Metal memory were
+identical, and the three-GiB controller gate passed.  Two controlled results
+therefore miss the 10% median gate; execution-format repacking is retained as a
+valid composable artifact but is `NOT_PROMOTED` as an independent strategy.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \

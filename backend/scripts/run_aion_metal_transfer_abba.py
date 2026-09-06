@@ -16,7 +16,11 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from backend.modules.aion_inference import AdaptiveInferenceRuntime, ExpertRouteCorpus
-from backend.scripts.run_aion_layer_scoped_moe_experiment import LayerAheadCoordinator, _chat_tokens
+from backend.scripts.run_aion_layer_scoped_moe_experiment import (
+    LayerAheadCoordinator,
+    _chat_tokens,
+    _layer_scoped_forward,
+)
 from backend.scripts.run_aion_moe_end_to_end_fault_in import _memory_snapshot, _sha256
 from backend.scripts.run_aion_moe_latency_attribution import (
     DEFAULT_PROMPT,
@@ -54,6 +58,11 @@ def main() -> int:
     parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--shard-manifest", type=Path, required=True)
     parser.add_argument("--pack-manifest", type=Path, required=True)
+    parser.add_argument(
+        "--candidate-pack-manifest",
+        type=Path,
+        help="Optional execution-representation pack for a source/candidate ABBA comparison.",
+    )
     parser.add_argument("--route-corpus", type=Path, required=True)
     parser.add_argument("--memory-budget-gib", type=float, required=True)
     parser.add_argument("--storage-root", type=Path, required=True)
@@ -61,6 +70,11 @@ def main() -> int:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--prompt", default=DEFAULT_PROMPT)
     parser.add_argument("--generated-tokens", type=int, default=24)
+    parser.add_argument(
+        "--uninstrumented",
+        action="store_true",
+        help="Use the production-like layer forward without stage-boundary synchronizations.",
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
@@ -71,6 +85,8 @@ def main() -> int:
         "packs": args.pack_manifest.resolve(),
         "route_corpus": args.route_corpus.resolve(),
     }
+    if args.candidate_pack_manifest is not None:
+        paths["candidate_packs"] = args.candidate_pack_manifest.resolve()
     output = (args.output or root / "experiments" / f"{args.run_id}.json").resolve()
     if any(root not in path.parents for path in (*paths.values(), output)):
         raise SystemExit("all artifacts must reside on external storage")
@@ -83,10 +99,22 @@ def main() -> int:
 
     shards = json.loads(paths["shards"].read_text(encoding="utf-8"))
     packs = json.loads(paths["packs"].read_text(encoding="utf-8"))
+    candidate_packs = (
+        json.loads(paths["candidate_packs"].read_text(encoding="utf-8"))
+        if "candidate_packs" in paths else None
+    )
     if not all(shards["integrity"].values()) or not all(packs["integrity"].values()):
         raise RuntimeError("manifest integrity gate failed")
     if packs["source_manifest_sha256"] != _sha256(paths["shards"]):
         raise RuntimeError("pack/source manifest binding failed")
+    if candidate_packs is not None:
+        if not all(candidate_packs["integrity"].values()):
+            raise RuntimeError("candidate pack manifest integrity failed")
+        if candidate_packs["source_manifest_sha256"] != _sha256(paths["shards"]):
+            raise RuntimeError("candidate pack/source manifest binding failed")
+        condition_order = ("source_pack", "candidate_pack", "candidate_pack", "source_pack")
+    else:
+        condition_order = CONDITION_ORDER
 
     indexes: list[dict[str, Any]] = []
     entries_by_layer: list[dict[int, dict[str, Any]]] = []
@@ -167,24 +195,46 @@ def main() -> int:
         stores.append(store)
         layer.block_sparse_moe.input_linear = None
         layer.block_sparse_moe.output_linear = None
+    if candidate_packs is not None:
+        if len(candidate_packs["layers"]) != 32:
+            raise RuntimeError("expected 32 candidate MoE layer packs")
+        for number, (index, pack_layer) in enumerate(
+            zip(indexes, candidate_packs["layers"], strict=True)
+        ):
+            candidate_store = TimedPackedLayerStore(number, index, pack_layer)
+            candidate_store.preverify(root)
     gc.collect()
     torch.mps.empty_cache()
     stripped_memory = _memory_snapshot("expert_tensors_removed")
 
     trials: list[dict[str, Any]] = []
-    for sequence, condition in enumerate(CONDITION_ORDER):
-        for store in stores:
+    for sequence, condition in enumerate(condition_order):
+        selected_layers = (
+            candidate_packs["layers"]
+            if condition == "candidate_pack" and candidate_packs is not None
+            else packs["layers"]
+        )
+        for store, selected_pack in zip(stores, selected_layers, strict=True):
             store.clear_all()
-            store.transfer_mode = condition
+            store.pack = selected_pack
+            store.transfer_mode = "blocking" if candidate_packs is not None else condition
         gc.collect()
         torch.mps.empty_cache()
         event_starts = [len(store.events) for store in stores]
         stage_seconds = {name: 0.0 for name in STAGE_NAMES}
         coordinator = LayerAheadCoordinator(stores, tuple(() for _ in stores))
         for layer, store, capacity in zip(layers, stores, capacities, strict=True):
-            layer.block_sparse_moe.forward = _timed_forward(
-                layer.block_sparse_moe, store, coordinator, capacity, stage_seconds
-            )
+            if args.uninstrumented:
+                layer.block_sparse_moe.forward = _layer_scoped_forward(
+                    layer.block_sparse_moe,
+                    store,
+                    coordinator,
+                    retention_capacity=capacity,
+                )
+            else:
+                layer.block_sparse_moe.forward = _timed_forward(
+                    layer.block_sparse_moe, store, coordinator, capacity, stage_seconds
+                )
         disk_before = _disk_snapshot(args.device)
         result = generate()
         disk_after = _disk_snapshot(args.device)
@@ -197,9 +247,14 @@ def main() -> int:
             event
             for store, start in zip(stores, event_starts, strict=True)
             for event in store.events[start:]
-            if event["kind"] == "timed_layer_activation"
+            if event["kind"] == (
+                "layer_activation" if args.uninstrumented else "timed_layer_activation"
+            )
         ]
-        attribution = summarize_stage_seconds(stage_seconds, result["seconds"])
+        attribution = (
+            None if args.uninstrumented
+            else summarize_stage_seconds(stage_seconds, result["seconds"])
+        )
         trials.append({
             "sequence": sequence,
             "condition": condition,
@@ -214,7 +269,10 @@ def main() -> int:
             "demand_logical_bytes": sum(event["demand_logical_bytes"] for event in activations),
             "retained_hits": sum(event["retained_hits"] for event in activations),
             "pack_open_operations": sum(event["demand_faults"] > 0 for event in activations),
-            "metal_transfer_operations": sum(event["transfer_operations"] for event in activations),
+            "metal_transfer_operations": sum(
+                int(event.get("transfer_operations", 2 * event["demand_faults"]))
+                for event in activations
+            ),
             "peak_mps_bytes": coordinator.peak_mps_bytes,
             "peak_rss_bytes": coordinator.peak_rss_bytes,
             "attribution": attribution,
@@ -231,7 +289,8 @@ def main() -> int:
 
     control.pop("scores")
     aggregates: dict[str, dict[str, Any]] = {}
-    for condition in ("blocking", "fused_blocking"):
+    aggregate_conditions = tuple(dict.fromkeys(condition_order))
+    for condition in aggregate_conditions:
         group = [trial for trial in trials if trial["condition"] == condition]
         seconds = [float(trial["seconds"]) for trial in group]
         aggregates[condition] = {
@@ -241,41 +300,49 @@ def main() -> int:
             "median_tokens_per_second": statistics.median(
                 float(trial["tokens_per_second"]) for trial in group
             ),
-            "median_metal_transfer_seconds": statistics.median(
-                float(trial["attribution"]["stage_seconds"]["metal_transfer_enqueue"])
-                for trial in group
+            "median_metal_transfer_seconds": (
+                None if args.uninstrumented else statistics.median(
+                    float(trial["attribution"]["stage_seconds"]["metal_transfer_enqueue"])
+                    for trial in group
+                )
             ),
             "total_demand_logical_bytes": sum(int(trial["demand_logical_bytes"]) for trial in group),
             "maximum_peak_mps_bytes": max(int(trial["peak_mps_bytes"]) for trial in group),
             "maximum_peak_rss_bytes": max(int(trial["peak_rss_bytes"]) for trial in group),
             "all_tokens_exact": all(bool(trial["token_ids_exact_match"]) for trial in group),
             "all_logits_exact": all(bool(trial["all_step_logits_exact_match"]) for trial in group),
-            "minimum_attributed_percent": min(
-                float(trial["attribution"]["attributed_percent"]) for trial in group
+            "minimum_attributed_percent": (
+                None if args.uninstrumented else min(
+                    float(trial["attribution"]["attributed_percent"]) for trial in group
+                )
             ),
         }
-    blocking = aggregates["blocking"]
-    fused = aggregates["fused_blocking"]
+    reference = aggregates[aggregate_conditions[0]]
+    candidate = aggregates[aggregate_conditions[1]]
     median_improvement = 100.0 * (
-        1.0 - fused["median_seconds"] / blocking["median_seconds"]
+        1.0 - candidate["median_seconds"] / reference["median_seconds"]
     )
-    metal_improvement = 100.0 * (
-        1.0 - fused["median_metal_transfer_seconds"] / blocking["median_metal_transfer_seconds"]
+    metal_improvement = (
+        None if args.uninstrumented else 100.0 * (
+            1.0 - candidate["median_metal_transfer_seconds"] / reference["median_metal_transfer_seconds"]
+        )
     )
     gates = {
-        "complete_abba_order": tuple(trial["condition"] for trial in trials) == CONDITION_ORDER,
+        "complete_abba_order": tuple(trial["condition"] for trial in trials) == condition_order,
         "all_tokens_exact": all(trial["token_ids_exact_match"] for trial in trials),
         "all_step_logits_exact": all(trial["all_step_logits_exact_match"] for trial in trials),
-        "all_runs_at_least_95_percent_attributed": all(
-            trial["attribution"]["attributed_percent"] >= 95.0 for trial in trials
+        "all_runs_at_least_95_percent_attributed": (
+            args.uninstrumented or all(
+                trial["attribution"]["attributed_percent"] >= 95.0 for trial in trials
+            )
         ),
         "expert_resident_memory_within_declared_ceiling": (
             memory_plan.estimated_resident_bytes <= memory_plan.maximum_resident_bytes
         ),
-        "fused_logical_demand_not_higher": (
-            fused["total_demand_logical_bytes"] <= blocking["total_demand_logical_bytes"]
+        "candidate_logical_demand_not_higher": (
+            candidate["total_demand_logical_bytes"] <= reference["total_demand_logical_bytes"]
         ),
-        "fused_p95_not_higher": fused["p95_seconds_nearest_rank"] <= blocking["p95_seconds_nearest_rank"],
+        "candidate_p95_not_higher": candidate["p95_seconds_nearest_rank"] <= reference["p95_seconds_nearest_rank"],
         "median_live_time_improves_at_least_10_percent": median_improvement >= 10.0,
     }
     report = {
@@ -288,12 +355,13 @@ def main() -> int:
             "prompt": args.prompt,
             "prompt_count": 1,
             "generated_tokens_per_trial": args.generated_tokens,
-            "condition_order": CONDITION_ORDER,
+            "condition_order": condition_order,
             "same_model_load": True,
             "empty_expert_cache_before_each_trial": True,
             "cache_condition": "warm_uncontrolled",
             "p95_method": "nearest_rank_max_for_n2",
-            "stage_boundary_synchronization": True,
+            "stage_boundary_synchronization": not args.uninstrumented,
+            "execution_mode": "uninstrumented" if args.uninstrumented else "stage_instrumented",
         },
         "capacity_source": {
             "kind": "route_corpus_byte_ceiling",
@@ -311,8 +379,10 @@ def main() -> int:
         "trials": trials,
         "aggregates": aggregates,
         "comparison": {
-            "fused_median_time_improvement_percent": median_improvement,
-            "fused_median_metal_time_improvement_percent": metal_improvement,
+            "reference_condition": aggregate_conditions[0],
+            "candidate_condition": aggregate_conditions[1],
+            "candidate_median_time_improvement_percent": median_improvement,
+            "candidate_median_metal_time_improvement_percent": metal_improvement,
             "promotion_gates": gates,
             "promotion_eligible": all(gates.values()),
         },
@@ -327,7 +397,7 @@ def main() -> int:
         },
         "claim_boundary": (
             "One prompt with two observations per condition under warm uncontrolled filesystem state. "
-            "Stage synchronizations perturb latency and disk counters are system-wide. Promotion requires "
+            "Stage synchronizations perturb instrumented latency and disk counters are system-wide. Promotion requires "
             "all declared gates; otherwise the result remains diagnostic evidence only."
         ),
     }
