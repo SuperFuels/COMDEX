@@ -479,6 +479,21 @@ The accepted 128-token run remains the longest fully exact four-prompt result.
 The next 256-token work must first localize this numerical divergence under a
 bounded reproduction; the integrity threshold must not be relaxed.
 
+The bounded reproduction subsequently ran the commercial-risk family twice in
+independent processes. Both 256-token SD-backed generations matched their fresh
+full-resident controls at every token and every step logit. They achieved 1.1470
+and 1.2199 tokens/s, for a replicated median of 1.1834 tokens/s. Compared with
+the exact 128-token run of the same first, empty-cache prompt, throughput
+improved by 55.55%; doubling the generated tokens increased total elapsed time
+by only 28.70%. Logical expert demand per token fell by 13.12% and retained-hit
+rate rose by 2.69 percentage points. Each replication recorded the same 13,347
+faults and 53,193 hits. A separate full-resident probe repeated the same
+256-token generation three times with exact tokens and logits at a 10.0560
+tokens/s median; its complete token hash matched both SD runs. The previous
+four-prompt failure remains invalid and differs from this stable sequence after
+zero-based step 243. This promotes a replicated exact single-family 256-token
+milestone, not a four-family or cold-cache result.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \
