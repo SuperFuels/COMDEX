@@ -346,6 +346,27 @@ made median time 15.29% slower and regressed p95 from 122.33 s to 159.56 s.
 The predictor capsule remains a verified research artifact, but this threaded
 I/O mechanism is `NOT_PROMOTED`; future use requires a non-contending read path.
 
+A subsequent CPU-streaming feasibility study adapted the useful systems idea
+from `kimi-k3-in-c`: pack weights once in their execution representation and
+compute without a Metal transfer.  Four immutable one-token probes separated
+runtime conversion, native BF16 CPU arithmetic, lazy memory-mapped FP16, and
+explicitly materialized FP16.  Every probe reproduced the control token and
+logits exactly.  The first FP16 pack was correctly invalidated because some
+BF16 values do not round-trip through FP16; the corrected 6,040,073,472-byte
+pack instead proves exact equivalence to the existing FP16 execution
+conversion across all 32 layers and 1,280 experts.
+
+The decisive materialized-FP16 run reduced expert arithmetic to 1.010 s, but
+loading and materializing 5,917,405,296 logical expert bytes took 77.897 s.
+Total streamed time was 79.423 s for one token, versus 2.221 s for the
+full-resident CPU control.  The apparently faster lazy-mapped run was diagnosed
+as deferred page faults inside the measured compute stage, not faster I/O.
+Execution-format repacking therefore moves the bottleneck but does not remove
+it and is `NOT_PROMOTED`.  The external implementation's central advantage is
+low-bit packed arithmetic that reduces bytes read; that lossy method is outside
+this programme's exact-FP16 gate unless evaluated later as a separately
+authorized quality track.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \
