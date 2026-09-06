@@ -14,7 +14,10 @@ from backend.modules.aion_inference import (
     simulate_frequency_cache_demand_bytes,
     verify_promoted_expert_cache_plan,
 )
-from backend.scripts.run_aion_layer_scoped_moe_experiment import LayerScopedStore
+from backend.scripts.run_aion_layer_scoped_moe_experiment import (
+    LayerScopedStore,
+    select_frequency_retention,
+)
 from backend.scripts.run_aion_promoted_cache_plan_replication import CASES, _comparison_cases
 from backend.scripts.run_aion_moe_latency_attribution import summarize_stage_seconds
 from backend.scripts.run_aion_metal_transfer_abba import _p95
@@ -102,6 +105,29 @@ def test_layer_store_frequency_cache_rejects_zero_capacity():
     store = LayerScopedStore(0, {"experts": []})
     with pytest.raises(ValueError, match="capacity"):
         store.release_with_frequency_capacity(((1,),), 0)
+
+
+def test_pre_activation_frequency_selection_matches_post_activation_policy():
+    routes = ((1, 2), (1, 3))
+    counts: dict[int, int] = {}
+    recency: dict[int, int] = {}
+    selected, clock = select_frequency_retention(
+        routes, {1, 2, 3}, counts, recency, 0, 2
+    )
+    assert selected == (1, 3)
+    assert clock == 2
+
+    store = LayerScopedStore(0, {"experts": []})
+    store.active = {expert: (f"i{expert}", f"o{expert}") for expert in (1, 2, 3)}
+    store.release_with_frequency_capacity(routes, 2)
+    assert tuple(store.retained) == selected
+    assert store.usage_counts == counts
+    assert store.last_used == recency
+
+
+def test_frequency_selection_rejects_zero_capacity():
+    with pytest.raises(ValueError, match="capacity"):
+        select_frequency_retention(((1,),), {1}, {}, {}, 0, 0)
 
 
 def test_frequency_cache_simulator_matches_expected_fault_bytes():

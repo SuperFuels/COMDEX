@@ -177,24 +177,16 @@ class LayerScopedStore:
         capacity: int,
     ) -> None:
         """Retain a bounded LFU set, breaking frequency ties by recency."""
-        if capacity < 1:
-            raise ValueError("capacity must be positive")
-        for route in routes:
-            self.usage_clock += 1
-            for expert in route:
-                self.usage_counts[expert] = self.usage_counts.get(expert, 0) + 1
-                self.last_used[expert] = self.usage_clock
         available = {**self.retained, **self.active}
-        ranked = sorted(
-            available,
-            key=lambda expert: (
-                self.usage_counts.get(expert, 0),
-                self.last_used.get(expert, 0),
-                -expert,
-            ),
-            reverse=True,
+        ranked, self.usage_clock = select_frequency_retention(
+            routes,
+            set(available),
+            self.usage_counts,
+            self.last_used,
+            self.usage_clock,
+            capacity,
         )
-        self.retained = {expert: available[expert] for expert in ranked[:capacity]}
+        self.retained = {expert: available[expert] for expert in ranked}
         self.active.clear()
         with self._lock:
             self.cpu_prefetch.clear()
@@ -209,6 +201,34 @@ class LayerScopedStore:
         self.route_batches.clear()
         with self._lock:
             self.cpu_prefetch.clear()
+
+
+def select_frequency_retention(
+    routes: tuple[tuple[int, ...], ...],
+    available_experts: set[int],
+    usage_counts: dict[int, int],
+    last_used: dict[int, int],
+    usage_clock: int,
+    capacity: int,
+) -> tuple[tuple[int, ...], int]:
+    """Update LFU/recency state and select a deterministic bounded expert set."""
+    if capacity < 1:
+        raise ValueError("capacity must be positive")
+    for route in routes:
+        usage_clock += 1
+        for expert in route:
+            usage_counts[expert] = usage_counts.get(expert, 0) + 1
+            last_used[expert] = usage_clock
+    ranked = sorted(
+        available_experts,
+        key=lambda expert: (
+            usage_counts.get(expert, 0),
+            last_used.get(expert, 0),
+            -expert,
+        ),
+        reverse=True,
+    )
+    return tuple(ranked[:capacity]), usage_clock
 
 
 class LayerAheadCoordinator:

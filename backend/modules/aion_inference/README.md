@@ -324,6 +324,18 @@ assigned more than 98% of wall time, and every token and logit was exact.  The
 Metal cost and advances the programme to a bounded persistent transfer-arena
 design.
 
+The bounded per-layer Metal arena was then tested in a same-load
+dynamic/arena/arena/dynamic comparison at the corpus-selected 3 GiB ceiling.
+It remained numerically exact and preserved identical logical SD demand, but
+failed performance promotion decisively: median generation time increased by
+30.71%, median attributed Metal transfer time increased by 43.97%, p95
+regressed, and observed peak MPS allocation increased by 83.86%.  The fixed
+arena itself occupied 2.997 GiB; current-layer experts outside each layer's
+retained capacity remained transient.  The result falsifies MPS slice-copy
+reuse as a useful implementation on this backend and is preserved with a
+`NOT_PROMOTED` sidecar.  The next Metal optimization must avoid a full-size
+persistent arena and target transfer representation or execution fusion.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \

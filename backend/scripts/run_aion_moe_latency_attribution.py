@@ -193,6 +193,12 @@ def _timed_forward(block, store, coordinator, capacity: int, stage_seconds: dict
         torch.mps.synchronize()
         stage_seconds["expert_dispatch"] += time.perf_counter() - started
 
+        prepare_routes = getattr(store, "prepare_routes", None)
+        if prepare_routes is not None:
+            started = time.perf_counter()
+            prepare_routes(observed_routes, required, capacity)
+            stage_seconds["cache_policy_and_eviction"] += time.perf_counter() - started
+
         weights, activation_event = store.activate_timed(
             required, layer_input.device, layer_input.dtype
         )
