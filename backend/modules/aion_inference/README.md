@@ -225,6 +225,16 @@ manifest, and source evidence hashes. `verify_promoted_expert_cache_plan`
 rejects content mutation, invalid capacities, failed gates, and model or
 manifest substitution before the runtime accepts the per-layer capacities.
 
+A broader four-prompt, 16-token replication preserved exact outputs and reduced
+logical demand bytes by 1.43%. The promoted plan was faster in three of four
+paired cases and the median paired change favoured it by 1.43%, but the raw
+aggregate median was 9.83% slower because one promoted-first pass was 20.55%
+slower. A focused ABBA rerun of that anomaly reversed the result: the promoted
+plan was 7.75% faster and used 0.96% fewer demand bytes. This exposes substantial
+run-order/cache variance. The plan remains the promising experimental reference,
+but a population latency claim is explicitly disallowed until repeated,
+randomized, cache-controlled testing is complete.
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts
