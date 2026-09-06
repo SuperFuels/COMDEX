@@ -14,6 +14,7 @@ from backend.modules.aion_inference import (
     verify_promoted_expert_cache_plan,
 )
 from backend.scripts.run_aion_layer_scoped_moe_experiment import LayerScopedStore
+from backend.scripts.run_aion_promoted_cache_plan_replication import CASES, _comparison_cases
 
 
 def _routing_profile():
@@ -221,3 +222,18 @@ def test_route_corpus_rejects_an_observation_with_an_empty_layer(tmp_path):
             pack_manifest_sha256="5" * 64,
             experts_per_layer=1,
         )
+
+
+def test_direct_plan_comparison_uses_balanced_longer_unseen_cases():
+    first, second, cases = _comparison_cases(direct_comparison=True, longer_corpus=True)
+    assert (first, second) == ("reference_512", "candidate_512")
+    assert len(cases) == 4
+    assert all(case["generated_tokens"] == 24 for case in cases)
+    assert [case["order"] for case in cases] == [
+        (first, second), (second, first), (first, second), (second, first)
+    ]
+    legacy_first, legacy_second, legacy_cases = _comparison_cases(
+        direct_comparison=False, longer_corpus=False
+    )
+    assert (legacy_first, legacy_second) == ("uniform_16", "promoted_512")
+    assert legacy_cases == CASES

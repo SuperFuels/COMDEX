@@ -255,6 +255,17 @@ single-prompt plan on the same routes, and improved same-run median time by
 2.26% with 0.29% peak-Metal overhead. Every token and step logit was exact. The
 plan is promoted only as a corpus candidate pending direct broader comparison.
 
+That direct comparison now exists. On four new 24-token prompts, the corpus
+candidate used 372,787,096 fewer logical SD bytes (0.619%), incurred 79 fewer
+faults, retained 79 more hits, and reduced peak Metal allocation by 1.44%
+against the prior promoted plan at the same exact 512-slot budget. Median time
+fell by 7.61%, with the candidate faster on three of four prompts. One prompt
+was 3.93% slower and another used slightly more demand bytes, so the advantage
+is aggregate rather than universal. Every token ID and every step logit matched
+the unrestricted controls exactly. The candidate is now the better measured
+controller for this model, pending broader randomized and cache-controlled
+replication before any population claim.
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts
