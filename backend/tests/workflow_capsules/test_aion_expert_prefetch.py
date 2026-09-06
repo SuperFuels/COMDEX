@@ -73,3 +73,21 @@ def test_layer_store_retains_bounded_union_of_two_live_routes():
     store.active = {3: ("i3-new", "o3-new")}
     store.release_with_lru_routes(((3,),), 2)
     assert set(store.retained) == {2, 3}
+
+
+def test_layer_store_frequency_cache_is_bounded_and_rewards_reuse():
+    store = LayerScopedStore(0, {"experts": []})
+    store.active = {expert: (f"i{expert}", f"o{expert}") for expert in (1, 2, 3)}
+    store.release_with_frequency_capacity(((1, 2), (1, 3)), 2)
+    assert set(store.retained) == {1, 3}
+
+    store.active = {2: ("i2-new", "o2-new")}
+    store.release_with_frequency_capacity(((2,), (2,)), 2)
+    assert set(store.retained) == {1, 2}
+    assert len(store.retained) == 2
+
+
+def test_layer_store_frequency_cache_rejects_zero_capacity():
+    store = LayerScopedStore(0, {"experts": []})
+    with pytest.raises(ValueError, match="capacity"):
+        store.release_with_frequency_capacity(((1,),), 0)

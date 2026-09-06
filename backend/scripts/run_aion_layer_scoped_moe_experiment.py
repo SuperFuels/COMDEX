@@ -55,6 +55,9 @@ class LayerScopedStore:
         self.active: dict[int, tuple[torch.Tensor, torch.Tensor]] = {}
         self.retained: dict[int, tuple[torch.Tensor, torch.Tensor]] = {}
         self.route_history: list[tuple[int, ...]] = []
+        self.usage_counts: dict[int, int] = {}
+        self.last_used: dict[int, int] = {}
+        self.usage_clock = 0
         self.events: list[dict[str, Any]] = []
         self._lock = threading.Lock()
 
@@ -65,15 +68,20 @@ class LayerScopedStore:
                 raise RuntimeError(f"expert integrity failed: layer {self.layer}, expert {expert}")
             self.verified.add(expert)
 
+    def _load_cpu_many(
+        self,
+        experts: tuple[int, ...],
+    ) -> dict[int, tuple[torch.Tensor, torch.Tensor]]:
+        loaded = {}
+        for expert in experts:
+            tensors = load_file(Path(self.entries[expert]["path"]), device="cpu")
+            loaded[expert] = (tensors["input_linear.weight"], tensors["output_linear.weight"])
+        return loaded
+
     def prefetch_to_cpu(self, experts: tuple[int, ...]) -> dict[str, Any]:
         started = time.perf_counter()
-        loaded: dict[int, tuple[torch.Tensor, torch.Tensor]] = {}
-        logical_bytes = 0
-        for expert in experts:
-            entry = self.entries[expert]
-            tensors = load_file(Path(entry["path"]), device="cpu")
-            loaded[expert] = (tensors["input_linear.weight"], tensors["output_linear.weight"])
-            logical_bytes += int(entry["bytes"])
+        loaded = self._load_cpu_many(experts)
+        logical_bytes = sum(int(self.entries[expert]["bytes"]) for expert in experts)
         with self._lock:
             self.cpu_prefetch.update(loaded)
         event = {
@@ -95,7 +103,7 @@ class LayerScopedStore:
         started = time.perf_counter()
         prefetched_hits = 0
         retained_hits = 0
-        demand_bytes = 0
+        demand_experts = []
         for expert in experts:
             retained_weights = self.retained.get(expert)
             if retained_weights is not None:
@@ -105,16 +113,20 @@ class LayerScopedStore:
             with self._lock:
                 cpu_weights = self.cpu_prefetch.pop(expert, None)
             if cpu_weights is None:
-                entry = self.entries[expert]
-                tensors = load_file(Path(entry["path"]), device="cpu")
-                cpu_weights = (tensors["input_linear.weight"], tensors["output_linear.weight"])
-                demand_bytes += int(entry["bytes"])
+                demand_experts.append(expert)
+                continue
             else:
                 prefetched_hits += 1
             self.active[expert] = (
                 cpu_weights[0].to(device=device, dtype=dtype),
                 cpu_weights[1].to(device=device, dtype=dtype),
             )
+        for expert, cpu_weights in self._load_cpu_many(tuple(demand_experts)).items():
+            self.active[expert] = (
+                cpu_weights[0].to(device=device, dtype=dtype),
+                cpu_weights[1].to(device=device, dtype=dtype),
+            )
+        demand_bytes = sum(int(self.entries[expert]["bytes"]) for expert in demand_experts)
         torch.mps.synchronize()
         self.events.append({
             "kind": "layer_activation",
@@ -122,7 +134,7 @@ class LayerScopedStore:
             "required_experts": len(experts),
             "prefetched_hits": prefetched_hits,
             "retained_hits": retained_hits,
-            "demand_faults": len(experts) - prefetched_hits - retained_hits,
+            "demand_faults": len(demand_experts),
             "demand_logical_bytes": demand_bytes,
             "seconds": time.perf_counter() - started,
         })
@@ -158,10 +170,41 @@ class LayerScopedStore:
         with self._lock:
             self.cpu_prefetch.clear()
 
+    def release_with_frequency_capacity(
+        self,
+        routes: tuple[tuple[int, ...], ...],
+        capacity: int,
+    ) -> None:
+        """Retain a bounded LFU set, breaking frequency ties by recency."""
+        if capacity < 1:
+            raise ValueError("capacity must be positive")
+        for route in routes:
+            self.usage_clock += 1
+            for expert in route:
+                self.usage_counts[expert] = self.usage_counts.get(expert, 0) + 1
+                self.last_used[expert] = self.usage_clock
+        available = {**self.retained, **self.active}
+        ranked = sorted(
+            available,
+            key=lambda expert: (
+                self.usage_counts.get(expert, 0),
+                self.last_used.get(expert, 0),
+                -expert,
+            ),
+            reverse=True,
+        )
+        self.retained = {expert: available[expert] for expert in ranked[:capacity]}
+        self.active.clear()
+        with self._lock:
+            self.cpu_prefetch.clear()
+
     def clear_all(self) -> None:
         self.active.clear()
         self.retained.clear()
         self.route_history.clear()
+        self.usage_counts.clear()
+        self.last_used.clear()
+        self.usage_clock = 0
         with self._lock:
             self.cpu_prefetch.clear()
 
@@ -209,6 +252,7 @@ def _layer_scoped_forward(
     coordinator: LayerAheadCoordinator,
     *,
     retention_depth: int = 0,
+    retention_capacity: int = 0,
     retain_request_scope: bool = False,
 ):
     router = block.router
@@ -244,8 +288,16 @@ def _layer_scoped_forward(
             device=expert_outputs.device,
         )
         result = zeros.index_add(0, batch_index, expert_outputs).view(batch_size, length, input_size)
+        if retention_depth and retention_capacity:
+            raise ValueError("choose route depth or frequency capacity, not both")
         if retain_request_scope:
             store.retain_request_scope()
+        elif retention_capacity:
+            observed_routes = tuple(
+                tuple(sorted(row.topk(router.top_k, dim=-1).indices.tolist()))
+                for row in router_logits
+            )
+            store.release_with_frequency_capacity(observed_routes, retention_capacity)
         elif retention_depth:
             recent_routes = tuple(
                 tuple(sorted(row.topk(router.top_k, dim=-1).indices.tolist()))

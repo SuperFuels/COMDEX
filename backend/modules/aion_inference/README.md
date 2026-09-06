@@ -189,6 +189,23 @@ but median generation remained 80.51% slower than that high-memory control.
 The two-route LRU is therefore the current memory-saving mode, not the default
 throughput mode. All token IDs and every step's logits matched exactly.
 
+### Packed and reuse-aware expert caches
+
+The expert layout now also supports one verified Safetensors pack per MoE
+layer. Packing all 1,280 experts into 32 files cut median storage-open
+operations by 81.83% in a same-model ABBA comparison, but improved median time
+by only 1.36%. This rejects file-open count as the dominant remaining cost;
+expert transfer and repeated cache misses matter more.
+
+On a 16-token packed run, increasing live-route depth from two to eight cut
+generation time by 37.45% and logical demand bytes by 32.38%, while raising
+peak Metal allocation from 2.89 GB to 4.31 GB. A bounded LFU policy then found
+a better operating point: 16 retained experts per layer came within 2.30% of
+depth-eight time while using 25.30% less peak Metal memory. A 24-expert policy
+was 7.49% faster than depth eight at 1.84% more peak memory. Every token ID and
+every generation-step logit remained exact. These are single-prompt warm-cache
+results and require corpus-scale and controlled-storage replication.
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts
