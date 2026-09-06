@@ -54,6 +54,11 @@ from .expert_cache_budget import (
     verify_promoted_expert_cache_plan,
 )
 from .expert_route_corpus import ExpertRouteCorpus
+from .expert_route_predictor import (
+    build_cross_layer_route_capsule,
+    predict_cross_layer_experts,
+    verify_cross_layer_route_capsule,
+)
 
 __all__ = [
     "BenchmarkReport",
@@ -105,4 +110,7 @@ __all__ = [
     "simulate_frequency_cache_demand_bytes",
     "verify_promoted_expert_cache_plan",
     "ExpertRouteCorpus",
+    "build_cross_layer_route_capsule",
+    "predict_cross_layer_experts",
+    "verify_cross_layer_route_capsule",
 ]

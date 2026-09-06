@@ -336,6 +336,16 @@ reuse as a useful implementation on this backend and is preserved with a
 `NOT_PROMOTED` sidecar.  The next Metal optimization must avoid a full-size
 persistent arena and target transfer representation or execution fusion.
 
+Stage 3 then compiled prompt-private routes into a hash-bound sparse transition
+capsule.  A top-1 predictor used the current token's route in layer L to predict
+one missing expert in layer L+1 only when learned confidence was at least 0.80.
+Across four balanced 24-token prompts it achieved 147 useful and 55 wasted
+prefetches, removed 147 demand faults, preserved exact tokens/logits, and added
+no peak Metal memory.  Nevertheless, Python-threaded SD/safetensors overlap
+made median time 15.29% slower and regressed p95 from 122.33 s to 159.56 s.
+The predictor capsule remains a verified research artifact, but this threaded
+I/O mechanism is `NOT_PROMOTED`; future use requires a non-contending read path.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \

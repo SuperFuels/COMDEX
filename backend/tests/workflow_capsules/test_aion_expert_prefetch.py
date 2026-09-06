@@ -7,12 +7,15 @@ import pytest
 
 from backend.modules.aion_inference import (
     broad_expert_prefetch_plan,
+    build_cross_layer_route_capsule,
     build_expert_prefetch_plan,
     ExpertRouteCorpus,
     optimize_expert_cache_budget,
     optimize_expert_cache_memory_budget,
+    predict_cross_layer_experts,
     simulate_frequency_cache_demand_bytes,
     verify_promoted_expert_cache_plan,
+    verify_cross_layer_route_capsule,
 )
 from backend.scripts.run_aion_layer_scoped_moe_experiment import (
     LayerScopedStore,
@@ -38,6 +41,52 @@ def _routing_profile():
             "resident_experts_by_layer": [[0, 1, 2], [0, 1, 2, 3]],
         },
     }
+
+
+def _route_observation(digest: str, routes):
+    return {
+        "architecture": {"layers": 2, "experts_per_layer": 4},
+        "bindings": {"model": "a" * 64},
+        "observation_sha256": digest,
+        "route_batches_by_layer": routes,
+    }
+
+
+def test_cross_layer_route_capsule_is_bounded_hash_bound_and_resident_aware():
+    observations = [
+        _route_observation(
+            "1" * 64,
+            [
+                [[(0, 1)], [(0, 2)]],
+                [[(2, 3)], [(2, 3)]],
+            ],
+        ),
+        _route_observation(
+            "2" * 64,
+            [
+                [[(0, 1)], [(1, 2)]],
+                [[(2, 3)], [(1, 2)]],
+            ],
+        ),
+    ]
+    capsule = build_cross_layer_route_capsule(
+        observations, confidence_threshold=0.75, max_predictions_per_layer=1
+    )
+    verify_cross_layer_route_capsule(capsule, expected_bindings={"model": "a" * 64})
+    predicted = predict_cross_layer_experts(
+        capsule, target_layer=1, source_route=(0, 1), resident_experts=(2,)
+    )
+    assert len(predicted) == 1
+    assert predicted[0]["expert"] == 3
+    assert predicted[0]["confidence"] == 1.0
+    assert predict_cross_layer_experts(
+        capsule, target_layer=1, source_route=(0,), resident_experts=(2, 3)
+    ) == ()
+
+    tampered = json.loads(json.dumps(capsule))
+    tampered["method"]["confidence_threshold"] = 0.5
+    with pytest.raises(ValueError, match="hash mismatch"):
+        verify_cross_layer_route_capsule(tampered)
 
 
 def test_gateway_profile_builds_deterministic_bounded_layer_plan():
