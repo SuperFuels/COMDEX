@@ -100,6 +100,17 @@ def _step_error_summary(errors: list[float], token_ids: list[int]) -> dict[str, 
     }
 
 
+def _select_prompts(families: list[str] | None, seed: int) -> list[dict[str, str]]:
+    available = {item["family"]: item for item in PROMPTS}
+    requested = list(available) if not families else list(dict.fromkeys(families))
+    unknown = sorted(set(requested) - set(available))
+    if unknown:
+        raise ValueError(f"unknown prompt families: {', '.join(unknown)}")
+    selected = [dict(available[family]) for family in requested]
+    random.Random(seed).shuffle(selected)
+    return selected
+
+
 class _Timeline(LogitsProcessor):
     def __init__(self) -> None:
         self.started = time.perf_counter()
@@ -152,6 +163,12 @@ def main() -> int:
     parser.add_argument("--storage-root", type=Path, required=True)
     parser.add_argument("--memory-budget-gib", type=float, default=3.0)
     parser.add_argument("--generated-tokens", type=int, default=64)
+    parser.add_argument(
+        "--prompt-family",
+        action="append",
+        dest="prompt_families",
+        help="Limit a diagnostic run to one or more named prompt families.",
+    )
     parser.add_argument("--seed", type=int, default=20260906)
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--output", type=Path)
@@ -221,8 +238,10 @@ def main() -> int:
         entries_by_layer,
         maximum_resident_bytes=int(args.memory_budget_gib * 1024**3),
     )
-    prompt_order = [dict(item) for item in PROMPTS]
-    random.Random(args.seed).shuffle(prompt_order)
+    try:
+        prompt_order = _select_prompts(args.prompt_families, args.seed)
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
     runtime_root = root / "runtime-evidence" / args.run_id
     runtime = AdaptiveInferenceRuntime(
         replay_path=runtime_root / "replay.sqlite3",
@@ -369,7 +388,7 @@ def main() -> int:
         "all_tokens_exact": aggregate["all_tokens_exact"],
         "all_step_logits_exact": aggregate["all_logits_exact"],
         "controller_memory_within_declared_ceiling": plan.estimated_resident_bytes <= plan.maximum_resident_bytes,
-        "complete_randomized_prompt_order": len(results) == len(PROMPTS),
+        "complete_requested_prompt_order": len(results) == len(prompt_order),
         "all_model_inputs_distinct": len(model_input_hashes) == len(requests),
         "all_prompts_reached_requested_token_count": all(
             len(result["token_ids"]) == args.generated_tokens for result in results
@@ -380,7 +399,7 @@ def main() -> int:
         ),
     }
     report = {
-        "schema_version": "aion.storage_first_multiprompt.v1",
+        "schema_version": "aion.storage_first_multiprompt.v2",
         "run_id": args.run_id,
         "storage_root": str(root),
         "paths": {name: str(path) for name, path in paths.items()},
@@ -400,6 +419,8 @@ def main() -> int:
         "method": {
             "seed": args.seed,
             "prompt_order": [request["family"] for request in requests],
+            "available_prompt_families": [item["family"] for item in PROMPTS],
+            "diagnostic_subset": len(requests) != len(PROMPTS),
             "generated_tokens_per_prompt": args.generated_tokens,
             "persistent_cache_across_prompts": True,
             "cache_empty_before_first_prompt": True,
@@ -433,7 +454,7 @@ def main() -> int:
         "integrity": integrity,
         "validation_passed": all(integrity.values()),
         "claim_boundary": (
-            f"Four randomized prompt families at {args.generated_tokens} generated tokens per prompt "
+            f"{len(requests)} requested prompt families at {args.generated_tokens} generated tokens per prompt "
             "with one persistent cache. Filesystem "
             "state is warm uncontrolled and there is one observation per family; this is not "
             "cold-cache or replicated population-level p95 evidence."

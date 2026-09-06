@@ -26,7 +26,7 @@ from backend.scripts.run_aion_layer_scoped_moe_experiment import (
     LayerScopedStore,
     select_frequency_retention,
 )
-from backend.scripts.run_aion_storage_first_multiprompt import _step_error_summary
+from backend.scripts.run_aion_storage_first_multiprompt import _select_prompts, _step_error_summary
 from backend.scripts.run_aion_promoted_cache_plan_replication import CASES, _comparison_cases
 from backend.scripts.run_aion_moe_latency_attribution import summarize_stage_seconds
 from backend.scripts.run_aion_metal_transfer_abba import _p95
@@ -260,6 +260,13 @@ def test_step_error_summary_localizes_first_and_maximum_divergence():
     }
     assert summary["maximum_step_logit_error_index"] == 3
     assert summary["nonzero_step_logit_errors"][-1]["selected_token_id"] == 13
+
+
+def test_storage_first_prompt_selection_supports_bounded_diagnostics():
+    selected = _select_prompts(["commercial_risk", "commercial_risk"], 20260906)
+    assert [item["family"] for item in selected] == ["commercial_risk"]
+    with pytest.raises(ValueError, match="unknown prompt families"):
+        _select_prompts(["does_not_exist"], 20260906)
 
 
 def test_frequency_cache_simulator_matches_expected_fault_bytes():
