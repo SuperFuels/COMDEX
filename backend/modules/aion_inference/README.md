@@ -277,6 +277,33 @@ all nine folds/budget comparisons. This is exact offline route replay, not a
 timed model run; live Metal memory, latency and output equivalence remain gates
 for the next execution experiment.
 
+### Measured SD/Metal latency attribution
+
+Stage 1 now instruments the exact SD-backed MoE critical path rather than
+inferring its bottleneck from aggregate generation time.  A 24-token run using
+the corpus-trained 3 GiB controller assigned 98.50% of measured wall time to
+named stages.  Host-to-Metal expert materialisation calls accounted for 70.58%,
+SD/Safetensors reads for 20.78%, router and route capture for 4.45%, expert
+compute and combination for 1.69%, and every other named stage for less than
+1%.  A prior immutable 24-token run measured the same two dominant stages at
+67.98% and 21.67%, respectively.  Both runs reproduced every control token and
+generation-step logit exactly; the corrected v2 also proved its conservative
+3,218,237,968-byte expert allocation remained below the declared 3 GiB ceiling.
+The filesystem cache was warm but not controlled, physical disk counters were
+system-wide, and the inserted synchronization barriers perturb latency.  These
+results select Metal materialisation—not file opens or cache-policy overhead—as
+the next bounded optimization target; they are not production throughput data.
+
+```bash
+PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
+  --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \
+  --shard-manifest "/Volumes/EXTERNAL/AION-Inference/expert-shards/granite-3.1-3b-a800m-instruct/manifest.json" \
+  --pack-manifest "/Volumes/EXTERNAL/AION-Inference/expert-layer-packs/granite-3.1-3b-a800m-v1/manifest.json" \
+  --route-corpus "/Volumes/EXTERNAL/AION-Inference/route-corpora/adaptive-cache-corpus3-v2" \
+  --memory-budget-gib 3 --storage-root "/Volumes/EXTERNAL/AION-Inference" \
+  --device disk6 --run-id UNIQUE-RUN-ID --generated-tokens 24
+```
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts

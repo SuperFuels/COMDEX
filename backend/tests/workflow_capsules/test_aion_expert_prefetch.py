@@ -16,6 +16,7 @@ from backend.modules.aion_inference import (
 )
 from backend.scripts.run_aion_layer_scoped_moe_experiment import LayerScopedStore
 from backend.scripts.run_aion_promoted_cache_plan_replication import CASES, _comparison_cases
+from backend.scripts.run_aion_moe_latency_attribution import summarize_stage_seconds
 
 
 def _routing_profile():
@@ -164,6 +165,17 @@ def test_memory_budget_optimizer_rejects_invalid_budget_and_empty_layer():
         optimize_expert_cache_memory_budget(((),), ({},), maximum_resident_bytes=1)
 
 
+def test_latency_attribution_reports_percentages_and_unassigned_time():
+    summary = summarize_stage_seconds({"storage": 3.0, "compute": 2.0}, 10.0)
+    assert summary["attributed_percent"] == 50.0
+    assert summary["unassigned_seconds"] == 5.0
+    assert summary["stage_percent_of_total"] == {"storage": 30.0, "compute": 20.0}
+    with pytest.raises(ValueError, match="positive"):
+        summarize_stage_seconds({"storage": 1.0}, 0.0)
+    with pytest.raises(ValueError, match="non-negative"):
+        summarize_stage_seconds({"storage": -1.0}, 1.0)
+
+
 def test_promoted_cache_plan_verifier_binds_capacity_and_model():
     document = {
         "schema_version": "aion.promoted_expert_cache_plan.v1",
@@ -248,6 +260,12 @@ def test_route_corpus_builds_one_budget_across_multiple_observations(tmp_path):
     plan = corpus.optimize(digests, entries, total_capacity=2)
     assert plan.capacities_by_layer == (2, 0)
     assert plan.total_capacity == 2
+
+    memory_plan = corpus.optimize_memory(
+        digests, entries, maximum_resident_bytes=20
+    )
+    assert memory_plan.capacities_by_layer == (2, 0)
+    assert memory_plan.estimated_resident_bytes == 20
 
 
 def test_route_corpus_rejects_an_observation_with_an_empty_layer(tmp_path):

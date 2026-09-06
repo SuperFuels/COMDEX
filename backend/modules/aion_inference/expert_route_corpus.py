@@ -7,7 +7,13 @@ import json
 from pathlib import Path
 from typing import Any, Sequence
 
-from .expert_cache_budget import ExpertCacheBudgetPlan, RouteBatch, optimize_expert_cache_budget
+from .expert_cache_budget import (
+    ExpertCacheBudgetPlan,
+    ExpertCacheMemoryPlan,
+    RouteBatch,
+    optimize_expert_cache_budget,
+    optimize_expert_cache_memory_budget,
+)
 
 
 def _canonical_sha256(value: Any) -> str:
@@ -124,4 +130,36 @@ class ExpertRouteCorpus:
             tuple(tuple(batches) for batches in combined),
             entries_by_layer,
             total_capacity=total_capacity,
+        )
+
+    def optimize_memory(
+        self,
+        observation_sha256s: Sequence[str],
+        entries_by_layer: Sequence[dict[int, dict[str, Any]]],
+        *,
+        maximum_resident_bytes: int,
+    ) -> ExpertCacheMemoryPlan:
+        """Learn an exact plan from verified observations under a byte ceiling."""
+        if not observation_sha256s:
+            raise ValueError("at least one route observation is required")
+        observations = [self.load(digest) for digest in observation_sha256s]
+        binding = observations[0]["bindings"]
+        architecture = observations[0]["architecture"]
+        if any(observation["bindings"] != binding for observation in observations[1:]):
+            raise ValueError("route corpus mixes model or manifest bindings")
+        if any(observation["architecture"] != architecture for observation in observations[1:]):
+            raise ValueError("route corpus mixes architectures")
+        if len(entries_by_layer) != int(architecture["layers"]):
+            raise ValueError("route corpus and expert entries are misaligned")
+        combined: list[list[RouteBatch]] = [[] for _ in entries_by_layer]
+        for observation in observations:
+            for layer, batches in enumerate(observation["route_batches_by_layer"]):
+                combined[layer].extend(
+                    tuple(tuple(int(expert) for expert in route) for route in batch)
+                    for batch in batches
+                )
+        return optimize_expert_cache_memory_budget(
+            tuple(tuple(batches) for batches in combined),
+            entries_by_layer,
+            maximum_resident_bytes=maximum_resident_bytes,
         )
