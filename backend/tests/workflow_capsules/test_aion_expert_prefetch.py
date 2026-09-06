@@ -17,6 +17,7 @@ from backend.modules.aion_inference import (
 from backend.scripts.run_aion_layer_scoped_moe_experiment import LayerScopedStore
 from backend.scripts.run_aion_promoted_cache_plan_replication import CASES, _comparison_cases
 from backend.scripts.run_aion_moe_latency_attribution import summarize_stage_seconds
+from backend.scripts.run_aion_metal_transfer_abba import _p95
 
 
 def _routing_profile():
@@ -174,6 +175,12 @@ def test_latency_attribution_reports_percentages_and_unassigned_time():
         summarize_stage_seconds({"storage": 1.0}, 0.0)
     with pytest.raises(ValueError, match="non-negative"):
         summarize_stage_seconds({"storage": -1.0}, 1.0)
+
+
+def test_metal_transfer_abba_uses_conservative_small_sample_p95():
+    assert _p95([3.0, 5.0]) == 5.0
+    with pytest.raises(ValueError, match="observations"):
+        _p95([])
 
 
 def test_promoted_cache_plan_verifier_binds_capacity_and_model():

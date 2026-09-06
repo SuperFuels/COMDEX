@@ -312,6 +312,18 @@ against the corrected v2 reference (135.010 s to 125.663 s).  However, it was
 unpromoted candidate below the 10% live-time gate pending balanced ABBA
 replication; no general speedup is claimed.
 
+The required same-model-load blocking/fused/blocking/fused comparison then
+resolved that uncertainty.  Blocking median time was 124.670 s and fused median
+time was 126.170 s, making fusion 1.20% slower.  Median attributed Metal time
+improved by only 0.33% despite halving the number of transfer operations.  Both
+conditions requested exactly 23,226,051,728 logical bytes across their two
+runs; fused p95 and peak Metal allocation were slightly lower, all four runs
+assigned more than 98% of wall time, and every token and logit was exact.  The
+10% promotion gate failed, so per-expert fusion is retired and preserved with a
+`NOT_PROMOTED` sidecar.  This falsifies transfer-call count as the dominant
+Metal cost and advances the programme to a bounded persistent transfer-arena
+design.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \
