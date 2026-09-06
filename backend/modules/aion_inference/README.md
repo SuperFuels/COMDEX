@@ -397,6 +397,17 @@ identical, and the three-GiB controller gate passed.  Two controlled results
 therefore miss the 10% median gate; execution-format repacking is retained as a
 valid composable artifact but is `NOT_PROMOTED` as an independent strategy.
 
+The first Stage 5 sustained-generation milestone extended storage-first
+execution to two sequential 64-token inferences.  The empty-start run completed
+in 143.715 s (0.4453 tokens/s); the subsequent retained-cache run completed in
+98.408 s (0.6504 tokens/s), a 31.53% time reduction.  Across both inferences the
+controller recorded 27,031 retained hits and 7,731 faults, a 77.76% retained-hit
+rate.  All 128 generated tokens and all 128 corresponding step-logit tensors
+matched the full-resident FP16 control exactly.  The strong 0.50 tokens/s warm
+SD milestone is therefore exceeded for this prompt.  The filesystem state was
+warm uncontrolled and only one prompt was tested, so randomized multi-prompt,
+cold/warm, p95, 128-token, and 256-token validation remain open.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \
