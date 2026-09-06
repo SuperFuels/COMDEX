@@ -266,6 +266,17 @@ the unrestricted controls exactly. The candidate is now the better measured
 controller for this model, pending broader randomized and cache-controlled
 replication before any population claim.
 
+The controller now also accepts an explicit retained-expert byte ceiling rather
+than assuming a fixed slot count. It charges each slot conservatively at the
+largest expert artifact in its layer and uses an exact non-dominated dynamic
+program to minimize replayed demand without crossing the ceiling. On the three
+verified corpus observations, leave-one-out plans at 1, 2 and 3 GiB reduced
+held-out logical demand by 3.20%, 2.24% and 3.87% respectively versus the best
+equal per-layer capacity that fit the same ceiling. The learned allocation won
+all nine folds/budget comparisons. This is exact offline route replay, not a
+timed model run; live Metal memory, latency and output equivalence remain gates
+for the next execution experiment.
+
 ## Learned AtomSheets and Glyph context
 
 `LearnedAtomSheetStore` is the first quarantined promotion pipeline. It accepts

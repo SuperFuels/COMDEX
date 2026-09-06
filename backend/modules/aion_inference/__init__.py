@@ -47,7 +47,9 @@ from .expert_prefetch import (
 )
 from .expert_cache_budget import (
     ExpertCacheBudgetPlan,
+    ExpertCacheMemoryPlan,
     optimize_expert_cache_budget,
+    optimize_expert_cache_memory_budget,
     simulate_frequency_cache_demand_bytes,
     verify_promoted_expert_cache_plan,
 )
@@ -97,7 +99,9 @@ __all__ = [
     "broad_expert_prefetch_plan",
     "build_expert_prefetch_plan",
     "ExpertCacheBudgetPlan",
+    "ExpertCacheMemoryPlan",
     "optimize_expert_cache_budget",
+    "optimize_expert_cache_memory_budget",
     "simulate_frequency_cache_demand_bytes",
     "verify_promoted_expert_cache_plan",
     "ExpertRouteCorpus",

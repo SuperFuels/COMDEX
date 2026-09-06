@@ -10,6 +10,7 @@ from backend.modules.aion_inference import (
     build_expert_prefetch_plan,
     ExpertRouteCorpus,
     optimize_expert_cache_budget,
+    optimize_expert_cache_memory_budget,
     simulate_frequency_cache_demand_bytes,
     verify_promoted_expert_cache_plan,
 )
@@ -121,6 +122,46 @@ def test_budget_optimizer_moves_slots_to_the_layer_with_marginal_reuse():
     assert plan.uniform_predicted_demand_bytes == 40
     assert plan.predicted_byte_reduction_percent == 50.0
     assert len(plan.plan_sha256) == 64
+
+
+def test_memory_budget_optimizer_respects_bytes_and_moves_capacity_to_reuse():
+    entries = (
+        {0: {"bytes": 10}, 1: {"bytes": 10}},
+        {0: {"bytes": 20}, 1: {"bytes": 20}},
+    )
+    routes = (
+        (((0,),), ((1,),), ((0,),), ((1,),)),
+        (((0,),),),
+    )
+    plan = optimize_expert_cache_memory_budget(
+        routes, entries, maximum_resident_bytes=20
+    )
+    assert plan.capacities_by_layer == (2, 0)
+    assert plan.estimated_resident_bytes == 20
+    assert plan.estimated_resident_bytes <= plan.maximum_resident_bytes
+    assert plan.predicted_demand_bytes == 40
+    assert plan.uniform_capacity == 0
+    assert len(plan.plan_sha256) == 64
+
+
+def test_memory_budget_optimizer_is_conservative_for_unequal_experts():
+    entries = ({0: {"bytes": 9}, 1: {"bytes": 11}},)
+    routes = ((((0,),), ((0,),), ((1,),)),)
+    plan = optimize_expert_cache_memory_budget(
+        routes, entries, maximum_resident_bytes=20
+    )
+    assert plan.capacities_by_layer == (1,)
+    assert plan.estimated_resident_bytes == 11
+    assert plan.estimated_resident_bytes <= 20
+
+
+def test_memory_budget_optimizer_rejects_invalid_budget_and_empty_layer():
+    with pytest.raises(ValueError, match="non-negative"):
+        optimize_expert_cache_memory_budget(
+            ((),), ({0: {"bytes": 1}},), maximum_resident_bytes=-1
+        )
+    with pytest.raises(ValueError, match="every layer"):
+        optimize_expert_cache_memory_budget(((),), ({},), maximum_resident_bytes=1)
 
 
 def test_promoted_cache_plan_verifier_binds_capacity_and_model():
