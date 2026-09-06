@@ -106,7 +106,9 @@ physical light measurements, or quantum computation. Their event metadata
 explicitly records that boundary. Workflow lookup is discovery-only until a
 governed executor is explicitly bound, so a matching workflow cannot silently
 gain execution authority. Model-route prediction chooses a fallback class and
-an expert-prefetch profile for later MoE optimization. Every result records all
+an expert-prefetch profile. `expert_prefetch.py` now converts that prediction
+into a deterministic per-layer Granite shard plan using measured domain-router
+counts. Every result records all
 ten gateway stages, candidate scores, collapse evidence, workflow catalog hash,
 model-route prediction, selected context, minimal prompt, trace, and proof
 receipt.
@@ -118,6 +120,29 @@ PYTHONPATH=. python backend/scripts/run_aion_sqi_gateway_experiment.py \
   --storage-root "/Volumes/EXTERNAL/AION-Inference" \
   --run-id sqi-semantic-gateway-v2
 ```
+
+Run the real SD-backed Glyph-to-MoE bridge experiment with a fresh run ID:
+
+```bash
+PYTHONPATH=. python backend/scripts/run_aion_glyph_moe_prefetch_experiment.py \
+  --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \
+  --profile "/Volumes/EXTERNAL/AION-Inference/experiments/real-moe-expert-profile-v1.json" \
+  --shard-manifest "/Volumes/EXTERNAL/AION-Inference/expert-shards/granite-3.1-3b-a800m-instruct/manifest.json" \
+  --storage-root "/Volumes/EXTERNAL/AION-Inference" \
+  --run-id glyph-moe-prefetch-v1
+```
+
+The first four-profile run bound arithmetic/business, policy, coding and general
+Gateway predictions to real 32-layer expert plans and reproduced every
+unrestricted output token exactly. Targeted prefetch reduced median generation
+time from 77.68 s to 26.33 s and loaded 15.21% fewer speculative bytes than the
+broad plan. Its 51.29 s prefetch cost consumed essentially the entire gain:
+median total time was 77.62 s versus 77.69 s with no prefetch. All three methods
+ultimately requested the same 23,679,058,832 logical bytes because each complete
+request touched about 1,253--1,255 of the model's 1,280 experts. The
+prediction-to-loader bridge therefore works, but this profile is not selective
+enough to deliver a meaningful end-to-end speed or request-peak-memory gain.
+Physical SD reads were not isolated from the macOS file cache.
 
 ## Learned AtomSheets and Glyph context
 

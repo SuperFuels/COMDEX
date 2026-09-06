@@ -39,6 +39,12 @@ from .sqi_beams import (
     WorkflowMatch,
     collapse_beams,
 )
+from .expert_prefetch import (
+    ExpertPrefetchPlan,
+    PROFILE_DOMAINS,
+    broad_expert_prefetch_plan,
+    build_expert_prefetch_plan,
+)
 
 __all__ = [
     "BenchmarkReport",
@@ -79,4 +85,8 @@ __all__ = [
     "WorkflowCatalog",
     "WorkflowMatch",
     "collapse_beams",
+    "ExpertPrefetchPlan",
+    "PROFILE_DOMAINS",
+    "broad_expert_prefetch_plan",
+    "build_expert_prefetch_plan",
 ]

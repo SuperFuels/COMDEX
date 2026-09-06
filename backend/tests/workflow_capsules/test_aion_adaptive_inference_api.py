@@ -42,6 +42,7 @@ def test_capabilities_publish_strict_bypass_boundary(client):
     assert body["workflow_lookup"] is True
     assert body["workflow_execution_bound"] is False
     assert body["model_route_prediction"] is True
+    assert body["expert_prefetch_execution"] == "experimental_sd_backed_runner"
     assert body["learned_verified_routes"] == [
         "CALCULATE_MARKED_UP_PRICE", "CALCULATE_DISCOUNTED_PRICE",
         "CALCULATE_PRICE_WITH_TAX", "CALCULATE_LABOUR_COST",

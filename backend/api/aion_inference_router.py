@@ -82,6 +82,7 @@ def inference_capabilities() -> dict:
         "workflow_lookup": True,
         "workflow_execution_bound": False,
         "model_route_prediction": True,
+        "expert_prefetch_execution": "experimental_sd_backed_runner",
         "verified_replay": True,
         "learned_atomsheet_promotion": True,
         "learned_route_cohort": "multifamily-v4-domain-bounds",

@@ -109,6 +109,21 @@ class LayerExpertStore:
     def end_request(self) -> None:
         self.request_cache.clear()
 
+    def configure_resident(self, experts: set[int]) -> None:
+        unknown = experts - self.entries.keys()
+        if unknown:
+            raise ValueError(f"unknown experts for layer {self.layer}: {sorted(unknown)}")
+        self.resident = set(experts)
+
+    def prefetch(self, device: torch.device, dtype: torch.dtype) -> None:
+        """Materialize the configured resident experts before model execution."""
+        for expert in sorted(self.resident):
+            self.get(expert, device, dtype)
+
+    def clear_all(self) -> None:
+        self.cache.clear()
+        self.request_cache.clear()
+
     @property
     def cached_bytes(self) -> int:
         return sum(self.entries[expert]["bytes"] for expert in self.cache)
