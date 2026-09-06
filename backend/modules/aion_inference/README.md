@@ -442,6 +442,17 @@ A route-unaware prompt-slimming probe reduced tokenized input length by
 a safe proxy for sparse-MoE expert demand; future Glyph compression must be
 route-aware and pass renewed exactness gates.
 
+The next Stage 5 run doubled every prompt to 128 generated tokens without
+changing the four-family order, model, SD packs, or 3 GiB controller. It
+completed all 512 tokens with exact token and step-logit equivalence. Median
+throughput reached 2.6064 tokens/s and the best warm request reached 3.5240
+tokens/s; the empty-cache first request achieved 0.7608 tokens/s. The retained
+hit rate rose to 80.67%. Relative to the 64-token run, median throughput was
+2.89 times higher and logical expert demand per generated token fell by 13.80%.
+This confirms that longer generations allow the retained working set to repay
+its initial materialization cost. The run remains warm uncontrolled with one
+observation per family, so replication and a 256-token condition remain open.
+
 ```bash
 PYTHONPATH=. python backend/scripts/run_aion_moe_latency_attribution.py \
   --model-path "/Volumes/EXTERNAL/AION-Inference/hf-models/granite-3.1-3b-a800m-instruct" \
