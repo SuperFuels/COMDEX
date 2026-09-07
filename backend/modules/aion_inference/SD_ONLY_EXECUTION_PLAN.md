@@ -598,3 +598,25 @@ more cycles on serial family grouping for this workload. Current next action:
 use recorded per-family generated-token and generation-time evidence to target
 the largest output family with a separately quality-gated minimal-response
 contract or verified AtomSheet promotion.
+
+### Stopped compact extraction wire protocol (2026-09-07)
+
+Extraction was the largest measured Qwen family, so a separately quality-gated
+ABBA test replaced the full JSON keys with Glyph-compiled `s`, `i`, and `a`
+keys, then expanded them back into the identical Business Map fields. Twelve
+cases ran through baseline/compact/compact/baseline arms after an explicit
+unload and neutral cold prime for each arm.
+
+The compact candidate failed 8/12 cases identically in both candidate arms,
+while both baseline arms passed 12/12. It increased generated tokens from 445
+to 462 (3.82%), increased median generation time from 5.7663 s to 5.9710 s, and
+improved total warm time only 4.91%, below the 10% gate. It is stopped and
+`NOT_PROMOTED`; short field names are not a useful token code for this model.
+
+The first report also incorrectly calculated its
+`payment_execution_never_allowed` field from task success rather than recorded
+authority. A hash-bound `INVALID` sidecar invalidates only that field; it does
+not change the failed quality, token, timing or promotion conclusions. The
+runner now records authority directly. Current next action: compile the twelve
+already exact extraction outcomes into a narrow verified extraction AtomSheet,
+then require a separately frozen unseen holdout before avoiding Qwen calls.

@@ -714,3 +714,12 @@ shared fixed schema/prompt prefixes and reduced prompt-evaluation time 10.12%,
 but total warm workload time improved only 2.17%, below the declared 3% gate.
 The strategy is `NOT_PROMOTED` and stopped: serial prefix grouping is real but
 too small because generation, not prompt evaluation, now dominates Qwen time.
+
+A compact extraction wire protocol was also stopped. Replacing descriptive JSON
+keys with `s`, `i`, and `a` failed 8/12 cases in both candidate arms, increased
+generated tokens 3.82%, and improved total warm time only 4.91% against a 10%
+gate. Both baseline arms passed 12/12. An `INVALID` sidecar corrects a separate
+miscomputed payment-authority field in the report; quality and timing findings
+remain valid. The next exact-output economic candidate is a narrow verified
+extraction AtomSheet trained from the twelve accepted normalized outcomes, with
+a new frozen holdout required before promotion.
