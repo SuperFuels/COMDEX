@@ -11,6 +11,7 @@ import statistics
 import time
 from typing import Any
 import urllib.request
+import re
 
 from backend.modules.aion_inference import (
     AdaptiveInferenceRuntime,
@@ -65,6 +66,20 @@ def _p95(values: list[float]) -> float:
     return ordered[max(0, int(0.95 * len(ordered) + 0.999999) - 1)]
 
 
+def _normalize_extraction(value: Any) -> tuple[Any, tuple[str, ...]]:
+    if not isinstance(value, dict):
+        return value, ()
+    normalized = dict(value)
+    changes: list[str] = []
+    supplier_name = normalized.get("supplier_name")
+    if isinstance(supplier_name, str):
+        canonical = re.sub(r"^(?:vendor|supplier)\s+", "", supplier_name, flags=re.I)
+        if canonical != supplier_name:
+            normalized["supplier_name"] = canonical
+            changes.append("strip_leading_supplier_role_label")
+    return normalized, tuple(changes)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--storage-root", type=Path, required=True)
@@ -117,9 +132,10 @@ def main() -> int:
                 "options": {"temperature": 0, "seed": 0, "num_predict": 96},
             })
             try:
-                parsed = json.loads(event["response"])
+                raw_parsed = json.loads(event["response"])
             except json.JSONDecodeError:
-                parsed = None
+                raw_parsed = None
+            parsed, normalizations = _normalize_extraction(raw_parsed)
             eval_seconds = int(event.get("eval_duration", 0)) / 1e9
             calls.append({
                 "repetition": repetition + 1,
@@ -131,7 +147,9 @@ def main() -> int:
                 "tokens_per_second": int(event.get("eval_count", 0)) / eval_seconds if eval_seconds else None,
                 "done_reason": event.get("done_reason"),
                 "response_sha256": hashlib.sha256(event["response"].encode()).hexdigest(),
+                "raw_parsed": raw_parsed,
                 "parsed": parsed,
+                "normalizations": normalizations,
             })
         extraction_exact = all(call["parsed"] == case["expected"] for call in calls)
         deterministic = calls[0]["response_sha256"] == calls[1]["response_sha256"]
