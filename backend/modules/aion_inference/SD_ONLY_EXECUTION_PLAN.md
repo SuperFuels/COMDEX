@@ -491,3 +491,29 @@ promotion because it combines immutable synthetic runs instead of executing a
 blinded live mixed workload. Current next action: define a verified workflow or
 explicit unsupported/human-review outcome for removable-model integrity, then
 run the complete router on a blinded task set with end-to-end p50/p95 latency.
+
+### Evaluator-blind governed-router result (2026-09-07)
+
+The first shuffled end-to-end router cohort has now completed. The router saw
+request text only; case kind and expected answers were withheld until the
+post-route evaluator. A fixed-seed order commitment bound 100 promoted
+AtomSheet calculations, eight live Qwen supplier extractions, one signed
+Business Map policy request and the exact previously failed removable-model
+integrity contract.
+
+All route receipts and the append-only trace chain verified. AION completed
+109/110 tasks (99.09%), sent the remaining task to human review, avoided 102
+model calls and made eight Qwen calls with no Granite call. Serial wall time was
+25.576 s, yielding 15,342.75 completed tasks/hour for this highly arithmetic
+synthetic mix. End-to-end task latency was 16.207 ms p50, 0.7502 s p95 and
+18.542 s maximum. The maximum was Qwen's explicit cold start; Qwen warm p50 was
+0.7460 s and warm p95 was 0.8729 s.
+
+This promotes the bounded routing mechanism and the negative-capability gate,
+not general Stage 7 economics. The cohort is synthetic and dominated by 100
+fast calculations; it does not yet include accepted quotation, drafting,
+planning and coding rubrics. Qwen supplies no step logits, and the human-review
+decision is a safe resolution but not a completed task. Current next action:
+build a family-balanced blinded cohort with explicit success rubrics for those
+missing business categories, measure per-family p50/p95 and preserve the same
+no-failed-task-counted-as-complete rule.

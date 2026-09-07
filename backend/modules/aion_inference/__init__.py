@@ -79,6 +79,7 @@ from .supplier_payment_safety import (
     SupplierPaymentSafetyDecision,
     assess_supplier_payment_request,
 )
+from .governed_business_router import GovernedBusinessOutcome, GovernedBusinessRouter
 
 __all__ = [
     "BenchmarkReport",
@@ -149,4 +150,6 @@ __all__ = [
     "verify_business_map_cartridge",
     "SupplierPaymentSafetyDecision",
     "assess_supplier_payment_request",
+    "GovernedBusinessOutcome",
+    "GovernedBusinessRouter",
 ]

@@ -668,3 +668,15 @@ successes from 108 to 109 and successful-task throughput from 1,041.83 to
 synthetic evidence-bound routing result, not a blinded Stage 7 promotion or a
 Granite token-generation speedup. The remaining failed Granite task remains a
 failure and still consumes 88.11% of revised elapsed time.
+
+The next run exercised the router live rather than recombining timings. A fixed-
+seed shuffled evaluator-blind cohort contained 100 promoted calculations, eight
+live Qwen extractions, one signed policy answer and the exact Granite contract
+already proven to fail its quality rubric. A hash-bound negative-capability gate
+sent that exact contract to human review without generalizing the failure to
+changed requests. The run completed 109/110 tasks, safely resolved all 110,
+avoided 102 model calls and made no Granite call. Actual serial wall time was
+25.576 s; task latency was 16.207 ms p50, 0.7502 s p95 and 18.542 s maximum,
+with the maximum caused by Qwen's explicit cold start. All receipts, the trace
+chain and 72 focused tests passed. This promotes the bounded routing mechanism,
+not a family-balanced or real-customer Stage 7 workload.

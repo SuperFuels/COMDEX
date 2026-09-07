@@ -1,0 +1,79 @@
+from __future__ import annotations
+
+import hashlib
+
+from backend.modules.aion_inference import (
+    AdaptiveInferenceRuntime,
+    GovernedBusinessRouter,
+    verify_proof_receipt,
+)
+from backend.modules.aion_inference.business_map import (
+    BUSINESS_MAP_TRUST_ANCHORS,
+    SUPPLIER_PAYMENT_CARTRIDGE,
+    SUPPLIER_PAYMENT_SIGNATURE,
+)
+
+
+SUPPLIER_REQUEST = (
+    "Produce six supplier payment controls. Each must state the risk and human evidence."
+)
+FAILED_REQUEST = (
+    "Produce exactly six numbered one-sentence operating controls for loading AI model experts "
+    "from removable storage. Each sentence must state the failure prevented and the evidence "
+    "retained. Cover signed manifests, content hashes, partial-read detection, fail-closed "
+    "behavior, recovery from a verified copy, and append-only audit receipts. Use no "
+    "introduction or conclusion."
+)
+
+
+def _router(tmp_path):
+    failed_hash = hashlib.sha256(FAILED_REQUEST.encode()).hexdigest()
+    return GovernedBusinessRouter(
+        runtime=AdaptiveInferenceRuntime(
+            replay_path=tmp_path / "replay.sqlite3",
+            trace_path=tmp_path / "trace.jsonl",
+        ),
+        cartridge_path=SUPPLIER_PAYMENT_CARTRIDGE,
+        signature_path=SUPPLIER_PAYMENT_SIGNATURE,
+        trust_anchors_path=BUSINESS_MAP_TRUST_ANCHORS,
+        failed_model_contracts={failed_hash: "a" * 64},
+    )
+
+
+def test_verified_supplier_policy_bypasses_model_and_payment_authority(tmp_path):
+    result = _router(tmp_path).route(SUPPLIER_REQUEST)
+    assert result.route == "verified_business_map_policy"
+    assert result.task_completed
+    assert not result.model_call_required
+    assert not result.human_review_required
+    assert len(result.answer.splitlines()) == 6
+    assert verify_proof_receipt(result.proof_receipt)
+
+
+def test_exact_failed_contract_is_quarantined_without_generalizing(tmp_path):
+    router = _router(tmp_path)
+    failed = router.route(FAILED_REQUEST)
+    assert failed.route == "human_review_required"
+    assert failed.human_review_required
+    assert not failed.task_completed
+    assert not failed.model_call_required
+    assert verify_proof_receipt(failed.proof_receipt)
+
+    changed = router.route(FAILED_REQUEST + " Explain the first control only.")
+    assert changed.route != "human_review_required"
+    assert changed.model_call_required
+
+
+def test_existing_atomsheet_and_qwen_routes_remain_available(tmp_path):
+    router = _router(tmp_path)
+    exact = router.route("What is 15% of 240?")
+    assert exact.route == "verified_atomsheet"
+    assert exact.task_completed and exact.answer == "36"
+    assert not exact.model_call_required
+
+    extraction = router.route(
+        "Extract the customer name and invoice number from this note."
+    )
+    assert extraction.route == "qwen_low_cost"
+    assert extraction.model_call_required
+    assert not extraction.task_completed
