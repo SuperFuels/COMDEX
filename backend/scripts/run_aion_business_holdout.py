@@ -108,6 +108,7 @@ def _evaluate_model_task(
         "call_number": call_number, "cold_call": call_number == 1,
         "wall_seconds": wall_seconds,
         "load_seconds": int(event.get("load_duration", 0)) / 1e9,
+        "prompt_eval_seconds": int(event.get("prompt_eval_duration", 0)) / 1e9,
         "prompt_tokens": int(event.get("prompt_eval_count", 0)),
         "generated_tokens": int(event.get("eval_count", 0)),
         "generation_tokens_per_second": (

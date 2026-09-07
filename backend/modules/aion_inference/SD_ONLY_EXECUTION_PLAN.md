@@ -579,3 +579,22 @@ Four cases per disposition and family remain small, and the language tasks are
 contract-shaped. Current next action: scale the frozen holdout with generated-
 then-manually-frozen paraphrases, cross-family compounds and irrelevant-noise
 injections; separately measure false refusal as well as false bypass.
+
+### Stopped warm Glyph-family batching strategy (2026-09-07)
+
+The sixteen frozen valid Qwen tasks were executed in an ABBA comparison of
+deterministically shuffled order versus grouping by bounded executor family.
+Every arm explicitly unloaded Qwen, performed a neutral cold prime and then
+measured only warm calls. Grouped requests genuinely shared the same schema and
+fixed prompt prefix. All 64 task executions passed and every case produced an
+identical canonical response across all four arms.
+
+Grouping reduced median total prompt-evaluation time from 0.81935 s to 0.73646
+s (10.12%), but median total warm workload time fell only from 9.78512 s to
+9.57284 s (2.17%). This misses the predeclared 3% promotion threshold and is
+`NOT_PROMOTED`. The result localizes the remaining Qwen cost: common-prefix
+evaluation is a small share, while response generation dominates. Do not spend
+more cycles on serial family grouping for this workload. Current next action:
+use recorded per-family generated-token and generation-time evidence to target
+the largest output family with a separately quality-gated minimal-response
+contract or verified AtomSheet promotion.

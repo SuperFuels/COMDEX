@@ -705,3 +705,12 @@ receipts and the trace chain passed. It used 16 Qwen calls, avoided or prohibite
 40 calls, and measured 0.3445 s p50 and 1.1347 s p95 valid-task latency. The
 failed v1 evidence remains preserved. This promotes a small frozen synthetic
 holdout, not production or natural-customer generalization.
+
+Warm Glyph-family batching was then tested with a four-arm ABBA design over the
+16 frozen Qwen tasks. Each arm explicitly unloaded and neutrally cold-primed the
+same installed model before warm measurement. All 64 task executions passed and
+each case's canonical output was identical across arms. Grouping genuinely
+shared fixed schema/prompt prefixes and reduced prompt-evaluation time 10.12%,
+but total warm workload time improved only 2.17%, below the declared 3% gate.
+The strategy is `NOT_PROMOTED` and stopped: serial prefix grouping is real but
+too small because generation, not prompt evaluation, now dominates Qwen time.
