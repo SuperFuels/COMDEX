@@ -104,8 +104,36 @@ def _step_error_summary(errors: list[float], token_ids: list[int]) -> dict[str, 
     }
 
 
-def _select_prompts(families: list[str] | None, seed: int) -> list[dict[str, str]]:
-    available = {item["family"]: item for item in PROMPTS}
+def _validate_prompt_catalog(value: Any) -> tuple[dict[str, str], ...]:
+    if not isinstance(value, dict) or value.get("schema_version") != "aion.prompt_manifest.v1":
+        raise ValueError("prompt manifest schema must be aion.prompt_manifest.v1")
+    prompts = value.get("prompts")
+    if not isinstance(prompts, list) or not prompts:
+        raise ValueError("prompt manifest must contain a non-empty prompts list")
+    catalog: list[dict[str, str]] = []
+    families: set[str] = set()
+    for index, item in enumerate(prompts):
+        if not isinstance(item, dict):
+            raise ValueError(f"prompt manifest entry {index} must be an object")
+        family = item.get("family")
+        prompt = item.get("prompt")
+        if not isinstance(family, str) or not family.strip():
+            raise ValueError(f"prompt manifest entry {index} has no family")
+        if family in families:
+            raise ValueError(f"duplicate prompt family: {family}")
+        if not isinstance(prompt, str) or not prompt.strip():
+            raise ValueError(f"prompt manifest entry {index} has no prompt")
+        families.add(family)
+        catalog.append({"family": family, "prompt": prompt})
+    return tuple(catalog)
+
+
+def _select_prompts(
+    families: list[str] | None,
+    seed: int,
+    catalog: tuple[dict[str, str], ...] = PROMPTS,
+) -> list[dict[str, str]]:
+    available = {item["family"]: item for item in catalog}
     requested = list(available) if not families else list(dict.fromkeys(families))
     unknown = sorted(set(requested) - set(available))
     if unknown:
@@ -164,6 +192,11 @@ def main() -> int:
     parser.add_argument("--pack-manifest", type=Path, required=True)
     parser.add_argument("--route-corpus", type=Path, required=True)
     parser.add_argument("--working-set-dictionary", type=Path)
+    parser.add_argument(
+        "--prompt-manifest",
+        type=Path,
+        help="Hash-bound external prompt catalog using schema aion.prompt_manifest.v1.",
+    )
     parser.add_argument("--storage-root", type=Path, required=True)
     parser.add_argument("--memory-budget-gib", type=float, default=3.0)
     parser.add_argument("--generated-tokens", type=int, default=64)
@@ -191,6 +224,8 @@ def main() -> int:
     }
     if args.working_set_dictionary:
         paths["working_set_dictionary"] = args.working_set_dictionary.resolve()
+    if args.prompt_manifest:
+        paths["prompt_manifest"] = args.prompt_manifest.resolve()
     output = (args.output or root / "experiments" / f"{args.run_id}.json").resolve()
     if any(root not in path.parents for path in (*paths.values(), output)):
         raise SystemExit("all artifacts must remain on external storage")
@@ -243,7 +278,13 @@ def main() -> int:
         maximum_resident_bytes=int(args.memory_budget_gib * 1024**3),
     )
     try:
-        prompt_order = _select_prompts(args.prompt_families, args.seed)
+        prompt_catalog = (
+            _validate_prompt_catalog(
+                json.loads(paths["prompt_manifest"].read_text(encoding="utf-8"))
+            )
+            if args.prompt_manifest else PROMPTS
+        )
+        prompt_order = _select_prompts(args.prompt_families, args.seed, prompt_catalog)
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
     runtime_root = root / "runtime-evidence" / args.run_id
@@ -419,12 +460,16 @@ def main() -> int:
                 working_set_dictionary["dictionary_sha256"]
                 if working_set_dictionary is not None else None
             ),
+            "prompt_manifest": (
+                _sha256(paths["prompt_manifest"])
+                if args.prompt_manifest else None
+            ),
         },
         "method": {
             "seed": args.seed,
             "prompt_order": [request["family"] for request in requests],
-            "available_prompt_families": [item["family"] for item in PROMPTS],
-            "diagnostic_subset": len(requests) != len(PROMPTS),
+            "available_prompt_families": [item["family"] for item in prompt_catalog],
+            "diagnostic_subset": len(requests) != len(prompt_catalog),
             "generated_tokens_per_prompt": args.generated_tokens,
             "persistent_cache_across_prompts": True,
             "cache_empty_before_first_prompt": True,

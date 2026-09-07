@@ -26,7 +26,11 @@ from backend.scripts.run_aion_layer_scoped_moe_experiment import (
     LayerScopedStore,
     select_frequency_retention,
 )
-from backend.scripts.run_aion_storage_first_multiprompt import _select_prompts, _step_error_summary
+from backend.scripts.run_aion_storage_first_multiprompt import (
+    _select_prompts,
+    _step_error_summary,
+    _validate_prompt_catalog,
+)
 from backend.scripts.run_aion_promoted_cache_plan_replication import CASES, _comparison_cases
 from backend.scripts.run_aion_moe_latency_attribution import summarize_stage_seconds
 from backend.scripts.run_aion_metal_transfer_abba import _p95
@@ -269,6 +273,26 @@ def test_storage_first_prompt_selection_supports_bounded_diagnostics():
     assert [item["family"] for item in selected] == ["commercial_risk"]
     with pytest.raises(ValueError, match="unknown prompt families"):
         _select_prompts(["does_not_exist"], 20260906)
+
+
+def test_storage_first_prompt_manifest_is_bounded_and_rejects_duplicates():
+    catalog = _validate_prompt_catalog({
+        "schema_version": "aion.prompt_manifest.v1",
+        "prompts": [
+            {"family": "task_a", "prompt": "Perform task A."},
+            {"family": "task_b", "prompt": "Perform task B."},
+        ],
+    })
+    selected = _select_prompts(["task_b"], 7, catalog)
+    assert selected == [{"family": "task_b", "prompt": "Perform task B."}]
+    with pytest.raises(ValueError, match="duplicate prompt family"):
+        _validate_prompt_catalog({
+            "schema_version": "aion.prompt_manifest.v1",
+            "prompts": [
+                {"family": "task_a", "prompt": "One."},
+                {"family": "task_a", "prompt": "Two."},
+            ],
+        })
 
 
 def test_frequency_cache_simulator_matches_expected_fault_bytes():
