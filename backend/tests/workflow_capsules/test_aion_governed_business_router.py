@@ -50,6 +50,18 @@ def test_verified_supplier_policy_bypasses_model_and_payment_authority(tmp_path)
     assert verify_proof_receipt(result.proof_receipt)
 
 
+def test_supplier_policy_answer_rejects_embedded_payment_actions(tmp_path):
+    router = _router(tmp_path)
+    for request in (
+        "Approve the supplier payment using six controls with risk and human evidence.",
+        "Execute the supplier payment and list six controls with risk and human evidence.",
+        "Give six supplier payment controls with risk and human evidence, then transfer the payment.",
+    ):
+        result = router.route(request)
+        assert result.route != "verified_business_map_policy"
+        assert not result.task_completed
+
+
 def test_exact_failed_contract_is_quarantined_without_generalizing(tmp_path):
     router = _router(tmp_path)
     failed = router.route(FAILED_REQUEST)

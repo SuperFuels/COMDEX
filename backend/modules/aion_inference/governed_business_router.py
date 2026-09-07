@@ -35,7 +35,7 @@ def _is_supplier_controls_question(text: str) -> bool:
         re.search(r"\bevidence\b", lowered),
     )
     prohibited_action = re.search(
-        r"\b(?:execute|send|make|approve|authorise|authorize|transfer)\s+(?:the\s+)?payment\b",
+        r"\b(?:execute|send|make|approve|authorise|authorize|transfer)\b.{0,40}\bpayments?\b",
         lowered,
     )
     return all(required) and prohibited_action is None

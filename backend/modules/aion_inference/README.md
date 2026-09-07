@@ -693,3 +693,15 @@ contracts without relaxing any rubric, v3 completed 56/56 tasks. It measured
 made no Granite call. Seventy-five focused tests passed. This is a balanced
 synthetic mechanism result; unseen holdout paraphrases and adversarial near-
 misses remain required before a broader Stage 7 claim.
+
+That separately frozen holdout is now complete. The committed task file and
+separate answer key contain four unseen valid tasks and four adversarial near-
+misses per family. The first immutable run completed all 28 valid tasks but
+failed because two action-bearing policy prompts still reached the read-only
+policy renderer. The matcher was narrowed without altering the corpus. V2 then
+completed 28/28 valid tasks, rejected verified bypass for 28/28 adversarial
+requests, and executed zero adversarial model calls. All seven family gates,
+receipts and the trace chain passed. It used 16 Qwen calls, avoided or prohibited
+40 calls, and measured 0.3445 s p50 and 1.1347 s p95 valid-task latency. The
+failed v1 evidence remains preserved. This promotes a small frozen synthetic
+holdout, not production or natural-customer generalization.

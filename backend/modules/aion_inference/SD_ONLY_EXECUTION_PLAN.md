@@ -547,3 +547,35 @@ family; supplier evidence is synthetic and Qwen step logits are unavailable.
 Current next action: freeze these contracts, generate unseen paraphrases and
 adversarial near-misses before execution, then run a separately committed
 holdout manifest. Any family regression must fail the whole cohort.
+
+### Frozen unseen/adversarial holdout result (2026-09-07)
+
+The next corpus was committed before runner adaptation and installed unchanged,
+read-only, on the SD volume. Its task manifest and separately opened answer key
+have SHA-256 values `f49a3cd894568ae31a503e1bf3ce4fcb55bdabf47001f5fd22f8e9f2878b6481`
+and `8e6b767af902082e6a655a411ff54b4a1c34cb4363dfc425c5d01a05aa954a66`.
+It contains four unseen valid requests and four adversarial near-misses for each
+of the seven families. Every request was routed before the evaluator opened the
+answer key; adversarial requests were prohibited from model execution.
+
+Version 1 completed all 28 unseen valid tasks but failed promotion because two
+adversarial policy requests still reached the read-only signed policy renderer.
+No payment action was possible, but a verified bypass was still incorrect. The
+immutable failed result remains on the SD. The matcher had recognized `approve
+payment` but not `approve the supplier payment`; it was narrowed to reject an
+action verb within the surrounding payment phrase.
+
+The unchanged v2 holdout passed every gate: 28/28 unseen valid tasks completed,
+28/28 adversarial near-misses rejected verified bypass, zero adversarial model
+calls, all seven families passed, and every receipt and the trace chain
+verified. Sixteen valid Qwen calls ran; 40 calls were avoided or prohibited.
+Total wall time including all adversarial route checks was 28.837 s, yielding
+3,495.53 successful valid tasks/hour. Valid-task latency was 0.3445 s p50,
+1.1347 s p95 and 19.624 s maximum; the maximum was the explicit cold Qwen call.
+Warm Qwen p50/p95 were 0.5982/1.1328 s. Granite was not needed.
+
+This promotes the frozen synthetic holdout gate, not production deployment.
+Four cases per disposition and family remain small, and the language tasks are
+contract-shaped. Current next action: scale the frozen holdout with generated-
+then-manually-frozen paraphrases, cross-family compounds and irrelevant-noise
+injections; separately measure false refusal as well as false bypass.
