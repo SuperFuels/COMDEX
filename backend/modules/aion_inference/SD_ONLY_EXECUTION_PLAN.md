@@ -320,3 +320,18 @@ missing or conflicting bank details, duplicate invoices, unauthorized roles,
 threshold breaches, prompt injection, cross-business cartridge selection,
 tampered bundles and revocation. Fail closed or require human review whenever
 the labeled safe-extraction boundary is not satisfied.
+
+### Adversarial gate checkpoint
+
+A deterministic supplier-payment safety gate now blocks cross-tenant requests,
+duplicate invoices, role-limit breaches, prompt injection, bank-detail changes,
+missing fields and noncanonical amounts before cartridge execution. Eight
+labeled SD fixtures ran 1,000 times each with all 8,000 decisions correct,
+deterministic receipts and zero model calls. Median gate latency was 0.011750 ms
+and p95 was 0.014416 ms. This promotes only the synthetic decision boundary.
+Tenant and evidence authenticity remain unproved, and the v1 cartridge still
+depends on a separately supplied active tenant ID.
+
+Current next action: add a separately signed tenant envelope and signed
+revocation state, then verify cross-cartridge isolation and revoked-key or
+revoked-cartridge rejection before any production tenant-bound claim.
