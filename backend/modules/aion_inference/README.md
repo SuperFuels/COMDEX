@@ -812,3 +812,14 @@ error was 0.0036621, so this is `ADVANCE_TO_FULL_MODEL_QUALITY_GATE`, not an
 exact result or full-model promotion. At approximately 2.82 GiB for all expert
 weights, the candidate could make the complete Granite expert library resident
 within the existing 3 GiB expert budget.
+
+That candidate has now crossed its first full-model capacity gate. All 1,280
+experts were converted into a 2.8186 GiB content-addressed SD library, 49.894%
+smaller than the verified source experts. Direct full-resident INT8 execution
+kept all 32 short-run token IDs and improved TTFT 10.69%, but improved median
+generation only 2.30%; the speed claim is `NOT_PROMOTED`. The decisive result
+was storage-first boot: it never materialized FP16 experts, reduced active Metal
+allocation 45.67% (6.598 GB to 3.584 GB), cut boot time 52.18% (91.231 s to
+43.629 s), retained 8.215 tokens/s within 0.25% of FP16, and matched all 32
+short-run tokens. This is `ADVANCE_TO_LONG_QUALITY_GATE`; logits are non-exact
+and longer frozen quality validation is mandatory before promotion.

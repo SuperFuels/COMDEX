@@ -105,3 +105,38 @@ a full-model result. The required next experiment is a content-addressed
 32-layer build followed by frozen output-quality, token-agreement, throughput,
 time-to-first-token, peak-memory and cold/warm tests against both FP16 and the
 promoted exact compressed streaming control.
+
+\section{Full-Model Packed Library and Storage-First Boot}
+\label{sec:int8-storage-first-boot}
+
+The complete derived library contains 1,280 experts across all 32 Granite
+layers. Its logical size is 3,026,452,480 bytes (2.8186 GiB), compared with
+6,040,094,720 verified source bytes: a measured 49.894\% reduction. Every source
+and derived object is hash-bound, and the library was atomically exposed only
+after all layers and experts existed. The manifest canonical SHA-256 is
+\texttt{62b7768bd2062d668a2c2aefbf765137829ac34390e8cb1421532c61dc3c3d5b}.
+
+The first full-resident mechanism test installed native INT8 experts into all
+32 layers. Across four frozen prompt families and eight generated tokens per
+prompt, all 32 token identifiers matched FP16. Median time to first token
+improved by 10.69\%. Median generation increased from 8.235 to 8.425 tokens per
+second, only 2.30\%, below the declared 10\% speed gate. Logits were non-exact.
+Direct full-resident speed is therefore \texttt{NOT\_PROMOTED}. Active Metal
+allocation nevertheless fell from 6,597,587,456 to 3,591,071,232 bytes.
+
+The storage-first implementation then constructed the model without the 64
+combined FP16 expert tensors. It loaded 226 shared tensors and installed the
+INT8 Glyph blocks directly. FP16 experts were never materialized. Ready-state
+active Metal allocation was 3,584,241,664 bytes, 45.67\% below FP16. Boot time
+fell from 91.2310 to 43.6290 seconds, a 52.18\% improvement. Median generation
+was 8.215 tokens per second, 0.25\% below FP16, and all 32 short-run tokens again
+matched. Every declared storage-first gate passed. The canonical evidence
+SHA-256 is
+\texttt{adb6e1e6deb9826c818bd4c1253bc298ba7b98d1360bc969fcc4f53c4df8a9e5}.
+
+The status is \texttt{ADVANCE\_TO\_LONG\_QUALITY\_GATE}, not production
+promotion. The result establishes a functioning fully resident model with
+roughly half the expert storage, 45.67\% less active Metal memory and 52.18\%
+faster boot while retaining short-run tokens and throughput. It does not prove
+exact logits, 64--256-token quality, randomized prompt robustness or task
+accuracy. Those are mandatory next-stage gates.

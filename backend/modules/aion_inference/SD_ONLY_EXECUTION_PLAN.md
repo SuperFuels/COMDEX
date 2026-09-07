@@ -842,3 +842,39 @@ initialization. The next locked action is to build content-addressed INT8 Glyph
 blocks on the SD volume, integrate the native operation across all 32 layers,
 and run frozen prompt-quality, token-agreement, throughput, TTFT and memory
 gates against FP16 and the promoted exact compressed streaming control.
+
+### Full-model native INT8 and storage-first packed boot (2026-09-08)
+
+The complete derived library contains all 1,280 experts across 32 layers. Its
+logical size is 3,026,452,480 bytes (2.8186 GiB), a measured 49.894% reduction
+from 6,040,094,720 verified source bytes. Every source and output object is
+content-addressed, all indexes are hash-bound, and the atomic manifest canonical
+SHA-256 is
+`62b7768bd2062d668a2c2aefbf765137829ac34390e8cb1421532c61dc3c3d5b`.
+
+The first full-resident four-prompt, eight-token mechanism run installed all 32
+native INT8 layers. All 32 generated token identifiers matched FP16, and median
+time to first token improved 10.69%. Median generation increased only from
+8.235 to 8.425 tokens/s (2.30%), below the declared 10% speed gate, while logits
+were non-exact. Direct full-resident speed is therefore `NOT_PROMOTED`. Active
+Metal allocation nevertheless fell from 6,597,587,456 to 3,591,071,232 bytes.
+
+The subsequent storage-first implementation constructed the model skeleton,
+loaded 226 shared tensors and deliberately skipped all 64 combined FP16 expert
+tensors. It then loaded the content-addressed INT8 Glyph library directly; FP16
+experts were never materialized. Ready-state active Metal allocation was
+3,584,241,664 bytes, 45.67% below the FP16 control. Boot fell from 91.2310 to
+43.6290 seconds (52.18%), median throughput was 8.215 tokens/s (only 0.25%
+below FP16), and all 32 token identifiers again matched. Every declared gate
+passed, so the result is `ADVANCE_TO_LONG_QUALITY_GATE`, not production
+promotion. The evidence canonical SHA-256 is
+`adb6e1e6deb9826c818bd4c1253bc298ba7b98d1360bc969fcc4f53c4df8a9e5`.
+
+This establishes a new capability boundary on the existing M3 Pro: a fully
+resident, functioning Granite model with roughly half the expert storage,
+45.67% less active Metal memory and 52.18% faster boot, without sacrificing
+short-run tokens or throughput. It does not yet establish 64--256-token output
+quality, randomized prompt robustness, task accuracy or equivalence. The next
+stage must preserve the FP16 baseline, run longer frozen multi-family cohorts,
+measure divergence and semantic task quality, and separately compare the packed
+resident runtime against the 0.6053-token/s exact SD-streaming track.
