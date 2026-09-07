@@ -296,3 +296,27 @@ three governed paths: zero-model AtomSheet execution, warm Qwen extraction into
 the AtomSheet, and exact Granite fallback. Promote only completed correct tasks;
 separate model-load time, warm execution, generated tokens, p50/p95, human-review
 state, and fail-closed outcomes.
+
+### Stage 6/8 hybrid promotion result
+
+The signed cartridge bundle is now installed and independently reverified on
+the SD evidence volume. The first eight-case Qwen extraction run failed exact
+quality at 7/8 because one supplier name retained a leading role label. The run
+was preserved. A bounded Semantic Transformer rule removed only leading
+standalone `Vendor` or `Supplier` labels while retaining raw and canonical
+values. The unchanged eight cases were then repeated twice each.
+
+The v2 run passed all gates: 8/8 exact labeled extractions on both repetitions,
+deterministic raw responses, valid cartridge signatures and proof receipts,
+complete synthetic control contracts, and no payment authority. After an
+explicit cold unload, the first call took 18.9786 s including 18.2724 s model
+load. Fifteen warm calls measured 0.740786 s median and 0.817896 s p95 wall time,
+with 75.527 median generated tokens/s. This promotes the bounded extraction plus
+signed-AtomSheet path for the labeled synthetic workload, not real supplier or
+evidence authentication.
+
+Current next action: adversarial and negative evidence fixtures, including
+missing or conflicting bank details, duplicate invoices, unauthorized roles,
+threshold breaches, prompt injection, cross-business cartridge selection,
+tampered bundles and revocation. Fail closed or require human review whenever
+the labeled safe-extraction boundary is not satisfied.
