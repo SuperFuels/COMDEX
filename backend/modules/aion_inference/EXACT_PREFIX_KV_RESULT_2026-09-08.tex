@@ -70,3 +70,38 @@ work should instead prioritize avoiding neural calls entirely where outputs are
 already verified: governed replay, narrowly verified AtomSheets, and finite
 Semantic Gateway transformations. Those paths remove repeated calculations
 without changing neural arithmetic.
+
+\section{Native INT8 Glyph-Block Candidate}
+\label{sec:native-int8-glyph-block}
+
+After stopping exact prefix reuse, the model-level search moved to physical
+weight traffic. The installed PyTorch/Metal stack exposes a native weight-only
+INT8 matrix operation. This permits calculation directly from compact expert
+weights instead of restoring each expert to a full FP16 tensor first.
+
+A verified layer-16 Granite decode route containing eight experts was tested
+over 200 order-balanced samples. Symmetric per-output-channel INT8 weights and
+FP16 scales reduced the representation from 37,748,736 bytes to 18,915,328
+bytes, a 49.89\% reduction. Native packed calculation with resident weights was
+28.41\% faster at p50 than FP16. A naive fault implementation that transferred
+each scale and matrix separately was 24.01\% slower and was rejected. Retaining
+the small scales on Metal and joining both matrices of each expert into one
+contiguous Glyph-addressed block made the complete placement-and-execution path
+50.00\% faster at p50 than FP16.
+
+This result is not exact. Maximum layer-output error was 0.0036621 and mean
+absolute error was 0.00036268. It is therefore labelled
+\texttt{ADVANCE\_TO\_FULL\_MODEL\_QUALITY\_GATE}, not promoted. Canonical SD-backed
+evidence is recorded in
+\texttt{int8pack-glyph-block-layer16-real-route-v2.json}; its canonical report
+SHA-256 is
+\texttt{48537cbcaba494e2e1d4555558d7bb585a1f53134a1926dc81e35e4536a45357}.
+
+The measured ratio projects the complete 6.04 GB decimal Granite expert library
+to approximately 3.03 GB decimal, or 2.82 GiB, including per-row scales. This
+may allow all 1,280 experts to remain inside the existing 3 GiB expert budget,
+removing repeated expert eviction after initialization. This projection is not
+a full-model result. The required next experiment is a content-addressed
+32-layer build followed by frozen output-quality, token-agreement, throughput,
+time-to-first-token, peak-memory and cold/warm tests against both FP16 and the
+promoted exact compressed streaming control.

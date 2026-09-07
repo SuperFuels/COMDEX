@@ -800,3 +800,15 @@ and produced non-identical step logits for every request. The candidate is
 one-pass FP16 Metal prefill when kernel partitioning changes. This does not
 invalidate prefix caching for an explicitly quality-gated service; it prevents
 claiming it as an exact-output optimization on the current stack.
+
+A separate quality-gated candidate has produced a strong real-layer result.
+Apple Metal's native weight-only INT8 operation can calculate directly from
+packed Granite expert weights. On 200 balanced samples of a verified eight-
+expert layer-16 route, the representation was 49.89% smaller, resident
+calculation was 28.41% faster, and a refined contiguous Glyph-block fault path
+with permanently resident scales was 50.00% faster than FP16. The first naive
+packed fault path was 24.01% slower and remains recorded. Maximum layer-output
+error was 0.0036621, so this is `ADVANCE_TO_FULL_MODEL_QUALITY_GATE`, not an
+exact result or full-model promotion. At approximately 2.82 GiB for all expert
+weights, the candidate could make the complete Granite expert library resident
+within the existing 3 GiB expert budget.

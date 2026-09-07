@@ -816,3 +816,29 @@ quality-gated track, or if a backend can prove bit-identical chunked and
 one-pass prefill. The next exact optimization must avoid changing neural kernel
 partitioning; governed replay, verified AtomSheets and finite Semantic Gateway
 routes remain the proven way to eliminate repeated neural calculation exactly.
+
+### Native INT8 Glyph-block breakthrough candidate (2026-09-08)
+
+The quality-gated track identified a native Apple Metal weight-only INT8 matrix
+operation that consumes packed expert weights directly. Unlike earlier storage
+compression, the weights do not need to be reconstructed as full FP16 tensors
+before matrix calculation. A real layer-16 decode route containing eight
+verified Granite experts was tested for 200 balanced samples.
+
+Symmetric per-output-channel INT8 weights plus FP16 scales reduced the route's
+weight representation from 37,748,736 to 18,915,328 bytes (49.89%). Once
+resident, native packed execution was 28.41% faster at p50 than FP16. The first
+fault implementation was correctly rejected because separate weight and scale
+placements made it 24.01% slower. The refined layout retained the small scales
+on Metal and joined each expert's two matrices into one contiguous,
+Glyph-addressed block. That fault path was 50.00% faster at p50 than FP16.
+
+This is `ADVANCE_TO_FULL_MODEL_QUALITY_GATE`, not promotion. Maximum and mean
+layer-output errors were respectively 0.0036621 and 0.00036268, so the candidate
+is explicitly non-exact. The approximate complete expert representation is
+3.03 GB decimal (about 2.82 GiB), potentially placing all 1,280 Granite experts
+inside the existing 3 GiB expert budget and eliminating expert eviction after
+initialization. The next locked action is to build content-addressed INT8 Glyph
+blocks on the SD volume, integrate the native operation across all 32 layers,
+and run frozen prompt-quality, token-agreement, throughput, TTFT and memory
+gates against FP16 and the promoted exact compressed streaming control.
