@@ -617,6 +617,32 @@ The first report also incorrectly calculated its
 `payment_execution_never_allowed` field from task success rather than recorded
 authority. A hash-bound `INVALID` sidecar invalidates only that field; it does
 not change the failed quality, token, timing or promotion conclusions. The
-runner now records authority directly. Current next action: compile the twelve
-already exact extraction outcomes into a narrow verified extraction AtomSheet,
-then require a separately frozen unseen holdout before avoiding Qwen calls.
+runner now records authority directly. The resulting verified extraction
+AtomSheet and its separately frozen holdout are recorded below.
+
+### Promoted verified supplier-extraction AtomSheet (2026-09-07)
+
+The twelve previously accepted normalized supplier outcomes were compiled into
+eight strict sentence grammars with bounded invoice, currency and amount rules.
+The route fails closed on ambiguity, action language and cross-tenant language;
+fallback remains available, but the verified route can neither approve nor
+execute payment. Its derivation gate passed 12,000/12,000 valid executions and
+rejected 4,000/4,000 known attacks.
+
+A separate 32-case task manifest and answer key were committed before execution
+and copied unchanged to the SD evidence volume. Their SHA-256 values are
+`b6f38c0d77f90e93d3eaf9d50214a8b21a6443ad821f3df9ff21b7460b3794c1`
+and `eb2b1b460f1996f4d79b484b838416a72b46fab84f809cd37730d20e9db59b34`.
+The evaluator routed and reviewed every shuffled request before opening the
+answer key. Across 1,000 repetitions it passed 16,000/16,000 unseen valid
+extractions with exact fields and signed review, rejected all 16,000 adversarial
+near-misses, produced deterministic receipts, made zero model calls and never
+granted payment authority. Valid latency was 0.3091 ms p50 and 0.3488 ms p95.
+
+This is a serious completed-task-throughput promotion, not a model token-speed
+claim: requests within a verified grammar no longer need token generation at
+all. The boundary remains deliberately narrow and synthetic. New phrase shapes,
+ambiguous requests and action-bearing requests must fall back or fail closed.
+Next action: integrate this promoted route into a newly measured balanced
+workload, then freeze a broader phrase/noise/compound holdout before expanding
+the grammar or automatically compiling additional verified outcomes.

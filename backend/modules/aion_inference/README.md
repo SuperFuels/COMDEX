@@ -720,6 +720,18 @@ keys with `s`, `i`, and `a` failed 8/12 cases in both candidate arms, increased
 generated tokens 3.82%, and improved total warm time only 4.91% against a 10%
 gate. Both baseline arms passed 12/12. An `INVALID` sidecar corrects a separate
 miscomputed payment-authority field in the report; quality and timing findings
-remain valid. The next exact-output economic candidate is a narrow verified
+remain valid. The next exact-output economic candidate was a narrow verified
 extraction AtomSheet trained from the twelve accepted normalized outcomes, with
 a new frozen holdout required before promotion.
+
+That candidate has now passed its independent gate. Twelve verified outcomes
+were compiled into a narrow, fail-closed AtomSheet; its derivation gate passed
+12,000/12,000 known-valid executions and rejected 4,000/4,000 known attacks.
+More importantly, a separately committed and hash-bound 32-case holdout was not
+opened until all routing and signed-review observations had completed. It passed
+16,000/16,000 unseen valid extractions and reviews, rejected all 16,000
+adversarial near-misses, made zero model calls and never granted payment
+authority. Valid-route latency was 0.3091 ms p50 and 0.3488 ms p95. This
+promotes model-call avoidance for eight explicitly recognized sentence
+grammars; it is not open-ended language understanding or a claim that Granite
+generates tokens faster.

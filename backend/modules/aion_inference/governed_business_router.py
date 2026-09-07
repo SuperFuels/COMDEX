@@ -13,6 +13,7 @@ from .adaptive_runtime import AdaptiveInferenceRuntime
 from .business_map import render_supplier_payment_controls
 from .task_model_router import select_task_model
 from .verified_quotation import draft_verified_quotation
+from .verified_supplier_extraction import extract_verified_supplier_fields
 
 
 def _canonical_sha256(value: Mapping[str, Any]) -> str:
@@ -157,6 +158,34 @@ class GovernedBusinessRouter:
                 human_review_required=True,
                 task_completed=True,
                 answer=quotation.answer,
+                glyph_address=f"glyph:sha256:{request_hash}",
+                fallback_prompt=None,
+                proof_receipt=receipt,
+            )
+
+        extraction = extract_verified_supplier_fields(public_request)
+        if extraction is not None:
+            answer = json.dumps(
+                dict(extraction.fields), sort_keys=True, separators=(",", ":")
+            )
+            receipt = self._seal({
+                "schema_version": "aion.governed_business_route_receipt.v1",
+                "request_sha256": request_hash,
+                "route": extraction.route,
+                "extraction_proof_receipt_sha256": extraction.proof_receipt[
+                    "proof_receipt_sha256"
+                ],
+                "model_calls": 0,
+                "task_completed": True,
+                "payment_execution_allowed": False,
+            })
+            return GovernedBusinessOutcome(
+                route=extraction.route,
+                model=None,
+                model_call_required=False,
+                human_review_required=False,
+                task_completed=True,
+                answer=answer,
                 glyph_address=f"glyph:sha256:{request_hash}",
                 fallback_prompt=None,
                 proof_receipt=receipt,

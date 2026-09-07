@@ -81,6 +81,10 @@ from .supplier_payment_safety import (
 )
 from .governed_business_router import GovernedBusinessOutcome, GovernedBusinessRouter
 from .verified_quotation import VerifiedQuotationDraft, draft_verified_quotation
+from .verified_supplier_extraction import (
+    VerifiedSupplierExtraction,
+    extract_verified_supplier_fields,
+)
 
 __all__ = [
     "BenchmarkReport",
@@ -155,4 +159,6 @@ __all__ = [
     "GovernedBusinessRouter",
     "VerifiedQuotationDraft",
     "draft_verified_quotation",
+    "VerifiedSupplierExtraction",
+    "extract_verified_supplier_fields",
 ]

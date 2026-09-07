@@ -102,3 +102,15 @@ def test_verified_quotation_route_is_completed_but_requires_human_review(tmp_pat
     assert not result.model_call_required
     assert "total EUR 144.00" in result.answer
     assert verify_proof_receipt(result.proof_receipt)
+
+
+def test_verified_supplier_extraction_route_avoids_model_without_payment_authority(tmp_path):
+    result = _router(tmp_path).route(
+        "Supplier Northstar Office SL submitted invoice NS-771 for GBP 86.40."
+    )
+    assert result.route == "verified_supplier_extraction_atomsheet"
+    assert result.task_completed
+    assert not result.model_call_required
+    assert '"payment_amount":"GBP 86.40"' in result.answer
+    assert result.proof_receipt["payment_execution_allowed"] is False
+    assert verify_proof_receipt(result.proof_receipt)
