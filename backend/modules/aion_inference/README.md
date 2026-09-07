@@ -638,3 +638,12 @@ identical correct structured answers in both arms. Selected context reduced
 Qwen's measured prompt-token count by 62.77% at the median and by at least
 62.54% in every case. This is prompt-token evidence; it is not a claim of
 Glyph-native model vocabulary, KV-cache compression, or weight compression.
+
+The compressed Granite prefill working set has now been measured directly.
+Across three valid route observations, prefill selected 97.89--98.05% of all
+layer/expert pairs, representing 97.88--98.04% of the complete compressed pack.
+Cold prefill is therefore an almost-full-library read. Better eviction cannot
+avoid weights the router genuinely requested, so cold-prefill prediction is
+stopped under the locked pivot rule. Exact reuse remains useful after the
+working set exists; otherwise verified model-call avoidance and governed
+Qwen/Granite task routing are the next economic levers.

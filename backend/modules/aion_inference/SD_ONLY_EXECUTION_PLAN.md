@@ -419,3 +419,26 @@ Current next action: reproduce an exact 24-token source control, then run the
 compressed representation across the established four prompt families at
 64--256 generated tokens with cold/warm p50 and p95 reporting. Do not claim the
 longer throughput gain until every source and candidate step logit is exact.
+
+### Cold-prefill lower bound and locked pivot (2026-09-07)
+
+The promoted four-worker representation subsequently passed an exact 64-token
+storage-first integration gate at 0.6053 tokens/s, with 53.185 s TTFT and zero
+token or step-logit error. A route-bound audit then localized that TTFT. Across
+all three valid corpus observations, the first prompt pass selected
+97.8906--98.0469% of the 1,280 layer/expert pairs and required
+97.8791--98.0352% of the complete 4,134,132,737-byte compressed library.
+
+This falsifies eviction-only cold-TTFT optimisation: almost every expert is
+genuine first-pass demand, not a cache mistake. A reversible BF16 bit-plane
+exploratory transform was also worse than the promoted byte shuffle on a real
+3,145,728-byte tensor (25.43% versus 30.87% compression) and is stopped.
+
+Locked pivot: do not spend further exact-track cycles predicting cold-prefill
+experts for these prompt lengths. Preserve the promoted compressed format for
+Granite, use exact reuse only when a prefix or working set is already verified
+and resident, and continue Stage 6/7 routing: AtomSheet/replay first, bounded
+warm Qwen for accepted low-cost tasks, and Granite for depth or policy
+requirements. Semantic prompt shortening, quantization and reduced-expert
+execution remain separately quality-gated because they change input or
+numerical execution.
