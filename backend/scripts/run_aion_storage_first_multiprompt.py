@@ -511,7 +511,7 @@ def main() -> int:
             "prompt_order": [request["family"] for request in requests],
             "available_prompt_families": [item["family"] for item in prompt_catalog],
             "diagnostic_subset": len(requests) != len(prompt_catalog),
-            "generated_tokens_per_prompt": args.generated_tokens,
+            "generated_token_ceiling_per_prompt": args.generated_tokens,
             "persistent_cache_across_prompts": True,
             "cache_empty_before_first_prompt": True,
             "cache_condition": "warm_uncontrolled",
@@ -544,7 +544,7 @@ def main() -> int:
         "integrity": integrity,
         "validation_passed": all(integrity.values()),
         "claim_boundary": (
-            f"{len(requests)} requested prompt families at {args.generated_tokens} generated tokens per prompt "
+            f"{len(requests)} requested prompt families at up to {args.generated_tokens} generated tokens per prompt "
             "with one persistent cache. Filesystem "
             "state is warm uncontrolled and there is one observation per family; this is not "
             "cold-cache or replicated population-level p95 evidence."
