@@ -33,6 +33,10 @@ def main() -> int:
     parser.add_argument("--layout-plan", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--level", type=int, default=3)
+    parser.add_argument(
+        "--byte-shuffle-width", type=int, choices=(0, 2), default=0,
+        help="Reversibly group byte positions within each element before compression.",
+    )
     args = parser.parse_args()
     source_path = args.source_manifest.resolve()
     plan_path = args.layout_plan.resolve()
@@ -73,14 +77,25 @@ def main() -> int:
                         raw = os.pread(source_fd, end - begin, data_start + begin)
                         if len(raw) != end - begin:
                             raise RuntimeError(f"short source read for {name}")
+                        transformed = raw
+                        if args.byte_shuffle_width == 2:
+                            if len(raw) % 2:
+                                raise RuntimeError(f"unaligned two-byte tensor: {name}")
+                            transformed = raw[0::2] + raw[1::2]
                         compressed = subprocess.run(
                             [str(zstd), f"-{args.level}", "-q", "-c"],
-                            input=raw, check=True, capture_output=True,
+                            input=transformed, check=True, capture_output=True,
                         ).stdout
                         roundtrip = subprocess.run(
                             [str(zstd), "-d", "-q", "-c"],
                             input=compressed, check=True, capture_output=True,
                         ).stdout
+                        if args.byte_shuffle_width == 2:
+                            half = len(roundtrip) // 2
+                            restored = bytearray(len(roundtrip))
+                            restored[0::2] = roundtrip[:half]
+                            restored[1::2] = roundtrip[half:]
+                            roundtrip = bytes(restored)
                         if roundtrip != raw:
                             raise RuntimeError(f"lossless roundtrip failed for {name}")
                         output.write(compressed)
@@ -92,6 +107,7 @@ def main() -> int:
                             "raw_bytes": len(raw),
                             "raw_sha256": hashlib.sha256(raw).hexdigest(),
                             "compressed_sha256": hashlib.sha256(compressed).hexdigest(),
+                            "byte_shuffle_width": args.byte_shuffle_width,
                         }
                         offset += len(compressed)
                         total_raw += len(raw)
@@ -122,7 +138,7 @@ def main() -> int:
         print(json.dumps({"layer": number, "compressed_bytes": layer["compressed_bytes"]}), flush=True)
 
     manifest: dict[str, Any] = {
-        "schema_version": "aion.zstd-expert-packs.v1",
+        "schema_version": "aion.zstd-expert-packs.v2",
         "source_manifest": str(source_path),
         "source_manifest_file_sha256": _sha256(source_path),
         "source_manifest_sha256": source["source_manifest_sha256"],
@@ -130,6 +146,10 @@ def main() -> int:
         "layout_plan_file_sha256": _sha256(plan_path),
         "layout_plan_sha256": plan["plan_sha256"],
         "codec": {"path": str(zstd), "sha256": _sha256(zstd), "version": zstd_version},
+        "reversible_transform": {
+            "kind": "byte_shuffle" if args.byte_shuffle_width else "none",
+            "element_width_bytes": args.byte_shuffle_width,
+        },
         "layers": layers,
         "aggregate": {
             "raw_bytes": total_raw,

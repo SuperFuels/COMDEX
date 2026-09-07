@@ -27,6 +27,7 @@ from backend.scripts.run_aion_moe_latency_attribution import (
     TimedPackedLayerStore,
     _canonical_sha256,
     _disk_snapshot,
+    _verify_storage_device,
     _timed_forward,
     summarize_stage_seconds,
 )
@@ -231,6 +232,7 @@ def main() -> int:
         raise SystemExit("generated tokens and memory budget must be positive")
     if not torch.backends.mps.is_available():
         raise SystemExit("Apple Metal/MPS is required")
+    _verify_storage_device(root, args.device)
 
     shards = json.loads(paths["shards"].read_text(encoding="utf-8"))
     packs = json.loads(paths["packs"].read_text(encoding="utf-8"))

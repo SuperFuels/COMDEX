@@ -201,6 +201,36 @@ Report:
 
 This is the primary commercial metric for the SD prototype.
 
+### 2026-09-07 exact compressed-pipeline promotion and codec pivot
+
+The expert execution representation now uses route-aware physical ordering,
+independently addressable lossless Zstandard frames, reversible two-byte BF16
+shuffle, coalesced physical reads, and a bounded four-worker decoder. The full
+expert library is 4,134,132,737 bytes rather than 6,039,797,760 bytes (31.55%
+smaller). A stage-instrumented, one-prompt, eight-token ABBA run bound to the
+mounted SD's verified `disk6` counter improved median time from 96.441 s to
+67.066 s (30.46%). All token IDs and every generation-step logit were exact;
+the 3 GiB expert-cache plan passed. Physical read counts fell from
+20,369--30,419 to 531--577 in the two samples. This is promoted as an exact
+short-run mechanism result, not as a universal production throughput claim.
+
+The previous eight-worker evidence remains valid for timing, exactness, logical
+demand and memory, but its physical counters were not bound to the mounted SD;
+correction sidecars invalidate only those physical-I/O fields. All affected
+measurement scripts now fail closed on a counter/storage-root mismatch.
+
+A real-frame LZ4 alternative was stopped before full-pack construction. It was
+only 2.22% faster for median in-memory decode but used 457,768,168 bytes versus
+371,922,093 bytes for Zstandard on the same 542,638,080 raw sampled bytes. The
+SD-byte penalty dominates the small decode gain, so LZ4 is `NOT_PROMOTED`.
+
+The next exact-output candidates, in measured priority order, are longer and
+multi-family replication of the four-worker compressed pipeline, a same-total-
+memory two-tier compressed/Metal cache, Glyph-family request batching for
+completed-task throughput, and a longer-corpus replacement for the previously
+failed predictive-eviction dictionary. Lossy quantization, pruning and reduced
+expert count remain a separate quality-gated track.
+
 ### Stage 8 - Glyph-addressed Business Map cartridge
 
 After Stages 5--7 pass, prototype the Boardroom Business Map as a signed,

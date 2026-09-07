@@ -9,6 +9,7 @@ import ctypes.util
 import gc
 import hashlib
 import json
+import os
 from pathlib import Path
 import statistics
 import time
@@ -32,6 +33,43 @@ PROMPT = "Human review is required and payment is forbidden. What can happen nex
 CONDITION_ORDER = ("granular", "packed", "packed", "granular")
 
 
+_ZSTD_LIBRARY = None
+
+
+def _zstd_library():
+    global _ZSTD_LIBRARY
+    if _ZSTD_LIBRARY is None:
+        library_path = ctypes.util.find_library("zstd")
+        if not library_path:
+            raise RuntimeError("system libzstd is unavailable")
+        library = ctypes.CDLL(library_path)
+        library.ZSTD_decompress.argtypes = (
+            ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p, ctypes.c_size_t
+        )
+        library.ZSTD_decompress.restype = ctypes.c_size_t
+        library.ZSTD_isError.argtypes = (ctypes.c_size_t,)
+        library.ZSTD_isError.restype = ctypes.c_uint
+        _ZSTD_LIBRARY = library
+    return _ZSTD_LIBRARY
+
+
+def _decode_zstd_frame(library, compressed: bytes, entry: dict[str, Any]) -> bytearray:
+    raw = bytearray(int(entry["raw_bytes"]))
+    written = library.ZSTD_decompress(
+        (ctypes.c_ubyte * len(raw)).from_buffer(raw), len(raw),
+        ctypes.c_char_p(compressed), len(compressed),
+    )
+    if library.ZSTD_isError(written) or written != len(raw):
+        raise RuntimeError("zstd frame decode failed")
+    if int(entry.get("byte_shuffle_width", 0)) == 2:
+        half = len(raw) // 2
+        restored = bytearray(len(raw))
+        restored[0::2] = raw[:half]
+        restored[1::2] = raw[half:]
+        raw = restored
+    return raw
+
+
 def _canonical_sha256(value: Any) -> str:
     raw = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
@@ -45,6 +83,8 @@ class PackedLayerScopedStore(LayerScopedStore):
         self.pack = pack
         self.pack_opens = 0
         self.tensor_reads = 0
+        self.compressed_read_calls = 0
+        self.zstd_decode_executor = None
 
     def preverify(self, root: Path) -> None:
         path = Path(self.pack["path"])
@@ -65,41 +105,73 @@ class PackedLayerScopedStore(LayerScopedStore):
         physical_order = tuple(int(value) for value in self.pack.get("expert_order", experts))
         ordered_experts = tuple(expert for expert in physical_order if expert in requested)
         if self.pack.get("compression") == "zstd-independent-tensor-frames":
-            library_path = ctypes.util.find_library("zstd")
-            if not library_path:
-                raise RuntimeError("system libzstd is unavailable")
-            library = ctypes.CDLL(library_path)
-            library.ZSTD_decompress.argtypes = (
-                ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p, ctypes.c_size_t
-            )
-            library.ZSTD_decompress.restype = ctypes.c_size_t
-            library.ZSTD_isError.argtypes = (ctypes.c_size_t,)
-            library.ZSTD_isError.restype = ctypes.c_uint
+            library = _zstd_library()
             path = Path(self.pack["path"])
-            file_descriptor = path.open("rb")
+            if self.zstd_decode_executor is None:
+                file_descriptor = path.open("rb")
+                try:
+                    for expert in ordered_experts:
+                        values = []
+                        for suffix in ("input_linear.weight", "output_linear.weight"):
+                            name = f"experts.{expert}.{suffix}"
+                            entry = self.pack["tensors"][name]
+                            begin, end = map(int, entry["compressed_offsets"])
+                            file_descriptor.seek(begin)
+                            compressed = file_descriptor.read(end - begin)
+                            raw = _decode_zstd_frame(library, compressed, entry)
+                            dtype = {"BF16": torch.bfloat16, "F16": torch.float16}[entry["dtype"]]
+                            values.append(torch.frombuffer(raw, dtype=dtype).reshape(entry["shape"]))
+                            self.compressed_read_calls += 1
+                        loaded[expert] = tuple(values)
+                        self.tensor_reads += 2
+                    self.pack_opens += 1
+                finally:
+                    file_descriptor.close()
+                return loaded
+
+            frames = []
+            expert_groups = []
+            for expert in ordered_experts:
+                group = []
+                for suffix in ("input_linear.weight", "output_linear.weight"):
+                    name = f"experts.{expert}.{suffix}"
+                    group.append((name, self.pack["tensors"][name]))
+                expert_groups.append(group)
+            runs = []
+            for group in expert_groups:
+                begin = int(group[0][1]["compressed_offsets"][0])
+                if runs and int(runs[-1][-1][1]["compressed_offsets"][1]) == begin:
+                    runs[-1].extend(group)
+                else:
+                    runs.append(list(group))
+            descriptor = os.open(path, os.O_RDONLY)
             try:
-                for expert in ordered_experts:
-                    values = []
-                    for suffix in ("input_linear.weight", "output_linear.weight"):
-                        name = f"experts.{expert}.{suffix}"
-                        entry = self.pack["tensors"][name]
+                for run in runs:
+                    run_begin = int(run[0][1]["compressed_offsets"][0])
+                    run_end = int(run[-1][1]["compressed_offsets"][1])
+                    block = os.pread(descriptor, run_end - run_begin, run_begin)
+                    if len(block) != run_end - run_begin:
+                        raise RuntimeError("short coalesced expert-pack read")
+                    self.compressed_read_calls += 1
+                    for name, entry in run:
                         begin, end = map(int, entry["compressed_offsets"])
-                        file_descriptor.seek(begin)
-                        compressed = file_descriptor.read(end - begin)
-                        raw = bytearray(int(entry["raw_bytes"]))
-                        written = library.ZSTD_decompress(
-                            (ctypes.c_ubyte * len(raw)).from_buffer(raw), len(raw),
-                            compressed, len(compressed),
-                        )
-                        if library.ZSTD_isError(written) or written != len(raw):
-                            raise RuntimeError(f"zstd decode failed: {name}")
-                        dtype = {"BF16": torch.bfloat16, "F16": torch.float16}[entry["dtype"]]
-                        values.append(torch.frombuffer(raw, dtype=dtype).reshape(entry["shape"]))
-                    loaded[expert] = tuple(values)
-                    self.tensor_reads += 2
-                self.pack_opens += 1
+                        frames.append((name, entry, block[begin - run_begin:end - run_begin]))
             finally:
-                file_descriptor.close()
+                os.close(descriptor)
+            raw_values = list(self.zstd_decode_executor.map(
+                lambda item: _decode_zstd_frame(library, item[2], item[1]), frames
+            ))
+            by_name = dict(zip((item[0] for item in frames), raw_values, strict=True))
+            for expert in ordered_experts:
+                values = []
+                for suffix in ("input_linear.weight", "output_linear.weight"):
+                    name = f"experts.{expert}.{suffix}"
+                    entry = self.pack["tensors"][name]
+                    dtype = {"BF16": torch.bfloat16, "F16": torch.float16}[entry["dtype"]]
+                    values.append(torch.frombuffer(by_name[name], dtype=dtype).reshape(entry["shape"]))
+                loaded[expert] = tuple(values)
+                self.tensor_reads += 2
+            self.pack_opens += 1
             return loaded
         with safe_open(Path(self.pack["path"]), framework="pt", device="cpu") as handle:
             self.pack_opens += 1

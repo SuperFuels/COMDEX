@@ -29,7 +29,11 @@ from backend.modules.aion_inference import (
 from backend.scripts.run_aion_layer_pack_experiment import PackedLayerScopedStore
 from backend.scripts.run_aion_layer_scoped_moe_experiment import _chat_tokens
 from backend.scripts.run_aion_moe_end_to_end_fault_in import _memory_snapshot, _sha256
-from backend.scripts.run_aion_moe_latency_attribution import _canonical_sha256, _disk_snapshot
+from backend.scripts.run_aion_moe_latency_attribution import (
+    _canonical_sha256,
+    _disk_snapshot,
+    _verify_storage_device,
+)
 from backend.scripts.run_aion_promoted_cache_plan_replication import LONGER_CASES
 
 
@@ -233,6 +237,7 @@ def main() -> int:
         raise SystemExit("token and memory budgets must be positive")
     if not torch.backends.mps.is_available():
         raise SystemExit("Apple Metal/MPS is required")
+    _verify_storage_device(root, args.device)
 
     shards = json.loads(paths["shards"].read_text(encoding="utf-8"))
     packs = json.loads(paths["packs"].read_text(encoding="utf-8"))

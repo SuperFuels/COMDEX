@@ -19,7 +19,12 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from backend.modules.aion_inference import AdaptiveInferenceRuntime, ExpertRouteCorpus
 from backend.scripts.run_aion_layer_pack_experiment import PackedLayerScopedStore
 from backend.scripts.run_aion_moe_end_to_end_fault_in import _sha256
-from backend.scripts.run_aion_moe_latency_attribution import DEFAULT_PROMPT, _canonical_sha256, _disk_snapshot
+from backend.scripts.run_aion_moe_latency_attribution import (
+    DEFAULT_PROMPT,
+    _canonical_sha256,
+    _disk_snapshot,
+    _verify_storage_device,
+)
 
 
 def _cpu_memory(label: str) -> dict[str, int | str]:
@@ -164,6 +169,7 @@ def main() -> int:
     args = parser.parse_args()
 
     root = args.storage_root.resolve()
+    _verify_storage_device(root, args.device)
     paths = {
         "model": args.model_path.resolve(),
         "shards": args.shard_manifest.resolve(),

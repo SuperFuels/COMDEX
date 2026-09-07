@@ -28,6 +28,7 @@ from backend.scripts.run_aion_moe_latency_attribution import (
     TimedPackedLayerStore,
     _canonical_sha256,
     _disk_snapshot,
+    _verify_storage_device,
     _timed_forward,
     summarize_stage_seconds,
 )
@@ -82,6 +83,11 @@ def main() -> int:
         type=int,
         help="Compare blocking transfer with exact parallel CPU materialization first.",
     )
+    parser.add_argument(
+        "--zstd-decode-workers",
+        type=int,
+        help="Use coalesced reads and this bounded worker count for compressed candidate packs.",
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
@@ -105,8 +111,13 @@ def main() -> int:
         raise SystemExit("parallel materialization workers must be positive")
     if args.parallel_materialize_workers is not None and args.candidate_pack_manifest is not None:
         raise SystemExit("parallel materialization and candidate-pack comparisons are separate")
+    if args.zstd_decode_workers is not None and args.zstd_decode_workers < 2:
+        raise SystemExit("zstd decode workers must be at least two")
+    if args.zstd_decode_workers is not None and args.candidate_pack_manifest is None:
+        raise SystemExit("zstd decode workers require a candidate pack")
     if not torch.backends.mps.is_available():
         raise SystemExit("Apple Metal/MPS is required")
+    _verify_storage_device(root, args.device)
 
     shards = json.loads(paths["shards"].read_text(encoding="utf-8"))
     packs = json.loads(paths["packs"].read_text(encoding="utf-8"))
@@ -230,8 +241,16 @@ def main() -> int:
         )
         if args.parallel_materialize_workers is not None else None
     )
+    zstd_decode_executor = (
+        ThreadPoolExecutor(
+            max_workers=args.zstd_decode_workers,
+            thread_name_prefix="aion-zstd-decode",
+        )
+        if args.zstd_decode_workers is not None else None
+    )
     for store in stores:
         store.materialize_executor = materialize_executor
+        store.zstd_decode_executor = zstd_decode_executor
     for sequence, condition in enumerate(condition_order):
         selected_layers = (
             candidate_packs["layers"]
@@ -313,6 +332,8 @@ def main() -> int:
 
     if materialize_executor is not None:
         materialize_executor.shutdown(wait=True)
+    if zstd_decode_executor is not None:
+        zstd_decode_executor.shutdown(wait=True)
 
     control.pop("scores")
     aggregates: dict[str, dict[str, Any]] = {}
@@ -390,6 +411,7 @@ def main() -> int:
             "stage_boundary_synchronization": not args.uninstrumented,
             "execution_mode": "uninstrumented" if args.uninstrumented else "stage_instrumented",
             "parallel_materialize_workers": args.parallel_materialize_workers,
+            "zstd_decode_workers": args.zstd_decode_workers,
         },
         "capacity_source": {
             "kind": "route_corpus_byte_ceiling",

@@ -34,8 +34,18 @@ from backend.scripts.run_aion_storage_first_multiprompt import (
     _validate_prompt_catalog,
 )
 from backend.scripts.run_aion_promoted_cache_plan_replication import CASES, _comparison_cases
-from backend.scripts.run_aion_moe_latency_attribution import summarize_stage_seconds
+from backend.scripts import run_aion_moe_latency_attribution as latency_attribution
+from backend.scripts.run_aion_moe_latency_attribution import (
+    _verify_storage_device,
+    summarize_stage_seconds,
+)
 from backend.scripts.run_aion_metal_transfer_abba import _p95
+from backend.scripts.aion_lossless_codec_probe import (
+    _lz4_compress,
+    _lz4_decode,
+    _lz4_library,
+    _shuffle2,
+)
 
 
 def _routing_profile():
@@ -381,6 +391,22 @@ def test_latency_attribution_reports_percentages_and_unassigned_time():
         summarize_stage_seconds({"storage": 1.0}, 0.0)
     with pytest.raises(ValueError, match="non-negative"):
         summarize_stage_seconds({"storage": -1.0}, 1.0)
+
+
+def test_physical_disk_evidence_is_bound_to_storage_mount(monkeypatch):
+    class Result:
+        stdout = "Filesystem 512-blocks Used Available Capacity Mounted on\n/dev/disk6s2 1 1 1 1% /Volumes/card\n"
+
+    monkeypatch.setattr(latency_attribution.subprocess, "run", lambda *args, **kwargs: Result())
+    assert _verify_storage_device(latency_attribution.Path("/Volumes/card"), "disk6") == "disk6"
+    with pytest.raises(RuntimeError, match="does not belong"):
+        _verify_storage_device(latency_attribution.Path("/Volumes/card"), "disk4")
+
+
+def test_lz4_bf16_shuffle_roundtrip_is_byte_exact():
+    raw = bytes(range(256)) * 64
+    compressed = _lz4_compress(_lz4_library(), _shuffle2(raw))
+    assert _lz4_decode(_lz4_library(), compressed, len(raw)) == raw
 
 
 def test_metal_transfer_abba_uses_conservative_small_sample_p95():

@@ -433,6 +433,19 @@ folds. Live execution did not generalize: it caused 376 additional faults and
 1,774,277,824 additional bytes, regressed median time by 6.38%, and regressed
 p95 by 5.20%. Exactness passed, but the policy is `NOT_PROMOTED`.
 
+The exact expert storage path now also supports independently addressable
+Zstandard frames, reversible two-byte BF16 shuffle, coalesced physical reads,
+and bounded parallel decode. The shuffled level-1 representation reduced the
+6,039,797,760-byte expert library to 4,134,132,737 bytes (31.55%) with all 2,560
+tensor roundtrips exact. In a clean stage-instrumented eight-token ABBA run,
+four decode workers improved median generation by 30.46% (96.441 s to 67.066 s)
+and preserved every token and step logit. The diagnostic synchronized token
+rate rose from 0.0831 to 0.1193 tokens/s; this is not substituted for the
+longer-generation throughput measurements. An SD-mount binding now prevents
+physical counters from silently targeting the wrong disk. LZ4 was not promoted:
+it decoded only 2.22% faster in the mechanism probe while using 23.08% more
+compressed bytes than the shuffled Zstandard sample.
+
 A route-unaware prompt-slimming probe reduced tokenized input length by
 35.41--37.76%. It reduced first-request TTFT by 4.57% and peak MPS allocation by
 1.86%, but median time regressed by 16.96%, logical demand increased by

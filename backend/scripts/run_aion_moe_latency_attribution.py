@@ -9,6 +9,8 @@ import gc
 import hashlib
 import json
 from pathlib import Path
+import re
+import subprocess
 import time
 from typing import Any
 
@@ -67,6 +69,27 @@ def _disk_snapshot(device: str) -> dict[str, int]:
         raise RuntimeError(f"disk counter unavailable for {device}")
     value = counters[device]
     return {"read_bytes": int(value.read_bytes), "read_count": int(value.read_count)}
+
+
+def _verify_storage_device(storage_root: Path, device: str) -> str:
+    """Bind physical-I/O evidence to the whole disk containing storage_root."""
+    completed = subprocess.run(
+        ["df", "-P", str(storage_root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    lines = completed.stdout.strip().splitlines()
+    if len(lines) < 2:
+        raise RuntimeError("unable to resolve storage-root device")
+    partition = Path(lines[-1].split()[0]).name
+    match = re.fullmatch(r"(disk\d+)(?:s\d+)+", partition)
+    observed = match.group(1) if match else partition
+    if observed != device:
+        raise RuntimeError(
+            f"disk counter {device!r} does not belong to storage root; expected {observed!r}"
+        )
+    return observed
 
 
 class TimedPackedLayerStore(PackedLayerScopedStore):
@@ -316,6 +339,7 @@ def main() -> int:
         raise SystemExit("generated-tokens must be positive")
     if not torch.backends.mps.is_available():
         raise SystemExit("Apple Metal/MPS is required")
+    _verify_storage_device(root, args.device)
 
     shards = json.loads(paths["shards"].read_text(encoding="utf-8"))
     packs = json.loads(paths["packs"].read_text(encoding="utf-8"))
