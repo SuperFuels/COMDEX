@@ -646,3 +646,21 @@ ambiguous requests and action-bearing requests must fall back or fail closed.
 Next action: integrate this promoted route into a newly measured balanced
 workload, then freeze a broader phrase/noise/compound holdout before expanding
 the grammar or automatically compiling additional verified outcomes.
+
+### Balanced integration of verified extraction (2026-09-07)
+
+The promoted extraction route was integrated into the same fixed-seed 56-task,
+seven-family construction as the prior v3 balanced gate. V4 completed all
+56 tasks, all families, receipts and the trace chain. Extraction completed 8/8
+with zero model calls; total model calls fell from 32 to 24 and avoided calls
+rose from 24 to 32. Observed serial time fell 10.59% from 33.870 s to 30.283 s,
+and successful-task throughput rose 11.85% from 5,952.13 to 6,657.27 tasks/hour.
+Overall task p50 fell from 0.3330 s to 0.01162 s; extraction p50/p95 were
+0.503/1.041 ms.
+
+The p95 comparison regressed 22.30%, from 0.7811 s to 0.9553 s, because the
+single cold Qwen start was slower and occurred in a different family. The v3
+and v4 runs were separated in time rather than contemporaneous ABBA arms.
+Therefore this promotes functional integration and call avoidance, not a causal
+11.85% speed claim. Current next action: freeze the broader phrase/noise/compound
+corpus, including false-refusal accounting, before expanding parser coverage.

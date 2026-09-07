@@ -323,6 +323,22 @@ def main() -> int:
             completed = completed and len(lines) == 6 and all(
                 "Risk prevented:" in line and "human evidence required:" in line for line in lines
             )
+        elif task["family"] == "extraction":
+            try:
+                parsed = json.loads(routed.answer or "")
+            except json.JSONDecodeError:
+                parsed = None
+            execution = execute_supplier_payment_review(
+                actor_role="finance_reviewer", evidence_references=evidence_refs,
+                variable_fields=parsed or {}, human_approved=True, cartridge_path=cartridge,
+                signature_path=signature, trust_anchors_path=trust,
+            ) if parsed else None
+            completed = bool(
+                completed and parsed == task["expected"] and execution
+                and execution.review_complete
+                and verify_proof_receipt(execution.proof_receipt)
+                and not execution.payment_execution_allowed
+            )
         results.append({"case_id": task["case_id"], "family_revealed_after_route": task["family"],
                         "request_sha256": hashlib.sha256(task["request"].encode()).hexdigest(),
                         "selected_route": routed.route, "task_completed": completed,

@@ -735,3 +735,14 @@ authority. Valid-route latency was 0.3091 ms p50 and 0.3488 ms p95. This
 promotes model-call avoidance for eight explicitly recognized sentence
 grammars; it is not open-ended language understanding or a claim that Granite
 generates tokens faster.
+
+The promoted route was then integrated into the same fixed-seed 56-task,
+seven-family balanced construction used by the earlier v3 result. V4 again
+completed 56/56 tasks with valid receipts and trace chain, while extraction
+used zero model calls. Total model calls fell from 32 to 24, observed serial
+time fell from 33.870 s to 30.283 s, successful-task throughput rose from
+5,952.13 to 6,657.27 tasks/hour, and task p50 fell from 0.3330 s to 0.01162 s.
+P95 regressed from 0.7811 s to 0.9553 s because the single cold Qwen call was
+slower and occurred in a different family. This is a successful integration
+observation against historical v3 evidence, not a contemporaneous ABBA causal
+speed promotion.
