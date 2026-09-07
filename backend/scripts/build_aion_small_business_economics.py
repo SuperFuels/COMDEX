@@ -37,6 +37,7 @@ def main() -> int:
     parser.add_argument("--qwen-evidence", type=Path, required=True)
     parser.add_argument("--granite-evidence", type=Path, required=True)
     parser.add_argument("--granite-quality", type=Path, required=True)
+    parser.add_argument("--business-map-policy-evidence", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     root = args.storage_root.resolve()
@@ -46,6 +47,8 @@ def main() -> int:
         "granite": args.granite_evidence.resolve(),
         "granite_quality": args.granite_quality.resolve(),
     }
+    if args.business_map_policy_evidence is not None:
+        paths["business_map_policy"] = args.business_map_policy_evidence.resolve()
     output = args.output.resolve()
     if any(root not in path.parents for path in (*paths.values(), output)):
         raise SystemExit("all evidence and output must remain on external storage")
@@ -55,6 +58,11 @@ def main() -> int:
     qwen = json.loads(paths["qwen"].read_text(encoding="utf-8"))
     granite = json.loads(paths["granite"].read_text(encoding="utf-8"))
     granite_quality = json.loads(paths["granite_quality"].read_text(encoding="utf-8"))
+    business_map_policy = (
+        json.loads(paths["business_map_policy"].read_text(encoding="utf-8"))
+        if "business_map_policy" in paths
+        else None
+    )
 
     if atomsheet.get("result") != "PASS" or not all(atomsheet["acceptance"].values()):
         raise RuntimeError("AtomSheet evidence did not pass")
@@ -64,6 +72,11 @@ def main() -> int:
         raise RuntimeError("Granite exactness evidence did not pass")
     if granite_quality["evidence_file_sha256"] != _sha256(paths["granite"]):
         raise RuntimeError("Granite quality/evidence binding failed")
+    if business_map_policy is not None and (
+        business_map_policy.get("result") != "PASS"
+        or not all(business_map_policy["acceptance"].values())
+    ):
+        raise RuntimeError("Business Map policy evidence did not pass")
 
     atomsheet_tasks = int(atomsheet["valid"]["case_count"])
     atomsheet_successes = int(atomsheet["valid"]["pass_count"])
@@ -82,26 +95,52 @@ def main() -> int:
         for item in qwen["results"]
     )
 
-    granite_seconds = [float(item["seconds"]) for item in granite["requests"]]
+    granite_requests = list(granite["requests"])
+    policy_seconds: list[float] = []
+    if business_map_policy is not None:
+        supplier_requests = [
+            item for item in granite_requests if item["family"] == "supplier_payment_controls"
+        ]
+        if len(supplier_requests) != 1:
+            raise RuntimeError("expected exactly one supplier-payment Granite request")
+        granite_requests = [
+            item for item in granite_requests if item["family"] != "supplier_payment_controls"
+        ]
+        policy_seconds = [float(business_map_policy["latency"]["median_seconds"])]
+    granite_seconds = [float(item["seconds"]) for item in granite_requests]
     granite_tasks = len(granite_seconds)
     quality_by_family = {
         item["family"]: bool(item["task_passed"])
         for item in granite_quality["task_results"]
     }
     granite_successes = sum(
-        quality_by_family.get(item["family"], False) for item in granite["requests"]
+        quality_by_family.get(item["family"], False) for item in granite_requests
     )
+    policy_tasks = len(policy_seconds)
+    policy_successes = policy_tasks
 
-    total_tasks = atomsheet_tasks + qwen_tasks + granite_tasks
-    total_successes = atomsheet_successes + qwen_successes + granite_successes
-    total_seconds = atomsheet_projected_seconds + sum(qwen_seconds) + sum(granite_seconds)
+    total_tasks = atomsheet_tasks + qwen_tasks + policy_tasks + granite_tasks
+    total_successes = (
+        atomsheet_successes + qwen_successes + policy_successes + granite_successes
+    )
+    total_seconds = (
+        atomsheet_projected_seconds
+        + sum(qwen_seconds)
+        + sum(policy_seconds)
+        + sum(granite_seconds)
+    )
     time_by_route = {
         "verified_atomsheet": atomsheet_projected_seconds,
         "qwen_low_cost": sum(qwen_seconds),
+        "verified_business_map_policy": sum(policy_seconds),
         "granite_storage_first": sum(granite_seconds),
     }
     report = {
-        "schema_version": "aion.small-business-route-economics.v1",
+        "schema_version": (
+            "aion.small-business-route-economics.v2"
+            if business_map_policy is not None
+            else "aion.small-business-route-economics.v1"
+        ),
         "paths": {key: str(value) for key, value in paths.items()},
         "hashes": {key: _sha256(value) for key, value in paths.items()},
         "scenario": {
@@ -109,9 +148,11 @@ def main() -> int:
             "verified_calculation_tasks": atomsheet_tasks,
             "distinct_qwen_extraction_tasks": qwen_tasks,
             "granite_depth_or_policy_tasks": granite_tasks,
+            "verified_business_map_policy_tasks": policy_tasks,
             "qwen_first_task_includes_cold_model_load": True,
             "atomsheet_total_time_uses_measured_median_per_task": True,
             "qwen_and_granite_use_individual_measured_wall_times": True,
+            "business_map_policy_uses_measured_median_per_task": business_map_policy is not None,
         },
         "routes": {
             "verified_atomsheet": {
@@ -132,6 +173,15 @@ def main() -> int:
                 "cold_load_seconds_first_task": float(qwen_calls[0]["load_seconds"]),
                 "payment_execution_allowed": False,
             },
+            "verified_business_map_policy": {
+                "tasks": policy_tasks,
+                "successful_tasks": policy_successes,
+                "median_seconds": policy_seconds[0] if policy_seconds else None,
+                "projected_total_seconds": sum(policy_seconds),
+                "model_calls": 0,
+                "proof_receipt_valid": business_map_policy is not None,
+                "payment_execution_allowed": False,
+            },
             "granite_storage_first": {
                 "tasks": granite_tasks,
                 "successful_tasks": granite_successes,
@@ -150,32 +200,42 @@ def main() -> int:
             "projected_or_measured_serial_seconds": total_seconds,
             "successful_tasks_per_hour": total_successes * 3600.0 / total_seconds,
             "model_calls": qwen_tasks + granite_tasks,
-            "model_calls_avoided": atomsheet_tasks,
-            "model_call_avoidance_percent": 100.0 * atomsheet_tasks / total_tasks,
+            "model_calls_avoided": atomsheet_tasks + policy_tasks,
+            "model_call_avoidance_percent": 100.0 * (atomsheet_tasks + policy_tasks) / total_tasks,
             "time_share_percent_by_route": {
                 key: 100.0 * value / total_seconds for key, value in time_by_route.items()
             },
             "failed_granite_tasks_time_share_percent": (
                 100.0 * sum(granite_seconds) / total_seconds
-                if granite_successes == 0 else None
+                if granite_tasks and granite_successes == 0 else None
             ),
         },
         "acceptance": {
             "all_atomsheet_tasks_exact": atomsheet_successes == atomsheet_tasks,
             "all_qwen_tasks_exact_and_review_complete": qwen_successes == qwen_tasks,
+            "business_map_policy_exact_and_no_authority": (
+                business_map_policy is None
+                or (
+                    policy_successes == policy_tasks
+                    and business_map_policy["acceptance"]["receipt_valid"]
+                    and business_map_policy["acceptance"]["payment_execution_never_allowed"]
+                )
+            ),
             "granite_failures_counted_as_failures": granite_successes < granite_tasks,
-            "no_failed_task_counted_as_completed": total_successes == atomsheet_successes + qwen_successes,
+            "no_failed_task_counted_as_completed": total_successes
+            == atomsheet_successes + qwen_successes + policy_successes,
             "source_artifacts_hash_bound": True,
         },
         "result": "DIAGNOSTIC_PASS_NOT_STAGE7_PROMOTION",
         "decision": (
-            "The two failed Granite tasks dominate elapsed time. Route bounded work through "
-            "verified AtomSheets or accepted Qwen extractors; require a better task contract, "
-            "workflow, or human review before spending Granite time on these failed task forms."
+            "The bounded supplier-control task is now answered from its verified signed Business Map "
+            "without a model call. The remaining failed Granite integrity task still dominates elapsed "
+            "time and requires a verified workflow, stronger task contract, or human review."
         ),
         "claim_boundary": (
             "This combines immutable results from separate synthetic runs; it is not a blinded "
             "live mixed-workload trial. AtomSheet total time is projected from its measured median. "
+            "The Business Map policy time is likewise projected from its 1,000-iteration median. "
             "The Qwen cases are labeled synthetic extraction, and Granite quality failures remain failures."
         ),
     }

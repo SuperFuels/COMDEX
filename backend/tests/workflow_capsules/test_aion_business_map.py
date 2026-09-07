@@ -4,6 +4,7 @@ import pytest
 
 from backend.modules.aion_inference import (
     execute_supplier_payment_review,
+    render_supplier_payment_controls,
     verify_business_map_cartridge,
     verify_proof_receipt,
 )
@@ -87,3 +88,17 @@ def test_business_map_never_grants_payment_execution_and_requires_evidence():
 def test_business_map_rejects_unauthorized_role():
     with pytest.raises(PermissionError, match="not permitted"):
         execute_supplier_payment_review(actor_role="model")
+
+
+def test_signed_business_map_renders_six_informational_controls_without_model():
+    result = render_supplier_payment_controls()
+    lines = result.answer.splitlines()
+    assert result.route == "verified_business_map_policy"
+    assert not result.model_call_required
+    assert not result.payment_execution_allowed
+    assert len(lines) == 6
+    assert all(line.startswith(f"{index}.") for index, line in enumerate(lines, start=1))
+    assert all("Risk prevented:" in line for line in lines)
+    assert all("human evidence required:" in line for line in lines)
+    assert verify_proof_receipt(result.proof_receipt)
+    assert result.proof_receipt["model_calls"] == 0

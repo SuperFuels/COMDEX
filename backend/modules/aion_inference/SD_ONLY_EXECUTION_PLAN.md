@@ -467,3 +467,27 @@ Current action: route the bounded supplier-control information task through the
 already signed Business Map cartridge and remeasure it without granting payment
 authority. Keep the removable-model-integrity task uncompleted until a verified
 contract or quality-passing model route exists.
+
+### Verified Business Map policy-route result (2026-09-07)
+
+The signed supplier-control cartridge now has a deterministic, read-only answer
+route. It verifies the cartridge and trust anchor fail closed, renders all six
+controls with both the risk prevented and required human evidence, emits a
+content-addressed proof receipt, makes no model call, and cannot execute a
+payment. Across 1,000 SD-backed trials the answer and receipt were identical;
+median latency was 0.305041 ms and nearest-rank p95 was 0.343583 ms.
+
+Substituting this verified route for the prior 169.281 s failed Granite attempt
+in the same evidence-bound 110-task scenario increased successful tasks from
+108 to 109, reduced serial time from 373.189 s to 203.908 s (45.36%), and raised
+diagnostic successful-task throughput from 1,041.83 to 1,924.39 tasks/hour
+(84.71%). Model calls fell from 10 to 9. The remaining failed Granite
+removable-integrity task is still counted as a failure and consumes 88.11% of
+the revised scenario time.
+
+This is a genuine routing and task-economics advance, not a claim that Granite
+itself generates tokens faster. It remains diagnostic rather than Stage 7
+promotion because it combines immutable synthetic runs instead of executing a
+blinded live mixed workload. Current next action: define a verified workflow or
+explicit unsupported/human-review outcome for removable-model integrity, then
+run the complete router on a blinded task set with end-to-end p50/p95 latency.

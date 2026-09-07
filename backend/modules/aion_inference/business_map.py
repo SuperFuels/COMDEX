@@ -52,6 +52,18 @@ class BusinessMapExecution:
         return asdict(self)
 
 
+@dataclass(frozen=True)
+class BusinessMapPolicyAnswer:
+    route: str
+    answer: str
+    model_call_required: bool
+    payment_execution_allowed: bool
+    proof_receipt: Mapping[str, Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
 def verify_business_map_cartridge(
     cartridge_path: Path = SUPPLIER_PAYMENT_CARTRIDGE,
     signature_path: Path = SUPPLIER_PAYMENT_SIGNATURE,
@@ -177,5 +189,55 @@ def execute_supplier_payment_review(
         payment_execution_allowed=False,
         controls=controls,
         missing_evidence=missing,
+        proof_receipt=receipt,
+    )
+
+
+def render_supplier_payment_controls(
+    *,
+    cartridge_path: Path = SUPPLIER_PAYMENT_CARTRIDGE,
+    signature_path: Path = SUPPLIER_PAYMENT_SIGNATURE,
+    trust_anchors_path: Path = BUSINESS_MAP_TRUST_ANCHORS,
+) -> BusinessMapPolicyAnswer:
+    """Render the signed informational policy without model or action authority."""
+    verification = verify_business_map_cartridge(
+        cartridge_path, signature_path, trust_anchors_path
+    )
+    if not verification.passed:
+        raise ValueError(
+            f"business map verification failed closed: {','.join(verification.reasons)}"
+        )
+    cartridge = json.loads(cartridge_path.read_text(encoding="utf-8"))
+    controls = tuple(cartridge["atomsheet"]["controls"])
+    lines = []
+    for number, control in enumerate(controls, start=1):
+        label = str(control["control_id"]).replace("_", " ").title()
+        risk = str(control["risk_prevented"]).rstrip(". ")
+        evidence = str(control["human_evidence_required"]).rstrip(". ")
+        lines.append(
+            f"{number}. {label} — Risk prevented: {risk}; "
+            f"human evidence required: {evidence}."
+        )
+    answer = "\n".join(lines)
+    payload = {
+        "schema_version": "aion.business_map_policy_answer_receipt.v1",
+        "cartridge_id": cartridge["cartridge_id"],
+        "cartridge_sha256": verification.artifact_sha256,
+        "signature_key_id": verification.key_id,
+        "glyph_address": verification.glyph_address,
+        "control_ids": [control["control_id"] for control in controls],
+        "source_refs": list(cartridge["atomsheet"]["source_refs"]),
+        "answer_sha256": hashlib.sha256(answer.encode()).hexdigest(),
+        "informational_only": True,
+        "human_approval_still_required_before_payment": True,
+        "payment_execution_allowed": False,
+        "model_calls": 0,
+    }
+    receipt = {**payload, "proof_receipt_sha256": _canonical_sha256(payload)}
+    return BusinessMapPolicyAnswer(
+        route="verified_business_map_policy",
+        answer=answer,
+        model_call_required=False,
+        payment_execution_allowed=False,
         proof_receipt=receipt,
     )

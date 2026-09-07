@@ -657,3 +657,14 @@ of that time. This is not a blinded Stage 7 promotion, but it identifies the
 next high-value change: serve the bounded supplier-control information request
 from the signed Business Map rather than spending Granite time on an output
 that fails its rubric.
+
+That bounded supplier-control route is now implemented. It verifies the signed
+SD-resident Business Map, renders all six controls with a proof receipt, grants
+no payment authority and made zero model calls in 1,000/1,000 passing trials.
+Median latency was 0.305041 ms and p95 was 0.343583 ms. Replacing the prior
+169.281 s failed Granite attempt in the unchanged 110-task diagnostic raised
+successes from 108 to 109 and successful-task throughput from 1,041.83 to
+1,924.39 tasks/hour while reducing total serial time by 45.36%. This is a
+synthetic evidence-bound routing result, not a blinded Stage 7 promotion or a
+Granite token-generation speedup. The remaining failed Granite task remains a
+failure and still consumes 88.11% of revised elapsed time.
