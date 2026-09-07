@@ -111,6 +111,14 @@ def _first_token_mismatch(actual: list[int], expected: list[int]) -> int | None:
     return min(len(actual), len(expected)) if len(actual) != len(expected) else None
 
 
+def _valid_generation_termination(
+    token_ids: list[int], requested_limit: int, eos_token_id: int | None
+) -> bool:
+    return len(token_ids) == requested_limit or bool(
+        token_ids and eos_token_id is not None and token_ids[-1] == eos_token_id
+    )
+
+
 def _validate_prompt_catalog(value: Any) -> tuple[dict[str, str], ...]:
     if not isinstance(value, dict) or value.get("schema_version") != "aion.prompt_manifest.v1":
         raise ValueError("prompt manifest schema must be aion.prompt_manifest.v1")
@@ -390,6 +398,12 @@ def main() -> int:
         error_summary = _step_error_summary(errors, observed["token_ids"])
         token_ids_exact_match = observed["token_ids"] == control["token_ids"]
         score_count_exact_match = len(observed["scores"]) == len(control["scores"])
+        ended_with_exact_eos = bool(
+            token_ids_exact_match
+            and observed["token_ids"]
+            and tokenizer.eos_token_id is not None
+            and observed["token_ids"][-1] == tokenizer.eos_token_id
+        )
         results.append({
             "family": request["family"],
             "glyph_address": request["glyph_address"],
@@ -406,6 +420,7 @@ def main() -> int:
             "text": observed["text"],
             "control_generated_token_count": len(control["token_ids"]),
             "observed_generated_token_count": len(observed["token_ids"]),
+            "termination_reason": "exact_eos" if ended_with_exact_eos else "token_limit",
             "first_token_mismatch_index": _first_token_mismatch(
                 observed["token_ids"], control["token_ids"]
             ),
@@ -458,8 +473,11 @@ def main() -> int:
         "controller_memory_within_declared_ceiling": plan.estimated_resident_bytes <= plan.maximum_resident_bytes,
         "complete_requested_prompt_order": len(results) == len(prompt_order),
         "all_model_inputs_distinct": len(model_input_hashes) == len(requests),
-        "all_prompts_reached_requested_token_count": all(
-            len(result["token_ids"]) == args.generated_tokens for result in results
+        "all_prompts_reached_limit_or_exact_eos": all(
+            _valid_generation_termination(
+                result["token_ids"], args.generated_tokens, tokenizer.eos_token_id
+            )
+            for result in results
         ),
         "working_set_dictionary_verified_or_not_requested": (
             working_set_dictionary is None
@@ -467,7 +485,7 @@ def main() -> int:
         ),
     }
     report = {
-        "schema_version": "aion.storage_first_multiprompt.v2",
+        "schema_version": "aion.storage_first_multiprompt.v3",
         "run_id": args.run_id,
         "storage_root": str(root),
         "paths": {name: str(path) for name, path in paths.items()},

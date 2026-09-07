@@ -30,6 +30,7 @@ from backend.scripts.run_aion_storage_first_multiprompt import (
     _first_token_mismatch,
     _select_prompts,
     _step_error_summary,
+    _valid_generation_termination,
     _validate_prompt_catalog,
 )
 from backend.scripts.run_aion_promoted_cache_plan_replication import CASES, _comparison_cases
@@ -273,6 +274,13 @@ def test_first_token_mismatch_records_value_and_length_divergence():
     assert _first_token_mismatch([1, 2, 4], [1, 2, 3]) == 2
     assert _first_token_mismatch([1, 2, 3], [1, 2]) == 2
     assert _first_token_mismatch([1, 2], [1, 2]) is None
+
+
+def test_generation_termination_accepts_limit_or_exact_eos_only():
+    assert _valid_generation_termination([1, 2, 3], 3, 0)
+    assert _valid_generation_termination([1, 0], 3, 0)
+    assert not _valid_generation_termination([1, 2], 3, 0)
+    assert not _valid_generation_termination([], 3, 0)
 
 
 def test_storage_first_prompt_selection_supports_bounded_diagnostics():
