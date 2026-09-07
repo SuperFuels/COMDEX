@@ -123,6 +123,7 @@ def execute_supplier_payment_review(
     *,
     actor_role: str,
     evidence_references: Mapping[str, str] | None = None,
+    variable_fields: Mapping[str, str] | None = None,
     human_approved: bool = False,
     cartridge_path: Path = SUPPLIER_PAYMENT_CARTRIDGE,
     signature_path: Path = SUPPLIER_PAYMENT_SIGNATURE,
@@ -138,6 +139,15 @@ def execute_supplier_payment_review(
 
     controls = tuple(cartridge["atomsheet"]["controls"])
     supplied = {key: value.strip() for key, value in (evidence_references or {}).items() if value.strip()}
+    allowed_variable_fields = set(cartridge["reusable_context"]["model_may_fill"])
+    supplied_variable_fields = {
+        key: str(value).strip() for key, value in (variable_fields or {}).items() if str(value).strip()
+    }
+    unknown_variable_fields = set(supplied_variable_fields) - allowed_variable_fields
+    if unknown_variable_fields:
+        raise ValueError(
+            f"variable fields are not permitted by the business map: {','.join(sorted(unknown_variable_fields))}"
+        )
     required = tuple(item["control_id"] for item in controls)
     missing = tuple(control_id for control_id in required if control_id not in supplied)
     review_complete = not missing and human_approved
@@ -152,6 +162,7 @@ def execute_supplier_payment_review(
         "evidence_reference_sha256": {
             key: hashlib.sha256(value.encode()).hexdigest() for key, value in sorted(supplied.items())
         },
+        "variable_fields": dict(sorted(supplied_variable_fields.items())),
         "missing_evidence": missing,
         "human_approved": human_approved,
         "review_complete": review_complete,

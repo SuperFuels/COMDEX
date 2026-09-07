@@ -63,6 +63,11 @@ def test_business_map_never_grants_payment_execution_and_requires_evidence():
     complete = execute_supplier_payment_review(
         actor_role="finance_reviewer",
         evidence_references=references,
+        variable_fields={
+            "supplier_name": "Acme Components Ltd",
+            "invoice_reference": "INV-2048",
+            "payment_amount": "EUR 1250.00",
+        },
         human_approved=True,
     )
     assert complete.review_complete
@@ -70,6 +75,13 @@ def test_business_map_never_grants_payment_execution_and_requires_evidence():
     assert not complete.payment_execution_allowed
     assert verify_proof_receipt(complete.proof_receipt)
     assert set(complete.proof_receipt["evidence_reference_sha256"]) == set(CONTROL_IDS)
+    assert complete.proof_receipt["variable_fields"]["invoice_reference"] == "INV-2048"
+
+    with pytest.raises(ValueError, match="not permitted"):
+        execute_supplier_payment_review(
+            actor_role="finance_reviewer",
+            variable_fields={"payment_destination": "unverified"},
+        )
 
 
 def test_business_map_rejects_unauthorized_role():
