@@ -39,6 +39,7 @@ STAGE_NAMES = (
     "expert_dispatch",
     "cache_lookup",
     "storage_and_safetensors_read",
+    "cpu_page_materialization",
     "metal_transfer_enqueue",
     "metal_transfer_sync",
     "expert_compute_and_combine",

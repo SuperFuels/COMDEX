@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import gc
 import hashlib
 import json
@@ -39,6 +40,7 @@ STAGE_NAMES = (
     "expert_dispatch",
     "cache_lookup",
     "storage_and_safetensors_read",
+    "cpu_page_materialization",
     "metal_transfer_enqueue",
     "metal_transfer_sync",
     "expert_compute_and_combine",
@@ -75,6 +77,11 @@ def main() -> int:
         action="store_true",
         help="Use the production-like layer forward without stage-boundary synchronizations.",
     )
+    parser.add_argument(
+        "--parallel-materialize-workers",
+        type=int,
+        help="Compare blocking transfer with exact parallel CPU materialization first.",
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
@@ -94,6 +101,10 @@ def main() -> int:
         raise SystemExit(f"refusing to overwrite evidence: {output}")
     if args.generated_tokens < 1 or args.memory_budget_gib <= 0:
         raise SystemExit("generated tokens and memory budget must be positive")
+    if args.parallel_materialize_workers is not None and args.parallel_materialize_workers < 1:
+        raise SystemExit("parallel materialization workers must be positive")
+    if args.parallel_materialize_workers is not None and args.candidate_pack_manifest is not None:
+        raise SystemExit("parallel materialization and candidate-pack comparisons are separate")
     if not torch.backends.mps.is_available():
         raise SystemExit("Apple Metal/MPS is required")
 
@@ -113,6 +124,10 @@ def main() -> int:
         if candidate_packs["source_manifest_sha256"] != _sha256(paths["shards"]):
             raise RuntimeError("candidate pack/source manifest binding failed")
         condition_order = ("source_pack", "candidate_pack", "candidate_pack", "source_pack")
+    elif args.parallel_materialize_workers is not None:
+        condition_order = (
+            "blocking", "parallel_materialized", "parallel_materialized", "blocking"
+        )
     else:
         condition_order = CONDITION_ORDER
 
@@ -208,6 +223,15 @@ def main() -> int:
     stripped_memory = _memory_snapshot("expert_tensors_removed")
 
     trials: list[dict[str, Any]] = []
+    materialize_executor = (
+        ThreadPoolExecutor(
+            max_workers=args.parallel_materialize_workers,
+            thread_name_prefix="aion-exact-materialize",
+        )
+        if args.parallel_materialize_workers is not None else None
+    )
+    for store in stores:
+        store.materialize_executor = materialize_executor
     for sequence, condition in enumerate(condition_order):
         selected_layers = (
             candidate_packs["layers"]
@@ -287,6 +311,9 @@ def main() -> int:
         for store in stores:
             store.clear_all()
 
+    if materialize_executor is not None:
+        materialize_executor.shutdown(wait=True)
+
     control.pop("scores")
     aggregates: dict[str, dict[str, Any]] = {}
     aggregate_conditions = tuple(dict.fromkeys(condition_order))
@@ -362,6 +389,7 @@ def main() -> int:
             "p95_method": "nearest_rank_max_for_n2",
             "stage_boundary_synchronization": not args.uninstrumented,
             "execution_mode": "uninstrumented" if args.uninstrumented else "stage_instrumented",
+            "parallel_materialize_workers": args.parallel_materialize_workers,
         },
         "capacity_source": {
             "kind": "route_corpus_byte_ceiling",

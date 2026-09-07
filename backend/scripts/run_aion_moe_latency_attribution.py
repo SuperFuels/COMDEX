@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import gc
 import hashlib
 import json
@@ -80,9 +81,12 @@ class TimedPackedLayerStore(PackedLayerScopedStore):
         transfer_mode: str = "blocking",
     ) -> None:
         super().__init__(layer, index, pack)
-        if transfer_mode not in {"blocking", "non_blocking", "fused_blocking"}:
+        if transfer_mode not in {
+            "blocking", "non_blocking", "fused_blocking", "parallel_materialized"
+        }:
             raise ValueError("unsupported transfer mode")
         self.transfer_mode = transfer_mode
+        self.materialize_executor: ThreadPoolExecutor | None = None
 
     def activate_timed(
         self,
@@ -114,6 +118,20 @@ class TimedPackedLayerStore(PackedLayerScopedStore):
         read_started = time.perf_counter()
         cpu_for_transfer.update(self._load_cpu_many(tuple(demand_experts)))
         storage_read_seconds = time.perf_counter() - read_started
+
+        materialize_started = time.perf_counter()
+        if self.transfer_mode == "parallel_materialized" and cpu_for_transfer:
+            if self.materialize_executor is None:
+                raise RuntimeError("parallel materialization executor is not configured")
+
+            def clone_pair(pair):
+                return tuple(
+                    value.clone(memory_format=torch.contiguous_format) for value in pair
+                )
+
+            pairs = self.materialize_executor.map(clone_pair, cpu_for_transfer.values())
+            cpu_for_transfer = dict(zip(cpu_for_transfer, pairs, strict=True))
+        cpu_materialization_seconds = time.perf_counter() - materialize_started
 
         transfer_started = time.perf_counter()
         transfer_operations = 0
@@ -155,6 +173,7 @@ class TimedPackedLayerStore(PackedLayerScopedStore):
             ),
             "lookup_seconds": lookup_seconds,
             "storage_read_seconds": storage_read_seconds,
+            "cpu_materialization_seconds": cpu_materialization_seconds,
             "transfer_enqueue_seconds": transfer_enqueue_seconds,
             "transfer_sync_seconds": transfer_sync_seconds,
             "transfer_operations": transfer_operations,
@@ -205,6 +224,7 @@ def _timed_forward(block, store, coordinator, capacity: int, stage_seconds: dict
         for source, target in (
             ("lookup_seconds", "cache_lookup"),
             ("storage_read_seconds", "storage_and_safetensors_read"),
+            ("cpu_materialization_seconds", "cpu_page_materialization"),
             ("transfer_enqueue_seconds", "metal_transfer_enqueue"),
             ("transfer_sync_seconds", "metal_transfer_sync"),
         ):
@@ -409,7 +429,8 @@ def main() -> int:
     stage_seconds = {
         name: 0.0 for name in (
             "shared_and_interlayer_sync", "router_and_route_capture", "expert_dispatch",
-            "cache_lookup", "storage_and_safetensors_read", "metal_transfer_enqueue",
+            "cache_lookup", "storage_and_safetensors_read", "cpu_page_materialization",
+            "metal_transfer_enqueue",
             "metal_transfer_sync", "expert_compute_and_combine", "cache_policy_and_eviction",
         )
     }
