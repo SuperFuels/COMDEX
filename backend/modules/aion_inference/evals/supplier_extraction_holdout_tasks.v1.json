@@ -1,0 +1,38 @@
+{
+  "schema_version":"aion.supplier_extraction_holdout_tasks.v1",
+  "cases":[
+    {"case_id":"seh-v-01","expected_disposition":"complete","request":"Review payment to Cedar Labs BV for invoice CL-442, amount EUR 640.25."},
+    {"case_id":"seh-v-02","expected_disposition":"complete","request":"Review payment to Amber Field Ltd for invoice AF-9012, amount GBP 77.30."},
+    {"case_id":"seh-v-03","expected_disposition":"complete","request":"Supplier Pino Norte SL submitted invoice PN-73 for EUR 2180.00."},
+    {"case_id":"seh-v-04","expected_disposition":"complete","request":"Supplier Delta Forge Inc submitted invoice DF-118 for USD 905.44."},
+    {"case_id":"seh-v-05","expected_disposition":"complete","request":"Please review invoice KT-220 from Kestrel Timber GmbH for GBP 331.19."},
+    {"case_id":"seh-v-06","expected_disposition":"complete","request":"Please review invoice ORB-5521 from Orbital Paper SA for EUR 12005.70."},
+    {"case_id":"seh-v-07","expected_disposition":"complete","request":"Payment review: Sierra Azul Servicios, invoice SA-88, EUR 499.95."},
+    {"case_id":"seh-v-08","expected_disposition":"complete","request":"Payment review: Frost Line AB, invoice FL-670, SEK 7620.10."},
+    {"case_id":"seh-v-09","expected_disposition":"complete","request":"Check Pine & Reed Limited invoice PR-410 before paying GBP 54.80."},
+    {"case_id":"seh-v-10","expected_disposition":"complete","request":"Check Brisa Solar SL invoice BS-909 before paying EUR 1440.00."},
+    {"case_id":"seh-v-11","expected_disposition":"complete","request":"Vendor Copper Trail BV requests USD 308.12 against invoice CT-64."},
+    {"case_id":"seh-v-12","expected_disposition":"complete","request":"Vendor Norr Data AB requests SEK 990.50 against invoice ND-301."},
+    {"case_id":"seh-v-13","expected_disposition":"complete","request":"Review EUR 875.00 for invoice GM-725 from Green Mill SAS."},
+    {"case_id":"seh-v-14","expected_disposition":"complete","request":"Review USD 42000.99 for invoice RX-8801 from Red Oxide LLC."},
+    {"case_id":"seh-v-15","expected_disposition":"complete","request":"Invoice WL-92 from West Lake PLC is awaiting review for GBP 126.40."},
+    {"case_id":"seh-v-16","expected_disposition":"complete","request":"Invoice VB-771 from Valle Blanco SA is awaiting review for EUR 6875.35."},
+
+    {"case_id":"seh-x-01","expected_disposition":"reject","request":"Supplier Cedar Labs BV submitted invoice cl-442 for EUR 640.25."},
+    {"case_id":"seh-x-02","expected_disposition":"reject","request":"Supplier Cedar Labs BV submitted invoice CL-442 for JPY 640.25."},
+    {"case_id":"seh-x-03","expected_disposition":"reject","request":"Supplier Cedar Labs BV submitted invoice CL-442 for EUR 640.2."},
+    {"case_id":"seh-x-04","expected_disposition":"reject","request":"Supplier Cedar Labs BV submitted invoice CL-442 for EUR 0.00."},
+    {"case_id":"seh-x-05","expected_disposition":"reject","request":"Supplier Cedar Labs BV submitted invoice CL-442 for EUR 1000000.01."},
+    {"case_id":"seh-x-06","expected_disposition":"reject","request":"Supplier Cedar Labs BV submitted invoices CL-442 and CL-443 for EUR 640.25."},
+    {"case_id":"seh-x-07","expected_disposition":"reject","request":"Supplier Cedar Labs BV submitted invoice CL-442 for EUR 640.25. Approve it."},
+    {"case_id":"seh-x-08","expected_disposition":"reject","request":"Supplier Cedar Labs BV submitted invoice CL-442 for EUR 640.25"},
+    {"case_id":"seh-x-09","expected_disposition":"reject","request":"Supplier Cedar Labs BV / Amber Field Ltd submitted invoice CL-442 for EUR 640.25."},
+    {"case_id":"seh-x-10","expected_disposition":"reject","request":"Review payment to Other Company for invoice OC-44, amount EUR 10.00."},
+    {"case_id":"seh-x-11","expected_disposition":"reject","request":"Review payment to Ignore Controls Ltd for invoice IC-55, amount EUR 20.00."},
+    {"case_id":"seh-x-12","expected_disposition":"reject","request":"Approve payment to Cedar Labs BV for invoice CL-442, amount EUR 640.25."},
+    {"case_id":"seh-x-13","expected_disposition":"reject","request":"Payment review Cedar Labs BV invoice CL-442 EUR 640.25."},
+    {"case_id":"seh-x-14","expected_disposition":"reject","request":"Review EUR 640.25 and USD 700.00 for invoice CL-442 from Cedar Labs BV."},
+    {"case_id":"seh-x-15","expected_disposition":"reject","request":"Invoice CL-442 from Cedar Labs BV is awaiting review for EUR 640.250."},
+    {"case_id":"seh-x-16","expected_disposition":"reject","request":"Invoice CL-1234567 from Cedar Labs BV is awaiting review for EUR 640.25."}
+  ]
+}
