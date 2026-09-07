@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import gc
 import hashlib
 import json
@@ -216,6 +217,11 @@ def main() -> int:
     parser.add_argument("--memory-budget-gib", type=float, default=3.0)
     parser.add_argument("--generated-tokens", type=int, default=64)
     parser.add_argument(
+        "--zstd-decode-workers",
+        type=int,
+        help="Bounded shared decoder pool for compressed expert packs.",
+    )
+    parser.add_argument(
         "--prompt-family",
         action="append",
         dest="prompt_families",
@@ -230,6 +236,8 @@ def main() -> int:
         raise SystemExit("Apple Metal/MPS is required")
     if args.generated_tokens < 1 or args.memory_budget_gib <= 0:
         raise SystemExit("generated tokens and memory budget must be positive")
+    if args.zstd_decode_workers is not None and args.zstd_decode_workers < 2:
+        raise SystemExit("zstd decode workers must be at least two")
     root = args.storage_root.resolve()
     paths = {
         "model": args.model_path.resolve(),
@@ -268,9 +276,17 @@ def main() -> int:
         entries_by_layer.append({int(entry["expert"]): entry for entry in index["experts"]})
 
     stores = []
+    zstd_decode_executor = (
+        ThreadPoolExecutor(
+            max_workers=args.zstd_decode_workers,
+            thread_name_prefix="aion-zstd-decode",
+        )
+        if args.zstd_decode_workers is not None else None
+    )
     pack_verify_started = time.perf_counter()
     for number, (index, pack_layer) in enumerate(zip(indexes, packs["layers"], strict=True)):
         store = PackedLayerScopedStore(number, index, pack_layer)
+        store.zstd_decode_executor = zstd_decode_executor
         store.preverify(root)
         stores.append(store)
     pack_verification_seconds = time.perf_counter() - pack_verify_started
@@ -438,6 +454,8 @@ def main() -> int:
         })
 
     coordinator.close()
+    if zstd_decode_executor is not None:
+        zstd_decode_executor.shutdown(wait=True)
     for control in controls:
         control.pop("scores")
     seconds = [float(result["seconds"]) for result in results]
@@ -517,6 +535,7 @@ def main() -> int:
             "cache_condition": "warm_uncontrolled",
             "full_resident_exact_control": True,
             "promotion_run": False,
+            "zstd_decode_workers": args.zstd_decode_workers,
             "retention_policy": (
                 "predictive_protection_no_speculative_reads"
                 if working_set_dictionary is not None else "live_lfu_recency"

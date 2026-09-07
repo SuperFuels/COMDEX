@@ -231,6 +231,19 @@ completed-task throughput, and a longer-corpus replacement for the previously
 failed predictive-eviction dictionary. Lossy quantization, pruning and reduced
 expert count remain a separate quality-gated track.
 
+The first integration gate for the promoted pack then completed one
+technical-explanation request for the full 64-token ceiling. From an empty
+expert cache it achieved 0.6053 tokens/s, 53.185 s time to first token, and a
+0.7395 s median subsequent-token interval. It recorded 4,393 faults, 12,994
+retained hits (74.73%), and 20,729,793,832 logical expert bytes. All 64 token IDs
+and all 64 step logits matched the full-resident control exactly. This passes
+the programme's 0.50-token/s strong-result milestone and validates that the
+compressed decoder is connected to storage-first execution. It is retained as
+a valid diagnostic rather than a performance promotion because it has one
+prompt, warm-uncontrolled filesystem state, and no matched storage-first source
+arm. Its 53.185 s cold-cache TTFT makes initial working-set construction the
+largest immediate user-visible cost.
+
 ### Stage 8 - Glyph-addressed Business Map cartridge
 
 After Stages 5--7 pass, prototype the Boardroom Business Map as a signed,

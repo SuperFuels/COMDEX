@@ -446,6 +446,15 @@ physical counters from silently targeting the wrong disk. LZ4 was not promoted:
 it decoded only 2.22% faster in the mechanism probe while using 23.08% more
 compressed bytes than the shuffled Zstandard sample.
 
+The promoted compressed pack is now wired into the sustained storage-first
+runner through the same bounded four-worker pool. A first empty-expert-cache
+technical-explanation diagnostic generated all 64 requested tokens at 0.6053
+tokens/s with exact token IDs and zero step-logit error. TTFT was 53.185 s,
+followed by a 0.7395 s median subsequent-token interval. This validates longer
+exact execution and clears the declared 0.50-token/s milestone, but is not a
+source/candidate speed promotion because the run has one prompt and no matched
+storage-first source timing arm.
+
 A route-unaware prompt-slimming probe reduced tokenized input length by
 35.41--37.76%. It reduced first-request TTFT by 4.57% and peak MPS allocation by
 1.86%, but median time regressed by 16.96%, logical demand increased by
