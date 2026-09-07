@@ -80,6 +80,7 @@ from .supplier_payment_safety import (
     assess_supplier_payment_request,
 )
 from .governed_business_router import GovernedBusinessOutcome, GovernedBusinessRouter
+from .verified_quotation import VerifiedQuotationDraft, draft_verified_quotation
 
 __all__ = [
     "BenchmarkReport",
@@ -152,4 +153,6 @@ __all__ = [
     "assess_supplier_payment_request",
     "GovernedBusinessOutcome",
     "GovernedBusinessRouter",
+    "VerifiedQuotationDraft",
+    "draft_verified_quotation",
 ]

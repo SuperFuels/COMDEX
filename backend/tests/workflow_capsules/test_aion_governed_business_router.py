@@ -77,3 +77,16 @@ def test_existing_atomsheet_and_qwen_routes_remain_available(tmp_path):
     assert extraction.route == "qwen_low_cost"
     assert extraction.model_call_required
     assert not extraction.task_completed
+
+
+def test_verified_quotation_route_is_completed_but_requires_human_review(tmp_path):
+    result = _router(tmp_path).route(
+        "Prepare a draft quotation for Patio Repair: base EUR 120, markup 20%. "
+        "Do not send it; human approval is required."
+    )
+    assert result.route == "verified_quotation_atomsheet"
+    assert result.task_completed
+    assert result.human_review_required
+    assert not result.model_call_required
+    assert "total EUR 144.00" in result.answer
+    assert verify_proof_receipt(result.proof_receipt)

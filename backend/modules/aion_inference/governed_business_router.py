@@ -12,6 +12,7 @@ from typing import Any, Mapping
 from .adaptive_runtime import AdaptiveInferenceRuntime
 from .business_map import render_supplier_payment_controls
 from .task_model_router import select_task_model
+from .verified_quotation import draft_verified_quotation
 
 
 def _canonical_sha256(value: Mapping[str, Any]) -> str:
@@ -28,7 +29,7 @@ def _is_supplier_controls_question(text: str) -> bool:
     lowered = text.casefold()
     required = (
         re.search(r"\bsupplier\b", lowered),
-        re.search(r"\b(?:pay|paying|payment)\b", lowered),
+        re.search(r"\b(?:pay|paying|payments?)\b", lowered),
         re.search(r"\bcontrols?\b", lowered),
         re.search(r"\brisk\b", lowered),
         re.search(r"\bevidence\b", lowered),
@@ -130,6 +131,33 @@ class GovernedBusinessRouter:
                 task_completed=True,
                 answer=policy.answer,
                 glyph_address=str(policy.proof_receipt["glyph_address"]),
+                fallback_prompt=None,
+                proof_receipt=receipt,
+            )
+
+        quotation = draft_verified_quotation(public_request)
+        if quotation is not None:
+            receipt = self._seal({
+                "schema_version": "aion.governed_business_route_receipt.v1",
+                "request_sha256": request_hash,
+                "route": quotation.route,
+                "quotation_proof_receipt_sha256": quotation.proof_receipt[
+                    "proof_receipt_sha256"
+                ],
+                "model_calls": 0,
+                "task_completed": True,
+                "human_approval_required": True,
+                "send_allowed": False,
+                "payment_allowed": False,
+            })
+            return GovernedBusinessOutcome(
+                route=quotation.route,
+                model=None,
+                model_call_required=False,
+                human_review_required=True,
+                task_completed=True,
+                answer=quotation.answer,
+                glyph_address=f"glyph:sha256:{request_hash}",
                 fallback_prompt=None,
                 proof_receipt=receipt,
             )

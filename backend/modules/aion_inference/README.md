@@ -680,3 +680,16 @@ avoided 102 model calls and made no Granite call. Actual serial wall time was
 with the maximum caused by Qwen's explicit cold start. All receipts, the trace
 chain and 72 focused tests passed. This promotes the bounded routing mechanism,
 not a family-balanced or real-customer Stage 7 workload.
+
+A subsequent family-balanced gate corrected that arithmetic bias. It used eight
+tasks each for calculation, quotation, policy, extraction, short drafting,
+planning and coding. A new narrow quotation AtomSheet calculates and inverse-
+checks the total but cannot send, approve or take payment. The first two runs
+remain preserved as failures (49/56, then 55/56); they exposed an underspecified
+drafting contract and a currency-preservation miss. After strengthening the
+contracts without relaxing any rubric, v3 completed 56/56 tasks. It measured
+33.870 s actual serial time, 5,952.13 successful tasks/hour, 0.3330 s p50 and
+0.7811 s p95 latency. It avoided 24 model calls, used 32 bounded Qwen calls and
+made no Granite call. Seventy-five focused tests passed. This is a balanced
+synthetic mechanism result; unseen holdout paraphrases and adversarial near-
+misses remain required before a broader Stage 7 claim.

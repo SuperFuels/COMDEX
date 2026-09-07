@@ -517,3 +517,33 @@ decision is a safe resolution but not a completed task. Current next action:
 build a family-balanced blinded cohort with explicit success rubrics for those
 missing business categories, measure per-family p50/p95 and preserve the same
 no-failed-task-counted-as-complete rule.
+
+### Family-balanced Stage 7 synthetic gate (2026-09-07)
+
+A narrow verified quotation AtomSheet now calculates an EUR base-plus-markup
+total, inverse-checks it, emits a deterministic draft and permanently denies
+sending, approval and payment authority. It requires human approval and fails
+closed outside its exact grammar and numeric bounds.
+
+The first equal-weight run preserved a genuine failure: 49/56 tasks completed,
+with drafting at 2/8 and extraction at 7/8. The drafting requests had not made
+the customer name a literal output requirement, and one extraction dropped a
+currency code. A second immutable run tightened the drafting contract without
+weakening its rubric; drafting reached 8/8 but extraction remained 7/8. The
+third run restored the exact extraction instruction previously verified twice.
+
+The final fixed-seed evaluator-blind cohort passed all 56 tasks: eight each for
+calculation, quotation, policy, extraction, short drafting, planning and coding.
+All route receipts and the trace chain verified. Twenty-four model calls were
+avoided; 32 bounded Qwen calls completed the four language families and no
+Granite call was made. Actual serial wall time was 33.870 s, or 5,952.13
+successful tasks/hour. End-to-end p50 was 0.3330 s, p95 was 0.7811 s and the
+16.430 s maximum was Qwen's explicit cold start; warm Qwen p50/p95 were
+0.5909/0.7791 s.
+
+This passes the balanced synthetic Stage 7 mechanism gate, not production
+economics. The tasks are constructed, deterministic and only eight deep per
+family; supplier evidence is synthetic and Qwen step logits are unavailable.
+Current next action: freeze these contracts, generate unseen paraphrases and
+adversarial near-misses before execution, then run a separately committed
+holdout manifest. Any family regression must fail the whole cohort.
