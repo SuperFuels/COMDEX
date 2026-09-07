@@ -778,3 +778,15 @@ bypass for 8,000 compound/adversarial executions. Every route receipt and the
 trace chain verified, payment authority remained false, and useful p50/p95
 latency was 0.0541/0.0709 ms. This promotes only the finite declared
 transformations; model fallbacks were identified but not executed in this gate.
+
+The first TensorSheet CPU-assistance experiment now has both a real-layer
+microbenchmark and complete-model evidence. CPU execution was 48.55% faster
+than Metal for an isolated CPU-resident eight-expert fault, but slower when the
+weights were already resident in Metal and never bit-exact to Metal. Complete
+execution confirmed why: CPU-only moved conversion or wide-prefill computation
+onto the slower engine. A phase-aware compressed candidate reduced Metal
+transfers 24.21% and observed eight-token time 1.89%, but maximum logit drift was
+0.03515625 and the sequential timing missed the 10% gate. It is
+`NOT_PROMOTED`. A separate route audit found 16.34% duplicate route sets and
+3.256/8 average next-route expert overlap, proving weight reuse but no reusable
+expert outputs because activation equality was not recorded.

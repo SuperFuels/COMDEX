@@ -743,3 +743,46 @@ performance, and fallback model calls were declared but deliberately not
 executed in this gate. Current next action: rerun a family-balanced blinded
 cohort containing these newly accepted phrasings and measure contemporaneous
 model-call avoidance and end-to-end p50/p95 rather than projecting the gain.
+
+### TensorSheet CPU-assistance and neural-repetition diagnostic (2026-09-07)
+
+A real layer-16 decode route was decomposed into eight independently scheduled
+expert calculations using 37,750,592 verified SD-backed logical weight bytes.
+Across 200 balanced samples, resident Metal remained fastest at 1.159 ms p50;
+resident CPU, two-CPU-expert hybrid and four-CPU-expert hybrid were respectively
+107.56%, 22.55% and 48.47% slower. When the same weights began CPU-resident as
+a simulated cache fault, CPU-only execution avoided weight placement and was
+48.55% faster than placing all eight experts into Metal. However, every
+CPU-assisted result differed numerically from Metal, with maximum absolute
+layer-output error (3.0518\times10^{-5}). It cannot enter the exact track.
+
+Full-model tests explained the boundary. On the uncompressed pack, moving
+faulted experts into Metal consumed 63.856 s of an 86.463 s two-token control.
+Sending all experts to CPU did not remove the cost: BF16-to-FP16 conversion
+moved 60.680 s into CPU materialization and the run slowed to 93.701 s. A
+preconverted FP16 pack removed conversion but made the wide 163-token prefill
+CPU-bound; expert calculation and combination consumed 78.091 s and total time
+rose to 101.198 s. Both CPU arms preserved token IDs but failed exact logits,
+with maximum error 0.2265625.
+
+A phase-aware candidate therefore retained Metal for prefill and resident
+experts while sending only new one-token faults to CPU. Against a separately
+executed matched compressed four-decoder Metal arm, it reduced Metal transfer
+operations 24.21% (3,312 to 2,510) and observed time from 68.762 s to 67.461 s
+(1.89%). All eight token IDs matched, but maximum logit drift was 0.03515625.
+The runs were sequential rather than ABBA, and the timing change is below the
+10% promotion gate. Phase-aware CPU fault execution is therefore
+`NOT_PROMOTED`; do not spend an exact-track cycle attempting to make CPU and
+Metal kernels bit-identical. It remains available only as a separately
+quality-gated research path.
+
+The accompanying repetition audit examined three content-addressed route
+observations: 5,696 layer-route instances contained 931 duplicates (16.34%),
+and consecutive routes shared 3.256 of eight experts on average. This validates
+weight retention. Only 45 of 5,664 consecutive pairs were identical (0.794%),
+and the privacy-preserving corpus contains no activation vectors, so zero
+expert-output calculations are proven reusable. Exact output reuse requires
+matching activation, weight and numerical-contract hashes. The next repetition
+target is exact shared-prefix/KV reuse across requests, where identical causal
+prefix state is genuinely reusable, rather than memoizing outputs from merely
+similar expert routes.

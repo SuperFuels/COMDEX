@@ -102,6 +102,7 @@ class TimedPackedLayerStore(PackedLayerScopedStore):
         pack: dict[str, Any],
         *,
         transfer_mode: str = "blocking",
+        expert_compute_device: str = "mps",
     ) -> None:
         super().__init__(layer, index, pack)
         if transfer_mode not in {
@@ -109,6 +110,10 @@ class TimedPackedLayerStore(PackedLayerScopedStore):
         }:
             raise ValueError("unsupported transfer mode")
         self.transfer_mode = transfer_mode
+        if expert_compute_device not in {"mps", "cpu", "phase_aware_cpu_faults"}:
+            raise ValueError("unsupported expert compute device")
+        self.expert_compute_device = expert_compute_device
+        self.current_sequence_length = 0
         self.materialize_executor: ThreadPoolExecutor | None = None
 
     def activate_timed(
@@ -156,10 +161,27 @@ class TimedPackedLayerStore(PackedLayerScopedStore):
             cpu_for_transfer = dict(zip(cpu_for_transfer, pairs, strict=True))
         cpu_materialization_seconds = time.perf_counter() - materialize_started
 
+        cpu_fault_execution = (
+            self.expert_compute_device == "cpu"
+            or (
+                self.expert_compute_device == "phase_aware_cpu_faults"
+                and self.current_sequence_length == 1
+            )
+        )
+        if cpu_fault_execution:
+            materialize_started = time.perf_counter()
+            cpu_for_transfer = {
+                expert: tuple(value.to(dtype=dtype) for value in pair)
+                for expert, pair in cpu_for_transfer.items()
+            }
+            cpu_materialization_seconds += time.perf_counter() - materialize_started
+
         transfer_started = time.perf_counter()
         transfer_operations = 0
         for expert, cpu_weights in cpu_for_transfer.items():
-            if self.transfer_mode == "fused_blocking":
+            if cpu_fault_execution:
+                self.active[expert] = cpu_weights
+            elif self.transfer_mode == "fused_blocking":
                 input_weight, output_weight = cpu_weights
                 input_elements = input_weight.numel()
                 fused = torch.cat((input_weight.reshape(-1), output_weight.reshape(-1)))
@@ -182,7 +204,8 @@ class TimedPackedLayerStore(PackedLayerScopedStore):
                 transfer_operations += 2
         transfer_enqueue_seconds = time.perf_counter() - transfer_started
         sync_started = time.perf_counter()
-        torch.mps.synchronize()
+        if not cpu_fault_execution:
+            torch.mps.synchronize()
         transfer_sync_seconds = time.perf_counter() - sync_started
         event = {
             "kind": "timed_layer_activation",
@@ -200,6 +223,8 @@ class TimedPackedLayerStore(PackedLayerScopedStore):
             "transfer_enqueue_seconds": transfer_enqueue_seconds,
             "transfer_sync_seconds": transfer_sync_seconds,
             "transfer_operations": transfer_operations,
+            "cpu_fault_experts": len(cpu_for_transfer) if cpu_fault_execution else 0,
+            "metal_fault_experts": 0 if cpu_fault_execution else len(cpu_for_transfer),
             "total_seconds": time.perf_counter() - total_started,
         }
         self.events.append(event)
@@ -218,6 +243,7 @@ def _timed_forward(block, store, coordinator, capacity: int, stage_seconds: dict
 
         started = time.perf_counter()
         batch_size, length, embedding_size = layer_input.size()
+        store.current_sequence_length = length
         flattened = layer_input.reshape(-1, embedding_size)
         _, batch_index, batch_gates, expert_size, router_logits = router(flattened)
         observed_routes = tuple(
@@ -255,18 +281,48 @@ def _timed_forward(block, store, coordinator, capacity: int, stage_seconds: dict
         coordinator.observe_memory()
 
         started = time.perf_counter()
-        output_list = []
+        cpu_experts = {
+            expert for expert in required if weights[expert][0].device.type == "cpu"
+        }
+        cpu_input_list = (
+            expert_inputs.to(device="cpu", dtype=layer_input.dtype).split(
+                expert_size, dim=0
+            )
+            if cpu_experts else None
+        )
+        output_list: list[torch.Tensor | None] = []
+        cpu_outputs: list[tuple[int, torch.Tensor]] = []
         for expert, expert_input in enumerate(input_list):
             if expert_input.shape[0] == 0:
                 output_list.append(torch.empty(
                     (0, input_size), dtype=layer_input.dtype, device=layer_input.device
                 ))
                 continue
+            compute_input = (
+                cpu_input_list[expert] if expert in cpu_experts else expert_input
+            )
             input_weight, output_weight = weights[expert]
-            hidden = functional.linear(expert_input, input_weight)
+            hidden = functional.linear(compute_input, input_weight)
             gate_half, value_half = hidden.chunk(2, dim=-1)
-            output_list.append(functional.linear(activation(gate_half) * value_half, output_weight))
-        expert_outputs = torch.cat(output_list, dim=0) * batch_gates[:, None]
+            output = functional.linear(activation(gate_half) * value_half, output_weight)
+            if expert in cpu_experts:
+                cpu_outputs.append((expert, output))
+                output_list.append(None)
+            else:
+                output_list.append(output)
+        if cpu_outputs:
+            cpu_batch = torch.cat([value for _, value in cpu_outputs], dim=0).to(
+                layer_input.device
+            )
+            sizes = [value.shape[0] for _, value in cpu_outputs]
+            for (expert, _), value in zip(
+                cpu_outputs, cpu_batch.split(sizes, dim=0), strict=True
+            ):
+                output_list[expert] = value
+        if any(value is None for value in output_list):
+            raise RuntimeError("CPU expert output assembly failed")
+        expert_outputs = torch.cat(output_list, dim=0)
+        expert_outputs = expert_outputs * batch_gates[:, None]
         zeros = torch.zeros(
             (batch_size * length, input_size),
             dtype=expert_outputs.dtype,
@@ -291,6 +347,10 @@ def main() -> int:
     parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--shard-manifest", type=Path, required=True)
     parser.add_argument("--pack-manifest", type=Path, required=True)
+    parser.add_argument(
+        "--route-source-pack-manifest", type=Path,
+        help="Original pack manifest bound by the route corpus when execution uses a derived pack.",
+    )
     parser.add_argument("--cache-plan", type=Path)
     parser.add_argument("--route-corpus", type=Path)
     parser.add_argument("--memory-budget-gib", type=float)
@@ -304,6 +364,15 @@ def main() -> int:
         choices=("warm_uncontrolled",),
         default="warm_uncontrolled",
         help="Explicit cache label; this stage does not claim privileged OS-cache eviction",
+    )
+    parser.add_argument(
+        "--expert-compute-device",
+        choices=("mps", "cpu", "phase_aware_cpu_faults"), default="mps",
+        help="Run experts on Metal, CPU, or send only decode-time faults to CPU.",
+    )
+    parser.add_argument(
+        "--zstd-decode-workers", type=int,
+        help="Bounded parallel decoder count for compressed expert packs.",
     )
     parser.add_argument(
         "--transfer-mode",
@@ -326,6 +395,8 @@ def main() -> int:
         "shards": args.shard_manifest.resolve(),
         "packs": args.pack_manifest.resolve(),
     }
+    if args.route_source_pack_manifest is not None:
+        paths["route_source_packs"] = args.route_source_pack_manifest.resolve()
     if args.cache_plan is not None:
         paths["cache_plan"] = args.cache_plan.resolve()
     if args.route_corpus is not None:
@@ -337,6 +408,8 @@ def main() -> int:
         raise SystemExit(f"refusing to overwrite evidence: {output}")
     if args.generated_tokens < 1:
         raise SystemExit("generated-tokens must be positive")
+    if args.zstd_decode_workers is not None and args.zstd_decode_workers < 2:
+        raise SystemExit("zstd decode workers must be at least two")
     if not torch.backends.mps.is_available():
         raise SystemExit("Apple Metal/MPS is required")
     _verify_storage_device(root, args.device)
@@ -361,13 +434,17 @@ def main() -> int:
         observation_sha256s = tuple(sorted(path.stem for path in corpus.objects.glob("*.json")))
         if not observation_sha256s:
             raise RuntimeError("route corpus contains no observations")
+        route_pack_path = paths.get("route_source_packs", paths["packs"])
         expected_bindings = {
             "model_config_sha256": _sha256(paths["model"] / "config.json"),
             "shard_manifest_sha256": _sha256(paths["shards"]),
-            "pack_manifest_sha256": _sha256(paths["packs"]),
+            "pack_manifest_sha256": _sha256(route_pack_path),
         }
         if corpus.load(observation_sha256s[0])["bindings"] != expected_bindings:
             raise RuntimeError("route corpus does not bind the selected model and manifests")
+        if "route_source_packs" in paths:
+            if packs.get("source_manifest_sha256") != _sha256(paths["shards"]):
+                raise RuntimeError("derived execution pack is not bound to the expert shards")
         memory_plan = corpus.optimize_memory(
             observation_sha256s,
             entries_by_layer,
@@ -441,6 +518,7 @@ def main() -> int:
             index,
             pack_layer,
             transfer_mode=args.transfer_mode,
+            expert_compute_device=args.expert_compute_device,
         )
         store.preverify(root)
         stores.append(store)
@@ -449,6 +527,16 @@ def main() -> int:
     gc.collect()
     torch.mps.empty_cache()
     stripped_memory = _memory_snapshot("expert_tensors_removed")
+
+    zstd_decode_executor = (
+        ThreadPoolExecutor(
+            max_workers=args.zstd_decode_workers,
+            thread_name_prefix="aion-zstd-decode",
+        )
+        if args.zstd_decode_workers is not None else None
+    )
+    for store in stores:
+        store.zstd_decode_executor = zstd_decode_executor
 
     stage_seconds = {
         name: 0.0 for name in (
@@ -488,6 +576,8 @@ def main() -> int:
     )
     disk_after = _disk_snapshot(args.device)
     coordinator.close()
+    if zstd_decode_executor is not None:
+        zstd_decode_executor.shutdown(wait=True)
 
     errors = [
         float((observed - expected).abs().max().item())
@@ -536,7 +626,10 @@ def main() -> int:
             "cache_capacity": sum(capacities), "stage_boundary_synchronization": True,
             "cache_condition": args.cache_condition,
             "transfer_mode": args.transfer_mode,
+            "expert_compute_device": args.expert_compute_device,
+            "zstd_decode_workers": args.zstd_decode_workers,
             "os_file_cache_controlled": False,
+            "derived_execution_pack_verified": "route_source_packs" in paths,
         },
         "capacity_source": capacity_source,
         "gateway": {
