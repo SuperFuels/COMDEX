@@ -27,6 +27,7 @@ from backend.scripts.run_aion_layer_scoped_moe_experiment import (
     select_frequency_retention,
 )
 from backend.scripts.run_aion_storage_first_multiprompt import (
+    _first_token_mismatch,
     _select_prompts,
     _step_error_summary,
     _validate_prompt_catalog,
@@ -266,6 +267,12 @@ def test_step_error_summary_localizes_first_and_maximum_divergence():
     assert summary["nonzero_step_logit_errors"][-1]["selected_token_id"] == 13
     exact = _step_error_summary([0.0, 0.0], [10, 11])
     assert exact["maximum_step_logit_error_index"] is None
+
+
+def test_first_token_mismatch_records_value_and_length_divergence():
+    assert _first_token_mismatch([1, 2, 4], [1, 2, 3]) == 2
+    assert _first_token_mismatch([1, 2, 3], [1, 2]) == 2
+    assert _first_token_mismatch([1, 2], [1, 2]) is None
 
 
 def test_storage_first_prompt_selection_supports_bounded_diagnostics():

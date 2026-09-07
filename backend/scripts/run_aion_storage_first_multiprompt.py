@@ -104,6 +104,13 @@ def _step_error_summary(errors: list[float], token_ids: list[int]) -> dict[str, 
     }
 
 
+def _first_token_mismatch(actual: list[int], expected: list[int]) -> int | None:
+    for index, (actual_token, expected_token) in enumerate(zip(actual, expected)):
+        if actual_token != expected_token:
+            return index
+    return min(len(actual), len(expected)) if len(actual) != len(expected) else None
+
+
 def _validate_prompt_catalog(value: Any) -> tuple[dict[str, str], ...]:
     if not isinstance(value, dict) or value.get("schema_version") != "aion.prompt_manifest.v1":
         raise ValueError("prompt manifest schema must be aion.prompt_manifest.v1")
@@ -371,11 +378,18 @@ def main() -> int:
             for event in store.events[start:]
             if event["kind"] == "layer_activation"
         ]
+        common_score_count = min(len(observed["scores"]), len(control["scores"]))
         errors = [
             float((actual - expected).abs().max().item())
-            for actual, expected in zip(observed["scores"], control["scores"], strict=True)
+            for actual, expected in zip(
+                observed["scores"][:common_score_count],
+                control["scores"][:common_score_count],
+                strict=True,
+            )
         ]
         error_summary = _step_error_summary(errors, observed["token_ids"])
+        token_ids_exact_match = observed["token_ids"] == control["token_ids"]
+        score_count_exact_match = len(observed["scores"]) == len(control["scores"])
         results.append({
             "family": request["family"],
             "glyph_address": request["glyph_address"],
@@ -390,8 +404,17 @@ def main() -> int:
             "median_subsequent_token_interval_seconds": observed["median_subsequent_token_interval_seconds"],
             "token_ids": observed["token_ids"],
             "text": observed["text"],
-            "token_ids_exact_match": observed["token_ids"] == control["token_ids"],
-            "all_step_logits_exact_match": all(error == 0.0 for error in errors),
+            "control_generated_token_count": len(control["token_ids"]),
+            "observed_generated_token_count": len(observed["token_ids"]),
+            "first_token_mismatch_index": _first_token_mismatch(
+                observed["token_ids"], control["token_ids"]
+            ),
+            "token_ids_exact_match": token_ids_exact_match,
+            "score_count_exact_match": score_count_exact_match,
+            "common_step_logit_count": common_score_count,
+            "all_step_logits_exact_match": (
+                score_count_exact_match and all(error == 0.0 for error in errors)
+            ),
             "maximum_step_logit_error": max(errors, default=0.0),
             **error_summary,
             "demand_faults": sum(int(event["demand_faults"]) for event in events),
