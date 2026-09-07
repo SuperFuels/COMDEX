@@ -786,3 +786,33 @@ matching activation, weight and numerical-contract hashes. The next repetition
 target is exact shared-prefix/KV reuse across requests, where identical causal
 prefix state is genuinely reusable, rather than memoizing outputs from merely
 similar expert routes.
+
+### Exact shared-prefix/KV reuse falsification (2026-09-08)
+
+A full-resident Metal mechanism test used four synthetic business requests with
+a genuinely identical 166-token policy and Business Map prefix. The cache key
+bound the exact prefix tokens, all model artifacts, FP16 datatype and MPS
+backend. Model and evidence remained on the mounted SD volume; prompt text and
+logits were not persisted. The control performed each 181--193-token prefill in
+one pass. The candidate calculated the 166-token prefix once, branched its KV
+state without copying the underlying Metal tensors, and processed only the
+15--27 unique suffix tokens per request.
+
+An initial engineering attempt was rejected before evidence creation because
+PyTorch refuses to deep-copy non-leaf cache tensors. The corrected,
+position-bound run avoided tensor copying and recorded canonical evidence. It
+reduced total measured time from 4.8451 s to 4.6543 s including the shared-cache
+build, an observed 3.94% improvement. This missed the declared 10% speed gate.
+More importantly, only three of four token streams matched and no request had
+bit-identical step logits; the largest observed step-logit deviation after
+divergence was 36.0342.
+
+The candidate is `NOT_PROMOTED` and stopped on the exact track. Splitting a
+Metal prefill changes the floating-point execution shape even when causal token
+state is mathematically reusable, so it cannot reproduce the one-pass control's
+bit pattern on this stack. Do not repeat this implementation under the exact
+gate. Prefix/KV reuse may be reconsidered only in a separately declared
+quality-gated track, or if a backend can prove bit-identical chunked and
+one-pass prefill. The next exact optimization must avoid changing neural kernel
+partitioning; governed replay, verified AtomSheets and finite Semantic Gateway
+routes remain the proven way to eliminate repeated neural calculation exactly.

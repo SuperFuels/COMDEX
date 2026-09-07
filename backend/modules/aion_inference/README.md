@@ -790,3 +790,13 @@ transfers 24.21% and observed eight-token time 1.89%, but maximum logit drift wa
 `NOT_PROMOTED`. A separate route audit found 16.34% duplicate route sets and
 3.256/8 average next-route expert overlap, proving weight reuse but no reusable
 expert outputs because activation equality was not recorded.
+
+Exact shared-prefix/KV reuse has also been tested and stopped on the exact
+track. Four requests shared an exact 166-token Business Map/policy prefix. A
+content-addressed Metal cache reduced full-resident total time 3.94% after its
+one-time build, but missed the 10% speed gate, changed one of four token streams
+and produced non-identical step logits for every request. The candidate is
+`NOT_PROMOTED`: mathematically reusable causal state is not bit-identical to a
+one-pass FP16 Metal prefill when kernel partitioning changes. This does not
+invalidate prefix caching for an explicitly quality-gated service; it prevents
+claiming it as an exact-output optimization on the current stack.

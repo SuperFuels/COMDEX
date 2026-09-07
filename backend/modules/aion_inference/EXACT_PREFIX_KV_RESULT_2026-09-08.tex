@@ -1,0 +1,72 @@
+% Append-only section for the AION technical record.
+% Requires amsmath; no additional packages are needed.
+\section{Exact Shared-Prefix KV Reuse: Measured Boundary}
+\label{sec:exact-prefix-kv-boundary}
+
+\subsection{Question and hypothesis}
+
+The experiment tested whether requests sharing an identical governed system,
+Business Map, and response-contract prefix could reuse the corresponding neural
+key--value (KV) state. The intended optimization was to calculate the common
+prefix once on Apple Metal and process only each request's unique suffix. This
+is genuine causal-state reuse, not semantic matching and not reuse based merely
+on similar expert routes.
+
+\subsection{Integrity contract}
+
+The cache address cryptographically bound the exact token prefix, all local
+model artifacts, FP16 datatype, and MPS backend. Reuse was forbidden unless all
+fields matched. The model and evidence remained on the mounted SD volume.
+Neither prompt text nor logit vectors were persisted. Promotion required both
+bit-identical generated token identifiers and bit-identical logits at every
+generation step, as well as at least a ten-percent total-time improvement after
+charging the candidate for its one-time shared-prefix build.
+
+\subsection{Method}
+
+Four synthetic business requests contained 181--193 input tokens. Their exact
+longest common token prefix contained 166 tokens, leaving 15--27 unique tokens
+per request. The control performed each complete prefill in one Metal call. The
+candidate calculated the 166-token prefix once, created independently growing
+cache views without copying their underlying Metal tensors, preserved absolute
+position and cache indices explicitly, and then processed each unique suffix.
+Each arm greedily generated eight tokens per request.
+
+An earlier engineering attempt tried to deep-copy non-leaf Metal cache tensors
+and was rejected by PyTorch before evidence was emitted. It is not treated as
+an experimental result. The corrected, position-bound run produced the
+canonical evidence artifact
+\texttt{exact\_prefix\_kv\_mps\_position\_bound\_20260908T0012Z.json}, whose
+canonical report SHA-256 is
+\texttt{e7ad2824fbe27bfe194ca78c05dd4cc98dc53c73cfe674de8c3f9e974852e150}.
+
+\subsection{Results}
+
+The control required 4.8451 seconds in total. The candidate required 4.6543
+seconds including the shared-prefix build, an observed improvement of 3.94\%.
+Control per-request time was 1.1072 seconds at p50 and 1.5882 seconds at
+nearest-rank p95. Candidate suffix execution, excluding the separately charged
+shared build, was 1.0604 seconds at p50 and 1.1095 seconds at p95.
+
+The performance gate failed because 3.94\% is below the declared 10\% threshold.
+The integrity gate also failed. Three of four generated token streams matched;
+one differed. None of the four requests produced bit-identical logits at every
+step. The largest step-logit difference observed after divergence was
+$36.0342$.
+
+\subsection{Conclusion and claim boundary}
+
+The candidate is \texttt{NOT\_PROMOTED} and is stopped on the exact-output
+track. Although causal KV state is mathematically reusable, splitting a
+one-pass FP16 Metal prefill changes the floating-point kernel shape and therefore
+does not preserve the control's bit pattern on the tested software stack. The
+experiment does not show that KV caching is useless: it shows that this form
+cannot be advertised as an exact-output optimization relative to one-pass
+prefill, and its measured speed gain was too small in this workload.
+
+The strategy may be reconsidered only as an explicitly quality-gated service or
+with a backend that proves bit-identical chunked and one-pass prefill. Exact
+work should instead prioritize avoiding neural calls entirely where outputs are
+already verified: governed replay, narrowly verified AtomSheets, and finite
+Semantic Gateway transformations. Those paths remove repeated calculations
+without changing neural arithmetic.
