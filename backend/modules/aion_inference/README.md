@@ -746,3 +746,15 @@ P95 regressed from 0.7811 s to 0.9553 s because the single cold Qwen call was
 slower and occurred in a different family. This is a successful integration
 observation against historical v3 evidence, not a contemporaneous ABBA causal
 speed promotion.
+
+A broader frozen stress diagnostic then tested 24 useful extractions (including
+new phrase shapes and harmless surrounding text), eight compound requests and
+eight adversarial cases. V1 correctly failed: it refused 62.5% of useful
+executions, misread one noisy supplier value and accepted one two-invoice
+compound into the verified route. Payment remained impossible. Structural
+single-invoice/single-amount guards and a stricter supplier boundary removed
+both unsafe interpretations. The unchanged v2 corpus recorded zero wrong
+extractions and zero compound/adversarial bypasses, while still refusing 66.67%
+of useful forms. The original 32-case exact holdout then repassed 16,000 valid
+and 16,000 adversarial executions under the strengthened contract. Safety is
+revalidated; broad language coverage is explicitly `NOT_PROMOTED`.

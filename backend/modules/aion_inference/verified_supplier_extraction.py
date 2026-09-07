@@ -10,7 +10,7 @@ import re
 from typing import Any, Mapping
 
 
-_NAME = r"(?P<supplier>[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9 &.'\-]{1,100}?)"
+_NAME = r"(?P<supplier>[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9 &'\-]{1,100}?)"
 _INVOICE = r"(?P<invoice>[A-Z]{2,5}-[0-9]{2,6})"
 _PAYMENT = r"(?P<currency>EUR|USD|GBP|SEK) (?P<amount>[0-9]+\.[0-9]{2})"
 _PATTERNS = tuple(
@@ -32,6 +32,9 @@ _CONTRACT = {
     "currencies": ["EUR", "GBP", "SEK", "USD"],
     "amount_range": ["0.01", "1000000.00"],
     "invoice_pattern": "[A-Z]{2,5}-[0-9]{2,6}",
+    "supplier_pattern": "[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9 &'\\-]{1,100}?",
+    "required_invoice_matches": 1,
+    "required_payment_matches": 1,
     "authority": {"approve": False, "execute_payment": False},
 }
 CONTRACT_SHA256 = hashlib.sha256(
@@ -60,6 +63,10 @@ class VerifiedSupplierExtraction:
 def extract_verified_supplier_fields(text: str) -> VerifiedSupplierExtraction | None:
     """Extract only when one complete contract pattern and every bound validates."""
     normalized = " ".join(text.split())
+    if len(re.findall(r"\b[A-Z]{2,5}-[0-9]{2,6}\b", normalized)) != 1:
+        return None
+    if len(re.findall(r"\b(?:EUR|USD|GBP|SEK) [0-9]+\.[0-9]{2}\b", normalized)) != 1:
+        return None
     matches = [(pattern_id, match) for pattern_id, pattern in _PATTERNS
                if (match := pattern.fullmatch(normalized)) is not None]
     if len(matches) != 1:

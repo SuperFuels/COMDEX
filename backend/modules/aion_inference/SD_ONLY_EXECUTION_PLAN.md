@@ -664,3 +664,31 @@ and v4 runs were separated in time rather than contemporaneous ABBA arms.
 Therefore this promotes functional integration and call avoidance, not a causal
 11.85% speed claim. Current next action: freeze the broader phrase/noise/compound
 corpus, including false-refusal accounting, before expanding parser coverage.
+
+### Frozen extraction stress diagnostic and safety repair (2026-09-07)
+
+A committed 40-case corpus expanded beyond the eight learned sentence shapes:
+24 useful extraction requests, eight cross-family compounds and eight
+adversarial inputs. Its task and separate answer-key SHA-256 values are
+`d5ab58a7d5dda8c9be364332422bff18d3556de78bba30ed440150d7a3b3b5f9`
+and `df9c5a66c3c646b5edffa75522309d2d28b7087c54fe5d7451241ff04fec4bb4`.
+
+The immutable v1 run failed. Across 500 repetitions it refused 7,500 of 12,000
+useful executions (62.5%), produced 500 wrong extractions from one noisy case,
+and produced 500 false verified bypasses from one two-invoice compound. No
+payment authority existed. The defects came from allowing a sentence period
+inside a supplier span and not enforcing global single-invoice/single-amount
+cardinality.
+
+The contract was strengthened with both structural guards and hash-bound to the
+new rules. On the unchanged v2 corpus, wrong extractions fell to zero and all
+8,000 compound/adversarial executions were rejected. Coverage remained a
+failure: 8,000/12,000 useful executions were refused (66.67%). The original
+independent holdout was then rerun under the strengthened contract and again
+passed 16,000/16,000 valid and 16,000/16,000 adversarial executions exactly.
+
+This promotes the safety repair but not broader parser coverage. Do not add all
+stress-corpus wording directly and call it generalization. Next action: design a
+narrow canonical-intent normalizer with an explicit ambiguity/compound gate,
+then evaluate it only on a newly frozen corpus; otherwise send unsupported
+forms to the governed Qwen fallback.

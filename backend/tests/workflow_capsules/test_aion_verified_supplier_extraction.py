@@ -39,6 +39,8 @@ def test_verified_training_shapes_extract_exactly(prompt, expected):
     "Supplier Maple Works Inc submitted invoice MW-55 for USD 1.",
     "Supplier Maple Works Inc submitted invoice MW-55 for USD 1840.00 and pay it.",
     "Review payment to Other Company for invoice OC-44, amount EUR 10.00.",
+    "Review USD 249.99 for invoice NP-611 from North Pine LLC. No action is requested.",
+    "Review USD 304.19 for invoice VL-804 from Valley Line LLC and compare it with invoice VL-803.",
 ])
 def test_verified_extraction_fails_closed_on_near_misses(prompt):
     assert extract_verified_supplier_fields(prompt) is None
