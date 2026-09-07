@@ -442,3 +442,28 @@ warm Qwen for accepted low-cost tasks, and Granite for depth or policy
 requirements. Semantic prompt shortening, quantization and reduced-expert
 execution remain separately quality-gated because they change input or
 numerical execution.
+
+### Evidence-bound Stage 7 economics diagnostic (2026-09-07)
+
+An immutable cross-artifact projection combined 100 previously verified
+AtomSheet calculations, one measured call for each of eight distinct accepted
+Qwen extraction cases, and the two exact-but-quality-failed Granite business
+tasks. It attempted 110 tasks and counted 108 as successful (98.18%). One
+hundred model calls were avoided. Using the measured AtomSheet median for its
+projected total and individual Qwen/Granite wall times, the cohort occupied
+373.189 s and yielded 1,041.83 successful tasks/hour.
+
+The critical result is allocation of time, not the headline projection:
+AtomSheets consumed 0.0028%, Qwen 6.4949%, and the two failed Granite attempts
+93.5023% of the cohort time. Granite's token/logit exactness did not cause those
+tasks to pass their output rubrics, so both remain failures. This proves that
+task-level gating is economically dominant: a slow strong-model call must not
+be made merely because a request sounds complex when a verified cartridge or
+better task contract can handle it. The result is diagnostic, not Stage 7
+promotion, because it combines separate synthetic runs and is not a blinded
+live mixed-workload execution.
+
+Current action: route the bounded supplier-control information task through the
+already signed Business Map cartridge and remeasure it without granting payment
+authority. Keep the removable-model-integrity task uncompleted until a verified
+contract or quality-passing model route exists.

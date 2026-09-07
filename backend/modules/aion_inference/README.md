@@ -647,3 +647,13 @@ avoid weights the router genuinely requested, so cold-prefill prediction is
 stopped under the locked pivot rule. Exact reuse remains useful after the
 working set exists; otherwise verified model-call avoidance and governed
 Qwen/Granite task routing are the next economic levers.
+
+An evidence-bound 110-task economics diagnostic now combines 100 verified
+AtomSheet calculations, eight distinct accepted Qwen extraction cases and two
+exact-but-quality-failed Granite business tasks. It counted 108 successful
+tasks, 100 avoided model calls and 1,041.83 successful tasks/hour over 373.189 s
+of projected/measured serial time. The two failed Granite calls consumed 93.50%
+of that time. This is not a blinded Stage 7 promotion, but it identifies the
+next high-value change: serve the bounded supplier-control information request
+from the signed Business Map rather than spending Granite time on an output
+that fails its rubric.
