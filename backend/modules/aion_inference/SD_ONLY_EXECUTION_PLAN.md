@@ -692,3 +692,27 @@ stress-corpus wording directly and call it generalization. Next action: design a
 narrow canonical-intent normalizer with an explicit ambiguity/compound gate,
 then evaluate it only on a newly frozen corpus; otherwise send unsupported
 forms to the governed Qwen fallback.
+
+### Bounded Semantic Gateway candidate (2026-09-07)
+
+A separate normalizer candidate was built rather than widening the production
+parser directly. It requires unique invoice and amount entities, rejects
+compound/action language, and canonicalizes eight additional explicit
+paraphrase forms plus four whitelisted harmless prefix/suffix forms into the
+already verified grammar. It is not yet called by the governed router.
+
+On the stress derivation corpus, v1 reduced false refusals from 66.67% to 16.67%
+with zero wrong extraction or guard bypass; four suffix cases exposed a duplicate
+punctuation defect. V2 corrected that mechanical defect and passed 12,000 useful
+and 8,000 guard executions. A separate new-value holdout was then committed with
+task/answer hashes `35f43a2fc1c89c644d50c7993db530ee1202eae99814b4ce872b0d55760b61f2`
+and `4a36559cb6d1cc9b1b61d3910df13f10f41c207236cc1d3c287f15e9178c88b1`.
+It passed 12,000/12,000 exact useful executions and rejected 8,000/8,000
+compound/adversarial executions. Useful latency was 0.337 ms p50 and 0.384 ms
+p95, with zero model calls and no payment authority.
+
+This is `PROMOTED_FOR_INTEGRATION` for the finite declared transformations, not
+general paraphrase understanding. The holdout used new values and requests but
+was intentionally constructed from the supported transformation families.
+Before router promotion, bind original and canonical request hashes into one
+proof receipt and run a fresh end-to-end governed-router holdout.

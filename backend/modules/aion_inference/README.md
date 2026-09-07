@@ -758,3 +758,14 @@ extractions and zero compound/adversarial bypasses, while still refusing 66.67%
 of useful forms. The original 32-case exact holdout then repassed 16,000 valid
 and 16,000 adversarial executions under the strengthened contract. Safety is
 revalidated; broad language coverage is explicitly `NOT_PROMOTED`.
+
+A separately gated Semantic Gateway candidate now canonicalizes eight additional
+bounded paraphrase forms plus four whitelisted noise wrappers before invoking
+the unchanged verified AtomSheet. Its first derivation run failed only because
+four suffix removals left duplicate punctuation; the corrected derivation run
+passed 12,000 useful and 8,000 guard executions. A subsequently committed
+new-value holdout also passed 12,000/12,000 useful executions and rejected all
+8,000 compound/adversarial executions, at 0.337 ms p50 and 0.384 ms p95 for
+useful tasks. This is `PROMOTED_FOR_INTEGRATION` only for the declared finite
+transformations. The corpus was designed against those transformations, so it
+does not establish open-ended paraphrase generalization.

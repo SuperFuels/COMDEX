@@ -17,6 +17,9 @@ from backend.modules.aion_inference import (
     extract_verified_supplier_fields,
     verify_proof_receipt,
 )
+from backend.modules.aion_inference.candidate_supplier_intent_normalizer import (
+    canonicalize_supplier_extraction_request,
+)
 from backend.scripts.run_aion_balanced_business_router import CONTROL_IDS, _p95, _sha256
 
 
@@ -34,6 +37,7 @@ def main() -> int:
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--iterations", type=int, default=500)
     parser.add_argument("--seed", type=int, default=200907)
+    parser.add_argument("--candidate-normalizer", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     root = args.storage_root.resolve()
@@ -71,7 +75,11 @@ def main() -> int:
     for _ in range(args.iterations):
         for task in tasks:
             started = time.perf_counter()
-            extracted = extract_verified_supplier_fields(task["request"])
+            canonical = (
+                canonicalize_supplier_extraction_request(task["request"])
+                if args.candidate_normalizer else task["request"]
+            )
+            extracted = extract_verified_supplier_fields(canonical) if canonical else None
             execution = execute_supplier_payment_review(
                 actor_role="finance_reviewer", evidence_references=refs,
                 variable_fields=extracted.fields if extracted else {}, human_approved=True,
@@ -85,6 +93,9 @@ def main() -> int:
             observations.append({
                 "case_id": task["case_id"], "class": task["class"],
                 "fields": dict(extracted.fields) if extracted else None,
+                "canonical_request_sha256": (
+                    hashlib.sha256(canonical.encode()).hexdigest() if canonical else None
+                ),
                 "receipt_valid": bool(
                     extracted and verify_proof_receipt(extracted.proof_receipt)
                     and execution and execution.review_complete
@@ -148,6 +159,7 @@ def main() -> int:
         },
         "method": {
             "seed": args.seed, "iterations": args.iterations,
+            "candidate_normalizer": args.candidate_normalizer,
             "case_counts": class_counts, "useful_executions": useful_executions,
             "guard_executions": guard_executions,
             "answer_key_opened_after_candidate_decisions": True,
