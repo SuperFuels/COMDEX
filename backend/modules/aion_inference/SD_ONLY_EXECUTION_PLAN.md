@@ -269,3 +269,30 @@ software or workload changes.
 Implement Stage 1 timing and read-accounting instrumentation, run it against
 the current 24-token corpus, and choose the next optimization solely from the
 largest measured wall-time component.
+
+## Progress checkpoint: signed Boardroom cartridge (2026-09-07)
+
+The earlier current-next-action statement is retained as historical plan text;
+Stages 1--5 and the replicated four-family 256-token exact milestone have since
+completed. Stage 6 established exact natural-EOS Granite execution for two
+business tasks but did not promote task quality. The governed router selected
+the existing Qwen route, which measured approximately 76--78 warm generated
+tokens/s in an exploratory probe, but free-form policy completeness still
+failed. Speed without rubric compliance is not promoted.
+
+Stage 8 has therefore begun with the bounded dependency required to finish
+Stage 6 safely: a signed supplier-payment Business Map cartridge. The v1
+prototype provides provenance-bound retrieval content, six immutable AtomSheet
+controls, workflow and role gates, required human approval, deterministic proof
+receipts, a disabled adapter, a separate Personal Map boundary, and an absolute
+prohibition on payment execution. Ed25519 and semantic verification fail closed.
+Fifty-seven focused tests passed. A 1,000-iteration synthetic contract benchmark
+measured 0.301480 ms median and 0.348792 ms p95, but this is not a real supplier
+verification and does not authenticate evidence content.
+
+Current next action: install the unchanged signed cartridge bundle on the SD
+evidence volume, implement labeled bounded extraction fixtures, and compare
+three governed paths: zero-model AtomSheet execution, warm Qwen extraction into
+the AtomSheet, and exact Granite fallback. Promote only completed correct tasks;
+separate model-load time, warm execution, generated tokens, p50/p95, human-review
+state, and fail-closed outcomes.
