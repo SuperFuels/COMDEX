@@ -716,3 +716,30 @@ general paraphrase understanding. The holdout used new values and requests but
 was intentionally constructed from the supported transformation families.
 Before router promotion, bind original and canonical request hashes into one
 proof receipt and run a fresh end-to-end governed-router holdout.
+
+### Governed-router normalizer integration gate (2026-09-07)
+
+The bounded supplier-intent normalizer is now connected to the production
+governed router. Every accepted route seals the original public-request hash,
+the canonical-request hash, the normalizer-contract hash and the downstream
+verified-extraction receipt into one route receipt. The transformation grants
+no approval or payment authority; rejected compound and adversarial requests
+continue through the exact fallback path without verified bypass.
+
+The separately frozen 20-case new-value holdout was executed 500 times through
+the complete governed router before its answer key was opened. All 12,000
+useful executions completed with exact fields, all 8,000 guard executions
+avoided the verified route, every receipt and the append-only trace chain
+verified, and payment execution remained impossible. Useful-route latency was
+0.0541 ms p50 and 0.0709 ms nearest-rank p95; guarded fallback-decision latency
+was 1.155 ms p50 and 1.607 ms p95. The canonical report SHA-256 is
+`4e804342f8c3f8fca35dd732cf286714209201c031c0162a53a15295596b632e`;
+the evidence-file SHA-256 is
+`60eef85eaf4b7a4e7e38269568b0cd46a126c1d0df36961ef644cb5b9b425e9a`.
+
+This promotes the finite normalizer transformations into governed routing. It
+does not establish open-ended language understanding or production traffic
+performance, and fallback model calls were declared but deliberately not
+executed in this gate. Current next action: rerun a family-balanced blinded
+cohort containing these newly accepted phrasings and measure contemporaneous
+model-call avoidance and end-to-end p50/p95 rather than projecting the gain.

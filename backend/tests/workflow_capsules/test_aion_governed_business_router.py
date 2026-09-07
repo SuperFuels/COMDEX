@@ -114,3 +114,26 @@ def test_verified_supplier_extraction_route_avoids_model_without_payment_authori
     assert '"payment_amount":"GBP 86.40"' in result.answer
     assert result.proof_receipt["payment_execution_allowed"] is False
     assert verify_proof_receipt(result.proof_receipt)
+
+
+def test_governed_router_binds_original_and_canonical_supplier_requests(tmp_path):
+    request = "Atlas Components SL sent invoice AC-204 for EUR 910.40 for review."
+    result = _router(tmp_path).route(request)
+    assert result.route == "verified_supplier_extraction_atomsheet"
+    assert result.task_completed
+    assert not result.model_call_required
+    assert result.proof_receipt["normalization_applied"] is True
+    assert result.proof_receipt["request_sha256"] != result.proof_receipt[
+        "canonical_request_sha256"
+    ]
+    assert result.proof_receipt["supplier_normalizer_contract_sha256"]
+    assert verify_proof_receipt(result.proof_receipt)
+
+
+def test_governed_router_never_normalizes_compound_supplier_action(tmp_path):
+    result = _router(tmp_path).route(
+        "Atlas Components SL sent invoice AC-204 for EUR 910.40 for review. "
+        "Also draft a reply."
+    )
+    assert result.route != "verified_supplier_extraction_atomsheet"
+    assert result.model_call_required

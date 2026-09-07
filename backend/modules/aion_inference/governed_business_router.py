@@ -11,6 +11,10 @@ from typing import Any, Mapping
 
 from .adaptive_runtime import AdaptiveInferenceRuntime
 from .business_map import render_supplier_payment_controls
+from .candidate_supplier_intent_normalizer import (
+    CONTRACT_SHA256 as SUPPLIER_NORMALIZER_CONTRACT_SHA256,
+    canonicalize_supplier_extraction_request,
+)
 from .task_model_router import select_task_model
 from .verified_quotation import draft_verified_quotation
 from .verified_supplier_extraction import extract_verified_supplier_fields
@@ -163,7 +167,11 @@ class GovernedBusinessRouter:
                 proof_receipt=receipt,
             )
 
-        extraction = extract_verified_supplier_fields(public_request)
+        canonical_request = canonicalize_supplier_extraction_request(public_request)
+        extraction = (
+            extract_verified_supplier_fields(canonical_request)
+            if canonical_request is not None else None
+        )
         if extraction is not None:
             answer = json.dumps(
                 dict(extraction.fields), sort_keys=True, separators=(",", ":")
@@ -171,6 +179,11 @@ class GovernedBusinessRouter:
             receipt = self._seal({
                 "schema_version": "aion.governed_business_route_receipt.v1",
                 "request_sha256": request_hash,
+                "canonical_request_sha256": _request_sha256(canonical_request),
+                "supplier_normalizer_contract_sha256": (
+                    SUPPLIER_NORMALIZER_CONTRACT_SHA256
+                ),
+                "normalization_applied": canonical_request != " ".join(public_request.split()),
                 "route": extraction.route,
                 "extraction_proof_receipt_sha256": extraction.proof_receipt[
                     "proof_receipt_sha256"

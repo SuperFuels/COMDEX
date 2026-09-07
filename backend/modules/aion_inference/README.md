@@ -769,3 +769,12 @@ new-value holdout also passed 12,000/12,000 useful executions and rejected all
 useful tasks. This is `PROMOTED_FOR_INTEGRATION` only for the declared finite
 transformations. The corpus was designed against those transformations, so it
 does not establish open-ended paraphrase generalization.
+
+The bounded normalizer is now integrated into `GovernedBusinessRouter`. Its
+route receipt binds the original request, canonical request, normalizer
+contract and verified-extraction receipt. A 20-case, 500-repeat frozen
+end-to-end holdout passed 12,000 exact useful executions and rejected verified
+bypass for 8,000 compound/adversarial executions. Every route receipt and the
+trace chain verified, payment authority remained false, and useful p50/p95
+latency was 0.0541/0.0709 ms. This promotes only the finite declared
+transformations; model fallbacks were identified but not executed in this gate.

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 
 from .verified_supplier_extraction import extract_verified_supplier_fields
@@ -36,6 +38,20 @@ _SUFFIXES = (
     re.compile(r" No action is requested\.$"),
     re.compile(r" Retain the review receipt\.$"),
 )
+
+_CONTRACT = {
+    "schema_version": "aion.supplier_intent_normalizer_contract.v1",
+    "candidate_patterns": [pattern.pattern for pattern in _CANDIDATE_PATTERNS],
+    "prohibited_compound": _PROHIBITED_COMPOUND.pattern,
+    "prefixes": [pattern.pattern for pattern in _PREFIXES],
+    "suffixes": [pattern.pattern for pattern in _SUFFIXES],
+    "required_invoice_matches": 1,
+    "required_payment_matches": 1,
+    "authority": {"approve": False, "execute_payment": False},
+}
+CONTRACT_SHA256 = hashlib.sha256(
+    json.dumps(_CONTRACT, sort_keys=True, separators=(",", ":")).encode()
+).hexdigest()
 
 
 def canonicalize_supplier_extraction_request(text: str) -> str | None:
