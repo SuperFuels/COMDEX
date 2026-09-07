@@ -335,3 +335,44 @@ depends on a separately supplied active tenant ID.
 Current next action: add a separately signed tenant envelope and signed
 revocation state, then verify cross-cartridge isolation and revoked-key or
 revoked-cartridge rejection before any production tenant-bound claim.
+
+### Core SD optimization checkpoint: lossless addressable experts (2026-09-07)
+
+The user explicitly redirected the active programme from the application-level
+Business Map dependency back to the universal SD-resident LLM problem. The
+tenant-envelope action above remains recorded but is paused; it is not the
+current execution target.
+
+A native Metal full-layer probe proved that a genuine SD-mapped layer can be
+scanned through a no-copy shared buffer with a 64.37% median create-plus-scan
+reduction. Naive custom no-copy expert execution was then falsified: it was
+slower than copied execution and did not meet framework-reference exactness.
+
+Four-worker exact CPU materialization reduced an eight-expert microbenchmark by
+7.30%, but full generation regressed 5.43%. The experiment nevertheless proved
+that 90.07% of the apparent Metal-transfer stage could be moved into explicit
+page materialization. Inline pre-materialization is stopped.
+
+The existing layer packs were found to be physically lexicographic rather than
+route-aware. A corpus-bound plan reduced weighted pair distance 50.30%, but the
+exact full-model ABBA improvement was only 2.71%, below the locked 10% gate.
+Layout alone is not promoted.
+
+The promoted candidate stores every tensor as an independently addressable,
+lossless Zstandard level-3 frame in the corpus-derived physical order. All
+2,560 tensor roundtrips are byte exact. The expert payload fell from
+6,039,797,760 to 4,708,753,870 bytes, a 22.04% reduction. In the exact
+stage-instrumented eight-token ABBA test, median generation time improved
+23.76%, p95 improved 24.11%, and median Metal-transfer attribution fell 90.57%.
+Every token and every step logit matched, logical demand was unchanged, and the
+three-GiB expert ceiling passed. The mechanism is promoted for replication.
+
+A production-like 24-token run showed a 20.63% median wall-time improvement and
+both compressed-candidate trials were exact, but the two ordinary source trials
+missed resident-control logits by at most 0.015625. The experiment is preserved
+as NOT_PROMOTED because experiment-wide exactness failed.
+
+Current next action: reproduce an exact 24-token source control, then run the
+compressed representation across the established four prompt families at
+64--256 generated tokens with cold/warm p50 and p95 reporting. Do not claim the
+longer throughput gain until every source and candidate step logit is exact.
