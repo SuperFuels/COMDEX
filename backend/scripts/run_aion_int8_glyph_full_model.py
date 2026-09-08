@@ -52,6 +52,8 @@ def main() -> int:
     parser.add_argument("--source-manifest", type=Path, required=True)
     parser.add_argument("--glyph-manifest", type=Path, required=True)
     parser.add_argument("--generated-tokens", type=int, default=8)
+    parser.add_argument("--retain-fp16-layer", type=int, action="append", default=[])
+    parser.add_argument("--minimum-throughput-improvement-percent", type=float, default=10.0)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     root = args.storage_root.resolve()
@@ -65,6 +67,9 @@ def main() -> int:
         raise SystemExit(f"refusing to overwrite evidence: {output}")
     if not torch.backends.mps.is_available() or args.generated_tokens < 1:
         raise SystemExit("valid token count and Apple Metal/MPS are required")
+    retained_fp16_layers = sorted(set(args.retain_fp16_layer))
+    if any(layer < 0 or layer >= 32 for layer in retained_fp16_layers):
+        raise SystemExit("retained FP16 layers must be between 0 and 31")
 
     source_manifest = json.loads(paths["source_manifest"].read_text())
     glyph_manifest = json.loads(paths["glyph_manifest"].read_text())
@@ -100,6 +105,8 @@ def main() -> int:
     install_started = time.perf_counter()
     installed_layers = 0
     for layer_index, layer in enumerate(model.model.layers):
+        if layer_index in retained_fp16_layers:
+            continue
         source_moe = layer.block_sparse_moe
         entries = load_layer_entries(glyph_manifest, layer_index, root, _sha256)
         replacement = Int8GlyphMoE(source_moe, entries, root, _sha256, "mps")
@@ -148,14 +155,23 @@ def main() -> int:
         control_summary["median_tokens_per_second"] - 1
     )
     token_agreement = total_token_matches / total_tokens
+    hybrid_expert_bytes = int(glyph_manifest["summary"]["logical_packed_bytes"])
+    for layer_index in retained_fp16_layers:
+        layer_entry = glyph_manifest["layers"][layer_index]
+        index_document = json.loads(Path(layer_entry["index_path"]).read_text())
+        hybrid_expert_bytes -= int(layer_entry["logical_packed_bytes"])
+        hybrid_expert_bytes += sum(int(item["source_bytes"])
+                                   for item in index_document["experts"])
     acceptance = {
-        "all_32_int8_layers_installed": installed_layers == 32,
+        "all_32_layers_have_declared_precision": (
+            installed_layers + len(retained_fp16_layers) == 32
+        ),
         "all_candidate_logits_finite": all(x["candidate_all_logits_finite"] for x in comparisons),
         "aggregate_token_agreement_at_least_75_percent": token_agreement >= 0.75,
-        "median_throughput_improved_at_least_10_percent": throughput_improvement >= 10,
-        "packed_expert_library_within_3_gib": (
-            glyph_manifest["summary"]["logical_packed_gibibytes"] <= 3.0
+        "throughput_passed_declared_gate": (
+            throughput_improvement >= args.minimum_throughput_improvement_percent
         ),
+        "hybrid_expert_library_within_3_gib": hybrid_expert_bytes <= 3 * 1024**3,
     }
     for result in (*controls, *candidates):
         result.pop("scores")
@@ -167,6 +183,11 @@ def main() -> int:
                    "glyph_manifest": _sha256(paths["glyph_manifest"])},
         "checkpoint_verification": checkpoint_verification,
         "generated_tokens_per_prompt": args.generated_tokens,
+        "retained_fp16_layers": retained_fp16_layers,
+        "int8_layer_count": installed_layers,
+        "hybrid_expert_bytes": hybrid_expert_bytes,
+        "hybrid_expert_gibibytes": hybrid_expert_bytes / 1024**3,
+        "minimum_throughput_improvement_percent": args.minimum_throughput_improvement_percent,
         "prompt_count": len(selected), "model_load_seconds": model_load_seconds,
         "int8_install_seconds": install_seconds, "memory": memory,
         "control": control_summary, "candidate": candidate_summary,

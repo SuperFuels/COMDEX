@@ -823,3 +823,13 @@ allocation 45.67% (6.598 GB to 3.584 GB), cut boot time 52.18% (91.231 s to
 43.629 s), retained 8.215 tokens/s within 0.25% of FP16, and matched all 32
 short-run tokens. This is `ADVANCE_TO_LONG_QUALITY_GATE`; logits are non-exact
 and longer frozen quality validation is mandatory before promotion.
+
+The 64-token extension has now stopped the simple quantizer for long-form use.
+All-layer INT8 improved median throughput 2.95% and TTFT 20.32%, but matched
+only 64.84% of 256 autoregressive token positions. Retaining the first and last
+FP16 layers used 2.9940 GiB and reached 67.19%; retaining the two layers selected
+by a real-activation sensitivity audit (29 and 1) reached only 64.06%. All three
+are `NOT_PROMOTED`. The layer audit itself is useful: 29, 1, 17, 28 and 24 were
+the five most sensitive layers. Further whole-layer-pair guessing is stopped;
+the next quality-gated design must use improved quantization or sparse
+high-value FP16 retention with frozen calibration and evaluation cohorts.

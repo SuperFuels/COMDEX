@@ -878,3 +878,31 @@ quality, randomized prompt robustness, task accuracy or equivalence. The next
 stage must preserve the FP16 baseline, run longer frozen multi-family cohorts,
 measure divergence and semantic task quality, and separately compare the packed
 resident runtime against the 0.6053-token/s exact SD-streaming track.
+
+### Sixty-four-token packed-quality and mixed-precision gates (2026-09-08)
+
+The unchanged four prompt families were extended to 64 generated tokens each.
+All-layer INT8 produced finite logits, improved median throughput from 9.921 to
+10.213 tokens/s (2.95%) and reduced median TTFT 20.32%. Token agreement fell to
+166/256 (64.84%), below the declared 75% gate, and speed remained below the 10%
+gate. It is `NOT_PROMOTED`; report canonical SHA-256:
+`a7c8bf2e0a4ba3d169561766103620803884fdb8460b1386b8e6424e75129b00`.
+
+The 3 GiB ceiling leaves room for two complete FP16 expert layers. A first/last
+layer heuristic used 2.9940 GiB and improved median throughput 10.50% and TTFT
+24.44%, but reached only 67.19% token agreement. It failed quality. A subsequent
+real-activation TensorSheet audit measured each layer independently across all
+four prompt families. It ranked layers 29 and 1 as most sensitive, followed by
+17, 28 and 24; audit canonical SHA-256:
+`190345280c86024d7f72ab693eb535ed9ac5924e4da4a0376381404ac7aeba93`.
+Replacing the guessed endpoints with layers 29 and 1 retained the same 2.9940
+GiB budget but achieved only 64.06% token agreement. It is also `NOT_PROMOTED`.
+
+Whole-layer mixed precision is therefore stopped under this budget: measured
+sensitivity did not translate into sufficient autoregressive agreement. The
+storage-first eight-token capacity result remains valid, but long-form quality
+is not promoted. The next quality candidate must change the quantizer itself or
+retain a sparse set of high-value expert weights, rather than guessing more
+whole-layer pairs. Any next candidate requires a frozen calibration/evaluation
+split, teacher-forced quality diagnostics to separate cascade effects, and a
+semantic task gate in addition to raw autoregressive token agreement.

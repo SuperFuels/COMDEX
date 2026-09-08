@@ -140,3 +140,32 @@ roughly half the expert storage, 45.67\% less active Metal memory and 52.18\%
 faster boot while retaining short-run tokens and throughput. It does not prove
 exact logits, 64--256-token quality, randomized prompt robustness or task
 accuracy. Those are mandatory next-stage gates.
+
+\section{Long-Generation Quality Boundary}
+\label{sec:int8-long-quality-boundary}
+
+The same four prompt families were extended to 64 generated tokens each. The
+all-layer INT8 model produced finite logits, increased median throughput from
+9.921 to 10.213 tokens per second (2.95\%), and reduced median time to first
+token by 20.32\%. It matched 166 of 256 autoregressive token positions
+(64.84\%), below the declared 75\% gate. It also missed the 10\% speed gate and
+is \texttt{NOT\_PROMOTED}. The report canonical SHA-256 is
+\texttt{a7c8bf2e0a4ba3d169561766103620803884fdb8460b1386b8e6424e75129b00}.
+
+Two complete FP16 expert layers can be retained while keeping the expert
+representation at 2.9940 GiB. Retaining the first and last layers improved
+median throughput by 10.50\% and TTFT by 24.44\%, but token agreement was only
+67.19\%. A real-activation sensitivity audit then substituted one packed layer
+at a time across all four prompt families. Layers 29 and 1 were most sensitive,
+followed by 17, 28 and 24. The audit canonical SHA-256 is
+\texttt{190345280c86024d7f72ab693eb535ed9ac5924e4da4a0376381404ac7aeba93}.
+Retaining layers 29 and 1 under the same budget produced only 64.06\% token
+agreement and was also \texttt{NOT\_PROMOTED}.
+
+Whole-layer mixed precision is stopped under the 3 GiB ceiling. The successful
+short-run capacity and boot result remains valid, but long-form quality is not
+promoted. The next candidate must improve the quantizer or retain sparse
+high-value expert weights. It must use separate frozen calibration and
+evaluation cohorts, teacher-forced diagnostics that distinguish one-token
+divergence cascades from widespread probability damage, and semantic task
+scoring in addition to raw token agreement.
