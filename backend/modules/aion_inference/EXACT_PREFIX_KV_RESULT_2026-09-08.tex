@@ -240,3 +240,28 @@ FP16 competence on a larger independently frozen benchmark; only after that
 control gate passes may the packed INT8 model be evaluated. The capacity, boot
 and teacher-forced probability results remain valid, but absolute long-form
 semantic quality remains unproven.
+
+\subsection{Native Metal INT4 direct-path sweep}
+
+The next mechanism gate used Apple's native Metal INT4 packed matrix operation
+on the same real layer-16 eight-expert route as the successful INT8 test. Three
+affine quantizers used groups of 32, 64 and 128 weights. Relative to FP16, their
+logical expert representations were 68.75\%, 71.875\% and 73.4375\% smaller.
+Their median resident expert calculations were respectively 34.83\%, 36.04\%
+and 36.70\% faster. Thus four-bit packed execution is both physically smaller
+and computationally functional on the existing M3 Pro Metal backend.
+
+The quality gate did not pass. Group 32 was the most accurate INT4 condition,
+with maximum layer-output error 0.0159302. The matched INT8 control measured
+0.00299072, making group-32 error 5.33 times larger than INT8 and exceeding the
+predeclared four-times ceiling. Groups 64 and 128 increased maximum error to
+0.0227661 and 0.0281067. The result is
+\texttt{STOP\_INT4\_DIRECT\_PATH}; canonical report SHA-256:
+\texttt{1f6a3b60c40fe351e635140c1ce0a31c4ee4854b65c85c206be8184055955b07}.
+
+Naive affine INT4 therefore does not advance to a full-model build. Its storage
+and speed measurements establish a useful frontier, not a deployable model.
+The gate will not be weakened and the direct group-size sweep will not be
+repeated. A future four-bit candidate must use activation-aware quantization,
+freeze separate calibration and evaluation activations, and improve upon the
+recorded group-32 error/speed frontier before scaling.

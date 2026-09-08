@@ -969,3 +969,22 @@ semantic quality. The next quality gate must use a larger independently sourced
 or deterministically constructed frozen benchmark on which FP16 first clears a
 declared competence threshold; INT8 evaluation may begin only after that control
 condition is met.
+
+### Native Metal INT4 direct-path sweep (2026-09-08)
+
+A native Metal INT4 sweep tested group sizes 32, 64 and 128 on the same real
+layer-16 eight-expert route used by the successful INT8 mechanism gate. Against
+FP16, the three representations reduced logical expert bytes by 68.75%, 71.875%
+and 73.4375%, while improving median resident expert calculation by 34.83%,
+36.04% and 36.70%. The group-32 condition was the best-quality INT4 result, but
+its maximum layer-output error was 0.0159302 versus 0.00299072 for INT8: 5.33
+times larger and above the predeclared four-times-INT8 ceiling. Group 64 and 128
+were worse at 0.0227661 and 0.0281067.
+
+The result is `STOP_INT4_DIRECT_PATH`; canonical report SHA-256:
+`1f6a3b60c40fe351e635140c1ce0a31c4ee4854b65c85c206be8184055955b07`.
+This is a real storage and calculation opportunity, but naive affine INT4 did
+not earn a full-model build. Do not relax the quality gate or repeat the direct
+group-size sweep. Any further four-bit candidate must be activation-aware, use
+separate calibration and evaluation activations, and beat this recorded group-32
+quality/speed frontier before it can scale.

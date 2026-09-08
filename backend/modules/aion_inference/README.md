@@ -866,3 +866,13 @@ forward time, while agreement fell to 10/12 (83.33%). It is
 This confirms that formatting was not the main defect. Do not spend an unseen
 holdout on this control design; first freeze a larger benchmark and require FP16
 to clear its competence floor before running INT8.
+
+Native Metal INT4 was then swept on the real layer-16 eight-expert route. It
+reduced logical expert storage by 68.75--73.44% and improved median resident
+calculation by 34.83--36.70% versus FP16. However, the best-quality group-32
+condition had 0.0159302 maximum layer error, 5.33 times INT8's 0.00299072 and
+above the declared four-times ceiling. Larger groups were less accurate. The
+result is `STOP_INT4_DIRECT_PATH`, report SHA-256
+`1f6a3b60c40fe351e635140c1ce0a31c4ee4854b65c85c206be8184055955b07`.
+Naive INT4 must not be scaled; a future candidate requires activation-aware
+quantization with frozen calibration/evaluation separation.
