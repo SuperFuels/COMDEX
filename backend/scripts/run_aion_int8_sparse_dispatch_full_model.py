@@ -17,7 +17,7 @@ from transformers import AutoTokenizer
 
 from backend.modules.aion_inference.int8_glyph_moe import Int8GlyphMoE, load_layer_entries
 from backend.modules.aion_inference.int8_dynamic_bank_moe import (
-    Int8DynamicBankMoE, load_bank_entry,
+    PRECISE_ROUTER_PYTORCH_FALLBACK_LAYERS, Int8DynamicBankMoE, load_bank_entry,
 )
 from backend.scripts.run_aion_int8_glyph_full_model import _canonical_sha256, _memory
 from backend.scripts.run_aion_int8pack_expert_microbench import _p95
@@ -76,8 +76,10 @@ def _set_dynamic_bank(model: Any, enabled: bool) -> None:
 
 
 def _set_fused_router(model: Any, enabled: bool) -> None:
-    for layer in model.model.layers:
-        layer.block_sparse_moe.use_fused_router = enabled
+    for index, layer in enumerate(model.model.layers):
+        layer.block_sparse_moe.use_fused_router = (
+            enabled and index not in PRECISE_ROUTER_PYTORCH_FALLBACK_LAYERS)
+        layer.block_sparse_moe.use_fused_prefill_router = enabled
 
 
 def main() -> int:
@@ -107,6 +109,7 @@ def main() -> int:
     parser.add_argument("--dynamic-bank-manifest", type=Path)
     parser.add_argument("--dynamic-bank-gate", action="store_true")
     parser.add_argument("--fused-router-gate", action="store_true")
+    parser.add_argument("--router-audit", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if sum((args.cached_views_gate, args.fused_metal_gate, args.dynamic_bank_gate,
@@ -180,6 +183,11 @@ def main() -> int:
             bank_entry = load_bank_entry(dynamic_bank, layer_index, root, _sha256)
             layer.block_sparse_moe = Int8DynamicBankMoE(
                 source_moe, bank_entry, root, _sha256, "mps", use_dynamic_decode=False)
+            if args.router_audit:
+                layer.block_sparse_moe.route_audit = {
+                    "layer": layer_index, "calls": 0, "expert_index_mismatches": 0,
+                    "maximum_gate_error": 0.0,
+                }
         else:
             entries = load_layer_entries(glyph, layer_index, root, _sha256)
             layer.block_sparse_moe = Int8GlyphMoE(
@@ -319,6 +327,9 @@ def main() -> int:
               "fused_metal_gate": args.fused_metal_gate,
               "dynamic_bank_gate": args.dynamic_bank_gate,
               "fused_router_gate": args.fused_router_gate,
+              "route_audit": ([layer.block_sparse_moe.route_audit
+                                for layer in model.model.layers]
+                               if args.router_audit else None),
               "track": ("quality_gated_changed_kernel_not_bit_exact"
                          if (args.fused_metal_gate or needs_dynamic_bank)
                          else "exact_within_candidate"),

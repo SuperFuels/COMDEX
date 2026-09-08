@@ -62,6 +62,53 @@ kernel void fused_route(device const half* x [[buffer(0)]],
        float tv=probabilities[left];probabilities[left]=probabilities[right];probabilities[right]=tv; }
    for (uint j=0;j<8;j++){out_ids[j]=best_i[j];out_gates[j]=half(probabilities[j]/denominator);} }
 }
+kernel void clear_counts(device atomic_int* counts [[buffer(0)]],uint i [[thread_position_in_grid]]){
+ if(i<40)atomic_store_explicit(&counts[i],0,memory_order_relaxed);}
+kernel void count_routes(device const long* ids [[buffer(0)]],device atomic_int* counts [[buffer(1)]],
+ constant uint& assignments [[buffer(2)]],uint a [[thread_position_in_grid]]){
+ if(a<assignments)atomic_fetch_add_explicit(&counts[int(ids[a])],1,memory_order_relaxed);}
+kernel void group_exact_by_expert(device const long* ids [[buffer(0)]],device const half* gates [[buffer(1)]],
+ device const atomic_int* counts [[buffer(2)]],device int* batch_index [[buffer(3)]],
+ device half* batch_gates [[buffer(4)]],constant uint& assignments [[buffer(5)]],
+ uint expert [[thread_position_in_grid]]){if(expert>=40)return;uint position=0;
+ for(uint e=0;e<expert;e++)position+=uint(atomic_load_explicit(&counts[e],memory_order_relaxed));
+ for(uint a=0;a<assignments;a++)if(ids[a]==long(expert)){
+  batch_index[position]=int(a/8);batch_gates[position]=gates[a];position++;}}
+kernel void select_routes(device const float* logits [[buffer(0)]],device int* ids [[buffer(1)]],
+ device half* gates [[buffer(2)]],device atomic_int* counts [[buffer(3)]],
+ constant uint& E [[buffer(4)]],uint token [[thread_position_in_grid]]){
+ float best_v[8];int best_i[8];for(uint j=0;j<8;j++){best_v[j]=-INFINITY;best_i[j]=-1;}
+ uint lb=token*E;for(uint e=0;e<E;e++){float value=logits[lb+e];
+  for(uint pos=0;pos<8;pos++)if(value>best_v[pos]){
+   for(uint move=7;move>pos;move--){best_v[move]=best_v[move-1];best_i[move]=best_i[move-1];}
+   best_v[pos]=value;best_i[pos]=int(e);break;}}
+ float maximum=best_v[0],denominator=0.0f,probabilities[8];
+ for(uint j=0;j<8;j++){probabilities[j]=exp(best_v[j]-maximum);denominator+=probabilities[j];}
+ for(uint left=0;left<8;left++)for(uint right=left+1;right<8;right++)if(best_i[right]<best_i[left]){
+  int ti=best_i[left];best_i[left]=best_i[right];best_i[right]=ti;
+  float tv=probabilities[left];probabilities[left]=probabilities[right];probabilities[right]=tv;}
+ uint base=token*8;for(uint j=0;j<8;j++){ids[base+j]=best_i[j];
+  gates[base+j]=half(probabilities[j]/denominator);
+  atomic_fetch_add_explicit(&counts[best_i[j]],1,memory_order_relaxed);}}
+kernel void group_assignments(device const int* ids [[buffer(0)]],device const half* gates [[buffer(1)]],
+ device const atomic_int* counts [[buffer(2)]],device int* batch_index [[buffer(3)]],
+ device half* batch_gates [[buffer(4)]],constant uint& assignments [[buffer(5)]],
+ uint a [[thread_position_in_grid]]){if(a>=assignments)return;int expert=ids[a];uint position=0;
+ for(int e=0;e<expert;e++)position+=uint(atomic_load_explicit(&counts[e],memory_order_relaxed));
+ for(uint prior=0;prior<a;prior++)if(ids[prior]==expert)position++;
+ batch_index[position]=int(a/8);batch_gates[position]=gates[a];}
+kernel void select_decode(device const float* logits [[buffer(0)]],device int* ids [[buffer(1)]],
+ device half* gates [[buffer(2)]],constant uint& E [[buffer(3)]],uint tid [[thread_position_in_grid]]){
+ if(tid>0)return;float best_v[8];int best_i[8];for(uint j=0;j<8;j++){best_v[j]=-INFINITY;best_i[j]=-1;}
+ for(uint e=0;e<E;e++){float value=logits[e];for(uint pos=0;pos<8;pos++)if(value>best_v[pos]){
+  for(uint move=7;move>pos;move--){best_v[move]=best_v[move-1];best_i[move]=best_i[move-1];}
+  best_v[pos]=value;best_i[pos]=int(e);break;}}
+ float maximum=best_v[0],denominator=0.0f,probabilities[8];
+ for(uint j=0;j<8;j++){probabilities[j]=precise::exp(best_v[j]-maximum);denominator+=probabilities[j];}
+ for(uint left=0;left<8;left++)for(uint right=left+1;right<8;right++)if(best_i[right]<best_i[left]){
+  int ti=best_i[left];best_i[left]=best_i[right];best_i[right]=ti;
+  float tv=probabilities[left];probabilities[left]=probabilities[right];probabilities[right]=tv;}
+ for(uint j=0;j<8;j++){ids[j]=best_i[j];gates[j]=half(probabilities[j]/denominator);}}
 """
 
 

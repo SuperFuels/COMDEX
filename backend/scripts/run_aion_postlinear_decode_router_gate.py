@@ -21,6 +21,13 @@ from backend.scripts.run_aion_storage_first_boot import _load_storage_first_mode
 def _shader_source() -> str:
     return r"""#include <metal_stdlib>
 using namespace metal;
+kernel void select_decode_ids(device const float* logits [[buffer(0)]],device long* ids [[buffer(1)]],
+ constant uint& E [[buffer(2)]],uint tid [[thread_position_in_grid]]){
+ if(tid>0)return;float best_v[8];long best_i[8];for(uint j=0;j<8;j++){best_v[j]=-INFINITY;best_i[j]=-1;}
+ for(uint e=0;e<E;e++){float value=logits[e];for(uint pos=0;pos<8;pos++)if(value>best_v[pos]){
+  for(uint move=7;move>pos;move--){best_v[move]=best_v[move-1];best_i[move]=best_i[move-1];}
+  best_v[pos]=value;best_i[pos]=long(e);break;}}
+ for(uint j=0;j<8;j++)ids[j]=best_i[j];}
 kernel void select_decode(device const float* logits [[buffer(0)]],device int* ids [[buffer(1)]],
  device half* gates [[buffer(2)]],constant uint& E [[buffer(3)]],uint tid [[thread_position_in_grid]]){
  if(tid>0)return;float best_v[8];int best_i[8];for(uint j=0;j<8;j++){best_v[j]=-INFINITY;best_i[j]=-1;}
@@ -28,7 +35,7 @@ kernel void select_decode(device const float* logits [[buffer(0)]],device int* i
   for(uint move=7;move>pos;move--){best_v[move]=best_v[move-1];best_i[move]=best_i[move-1];}
   best_v[pos]=value;best_i[pos]=int(e);break;}}
  float maximum=best_v[0],denominator=0.0f,probabilities[8];
- for(uint j=0;j<8;j++){probabilities[j]=exp(best_v[j]-maximum);denominator+=probabilities[j];}
+ for(uint j=0;j<8;j++){probabilities[j]=precise::exp(best_v[j]-maximum);denominator+=probabilities[j];}
  for(uint left=0;left<8;left++)for(uint right=left+1;right<8;right++)if(best_i[right]<best_i[left]){
   int ti=best_i[left];best_i[left]=best_i[right];best_i[right]=ti;
   float tv=probabilities[left];probabilities[left]=probabilities[right];probabilities[right]=tv;}
@@ -68,24 +75,24 @@ def main()->int:
         max_gate=max(max_gate,float((rg.float()-cg.float()).abs().max()))
       fixed=inputs[0]
       for _ in range(args.warmups):control(fixed);candidate(fixed)
-      timings={"pytorch_router_chain":[],"postlinear_metal_router":[]}
+      timings={"pytorch_router_chain":[],"precise_postlinear_metal_router":[]}
       for sample in range(args.timing_samples):
        order=tuple(timings) if sample%2==0 else tuple(reversed(tuple(timings)))
        for condition in order:
         started=time.perf_counter();control(fixed) if condition=="pytorch_router_chain" else candidate(fixed)
         torch.mps.synchronize();timings[condition].append(time.perf_counter()-started)
-    control_s=_summary(timings["pytorch_router_chain"]);candidate_s=_summary(timings["postlinear_metal_router"])
+    control_s=_summary(timings["pytorch_router_chain"]);candidate_s=_summary(timings["precise_postlinear_metal_router"])
     p50=100*(1-candidate_s["p50_seconds"]/control_s["p50_seconds"]);p95=100*(1-candidate_s["p95_seconds_nearest_rank"]/control_s["p95_seconds_nearest_rank"])
     agreement=exact/args.accuracy_samples;acceptance={"expert_indices_exact_on_all_samples":agreement==1,
       "maximum_gate_error_no_more_than_0_002":max_gate<=.002,"p50_improved_at_least_30_percent":p50>=30,
       "p95_improved_at_least_15_percent":p95>=15}
-    report={"schema_version":"aion.postlinear_decode_router_gate.v1","track":"quality_gated_changed_kernel_not_bit_exact",
+    report={"schema_version":"aion.postlinear_decode_router_gate.v3","track":"quality_gated_changed_kernel_not_bit_exact",
       "paths":{"model":str(model_path)},"hashes":{"checkpoint_index":_sha256(checkpoint)},"layer":args.layer,
       "accuracy_samples":args.accuracy_samples,"timing_samples":args.timing_samples,"seed":args.seed,
       "expert_index_agreement_fraction":agreement,"maximum_gate_error":max_gate,"control":control_s,
       "candidate":candidate_s,"p50_improvement_percent":p50,"p95_improvement_percent":p95,"shared_load":shared,
-      "acceptance":acceptance,"decision":("ADVANCE_POSTLINEAR_DECODE_ROUTER_TO_MODEL_GATE" if all(acceptance.values()) else "STOP_POSTLINEAR_DECODE_ROUTER_V1"),
-      "claim_boundary":"One real Granite router and synthetic one-token activations. Full-model speed, long repeatability and semantics remain unproved."}
+      "acceptance":acceptance,"decision":("ADVANCE_PRECISE_POSTLINEAR_DECODE_ROUTER_TO_MODEL_GATE" if all(acceptance.values()) else "STOP_PRECISE_POSTLINEAR_DECODE_ROUTER_V3"),
+      "claim_boundary":"One real Granite router and synthetic one-token activations. Metal precise exponential is used for gate normalization. Full-model speed, long repeatability and semantics remain unproved."}
     report["report_sha256"]=_canonical_sha256(report);output.parent.mkdir(parents=True,exist_ok=True)
     output.write_text(json.dumps(report,indent=2,sort_keys=True)+"\n");print(json.dumps({"output":str(output),"decision":report["decision"],
       "agreement":agreement,"maximum_gate_error":max_gate,"control":control_s,"candidate":candidate_s,

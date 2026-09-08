@@ -12,7 +12,7 @@ import torch
 from transformers import AutoTokenizer
 
 from backend.modules.aion_inference.int8_dynamic_bank_moe import (
-    Int8DynamicBankMoE, load_bank_entry,
+    PRECISE_ROUTER_PYTORCH_FALLBACK_LAYERS, Int8DynamicBankMoE, load_bank_entry,
 )
 from backend.scripts.run_aion_int8_glyph_full_model import _canonical_sha256
 from backend.scripts.run_aion_int8_semantic_mcq_gate import _run
@@ -59,8 +59,10 @@ def main() -> int:
     dynamic = _run(model, tokenizer, cases)
     fused = []
     if args.fused_router_gate:
-        for layer in model.model.layers:
-            layer.block_sparse_moe.use_fused_router = True
+        for index, layer in enumerate(model.model.layers):
+            layer.block_sparse_moe.use_fused_router = (
+                index not in PRECISE_ROUTER_PYTORCH_FALLBACK_LAYERS)
+            layer.block_sparse_moe.use_fused_prefill_router = True
         fused = _run(model, tokenizer, cases)
     control = dynamic if args.fused_router_gate else native
     candidate = fused if args.fused_router_gate else dynamic

@@ -14,7 +14,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from backend.modules.aion_inference.int8_dynamic_bank_moe import (
-    Int8DynamicBankMoE, load_bank_entry,
+    PRECISE_ROUTER_PYTORCH_FALLBACK_LAYERS, Int8DynamicBankMoE, load_bank_entry,
 )
 from backend.scripts.run_aion_int8_glyph_full_model import _canonical_sha256
 from backend.scripts.run_aion_moe_end_to_end_fault_in import _chat_tokens, _sha256
@@ -135,8 +135,10 @@ def main() -> int:
             model, encoded[family], continuation)
     fused_logits = {}; fused_seconds = {}
     if args.fused_router_gate:
-        for layer in model.model.layers:
-            layer.block_sparse_moe.use_fused_router = True
+        for index, layer in enumerate(model.model.layers):
+            layer.block_sparse_moe.use_fused_router = (
+                index not in PRECISE_ROUTER_PYTORCH_FALLBACK_LAYERS)
+            layer.block_sparse_moe.use_fused_prefill_router = True
         for prompt in prompts:
             family = prompt["family"]
             continuation = continuations[family]
