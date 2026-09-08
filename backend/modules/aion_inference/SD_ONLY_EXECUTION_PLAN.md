@@ -1056,3 +1056,34 @@ It does not yet establish end-to-end tokens/s because attention, routing, shared
 weights and generation orchestration remain unchanged. The next gate must use
 the storage-first full model, 64-token multi-family ABBA execution, and require
 bit-identical INT8 token identifiers and step logits before promotion.
+
+The first full-model implementation removed empty results from the concatenation
+list as well as skipping their Metal calls. In a storage-first four-family,
+64-token ABBA run it improved median throughput 13.93% (10.254 to 11.682
+tokens/s) and p95 generation time 12.53%, with every token identifier unchanged.
+However, one of twelve repeat comparisons produced non-identical step logits
+with maximum error 1.17578125; the other eleven comparisons, including the
+second candidate run for the same family, were bit-identical. This implementation
+is `NOT_PROMOTED`; canonical report SHA-256:
+`1facb2f8687be315f6cfb6ba1e4ba94ea2977ce959bce317d0ec62985f041d2b`.
+
+The correction continued to skip all zero-token matrix operations but restored
+the original 40-entry empty/non-empty concatenation topology. Its repeated
+layer gate remained bit-identical and improved p50 31.43% and p95 15.67%; layer
+report SHA-256:
+`f93eb681e4167d9f74c3ce9e37ac87bd286247e24472412d525f5f448f416015`.
+The unchanged full-model ABBA method was then rerun without prompt-specific
+warm-up. Across 1,024 measured generated tokens, control median throughput was
+10.144 tokens/s and candidate throughput was 11.264 tokens/s, an 11.04%
+improvement. P95 generation time improved 7.88%, from 6.7465 to 6.2150 seconds.
+All token identifiers and all step logits were bit-identical in all twelve
+comparisons; maximum logit error was zero. Storage-first boot again skipped all
+64 FP16 expert tensors. Every gate passed and the result is
+`PROMOTE_INT8_SPARSE_DISPATCH`; canonical report SHA-256:
+`73a2057a10c8f04f38a41f92bec6ad6a240b8033c958c3ee761bb3570cb43dee`.
+
+Sparse dispatch is now the default promoted packed-INT8 execution path. The
+claim remains bounded to the four fixed prompt families and 64-token ABBA
+cohort, and exactness is relative to the existing lossy INT8 candidate rather
+than FP16. The next validation must replicate on a larger unseen prompt cohort
+and longer generation lengths while preserving the same bit-exact INT8 gate.

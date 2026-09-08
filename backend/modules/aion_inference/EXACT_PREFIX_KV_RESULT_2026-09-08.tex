@@ -343,3 +343,38 @@ trade. The layer result cannot by itself establish end-to-end generation speed,
 because attention, routing, shared weights and generation orchestration remain
 unchanged. Promotion requires a storage-first 64-token multi-family ABBA gate
 with bit-identical INT8 token identifiers and step logits.
+
+\subsection{Full-model sparse-dispatch promotion}
+
+The first full-model form skipped both empty Metal matrix calls and their empty
+concatenation entries. A storage-first four-family, 64-token ABBA run improved
+median throughput by 13.93\%, from 10.254 to 11.682 tokens/s, and improved p95
+generation time by 12.53\%. All token identifiers matched. Nevertheless, one of
+twelve repeat comparisons produced non-identical logits with maximum error
+1.17578125. The other eleven comparisons, including the second candidate run
+for that family, were bit-identical. The implementation was
+\texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{1facb2f8687be315f6cfb6ba1e4ba94ea2977ce959bce317d0ec62985f041d2b}.
+
+The corrected implementation continued to omit every zero-token matrix
+operation but restored the original 40-entry empty/non-empty concatenation
+topology. Its repeated layer gate remained bit-identical, with p50 improved
+31.43\% and p95 improved 15.67\%. The layer report canonical SHA-256 is
+\texttt{f93eb681e4167d9f74c3ce9e37ac87bd286247e24472412d525f5f448f416015}.
+
+The same full-model ABBA protocol was then repeated without prompt-specific
+warm-up. Across 1,024 measured generated tokens, median control throughput was
+10.144 tokens/s and sparse-dispatch throughput was 11.264 tokens/s, an 11.04\%
+improvement. P95 generation time improved 7.88\%, from 6.7465 to 6.2150 seconds.
+Every generated token identifier and every generation-step logit was
+bit-identical across all twelve comparisons; maximum logit error was zero.
+Storage-first construction again skipped all 64 FP16 expert tensors. All gates
+passed, producing \texttt{PROMOTE\_INT8\_SPARSE\_DISPATCH}. Canonical report
+SHA-256:
+\texttt{73a2057a10c8f04f38a41f92bec6ad6a240b8033c958c3ee761bb3570cb43dee}.
+
+This is a promoted exact-within-INT8 runtime optimization. It does not convert
+the lossy INT8 representation into FP16 equivalence, and the evidence remains
+bounded to four fixed prompt families and 64-token ABBA generation. The next
+stage requires longer generation and a larger unseen prompt cohort under the
+same bit-exact packed-INT8 requirement.

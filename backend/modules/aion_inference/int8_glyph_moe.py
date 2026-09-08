@@ -23,7 +23,7 @@ class Int8GlyphParallelExperts(nn.Module):
 
     def __init__(self, entries: list[dict[str, Any]], storage_root: Path,
                  verify_hash: Any, device: str = "mps",
-                 skip_empty_experts: bool = False) -> None:
+                 skip_empty_experts: bool = True) -> None:
         super().__init__()
         if len(entries) != 40:
             raise ValueError("Granite requires exactly 40 expert blocks per layer")
@@ -56,6 +56,7 @@ class Int8GlyphParallelExperts(nn.Module):
         outputs = []
         for index, values in enumerate(input_list):
             if self.skip_empty_experts and values.shape[0] == 0:
+                outputs.append(values.new_empty((0, int(self.entries[index]["input_shape"][0]))))
                 continue
             input_weight, input_scale, _, _ = self._weights(index)
             outputs.append(torch._weight_int8pack_mm(values, input_weight, input_scale))
@@ -66,6 +67,7 @@ class Int8GlyphParallelExperts(nn.Module):
         outputs = []
         for index, values in enumerate(input_list):
             if self.skip_empty_experts and values.shape[0] == 0:
+                outputs.append(values.new_empty((0, int(self.entries[index]["output_shape"][0]))))
                 continue
             _, _, output_weight, output_scale = self._weights(index)
             outputs.append(torch._weight_int8pack_mm(values, output_weight, output_scale))
@@ -77,7 +79,7 @@ class Int8GlyphMoE(nn.Module):
 
     def __init__(self, source_moe: nn.Module, entries: list[dict[str, Any]],
                  storage_root: Path, verify_hash: Any, device: str = "mps",
-                 skip_empty_experts: bool = False) -> None:
+                 skip_empty_experts: bool = True) -> None:
         super().__init__()
         self.input_size = source_moe.input_size
         self.hidden_size = source_moe.hidden_size

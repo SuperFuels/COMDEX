@@ -904,3 +904,15 @@ layer time 39.13% and p95 20.87%, with bit-identical output. The result is
 `ADVANCE_TO_FULL_MODEL_SPARSE_DISPATCH_GATE`, report SHA-256
 `0a9244267122b65a627805bac04b51a7659416fbb87b543013f56ed240ebdf11`.
 It now requires 64-token storage-first full-model ABBA validation.
+
+The first full-model variant was correctly rejected despite a 13.93% speed gain:
+it removed empty concatenation entries and one of twelve repeat comparisons had
+non-identical logits. The corrected implementation skips the empty Metal matrix
+operations while preserving all 40 concatenation entries. Its full storage-first
+64-token ABBA replication improved median throughput from 10.144 to 11.264
+tokens/s (11.04%) and p95 generation time 7.88%. All 1,024 generated token IDs
+and every step logit were bit-identical, so it is
+`PROMOTE_INT8_SPARSE_DISPATCH`. Canonical report SHA-256:
+`73a2057a10c8f04f38a41f92bec6ad6a240b8033c958c3ee761bb3570cb43dee`.
+Exactness is relative to the packed INT8 model, not FP16; unseen longer
+replication remains required.
