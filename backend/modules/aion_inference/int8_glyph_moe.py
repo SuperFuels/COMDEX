@@ -23,12 +23,16 @@ class Int8GlyphParallelExperts(nn.Module):
 
     def __init__(self, entries: list[dict[str, Any]], storage_root: Path,
                  verify_hash: Any, device: str = "mps",
-                 skip_empty_experts: bool = True) -> None:
+                 skip_empty_experts: bool = True,
+                 use_decode_arena: bool = False,
+                 decode_arena_capacity: int = 0) -> None:
         super().__init__()
         if len(entries) != 40:
             raise ValueError("Granite requires exactly 40 expert blocks per layer")
         self.entries = entries
         self.skip_empty_experts = skip_empty_experts
+        self.use_decode_arena = use_decode_arena
+        self.decode_arena_capacity = decode_arena_capacity
         for index, entry in enumerate(entries):
             path = Path(entry["path"]).resolve()
             if storage_root not in path.parents or verify_hash(path) != entry["sha256"]:
@@ -40,6 +44,32 @@ class Int8GlyphParallelExperts(nn.Module):
                                  persistent=False)
             self.register_buffer(f"output_scale_{index}", tensors["output_scale"].to(device),
                                  persistent=False)
+        self.register_buffer(
+            "input_arena",
+            torch.empty((decode_arena_capacity, int(entries[0]["input_shape"][0])),
+                        dtype=torch.float16, device=device),
+            persistent=False,
+        )
+        self.register_buffer(
+            "output_arena",
+            torch.empty((decode_arena_capacity, int(entries[0]["output_shape"][0])),
+                        dtype=torch.float16, device=device),
+            persistent=False,
+        )
+
+    def _finish(self, outputs: list[torch.Tensor], arena: torch.Tensor,
+                total: int) -> torch.Tensor:
+        if not self.use_decode_arena or total > self.decode_arena_capacity:
+            return torch.cat(outputs, dim=0)
+        offset = 0
+        for output in outputs:
+            count = output.shape[0]
+            if count:
+                arena[offset:offset + count].copy_(output)
+                offset += count
+        if offset != total:
+            raise RuntimeError("decode arena routed-token coverage mismatch")
+        return arena[:total]
 
     def _weights(self, index: int) -> tuple[torch.Tensor, torch.Tensor,
                                              torch.Tensor, torch.Tensor]:
@@ -60,7 +90,7 @@ class Int8GlyphParallelExperts(nn.Module):
                 continue
             input_weight, input_scale, _, _ = self._weights(index)
             outputs.append(torch._weight_int8pack_mm(values, input_weight, input_scale))
-        return torch.cat(outputs, dim=0)
+        return self._finish(outputs, self.input_arena, inputs.shape[0])
 
     def output_forward(self, inputs: torch.Tensor, expert_size: torch.Tensor) -> torch.Tensor:
         input_list = inputs.split(expert_size, dim=0)
@@ -71,7 +101,7 @@ class Int8GlyphParallelExperts(nn.Module):
                 continue
             _, _, output_weight, output_scale = self._weights(index)
             outputs.append(torch._weight_int8pack_mm(values, output_weight, output_scale))
-        return torch.cat(outputs, dim=0)
+        return self._finish(outputs, self.output_arena, inputs.shape[0])
 
 
 class Int8GlyphMoE(nn.Module):
@@ -79,7 +109,9 @@ class Int8GlyphMoE(nn.Module):
 
     def __init__(self, source_moe: nn.Module, entries: list[dict[str, Any]],
                  storage_root: Path, verify_hash: Any, device: str = "mps",
-                 skip_empty_experts: bool = True) -> None:
+                 skip_empty_experts: bool = True,
+                 use_decode_arena: bool = False,
+                 decode_arena_capacity: int = 0) -> None:
         super().__init__()
         self.input_size = source_moe.input_size
         self.hidden_size = source_moe.hidden_size
@@ -87,6 +119,7 @@ class Int8GlyphMoE(nn.Module):
         self.router = source_moe.router
         self.experts = Int8GlyphParallelExperts(
             entries, storage_root, verify_hash, device, skip_empty_experts,
+            use_decode_arena, decode_arena_capacity,
         )
 
     def forward(self, layer_input: torch.Tensor) -> torch.Tensor:

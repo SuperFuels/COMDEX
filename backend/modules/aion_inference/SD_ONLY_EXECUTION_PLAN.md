@@ -1124,3 +1124,21 @@ required repeatability nor preserves the promoted performance gain. The
 64-token sparse-dispatch promotion remains the exact-within-INT8 boundary.
 Longer quality-gated work must report control self-repeatability separately and
 must not relabel tolerance or token agreement as bit-exactness.
+
+### Bounded persistent INT8 decode arena (2026-09-08)
+
+The promoted sparse dispatcher still created two concatenation buffers per
+layer-token. A bounded candidate preallocated input and output Metal arenas for
+eight routed decode assignments and reused them, while all larger prefill
+batches fell back to sparse concatenation. The projected 32-layer arena was only
+1,310,720 bytes (1.25 MiB), and output remained bit-identical.
+
+The arena did not improve performance. On 500 balanced real-route trials,
+median layer time increased from 0.602104 to 0.616250 ms (2.35% slower), while
+p95 increased from 1.48804 to 1.63779 ms (10.06% slower). Explicit slice-copy
+commands cost more than the allocator/concatenation work they replaced. The
+result is `STOP_DECODE_ARENA`; canonical report SHA-256:
+`3fb648e8b208c00daef7eebb5833163b66faa4051fc724d5822ef949f0437b25`.
+
+Do not scale or enable the persistent arena. Production defaults allocate no
+arena capacity. Sparse concatenation remains the promoted INT8 dispatch path.

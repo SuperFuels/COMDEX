@@ -934,3 +934,11 @@ to 7.130 tokens/s for control and 7.706 for sparse dispatch; the candidate gain
 fell to 8.08%, below gate. The post-hoc diagnostic is `NOT_PROMOTED`, report
 SHA-256 `4e50a445d556b02c167f82c00ac62630625bf7d3a1c875d929f7725d671fcf04`.
 Deterministic mode is stopped on this MPS path.
+
+A bounded persistent Metal decode arena was also stopped. It used only 1.25 MiB
+projected across 32 layers and remained bit-identical, but explicit buffer copies
+made median layer time 2.35% slower and p95 10.06% slower than sparse
+concatenation. Result: `STOP_DECODE_ARENA`, report SHA-256
+`3fb648e8b208c00daef7eebb5833163b66faa4051fc724d5822ef949f0437b25`.
+Default arena capacity is zero; the promoted sparse-concatenation path is
+unchanged.
