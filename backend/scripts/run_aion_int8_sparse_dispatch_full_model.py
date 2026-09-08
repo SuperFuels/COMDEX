@@ -60,9 +60,11 @@ def _set_cached_views(model: Any, enabled: bool) -> None:
         layer.block_sparse_moe.experts.use_cached_weight_views = enabled
 
 
-def _set_fused_metal(model: Any, enabled: bool) -> None:
-    for layer in model.model.layers:
-        layer.block_sparse_moe.experts.use_fused_metal_matvec = enabled
+def _set_fused_metal(model: Any, enabled: bool,
+                     allowed_layers: set[int] | None = None) -> None:
+    for index, layer in enumerate(model.model.layers):
+        layer.block_sparse_moe.experts.use_fused_metal_matvec = (
+            enabled and (allowed_layers is None or index in allowed_layers))
 
 
 def main() -> int:
@@ -87,6 +89,8 @@ def main() -> int:
               "eight-expert Metal matvec."),
     )
     parser.add_argument("--fused-maximum-step-logit-error", type=float, default=0.05)
+    parser.add_argument("--fused-minimum-throughput-gain", type=float, default=5.0)
+    parser.add_argument("--fused-layer-plan", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.cached_views_gate and args.fused_metal_gate:
@@ -100,6 +104,21 @@ def main() -> int:
         raise SystemExit("model, weights and evidence must remain on external storage")
     if output.exists() or args.generated_tokens < 1:
         raise SystemExit("refusing overwrite or invalid generated-token count")
+    fused_plan = None
+    fused_layers = None
+    if args.fused_layer_plan is not None:
+        plan_path = args.fused_layer_plan.resolve()
+        if not args.fused_metal_gate or root not in plan_path.parents:
+            raise SystemExit("fused layer plans require the fused gate and external storage")
+        fused_plan = json.loads(plan_path.read_text())
+        claimed_hash = fused_plan.get("report_sha256")
+        canonical_plan = {key: value for key, value in fused_plan.items()
+                          if key != "report_sha256"}
+        if claimed_hash != _canonical_sha256(canonical_plan):
+            raise RuntimeError("fused layer plan canonical hash failed")
+        if fused_plan.get("decision") != "FREEZE_FUSED_LAYER_HOLDOUT_PLAN":
+            raise RuntimeError("fused layer plan was not frozen for holdout")
+        fused_layers = {int(value) for value in fused_plan["selected_layers"]}
     prompts = (PROMPTS if args.prompt_manifest is None else
                _validate_prompt_catalog(json.loads(args.prompt_manifest.resolve().read_text())))
     if args.prompt_family:
@@ -132,7 +151,8 @@ def main() -> int:
         entries = load_layer_entries(glyph, layer_index, root, _sha256)
         layer.block_sparse_moe = Int8GlyphMoE(
             source_moe, entries, root, _sha256, "mps", skip_empty_experts=False,
-            prepare_fused_metal_matvec=args.fused_metal_gate,
+            prepare_fused_metal_matvec=(args.fused_metal_gate and
+                                        (fused_layers is None or layer_index in fused_layers)),
         )
         source_moe = None
         gc.collect()
@@ -144,7 +164,7 @@ def main() -> int:
     for enabled in (False, True):
         _set_sparse(model, True if (args.cached_views_gate or args.fused_metal_gate) else enabled)
         _set_cached_views(model, enabled if args.cached_views_gate else False)
-        _set_fused_metal(model, enabled if args.fused_metal_gate else False)
+        _set_fused_metal(model, enabled if args.fused_metal_gate else False, fused_layers)
         _generate(model, tokenizer, prompts[0]["prompt"], 2)
 
     runs = []
@@ -152,7 +172,7 @@ def main() -> int:
         for sequence, enabled in enumerate((False, True, True, False)):
             _set_sparse(model, True if (args.cached_views_gate or args.fused_metal_gate) else enabled)
             _set_cached_views(model, enabled if args.cached_views_gate else False)
-            _set_fused_metal(model, enabled if args.fused_metal_gate else False)
+            _set_fused_metal(model, enabled if args.fused_metal_gate else False, fused_layers)
             result = _generate(model, tokenizer, prompt["prompt"], args.generated_tokens)
             runs.append({"family": prompt["family"], "sequence": sequence,
                          "condition": (("fused_metal" if enabled else "sparse_int8")
@@ -193,10 +213,11 @@ def main() -> int:
             (maximum_step_error <= args.fused_maximum_step_logit_error
              if args.fused_metal_gate else
              all(item["step_logits_bit_exact"] for item in equivalence)),
-        ("median_throughput_improved_at_least_5_percent" if args.fused_metal_gate else
+        (f"median_throughput_improved_at_least_{args.fused_minimum_throughput_gain:g}_percent"
+         if args.fused_metal_gate else
          ("median_throughput_improved_at_least_2_percent" if args.cached_views_gate else
           "median_throughput_improved_at_least_10_percent")):
-            speed_improvement >= (5 if args.fused_metal_gate else
+            speed_improvement >= (args.fused_minimum_throughput_gain if args.fused_metal_gate else
                                   (2 if args.cached_views_gate else 10)),
         "p95_generation_time_not_regressed": p95_time_improvement >= 0,
         "storage_first_skipped_all_fp16_expert_tensors": (
@@ -227,7 +248,14 @@ def main() -> int:
               "track": ("quality_gated_changed_kernel_not_bit_exact"
                          if args.fused_metal_gate else "exact_within_candidate"),
               "fused_maximum_step_logit_error": args.fused_maximum_step_logit_error,
-              "fused_projected_buffer_bytes": (1_310_720 if args.fused_metal_gate else 0),
+              "fused_minimum_throughput_gain_percent": args.fused_minimum_throughput_gain,
+              "fused_layer_plan_path": (str(args.fused_layer_plan.resolve())
+                                        if args.fused_layer_plan else None),
+              "fused_layer_plan_sha256": (_sha256(args.fused_layer_plan.resolve())
+                                          if args.fused_layer_plan else None),
+              "fused_layers": sorted(fused_layers) if fused_layers is not None else None,
+              "fused_projected_buffer_bytes": ((len(fused_layers) if fused_layers is not None else 32)
+                                                * 40_960 if args.fused_metal_gate else 0),
               "empty_dispatch_behavior": (
                   "skip zero-token Metal matrix operations while preserving all 40 empty/nonempty "
                   "concatenation entries"

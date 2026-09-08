@@ -992,3 +992,13 @@ maximum candidate step-logit error after autoregressive accumulation was 38.5405
 It is `NOT_PROMOTED`, report SHA-256
 `fe7f1f63669671ab02509b7c9187bc0b4d7cf5a12975f1b91781f72abb91346b`.
 Fused v1 remains disabled; the promoted sparse INT8 path is unchanged.
+
+Calibration-selected fusion was also stopped. Four frozen calibration families
+selected 16 low-sensitivity layers in plan
+`941f7224eef566f293937306302b3ad76a0280cb22a314f5798ae1a1ad07085c`.
+On four disjoint 64-token holdout families, median throughput improved 4.80%
+(11.0729 to 11.6042 tokens/s), but p95 regressed 3.46%, one family changed token
+sequences in both candidate repeats, and maximum logit error reached 30.3359.
+All closing controls were exact. The result is `NOT_PROMOTED`, report SHA-256
+`302f634116f56606e0fa6a9babfe8a863f84b3056fd33f60d8ee9ee97af44386`.
+Do not tune smaller subsets against this holdout; kernel arithmetic must improve.

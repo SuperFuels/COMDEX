@@ -556,3 +556,25 @@ by default. The narrow kernel's small local error is amplified by recurrent
 autoregressive execution. Its measured speed gain is preserved as evidence but
 is not a promotion. A future kernel requires materially lower accumulated error
 under a new frozen narrow gate before model-scale repetition.
+
+\subsection{Calibration-selected fused-layer boundary}
+
+Four frozen calibration families measured each of the 32 layers independently
+for one decode step. The 16 layers with the lowest maximum second-step logit
+disturbance were frozen as layers 0, 2--9, 12--14, 17, 22--23 and 29. The
+cryptographically bound selection-plan SHA-256 is
+\texttt{941f7224eef566f293937306302b3ad76a0280cb22a314f5798ae1a1ad07085c}.
+
+Four disjoint frozen holdout families then underwent 64-token ABBA generation.
+Median throughput improved from 11.0729 to 11.6042 tokens/s, a 4.80\% gain, but
+p95 generation time regressed by 3.46\%. The logistics-planning family changed
+tokens in both fused repeats. Document governance, product analysis and systems
+explanation retained token identity but all exceeded the 0.05 step-logit ceiling.
+Every closing sparse-INT8 control was exact. Maximum step-logit error reached
+30.3359. The result is \texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{302f634116f56606e0fa6a9babfe8a863f84b3056fd33f60d8ee9ee97af44386}.
+
+Sensitivity-selected fusion is stopped. It did not prevent recurrent numerical
+amplification or tail-latency regression. Progressively smaller subsets must not
+be tuned post hoc against this holdout. Any future fused candidate must improve
+the arithmetic agreement of the kernel itself under a new frozen design.

@@ -1245,3 +1245,26 @@ default. Its narrow numerical error is small, but recurrent autoregressive
 execution amplifies changed reduction order. Do not relabel the measured speed
 gain as a promotion. A future fused kernel must materially reduce accumulated
 error under a new frozen narrow gate before another model-scale run.
+
+### Calibration-selected fused-layer boundary (2026-09-08)
+
+A final bounded attempt tested whether fusion could be restricted to layers that
+least amplify its changed reduction order. Four frozen calibration families
+measured every layer independently for one decode step. The 16 lowest-sensitivity
+layers were frozen as 0, 2--9, 12--14, 17, 22--23 and 29 in a cryptographically
+bound plan. Plan SHA-256:
+`941f7224eef566f293937306302b3ad76a0280cb22a314f5798ae1a1ad07085c`.
+
+Four disjoint frozen holdout families then ran 64-token ABBA generation. The
+candidate improved median throughput 4.80%, from 11.0729 to 11.6042 tokens/s,
+but p95 generation time regressed 3.46%. Logistics-planning tokens diverged in
+both candidate repeats; the other three families retained token identity but
+exceeded the 0.05 logit ceiling. Every closing sparse-INT8 control was exact.
+Maximum step-logit error was 30.3359. The result is `NOT_PROMOTED`; canonical
+report SHA-256:
+`302f634116f56606e0fa6a9babfe8a863f84b3056fd33f60d8ee9ee97af44386`.
+
+Stop sensitivity-selected fusion. Layer selection did not prevent recurrent
+error accumulation or tail regression. Do not attempt progressively smaller
+post-hoc layer subsets on this holdout. Future fused work must improve arithmetic
+agreement at the kernel itself under a new calibration and evaluation design.
