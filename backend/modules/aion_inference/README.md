@@ -926,3 +926,11 @@ Twenty-two of 24 comparisons were bit-identical, but the result remains
 `NOT_PROMOTED`, canonical report SHA-256
 `989ec69183409a6b3c93c7f5d07c2c5538172d2b35ae2ef88d20bd1f221ac287`.
 The 64-token promotion stands; 128-token generalization does not.
+
+Enabling PyTorch deterministic algorithms did not repair the 128-token boundary.
+On the two exposed families, all six repeats diverged, including both unchanged
+baseline repeats, and maximum logit error reached 43.46875. Throughput dropped
+to 7.130 tokens/s for control and 7.706 for sparse dispatch; the candidate gain
+fell to 8.08%, below gate. The post-hoc diagnostic is `NOT_PROMOTED`, report
+SHA-256 `4e50a445d556b02c167f82c00ac62630625bf7d3a1c875d929f7725d671fcf04`.
+Deterministic mode is stopped on this MPS path.

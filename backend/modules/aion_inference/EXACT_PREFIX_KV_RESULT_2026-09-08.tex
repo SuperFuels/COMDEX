@@ -402,3 +402,24 @@ Metal repeatability must be diagnosed separately, but candidate divergence also
 occurred and the exact gate will not be weakened. Deterministic-mode repetition
 of the two exposed families is the next diagnostic; even if successful, a new
 full frozen replication is required before extending the claim.
+
+\subsection{Deterministic-Metal diagnostic}
+
+PyTorch deterministic algorithms were enabled in a post-hoc 128-token ABBA
+diagnostic restricted to the two families that exposed drift. The runtime
+accepted the setting, but every one of six repeat comparisons produced
+non-identical tokens and logits, including both closing unchanged all-40
+baseline runs. Maximum step-logit error reached 43.46875.
+
+The setting also imposed substantial cost. Median control throughput was 7.130
+tokens/s, compared with 10.217 in the ordinary eight-family run, while sparse
+dispatch produced 7.706 rather than 11.243 tokens/s. Its relative median gain
+fell to 8.08\%, below the ten-percent gate, although p95 generation time improved
+14.22\%. The diagnostic is \texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{4e50a445d556b02c167f82c00ac62630625bf7d3a1c875d929f7725d671fcf04}.
+
+Deterministic-algorithm mode is stopped on this MPS path. It neither made the
+relevant kernels repeatable nor preserved the promoted speed gain. The exact
+claim remains bounded to the successful 64-token sparse-dispatch cohort.
+Longer quality-gated evidence must report baseline self-repeatability separately
+and must not describe tolerance or token agreement as bit-exactness.

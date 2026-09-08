@@ -63,6 +63,9 @@ def main() -> int:
     parser.add_argument("--glyph-manifest", type=Path, required=True)
     parser.add_argument("--generated-tokens", type=int, default=64)
     parser.add_argument("--prompt-manifest", type=Path)
+    parser.add_argument("--prompt-family", action="append", default=[])
+    parser.add_argument("--deterministic-algorithms", action="store_true")
+    parser.add_argument("--diagnostic-only", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     root = args.storage_root.resolve()
@@ -76,8 +79,16 @@ def main() -> int:
         raise SystemExit("refusing overwrite or invalid generated-token count")
     prompts = (PROMPTS if args.prompt_manifest is None else
                _validate_prompt_catalog(json.loads(args.prompt_manifest.resolve().read_text())))
+    if args.prompt_family:
+        requested = set(args.prompt_family)
+        available = {item["family"] for item in prompts}
+        if not requested <= available:
+            raise SystemExit(f"unknown prompt families: {sorted(requested - available)}")
+        prompts = tuple(item for item in prompts if item["family"] in requested)
     prompt_manifest_hash = (_sha256(args.prompt_manifest.resolve())
                             if args.prompt_manifest is not None else None)
+    if args.deterministic_algorithms:
+        torch.use_deterministic_algorithms(True)
     source = json.loads(paths["source_manifest"].read_text())
     glyph = json.loads(paths["glyph_manifest"].read_text())
     if not all(source["integrity"].values()) or not all(glyph["integrity"].values()):
@@ -156,6 +167,8 @@ def main() -> int:
               "hashes": {name: _sha256(path) for name, path in paths.items() if path.is_file()},
               "source_verification": verification, "shared_load": shared_load,
               "generated_tokens_per_run": args.generated_tokens,
+              "deterministic_algorithms_enabled": args.deterministic_algorithms,
+              "diagnostic_only": args.diagnostic_only,
               "prompt_families": [item["family"] for item in prompts],
               "prompt_manifest_path": (str(args.prompt_manifest.resolve())
                                        if args.prompt_manifest is not None else None),
@@ -175,12 +188,14 @@ def main() -> int:
                                 item["maximum_step_logit_error"] for item in equivalence)},
               "equivalence": equivalence, "runs": bounded_runs,
               "acceptance": acceptance,
-              "decision": "PROMOTE_INT8_SPARSE_DISPATCH" if all(acceptance.values())
-                          else "NOT_PROMOTED",
+              "decision": (("DIAGNOSTIC_SUPPORTS_FRESH_REPLICATION"
+                            if args.diagnostic_only else "PROMOTE_INT8_SPARSE_DISPATCH")
+                           if all(acceptance.values()) else "NOT_PROMOTED"),
               "claim_boundary": ("Storage-first, full-resident packed-INT8 Granite; four fixed "
-                                 "prompt families, two ABBA observations per condition and 64 "
-                                 "generated tokens. Exactness is relative to the prior packed-INT8 "
-                                 "candidate, not FP16 semantic equivalence.")}
+                                 "or explicitly selected prompt families, two ABBA observations "
+                                 "per condition. Exactness is relative to the prior packed-INT8 "
+                                 "candidate, not FP16 semantic equivalence. A diagnostic-only "
+                                 "post-hoc selection cannot extend promotion.")}
     report["report_sha256"] = _canonical_sha256(report)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")

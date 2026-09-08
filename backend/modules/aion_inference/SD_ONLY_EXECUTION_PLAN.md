@@ -1107,3 +1107,20 @@ candidate-specific drift. Do not weaken the exact gate or claim the 128-token
 result. The next diagnostic is deterministic-mode repetition of the two exposed
 families; a successful diagnostic would still require a new full frozen
 replication before extending promotion.
+
+PyTorch deterministic algorithms were then enabled for a post-hoc 128-token
+ABBA diagnostic restricted to the two exposed families. The setting was
+accepted by the runtime but did not make Metal repeatable: all six repeat
+comparisons had non-identical tokens and logits, including both closing all-40
+baseline runs. Maximum step-logit error was 43.46875. Deterministic control
+throughput fell to 7.130 tokens/s from 10.217 in the ordinary eight-family run,
+and candidate throughput fell to 7.706 from 11.243. Sparse dispatch improved
+median throughput only 8.08%, below its 10% gate, although p95 time improved
+14.22%. The diagnostic is `NOT_PROMOTED`; canonical report SHA-256:
+`4e50a445d556b02c167f82c00ac62630625bf7d3a1c875d929f7725d671fcf04`.
+
+Stop deterministic-algorithm mode on this MPS stack: it neither provides the
+required repeatability nor preserves the promoted performance gain. The
+64-token sparse-dispatch promotion remains the exact-within-INT8 boundary.
+Longer quality-gated work must report control self-repeatability separately and
+must not relabel tolerance or token agreement as bit-exactness.
