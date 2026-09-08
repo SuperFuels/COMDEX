@@ -953,3 +953,11 @@ median throughput, 0.05% worse at p95, and failed step-logit bit equivalence
 despite matching all token IDs. It is `NOT_PROMOTED` (report SHA-256
 `948136d201fd319a36439960410de325df70f201461fdb33d7b33966d8aaa384`).
 Do not enable it; sparse dispatch remains the promoted path.
+
+Reusable zero-length Metal views were tested separately because preserving the
+40-entry concatenation topology creates 64 empty tensors per layer-token. On
+1,000 real-route layer-16 trials, reuse improved p50 by 6.81% with bit-identical
+output but regressed p95 by 3.82%, beyond the declared 3% limit. It is
+`STOP_CACHED_EMPTY_VIEWS`, report SHA-256
+`4d8a5ab1d4ac140740bf8d590f7bb0cda0c42d4a03d73e64589880bd71a947eb`.
+It is not enabled or advanced to a full-model run.

@@ -26,7 +26,8 @@ class Int8GlyphParallelExperts(nn.Module):
                  skip_empty_experts: bool = True,
                  use_decode_arena: bool = False,
                  decode_arena_capacity: int = 0,
-                 use_cached_weight_views: bool = False) -> None:
+                 use_cached_weight_views: bool = False,
+                 use_cached_empty_views: bool = False) -> None:
         super().__init__()
         if len(entries) != 40:
             raise ValueError("Granite requires exactly 40 expert blocks per layer")
@@ -35,6 +36,7 @@ class Int8GlyphParallelExperts(nn.Module):
         self.use_decode_arena = use_decode_arena
         self.decode_arena_capacity = decode_arena_capacity
         self.use_cached_weight_views = use_cached_weight_views
+        self.use_cached_empty_views = use_cached_empty_views
         for index, entry in enumerate(entries):
             path = Path(entry["path"]).resolve()
             if storage_root not in path.parents or verify_hash(path) != entry["sha256"]:
@@ -59,6 +61,18 @@ class Int8GlyphParallelExperts(nn.Module):
             persistent=False,
         )
         self._cached_weight_views = [self._materialize_weights(index) for index in range(40)]
+        input_widths = {int(entry["input_shape"][0]) for entry in entries}
+        output_widths = {int(entry["output_shape"][0]) for entry in entries}
+        if len(input_widths) != 1 or len(output_widths) != 1:
+            raise ValueError("cached empty views require uniform expert widths")
+        self.register_buffer(
+            "input_empty", torch.empty((0, input_widths.pop()), dtype=torch.float16,
+                                       device=device), persistent=False,
+        )
+        self.register_buffer(
+            "output_empty", torch.empty((0, output_widths.pop()), dtype=torch.float16,
+                                        device=device), persistent=False,
+        )
 
     def _finish(self, outputs: list[torch.Tensor], arena: torch.Tensor,
                 total: int) -> torch.Tensor:
@@ -95,7 +109,8 @@ class Int8GlyphParallelExperts(nn.Module):
         outputs = []
         for index, values in enumerate(input_list):
             if self.skip_empty_experts and values.shape[0] == 0:
-                outputs.append(values.new_empty((0, int(self.entries[index]["input_shape"][0]))))
+                outputs.append(self.input_empty if self.use_cached_empty_views else
+                               values.new_empty((0, int(self.entries[index]["input_shape"][0]))))
                 continue
             input_weight, input_scale, _, _ = self._weights(index)
             outputs.append(torch._weight_int8pack_mm(values, input_weight, input_scale))
@@ -106,7 +121,8 @@ class Int8GlyphParallelExperts(nn.Module):
         outputs = []
         for index, values in enumerate(input_list):
             if self.skip_empty_experts and values.shape[0] == 0:
-                outputs.append(values.new_empty((0, int(self.entries[index]["output_shape"][0]))))
+                outputs.append(self.output_empty if self.use_cached_empty_views else
+                               values.new_empty((0, int(self.entries[index]["output_shape"][0]))))
                 continue
             _, _, output_weight, output_scale = self._weights(index)
             outputs.append(torch._weight_int8pack_mm(values, output_weight, output_scale))
@@ -121,7 +137,8 @@ class Int8GlyphMoE(nn.Module):
                  skip_empty_experts: bool = True,
                  use_decode_arena: bool = False,
                  decode_arena_capacity: int = 0,
-                 use_cached_weight_views: bool = False) -> None:
+                 use_cached_weight_views: bool = False,
+                 use_cached_empty_views: bool = False) -> None:
         super().__init__()
         self.input_size = source_moe.input_size
         self.hidden_size = source_moe.hidden_size
@@ -130,6 +147,7 @@ class Int8GlyphMoE(nn.Module):
         self.experts = Int8GlyphParallelExperts(
             entries, storage_root, verify_hash, device, skip_empty_experts,
             use_decode_arena, decode_arena_capacity, use_cached_weight_views,
+            use_cached_empty_views,
         )
 
     def forward(self, layer_input: torch.Tensor) -> torch.Tensor:

@@ -465,3 +465,23 @@ result is \texttt{NOT\_PROMOTED}; canonical report SHA-256:
 The microbenchmark effect did not survive full-model execution and the exact
 integrity gate also failed. Cached weight views are therefore stopped as a
 production optimization. The promoted sparse dispatcher remains unchanged.
+
+\subsection{Reusable empty-view boundary}
+
+The exact sparse dispatcher retains all 40 concatenation entries and therefore
+creates 64 zero-length tensors per layer-token, a projected 2,048 creations per
+32-layer generated token. A bounded candidate reused one input and one output
+zero-length Metal view. It added no weight storage and preserved the original
+concatenation topology.
+
+On 1,000 balanced trials of the real layer-16 route, median time improved by
+6.81\%, from 0.609751 ms to 0.568229 ms, and output was bit-identical. The
+nearest-rank p95 nevertheless increased by 3.82\%, from 1.50133 ms to 1.55867
+ms. This exceeded the predeclared maximum 3\% tail-latency regression. The
+result is \texttt{STOP\_CACHED\_EMPTY\_VIEWS}; canonical report SHA-256:
+\texttt{4d8a5ab1d4ac140740bf8d590f7bb0cda0c42d4a03d73e64589880bd71a947eb}.
+
+The candidate is not scaled to the full model or enabled by default. It shows
+that reducing Python tensor-object churn can improve median dispatch time, but
+this implementation did not deliver acceptable tail stability. The promoted
+sparse dispatcher remains unchanged.

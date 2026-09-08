@@ -1165,3 +1165,21 @@ bit-equivalence gate failed with maximum error 0.46875. The result is
 Stop cached weight views as a production optimization. The layer saving is
 swallowed by full-model work and ordinary Metal variation, and neither speed nor
 integrity crossed its gate. The promoted sparse dispatcher remains unchanged.
+
+### Reusable empty-view boundary (2026-09-08)
+
+Sparse dispatch preserves 40 concatenation entries for exactness and therefore
+still created 64 zero-length tensors per layer-token, or a projected 2,048 per
+32-layer model token. A bounded candidate reused two zero-length Metal views
+instead. It added no weight bytes and retained the exact concatenation topology.
+
+Across 1,000 balanced real-route layer-16 trials, median time improved 6.81%
+(0.609751 to 0.568229 ms) and output was bit-identical. Tail latency failed the
+predeclared gate: nearest-rank p95 increased 3.82%, from 1.50133 to 1.55867 ms,
+exceeding the allowed 3% regression. The decision is
+`STOP_CACHED_EMPTY_VIEWS`; canonical report SHA-256:
+`4d8a5ab1d4ac140740bf8d590f7bb0cda0c42d4a03d73e64589880bd71a947eb`.
+
+Do not scale the candidate to the full model or enable it by default. Reducing
+Python tensor-object churn can improve the median, but this implementation did
+not provide stable tail latency. Sparse dispatch remains unchanged.
