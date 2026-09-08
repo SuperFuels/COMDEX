@@ -886,3 +886,12 @@ It is `STOP_ACTIVATION_AWARE_INT4_V1`, report SHA-256
 `2cb2f415902b2f802f769c215ac8a00f3f420c517166b5ee3fc12f335b4d5e78`.
 Simple clipping-ratio tuning is stopped; future INT4 work must use a different
 equivalent transformation and explicitly charge any runtime rescaling cost.
+
+Equivalent channel rescaling was also stopped. It preserved the pre-quantized
+linear mathematics and improved INT4 normalized RMSE by 5.74%, but worsened
+maximum error to 0.246094 (5.48 times matched INT8). Its two charged inverse
+scales reduced the median decode-layer gain to 6.93% versus FP16 and made it
+12.43% slower than naive INT4. All four gates failed. Result:
+`STOP_EQUIVALENT_SCALED_INT4_V1`, report SHA-256
+`6f8a13860f37b9c7a749f8b44941aa9e8ae8016e8a3004547cb3025e7b30e7dd`.
+The current four-bit branch is closed; INT8 remains the viable packed runtime.

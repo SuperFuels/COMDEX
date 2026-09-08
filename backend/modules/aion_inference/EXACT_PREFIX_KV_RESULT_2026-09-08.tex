@@ -291,3 +291,29 @@ increased the worst error. Ratio tuning will not be repeated. Any later INT4
 candidate must change the equivalent weight/activation transformation itself,
 charge runtime rescaling explicitly, and win a new narrow gate before a
 full-model library is constructed.
+
+\subsection{Equivalent channel-rescaled INT4 boundary}
+
+The final four-bit mechanism candidate changed the weight/activation geometry
+rather than clipping. Each input channel of a stored weight matrix was
+multiplied by a bounded calibration-derived scale, while the corresponding live
+activation channel was divided by the same scale. These operations cancel
+exactly before quantization. Both runtime inverse scales and their storage were
+charged. The resulting representation, including FP16 scale vectors, remained
+68.66\% smaller than FP16. A balanced scaling exponent of 0.5 was selected for
+73 of 80 matrices by the calibration objective.
+
+On the disjoint real evaluation activations, normalized RMSE fell from 0.12036
+to 0.11346 and mean absolute error improved by 5.64\%. Maximum error nevertheless
+rose from 0.222656 to 0.246094, 5.48 times the matched INT8 error. After charging
+the two inverse-scale operations, median one-token layer speed was only 6.93\%
+better than FP16, compared with 17.22\% for naive INT4; the transformed path was
+12.43\% slower than naive INT4. All four acceptance checks failed. The result is
+\texttt{STOP\_EQUIVALENT\_SCALED\_INT4\_V1}; canonical report SHA-256:
+\texttt{6f8a13860f37b9c7a749f8b44941aa9e8ae8016e8a3004547cb3025e7b30e7dd}.
+
+The current four-bit branch is therefore closed. Direct affine INT4,
+activation-weighted clipping and equivalent channel rescaling each failed the
+declared quality/speed boundary. A full INT4 library will not be built from
+these methods. Native INT8 remains the packed candidate that has passed the
+mechanism, capacity, storage-first boot and teacher-forced probability gates.

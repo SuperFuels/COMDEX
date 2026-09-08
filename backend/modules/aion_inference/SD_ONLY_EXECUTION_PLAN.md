@@ -1008,3 +1008,27 @@ error, and increased the worst error. Do not repeat ratio tuning. Any later
 four-bit work must change the transformation itself---for example equivalent
 activation/weight rescaling with its runtime cost explicitly charged---and must
 first win a new narrow gate before full-model construction.
+
+Equivalent activation/weight rescaling was then tested as a different INT4
+transformation. Before quantization, each stored weight channel was multiplied
+by a bounded calibration-derived scale and each live activation was divided by
+the same scale, preserving the underlying linear calculation. The runtime cost
+of both inverse scaling operations and 3.31 MiB of FP16 scale vectors per layer
+were charged. The resulting layer representation remained 68.66% smaller than
+FP16. Calibration selected the balanced alpha 0.5 for 73/80 matrices.
+
+On the disjoint real evaluation activations, normalized RMSE improved 5.74%
+(0.12036 to 0.11346) and mean absolute error improved 5.64%, but maximum error
+worsened from 0.222656 to 0.246094, 5.48 times the matched INT8 error. Median
+one-token speed improved only 6.93% versus FP16 after charging rescaling, versus
+17.22% for naive INT4, and was 12.43% slower than naive INT4. All four declared
+gates failed. The result is `STOP_EQUIVALENT_SCALED_INT4_V1`; canonical report
+SHA-256:
+`6f8a13860f37b9c7a749f8b44941aa9e8ae8016e8a3004547cb3025e7b30e7dd`.
+
+This stops the current INT4 branch: direct affine packing, activation-weighted
+clipping and equivalent channel scaling all failed their quality/speed gates.
+Do not build a full four-bit library from these methods. Native INT8 remains the
+only packed full-model candidate that has crossed its mechanism, capacity, boot
+and teacher-forced probability gates. Work returns to optimizing the proven
+INT8 runtime and to establishing an adequate absolute semantic benchmark.
