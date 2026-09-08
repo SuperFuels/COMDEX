@@ -22,7 +22,9 @@ from backend.scripts.run_aion_moe_end_to_end_fault_in import _sha256
 from backend.scripts.run_aion_storage_first_boot import (
     _load_storage_first_model, _verify_source_checkpoint,
 )
-from backend.scripts.run_aion_storage_first_multiprompt import PROMPTS, _generate
+from backend.scripts.run_aion_storage_first_multiprompt import (
+    PROMPTS, _generate, _validate_prompt_catalog,
+)
 
 
 def _summarize(results: list[dict[str, Any]]) -> dict[str, float]:
@@ -60,6 +62,7 @@ def main() -> int:
     parser.add_argument("--source-manifest", type=Path, required=True)
     parser.add_argument("--glyph-manifest", type=Path, required=True)
     parser.add_argument("--generated-tokens", type=int, default=64)
+    parser.add_argument("--prompt-manifest", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     root = args.storage_root.resolve()
@@ -71,6 +74,10 @@ def main() -> int:
         raise SystemExit("model, weights and evidence must remain on external storage")
     if output.exists() or args.generated_tokens < 1:
         raise SystemExit("refusing overwrite or invalid generated-token count")
+    prompts = (PROMPTS if args.prompt_manifest is None else
+               _validate_prompt_catalog(json.loads(args.prompt_manifest.resolve().read_text())))
+    prompt_manifest_hash = (_sha256(args.prompt_manifest.resolve())
+                            if args.prompt_manifest is not None else None)
     source = json.loads(paths["source_manifest"].read_text())
     glyph = json.loads(paths["glyph_manifest"].read_text())
     if not all(source["integrity"].values()) or not all(glyph["integrity"].values()):
@@ -101,10 +108,10 @@ def main() -> int:
     # Warm both dispatch modes without including warmup in evidence timing.
     for enabled in (False, True):
         _set_sparse(model, enabled)
-        _generate(model, tokenizer, PROMPTS[0]["prompt"], 2)
+        _generate(model, tokenizer, prompts[0]["prompt"], 2)
 
     runs = []
-    for prompt in PROMPTS:
+    for prompt in prompts:
         for sequence, enabled in enumerate((False, True, True, False)):
             _set_sparse(model, enabled)
             result = _generate(model, tokenizer, prompt["prompt"], args.generated_tokens)
@@ -116,7 +123,7 @@ def main() -> int:
     control_summary = _summarize(controls)
     candidate_summary = _summarize(candidates)
     equivalence = []
-    for prompt in PROMPTS:
+    for prompt in prompts:
         family_runs = [item for item in runs if item["family"] == prompt["family"]]
         reference = family_runs[0]
         for item in family_runs[1:]:
@@ -149,9 +156,12 @@ def main() -> int:
               "hashes": {name: _sha256(path) for name, path in paths.items() if path.is_file()},
               "source_verification": verification, "shared_load": shared_load,
               "generated_tokens_per_run": args.generated_tokens,
-              "prompt_families": [item["family"] for item in PROMPTS],
+              "prompt_families": [item["family"] for item in prompts],
+              "prompt_manifest_path": (str(args.prompt_manifest.resolve())
+                                       if args.prompt_manifest is not None else None),
+              "prompt_manifest_sha256": prompt_manifest_hash,
               "prompt_hashes": {item["family"]: hashlib.sha256(item["prompt"].encode()).hexdigest()
-                                for item in PROMPTS},
+                                for item in prompts},
               "order_per_family": ["all_40", "active_only", "active_only", "all_40"],
               "empty_dispatch_behavior": (
                   "skip zero-token Metal matrix operations while preserving all 40 empty/nonempty "
