@@ -607,3 +607,32 @@ This is a genuine model-scale speed breakthrough and the first result near the
 30-token/s target on the ordinary 18 GB Mac. It is not yet a quality promotion:
 the changed kernel must pass direct FP16 teacher-forced probability and frozen
 semantic validation.
+
+\subsection{Dynamic-bank quality qualification and bounded promotion}
+
+Incremental teacher forcing supplied FP16, bank-native INT8 and dynamic-bank
+INT8 with identical histories across 256 frozen positions. Native INT8 retained
+97.66\% FP16 top-one agreement, while dynamic banking retained 97.27\%, a
+reduction of only 0.39 percentage points. Dynamic top-five overlap was 95.86\%,
+mean KL divergence was 0.003687 nats and additional NLL on FP16-selected tokens
+was 0.008386 nats. Every relative-quality gate passed, and dynamic execution
+reduced teacher-forced time by 55.76\%. The decision was
+\texttt{ADVANCE\_DYNAMIC\_BANK\_TO\_FROZEN\_SEMANTIC\_GATE}; report SHA-256:
+\texttt{50bfc1e9928cfac76236f65f9ba3b432ca8dac4c52aea7e4cd169d2b078a0204}.
+
+The previously frozen twelve-case semantic suite then produced identical answers
+for native and dynamic INT8 in all 12 cases. Both scored 7/12 correct and every
+answer was parseable. On these short tasks, dynamic throughput improved from
+6.2627 to 9.4227 generated tokens/s, a 50.46\% increase. All gates passed and the
+result is \texttt{PROMOTE\_DYNAMIC\_BANK\_WITHIN\_VALIDATED\_BOUNDARY}; canonical
+report SHA-256:
+\texttt{225b5fef106cf01f201adaef53df4b56b32b4ad262fcb4149b558083a7ed021a}.
+
+The promotion is deliberately bounded. AION has demonstrated a 2.8196 GiB
+SD-native expert bank running Granite at 24.47 tokens/s on four 64-token families,
+with unchanged generated token sequences, strong FP16-relative probability
+preservation and complete answer preservation on the frozen semantic suite. The
+absolute 7/12 task score prevents any claim of universal model competence. This
+is a promotion of the execution architecture and relative preservation. Unseen
+128--256-token, repeatability and broader competent-model validation remain the
+next expansion gates.

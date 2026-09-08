@@ -1017,3 +1017,17 @@ both repeats and all closing controls were bit-exact, but maximum step-logit
 difference was 2.17969. Status is `ADVANCE_DYNAMIC_BANK_TO_QUALITY_GATES`, not
 quality promotion; report SHA-256
 `a167b4218c07d1a396093ab65d39ff8c111bad5c69b5af62b29e9372a6e5ece9`.
+
+Quality qualification now promotes the dynamic bank within its measured boundary.
+Across 256 identical FP16-forced positions, dynamic top-one agreement was 97.27%
+versus 97.66% for native INT8; top-five overlap was 95.86%, KL 0.003687 nats and
+NLL delta 0.008386 nats. All gates passed and teacher execution improved 55.76%
+(report SHA-256
+`50bfc1e9928cfac76236f65f9ba3b432ca8dac4c52aea7e4cd169d2b078a0204`).
+
+The frozen 12-case semantic suite produced 100% answer agreement: both native
+and dynamic INT8 scored 7/12, every answer parsed, and dynamic throughput improved
+50.46%. Status is `PROMOTE_DYNAMIC_BANK_WITHIN_VALIDATED_BOUNDARY`, report
+SHA-256 `225b5fef106cf01f201adaef53df4b56b32b4ad262fcb4149b558083a7ed021a`.
+This promotes the execution architecture, not the absolute competence of the
+small model. Unseen 128--256-token replication remains required for expansion.

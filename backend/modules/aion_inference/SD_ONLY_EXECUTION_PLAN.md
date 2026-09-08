@@ -1303,3 +1303,29 @@ This is the first model-scale result near the 30-token/s target on the ordinary
 18 GB Mac. It is a genuine speed breakthrough but remains a changed-kernel
 quality-gated candidate. Direct FP16 teacher-forced probability and frozen
 semantic validation are required before runtime promotion.
+
+Those quality gates now pass. Incremental teacher forcing compared FP16,
+bank-native INT8 and dynamic-bank INT8 on the same 256 frozen positions. Native
+INT8 retained 97.66% FP16 top-one agreement; dynamic banking retained 97.27%,
+within 0.4 percentage points. Dynamic top-five overlap was 95.86%, mean KL was
+0.003687 nats and additional FP16-token NLL was 0.008386 nats. All relative
+quality gates passed, while dynamic execution reduced incremental teacher time
+55.76%. Decision: `ADVANCE_DYNAMIC_BANK_TO_FROZEN_SEMANTIC_GATE`; report SHA-256:
+`50bfc1e9928cfac76236f65f9ba3b432ca8dac4c52aea7e4cd169d2b078a0204`.
+
+On the previously frozen twelve-case semantic suite, bank-native and dynamic
+banking produced identical answers in all 12 cases and both achieved 7/12
+correct. Every answer was parseable. Dynamic throughput improved from 6.2627 to
+9.4227 generated tokens/s (50.46%) on these short tasks. Every declared gate
+passed, producing `PROMOTE_DYNAMIC_BANK_WITHIN_VALIDATED_BOUNDARY`; canonical
+report SHA-256:
+`225b5fef106cf01f201adaef53df4b56b32b4ad262fcb4149b558083a7ed021a`.
+
+The promoted claim is bounded: AION has demonstrated a 2.8196 GiB SD-native
+Granite expert bank running at 24.47 tokens/s on four 64-token families, with
+unchanged token sequences, strong FP16-relative probability preservation and
+complete answer preservation on the frozen semantic suite. The suite's absolute
+7/12 score also proves that this small Granite model is not universally capable;
+promotion concerns execution architecture and relative preservation, not a claim
+of frontier-model intelligence. Next validation should use unseen longer prompts,
+128--256 tokens, repeatability and broader competent-model tasks.
