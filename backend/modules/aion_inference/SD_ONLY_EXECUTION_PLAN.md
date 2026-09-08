@@ -934,3 +934,19 @@ while the packed model closely preserved FP16 probabilities on equal histories.
 The next frozen gate must score completed answers on held-out semantic tasks and
 must still report unconstrained generation divergence, latency, throughput and
 memory. Exact-track claims remain prohibited because logits differ.
+
+Two separately frozen semantic microtask gates were then executed. The first
+strict-JSON cohort was unsuitable: FP16 and INT8 each passed only 2/8 tasks,
+although seven parsed outputs were identical and INT8 ran 6.26% faster. The
+second cohort removed JSON-formatting ambiguity with twelve multiple-choice
+tasks. FP16 passed only 6/12, below its required 10/12 competence floor; INT8
+passed 7/12, agreed with FP16 on 11/12 decisions (91.67%) and ran 18.31% faster.
+Both gates are `NOT_PROMOTED` because a weak baseline cannot establish absolute
+semantic quality. The multiple-choice canonical report SHA-256 is
+`4105f6fa4203073525639bf0b6cf7aca042f0f179bbb0582e2c3047551a00ba1`.
+
+These results provide additional relative non-inferiority evidence but no broad
+capability claim. The next semantic design must first prove FP16 competence on a
+larger frozen cohort, preferably by direct choice-token likelihood rather than
+free-generation formatting. Any method refined using these failures is a
+diagnostic and requires a new unseen holdout before promotion.

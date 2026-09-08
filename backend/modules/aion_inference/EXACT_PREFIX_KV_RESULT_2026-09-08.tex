@@ -195,3 +195,22 @@ substantially overstates the underlying probability damage. It is labelled
 \texttt{ADVANCE\_TO\_SEMANTIC\_TASK\_GATE}, not promoted. The logits are not
 exact, and a frozen held-out evaluation of completed answer quality is required
 before the packed model can be described as useful for long-form work.
+
+\subsection{Frozen semantic microtask gates}
+
+Two separately committed semantic cohorts were tested. A strict JSON cohort
+was unsuitable because both FP16 and INT8 passed only two of eight tasks,
+although seven parsed outputs were identical and INT8 was 6.26\% faster. A
+twelve-case multiple-choice cohort removed JSON-format ambiguity. FP16 passed
+only six cases, below its required ten-case competence floor. INT8 passed seven,
+agreed with FP16 on eleven of twelve decisions (91.67\%), and ran 18.31\%
+faster. Both gates are \texttt{NOT\_PROMOTED}; a candidate cannot inherit
+absolute semantic credibility from a weak control. The multiple-choice report
+canonical SHA-256 is
+\texttt{4105f6fa4203073525639bf0b6cf7aca042f0f179bbb0582e2c3047551a00ba1}.
+
+The observations add relative non-inferiority evidence but do not prove broad
+capability. A larger frozen cohort must first establish FP16 competence using a
+choice-likelihood method that is independent of response formatting. Because
+the method is being refined after these results, a new unseen holdout remains
+mandatory for promotion.

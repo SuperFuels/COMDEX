@@ -849,3 +849,11 @@ only 0.006691 nats additional loss on FP16-selected tokens. This explains much
 of the low raw autoregressive match as divergence cascade rather than widespread
 probability damage. Status is `ADVANCE_TO_SEMANTIC_TASK_GATE`; exact equivalence
 is not claimed, and held-out completed-answer quality remains unproven.
+
+Two frozen semantic gates did not establish absolute task quality because the
+FP16 control was weak. Strict JSON produced 2/8 passes for both models. A
+twelve-case multiple-choice gate produced 6/12 for FP16 and 7/12 for INT8;
+packed answers agreed with FP16 on 11/12 choices and ran 18.31% faster. Both are
+`NOT_PROMOTED`. They support relative preservation, not model competence. A
+larger choice-likelihood diagnostic and a subsequently unseen holdout are
+required before any semantic promotion.
