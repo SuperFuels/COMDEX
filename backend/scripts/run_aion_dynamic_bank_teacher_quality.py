@@ -19,6 +19,7 @@ from backend.modules.aion_inference.int8_dynamic_bank_moe import (
 from backend.scripts.run_aion_int8_glyph_full_model import _canonical_sha256
 from backend.scripts.run_aion_moe_end_to_end_fault_in import _chat_tokens, _sha256
 from backend.scripts.run_aion_storage_first_multiprompt import PROMPTS
+from backend.scripts.run_aion_storage_first_multiprompt import _validate_prompt_catalog
 from backend.scripts.run_forced_int8_quality import _quality_metrics
 
 
@@ -56,17 +57,35 @@ def _aggregate(comparisons):
     }
 
 
+def _control_continuations(generation: dict, families: list[str]) -> dict[str, list[int]]:
+    if "comparisons" in generation:
+        by_family = {item["family"]: item["control_token_ids"]
+                     for item in generation["comparisons"]}
+    elif "runs" in generation:
+        opening_controls = [item for item in generation["runs"]
+                            if item.get("sequence") == 0]
+        by_family = {item["family"]: item["token_ids"] for item in opening_controls}
+    else:
+        raise ValueError("generation evidence has no supported continuation records")
+    missing = sorted(set(families) - set(by_family))
+    if missing:
+        raise ValueError(f"generation evidence is missing families: {missing}")
+    return {family: by_family[family] for family in families}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--storage-root", type=Path, required=True)
     parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--bank-manifest", type=Path, required=True)
     parser.add_argument("--generation-evidence", type=Path, required=True)
+    parser.add_argument("--prompt-manifest", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     root = args.storage_root.resolve()
     paths = {"model": args.model_path.resolve(), "bank_manifest": args.bank_manifest.resolve(),
              "generation_evidence": args.generation_evidence.resolve()}
+    prompt_manifest = args.prompt_manifest.resolve() if args.prompt_manifest is not None else None
     output_path = args.output.resolve()
     if any(root not in path.parents for path in (*paths.values(), output_path)):
         raise SystemExit("model, banks and evidence must remain on external storage")
@@ -76,18 +95,21 @@ def main() -> int:
     generation = json.loads(paths["generation_evidence"].read_text())
     if not all(bank["integrity"].values()):
         raise RuntimeError("bank manifest integrity failed")
-    by_family = {item["family"]: item for item in generation["comparisons"]}
+    prompts = (PROMPTS if prompt_manifest is None else
+               _validate_prompt_catalog(json.loads(prompt_manifest.read_text())))
+    families = [item["family"] for item in prompts]
+    continuations = _control_continuations(generation, families)
     tokenizer = AutoTokenizer.from_pretrained(paths["model"], local_files_only=True)
     model = AutoModelForCausalLM.from_pretrained(
         paths["model"], local_files_only=True, dtype=torch.float16,
         device_map={"": "mps"}, low_cpu_mem_usage=True,
     ).eval()
-    encoded = {item["family"]: _chat_tokens(tokenizer, item["prompt"]) for item in PROMPTS}
+    encoded = {item["family"]: _chat_tokens(tokenizer, item["prompt"]) for item in prompts}
     fp16_logits = {}; fp16_seconds = {}
-    for prompt in PROMPTS:
+    for prompt in prompts:
         family = prompt["family"]
         fp16_logits[family], fp16_seconds[family] = _incremental_logits(
-            model, encoded[family], by_family[family]["control_token_ids"])
+            model, encoded[family], continuations[family])
     for layer_index, layer in enumerate(model.model.layers):
         source_moe = layer.block_sparse_moe
         entry = load_bank_entry(bank, layer_index, root, _sha256)
@@ -98,22 +120,22 @@ def main() -> int:
     torch.mps.synchronize()
     native_logits = {}; native_seconds = {}
     dynamic_logits = {}; dynamic_seconds = {}
-    for prompt in PROMPTS:
+    for prompt in prompts:
         family = prompt["family"]
-        continuation = by_family[family]["control_token_ids"]
+        continuation = continuations[family]
         native_logits[family], native_seconds[family] = _incremental_logits(
             model, encoded[family], continuation)
     for layer in model.model.layers:
         layer.block_sparse_moe.use_dynamic_decode = True
-    for prompt in PROMPTS:
+    for prompt in prompts:
         family = prompt["family"]
-        continuation = by_family[family]["control_token_ids"]
+        continuation = continuations[family]
         dynamic_logits[family], dynamic_seconds[family] = _incremental_logits(
             model, encoded[family], continuation)
     native_comparisons = []; dynamic_comparisons = []
-    for prompt in PROMPTS:
+    for prompt in prompts:
         family = prompt["family"]
-        continuation = by_family[family]["control_token_ids"]
+        continuation = continuations[family]
         common = {"family": family,
                   "prompt_sha256": hashlib.sha256(prompt["prompt"].encode()).hexdigest(),
                   "control_seconds": fp16_seconds[family]}
@@ -146,7 +168,9 @@ def main() -> int:
               "track": "quality_gated_changed_kernel_not_bit_exact",
               "paths": {name: str(path) for name, path in paths.items()},
               "hashes": {name: _sha256(path) for name, path in paths.items() if path.is_file()},
-              "families": [item["family"] for item in PROMPTS],
+              "prompt_manifest_path": str(prompt_manifest) if prompt_manifest else None,
+              "prompt_manifest_sha256": _sha256(prompt_manifest) if prompt_manifest else None,
+              "families": families,
               "forced_positions": native_aggregate["positions"],
               "native_comparisons": native_comparisons,
               "dynamic_comparisons": dynamic_comparisons,
@@ -156,9 +180,11 @@ def main() -> int:
               "acceptance": acceptance,
               "decision": ("ADVANCE_DYNAMIC_BANK_TO_FROZEN_SEMANTIC_GATE"
                            if all(acceptance.values()) else "STOP_DYNAMIC_BANK_QUALITY"),
-              "claim_boundary": ("Incremental teacher forcing on 256 FP16-generated positions "
-                                 "from four frozen families. This measures probability preservation "
-                                 "and speed but not absolute semantic task competence.")}
+              "claim_boundary": (f"Incremental teacher forcing on "
+                                 f"{native_aggregate['positions']} positions from "
+                                 f"{len(prompts)} frozen families, using opening native-bank "
+                                 "histories. This measures probability preservation and speed "
+                                 "but not absolute semantic task competence.")}
     report["report_sha256"] = _canonical_sha256(report)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")

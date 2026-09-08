@@ -636,3 +636,51 @@ absolute 7/12 task score prevents any claim of universal model competence. This
 is a promotion of the execution architecture and relative preservation. Unseen
 128--256-token, repeatability and broader competent-model validation remain the
 next expansion gates.
+
+\subsection{Unseen long-generation replication and extended promotion}
+
+The first long-generation replication reused an eight-family cohort that had
+been frozen before dynamic-bank development. Across 32 ABBA runs and 4,096
+generated tokens, dynamic banking sustained 24.8073 tokens/s at 128 tokens per
+run, versus 11.2547 tokens/s for the native bank. This was a 120.42\% median
+throughput improvement, while p95 generation time improved by 55.95\%.
+Dynamic candidate repetitions were token-identical for all eight families;
+native repetitions were token-identical for six. Canonical report SHA-256:
+\texttt{6a9e929ffd2d527437ee1204a382a42655ebb554068452f48d3ef470b87a8933}.
+
+A disjoint eight-domain holdout was then frozen in commit \texttt{7113f1ad},
+before either condition executed. Its file SHA-256 is
+\texttt{68bad763a3d70ba735779d4d6168114a11a4609183245d9c5c83b627221ac385}.
+The 256-token ABBA run measured 8,192 generated tokens. Dynamic banking
+sustained 23.9612 tokens/s versus 10.6228 tokens/s for the native bank, a
+125.56\% improvement. P95 generation time improved by 59.05\%. The candidate
+rate declined only 3.41\% when generation length doubled from 128 to 256.
+Dynamic and native repetitions were each token-identical for seven of eight
+families. Canonical report SHA-256:
+\texttt{cfb5823bb2aa58c273769a8430296db3eb40ffd1a61b9a30b212de3773a916b9}.
+
+Free-running native and dynamic output was not identical for seven of the eight
+256-token families. This was not hidden or relabelled as exactness. The
+changed-kernel track therefore underwent an extended teacher-forced comparison
+on 2,048 identical positions from the new holdout. Native INT8 retained
+98.1934\% FP16 top-one agreement and dynamic banking retained 98.2422\%.
+Dynamic top-five overlap was 96.7969\%, mean KL divergence was 0.002552 nats,
+and its FP16-token NLL delta was $-0.002641$ nats. Every predeclared relative
+quality gate passed, while dynamic teacher time improved by 56.23\%. Canonical
+report SHA-256:
+\texttt{bd4e56118cec96351c3ee4db5d0a762590826668b9e5de57a072e1cad08601f4}.
+
+One final hash-bound decision combined the 128-token evidence, the disjoint
+256-token evidence, the 2,048-position teacher gate and the prior twelve-case
+semantic gate. All seven acceptance conditions passed. The result is
+\texttt{PROMOTE\_DYNAMIC\_BANK\_LONG\_GENERATION\_BOUNDARY}; canonical report
+SHA-256:
+\texttt{2e772e66d43a28c35cdf6c85b3027a08f29a5e0db1ab6fe39ceac2f3c4569620}.
+
+The extended claim remains bounded to this Granite MoE model, the measured
+18~GB M3 Pro, and the resident 2.8196~GiB SD-native expert bank. It establishes
+sustained approximately 24-token/s execution through 256 generated tokens,
+strong FP16-relative probability preservation, and repeatability no worse than
+the native Metal control. It does not establish bit-exact logits, identical
+free-running wording, arbitrary larger-model performance, or continuous
+weight streaming from SD at the resident-bank rate.

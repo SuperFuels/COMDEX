@@ -1031,3 +1031,18 @@ and dynamic INT8 scored 7/12, every answer parsed, and dynamic throughput improv
 SHA-256 `225b5fef106cf01f201adaef53df4b56b32b4ad262fcb4149b558083a7ed021a`.
 This promotes the execution architecture, not the absolute competence of the
 small model. Unseen 128--256-token replication remains required for expansion.
+
+That long-generation expansion now passes. The dynamic bank sustained 24.8073
+tokens/s across eight frozen families at 128 tokens and 23.9612 tokens/s on a
+disjoint eight-family 256-token holdout, versus native-bank rates of 11.2547 and
+10.6228 tokens/s. The candidate lost only 3.41% throughput as length doubled;
+p95 generation time improved 55.95% and 59.05%, respectively. Candidate
+repeatability was 8/8 at 128 and 7/8 at 256, versus native 6/8 and 7/8.
+
+Because free-running wording differed at long length, an extended FP16 teacher
+gate forced identical histories across 2,048 positions. Dynamic top-one agreement
+was 98.2422% versus native INT8's 98.1934%; every probability gate passed and
+teacher time improved 56.23%. The combined decision is
+`PROMOTE_DYNAMIC_BANK_LONG_GENERATION_BOUNDARY`, canonical report SHA-256
+`2e772e66d43a28c35cdf6c85b3027a08f29a5e0db1ab6fe39ceac2f3c4569620`.
+This remains a quality-gated changed-kernel result, not bit-exact equivalence.

@@ -1329,3 +1329,37 @@ complete answer preservation on the frozen semantic suite. The suite's absolute
 promotion concerns execution architecture and relative preservation, not a claim
 of frontier-model intelligence. Next validation should use unseen longer prompts,
 128--256 tokens, repeatability and broader competent-model tasks.
+
+The long-generation expansion gate has now passed. On the previously frozen
+eight-family cohort, 128-token ABBA execution measured 4,096 generated tokens.
+Dynamic banking sustained 24.8073 tokens/s versus 11.2547 for the native bank
+(+120.42%), improved p95 time 55.95%, and repeated exactly on 8/8 families
+versus 6/8 for native. Canonical report SHA-256:
+`6a9e929ffd2d527437ee1204a382a42655ebb554068452f48d3ef470b87a8933`.
+
+A disjoint eight-domain, 256-token holdout was frozen before execution in commit
+`7113f1ad` (manifest SHA-256
+`68bad763a3d70ba735779d4d6168114a11a4609183245d9c5c83b627221ac385`).
+Across 8,192 generated tokens, dynamic banking sustained 23.9612 tokens/s versus
+10.6228 native (+125.56%) and improved p95 time 59.05%. Candidate throughput
+dropped only 3.41% from 128 to 256 tokens. Both candidate and native repeated
+exactly on 7/8 families. Report SHA-256:
+`cfb5823bb2aa58c273769a8430296db3eb40ffd1a61b9a30b212de3773a916b9`.
+
+Only 1/8 opening native and dynamic 256-token free-running sequences was wholly
+identical, so exact wording is not claimed. Instead, an extended FP16 teacher
+gate forced identical native histories over 2,048 positions. Dynamic FP16
+top-one agreement was 98.2422%, slightly above native INT8's 98.1934%; top-five
+overlap was 96.7969%, KL 0.002552 nats, NLL delta -0.002641 nats, and teacher
+time improved 56.23%. All fixed quality gates passed; report SHA-256:
+`bd4e56118cec96351c3ee4db5d0a762590826668b9e5de57a072e1cad08601f4`.
+
+The combined hash-bound result is
+`PROMOTE_DYNAMIC_BANK_LONG_GENERATION_BOUNDARY`, canonical SHA-256
+`2e772e66d43a28c35cdf6c85b3027a08f29a5e0db1ab6fe39ceac2f3c4569620`.
+This promotes sustained approximately 24-token/s quality-gated execution through
+256 tokens on this model and Mac. It does not promote bit-exact logits, identical
+free-running wording, arbitrary larger models, or direct continuous SD streaming
+at the resident-bank rate. The next optimisation target must be selected from a
+fresh profile of the 256-token dynamic path; no speed claim should be inferred
+before measuring its largest remaining component.
