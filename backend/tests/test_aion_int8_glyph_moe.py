@@ -1,8 +1,9 @@
 from pathlib import Path
 
 import pytest
+import torch
 
-from backend.modules.aion_inference.int8_glyph_moe import load_layer_entries
+from backend.modules.aion_inference.int8_glyph_moe import _nonempty_splits, load_layer_entries
 
 
 def test_load_layer_entries_rejects_wrong_layer_order() -> None:
@@ -17,3 +18,10 @@ def test_load_layer_entries_rejects_missing_experts(tmp_path: Path) -> None:
                             "index_sha256": "ok"}]}
     with pytest.raises(RuntimeError, match="coverage"):
         load_layer_entries(manifest, 0, tmp_path.parent, lambda _: "ok")
+
+
+def test_nonempty_splits_preserves_expert_order_and_values() -> None:
+    values = torch.arange(12).reshape(4, 3)
+    selected = _nonempty_splits(values, [0, 2, 0, 1, 1])
+    assert [index for index, _ in selected] == [1, 3, 4]
+    assert torch.equal(torch.cat([value for _, value in selected]), values)

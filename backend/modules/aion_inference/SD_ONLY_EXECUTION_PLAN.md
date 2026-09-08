@@ -1032,3 +1032,27 @@ Do not build a full four-bit library from these methods. Native INT8 remains the
 only packed full-model candidate that has crossed its mechanism, capacity, boot
 and teacher-forced probability gates. Work returns to optimizing the proven
 INT8 runtime and to establishing an adequate absolute semantic benchmark.
+
+### INT8 sparse expert dispatch breakthrough (2026-09-08)
+
+Inspection of the packed INT8 runtime found that one-token MoE decoding routed
+tokens to eight experts per layer but still invoked both Metal matrix operations
+for all 40 experts. Thirty-two zero-token experts therefore caused 64 empty
+Metal calls per layer and 2,048 avoidable calls across 32 layers for every
+generated token. A sparse-dispatch candidate omitted only those empty calls;
+all selected experts, weights, activations and operation order remained
+unchanged.
+
+On 500 balanced trials of the real layer-16 eight-expert route, Metal matrix
+calls fell from 80 to 16 per layer-token (80%). Median time fell from 0.900542 ms
+to 0.548188 ms, a 39.13% improvement, and nearest-rank p95 fell from 1.97037 ms
+to 1.55921 ms, a 20.87% improvement. Candidate and control INT8 layer outputs
+were bit-identical with maximum error zero. Every narrow gate passed, producing
+`ADVANCE_TO_FULL_MODEL_SPARSE_DISPATCH_GATE`; canonical report SHA-256:
+`0a9244267122b65a627805bac04b51a7659416fbb87b543013f56ed240ebdf11`.
+
+This establishes a genuine kernel-dispatch optimization, not a quality trade.
+It does not yet establish end-to-end tokens/s because attention, routing, shared
+weights and generation orchestration remain unchanged. The next gate must use
+the storage-first full model, 64-token multi-family ABBA execution, and require
+bit-identical INT8 token identifiers and step logits before promotion.

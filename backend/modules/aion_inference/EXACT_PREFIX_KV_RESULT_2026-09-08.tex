@@ -317,3 +317,29 @@ activation-weighted clipping and equivalent channel rescaling each failed the
 declared quality/speed boundary. A full INT4 library will not be built from
 these methods. Native INT8 remains the packed candidate that has passed the
 mechanism, capacity, storage-first boot and teacher-forced probability gates.
+
+\subsection{Sparse INT8 expert-dispatch breakthrough}
+
+Runtime inspection identified a pure dispatch defect in the successful packed
+INT8 path. Each decode token selected eight experts per layer, but the module
+still invoked the input and output Metal matrix operations for all 40 experts.
+Thirty-two zero-token experts caused 64 empty calls per layer, or 2,048
+avoidable Metal calls across all 32 layers for each generated token. The
+candidate removed only empty calls; selected experts, packed weights,
+activations and their calculation order were unchanged.
+
+Five hundred balanced trials used the real layer-16 eight-expert route. Metal
+matrix calls fell from 80 to 16 per layer-token, an 80\% reduction. Median layer
+time fell from 0.900542 ms to 0.548188 ms (39.13\%), while nearest-rank p95 fell
+from 1.97037 ms to 1.55921 ms (20.87\%). Candidate and control packed-INT8
+outputs were bit-identical and maximum error was zero. All mechanism gates
+passed. The result is
+\texttt{ADVANCE\_TO\_FULL\_MODEL\_SPARSE\_DISPATCH\_GATE}; canonical report
+SHA-256:
+\texttt{0a9244267122b65a627805bac04b51a7659416fbb87b543013f56ed240ebdf11}.
+
+This is an exact-within-INT8 dispatch optimization, not an additional quality
+trade. The layer result cannot by itself establish end-to-end generation speed,
+because attention, routing, shared weights and generation orchestration remain
+unchanged. Promotion requires a storage-first 64-token multi-family ABBA gate
+with bit-identical INT8 token identifiers and step logits.

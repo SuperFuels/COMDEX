@@ -11,15 +11,24 @@ import torch
 from torch import nn
 
 
+def _nonempty_splits(inputs: torch.Tensor, expert_size: Any
+                     ) -> list[tuple[int, torch.Tensor]]:
+    """Return routed expert views that contain at least one token."""
+    return [(index, values) for index, values in
+            enumerate(inputs.split(expert_size, dim=0)) if values.shape[0] > 0]
+
+
 class Int8GlyphParallelExperts(nn.Module):
     """Parallel experts using one content-addressed packed block per expert."""
 
     def __init__(self, entries: list[dict[str, Any]], storage_root: Path,
-                 verify_hash: Any, device: str = "mps") -> None:
+                 verify_hash: Any, device: str = "mps",
+                 skip_empty_experts: bool = False) -> None:
         super().__init__()
         if len(entries) != 40:
             raise ValueError("Granite requires exactly 40 expert blocks per layer")
         self.entries = entries
+        self.skip_empty_experts = skip_empty_experts
         for index, entry in enumerate(entries):
             path = Path(entry["path"]).resolve()
             if storage_root not in path.parents or verify_hash(path) != entry["sha256"]:
@@ -46,6 +55,8 @@ class Int8GlyphParallelExperts(nn.Module):
         input_list = inputs.split(expert_size, dim=0)
         outputs = []
         for index, values in enumerate(input_list):
+            if self.skip_empty_experts and values.shape[0] == 0:
+                continue
             input_weight, input_scale, _, _ = self._weights(index)
             outputs.append(torch._weight_int8pack_mm(values, input_weight, input_scale))
         return torch.cat(outputs, dim=0)
@@ -54,6 +65,8 @@ class Int8GlyphParallelExperts(nn.Module):
         input_list = inputs.split(expert_size, dim=0)
         outputs = []
         for index, values in enumerate(input_list):
+            if self.skip_empty_experts and values.shape[0] == 0:
+                continue
             _, _, output_weight, output_scale = self._weights(index)
             outputs.append(torch._weight_int8pack_mm(values, output_weight, output_scale))
         return torch.cat(outputs, dim=0)
@@ -63,13 +76,16 @@ class Int8GlyphMoE(nn.Module):
     """Granite-compatible MoE retaining the original learned router."""
 
     def __init__(self, source_moe: nn.Module, entries: list[dict[str, Any]],
-                 storage_root: Path, verify_hash: Any, device: str = "mps") -> None:
+                 storage_root: Path, verify_hash: Any, device: str = "mps",
+                 skip_empty_experts: bool = False) -> None:
         super().__init__()
         self.input_size = source_moe.input_size
         self.hidden_size = source_moe.hidden_size
         self.activation = source_moe.activation
         self.router = source_moe.router
-        self.experts = Int8GlyphParallelExperts(entries, storage_root, verify_hash, device)
+        self.experts = Int8GlyphParallelExperts(
+            entries, storage_root, verify_hash, device, skip_empty_experts,
+        )
 
     def forward(self, layer_input: torch.Tensor) -> torch.Tensor:
         batch, length, embedding = layer_input.size()

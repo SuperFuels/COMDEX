@@ -895,3 +895,12 @@ scales reduced the median decode-layer gain to 6.93% versus FP16 and made it
 `STOP_EQUIVALENT_SCALED_INT4_V1`, report SHA-256
 `6f8a13860f37b9c7a749f8b44941aa9e8ae8016e8a3004547cb3025e7b30e7dd`.
 The current four-bit branch is closed; INT8 remains the viable packed runtime.
+
+The INT8 runtime then produced a new exact-within-candidate dispatch
+breakthrough. Decode selected eight experts per layer but launched both Metal
+matrix operations for all 40, including 32 empty experts. Skipping only empty
+launches reduced calls from 80 to 16 per layer-token, improved median real-route
+layer time 39.13% and p95 20.87%, with bit-identical output. The result is
+`ADVANCE_TO_FULL_MODEL_SPARSE_DISPATCH_GATE`, report SHA-256
+`0a9244267122b65a627805bac04b51a7659416fbb87b543013f56ed240ebdf11`.
+It now requires 64-token storage-first full-model ABBA validation.
