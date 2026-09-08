@@ -906,3 +906,14 @@ retain a sparse set of high-value expert weights, rather than guessing more
 whole-layer pairs. Any next candidate requires a frozen calibration/evaluation
 split, teacher-forced quality diagnostics to separate cascade effects, and a
 semantic task gate in addition to raw autoregressive token agreement.
+
+A 3% outlier-residual shelf was then tested on the real layer-16 route. It kept
+the projected full expert library within 2.9925 GiB, but reduced maximum layer
+error only 1.32% and made native INT8 calculation 116.90% slower through extra
+indexing and FP16 correction kernels. The candidate is `NOT_PROMOTED` and
+stopped; canonical report SHA-256:
+`ca2604039afc04d5daf28611df89c8c96312d6c4a55e9cbf2223194e2ffd668a`.
+The quantization error is not sufficiently concentrated in a small set of input
+columns for this residual form. Do not scale or repeat it. The next diagnostic
+is teacher-forced FP16-versus-INT8 scoring on identical histories, followed by a
+separate semantic task gate if probability/top-choice preservation is strong.

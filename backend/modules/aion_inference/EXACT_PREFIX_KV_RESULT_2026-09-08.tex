@@ -169,3 +169,12 @@ high-value expert weights. It must use separate frozen calibration and
 evaluation cohorts, teacher-forced diagnostics that distinguish one-token
 divergence cascades from widespread probability damage, and semantic task
 scoring in addition to raw token agreement.
+
+A three-percent FP16 residual shelf was also tested on the real layer-16 route.
+It kept the projected library within 2.9925 GiB, but reduced maximum layer error
+only 1.32\% and slowed native packed calculation by 116.90\% because of the
+additional indexing and FP16 correction kernels. It is
+\texttt{NOT\_PROMOTED} and stopped. The canonical report SHA-256 is
+\texttt{ca2604039afc04d5daf28611df89c8c96312d6c4a55e9cbf2223194e2ffd668a}.
+This falsifies sparse input-column correction for the current quantizer: its
+error is too distributed to repay the added kernels.

@@ -833,3 +833,11 @@ are `NOT_PROMOTED`. The layer audit itself is useful: 29, 1, 17, 28 and 24 were
 the five most sensitive layers. Further whole-layer-pair guessing is stopped;
 the next quality-gated design must use improved quantization or sparse
 high-value FP16 retention with frozen calibration and evaluation cohorts.
+
+A sparse FP16 residual shelf was also stopped. Retaining the highest-error 3%
+of input columns projected to 2.9925 GiB, but improved maximum layer error only
+1.32% while slowing packed calculation 116.90%. This error is too distributed
+for sparse column correction. The next diagnostic must compare FP16 and INT8 on
+identical teacher-forced histories before deciding whether the observed
+autoregressive divergence represents broad degradation or a small number of
+cascading greedy choices.
