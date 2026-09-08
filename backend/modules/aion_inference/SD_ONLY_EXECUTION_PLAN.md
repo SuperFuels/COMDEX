@@ -1087,3 +1087,23 @@ claim remains bounded to the four fixed prompt families and 64-token ABBA
 cohort, and exactness is relative to the existing lossy INT8 candidate rather
 than FP16. The next validation must replicate on a larger unseen prompt cohort
 and longer generation lengths while preserving the same bit-exact INT8 gate.
+
+An eight-family prompt cohort was then frozen in commit `0853d69f` before either
+condition ran. The storage-first ABBA replication doubled generation length to
+128 tokens and measured 4,096 tokens across 32 runs. Sparse dispatch retained a
+10.03% median throughput improvement (10.2175 to 11.2427 tokens/s) and improved
+p95 generation time 7.46%. It did not pass integrity. One of 16 candidate runs
+first diverged in token identifier at generation step 43 and reached maximum
+step-logit error 37.7129; the other candidate repeat for that family was exact.
+Separately, one unchanged all-40 baseline repeat retained every token identifier
+but had maximum logit error 0.634766. The remaining 22/24 repeat comparisons
+were bit-identical. The result is `NOT_PROMOTED`; canonical report SHA-256:
+`989ec69183409a6b3c93c7f5d07c2c5538172d2b35ae2ef88d20bd1f221ac287`.
+
+The promoted 64-token four-family boundary remains valid, but exact sparse
+dispatch is not established at 128 tokens across the larger cohort. The control
+self-drift also proves that Metal repeatability must be separated from
+candidate-specific drift. Do not weaken the exact gate or claim the 128-token
+result. The next diagnostic is deterministic-mode repetition of the two exposed
+families; a successful diagnostic would still require a new full frozen
+replication before extending promotion.

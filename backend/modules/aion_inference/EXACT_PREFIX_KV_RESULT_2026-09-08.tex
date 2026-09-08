@@ -378,3 +378,27 @@ the lossy INT8 representation into FP16 equivalence, and the evidence remains
 bounded to four fixed prompt families and 64-token ABBA generation. The next
 stage requires longer generation and a larger unseen prompt cohort under the
 same bit-exact packed-INT8 requirement.
+
+\subsection{Unseen 128-token replication boundary}
+
+Eight new prompt families were frozen in isolated commit
+\texttt{0853d69f} before either condition ran. The next storage-first ABBA gate
+doubled response length to 128 tokens and measured 4,096 generated tokens across
+32 runs. Sparse dispatch retained a 10.03\% median throughput improvement, from
+10.2175 to 11.2427 tokens/s, and improved p95 generation time by 7.46\%.
+
+Integrity did not hold universally. One of sixteen candidate repetitions first
+changed token identifier at generation step 43 and reached maximum step-logit
+error 37.7129; its other candidate repetition and closing baseline for the same
+family were exact. Separately, one unchanged all-40 baseline repetition kept
+every token identifier but produced maximum logit error 0.634766. The other 22
+of 24 repeat comparisons were bit-identical. The result is
+\texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{989ec69183409a6b3c93c7f5d07c2c5538172d2b35ae2ef88d20bd1f221ac287}.
+
+The promoted four-family 64-token boundary remains valid. The larger cohort
+does not establish exact 128-token behavior. Baseline self-drift shows that
+Metal repeatability must be diagnosed separately, but candidate divergence also
+occurred and the exact gate will not be weakened. Deterministic-mode repetition
+of the two exposed families is the next diagnostic; even if successful, a new
+full frozen replication is required before extending the claim.

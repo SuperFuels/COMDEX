@@ -916,3 +916,13 @@ and every step logit were bit-identical, so it is
 `73a2057a10c8f04f38a41f92bec6ad6a240b8033c958c3ee761bb3570cb43dee`.
 Exactness is relative to the packed INT8 model, not FP16; unseen longer
 replication remains required.
+
+The larger unseen replication did not extend that promotion boundary. Eight
+frozen prompt families and 128 tokens retained a 10.03% median throughput gain
+and 7.46% p95 improvement, but one candidate repetition diverged at token 43.
+One unchanged baseline repetition also showed logit drift without a token
+change, proving that long-run Metal self-repeatability is a separate issue.
+Twenty-two of 24 comparisons were bit-identical, but the result remains
+`NOT_PROMOTED`, canonical report SHA-256
+`989ec69183409a6b3c93c7f5d07c2c5538172d2b35ae2ef88d20bd1f221ac287`.
+The 64-token promotion stands; 128-token generalization does not.
