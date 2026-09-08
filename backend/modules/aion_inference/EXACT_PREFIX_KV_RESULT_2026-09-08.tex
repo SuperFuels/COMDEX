@@ -178,3 +178,20 @@ additional indexing and FP16 correction kernels. It is
 \texttt{ca2604039afc04d5daf28611df89c8c96312d6c4a55e9cbf2223194e2ffd668a}.
 This falsifies sparse input-column correction for the current quantizer: its
 error is too distributed to repay the added kernels.
+
+\subsection{Teacher-forced probability diagnostic}
+
+To distinguish intrinsic quantization damage from autoregressive cascade, both
+models were then evaluated on the same 256 FP16-generated token histories. The
+packed model preserved the FP16 top-one choice at 247 positions (96.48\%) and
+achieved 96.33\% mean top-five overlap. Mean KL divergence was 0.003455 nats,
+and mean additional negative log likelihood on FP16-selected tokens was only
+0.006691 nats. All four declared probability gates passed. The canonical report
+SHA-256 is
+\texttt{1c732ec78c27f73e769275c314caeaa08c637282fafab937110ad51f48ba3930}.
+
+This result shows that raw positional agreement after free-running divergence
+substantially overstates the underlying probability damage. It is labelled
+\texttt{ADVANCE\_TO\_SEMANTIC\_TASK\_GATE}, not promoted. The logits are not
+exact, and a frozen held-out evaluation of completed answer quality is required
+before the packed model can be described as useful for long-form work.

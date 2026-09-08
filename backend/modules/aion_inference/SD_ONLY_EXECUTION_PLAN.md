@@ -917,3 +917,20 @@ The quantization error is not sufficiently concentrated in a small set of input
 columns for this residual form. Do not scale or repeat it. The next diagnostic
 is teacher-forced FP16-versus-INT8 scoring on identical histories, followed by a
 separate semantic task gate if probability/top-choice preservation is strong.
+
+That teacher-forced diagnostic has now passed all declared gates. On the same
+256 FP16-generated positions and identical histories, all-layer INT8 preserved
+the FP16 top-1 choice at 247 positions (96.48%) and achieved 96.33% mean top-five
+overlap. Mean KL divergence was 0.003455 nats, and mean additional negative log
+likelihood on FP16-chosen tokens was only 0.006691 nats. The nine disagreements
+occurred at low FP16 decision margins on average within each family. Canonical
+report SHA-256:
+`1c732ec78c27f73e769275c314caeaa08c637282fafab937110ad51f48ba3930`.
+
+This is `ADVANCE_TO_SEMANTIC_TASK_GATE`, not promotion. It establishes that raw
+autoregressive positional agreement substantially overstated underlying model
+damage: a small number of alternative greedy choices changed later histories,
+while the packed model closely preserved FP16 probabilities on equal histories.
+The next frozen gate must score completed answers on held-out semantic tasks and
+must still report unconstrained generation divergence, latency, throughput and
+memory. Exact-track claims remain prohibited because logits differ.

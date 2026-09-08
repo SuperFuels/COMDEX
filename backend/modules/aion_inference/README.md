@@ -841,3 +841,11 @@ for sparse column correction. The next diagnostic must compare FP16 and INT8 on
 identical teacher-forced histories before deciding whether the observed
 autoregressive divergence represents broad degradation or a small number of
 cascading greedy choices.
+
+The teacher-forced diagnostic passed. When both models received identical
+histories, INT8 preserved FP16's top choice at 247/256 positions (96.48%),
+achieved 96.33% mean top-five overlap, mean KL divergence of 0.003455 nats and
+only 0.006691 nats additional loss on FP16-selected tokens. This explains much
+of the low raw autoregressive match as divergence cascade rather than widespread
+probability damage. Status is `ADVANCE_TO_SEMANTIC_TASK_GATE`; exact equivalence
+is not claimed, and held-out completed-answer quality remains unproven.
