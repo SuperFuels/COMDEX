@@ -265,3 +265,29 @@ The gate will not be weakened and the direct group-size sweep will not be
 repeated. A future four-bit candidate must use activation-aware quantization,
 freeze separate calibration and evaluation activations, and improve upon the
 recorded group-32 error/speed frontier before scaling.
+
+\subsection{Activation-aware INT4 clipping boundary}
+
+A second four-bit mechanism gate replaced random activation with captured real
+Granite layer-16 activation. Commercial-risk and technical-explanation prompt
+families formed the calibration partition. Business-planning and cache-diagnosis
+families were withheld for evaluation. For every input and output expert matrix,
+the calibration-weighted reconstruction objective selected among clipping
+ratios 1.00, 0.98, 0.95, 0.90 and 0.85. Seventy-nine of eighty matrices selected
+0.98 and one selected 0.95.
+
+On the disjoint evaluation activations, normalized RMSE improved only from
+0.12036 for naive group-32 INT4 to 0.11881, and mean absolute error improved by
+1.62\%. Maximum error worsened from 0.222656 to 0.310547. The matched INT8
+maximum error was 0.0449219, so the activation-aware INT4 maximum was 6.91 times
+larger. Median one-token layer time was still 19.46\% faster than FP16 and
+slightly faster than naive INT4, but both declared error gates failed. The
+result is \texttt{STOP\_ACTIVATION\_AWARE\_INT4\_V1}; canonical report SHA-256:
+\texttt{2cb2f415902b2f802f769c215ac8a00f3f420c517166b5ee3fc12f335b4d5e78}.
+
+This falsifies simple activation-weighted clipping as the missing four-bit
+mechanism. It did not materially address distributed quantization error and
+increased the worst error. Ratio tuning will not be repeated. Any later INT4
+candidate must change the equivalent weight/activation transformation itself,
+charge runtime rescaling explicitly, and win a new narrow gate before a
+full-model library is constructed.

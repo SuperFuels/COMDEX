@@ -20,15 +20,21 @@ from backend.scripts.run_aion_int8pack_expert_microbench import (
 from backend.scripts.run_aion_moe_end_to_end_fault_in import _sha256
 
 
-def _quantize_int4_groups(weight: torch.Tensor, group_size: int
+def _quantize_int4_groups(weight: torch.Tensor, group_size: int, clip_ratio: float = 1.0
                           ) -> tuple[torch.Tensor, torch.Tensor]:
     """Affine UINT4 groups in the format consumed by Metal tinygemm."""
     rows, columns = weight.shape
     if columns % group_size or columns % 2:
         raise ValueError("weight width must be divisible by group size and two")
     grouped = weight.float().reshape(rows, columns // group_size, group_size)
+    if not 0 < clip_ratio <= 1:
+        raise ValueError("clip ratio must be in (0, 1]")
     maximum = grouped.amax(dim=2, keepdim=True)
     minimum = grouped.amin(dim=2, keepdim=True)
+    midpoint = (maximum + minimum) / 2
+    half_range = (maximum - minimum) * (clip_ratio / 2)
+    maximum = midpoint + half_range
+    minimum = midpoint - half_range
     scales = (maximum - minimum).clamp_min(1e-6) / 15.0
     zeros = minimum + scales * 8.0
     quantized = ((grouped - minimum) / scales).round().clamp(0, 15)

@@ -876,3 +876,13 @@ result is `STOP_INT4_DIRECT_PATH`, report SHA-256
 `1f6a3b60c40fe351e635140c1ce0a31c4ee4854b65c85c206be8184055955b07`.
 Naive INT4 must not be scaled; a future candidate requires activation-aware
 quantization with frozen calibration/evaluation separation.
+
+Activation-weighted INT4 clipping was tested next on real layer-16 activations,
+using two prompt families for calibration and two disjoint families for
+evaluation. It retained a 19.46% median one-token layer speed improvement, but
+only reduced normalized RMSE from 0.12036 to 0.11881 and worsened maximum error
+from 0.222656 to 0.310547. That was 6.91 times the matched INT8 maximum error.
+It is `STOP_ACTIVATION_AWARE_INT4_V1`, report SHA-256
+`2cb2f415902b2f802f769c215ac8a00f3f420c517166b5ee3fc12f335b4d5e78`.
+Simple clipping-ratio tuning is stopped; future INT4 work must use a different
+equivalent transformation and explicitly charge any runtime rescaling cost.

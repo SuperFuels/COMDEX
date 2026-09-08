@@ -988,3 +988,23 @@ not earn a full-model build. Do not relax the quality gate or repeat the direct
 group-size sweep. Any further four-bit candidate must be activation-aware, use
 separate calibration and evaluation activations, and beat this recorded group-32
 quality/speed frontier before it can scale.
+
+The first activation-aware INT4 candidate used real Granite layer-16
+activations, with commercial-risk and technical-explanation prompts reserved for
+calibration and business-planning and cache-diagnosis prompts used only for
+evaluation. Calibration selected a 0.98 clipping ratio for 79/80 expert matrices
+and 0.95 for one. On the disjoint evaluation activations, normalized RMSE
+improved only from 0.12036 to 0.11881 and mean absolute error improved 1.62%,
+while maximum error worsened from 0.222656 to 0.310547. Matched INT8 maximum
+error was 0.0449219, making activation-aware INT4 6.91 times worse. Median
+one-token layer time remained useful at 19.46% faster than FP16, but both quality
+requirements failed. The result is `STOP_ACTIVATION_AWARE_INT4_V1`; canonical
+report SHA-256:
+`2cb2f415902b2f802f769c215ac8a00f3f420c517166b5ee3fc12f335b4d5e78`.
+
+Simple activation-weighted clipping is therefore stopped. It found the same
+mild clip almost everywhere, did not materially reduce distributed four-bit
+error, and increased the worst error. Do not repeat ratio tuning. Any later
+four-bit work must change the transformation itself---for example equivalent
+activation/weight rescaling with its runtime cost explicitly charged---and must
+first win a new narrow gate before full-model construction.

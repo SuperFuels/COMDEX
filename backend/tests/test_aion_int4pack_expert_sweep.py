@@ -22,3 +22,11 @@ def test_int4_group_format_rejects_incompatible_width() -> None:
     except ValueError:
         return
     raise AssertionError("incompatible width must be rejected")
+
+
+def test_int4_group_format_rejects_invalid_clip_ratio() -> None:
+    try:
+        _quantize_int4_groups(torch.ones((2, 64), dtype=torch.float16), 32, 1.1)
+    except ValueError:
+        return
+    raise AssertionError("invalid clipping ratio must be rejected")
