@@ -13,7 +13,7 @@ import torch
 import torch.nn.functional as functional
 
 from backend.modules.aion_inference.int8_glyph_moe import (
-    Int8GlyphParallelExperts, load_layer_entries,
+    Int8GlyphParallelExperts, fused_metal_shader_source, load_layer_entries,
 )
 from backend.scripts.run_aion_int8_glyph_full_model import _canonical_sha256
 from backend.scripts.run_aion_int8pack_expert_microbench import _p95
@@ -21,38 +21,7 @@ from backend.scripts.run_aion_moe_end_to_end_fault_in import _sha256
 
 
 def _shader_source() -> str:
-    parameters = ", ".join(
-        f"device const char* w{i} [[buffer({1 + 2 * i})]], "
-        f"device const half* s{i} [[buffer({2 + 2 * i})]]"
-        for i in range(8)
-    )
-    cases = " ".join(
-        f"case {i}: weight = w{i}; scale = s{i}; break;" for i in range(1, 8)
-    )
-    return f"""
-#include <metal_stdlib>
-using namespace metal;
-kernel void fused8(
-    device const half* input [[buffer(0)]], {parameters},
-    device half* output [[buffer(17)]], constant uint& width [[buffer(18)]],
-    constant uint& rows [[buffer(19)]],
-    uint2 group [[threadgroup_position_in_grid]],
-    uint lane [[thread_index_in_threadgroup]]) {{
-  uint row = group.x;
-  uint slot = group.y;
-  device const char* weight = w0;
-  device const half* scale = s0;
-  switch (slot) {{ {cases} }}
-  float value = 0.0f;
-  uint weight_base = row * width;
-  uint input_base = slot * width;
-  for (uint column = lane; column < width; column += 32) {{
-    value += float(input[input_base + column]) * float(weight[weight_base + column]);
-  }}
-  value = simd_sum(value);
-  if (lane == 0) output[slot * rows + row] = half(value * float(scale[row]));
-}}
-"""
+    return fused_metal_shader_source()
 
 
 def _launch(kernel, values, pairs, output) -> None:

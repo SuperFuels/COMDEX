@@ -533,3 +533,26 @@ means it belongs to the explicitly separate quality-gated changed-kernel track,
 not the bit-exact track. Full-model integration must be limited to one-token,
 eight-unique-expert decode with the promoted packed-INT8 fallback retained, then
 pass frozen probability, token, latency, memory and semantic gates.
+
+\subsection{Fused-kernel full-model boundary}
+
+The integration activated fused execution only for one-token routes containing
+eight unique expert assignments and retained the promoted sparse packed-INT8
+fallback everywhere else. Both conditions shared one storage-first resident
+model; the candidate added 1.25 MiB of bounded output buffers.
+
+Across the four-family, 64-token ABBA gate, median throughput improved from
+10.9755 to 11.5191 tokens/s, a 4.95\% gain, and p95 generation time improved by
+5.40\%. The candidate nevertheless missed its frozen 5\% throughput floor by
+0.05 percentage points. Integrity also failed: only two of four families kept
+identical generated token sequences. Both candidate repeats diverged for the
+technical-explanation and business-planning families, whereas every closing
+sparse-INT8 control repeat remained exact. Maximum accumulated step-logit error
+was 38.5405. The result is \texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{fe7f1f63669671ab02509b7c9187bc0b4d7cf5a12975f1b91781f72abb91346b}.
+
+Fused Metal matvec v1 is stopped at the full-model boundary and remains disabled
+by default. The narrow kernel's small local error is amplified by recurrent
+autoregressive execution. Its measured speed gain is preserved as evidence but
+is not a promotion. A future kernel requires materially lower accumulated error
+under a new frozen narrow gate before model-scale repetition.

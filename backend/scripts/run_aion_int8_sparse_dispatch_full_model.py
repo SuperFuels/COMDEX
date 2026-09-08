@@ -60,6 +60,11 @@ def _set_cached_views(model: Any, enabled: bool) -> None:
         layer.block_sparse_moe.experts.use_cached_weight_views = enabled
 
 
+def _set_fused_metal(model: Any, enabled: bool) -> None:
+    for layer in model.model.layers:
+        layer.block_sparse_moe.experts.use_fused_metal_matvec = enabled
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--storage-root", type=Path, required=True)
@@ -76,8 +81,16 @@ def main() -> int:
         help=("Compare promoted sparse dispatch with dynamic versus cached resident "
               "weight views; both conditions retain sparse dispatch."),
     )
+    parser.add_argument(
+        "--fused-metal-gate", action="store_true",
+        help=("Compare promoted sparse INT8 decode with the quality-gated fused "
+              "eight-expert Metal matvec."),
+    )
+    parser.add_argument("--fused-maximum-step-logit-error", type=float, default=0.05)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    if args.cached_views_gate and args.fused_metal_gate:
+        raise SystemExit("select only one experimental comparison")
     root = args.storage_root.resolve()
     paths = {"model": args.model_path.resolve(),
              "source_manifest": args.source_manifest.resolve(),
@@ -119,6 +132,7 @@ def main() -> int:
         entries = load_layer_entries(glyph, layer_index, root, _sha256)
         layer.block_sparse_moe = Int8GlyphMoE(
             source_moe, entries, root, _sha256, "mps", skip_empty_experts=False,
+            prepare_fused_metal_matvec=args.fused_metal_gate,
         )
         source_moe = None
         gc.collect()
@@ -128,23 +142,29 @@ def main() -> int:
 
     # Warm both compared modes without including warmup in evidence timing.
     for enabled in (False, True):
-        _set_sparse(model, True if args.cached_views_gate else enabled)
+        _set_sparse(model, True if (args.cached_views_gate or args.fused_metal_gate) else enabled)
         _set_cached_views(model, enabled if args.cached_views_gate else False)
+        _set_fused_metal(model, enabled if args.fused_metal_gate else False)
         _generate(model, tokenizer, prompts[0]["prompt"], 2)
 
     runs = []
     for prompt in prompts:
         for sequence, enabled in enumerate((False, True, True, False)):
-            _set_sparse(model, True if args.cached_views_gate else enabled)
+            _set_sparse(model, True if (args.cached_views_gate or args.fused_metal_gate) else enabled)
             _set_cached_views(model, enabled if args.cached_views_gate else False)
+            _set_fused_metal(model, enabled if args.fused_metal_gate else False)
             result = _generate(model, tokenizer, prompt["prompt"], args.generated_tokens)
             runs.append({"family": prompt["family"], "sequence": sequence,
-                         "condition": (("cached_views" if enabled else "dynamic_views")
-                                       if args.cached_views_gate else
-                                       ("active_only" if enabled else "all_40")),
+                         "condition": (("fused_metal" if enabled else "sparse_int8")
+                                       if args.fused_metal_gate else
+                                       (("cached_views" if enabled else "dynamic_views")
+                                        if args.cached_views_gate else
+                                        ("active_only" if enabled else "all_40"))),
                          **result})
-    control_label = "dynamic_views" if args.cached_views_gate else "all_40"
-    candidate_label = "cached_views" if args.cached_views_gate else "active_only"
+    control_label = ("sparse_int8" if args.fused_metal_gate else
+                     ("dynamic_views" if args.cached_views_gate else "all_40"))
+    candidate_label = ("fused_metal" if args.fused_metal_gate else
+                       ("cached_views" if args.cached_views_gate else "active_only"))
     controls = [item for item in runs if item["condition"] == control_label]
     candidates = [item for item in runs if item["condition"] == candidate_label]
     control_summary = _summarize(controls)
@@ -165,12 +185,19 @@ def main() -> int:
     p95_time_improvement = 100 * (
         1 - candidate_summary["p95_seconds_nearest_rank"] /
         control_summary["p95_seconds_nearest_rank"])
+    maximum_step_error = max(item["maximum_step_logit_error"] for item in equivalence)
     acceptance = {
         "all_token_ids_exact": all(item["token_ids_exact"] for item in equivalence),
-        "all_step_logits_bit_exact": all(item["step_logits_bit_exact"] for item in equivalence),
-        ("median_throughput_improved_at_least_2_percent" if args.cached_views_gate else
-         "median_throughput_improved_at_least_10_percent"):
-            speed_improvement >= (2 if args.cached_views_gate else 10),
+        ("step_logits_within_quality_ceiling" if args.fused_metal_gate else
+         "all_step_logits_bit_exact"):
+            (maximum_step_error <= args.fused_maximum_step_logit_error
+             if args.fused_metal_gate else
+             all(item["step_logits_bit_exact"] for item in equivalence)),
+        ("median_throughput_improved_at_least_5_percent" if args.fused_metal_gate else
+         ("median_throughput_improved_at_least_2_percent" if args.cached_views_gate else
+          "median_throughput_improved_at_least_10_percent")):
+            speed_improvement >= (5 if args.fused_metal_gate else
+                                  (2 if args.cached_views_gate else 10)),
         "p95_generation_time_not_regressed": p95_time_improvement >= 0,
         "storage_first_skipped_all_fp16_expert_tensors": (
             shared_load["skipped_expert_tensor_count"] == 64 and
@@ -196,6 +223,11 @@ def main() -> int:
               "order_per_family": [control_label, candidate_label,
                                     candidate_label, control_label],
               "cached_views_gate": args.cached_views_gate,
+              "fused_metal_gate": args.fused_metal_gate,
+              "track": ("quality_gated_changed_kernel_not_bit_exact"
+                         if args.fused_metal_gate else "exact_within_candidate"),
+              "fused_maximum_step_logit_error": args.fused_maximum_step_logit_error,
+              "fused_projected_buffer_bytes": (1_310_720 if args.fused_metal_gate else 0),
               "empty_dispatch_behavior": (
                   "skip zero-token Metal matrix operations while preserving all 40 empty/nonempty "
                   "concatenation entries"
@@ -204,14 +236,15 @@ def main() -> int:
               "control": control_summary, "candidate": candidate_summary,
               "aggregate": {"median_throughput_improvement_percent": speed_improvement,
                             "p95_generation_time_improvement_percent": p95_time_improvement,
-                            "maximum_step_logit_error": max(
-                                item["maximum_step_logit_error"] for item in equivalence)},
+                            "maximum_step_logit_error": maximum_step_error},
               "equivalence": equivalence, "runs": bounded_runs,
               "acceptance": acceptance,
               "decision": (("DIAGNOSTIC_SUPPORTS_FRESH_REPLICATION"
                             if args.diagnostic_only else
                             ("PROMOTE_INT8_CACHED_WEIGHT_VIEWS" if args.cached_views_gate else
-                             "PROMOTE_INT8_SPARSE_DISPATCH"))
+                             ("ADVANCE_FUSED_METAL_TO_SEMANTIC_GATE"
+                              if args.fused_metal_gate else
+                              "PROMOTE_INT8_SPARSE_DISPATCH")))
                            if all(acceptance.values()) else "NOT_PROMOTED"),
               "claim_boundary": ("Storage-first, full-resident packed-INT8 Granite; four fixed "
                                  "or explicitly selected prompt families, two ABBA observations "

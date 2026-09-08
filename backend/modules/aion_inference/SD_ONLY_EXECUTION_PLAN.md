@@ -1229,3 +1229,19 @@ claim. Because reduction order differs, it is explicitly outside the bit-exact
 track. Next, integrate it only for one-token eight-unique-expert decode, retain
 the promoted packed-INT8 path as fallback, and run frozen full-model probability,
 token, latency, memory and semantic gates before promotion.
+
+The subsequent storage-first four-family, 64-token ABBA integration did not
+pass. Fused execution improved median throughput from 10.9755 to 11.5191
+tokens/s (4.95%) and p95 generation time by 5.40%, but missed the frozen 5%
+throughput threshold by 0.05 percentage points. More importantly, only two of
+four prompt families retained identical token sequences. Both candidate repeats
+diverged for technical explanation and business planning, while every closing
+sparse-INT8 control repeat remained exact. Maximum accumulated step-logit error
+was 38.5405. The result is `NOT_PROMOTED`; canonical report SHA-256:
+`fe7f1f63669671ab02509b7c9187bc0b4d7cf5a12975f1b91781f72abb91346b`.
+
+Stop fused Metal matvec v1 at the full-model boundary and keep it disabled by
+default. Its narrow numerical error is small, but recurrent autoregressive
+execution amplifies changed reduction order. Do not relabel the measured speed
+gain as a promotion. A future fused kernel must materially reduce accumulated
+error under a new frozen narrow gate before another model-scale run.

@@ -3,12 +3,54 @@
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 from safetensors.torch import load_file
 import torch
 from torch import nn
+
+
+def fused_metal_shader_source() -> str:
+    """Return the bounded eight-expert one-token INT8 Metal kernel."""
+    parameters = ", ".join(
+        f"device const char* w{i} [[buffer({1 + 2 * i})]], "
+        f"device const half* s{i} [[buffer({2 + 2 * i})]]"
+        for i in range(8)
+    )
+    cases = " ".join(
+        f"case {i}: weight = w{i}; scale = s{i}; break;" for i in range(1, 8)
+    )
+    return f"""
+#include <metal_stdlib>
+using namespace metal;
+kernel void fused8(
+    device const half* input [[buffer(0)]], {parameters},
+    device half* output [[buffer(17)]], constant uint& width [[buffer(18)]],
+    constant uint& rows [[buffer(19)]],
+    uint2 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]) {{
+  uint row = group.x;
+  uint slot = group.y;
+  device const char* weight = w0;
+  device const half* scale = s0;
+  switch (slot) {{ {cases} }}
+  float value = 0.0f;
+  uint weight_base = row * width;
+  uint input_base = slot * width;
+  for (uint column = lane; column < width; column += 32) {{
+    value += float(input[input_base + column]) * float(weight[weight_base + column]);
+  }}
+  value = simd_sum(value);
+  if (lane == 0) output[slot * rows + row] = half(value * float(scale[row]));
+}}
+"""
+
+
+@lru_cache(maxsize=1)
+def _fused_metal_kernel():
+    return torch.mps.compile_shader(fused_metal_shader_source()).fused8
 
 
 def _nonempty_splits(inputs: torch.Tensor, expert_size: Any
@@ -27,7 +69,9 @@ class Int8GlyphParallelExperts(nn.Module):
                  use_decode_arena: bool = False,
                  decode_arena_capacity: int = 0,
                  use_cached_weight_views: bool = False,
-                 use_cached_empty_views: bool = False) -> None:
+                 use_cached_empty_views: bool = False,
+                 prepare_fused_metal_matvec: bool = False,
+                 use_fused_metal_matvec: bool = False) -> None:
         super().__init__()
         if len(entries) != 40:
             raise ValueError("Granite requires exactly 40 expert blocks per layer")
@@ -37,6 +81,7 @@ class Int8GlyphParallelExperts(nn.Module):
         self.decode_arena_capacity = decode_arena_capacity
         self.use_cached_weight_views = use_cached_weight_views
         self.use_cached_empty_views = use_cached_empty_views
+        self.use_fused_metal_matvec = use_fused_metal_matvec
         for index, entry in enumerate(entries):
             path = Path(entry["path"]).resolve()
             if storage_root not in path.parents or verify_hash(path) != entry["sha256"]:
@@ -73,6 +118,17 @@ class Int8GlyphParallelExperts(nn.Module):
             "output_empty", torch.empty((0, output_widths.pop()), dtype=torch.float16,
                                         device=device), persistent=False,
         )
+        fused_capacity = 8 if prepare_fused_metal_matvec else 0
+        self.register_buffer(
+            "fused_input_output",
+            torch.empty((fused_capacity, int(entries[0]["input_shape"][0])),
+                        dtype=torch.float16, device=device), persistent=False,
+        )
+        self.register_buffer(
+            "fused_output_output",
+            torch.empty((fused_capacity, int(entries[0]["output_shape"][0])),
+                        dtype=torch.float16, device=device), persistent=False,
+        )
 
     def _finish(self, outputs: list[torch.Tensor], arena: torch.Tensor,
                 total: int) -> torch.Tensor:
@@ -104,7 +160,31 @@ class Int8GlyphParallelExperts(nn.Module):
             return self._cached_weight_views[index]
         return self._materialize_weights(index)
 
+    def _fused_projection(self, inputs: torch.Tensor, expert_size: Any,
+                          output_projection: bool) -> torch.Tensor | None:
+        if not self.use_fused_metal_matvec or inputs.shape[0] != 8:
+            return None
+        active = [index for index, size in enumerate(expert_size) if int(size) == 1]
+        if len(active) != 8 or sum(int(size) for size in expert_size) != 8:
+            return None
+        pairs = []
+        for index in active:
+            input_weight, input_scale, output_weight, output_scale = self._weights(index)
+            pairs.append((output_weight, output_scale) if output_projection else
+                         (input_weight, input_scale))
+        destination = self.fused_output_output if output_projection else self.fused_input_output
+        arguments = []
+        for weight, scale in pairs:
+            arguments.extend((weight, scale))
+        rows, width = pairs[0][0].shape
+        _fused_metal_kernel()(inputs, *arguments, destination, width, rows,
+                              threads=(rows * 32, 8, 1), group_size=(32, 1, 1))
+        return destination
+
     def input_forward(self, inputs: torch.Tensor, expert_size: torch.Tensor) -> torch.Tensor:
+        fused = self._fused_projection(inputs, expert_size, False)
+        if fused is not None:
+            return fused
         input_list = inputs.split(expert_size, dim=0)
         outputs = []
         for index, values in enumerate(input_list):
@@ -117,6 +197,9 @@ class Int8GlyphParallelExperts(nn.Module):
         return self._finish(outputs, self.input_arena, inputs.shape[0])
 
     def output_forward(self, inputs: torch.Tensor, expert_size: torch.Tensor) -> torch.Tensor:
+        fused = self._fused_projection(inputs, expert_size, True)
+        if fused is not None:
+            return fused
         input_list = inputs.split(expert_size, dim=0)
         outputs = []
         for index, values in enumerate(input_list):
@@ -138,7 +221,9 @@ class Int8GlyphMoE(nn.Module):
                  use_decode_arena: bool = False,
                  decode_arena_capacity: int = 0,
                  use_cached_weight_views: bool = False,
-                 use_cached_empty_views: bool = False) -> None:
+                 use_cached_empty_views: bool = False,
+                 prepare_fused_metal_matvec: bool = False,
+                 use_fused_metal_matvec: bool = False) -> None:
         super().__init__()
         self.input_size = source_moe.input_size
         self.hidden_size = source_moe.hidden_size
@@ -147,7 +232,8 @@ class Int8GlyphMoE(nn.Module):
         self.experts = Int8GlyphParallelExperts(
             entries, storage_root, verify_hash, device, skip_empty_experts,
             use_decode_arena, decode_arena_capacity, use_cached_weight_views,
-            use_cached_empty_views,
+            use_cached_empty_views, prepare_fused_metal_matvec,
+            use_fused_metal_matvec,
         )
 
     def forward(self, layer_input: torch.Tensor) -> torch.Tensor:

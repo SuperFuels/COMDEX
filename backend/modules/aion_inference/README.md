@@ -983,3 +983,12 @@ frozen 0.00075 ceiling. It is
 `18b1ce06a354cb4b1e5c480bf2bb5f84e34ceceafebac5177b2a1aa2ffb2238f`.
 This is a changed-kernel quality-gated track, not bit-exact or full-model
 promotion; ordinary packed INT8 remains the fallback until integration gates pass.
+
+The 64-token four-family full-model integration was therefore correctly stopped.
+The fused candidate improved median throughput 4.95% (10.9755 to 11.5191
+tokens/s) and p95 time 5.40%, but missed its 5% speed floor and changed generated
+tokens in two of four families. All closing sparse-INT8 controls remained exact;
+maximum candidate step-logit error after autoregressive accumulation was 38.5405.
+It is `NOT_PROMOTED`, report SHA-256
+`fe7f1f63669671ab02509b7c9187bc0b4d7cf5a12975f1b91781f72abb91346b`.
+Fused v1 remains disabled; the promoted sparse INT8 path is unchanged.
