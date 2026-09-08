@@ -1268,3 +1268,38 @@ Stop sensitivity-selected fusion. Layer selection did not prevent recurrent
 error accumulation or tail regression. Do not attempt progressively smaller
 post-hoc layer subsets on this holdout. Future fused work must improve arithmetic
 agreement at the kernel itself under a new calibration and evaluation design.
+
+### GPU-resident dynamic expert-bank breakthrough (2026-09-08)
+
+The next architecture removed the deeper synchronization boundary rather than
+tuning the stopped per-expert fusion. Granite formerly converted GPU expert
+counts to a Python list in every layer. AION instead retained top-eight indices
+and gates on Metal, addressed one contiguous 40-expert layer bank, executed two
+SIMD kernels, and reduced expert outputs on-device.
+
+A formal 1,000-trial real layer-16 gate improved p50 from 1.87092 to 1.18408 ms
+(36.71%) and p95 from 2.96121 to 2.21871 ms (25.07%). Maximum additional output
+error was 0.0000610352, below the 0.00075 ceiling. Logical bank weight bytes
+equalled the source representation. The result advanced to storage layout;
+report SHA-256:
+`c093f623b2e5f6fe1b142f001a9775c1939352672b3b364269104bcf30f121b4`.
+
+The SD-native build wrote 32 independently hashed banks containing 3,026,452,480
+logical bytes (2.8196 GiB) and declares zero runtime duplicate weight bytes.
+Manifest canonical SHA-256:
+`5ccd5b7d44467bd193e6cb8fc39b95df888a6f285a9d2e68690c685f24e8bb27`.
+
+On the storage-first four-family 64-token ABBA gate, bank-native INT8 achieved
+11.2886 tokens/s and dynamic-bank execution achieved 24.4679 tokens/s: a
+116.75% median throughput improvement. P95 generation time improved 56.43%,
+from 6.0314 to 2.62775 seconds. All four families and both dynamic repeats kept
+identical token sequences; all closing native controls were bit-exact. Maximum
+step-logit difference was 2.17969, so quality is not yet promoted. All mechanism,
+capacity and storage gates passed, producing
+`ADVANCE_DYNAMIC_BANK_TO_QUALITY_GATES`; report SHA-256:
+`a167b4218c07d1a396093ab65d39ff8c111bad5c69b5af62b29e9372a6e5ece9`.
+
+This is the first model-scale result near the 30-token/s target on the ordinary
+18 GB Mac. It is a genuine speed breakthrough but remains a changed-kernel
+quality-gated candidate. Direct FP16 teacher-forced probability and frozen
+semantic validation are required before runtime promotion.

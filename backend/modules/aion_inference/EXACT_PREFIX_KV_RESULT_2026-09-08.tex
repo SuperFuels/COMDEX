@@ -578,3 +578,32 @@ Sensitivity-selected fusion is stopped. It did not prevent recurrent numerical
 amplification or tail-latency regression. Progressively smaller subsets must not
 be tuned post hoc against this holdout. Any future fused candidate must improve
 the arithmetic agreement of the kernel itself under a new frozen design.
+
+\subsection{GPU-resident dynamic expert-bank breakthrough}
+
+The next architecture removed Granite's per-layer GPU-to-Python route boundary.
+Top-eight indices and gates remain on Metal and address one contiguous 40-expert
+bank; two SIMD kernels perform both projections and reduce gated outputs on the
+device. A 1,000-trial real layer-16 gate improved p50 from 1.87092 ms to 1.18408
+ms (36.71\%) and p95 from 2.96121 ms to 2.21871 ms (25.07\%). Maximum extra
+error was 0.0000610352, below the 0.00075 ceiling. The report SHA-256 is
+\texttt{c093f623b2e5f6fe1b142f001a9775c1939352672b3b364269104bcf30f121b4}.
+
+The SD-native conversion produced 32 independently hashed layer banks containing
+3,026,452,480 logical bytes (2.8196 GiB), with zero duplicate runtime weight
+bytes. Manifest canonical SHA-256:
+\texttt{5ccd5b7d44467bd193e6cb8fc39b95df888a6f285a9d2e68690c685f24e8bb27}.
+
+In four-family 64-token storage-first ABBA generation, the native-bank control
+reached 11.2886 tokens/s and dynamic-bank execution reached 24.4679 tokens/s,
+a 116.75\% improvement. P95 generation time improved 56.43\%, from 6.0314 to
+2.62775 seconds. Both dynamic repeats retained identical token sequences in all
+four families, and every closing control was bit-exact. Maximum step-logit
+difference was 2.17969. The mechanism decision is
+\texttt{ADVANCE\_DYNAMIC\_BANK\_TO\_QUALITY\_GATES}; report SHA-256:
+\texttt{a167b4218c07d1a396093ab65d39ff8c111bad5c69b5af62b29e9372a6e5ece9}.
+
+This is a genuine model-scale speed breakthrough and the first result near the
+30-token/s target on the ordinary 18 GB Mac. It is not yet a quality promotion:
+the changed kernel must pass direct FP16 teacher-forced probability and frozen
+semantic validation.

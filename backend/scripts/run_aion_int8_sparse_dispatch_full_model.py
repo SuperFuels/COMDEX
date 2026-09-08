@@ -16,6 +16,9 @@ import torch
 from transformers import AutoTokenizer
 
 from backend.modules.aion_inference.int8_glyph_moe import Int8GlyphMoE, load_layer_entries
+from backend.modules.aion_inference.int8_dynamic_bank_moe import (
+    Int8DynamicBankMoE, load_bank_entry,
+)
 from backend.scripts.run_aion_int8_glyph_full_model import _canonical_sha256, _memory
 from backend.scripts.run_aion_int8pack_expert_microbench import _p95
 from backend.scripts.run_aion_moe_end_to_end_fault_in import _sha256
@@ -67,6 +70,11 @@ def _set_fused_metal(model: Any, enabled: bool,
             enabled and (allowed_layers is None or index in allowed_layers))
 
 
+def _set_dynamic_bank(model: Any, enabled: bool) -> None:
+    for layer in model.model.layers:
+        layer.block_sparse_moe.use_dynamic_decode = enabled
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--storage-root", type=Path, required=True)
@@ -91,14 +99,20 @@ def main() -> int:
     parser.add_argument("--fused-maximum-step-logit-error", type=float, default=0.05)
     parser.add_argument("--fused-minimum-throughput-gain", type=float, default=5.0)
     parser.add_argument("--fused-layer-plan", type=Path)
+    parser.add_argument("--dynamic-bank-manifest", type=Path)
+    parser.add_argument("--dynamic-bank-gate", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    if args.cached_views_gate and args.fused_metal_gate:
+    if sum((args.cached_views_gate, args.fused_metal_gate, args.dynamic_bank_gate)) > 1:
         raise SystemExit("select only one experimental comparison")
+    if args.dynamic_bank_gate != (args.dynamic_bank_manifest is not None):
+        raise SystemExit("dynamic bank gate and manifest must be supplied together")
     root = args.storage_root.resolve()
     paths = {"model": args.model_path.resolve(),
              "source_manifest": args.source_manifest.resolve(),
              "glyph_manifest": args.glyph_manifest.resolve()}
+    if args.dynamic_bank_manifest is not None:
+        paths["dynamic_bank_manifest"] = args.dynamic_bank_manifest.resolve()
     output = args.output.resolve()
     if any(root not in path.parents for path in (*paths.values(), output)):
         raise SystemExit("model, weights and evidence must remain on external storage")
@@ -133,10 +147,16 @@ def main() -> int:
         torch.use_deterministic_algorithms(True)
     source = json.loads(paths["source_manifest"].read_text())
     glyph = json.loads(paths["glyph_manifest"].read_text())
+    dynamic_bank = (json.loads(paths["dynamic_bank_manifest"].read_text())
+                    if args.dynamic_bank_gate else None)
     if not all(source["integrity"].values()) or not all(glyph["integrity"].values()):
         raise RuntimeError("manifest integrity failed")
     if glyph["source_manifest_sha256"] != _sha256(paths["source_manifest"]):
         raise RuntimeError("Glyph/source binding failed")
+    if dynamic_bank is not None:
+        if (not all(dynamic_bank["integrity"].values()) or
+                dynamic_bank["source_glyph_manifest_sha256"] != _sha256(paths["glyph_manifest"])):
+            raise RuntimeError("dynamic bank/source binding failed")
     verification = _verify_source_checkpoint(root, source)
     if not verification["passed"]:
         raise RuntimeError("checkpoint verification failed")
@@ -148,12 +168,17 @@ def main() -> int:
     model, shared_load = _load_storage_first_model(paths["model"], checkpoint_index)
     for layer_index, layer in enumerate(model.model.layers):
         source_moe = layer.block_sparse_moe
-        entries = load_layer_entries(glyph, layer_index, root, _sha256)
-        layer.block_sparse_moe = Int8GlyphMoE(
-            source_moe, entries, root, _sha256, "mps", skip_empty_experts=False,
-            prepare_fused_metal_matvec=(args.fused_metal_gate and
-                                        (fused_layers is None or layer_index in fused_layers)),
-        )
+        if dynamic_bank is not None:
+            bank_entry = load_bank_entry(dynamic_bank, layer_index, root, _sha256)
+            layer.block_sparse_moe = Int8DynamicBankMoE(
+                source_moe, bank_entry, root, _sha256, "mps", use_dynamic_decode=False)
+        else:
+            entries = load_layer_entries(glyph, layer_index, root, _sha256)
+            layer.block_sparse_moe = Int8GlyphMoE(
+                source_moe, entries, root, _sha256, "mps", skip_empty_experts=False,
+                prepare_fused_metal_matvec=(args.fused_metal_gate and
+                                            (fused_layers is None or layer_index in fused_layers)),
+            )
         source_moe = None
         gc.collect()
     torch.mps.synchronize()
@@ -162,29 +187,37 @@ def main() -> int:
 
     # Warm both compared modes without including warmup in evidence timing.
     for enabled in (False, True):
-        _set_sparse(model, True if (args.cached_views_gate or args.fused_metal_gate) else enabled)
-        _set_cached_views(model, enabled if args.cached_views_gate else False)
-        _set_fused_metal(model, enabled if args.fused_metal_gate else False, fused_layers)
+        if not args.dynamic_bank_gate:
+            _set_sparse(model, True if (args.cached_views_gate or args.fused_metal_gate) else enabled)
+            _set_cached_views(model, enabled if args.cached_views_gate else False)
+            _set_fused_metal(model, enabled if args.fused_metal_gate else False, fused_layers)
+        _set_dynamic_bank(model, enabled if args.dynamic_bank_gate else False)
         _generate(model, tokenizer, prompts[0]["prompt"], 2)
 
     runs = []
     for prompt in prompts:
         for sequence, enabled in enumerate((False, True, True, False)):
-            _set_sparse(model, True if (args.cached_views_gate or args.fused_metal_gate) else enabled)
-            _set_cached_views(model, enabled if args.cached_views_gate else False)
-            _set_fused_metal(model, enabled if args.fused_metal_gate else False, fused_layers)
+            if not args.dynamic_bank_gate:
+                _set_sparse(model, True if (args.cached_views_gate or args.fused_metal_gate) else enabled)
+                _set_cached_views(model, enabled if args.cached_views_gate else False)
+                _set_fused_metal(model, enabled if args.fused_metal_gate else False, fused_layers)
+            _set_dynamic_bank(model, enabled if args.dynamic_bank_gate else False)
             result = _generate(model, tokenizer, prompt["prompt"], args.generated_tokens)
             runs.append({"family": prompt["family"], "sequence": sequence,
-                         "condition": (("fused_metal" if enabled else "sparse_int8")
+                         "condition": (("dynamic_bank" if enabled else "bank_native_int8")
+                                       if args.dynamic_bank_gate else
+                                       (("fused_metal" if enabled else "sparse_int8")
                                        if args.fused_metal_gate else
                                        (("cached_views" if enabled else "dynamic_views")
                                         if args.cached_views_gate else
-                                        ("active_only" if enabled else "all_40"))),
+                                        ("active_only" if enabled else "all_40")))),
                          **result})
-    control_label = ("sparse_int8" if args.fused_metal_gate else
-                     ("dynamic_views" if args.cached_views_gate else "all_40"))
-    candidate_label = ("fused_metal" if args.fused_metal_gate else
-                       ("cached_views" if args.cached_views_gate else "active_only"))
+    control_label = ("bank_native_int8" if args.dynamic_bank_gate else
+                     ("sparse_int8" if args.fused_metal_gate else
+                      ("dynamic_views" if args.cached_views_gate else "all_40")))
+    candidate_label = ("dynamic_bank" if args.dynamic_bank_gate else
+                       ("fused_metal" if args.fused_metal_gate else
+                        ("cached_views" if args.cached_views_gate else "active_only")))
     controls = [item for item in runs if item["condition"] == control_label]
     candidates = [item for item in runs if item["condition"] == candidate_label]
     control_summary = _summarize(controls)
@@ -206,24 +239,34 @@ def main() -> int:
         1 - candidate_summary["p95_seconds_nearest_rank"] /
         control_summary["p95_seconds_nearest_rank"])
     maximum_step_error = max(item["maximum_step_logit_error"] for item in equivalence)
-    acceptance = {
-        "all_token_ids_exact": all(item["token_ids_exact"] for item in equivalence),
-        ("step_logits_within_quality_ceiling" if args.fused_metal_gate else
-         "all_step_logits_bit_exact"):
-            (maximum_step_error <= args.fused_maximum_step_logit_error
+    storage_first_exact = (shared_load["skipped_expert_tensor_count"] == 64 and
+                           not shared_load["remaining_meta_parameters"])
+    if args.dynamic_bank_gate:
+        acceptance = {
+            "median_throughput_improved_at_least_10_percent": speed_improvement >= 10,
+            "p95_generation_time_improved_at_least_5_percent": p95_time_improvement >= 5,
+            "bank_logical_bytes_within_3_gib": dynamic_bank["summary"]["logical_bytes"] <= 3 * 2**30,
+            "bank_declares_zero_runtime_duplicate_weight_bytes":
+                dynamic_bank["summary"]["duplicate_weight_bytes_at_runtime"] == 0,
+            "storage_first_skipped_all_fp16_expert_tensors": storage_first_exact,
+        }
+    else:
+        acceptance = {
+            "all_token_ids_exact": all(item["token_ids_exact"] for item in equivalence),
+            ("step_logits_within_quality_ceiling" if args.fused_metal_gate else
+             "all_step_logits_bit_exact"):
+                (maximum_step_error <= args.fused_maximum_step_logit_error
+                 if args.fused_metal_gate else
+                 all(item["step_logits_bit_exact"] for item in equivalence)),
+            (f"median_throughput_improved_at_least_{args.fused_minimum_throughput_gain:g}_percent"
              if args.fused_metal_gate else
-             all(item["step_logits_bit_exact"] for item in equivalence)),
-        (f"median_throughput_improved_at_least_{args.fused_minimum_throughput_gain:g}_percent"
-         if args.fused_metal_gate else
-         ("median_throughput_improved_at_least_2_percent" if args.cached_views_gate else
-          "median_throughput_improved_at_least_10_percent")):
-            speed_improvement >= (args.fused_minimum_throughput_gain if args.fused_metal_gate else
-                                  (2 if args.cached_views_gate else 10)),
-        "p95_generation_time_not_regressed": p95_time_improvement >= 0,
-        "storage_first_skipped_all_fp16_expert_tensors": (
-            shared_load["skipped_expert_tensor_count"] == 64 and
-            not shared_load["remaining_meta_parameters"]),
-    }
+             ("median_throughput_improved_at_least_2_percent" if args.cached_views_gate else
+              "median_throughput_improved_at_least_10_percent")):
+                speed_improvement >= (args.fused_minimum_throughput_gain if args.fused_metal_gate else
+                                      (2 if args.cached_views_gate else 10)),
+            "p95_generation_time_not_regressed": p95_time_improvement >= 0,
+            "storage_first_skipped_all_fp16_expert_tensors": storage_first_exact,
+        }
     bounded_runs = []
     for item in runs:
         bounded_runs.append({key: value for key, value in item.items()
@@ -245,8 +288,10 @@ def main() -> int:
                                     candidate_label, control_label],
               "cached_views_gate": args.cached_views_gate,
               "fused_metal_gate": args.fused_metal_gate,
+              "dynamic_bank_gate": args.dynamic_bank_gate,
               "track": ("quality_gated_changed_kernel_not_bit_exact"
-                         if args.fused_metal_gate else "exact_within_candidate"),
+                         if (args.fused_metal_gate or args.dynamic_bank_gate)
+                         else "exact_within_candidate"),
               "fused_maximum_step_logit_error": args.fused_maximum_step_logit_error,
               "fused_minimum_throughput_gain_percent": args.fused_minimum_throughput_gain,
               "fused_layer_plan_path": (str(args.fused_layer_plan.resolve())
@@ -269,16 +314,22 @@ def main() -> int:
               "acceptance": acceptance,
               "decision": (("DIAGNOSTIC_SUPPORTS_FRESH_REPLICATION"
                             if args.diagnostic_only else
-                            ("PROMOTE_INT8_CACHED_WEIGHT_VIEWS" if args.cached_views_gate else
+                            ("ADVANCE_DYNAMIC_BANK_TO_QUALITY_GATES"
+                             if args.dynamic_bank_gate else
+                             ("PROMOTE_INT8_CACHED_WEIGHT_VIEWS" if args.cached_views_gate else
                              ("ADVANCE_FUSED_METAL_TO_SEMANTIC_GATE"
                               if args.fused_metal_gate else
-                              "PROMOTE_INT8_SPARSE_DISPATCH")))
+                              "PROMOTE_INT8_SPARSE_DISPATCH"))))
                            if all(acceptance.values()) else "NOT_PROMOTED"),
-              "claim_boundary": ("Storage-first, full-resident packed-INT8 Granite; four fixed "
-                                 "or explicitly selected prompt families, two ABBA observations "
-                                 "per condition. Exactness is relative to the prior packed-INT8 "
-                                 "candidate, not FP16 semantic equivalence. A diagnostic-only "
-                                 "post-hoc selection cannot extend promotion.")}
+              "claim_boundary": (("Dynamic-bank mechanism gate measures storage-first speed, "
+                                  "p95 and memory only. Token/logit differences are reported; "
+                                  "teacher-forced and semantic quality require separate gates."
+                                  if args.dynamic_bank_gate else
+                                  "Storage-first, full-resident packed-INT8 Granite; four fixed "
+                                  "or explicitly selected prompt families, two ABBA observations "
+                                  "per condition. Exactness is relative to the prior packed-INT8 "
+                                  "candidate, not FP16 semantic equivalence. A diagnostic-only "
+                                  "post-hoc selection cannot extend promotion."))}
     report["report_sha256"] = _canonical_sha256(report)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")

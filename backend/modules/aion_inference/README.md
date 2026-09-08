@@ -1002,3 +1002,18 @@ sequences in both candidate repeats, and maximum logit error reached 30.3359.
 All closing controls were exact. The result is `NOT_PROMOTED`, report SHA-256
 `302f634116f56606e0fa6a9babfe8a863f84b3056fd33f60d8ee9ee97af44386`.
 Do not tune smaller subsets against this holdout; kernel arithmetic must improve.
+
+GPU-resident dynamic banking then produced the major speed result. AION keeps
+top-eight routes on Metal and addresses one contiguous 40-expert layer bank,
+removing Python `tolist()` synchronization. The formal layer gate improved p50
+36.71% and p95 25.07%, with maximum error 0.0000610 (report SHA-256
+`c093f623b2e5f6fe1b142f001a9775c1939352672b3b364269104bcf30f121b4`).
+The SD-native 32-layer bank is 2.8196 GiB with zero runtime duplicate weights;
+manifest hash `5ccd5b7d44467bd193e6cb8fc39b95df888a6f285a9d2e68690c685f24e8bb27`.
+
+Full four-family 64-token ABBA generation rose from 11.2886 to 24.4679 tokens/s
+(116.75%) and p95 improved 56.43%. All candidate token sequences matched in
+both repeats and all closing controls were bit-exact, but maximum step-logit
+difference was 2.17969. Status is `ADVANCE_DYNAMIC_BANK_TO_QUALITY_GATES`, not
+quality promotion; report SHA-256
+`a167b4218c07d1a396093ab65d39ff8c111bad5c69b5af62b29e9372a6e5ece9`.
