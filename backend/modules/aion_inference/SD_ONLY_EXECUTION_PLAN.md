@@ -1205,3 +1205,27 @@ Do not construct a fixed-route graph cache. Compilation remains promising only
 if routing and dispatch can stay dynamic inside one graph, or if a fused Metal
 router/expert kernel can consume expert indices directly without Python
 `tolist()` and split specialization.
+
+### Fused eight-expert Metal matvec advance (2026-09-08)
+
+The native packed-INT8 operation accepts only two-dimensional inputs and cannot
+batch eight selected weights. AION therefore compiled a local Metal SIMD kernel
+that receives the eight already-selected expert buffers dynamically and performs
+all eight one-token matrix-vector products in one launch. Applied to both expert
+projections, it reduced per-layer expert matrix launches from 16 to two (87.5%)
+without duplicating weights.
+
+On 1,000 balanced trials of a real layer-16 eight-expert route, the complete
+input-projection, SiLU/gate and output-projection block improved from 0.412355 to
+0.329604 ms at p50 (20.07%). Nearest-rank p95 improved from 1.35450 to 0.642416
+ms (52.57%). Maximum additional error relative to the packed-INT8 control was
+0.0000305176 and RMSE was 0.000000307926, below the frozen 0.00075 ceiling. All
+gates passed, producing `ADVANCE_FUSED_METAL_MATVEC_TO_MODEL_INTEGRATION`;
+canonical report SHA-256:
+`18b1ce06a354cb4b1e5c480bf2bb5f84e34ceceafebac5177b2a1aa2ffb2238f`.
+
+This is a major kernel mechanism advance, not yet a full-model speed or quality
+claim. Because reduction order differs, it is explicitly outside the bit-exact
+track. Next, integrate it only for one-token eight-unique-expert decode, retain
+the promoted packed-INT8 path as fallback, and run frozen full-model probability,
+token, latency, memory and semantic gates before promotion.

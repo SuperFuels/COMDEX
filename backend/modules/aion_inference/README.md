@@ -972,3 +972,14 @@ coverage gate, so fixed-route graph caching is
 `0f037de61a3efb5e845294820ccaad11a42088fa567ec5092e839e4d050496d7`).
 Future compilation work must remove the router's Python `tolist()` boundary or
 use a genuinely dynamic fused Metal dispatch kernel.
+
+AION then implemented the dynamic kernel mechanism directly. A runtime-compiled
+Metal SIMD matvec accepts eight selected resident INT8 weight buffers and reduces
+16 expert matrix launches to two per layer-token, without another weight copy.
+On 1,000 real-route layer-16 trials, the complete expert block improved p50 by
+20.07% and p95 by 52.57%. Maximum extra error was 0.0000305176, well below the
+frozen 0.00075 ceiling. It is
+`ADVANCE_FUSED_METAL_MATVEC_TO_MODEL_INTEGRATION`, report SHA-256
+`18b1ce06a354cb4b1e5c480bf2bb5f84e34ceceafebac5177b2a1aa2ffb2238f`.
+This is a changed-kernel quality-gated track, not bit-exact or full-model
+promotion; ordinary packed INT8 remains the fallback until integration gates pass.
