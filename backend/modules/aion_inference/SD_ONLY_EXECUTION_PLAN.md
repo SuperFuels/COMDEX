@@ -950,3 +950,22 @@ capability claim. The next semantic design must first prove FP16 competence on a
 larger frozen cohort, preferably by direct choice-token likelihood rather than
 free-generation formatting. Any method refined using these failures is a
 diagnostic and requires a new unseen holdout before promotion.
+
+The direct choice-token likelihood diagnostic has now been executed on that
+already-observed twelve-case cohort. It combined the probability mass of each
+valid bare and space-prefixed one-token answer spelling, eliminating generation
+length and parser behavior. FP16 still passed only 6/12. INT8 passed 8/12, but
+the models agreed on only 10/12 choices (83.33%). Candidate forward time was
+3.3656 seconds versus 4.1288 seconds for FP16 (18.49% lower), but timing was not
+a promotion gate for this post-hoc diagnostic. The result is
+`DIAGNOSTIC_DID_NOT_CLEAR_BASELINE`; canonical report SHA-256:
+`7caf487aec34af497257f815f02e6e45b3bfba0a029cdd6353a278767117cd49`.
+
+This falsifies formatting as the main cause of the weak FP16 score on this
+cohort. No unseen holdout will be spent against this inadequate control design.
+The packed representation remains a proven capacity and boot breakthrough with
+strong teacher-forced relative preservation, but it has not passed absolute
+semantic quality. The next quality gate must use a larger independently sourced
+or deterministically constructed frozen benchmark on which FP16 first clears a
+declared competence threshold; INT8 evaluation may begin only after that control
+condition is met.

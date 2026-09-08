@@ -857,3 +857,12 @@ packed answers agreed with FP16 on 11/12 choices and ran 18.31% faster. Both are
 `NOT_PROMOTED`. They support relative preservation, not model competence. A
 larger choice-likelihood diagnostic and a subsequently unseen holdout are
 required before any semantic promotion.
+
+The choice-likelihood diagnostic removed generation and parsing entirely, but
+FP16 remained at 6/12. INT8 reached 8/12 and was 18.49% faster in aggregate
+forward time, while agreement fell to 10/12 (83.33%). It is
+`DIAGNOSTIC_DID_NOT_CLEAR_BASELINE`, report SHA-256
+`7caf487aec34af497257f815f02e6e45b3bfba0a029cdd6353a278767117cd49`.
+This confirms that formatting was not the main defect. Do not spend an unseen
+holdout on this control design; first freeze a larger benchmark and require FP16
+to clear its competence floor before running INT8.

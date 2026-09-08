@@ -214,3 +214,29 @@ capability. A larger frozen cohort must first establish FP16 competence using a
 choice-likelihood method that is independent of response formatting. Because
 the method is being refined after these results, a new unseen holdout remains
 mandatory for promotion.
+
+\subsection{Direct choice-likelihood diagnostic}
+
+The free-generation parser was then removed as a possible confound. On the
+already-observed twelve-case cohort, the evaluator performed one forward pass
+per question and compared the next-token scores for A, B, C and D directly. It
+combined the probability mass of the bare and space-prefixed single-token
+spellings for each choice. This eliminated generation length, commentary and
+answer parsing from the measurement.
+
+FP16 nevertheless remained at six correct answers out of twelve. INT8 produced
+eight correct answers, and the two models agreed on ten of twelve choices
+(83.33\%). Aggregate candidate forward time was 3.3656 seconds versus 4.1288
+seconds for FP16, 18.49\% lower, although speed was not a promotion criterion in
+this post-hoc diagnostic. The result is
+\texttt{DIAGNOSTIC\_DID\_NOT\_CLEAR\_BASELINE}. Its canonical report SHA-256 is
+\texttt{7caf487aec34af497257f815f02e6e45b3bfba0a029cdd6353a278767117cd49}.
+
+This falsifies response formatting as the principal cause of the control's weak
+score. The cohort and evaluation method had already been observed, so this
+result cannot promote the candidate in any event. An unseen holdout will not be
+spent on the inadequate control design. The next semantic gate must first prove
+FP16 competence on a larger independently frozen benchmark; only after that
+control gate passes may the packed INT8 model be evaluated. The capacity, boot
+and teacher-forced probability results remain valid, but absolute long-form
+semantic quality remains unproven.
