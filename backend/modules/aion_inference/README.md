@@ -961,3 +961,14 @@ output but regressed p95 by 3.82%, beyond the declared 3% limit. It is
 `STOP_CACHED_EMPTY_VIEWS`, report SHA-256
 `4d8a5ab1d4ac140740bf8d590f7bb0cda0c42d4a03d73e64589880bd71a947eb`.
 It is not enabled or advanced to a full-model run.
+
+Fixed-route graph compilation was also bounded. A real packed-INT8 expert graph
+compiled on MPS with bit-identical output in a mechanism probe, but Granite's
+data-dependent router prevents one dynamic full graph. Across 16,256 observed
+layer-routes from three bound corpora, the most common route covered only 3.05%
+at the median layer and the best eight routes only 12.99%. This failed the 50%
+coverage gate, so fixed-route graph caching is
+`STOP_ROUTE_SPECIALIZED_COMPILE` (report SHA-256
+`0f037de61a3efb5e845294820ccaad11a42088fa567ec5092e839e4d050496d7`).
+Future compilation work must remove the router's Python `tolist()` boundary or
+use a genuinely dynamic fused Metal dispatch kernel.

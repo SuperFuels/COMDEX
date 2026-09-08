@@ -485,3 +485,25 @@ The candidate is not scaled to the full model or enabled by default. It shows
 that reducing Python tensor-object churn can improve median dispatch time, but
 this implementation did not deliver acceptable tail stability. The promoted
 sparse dispatcher remains unchanged.
+
+\subsection{Route-specialized compilation boundary}
+
+A mechanism probe compiled one real packed-INT8 eight-expert graph on the local
+MPS stack and produced bit-identical output. Granite's production router cannot
+form one full dynamic graph because it converts data-dependent expert counts to
+a Python list. A bounded alternative would cache a small number of fixed-route
+compiled graphs per layer and retain eager execution as fallback.
+
+Three hash-bound observations supplied 16,256 layer-route samples and 6,889
+unique route sets when counted independently by layer. Aggregate exact-repeat
+fraction was 57.62\%, but those repetitions were distributed across many route
+patterns. The most common fixed graph covered only 3.05\% at the median layer;
+the best eight graphs per layer covered only 12.99\%. This failed the
+predeclared 50\% median-coverage requirement. The result is
+\texttt{STOP\_ROUTE\_SPECIALIZED\_COMPILE}; canonical report SHA-256:
+\texttt{0f037de61a3efb5e845294820ccaad11a42088fa567ec5092e839e4d050496d7}.
+
+A fixed-route graph dictionary is not built. The useful surviving direction is
+dynamic compilation: remove the router's Python \texttt{tolist()} boundary, or
+build a fused Metal router/expert kernel that consumes expert indices directly
+without specializing the graph to each route set.
