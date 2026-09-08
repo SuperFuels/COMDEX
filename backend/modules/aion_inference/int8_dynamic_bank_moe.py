@@ -35,7 +35,8 @@ class Int8DynamicBankMoE(nn.Module):
 
     def __init__(self, source_moe: nn.Module, entry: dict[str, Any], storage_root: Path,
                  verify_hash: Any, device: str = "mps",
-                 use_dynamic_decode: bool = False) -> None:
+                 use_dynamic_decode: bool = False,
+                 use_fused_router: bool = False) -> None:
         super().__init__()
         path = Path(entry["path"]).resolve()
         if storage_root not in path.parents or verify_hash(path) != entry["sha256"]:
@@ -48,10 +49,15 @@ class Int8DynamicBankMoE(nn.Module):
         self.activation = source_moe.activation
         self.router = source_moe.router
         self.use_dynamic_decode = use_dynamic_decode
+        self.use_fused_router = use_fused_router
         self.register_buffer("dynamic_hidden", torch.empty(
             (8, self.input_bank.shape[1]), dtype=torch.float16, device=device), persistent=False)
         self.register_buffer("dynamic_output", torch.empty(
             (self.output_bank.shape[1],), dtype=torch.float16, device=device), persistent=False)
+        self.register_buffer("dynamic_expert_indices", torch.empty(
+            (8,), dtype=torch.int32, device=device), persistent=False)
+        self.register_buffer("dynamic_gates", torch.empty(
+            (8,), dtype=torch.float16, device=device), persistent=False)
 
     @staticmethod
     def _native(values: torch.Tensor, expert_size: Any, bank: torch.Tensor,
@@ -66,13 +72,22 @@ class Int8DynamicBankMoE(nn.Module):
         return torch.cat(outputs, dim=0)
 
     def _dynamic(self, flattened: torch.Tensor) -> torch.Tensor:
-        logits = self.router.layer(flattened).float()
-        top_logits, top_indices = logits.topk(8, dim=1)
-        gates = torch.softmax(top_logits, dim=1).type_as(flattened)
-        top_indices, order = top_indices.sort(dim=1)
-        gates = gates.gather(1, order)
-        expert_indices = top_indices[0].to(torch.int32)
         library = _library()
+        if self.use_fused_router:
+            library.fused_route(
+                flattened, self.router.layer.weight, self.dynamic_expert_indices,
+                self.dynamic_gates, flattened.shape[1], self.router.layer.weight.shape[0],
+                threads=(256, 1, 1), group_size=(256, 1, 1),
+            )
+            expert_indices = self.dynamic_expert_indices
+            gates = self.dynamic_gates
+        else:
+            logits = self.router.layer(flattened).float()
+            top_logits, top_indices = logits.topk(8, dim=1)
+            gates_2d = torch.softmax(top_logits, dim=1).type_as(flattened)
+            top_indices, order = top_indices.sort(dim=1)
+            gates = gates_2d.gather(1, order)[0]
+            expert_indices = top_indices[0].to(torch.int32)
         library.dyn_input(
             flattened, self.input_bank, self.input_scale_bank, expert_indices,
             self.dynamic_hidden, self.input_bank.shape[2], self.input_bank.shape[1],
@@ -81,7 +96,7 @@ class Int8DynamicBankMoE(nn.Module):
         gate, projected = self.dynamic_hidden.chunk(2, dim=-1)
         activated = self.activation(gate) * projected
         library.dyn_output(
-            activated, self.output_bank, self.output_scale_bank, expert_indices, gates[0],
+            activated, self.output_bank, self.output_scale_bank, expert_indices, gates,
             self.dynamic_output, self.output_bank.shape[2], self.output_bank.shape[1],
             threads=(self.output_bank.shape[1] * 32, 1, 1), group_size=(32, 1, 1),
         )

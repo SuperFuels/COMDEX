@@ -26,6 +26,7 @@ def main() -> int:
     parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--bank-manifest", type=Path, required=True)
     parser.add_argument("--tasks", type=Path, required=True)
+    parser.add_argument("--fused-router-gate", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     root = args.storage_root.resolve()
@@ -56,34 +57,55 @@ def main() -> int:
     for layer in model.model.layers:
         layer.block_sparse_moe.use_dynamic_decode = True
     dynamic = _run(model, tokenizer, cases)
-    native_passes = sum(item["passed"] for item in native)
-    dynamic_passes = sum(item["passed"] for item in dynamic)
+    fused = []
+    if args.fused_router_gate:
+        for layer in model.model.layers:
+            layer.block_sparse_moe.use_fused_router = True
+        fused = _run(model, tokenizer, cases)
+    control = dynamic if args.fused_router_gate else native
+    candidate = fused if args.fused_router_gate else dynamic
+    control_passes = sum(item["passed"] for item in control)
+    candidate_passes = sum(item["passed"] for item in candidate)
     answer_matches = sum(left["observed"] == right["observed"]
-                         for left, right in zip(native, dynamic, strict=True))
+                         for left, right in zip(control, candidate, strict=True))
     native_tps = sum(item["token_count"] for item in native) / sum(item["seconds"] for item in native)
     dynamic_tps = sum(item["token_count"] for item in dynamic) / sum(item["seconds"] for item in dynamic)
-    speed_gain = 100 * (dynamic_tps / native_tps - 1)
+    fused_tps = (sum(item["token_count"] for item in fused) / sum(item["seconds"] for item in fused)
+                 if fused else None)
+    control_tps = dynamic_tps if args.fused_router_gate else native_tps
+    candidate_tps = fused_tps if args.fused_router_gate else dynamic_tps
+    speed_gain = 100 * (candidate_tps / control_tps - 1)
     comparisons = [{"id": left["id"], "family": left["family"], "expected": left["expected"],
-                    "native_observed": left["observed"], "dynamic_observed": right["observed"],
-                    "native_passed": left["passed"], "dynamic_passed": right["passed"]}
-                   for left, right in zip(native, dynamic, strict=True)]
-    acceptance = {"dynamic_lost_no_more_than_one_native_pass":
-                      dynamic_passes >= native_passes - 1,
+                    "control_observed": left["observed"], "candidate_observed": right["observed"],
+                    "control_passed": left["passed"], "candidate_passed": right["passed"]}
+                   for left, right in zip(control, candidate, strict=True)]
+    acceptance = {"candidate_lost_no_more_than_one_control_pass":
+                      candidate_passes >= control_passes - 1,
                   "answer_agreement_at_least_90_percent": answer_matches / len(cases) >= 0.90,
-                  "dynamic_answers_all_parseable": all(item["observed"] is not None for item in dynamic),
-                  "throughput_improved_at_least_25_percent": speed_gain >= 25,
+                  "candidate_answers_all_parseable":
+                      all(item["observed"] is not None for item in candidate),
+                  ("throughput_improved_at_least_15_percent" if args.fused_router_gate else
+                   "throughput_improved_at_least_25_percent"):
+                      speed_gain >= (15 if args.fused_router_gate else 25),
                   "storage_first_skipped_all_fp16_experts":
                       shared_load["skipped_expert_tensor_count"] == 64}
     report = {"schema_version": "aion.dynamic_bank_semantic_preservation.v1",
               "track": "quality_gated_changed_kernel_not_bit_exact",
               "paths": {name: str(path) for name, path in paths.items()},
               "hashes": {name: _sha256(path) for name, path in paths.items() if path.is_file()},
-              "native": {"passes": native_passes, "tokens_per_second": native_tps},
-              "dynamic": {"passes": dynamic_passes, "tokens_per_second": dynamic_tps},
+              "native": {"passes": sum(item["passed"] for item in native),
+                         "tokens_per_second": native_tps},
+              "dynamic": {"passes": sum(item["passed"] for item in dynamic),
+                          "tokens_per_second": dynamic_tps},
+              "fused": ({"passes": sum(item["passed"] for item in fused),
+                         "tokens_per_second": fused_tps} if fused else None),
+              "fused_router_gate": args.fused_router_gate,
               "answer_agreement_fraction": answer_matches / len(cases),
               "throughput_improvement_percent": speed_gain,
               "comparisons": comparisons, "acceptance": acceptance,
-              "decision": ("PROMOTE_DYNAMIC_BANK_WITHIN_VALIDATED_BOUNDARY"
+              "decision": (("PROMOTE_FUSED_ROUTER_WITHIN_VALIDATED_BOUNDARY"
+                            if args.fused_router_gate else
+                            "PROMOTE_DYNAMIC_BANK_WITHIN_VALIDATED_BOUNDARY")
                            if all(acceptance.values()) else "NOT_PROMOTED"),
               "claim_boundary": ("Twelve previously frozen synthetic MCQ tasks plus prior "
                                  "teacher-forced and four-family generation gates. This establishes "
@@ -93,6 +115,7 @@ def main() -> int:
     output_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     print(json.dumps({"output": str(output_path), "decision": report["decision"],
                       "native": report["native"], "dynamic": report["dynamic"],
+                      "fused": report["fused"],
                       "answer_agreement_fraction": report["answer_agreement_fraction"],
                       "throughput_improvement_percent": speed_gain,
                       "acceptance": acceptance, "report_sha256": report["report_sha256"]},

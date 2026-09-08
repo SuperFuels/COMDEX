@@ -80,6 +80,7 @@ def main() -> int:
     parser.add_argument("--bank-manifest", type=Path, required=True)
     parser.add_argument("--generation-evidence", type=Path, required=True)
     parser.add_argument("--prompt-manifest", type=Path)
+    parser.add_argument("--fused-router-gate", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     root = args.storage_root.resolve()
@@ -132,6 +133,15 @@ def main() -> int:
         continuation = continuations[family]
         dynamic_logits[family], dynamic_seconds[family] = _incremental_logits(
             model, encoded[family], continuation)
+    fused_logits = {}; fused_seconds = {}
+    if args.fused_router_gate:
+        for layer in model.model.layers:
+            layer.block_sparse_moe.use_fused_router = True
+        for prompt in prompts:
+            family = prompt["family"]
+            continuation = continuations[family]
+            fused_logits[family], fused_seconds[family] = _incremental_logits(
+                model, encoded[family], continuation)
     native_comparisons = []; dynamic_comparisons = []
     for prompt in prompts:
         family = prompt["family"]
@@ -147,23 +157,55 @@ def main() -> int:
                                                        continuation)})
     native_aggregate = _aggregate(native_comparisons)
     dynamic_aggregate = _aggregate(dynamic_comparisons)
-    speed_gain = 100 * (1 - dynamic_aggregate["total_seconds"] /
-                        native_aggregate["total_seconds"])
-    acceptance = {
-        "dynamic_top1_within_1pp_of_native":
-            dynamic_aggregate["teacher_forced_top1_agreement_fraction"] >=
-            native_aggregate["teacher_forced_top1_agreement_fraction"] - 0.01,
-        "dynamic_top5_within_1pp_of_native":
-            dynamic_aggregate["mean_top5_overlap_fraction"] >=
-            native_aggregate["mean_top5_overlap_fraction"] - 0.01,
-        "dynamic_kl_no_more_than_0_002_above_native":
-            dynamic_aggregate["mean_kl_divergence_nats"] <=
-            native_aggregate["mean_kl_divergence_nats"] + 0.002,
-        "dynamic_nll_no_more_than_0_02_above_native":
-            dynamic_aggregate["mean_control_token_nll_delta_nats"] <=
-            native_aggregate["mean_control_token_nll_delta_nats"] + 0.02,
-        "incremental_teacher_time_improved_at_least_25_percent": speed_gain >= 25,
-    }
+    fused_comparisons = []
+    if args.fused_router_gate:
+        for prompt in prompts:
+            family = prompt["family"]
+            continuation = continuations[family]
+            common = {"family": family,
+                      "prompt_sha256": hashlib.sha256(prompt["prompt"].encode()).hexdigest(),
+                      "control_seconds": fp16_seconds[family]}
+            fused_comparisons.append({
+                **common, "candidate_seconds": fused_seconds[family],
+                **_quality_metrics(fp16_logits[family], fused_logits[family], continuation),
+            })
+        fused_aggregate = _aggregate(fused_comparisons)
+        speed_gain = 100 * (1 - fused_aggregate["total_seconds"] /
+                            dynamic_aggregate["total_seconds"])
+        acceptance = {
+            "fused_top1_within_1pp_of_dynamic":
+                fused_aggregate["teacher_forced_top1_agreement_fraction"] >=
+                dynamic_aggregate["teacher_forced_top1_agreement_fraction"] - 0.01,
+            "fused_top5_within_1pp_of_dynamic":
+                fused_aggregate["mean_top5_overlap_fraction"] >=
+                dynamic_aggregate["mean_top5_overlap_fraction"] - 0.01,
+            "fused_kl_no_more_than_0_002_above_dynamic":
+                fused_aggregate["mean_kl_divergence_nats"] <=
+                dynamic_aggregate["mean_kl_divergence_nats"] + 0.002,
+            "fused_nll_no_more_than_0_02_above_dynamic":
+                fused_aggregate["mean_control_token_nll_delta_nats"] <=
+                dynamic_aggregate["mean_control_token_nll_delta_nats"] + 0.02,
+            "incremental_teacher_time_improved_at_least_15_percent": speed_gain >= 15,
+        }
+    else:
+        fused_aggregate = None
+        speed_gain = 100 * (1 - dynamic_aggregate["total_seconds"] /
+                            native_aggregate["total_seconds"])
+        acceptance = {
+            "dynamic_top1_within_1pp_of_native":
+                dynamic_aggregate["teacher_forced_top1_agreement_fraction"] >=
+                native_aggregate["teacher_forced_top1_agreement_fraction"] - 0.01,
+            "dynamic_top5_within_1pp_of_native":
+                dynamic_aggregate["mean_top5_overlap_fraction"] >=
+                native_aggregate["mean_top5_overlap_fraction"] - 0.01,
+            "dynamic_kl_no_more_than_0_002_above_native":
+                dynamic_aggregate["mean_kl_divergence_nats"] <=
+                native_aggregate["mean_kl_divergence_nats"] + 0.002,
+            "dynamic_nll_no_more_than_0_02_above_native":
+                dynamic_aggregate["mean_control_token_nll_delta_nats"] <=
+                native_aggregate["mean_control_token_nll_delta_nats"] + 0.02,
+            "incremental_teacher_time_improved_at_least_25_percent": speed_gain >= 25,
+        }
     report = {"schema_version": "aion.dynamic_bank_teacher_quality.v1",
               "track": "quality_gated_changed_kernel_not_bit_exact",
               "paths": {name: str(path) for name, path in paths.items()},
@@ -174,11 +216,17 @@ def main() -> int:
               "forced_positions": native_aggregate["positions"],
               "native_comparisons": native_comparisons,
               "dynamic_comparisons": dynamic_comparisons,
+              "fused_router_gate": args.fused_router_gate,
+              "fused_comparisons": fused_comparisons,
               "native_aggregate": native_aggregate,
               "dynamic_aggregate": dynamic_aggregate,
-              "dynamic_vs_native_teacher_time_improvement_percent": speed_gain,
+              "fused_aggregate": fused_aggregate,
+              ("fused_vs_dynamic_teacher_time_improvement_percent" if args.fused_router_gate
+               else "dynamic_vs_native_teacher_time_improvement_percent"): speed_gain,
               "acceptance": acceptance,
-              "decision": ("ADVANCE_DYNAMIC_BANK_TO_FROZEN_SEMANTIC_GATE"
+              "decision": (("ADVANCE_FUSED_ROUTER_TO_FROZEN_SEMANTIC_GATE"
+                            if args.fused_router_gate else
+                            "ADVANCE_DYNAMIC_BANK_TO_FROZEN_SEMANTIC_GATE")
                            if all(acceptance.values()) else "STOP_DYNAMIC_BANK_QUALITY"),
               "claim_boundary": (f"Incremental teacher forcing on "
                                  f"{native_aggregate['positions']} positions from "
@@ -190,6 +238,7 @@ def main() -> int:
     output_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     print(json.dumps({"output": str(output_path), "decision": report["decision"],
                       "native": native_aggregate, "dynamic": dynamic_aggregate,
+                      "fused": fused_aggregate,
                       "speed_improvement_percent": speed_gain,
                       "acceptance": acceptance, "report_sha256": report["report_sha256"]},
                      indent=2))

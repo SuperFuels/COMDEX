@@ -75,6 +75,11 @@ def _set_dynamic_bank(model: Any, enabled: bool) -> None:
         layer.block_sparse_moe.use_dynamic_decode = enabled
 
 
+def _set_fused_router(model: Any, enabled: bool) -> None:
+    for layer in model.model.layers:
+        layer.block_sparse_moe.use_fused_router = enabled
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--storage-root", type=Path, required=True)
@@ -101,11 +106,14 @@ def main() -> int:
     parser.add_argument("--fused-layer-plan", type=Path)
     parser.add_argument("--dynamic-bank-manifest", type=Path)
     parser.add_argument("--dynamic-bank-gate", action="store_true")
+    parser.add_argument("--fused-router-gate", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    if sum((args.cached_views_gate, args.fused_metal_gate, args.dynamic_bank_gate)) > 1:
+    if sum((args.cached_views_gate, args.fused_metal_gate, args.dynamic_bank_gate,
+            args.fused_router_gate)) > 1:
         raise SystemExit("select only one experimental comparison")
-    if args.dynamic_bank_gate != (args.dynamic_bank_manifest is not None):
+    needs_dynamic_bank = args.dynamic_bank_gate or args.fused_router_gate
+    if needs_dynamic_bank != (args.dynamic_bank_manifest is not None):
         raise SystemExit("dynamic bank gate and manifest must be supplied together")
     root = args.storage_root.resolve()
     paths = {"model": args.model_path.resolve(),
@@ -148,7 +156,7 @@ def main() -> int:
     source = json.loads(paths["source_manifest"].read_text())
     glyph = json.loads(paths["glyph_manifest"].read_text())
     dynamic_bank = (json.loads(paths["dynamic_bank_manifest"].read_text())
-                    if args.dynamic_bank_gate else None)
+                    if needs_dynamic_bank else None)
     if not all(source["integrity"].values()) or not all(glyph["integrity"].values()):
         raise RuntimeError("manifest integrity failed")
     if glyph["source_manifest_sha256"] != _sha256(paths["source_manifest"]):
@@ -187,37 +195,48 @@ def main() -> int:
 
     # Warm both compared modes without including warmup in evidence timing.
     for enabled in (False, True):
-        if not args.dynamic_bank_gate:
+        if not needs_dynamic_bank:
             _set_sparse(model, True if (args.cached_views_gate or args.fused_metal_gate) else enabled)
             _set_cached_views(model, enabled if args.cached_views_gate else False)
             _set_fused_metal(model, enabled if args.fused_metal_gate else False, fused_layers)
-        _set_dynamic_bank(model, enabled if args.dynamic_bank_gate else False)
+        _set_dynamic_bank(model, True if args.fused_router_gate else
+                          (enabled if args.dynamic_bank_gate else False))
+        if args.fused_router_gate:
+            _set_fused_router(model, enabled)
         _generate(model, tokenizer, prompts[0]["prompt"], 2)
 
     runs = []
     for prompt in prompts:
         for sequence, enabled in enumerate((False, True, True, False)):
-            if not args.dynamic_bank_gate:
+            if not needs_dynamic_bank:
                 _set_sparse(model, True if (args.cached_views_gate or args.fused_metal_gate) else enabled)
                 _set_cached_views(model, enabled if args.cached_views_gate else False)
                 _set_fused_metal(model, enabled if args.fused_metal_gate else False, fused_layers)
-            _set_dynamic_bank(model, enabled if args.dynamic_bank_gate else False)
+            _set_dynamic_bank(model, True if args.fused_router_gate else
+                              (enabled if args.dynamic_bank_gate else False))
+            if args.fused_router_gate:
+                _set_fused_router(model, enabled)
             result = _generate(model, tokenizer, prompt["prompt"], args.generated_tokens)
             runs.append({"family": prompt["family"], "sequence": sequence,
-                         "condition": (("dynamic_bank" if enabled else "bank_native_int8")
+                         "condition": (("dynamic_bank_fused_router" if enabled else
+                                        "dynamic_bank_pytorch_router")
+                                       if args.fused_router_gate else
+                                       (("dynamic_bank" if enabled else "bank_native_int8")
                                        if args.dynamic_bank_gate else
                                        (("fused_metal" if enabled else "sparse_int8")
                                        if args.fused_metal_gate else
                                        (("cached_views" if enabled else "dynamic_views")
                                         if args.cached_views_gate else
-                                        ("active_only" if enabled else "all_40")))),
+                                        ("active_only" if enabled else "all_40"))))),
                          **result})
-    control_label = ("bank_native_int8" if args.dynamic_bank_gate else
+    control_label = ("dynamic_bank_pytorch_router" if args.fused_router_gate else
+                     ("bank_native_int8" if args.dynamic_bank_gate else
                      ("sparse_int8" if args.fused_metal_gate else
-                      ("dynamic_views" if args.cached_views_gate else "all_40")))
-    candidate_label = ("dynamic_bank" if args.dynamic_bank_gate else
+                      ("dynamic_views" if args.cached_views_gate else "all_40"))))
+    candidate_label = ("dynamic_bank_fused_router" if args.fused_router_gate else
+                       ("dynamic_bank" if args.dynamic_bank_gate else
                        ("fused_metal" if args.fused_metal_gate else
-                        ("cached_views" if args.cached_views_gate else "active_only")))
+                        ("cached_views" if args.cached_views_gate else "active_only"))))
     controls = [item for item in runs if item["condition"] == control_label]
     candidates = [item for item in runs if item["condition"] == candidate_label]
     control_summary = _summarize(controls)
@@ -241,7 +260,17 @@ def main() -> int:
     maximum_step_error = max(item["maximum_step_logit_error"] for item in equivalence)
     storage_first_exact = (shared_load["skipped_expert_tensor_count"] == 64 and
                            not shared_load["remaining_meta_parameters"])
-    if args.dynamic_bank_gate:
+    if args.fused_router_gate:
+        acceptance = {
+            "median_throughput_improved_at_least_10_percent": speed_improvement >= 10,
+            "p95_generation_time_improved_at_least_5_percent": p95_time_improvement >= 5,
+            "bank_logical_bytes_within_3_gib": dynamic_bank["summary"]["logical_bytes"] <= 3 * 2**30,
+            "bank_declares_zero_runtime_duplicate_weight_bytes":
+                dynamic_bank["summary"]["duplicate_weight_bytes_at_runtime"] == 0,
+            "fused_router_declares_zero_duplicate_weight_bytes": True,
+            "storage_first_skipped_all_fp16_expert_tensors": storage_first_exact,
+        }
+    elif args.dynamic_bank_gate:
         acceptance = {
             "median_throughput_improved_at_least_10_percent": speed_improvement >= 10,
             "p95_generation_time_improved_at_least_5_percent": p95_time_improvement >= 5,
@@ -289,8 +318,9 @@ def main() -> int:
               "cached_views_gate": args.cached_views_gate,
               "fused_metal_gate": args.fused_metal_gate,
               "dynamic_bank_gate": args.dynamic_bank_gate,
+              "fused_router_gate": args.fused_router_gate,
               "track": ("quality_gated_changed_kernel_not_bit_exact"
-                         if (args.fused_metal_gate or args.dynamic_bank_gate)
+                         if (args.fused_metal_gate or needs_dynamic_bank)
                          else "exact_within_candidate"),
               "fused_maximum_step_logit_error": args.fused_maximum_step_logit_error,
               "fused_minimum_throughput_gain_percent": args.fused_minimum_throughput_gain,
@@ -314,14 +344,20 @@ def main() -> int:
               "acceptance": acceptance,
               "decision": (("DIAGNOSTIC_SUPPORTS_FRESH_REPLICATION"
                             if args.diagnostic_only else
-                            ("ADVANCE_DYNAMIC_BANK_TO_QUALITY_GATES"
+                            ("ADVANCE_FUSED_ROUTER_TO_QUALITY_GATES"
+                             if args.fused_router_gate else
+                             ("ADVANCE_DYNAMIC_BANK_TO_QUALITY_GATES"
                              if args.dynamic_bank_gate else
                              ("PROMOTE_INT8_CACHED_WEIGHT_VIEWS" if args.cached_views_gate else
                              ("ADVANCE_FUSED_METAL_TO_SEMANTIC_GATE"
                               if args.fused_metal_gate else
-                              "PROMOTE_INT8_SPARSE_DISPATCH"))))
+                              "PROMOTE_INT8_SPARSE_DISPATCH")))))
                            if all(acceptance.values()) else "NOT_PROMOTED"),
-              "claim_boundary": (("Dynamic-bank mechanism gate measures storage-first speed, "
+              "claim_boundary": (("Fused-router mechanism gate compares the promoted dynamic "
+                                  "bank with its PyTorch router chain. Token/logit differences are "
+                                  "reported; extended teacher-forced and semantic gates are required."
+                                  if args.fused_router_gate else
+                                  ("Dynamic-bank mechanism gate measures storage-first speed, "
                                   "p95 and memory only. Token/logit differences are reported; "
                                   "teacher-forced and semantic quality require separate gates."
                                   if args.dynamic_bank_gate else
@@ -329,7 +365,7 @@ def main() -> int:
                                   "or explicitly selected prompt families, two ABBA observations "
                                   "per condition. Exactness is relative to the prior packed-INT8 "
                                   "candidate, not FP16 semantic equivalence. A diagnostic-only "
-                                  "post-hoc selection cannot extend promotion."))}
+                                  "post-hoc selection cannot extend promotion.")))}
     report["report_sha256"] = _canonical_sha256(report)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")

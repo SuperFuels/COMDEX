@@ -39,6 +39,29 @@ kernel void dyn_output(device const half* x [[buffer(0)]], device const char* w 
  v+=float(x[xb+j])*float(w[base+j]); v=simd_sum(v); if(lane==0){
  half ev=half(v*float(s[e*M+row])); total+=float(ev)*float(gates[slot]); }}
  if(lane==0) out[row]=half(total); }
+kernel void fused_route(device const half* x [[buffer(0)]],
+ device const half* w [[buffer(1)]], device int* out_ids [[buffer(2)]],
+ device half* out_gates [[buffer(3)]], constant uint& K [[buffer(4)]],
+ constant uint& E [[buffer(5)]], uint tid [[thread_index_in_threadgroup]],
+ uint lane [[thread_index_in_simdgroup]], uint sg [[simdgroup_index_in_threadgroup]]) {
+ threadgroup float logits[40];
+ for (uint e=sg; e<E; e+=8) { float value=0.0f; uint base=e*K;
+   for (uint j=lane; j<K; j+=32) value += float(x[j])*float(w[base+j]);
+   value=simd_sum(value); if (lane==0) logits[e]=value; }
+ threadgroup_barrier(mem_flags::mem_threadgroup);
+ if (tid==0) { float best_v[8]; int best_i[8];
+   for (uint j=0;j<8;j++){best_v[j]=-INFINITY;best_i[j]=-1;}
+   for (uint e=0;e<E;e++) { float value=logits[e];
+     for (uint pos=0;pos<8;pos++) if (value>best_v[pos]) {
+       for (uint move=7;move>pos;move--){best_v[move]=best_v[move-1];best_i[move]=best_i[move-1];}
+       best_v[pos]=value;best_i[pos]=int(e);break; } }
+   float maximum=best_v[0], denominator=0.0f, probabilities[8];
+   for (uint j=0;j<8;j++){probabilities[j]=exp(best_v[j]-maximum);denominator+=probabilities[j];}
+   for (uint left=0;left<8;left++) for (uint right=left+1;right<8;right++)
+     if(best_i[right]<best_i[left]){ int ti=best_i[left];best_i[left]=best_i[right];best_i[right]=ti;
+       float tv=probabilities[left];probabilities[left]=probabilities[right];probabilities[right]=tv; }
+   for (uint j=0;j<8;j++){out_ids[j]=best_i[j];out_gates[j]=half(probabilities[j]/denominator);} }
+}
 """
 
 

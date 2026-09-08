@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from backend.modules.aion_inference.int8_dynamic_bank_moe import load_bank_entry
+from backend.modules.aion_inference.int8_dynamic_bank_moe import Int8DynamicBankMoE, load_bank_entry
 
 
 def test_load_bank_entry_rejects_wrong_order() -> None:
@@ -15,3 +15,7 @@ def test_load_bank_entry_checks_hash(tmp_path: Path) -> None:
     path.write_bytes(b"x")
     manifest = {"layers": [{"layer": 0, "path": str(path), "sha256": "ok"}]}
     assert load_bank_entry(manifest, 0, tmp_path.parent, lambda _: "ok")["path"] == str(path)
+
+
+def test_dynamic_bank_exposes_fused_router_as_opt_in() -> None:
+    assert "use_fused_router" in Int8DynamicBankMoE.__init__.__annotations__
