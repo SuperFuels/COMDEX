@@ -942,3 +942,14 @@ concatenation. Result: `STOP_DECODE_ARENA`, report SHA-256
 `3fb648e8b208c00daef7eebb5833163b66faa4051fc724d5822ef949f0437b25`.
 Default arena capacity is zero; the promoted sparse-concatenation path is
 unchanged.
+
+Cached resident weight views were also tested and stopped. They reused only
+references to resident packed weights, added no weight bytes, and improved a
+1,000-trial real-route layer-16 microbenchmark by 11.31% at p50 and 1.65% at
+p95 with bit-identical output (report SHA-256
+`f29f2f17583ec86d10f7546cf58abb1051d6ed814d9f2ca9df133ecba16c441d`).
+However, the four-family 64-token storage-first ABBA gate was 0.90% slower in
+median throughput, 0.05% worse at p95, and failed step-logit bit equivalence
+despite matching all token IDs. It is `NOT_PROMOTED` (report SHA-256
+`948136d201fd319a36439960410de325df70f201461fdb33d7b33966d8aaa384`).
+Do not enable it; sparse dispatch remains the promoted path.

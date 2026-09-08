@@ -55,6 +55,11 @@ def _set_sparse(model: Any, enabled: bool) -> None:
         layer.block_sparse_moe.experts.skip_empty_experts = enabled
 
 
+def _set_cached_views(model: Any, enabled: bool) -> None:
+    for layer in model.model.layers:
+        layer.block_sparse_moe.experts.use_cached_weight_views = enabled
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--storage-root", type=Path, required=True)
@@ -66,6 +71,11 @@ def main() -> int:
     parser.add_argument("--prompt-family", action="append", default=[])
     parser.add_argument("--deterministic-algorithms", action="store_true")
     parser.add_argument("--diagnostic-only", action="store_true")
+    parser.add_argument(
+        "--cached-views-gate", action="store_true",
+        help=("Compare promoted sparse dispatch with dynamic versus cached resident "
+              "weight views; both conditions retain sparse dispatch."),
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     root = args.storage_root.resolve()
@@ -116,21 +126,27 @@ def main() -> int:
     boot_seconds = time.perf_counter() - boot_started
     ready_memory = _memory("storage_first_int8_ready")
 
-    # Warm both dispatch modes without including warmup in evidence timing.
+    # Warm both compared modes without including warmup in evidence timing.
     for enabled in (False, True):
-        _set_sparse(model, enabled)
+        _set_sparse(model, True if args.cached_views_gate else enabled)
+        _set_cached_views(model, enabled if args.cached_views_gate else False)
         _generate(model, tokenizer, prompts[0]["prompt"], 2)
 
     runs = []
     for prompt in prompts:
         for sequence, enabled in enumerate((False, True, True, False)):
-            _set_sparse(model, enabled)
+            _set_sparse(model, True if args.cached_views_gate else enabled)
+            _set_cached_views(model, enabled if args.cached_views_gate else False)
             result = _generate(model, tokenizer, prompt["prompt"], args.generated_tokens)
             runs.append({"family": prompt["family"], "sequence": sequence,
-                         "condition": "active_only" if enabled else "all_40",
+                         "condition": (("cached_views" if enabled else "dynamic_views")
+                                       if args.cached_views_gate else
+                                       ("active_only" if enabled else "all_40")),
                          **result})
-    controls = [item for item in runs if item["condition"] == "all_40"]
-    candidates = [item for item in runs if item["condition"] == "active_only"]
+    control_label = "dynamic_views" if args.cached_views_gate else "all_40"
+    candidate_label = "cached_views" if args.cached_views_gate else "active_only"
+    controls = [item for item in runs if item["condition"] == control_label]
+    candidates = [item for item in runs if item["condition"] == candidate_label]
     control_summary = _summarize(controls)
     candidate_summary = _summarize(candidates)
     equivalence = []
@@ -152,7 +168,9 @@ def main() -> int:
     acceptance = {
         "all_token_ids_exact": all(item["token_ids_exact"] for item in equivalence),
         "all_step_logits_bit_exact": all(item["step_logits_bit_exact"] for item in equivalence),
-        "median_throughput_improved_at_least_10_percent": speed_improvement >= 10,
+        ("median_throughput_improved_at_least_2_percent" if args.cached_views_gate else
+         "median_throughput_improved_at_least_10_percent"):
+            speed_improvement >= (2 if args.cached_views_gate else 10),
         "p95_generation_time_not_regressed": p95_time_improvement >= 0,
         "storage_first_skipped_all_fp16_expert_tensors": (
             shared_load["skipped_expert_tensor_count"] == 64 and
@@ -175,7 +193,9 @@ def main() -> int:
               "prompt_manifest_sha256": prompt_manifest_hash,
               "prompt_hashes": {item["family"]: hashlib.sha256(item["prompt"].encode()).hexdigest()
                                 for item in prompts},
-              "order_per_family": ["all_40", "active_only", "active_only", "all_40"],
+              "order_per_family": [control_label, candidate_label,
+                                    candidate_label, control_label],
+              "cached_views_gate": args.cached_views_gate,
               "empty_dispatch_behavior": (
                   "skip zero-token Metal matrix operations while preserving all 40 empty/nonempty "
                   "concatenation entries"
@@ -189,7 +209,9 @@ def main() -> int:
               "equivalence": equivalence, "runs": bounded_runs,
               "acceptance": acceptance,
               "decision": (("DIAGNOSTIC_SUPPORTS_FRESH_REPLICATION"
-                            if args.diagnostic_only else "PROMOTE_INT8_SPARSE_DISPATCH")
+                            if args.diagnostic_only else
+                            ("PROMOTE_INT8_CACHED_WEIGHT_VIEWS" if args.cached_views_gate else
+                             "PROMOTE_INT8_SPARSE_DISPATCH"))
                            if all(acceptance.values()) else "NOT_PROMOTED"),
               "claim_boundary": ("Storage-first, full-resident packed-INT8 Granite; four fixed "
                                  "or explicitly selected prompt families, two ABBA observations "

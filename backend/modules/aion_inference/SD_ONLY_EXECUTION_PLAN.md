@@ -1142,3 +1142,26 @@ result is `STOP_DECODE_ARENA`; canonical report SHA-256:
 
 Do not scale or enable the persistent arena. Production defaults allocate no
 arena capacity. Sparse concatenation remains the promoted INT8 dispatch path.
+
+### Cached resident weight-view boundary (2026-09-08)
+
+The next candidate retained lightweight references to each expert's already
+resident packed-weight and scale views, avoiding repeated attribute lookup,
+slicing and reshaping. It duplicated no weight storage and changed no matrix
+operation. On 1,000 balanced real-route layer-16 trials it improved median
+dispatch time 11.31% (0.607209 to 0.538562 ms) and p95 1.65%, with bit-identical
+layer output. The narrow result advanced to the full-model gate; canonical
+report SHA-256:
+`f29f2f17583ec86d10f7546cf58abb1051d6ed814d9f2ca9df133ecba16c441d`.
+
+The storage-first four-family, 64-token ABBA gate did not reproduce that gain.
+With promoted sparse dispatch active in both conditions, median throughput fell
+from 10.9462 to 10.8475 tokens/s (0.90% slower), while p95 generation time was
+0.05% worse. All token identifiers matched, but the required step-logit
+bit-equivalence gate failed with maximum error 0.46875. The result is
+`NOT_PROMOTED`; canonical report SHA-256:
+`948136d201fd319a36439960410de325df70f201461fdb33d7b33966d8aaa384`.
+
+Stop cached weight views as a production optimization. The layer saving is
+swallowed by full-model work and ordinary Metal variation, and neither speed nor
+integrity crossed its gate. The promoted sparse dispatcher remains unchanged.

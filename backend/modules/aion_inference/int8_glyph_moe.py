@@ -25,7 +25,8 @@ class Int8GlyphParallelExperts(nn.Module):
                  verify_hash: Any, device: str = "mps",
                  skip_empty_experts: bool = True,
                  use_decode_arena: bool = False,
-                 decode_arena_capacity: int = 0) -> None:
+                 decode_arena_capacity: int = 0,
+                 use_cached_weight_views: bool = False) -> None:
         super().__init__()
         if len(entries) != 40:
             raise ValueError("Granite requires exactly 40 expert blocks per layer")
@@ -33,6 +34,7 @@ class Int8GlyphParallelExperts(nn.Module):
         self.skip_empty_experts = skip_empty_experts
         self.use_decode_arena = use_decode_arena
         self.decode_arena_capacity = decode_arena_capacity
+        self.use_cached_weight_views = use_cached_weight_views
         for index, entry in enumerate(entries):
             path = Path(entry["path"]).resolve()
             if storage_root not in path.parents or verify_hash(path) != entry["sha256"]:
@@ -56,6 +58,7 @@ class Int8GlyphParallelExperts(nn.Module):
                         dtype=torch.float16, device=device),
             persistent=False,
         )
+        self._cached_weight_views = [self._materialize_weights(index) for index in range(40)]
 
     def _finish(self, outputs: list[torch.Tensor], arena: torch.Tensor,
                 total: int) -> torch.Tensor:
@@ -71,8 +74,8 @@ class Int8GlyphParallelExperts(nn.Module):
             raise RuntimeError("decode arena routed-token coverage mismatch")
         return arena[:total]
 
-    def _weights(self, index: int) -> tuple[torch.Tensor, torch.Tensor,
-                                             torch.Tensor, torch.Tensor]:
+    def _materialize_weights(self, index: int) -> tuple[torch.Tensor, torch.Tensor,
+                                                         torch.Tensor, torch.Tensor]:
         entry = self.entries[index]
         block = getattr(self, f"block_{index}")
         offset = int(entry["output_offset_elements"])
@@ -80,6 +83,12 @@ class Int8GlyphParallelExperts(nn.Module):
         output_weight = block[offset:].view(entry["output_shape"])
         return (input_weight, getattr(self, f"input_scale_{index}"),
                 output_weight, getattr(self, f"output_scale_{index}"))
+
+    def _weights(self, index: int) -> tuple[torch.Tensor, torch.Tensor,
+                                             torch.Tensor, torch.Tensor]:
+        if self.use_cached_weight_views:
+            return self._cached_weight_views[index]
+        return self._materialize_weights(index)
 
     def input_forward(self, inputs: torch.Tensor, expert_size: torch.Tensor) -> torch.Tensor:
         input_list = inputs.split(expert_size, dim=0)
@@ -111,7 +120,8 @@ class Int8GlyphMoE(nn.Module):
                  storage_root: Path, verify_hash: Any, device: str = "mps",
                  skip_empty_experts: bool = True,
                  use_decode_arena: bool = False,
-                 decode_arena_capacity: int = 0) -> None:
+                 decode_arena_capacity: int = 0,
+                 use_cached_weight_views: bool = False) -> None:
         super().__init__()
         self.input_size = source_moe.input_size
         self.hidden_size = source_moe.hidden_size
@@ -119,7 +129,7 @@ class Int8GlyphMoE(nn.Module):
         self.router = source_moe.router
         self.experts = Int8GlyphParallelExperts(
             entries, storage_root, verify_hash, device, skip_empty_experts,
-            use_decode_arena, decode_arena_capacity,
+            use_decode_arena, decode_arena_capacity, use_cached_weight_views,
         )
 
     def forward(self, layer_input: torch.Tensor) -> torch.Tensor:

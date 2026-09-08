@@ -441,3 +441,27 @@ The result is \texttt{STOP\_DECODE\_ARENA}; canonical report SHA-256:
 
 The persistent arena is not scaled or enabled. Default arena capacity is zero,
 and sparse concatenation remains the promoted packed-INT8 dispatch path.
+
+\subsection{Cached resident weight-view boundary}
+
+The next candidate cached lightweight references to every expert's already
+resident packed-weight and scale views. This avoided repeated attribute lookup,
+slicing and reshaping without duplicating weight storage or changing any matrix
+operation. On 1,000 balanced trials of the real layer-16 route, median dispatch
+time improved by 11.31\%, from 0.607209 ms to 0.538562 ms, and nearest-rank p95
+improved by 1.65\%. Layer outputs were bit-identical. The narrow gate advanced
+to full-model testing; canonical report SHA-256:
+\texttt{f29f2f17583ec86d10f7546cf58abb1051d6ed814d9f2ca9df133ecba16c441d}.
+
+The four-family, 64-token storage-first ABBA test kept promoted sparse dispatch
+active in both arms and changed only dynamic versus cached view construction.
+Across eight observations per condition, median throughput decreased from
+10.9462 to 10.8475 tokens/s, a 0.90\% regression. P95 generation time worsened
+by 0.05\%. Every generated token identifier matched, but generation-step logits
+were not universally bit-identical; maximum observed error was 0.46875. The
+result is \texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{948136d201fd319a36439960410de325df70f201461fdb33d7b33966d8aaa384}.
+
+The microbenchmark effect did not survive full-model execution and the exact
+integrity gate also failed. Cached weight views are therefore stopped as a
+production optimization. The promoted sparse dispatcher remains unchanged.
