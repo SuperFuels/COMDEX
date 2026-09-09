@@ -185,3 +185,154 @@ class GptOssExpertFrameStore:
             "compressed_bytes_read": self.compressed_bytes_read,
             "raw_bytes_materialized": self.raw_bytes_materialized,
         }
+
+
+class GptOssCompressedExpertFrameStore(GptOssExpertFrameStore):
+    """Retain verified compressed frames; expand only the live layer route."""
+
+    def __init__(self, manifest_path: Path, capacity_bytes: int,
+                 freeze_when_full: bool = False) -> None:
+        super().__init__(manifest_path, 0)
+        self.capacity_bytes = capacity_bytes
+        self._encoded_cache: OrderedDict[tuple[int, int], dict[str, dict[str, tuple[bytes, dict[str, Any]]]]] = OrderedDict()
+        self._cache_lock = threading.Lock()
+        self.freeze_when_full = freeze_when_full
+        self.admission_bypasses = 0
+
+    def _read_encoded(self, layer: int, expert: int, projection: str,
+                      kind: str) -> tuple[bytes, dict[str, Any]]:
+        address = self._addresses[(layer, expert, projection, kind)]
+        path = self.root / address["pack_relative_path"]
+        with path.open("rb", buffering=0) as handle:
+            encoded = os.pread(handle.fileno(), int(address["compressed_bytes"]),
+                               int(address["encoded_offset"]))
+        if (len(encoded) != int(address["compressed_bytes"])
+                or hashlib.sha256(encoded).hexdigest() != address["compressed_sha256"]):
+            raise RuntimeError(f"compressed expert-frame integrity failure: {path}")
+        with self._metrics_lock:
+            self.compressed_bytes_read += len(encoded)
+        return encoded, address
+
+    def _load_encoded(self, layer: int, expert: int):
+        return {projection: {kind: self._read_encoded(layer, expert, projection, kind)
+                             for kind in ("weight", "bias")}
+                for projection in ("gate", "up", "down")}
+
+    def _decode_encoded(self, value):
+        result = {}
+        for projection, components in value.items():
+            result[projection] = {}
+            for kind, (encoded, address) in components.items():
+                raw_size = int(address["raw_bytes"])
+                target = ctypes.create_string_buffer(raw_size)
+                source = ctypes.create_string_buffer(encoded)
+                decoded_size = self._zstd.ZSTD_decompress(target, raw_size, source, len(encoded))
+                if self._zstd.ZSTD_isError(decoded_size) or int(decoded_size) != raw_size:
+                    raise RuntimeError("cached expert-frame decode failed")
+                raw = target.raw
+                if hashlib.sha256(raw).hexdigest() != address["raw_sha256"]:
+                    raise RuntimeError("cached expert-frame raw hash mismatch")
+                result[projection][kind] = raw
+                with self._metrics_lock:
+                    self.raw_bytes_materialized += len(raw)
+        return result
+
+    @staticmethod
+    def _encoded_size(value) -> int:
+        return sum(len(encoded) for components in value.values()
+                   for encoded, _ in components.values())
+
+    def _retain_encoded(self, key, value) -> None:
+        size = self._encoded_size(value)
+        if size > self.capacity_bytes:
+            return
+        if (self.freeze_when_full and self._encoded_cache
+                and self._resident + size > self.capacity_bytes):
+            self.admission_bypasses += 1
+            return
+        while self._encoded_cache and self._resident + size > self.capacity_bytes:
+            _, removed = self._encoded_cache.popitem(last=False)
+            self._resident -= self._encoded_size(removed)
+            self.evictions += 1
+        self._encoded_cache[key] = value
+        self._resident += size
+        self.peak_resident_bytes = max(self.peak_resident_bytes, self._resident)
+
+    def get(self, layer: int, expert: int) -> dict[str, dict[str, bytes]]:
+        key = (layer, expert)
+        with self._cache_lock:
+            encoded = self._encoded_cache.pop(key, None)
+            if encoded is not None:
+                self.hits += 1
+                self._encoded_cache[key] = encoded
+        if encoded is None:
+            self.faults += 1
+            encoded = self._load_encoded(layer, expert)
+            with self._cache_lock:
+                self._retain_encoded(key, encoded)
+        return self._decode_encoded(encoded)
+
+    def get_layer_route_parallel(self, layer: int, experts: list[int],
+                                 workers: int = 4) -> list[dict[str, dict[str, bytes]]]:
+        if workers < 1:
+            raise ValueError("workers must be positive")
+        if len(experts) != len(set(experts)):
+            raise ValueError("route must contain unique experts")
+        with ThreadPoolExecutor(max_workers=min(workers, len(experts)),
+                                thread_name_prefix="aion-gptoss-compressed") as pool:
+            return list(pool.map(lambda expert: self.get(layer, expert), experts))
+
+    def metrics(self) -> dict[str, int | float]:
+        result = super().metrics()
+        result["cache_representation"] = "verified_compressed_frames"
+        result["freeze_when_full"] = self.freeze_when_full
+        result["admission_bypasses"] = self.admission_bypasses
+        return result
+
+
+class GptOssTieredExpertFrameStore:
+    """Keep the last route per layer raw and older candidates compressed."""
+
+    def __init__(self, manifest_path: Path, capacity_bytes: int) -> None:
+        if capacity_bytes < 3 * 1024 * 1024 * 1024:
+            raise ValueError("tiered store requires the declared 3 GiB ceiling")
+        self.capacity_bytes = capacity_bytes
+        self.compressed = GptOssCompressedExpertFrameStore(
+            manifest_path, 1250 * 1024 * 1024, freeze_when_full=True)
+        self._raw_layers: dict[int, dict[int, dict[str, dict[str, bytes]]]] = {}
+        self.raw_hits = 0
+        self.route_calls = 0
+
+    def get_layer_route_parallel(self, layer: int, experts: list[int],
+                                 workers: int = 4) -> list[dict[str, dict[str, bytes]]]:
+        if len(experts) != len(set(experts)):
+            raise ValueError("route must contain unique experts")
+        previous = self._raw_layers.get(layer, {})
+        result: list[dict[str, dict[str, bytes]] | None] = []
+        missing = []
+        for expert in experts:
+            value = previous.get(expert)
+            if value is not None:
+                self.raw_hits += 1
+            else:
+                missing.append(expert)
+            result.append(value)
+        if missing:
+            loaded = self.compressed.get_layer_route_parallel(layer, missing, workers)
+            iterator = iter(loaded)
+            result = [next(iterator) if value is None else value for value in result]
+        resolved = [value for value in result if value is not None]
+        self._raw_layers[layer] = dict(zip(experts, resolved, strict=True))
+        self.route_calls += 1
+        return resolved
+
+    def metrics(self) -> dict[str, int | float | str]:
+        underlying = self.compressed.metrics()
+        raw_bytes = sum(GptOssExpertFrameStore._value_size(value)
+                        for layer in self._raw_layers.values() for value in layer.values())
+        return {**underlying, "capacity_bytes": self.capacity_bytes,
+                "cache_representation": "per-layer-raw-route-plus-compressed-history",
+                "raw_route_hits": self.raw_hits, "route_calls": self.route_calls,
+                "raw_route_resident_bytes": raw_bytes,
+                "resident_bytes": raw_bytes + int(underlying["resident_bytes"]),
+                "peak_resident_bytes": raw_bytes + int(underlying["peak_resident_bytes"])}

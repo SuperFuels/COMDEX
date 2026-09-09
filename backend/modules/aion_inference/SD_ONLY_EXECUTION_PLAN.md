@@ -1411,3 +1411,16 @@ latency fell from 28.723 to 24.829 seconds and expert retrieval from 20.108 to
 The earlier normal-RoPE diagnostic is preserved as INVALID. Cache-only scaling
 is insufficient because 114/144 token-two experts were new. Prioritise overlap
 of verified expert I/O with computation and persistent shared tensor arenas.
+
+Four-token cache variants were then tested and stopped. Scan-resistant
+compressed caching cut repeat SD traffic from 5.581 GB to 2.371 GB and achieved
+389/576 hits, but wall time remained about 108.2 seconds because cached frames
+still required decode, verification and rematerialisation. A raw-per-layer plus
+compressed-history tier improved the fourth repeat token 13.8%, but regressed
+aggregate repeat time 3.57% and opening time materially. Both are
+`NOT_PROMOTED`; report hashes are respectively
+`76fde04c87cca31eb6c0d225b8aac2a3f62a280e29ca71445d95b40a6790a9cc` and
+`e352a3ce69fe59c1badbf316e33f66c48ce65b173ae171ab78a6f28ffdb87ed3`.
+Stop cache representation tuning. Build one persistent native arena that
+accepts verified frames directly and removes temporary-file and per-layer
+process/allocation boundaries before testing longer generation.

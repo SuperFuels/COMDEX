@@ -117,3 +117,25 @@ working set reduces demand but cannot by itself turn this route pattern into
 interactive generation.  Subsequent optimisation must overlap new expert
 retrieval with preceding-layer computation and avoid repeated shared-weight
 materialisation; gains must be evaluated on longer generated sequences.
+
+\subsection{Four-token cache-strategy falsification}
+Four-token exact generation produced token IDs
+$2167,679,261,4792$ in both repetitions.  A scan-resistant compressed cache
+increased consecutive-route overlap from 30 experts at token two to 56 and 62
+at tokens three and four.  It reduced repeat physical SD traffic from 5.581~GB
+to 2.371~GB and delivered 389/576 repeat hits, but aggregate time remained
+essentially unchanged: 108.163~s opening and 108.282~s repeat.  This candidate
+is \texttt{NOT\_PROMOTED}; decompression, verification and materialisation
+consumed the saved I/O benefit.  Report SHA-256:
+\texttt{76fde04c87cca31eb6c0d225b8aac2a3f62a280e29ca71445d95b40a6790a9cc}.
+
+A second candidate reserved a raw calculation-ready route for every layer and
+used the remaining 3~GiB ceiling for compressed history.  It accumulated 323
+raw-route hits and reduced the fourth repeat token from 25.443~s to 21.941~s.
+Nevertheless, aggregate repeat time regressed 3.57\% to 112.152~s and opening
+time regressed to 132.056~s.  It is also \texttt{NOT\_PROMOTED}.  Report
+SHA-256:
+\texttt{e352a3ce69fe59c1badbf316e33f66c48ce65b173ae171ab78a6f28ffdb87ed3}.
+Together these failures localise the next target: remove intermediate files,
+per-layer process creation, repeated arena allocation and decode-to-file-to-
+native rematerialisation through a persistent in-process native arena.

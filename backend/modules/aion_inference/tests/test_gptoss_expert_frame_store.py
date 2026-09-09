@@ -2,7 +2,9 @@ import hashlib
 import json
 import subprocess
 
-from backend.modules.aion_inference.gptoss_expert_frame_store import GptOssExpertFrameStore
+from backend.modules.aion_inference.gptoss_expert_frame_store import (
+    GptOssCompressedExpertFrameStore, GptOssExpertFrameStore,
+)
 
 
 def _sha(value: bytes) -> str:
@@ -86,3 +88,24 @@ def test_parallel_route_faults_then_reuses_two_complete_experts(tmp_path):
     assert store.get_layer_route_parallel(0, [0, 1], workers=2) == expected
     assert store.metrics()["faults"] == 2
     assert store.metrics()["hits"] == 2
+
+
+def test_compressed_cache_redecodes_without_second_physical_read(tmp_path):
+    regions = []
+    expected = {}
+    for index, (projection, kind) in enumerate(
+            (p, k) for p in ("gate", "up", "down") for k in ("weight", "bias")):
+        raw = f"{projection}-{kind}".encode() * 100
+        expected.setdefault(projection, {})[kind] = raw
+        regions.append(_region(tmp_path, index, f"blk.0.ffn_{projection}_exps.{kind}", raw))
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1",
+                                         "status": "COMPLETE_VERIFIED", "regions": regions}))
+    capacity = sum(frame["frames"][0]["compressed_bytes"] for frame in regions)
+    store = GptOssCompressedExpertFrameStore(manifest_path, capacity)
+    assert store.get(0, 0) == expected
+    physical = store.metrics()["compressed_bytes_read"]
+    assert store.get(0, 0) == expected
+    assert store.metrics()["compressed_bytes_read"] == physical
+    assert store.metrics()["hits"] == 1
+    assert store.metrics()["cache_representation"] == "verified_compressed_frames"

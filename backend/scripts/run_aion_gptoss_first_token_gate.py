@@ -7,7 +7,10 @@ from pathlib import Path
 import numpy as np
 from backend.modules.aion_inference.expert_frame_gguf_reader import ExpertFrameGGUFReader
 from backend.modules.aion_inference.gguf_stream_index import read_gguf_stream_index
-from backend.modules.aion_inference.gptoss_expert_frame_store import GptOssExpertFrameStore
+from backend.modules.aion_inference.gptoss_expert_frame_store import (
+    GptOssCompressedExpertFrameStore, GptOssExpertFrameStore,
+    GptOssTieredExpertFrameStore,
+)
 
 WIDTH=2880; EXPERTS=128; BOS=199998
 
@@ -22,7 +25,7 @@ def compile_gate(source:Path,output:Path)->None:
                     '-L/opt/homebrew/lib','-lggml','-lggml-base','-ldl','-o',str(output)],check=True)
 
 def main()->None:
-    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--token-count',type=int,default=1);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--token-count',type=int,default=1);a=p.parse_args()
     if a.token_count < 1: raise SystemExit('token-count must be positive')
     if a.output.exists():raise SystemExit('refusing to overwrite evidence')
     manifest=json.loads(a.manifest.read_text()); sources=manifest['verified_sources']
@@ -69,7 +72,11 @@ def main()->None:
                 layer_root=root/f'shared-layer-{layer}';layer_root.mkdir()
                 for name,file in layer_mapping(layer).items():(layer_root/file).write_bytes(read_tensor(name))
             shared_stage_seconds=time.perf_counter()-shared_stage_started
-        persistent_store=GptOssExpertFrameStore(a.manifest,3*1024*1024*1024) if a.resident_replay else None
+        store_type=GptOssTieredExpertFrameStore if a.tiered_cache else GptOssCompressedExpertFrameStore if a.compressed_cache else GptOssExpertFrameStore
+        persistent_store=(store_type(a.manifest,3*1024*1024*1024,
+                          freeze_when_full=a.scan_resistant_cache)
+                          if a.resident_replay and a.compressed_cache and not a.tiered_cache else
+                          store_type(a.manifest,3*1024*1024*1024) if a.resident_replay else None)
 
         def pass_once(label:str)->dict:
             store=persistent_store or GptOssExpertFrameStore(a.manifest,256*1024*1024);metrics_before=store.metrics();token_id=BOS
@@ -111,7 +118,7 @@ def main()->None:
                 'run_a':run_a,'run_b':run_b,'routes_repeatable':routes_equal,'final_hidden_and_logits_bitwise_repeatable':exact,
                 'embedding_row_bytes':row_bytes,'embedding_row_sha256':initial_row_sha,'embedding_run':embed_run,
                 'output_weight':{'bytes':output_weight.stat().st_size,'sha256':sha(output_weight),'one_time_stage_seconds':output_stage_seconds},'output_norm':output_norm_evidence,
-                'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(3*1024*1024*1024 if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,
+                'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(3*1024*1024*1024 if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,
                 'claim_boundary':('A BOS-conditioned greedy sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. This is exact repeatability evidence for the custom packed path, not yet text-quality validation or steady-state generation speed.' if a.token_count>1 else 'A BOS-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is first-token execution evidence, not yet text-quality validation or steady-state generation speed.')}
         report['canonical_sha256']=hashlib.sha256(json.dumps(report,sort_keys=True,separators=(',',':')).encode()).hexdigest()
     a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
