@@ -38,6 +38,9 @@ int main(int argc, char ** argv) {
     ggml_context * context = ggml_init(parameters);
     if (context == nullptr) return 5;
     constexpr int64_t width = 2880;
+    const char * batch_text = std::getenv("AION_BATCH");
+    const int64_t batch = batch_text == nullptr ? 1 : std::stoll(batch_text);
+    if (batch < 1) return 12;
     ggml_tensor * gate_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
     ggml_tensor * gate_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
     ggml_tensor * up_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
@@ -51,14 +54,15 @@ int main(int argc, char ** argv) {
             return 6;
         }
     }
-    ggml_tensor * input = ggml_new_tensor_2d(context, GGML_TYPE_F32, width, 1);
+    ggml_tensor * input = ggml_new_tensor_2d(context, GGML_TYPE_F32, width, batch);
     auto * input_values = static_cast<float *>(input->data);
     const char * input_path = std::getenv("AION_INPUT_PATH");
     if (input_path != nullptr) {
         if (!read_exact(input_path, input->data, ggml_nbytes(input))) return 10;
     } else {
-        for (int64_t index = 0; index < width; ++index)
-            input_values[index] = std::sin(static_cast<float>(index) * 0.00390625f);
+        for (int64_t row = 0; row < batch; ++row)
+            for (int64_t index = 0; index < width; ++index)
+                input_values[row*width+index] = std::sin(static_cast<float>(index) * 0.00390625f);
     }
     ggml_tensor * gate = ggml_add(context, ggml_mul_mat(context, gate_w, input), gate_b);
     ggml_tensor * up = ggml_add(context, ggml_mul_mat(context, up_w, input), up_b);
@@ -81,7 +85,7 @@ int main(int argc, char ** argv) {
     const auto * values = static_cast<const float *>(output->data);
     double checksum = 0.0;
     bool finite = true;
-    for (int64_t index = 0; index < width; ++index) {
+    for (int64_t index = 0; index < width*batch; ++index) {
         checksum += values[index];
         finite = finite && std::isfinite(values[index]);
     }
@@ -93,6 +97,7 @@ int main(int argc, char ** argv) {
     }
     std::cout << "{\"schema\":\"aion.gptoss.packed-expert-cpu.v1\","
               << "\"repetitions\":" << repetitions << ",\"threads\":" << threads
+              << ",\"batch\":" << batch
               << ",\"weight_bytes\":"
               << (ggml_nbytes(gate_w) + ggml_nbytes(up_w) + ggml_nbytes(down_w))
               << ",\"p50_ms\":" << ordered[ordered.size() / 2]

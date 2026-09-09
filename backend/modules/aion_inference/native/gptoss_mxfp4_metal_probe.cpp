@@ -34,10 +34,12 @@ int main(int argc, char ** argv) {
     constexpr int64_t width=2880;
     std::vector<std::vector<char>> values(7);
     for(int i=0;i<7;++i)if(!read_exact(argv[i+1],values[i]))return 6;
+    if(values[0].size()%(width*sizeof(float))!=0)return 11;
+    const int64_t batch=values[0].size()/(width*sizeof(float));
 
     std::vector<char> metadata(16*1024*1024);
     ggml_context * context=ggml_init({metadata.size(),metadata.data(),true});
-    auto * input=ggml_new_tensor_1d(context,GGML_TYPE_F32,width);
+    auto * input=ggml_new_tensor_2d(context,GGML_TYPE_F32,width,batch);
     auto * gate_w=ggml_new_tensor_2d(context,GGML_TYPE_MXFP4,width,width);
     auto * gate_b=ggml_new_tensor_1d(context,GGML_TYPE_F32,width);
     auto * up_w=ggml_new_tensor_2d(context,GGML_TYPE_MXFP4,width,width);
@@ -72,7 +74,7 @@ int main(int argc, char ** argv) {
         compute_samples.push_back(std::chrono::duration<double,std::milli>(
             std::chrono::steady_clock::now()-compute_begin).count());
     }
-    std::vector<float> result(width);
+    std::vector<float> result(width*batch);
     ggml_backend_tensor_get(output,result.data(),0,result.size()*sizeof(float));
     if(argc==9) {
         std::ofstream output_file(argv[8],std::ios::binary|std::ios::trunc);
@@ -88,6 +90,7 @@ int main(int argc, char ** argv) {
     std::cout << "{\"status\":\"" << (finite?"PASSED":"FAILED")
               << "\",\"device\":\"" << ggml_backend_dev_name(device)
               << "\",\"all_ops_supported\":" << (supported?"true":"false")
+              << ",\"batch\":" << batch
               << ",\"upload_ms\":" << upload_ms << ",\"first_compute_ms\":" << compute_samples[0]
               << ",\"warm_p50_ms\":" << warm_p50 << ",\"compute_samples_ms\":[";
     for(size_t i=0;i<compute_samples.size();++i)std::cout<<(i?",":"")<<compute_samples[i];

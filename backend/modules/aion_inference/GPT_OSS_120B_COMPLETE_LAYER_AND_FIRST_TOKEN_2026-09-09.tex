@@ -283,3 +283,25 @@ multi-token batch, where launch cost and parallelism differ; it does rule out
 blindly moving individual one-token experts to Metal.  Report canonical
 SHA-256:
 \texttt{9db1e300d30d571fcea9e5915fc2b81e2084465b637f0859108ba068cc75674f}.
+
+\subsection{Batched packed-Metal crossover}
+The Metal probe was expanded to reuse one resident real expert over batches of
+1, 2, 4, 8, 16 and 32 activation rows.  CPU and Metal used identical packed
+weights and inputs.  Metal remained slower through batch eight, approximately
+matched CPU at batch four, and crossed decisively at larger batches.  At batch
+16, Metal processed 16,180 expert activations/s versus 8,728/s on CPU, a
+1.85-fold speedup.  At batch 32, Metal processed 27,993 expert activations/s
+versus 9,144/s on CPU, a 3.06-fold speedup.  Relative $L_2$ error remained
+approximately 0.00623 and the compared argmax remained equal at every batch.
+The predeclared decision is \texttt{ADVANCE\_BATCHED\_METAL}.  Canonical
+report SHA-256:
+\texttt{53fc40a6a12c8eb7fb4a80f2a6f45874fbf8c68770832fca9ba5d8d92c5314dc}.
+
+This is a mechanism breakthrough, not model throughput.  Repeating one expert
+across every row is more favourable than an unconstrained MoE route.  The next
+gate must group a real batch by its actual layer/expert addresses, report the
+number of unique experts and activations per expert, include SD bytes, and
+measure speculative-token acceptance.  A draft/verify architecture is only
+useful if weight reuse and accepted tokens compensate for the additional draft
+work.  Until that full gate passes, no 120B generated-token rate is inferred
+from the expert-activation rates.

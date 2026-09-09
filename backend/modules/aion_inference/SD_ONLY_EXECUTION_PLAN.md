@@ -1473,3 +1473,17 @@ supports the MXFP4 graph, but its 0.514 ms warm median was 2.31 times the
 0.006230). The argmax agreed, so only a future fused or multi-token batched
 quality-gated experiment remains justified. Canonical SHA-256:
 `9db1e300d30d571fcea9e5915fc2b81e2084465b637f0859108ba068cc75674f`.
+
+That batched Metal follow-up has a real crossover. One resident real expert
+remained slower on Metal through batch eight, but batch 16 was 1.85x faster
+than CPU and batch 32 was 3.06x faster. Metal reached 27,993 expert-activation
+calculations/s at batch 32; relative L2 stayed about 0.00623 and the compared
+argmax agreed. Decision: `ADVANCE_BATCHED_METAL`; canonical SHA-256:
+`53fc40a6a12c8eb7fb4a80f2a6f45874fbf8c68770832fca9ba5d8d92c5314dc`.
+
+Next build a real-route grouped batch gate, not a repeated-expert benchmark.
+Use an already-installed small model only as a draft source, group 120B
+candidate activations by layer/expert, and measure unique expert SD reads,
+Metal batch occupancy, accepted draft tokens, end-to-end latency and quality.
+Stop if real route diversity prevents batches large enough to cross the Metal
+threshold. Do not report expert activations/s as generated tokens/s.

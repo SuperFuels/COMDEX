@@ -1,0 +1,274 @@
+{
+  "canonical_sha256": "53fc40a6a12c8eb7fb4a80f2a6f45874fbf8c68770832fca9ba5d8d92c5314dc",
+  "claim_boundary": "One real expert over repeated synthetic activation rows. This measures a packed batch crossover, not autoregressive generation or speculative-token acceptance.",
+  "created_at": "2026-09-09T18:09:52.612943+00:00",
+  "expert": 0,
+  "gates": {
+    "metal_speedup_at_least": 1.15,
+    "minimum_batch": 4,
+    "relative_l2_at_most": 0.01
+  },
+  "layer": 0,
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "samples": [
+    {
+      "argmax_equal": true,
+      "batch": 1,
+      "cpu": {
+        "batch": 1,
+        "checksum": -20.8766,
+        "finite": true,
+        "p50_ms": 0.224875,
+        "p95_ms": 0.313166,
+        "repetitions": 8,
+        "schema": "aion.gptoss.packed-expert-cpu.v1",
+        "threads": 8,
+        "weight_bytes": 13219200
+      },
+      "cpu_activations_per_second": 4446.914952751529,
+      "max_abs_error": 0.09746170043945312,
+      "metal": {
+        "all_ops_supported": true,
+        "batch": 1,
+        "checksum": -21.1436,
+        "compute_samples_ms": [
+          6.28429,
+          0.310375,
+          0.274166,
+          0.262334,
+          0.267208,
+          0.27975,
+          0.283958,
+          0.25425,
+          0.254416
+        ],
+        "device": "MTL0",
+        "first_compute_ms": 6.28429,
+        "status": "PASSED",
+        "upload_ms": 0.948042,
+        "warm_p50_ms": 0.270687
+      },
+      "metal_activations_per_second": 3694.3037530431825,
+      "metal_speedup": 0.8307565564655857,
+      "relative_l2_error": 0.006230226447866017
+    },
+    {
+      "argmax_equal": true,
+      "batch": 2,
+      "cpu": {
+        "batch": 2,
+        "checksum": -41.7531,
+        "finite": true,
+        "p50_ms": 0.277125,
+        "p95_ms": 0.307583,
+        "repetitions": 8,
+        "schema": "aion.gptoss.packed-expert-cpu.v1",
+        "threads": 8,
+        "weight_bytes": 13219200
+      },
+      "cpu_activations_per_second": 7216.9598556608025,
+      "max_abs_error": 0.09746170043945312,
+      "metal": {
+        "all_ops_supported": true,
+        "batch": 2,
+        "checksum": -42.2873,
+        "compute_samples_ms": [
+          2.29154,
+          0.462666,
+          0.518458,
+          0.546542,
+          0.479541,
+          0.519125,
+          0.479791,
+          0.437709,
+          0.433333
+        ],
+        "device": "MTL0",
+        "first_compute_ms": 2.29154,
+        "status": "PASSED",
+        "upload_ms": 1.24767,
+        "warm_p50_ms": 0.479666
+      },
+      "metal_activations_per_second": 4169.567991060447,
+      "metal_speedup": 0.5777457647613131,
+      "relative_l2_error": 0.006230226447866016
+    },
+    {
+      "argmax_equal": true,
+      "batch": 4,
+      "cpu": {
+        "batch": 4,
+        "checksum": -83.5062,
+        "finite": true,
+        "p50_ms": 0.522541,
+        "p95_ms": 0.680417,
+        "repetitions": 8,
+        "schema": "aion.gptoss.packed-expert-cpu.v1",
+        "threads": 8,
+        "weight_bytes": 13219200
+      },
+      "cpu_activations_per_second": 7654.901720630533,
+      "max_abs_error": 0.09746170043945312,
+      "metal": {
+        "all_ops_supported": true,
+        "batch": 4,
+        "checksum": -84.5745,
+        "compute_samples_ms": [
+          1.24996,
+          0.585958,
+          0.558416,
+          0.551458,
+          0.509667,
+          0.524084,
+          0.505334,
+          0.516334,
+          0.512834
+        ],
+        "device": "MTL0",
+        "first_compute_ms": 1.24996,
+        "status": "PASSED",
+        "upload_ms": 1.15529,
+        "warm_p50_ms": 0.520209
+      },
+      "metal_activations_per_second": 7689.217218464117,
+      "metal_speedup": 1.0044828136383646,
+      "relative_l2_error": 0.006230226447866017
+    },
+    {
+      "argmax_equal": true,
+      "batch": 8,
+      "cpu": {
+        "batch": 8,
+        "checksum": -167.012,
+        "finite": true,
+        "p50_ms": 0.921167,
+        "p95_ms": 1.11833,
+        "repetitions": 8,
+        "schema": "aion.gptoss.packed-expert-cpu.v1",
+        "threads": 8,
+        "weight_bytes": 13219200
+      },
+      "cpu_activations_per_second": 8684.635902067703,
+      "max_abs_error": 0.09746170043945312,
+      "metal": {
+        "all_ops_supported": true,
+        "batch": 8,
+        "checksum": -169.149,
+        "compute_samples_ms": [
+          3.2475,
+          1.30021,
+          1.14329,
+          1.31083,
+          1.12279,
+          2.4495,
+          1.42075,
+          1.01412,
+          1.00567
+        ],
+        "device": "MTL0",
+        "first_compute_ms": 3.2475,
+        "status": "PASSED",
+        "upload_ms": 1.10708,
+        "warm_p50_ms": 1.22175
+      },
+      "metal_activations_per_second": 6547.984448536935,
+      "metal_speedup": 0.7539733988131778,
+      "relative_l2_error": 0.006230226447866016
+    },
+    {
+      "argmax_equal": true,
+      "batch": 16,
+      "cpu": {
+        "batch": 16,
+        "checksum": -334.025,
+        "finite": true,
+        "p50_ms": 1.83308,
+        "p95_ms": 2,
+        "repetitions": 8,
+        "schema": "aion.gptoss.packed-expert-cpu.v1",
+        "threads": 8,
+        "weight_bytes": 13219200
+      },
+      "cpu_activations_per_second": 8728.478844349402,
+      "max_abs_error": 0.09759902954101562,
+      "metal": {
+        "all_ops_supported": true,
+        "batch": 16,
+        "checksum": -338.374,
+        "compute_samples_ms": [
+          155.746,
+          1.11496,
+          1.07733,
+          1.00583,
+          2.23983,
+          0.971916,
+          0.962125,
+          0.9645,
+          0.94425
+        ],
+        "device": "MTL0",
+        "first_compute_ms": 155.746,
+        "status": "PASSED",
+        "upload_ms": 1.08825,
+        "warm_p50_ms": 0.988875
+      },
+      "metal_activations_per_second": 16180.002528125397,
+      "metal_speedup": 1.8537024396410062,
+      "relative_l2_error": 0.006228846734775179
+    },
+    {
+      "argmax_equal": true,
+      "batch": 32,
+      "cpu": {
+        "batch": 32,
+        "checksum": -668.05,
+        "finite": true,
+        "p50_ms": 3.49938,
+        "p95_ms": 3.65021,
+        "repetitions": 8,
+        "schema": "aion.gptoss.packed-expert-cpu.v1",
+        "threads": 8,
+        "weight_bytes": 13219200
+      },
+      "cpu_activations_per_second": 9144.477021643834,
+      "max_abs_error": 0.09759902954101562,
+      "metal": {
+        "all_ops_supported": true,
+        "batch": 32,
+        "checksum": -676.748,
+        "compute_samples_ms": [
+          57.7067,
+          7.04575,
+          1.26483,
+          1.12725,
+          1.11492,
+          0.996667,
+          1.15904,
+          1.69312,
+          0.762833
+        ],
+        "device": "MTL0",
+        "first_compute_ms": 57.7067,
+        "status": "PASSED",
+        "upload_ms": 1.03804,
+        "warm_p50_ms": 1.14315
+      },
+      "metal_activations_per_second": 27992.826838122728,
+      "metal_speedup": 3.061173074399685,
+      "relative_l2_error": 0.00622884673477518
+    }
+  ],
+  "schema": "aion.gptoss-mxfp4-metal-batch-gate.v1",
+  "status": "ADVANCE_BATCHED_METAL",
+  "warehouse_metrics": {
+    "capacity_bytes": 67108864,
+    "compressed_bytes_read": 12595862,
+    "evictions": 0,
+    "faults": 1,
+    "hit_rate": 0.0,
+    "hits": 0,
+    "peak_resident_bytes": 13253760,
+    "raw_bytes_materialized": 13253760,
+    "resident_bytes": 13253760
+  }
+}
