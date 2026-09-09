@@ -1,0 +1,42 @@
+{
+  "canonical_sha256": "c9a38d97ede8767ee7d57d3bb514d2f5689ddac2085826b962a7d46b401a2402",
+  "claim_boundary": "This is one real packed MXFP4 gpt-oss expert calculation using exact weights loaded from the verified SD warehouse. It is a CPU microgate with a synthetic activation, not a full transformer token, semantic output, or tokens-per-second result.",
+  "created_at": "2026-09-09T15:34:08.519804+00:00",
+  "expert": 0,
+  "finite_and_checksum_repeatable": true,
+  "layer": 0,
+  "manifest": "/Volumes/AION_120B/AION-Warehouse/v1/expert-bank/gpt-oss-120b-q4km-expert-frames.v1/manifest.v1.json",
+  "run_a": {
+    "checksum": -20.8766,
+    "finite": true,
+    "p50_ms": 0.204833,
+    "p95_ms": 0.571125,
+    "repetitions": 8,
+    "schema": "aion.gptoss.packed-expert-cpu.v1",
+    "threads": 8,
+    "weight_bytes": 13219200
+  },
+  "run_b": {
+    "checksum": -20.8766,
+    "finite": true,
+    "p50_ms": 0.205958,
+    "p95_ms": 0.344125,
+    "repetitions": 8,
+    "schema": "aion.gptoss.packed-expert-cpu.v1",
+    "threads": 8,
+    "weight_bytes": 13219200
+  },
+  "schema": "aion.gptoss-packed-expert-compute-gate.v1",
+  "status": "PASSED",
+  "warehouse_metrics": {
+    "capacity_bytes": 67108864,
+    "compressed_bytes_read": 12595862,
+    "evictions": 0,
+    "faults": 1,
+    "hit_rate": 0.0,
+    "hits": 0,
+    "peak_resident_bytes": 13253760,
+    "raw_bytes_materialized": 13253760,
+    "resident_bytes": 13253760
+  }
+}

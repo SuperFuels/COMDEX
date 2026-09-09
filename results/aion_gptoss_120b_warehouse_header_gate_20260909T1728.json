@@ -1,0 +1,66 @@
+{
+  "cache_ceiling_bytes_per_reader": 33554432,
+  "canonical_sha256": "98eb3a094f58e2486b753d6b7f4058c0c4e3a66923b94c844ba21748a9834156",
+  "claim_boundary": "This proves bounded exact parsing of the original GGUF headers through the compressed expert-frame warehouse. It is not model inference and has no tokens-per-second meaning.",
+  "created_at": "2026-09-09T15:29:48.430779+00:00",
+  "manifest": "/Volumes/AION_120B/AION-Warehouse/v1/expert-bank/gpt-oss-120b-q4km-expert-frames.v1/manifest.v1.json",
+  "manifest_sha256": "dfc85d22c833d3c25a6caf3575a40cb3964656b336c98b5873b94faa3dacc2c3",
+  "schema": "aion.gptoss-warehouse-header-gate.v1",
+  "shards": [
+    {
+      "data_offset": 13007264,
+      "expected_sha256": "48b6bea561b52aaa3c10ca7681f35a923196cc348098e55ffc6ee3d184eb0949",
+      "gguf_version": 3,
+      "metadata": {
+        "general.architecture": "gpt-oss",
+        "general.file_type": 15,
+        "general.name": "Gpt Oss 120b",
+        "gpt-oss.block_count": 36,
+        "gpt-oss.expert_count": 128,
+        "gpt-oss.expert_used_count": 4,
+        "split.count": 2,
+        "split.no": 0,
+        "split.tensors.count": 687
+      },
+      "reader_metrics": {
+        "cache_capacity_bytes": 33554432,
+        "cache_hit_rate": 0.9999992294034966,
+        "cache_hits": 1297695,
+        "cache_resident_bytes": 13007264,
+        "compressed_bytes_read": 3860623,
+        "frame_faults": 1,
+        "peak_resident_bytes": 13007264,
+        "raw_bytes_materialized": 13007264
+      },
+      "source_bytes": 39954683808,
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf",
+      "tensor_count": 438,
+      "verified_sha256": "48b6bea561b52aaa3c10ca7681f35a923196cc348098e55ffc6ee3d184eb0949"
+    },
+    {
+      "data_offset": 15392,
+      "expected_sha256": "06ab40ac3a9e2d7a77b6491b4cf76af152bee88ce493331a1f5147a0207abcad",
+      "gguf_version": 3,
+      "metadata": {
+        "split.count": 2,
+        "split.no": 1,
+        "split.tensors.count": 687
+      },
+      "reader_metrics": {
+        "cache_capacity_bytes": 33554432,
+        "cache_hit_rate": 0.999409681227863,
+        "cache_hits": 1693,
+        "cache_resident_bytes": 15392,
+        "compressed_bytes_read": 1812,
+        "frame_faults": 1,
+        "peak_resident_bytes": 15392,
+        "raw_bytes_materialized": 15392
+      },
+      "source_bytes": 22887029536,
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00002-of-00002.gguf",
+      "tensor_count": 249,
+      "verified_sha256": "06ab40ac3a9e2d7a77b6491b4cf76af152bee88ce493331a1f5147a0207abcad"
+    }
+  ],
+  "status": "PASSED"
+}
