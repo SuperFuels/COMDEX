@@ -1,0 +1,208 @@
+% Append-only technical-record section.
+% Requires: amsmath, booktabs, hyperref (or url).
+\section{Quality-Gated 120B Expert Warehouse on the Existing 64~GB Card}
+\label{sec:gpt-oss-120b-expert-warehouse-progress}
+\begingroup
+\sloppy
+
+\subsection{Objective and claim boundary}
+
+This stage tests whether the complete selected representation of
+\texttt{gpt-oss-120b} can be retained on the existing nominal 64~GB SD card
+and exposed as a bounded, expert-addressed AION warehouse.  The selected
+source is the two-shard \texttt{Q4\_K\_M} GGUF conversion at revision
+\texttt{9480dc9fd99da05bca65e263301fce0223af6797}.  The source is the
+\href{https://huggingface.co/bartowski/openai_gpt-oss-120b-GGUF}%
+{Bartowski gpt-oss-120b GGUF repository}.
+
+Three distinct integrity claims must not be conflated:
+\begin{enumerate}
+  \item The outer AION Zstandard representation is intended to be bit-exact
+        to every byte of the selected \texttt{Q4\_K\_M} GGUF shards.
+  \item \texttt{Q4\_K\_M} is itself a changed-weight representation of the
+        official model.  It therefore remains on a separately labelled,
+        quality-gated track.  It is not an exact-original-weight claim.
+  \item No model-quality, generation-speed, time-to-first-token or usable
+        120B-inference claim is made until the full import, source-hash
+        verification and integrated generation gates have completed.
+\end{enumerate}
+
+\subsection{Exact capacity gate}
+
+The selected source shards contain 62,841,713,344 bytes.  The prepared ExFAT
+volume provided 62,180,294,656 free bytes at selection time.  A conventional
+copy was therefore short by 661,418,688 bytes.  The minimum required reduction
+was
+\begin{equation}
+ r_{\min} = 100\left(1-\frac{62{,}180{,}294{,}656}
+ {62{,}841{,}713{,}344}\right) = 1.0525\%.
+\end{equation}
+This narrow deficit motivated a lossless outer-storage experiment before any
+additional neural quantization, pruning or expert removal was considered.
+
+Representative 64~MiB ranges sampled from both real GGUF shards compressed
+losslessly by 4.0395--5.1618\% at Zstandard level~3.  Every sample was decoded
+again and compared to the source bytes.  This exceeded the 1.0525\% capacity
+threshold, but sampling alone was not treated as proof that the complete model
+would fit.
+
+\subsection{Rejected fixed-block layout}
+
+The first resumable importer divided each logical GGUF shard into independent
+64~MiB frames.  It completed 43 verified chunks, representing 2,885,681,152
+source bytes and 2,686,027,077 compressed bytes, for a 6.9188\% reduction.
+The source-capacity result was promising, but live inspection of the GGUF
+header exposed a serious execution defect in this layout.
+
+Each MoE weight tensor has dimensions $2880\times2880\times128$ and occupies
+564,019,200 bytes.  One expert projection occupies 4,406,400 bytes; its
+associated bias occupies 11,520 bytes.  A fixed 64~MiB frame could consequently
+force the runtime to read and decode substantial neighboring-expert data to
+obtain a single 4.4~MB projection.  The layout would fit the card while
+undermining the address-selective execution objective.
+
+The fixed-block import was stopped before completion.  Its immutable
+invalidation sidecar has SHA-256
+\texttt{7d316e5e7f4579474b7e662a8066dfb}%
+\allowbreak\texttt{e461c0697be542e30a1ac36f82528b69f}.
+The incomplete 2.7~GB staging directory was moved to the macOS Trash and can be
+recovered; it was not represented as completed evidence.  This is an example
+of the programme's falsification rule operating correctly: capacity alone was
+insufficient for promotion.
+
+\subsection{Expert-aligned replacement geometry}
+
+Both GGUF headers were parsed without downloading or materialising the complete
+files.  Shard~1 contains 438 tensor records and covers layers 0--22, with
+layer~22 continuing into shard~2.  Shard~2 contains 249 tensor records and
+covers layers 22--35.  The resulting source-bound plan covers every byte from
+the beginning of each GGUF header to the end of each shard with neither gaps
+nor overlap.
+
+Every expert weight and bias tensor is divided along its 128-expert dimension.
+Shared tensors and headers use independent frames capped at 64~MiB.  The frozen
+plan contains:
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Item & Count \\
+\midrule
+Source shards & 2 \\
+Transactional regions & 689 \\
+Expert-aligned frames & 27,648 \\
+Shared/header frames & 487 \\
+Total independently verifiable frames & 28,135 \\
+\bottomrule
+\end{tabular}
+\end{center}
+The plan's canonical SHA-256 is
+\texttt{379913c699fae493a66ef72d9664c071}%
+\allowbreak\texttt{9458da6db6fce2cf360bc3ec64ec96e6};
+the plan file SHA-256 is
+\texttt{ff34f7b601c728b67d127c7ff75deb1a}%
+\allowbreak\texttt{d149e399694a80c850681b2195818cd2}.
+
+A complete expert comprises the gate, up and down weights and biases, totalling
+13,253,760 raw bytes.  Four completely cold active experts at one layer would
+therefore represent 53,015,040 raw bytes before reuse or coalescing.  The new
+geometry allows AION to fetch precisely those expert frames and provides the
+foundation for bounded LRU retention, route-aware coalescing and layer-ahead
+overlap.  It does not assert that those later mechanisms have already won.
+
+\subsection{Crash-safe import and proof receipts}
+
+The replacement importer downloads one planned tensor region at a time to
+bounded internal staging, emits independently compressed frames directly into
+the SD warehouse, decodes every frame immediately, and requires the decoded
+SHA-256 to match the downloaded bytes.  Only then is the pack atomically
+promoted and its receipt written.  Interrupted regions are discarded or
+repeated; completed region packs remain resumable.
+
+Every frame receipt records the logical source offset, raw byte count, expert
+identity where applicable, encoded pack offset, compressed byte count, raw
+SHA-256 and compressed SHA-256.  The importer reserves 1~GiB of card headroom
+and fails closed if the next transaction could cross that boundary.  When all
+regions are present, it must reconstruct each logical shard through the frame
+decoder and match the upstream full-shard hashes:
+\begin{itemize}
+  \item shard~1:
+  \texttt{48b6bea561b52aaa3c10ca7681f35a92}%
+  \allowbreak\texttt{3196cc348098e55ffc6ee3d184eb0949};
+  \item shard~2:
+  \texttt{06ab40ac3a9e2d7a77b6491b4cf76af}%
+  \allowbreak\texttt{152bee88ce493331a1f5147a0207abcad}.
+\end{itemize}
+No \texttt{COMPLETE\_VERIFIED} manifest is emitted unless both checks pass.
+
+\subsection{Bounded readers and runtime preparation}
+
+Two fail-closed reader components were implemented.  The generic compressed
+GGUF reader presents a seekable logical byte stream while retaining only a
+declared number of decoded frames.  It checks both compressed and decoded
+hashes on every cache fault.  The gpt-oss expert store constructs Glyph
+addresses of the form
+\texttt{layer/expert/projection/kind}, reads the six frames belonging to one
+expert, and retains complete experts under a strict raw-byte LRU ceiling.
+It records faults, hits, evictions, compressed bytes read, raw bytes
+materialised and peak resident bytes.  Both readers reject incomplete or
+unverified warehouse manifests.
+
+The implementation was divided into isolated commits:
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Commit & Recorded change \\
+\midrule
+\texttt{907198e5} & Resumable, verified generic GGUF chunk importer \\
+\texttt{dae097d1} & Bounded compressed GGUF address reader \\
+\texttt{356cda0b} & GGUF stream index and expert-aligned plan/importer \\
+\texttt{f72f0db1} & Bounded gpt-oss expert-frame store \\
+\bottomrule
+\end{tabular}
+\end{center}
+Ten focused tests covering frame coverage, canonical binding, atomic receipts,
+lossless round trips, bounded cross-frame reads, expert-component assembly,
+cache reuse and fail-closed manifest handling passed 10/10.
+
+\subsection{Bound progress snapshot}
+
+At 2026-09-09 13:25:56 UTC, the expert-aligned import remained
+\texttt{IN\_PROGRESS}.  It had completed 53 of 689 transactional regions
+(7.6923\%).  The completed regions represented 4,482,104,736 raw bytes and
+4,213,380,240 packed bytes, an observed reduction of 5.9955\%.  A naive linear
+projection at that early ratio would be approximately 59.07~GB, but this is
+reported only as a progress estimate because later tensor distributions can
+change the final ratio.  The card still reported approximately 56,367,616
+KiB available at the snapshot.
+
+The source manifest SHA-256 is
+\texttt{feb9f9bab57694cda00604842bd0d20e}%
+\allowbreak\texttt{ee209a3509a7948854b4bbf506568d2f};
+the candidate-selection manifest SHA-256 is
+\texttt{9586a4daf12fbed845670f5f6fe79ebd}%
+\allowbreak\texttt{df8b49488e24aa84687fef8d39c6169a}.
+
+\subsection{Required next gates}
+
+The following gates remain mandatory, in order:
+\begin{enumerate}
+  \item finish all 689 transactions without breaching the declared reserve;
+  \item reconstruct and verify both complete upstream shard hashes;
+  \item verify complete 36-layer, 128-expert address coverage, including the
+        layer~22 cross-shard boundary;
+  \item measure real cold and retained expert reads, decompression amplification,
+        cache reuse and p50/p95 latency from the SD card;
+  \item integrate shared tensors, routing and expert materialisation under the
+        18~GB unified-memory ceiling;
+  \item obtain the first valid one-token and short-generation controls before
+        attempting longer generation;
+  \item run frozen and unseen quality cohorts against an independently defined
+        control, reporting failures and regressions; and
+  \item only then report 120B time to first token, tokens per second, peak
+        memory, SD traffic and completed-task performance.
+\end{enumerate}
+
+The result recorded here is therefore a substantial storage-architecture and
+integrity advance, not yet proof that the 120B model runs successfully or at a
+commercially useful speed on the 18~GB Mac.
+\endgroup
