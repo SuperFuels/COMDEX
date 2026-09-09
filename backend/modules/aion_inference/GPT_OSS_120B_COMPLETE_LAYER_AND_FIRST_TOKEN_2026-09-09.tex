@@ -244,3 +244,42 @@ approach interactive throughput.  The next strategy must reduce physical
 expert traffic or hide it behind useful work.  Any reduced-expert,
 lower-precision, pruning or surrogate-route approach remains a separately
 labelled quality-gated track.
+
+\subsection{Eight-token working-set boundary}
+The exact persistent path was extended to eight generated tokens.  Both full
+executions produced the identical sequence
+\[
+  2167,679,261,4792,25,392,11437,290
+\]
+with identical routes, hidden states and logits at every step.  This longer
+run falsified the hypothesis that the route would rapidly settle inside the
+3~GiB raw cache.  The cumulative working set grew from 144 layer/expert pairs
+after token one to 258, 343, 409, 499, 557, 594 and finally 661 pairs,
+equivalent to approximately 8.76~GB of raw expert components.  New cumulative
+addresses per later token were respectively 114, 85, 66, 90, 58, 37 and 67.
+
+The opening eight-token sequence took 248.576~s (0.0322 token/s average) and
+read 10,198,329,749 compressed expert bytes.  Although tokens two through four
+initially reached 0.0508--0.0529 token/s, subsequent SD and memory pressure
+removed that gain.  The result is therefore retained as exact route evidence
+with a \texttt{LIMITATION} sidecar, not promoted as a sustained cache
+strategy.  Canonical SHA-256:
+\texttt{d99a00851fc1fa332a3e1e9537932efd1970aa297acf51d9a24dabdd8ac20884}.
+
+\subsection{Direct MXFP4 Metal probe}
+Because the Granite programme benefited strongly from Metal execution, a
+separate quality-gated microbenchmark tested one real 120B MXFP4 expert on the
+installed Apple M3 Pro Metal backend.  All required operations were supported.
+The 13.22~MB of packed weights uploaded in 1.948~ms, and warm Metal calculation
+had a 0.514~ms median.  The matched eight-thread CPU reference required
+0.223~ms, making Metal 2.31 times slower for this narrow matrix--vector
+workload.  Metal was also not bitwise equal: relative $L_2$ error was
+0.006230, mean absolute error 0.006847, and maximum absolute error 0.097462,
+although the output argmax agreed.
+
+The predeclared speed gate failed and the candidate is
+\texttt{NOT\_PROMOTED}.  This does not rule out Metal for a fused layer or
+multi-token batch, where launch cost and parallelism differ; it does rule out
+blindly moving individual one-token experts to Metal.  Report canonical
+SHA-256:
+\texttt{9db1e300d30d571fcea9e5915fc2b81e2084465b637f0859108ba068cc75674f}.

@@ -1457,3 +1457,19 @@ one. Stop attention-only tuning. Measure longer raw-cache working-set growth
 and route-transition predictability, then test only a bounded strategy that can
 avoid or overlap physical expert reads. Keep exact routing/cache work separate
 from any quality-gated reduced-traffic model architecture.
+
+Eight-token exact validation stops the raw-cache convergence hypothesis. The
+cumulative route reached 661 layer/expert pairs (about 8.76 GB raw), opening
+average throughput was 0.0322 token/s, and 10.198 GB of compressed expert bytes
+were read. Preserve the exact report with its LIMITATION sidecar; canonical
+SHA-256:
+`d99a00851fc1fa332a3e1e9537932efd1970aa297acf51d9a24dabdd8ac20884`.
+Do not increase the cache above the locked 3 GiB ceiling or claim that longer
+generation naturally becomes resident.
+
+The direct packed Metal probe is also stopped for single-token experts. Metal
+supports the MXFP4 graph, but its 0.514 ms warm median was 2.31 times the
+0.223 ms CPU median, and its output was not bitwise equal (relative L2
+0.006230). The argmax agreed, so only a future fused or multi-token batched
+quality-gated experiment remains justified. Canonical SHA-256:
+`9db1e300d30d571fcea9e5915fc2b81e2084465b637f0859108ba068cc75674f`.

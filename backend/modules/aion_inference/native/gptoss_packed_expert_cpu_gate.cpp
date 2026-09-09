@@ -53,8 +53,12 @@ int main(int argc, char ** argv) {
     }
     ggml_tensor * input = ggml_new_tensor_2d(context, GGML_TYPE_F32, width, 1);
     auto * input_values = static_cast<float *>(input->data);
-    for (int64_t index = 0; index < width; ++index) {
-        input_values[index] = std::sin(static_cast<float>(index) * 0.00390625f);
+    const char * input_path = std::getenv("AION_INPUT_PATH");
+    if (input_path != nullptr) {
+        if (!read_exact(input_path, input->data, ggml_nbytes(input))) return 10;
+    } else {
+        for (int64_t index = 0; index < width; ++index)
+            input_values[index] = std::sin(static_cast<float>(index) * 0.00390625f);
     }
     ggml_tensor * gate = ggml_add(context, ggml_mul_mat(context, gate_w, input), gate_b);
     ggml_tensor * up = ggml_add(context, ggml_mul_mat(context, up_w, input), up_b);
@@ -80,6 +84,12 @@ int main(int argc, char ** argv) {
     for (int64_t index = 0; index < width; ++index) {
         checksum += values[index];
         finite = finite && std::isfinite(values[index]);
+    }
+    const char * output_path = std::getenv("AION_OUTPUT_PATH");
+    if (output_path != nullptr) {
+        std::ofstream output_file(output_path, std::ios::binary | std::ios::trunc);
+        output_file.write(reinterpret_cast<const char *>(values), ggml_nbytes(output));
+        if (!output_file.good()) return 11;
     }
     std::cout << "{\"schema\":\"aion.gptoss.packed-expert-cpu.v1\","
               << "\"repetitions\":" << repetitions << ",\"threads\":" << threads
