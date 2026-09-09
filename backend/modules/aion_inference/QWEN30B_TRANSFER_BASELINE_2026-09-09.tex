@@ -343,12 +343,25 @@ SHA-256 is
 This broader result still does not substitute for every-layer, multi-token and
 step-logit equivalence in an integrated decoder.
 
+The gate was next expanded to the complete 48-layer stack in one stock capture
+followed by independent reconstruction.  For every layer, AION read only the
+selected eight packed expert slices, used the layer's actual Q4\_K or Q6\_K down
+type, applied the captured normalized gates and compared the 2{,}048-value
+result.  All 98{,}304 values were bit-for-bit equal: no layer had a nonzero
+error, and aggregate maximum absolute, mean absolute and relative $L_2$ error
+were zero.  The all-layer single-token exactness gate therefore passed.  The
+SD-backed report SHA-256 is
+\texttt{bbb85daf40b24f142ff1a89e5fac479914972bd2c5069e1f1d783deb4484fff4}.
+This removes layer coverage as an immediate correctness uncertainty, but does
+not yet prove multiple token positions, step logits, generated tokens or
+end-to-end decoder speed.
+
 \subsection{Next measured gates}
 
 The next implementation stage is to combine the already bounded Qwen expert
 reader with the now exact direct-packed calculation, without registering the
-complete GGUF in Metal residency.  The immediate correctness gate is every-layer
-and multi-token reconstruction, followed by step-logit and generated-token
+complete GGUF in Metal residency.  The immediate correctness gate is multi-token
+reconstruction across token positions, followed by step-logit and generated-token
 equivalence in the bounded decoder.  Only after those gates may persistent
 buffers, decode/read/compute overlap and route-aware retention be judged by
 end-to-end timing.  Exact-output candidates must preserve token
