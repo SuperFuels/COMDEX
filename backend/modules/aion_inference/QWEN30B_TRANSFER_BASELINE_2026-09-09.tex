@@ -140,6 +140,38 @@ its internal canonical digest is
 The parser and synthetic coverage test were committed in isolated commit
 \texttt{0ac48511}; focused result: 1/1 passed.
 
+\subsection{Bounded real-SD expert-store mechanism gate}
+
+A strict 256~MiB least-recently-used store was then connected to the address map.
+It reads the three exact packed ranges for a requested layer/expert pair using
+positional reads, rejects short reads, retains no more than its declared byte
+ceiling and never copies or rewrites the source model.  The first report was
+invalidated because it estimated logical demand using a model-wide mean expert
+size; quantized expert sizes vary slightly by layer.  The corrected report sums
+the exact declared byte ranges for every access.
+
+The narrow mechanism trace comprised four synthetic token routes over layers
+0--7, with eight unique experts per layer and controlled partial overlap.  It is
+not a model-observed Qwen route, so it cannot establish production cache hit rate
+or tokens per second.  The corrected measured result was:
+\begin{align*}
+ B_{\mathrm{logical,no\ cache}} &= 757{,}334{,}016\ \mathrm{bytes},\\
+ B_{\mathrm{physical}} &= 568{,}000{,}512\ \mathrm{bytes},\\
+ \Delta B &= 25.00\%,\\
+ h &= 64/256 = 25.00\%,\\
+ B_{\mathrm{peak,resident}} &= 268{,}296{,}192\ \mathrm{bytes}
+ < 256\ \mathrm{MiB}.
+\end{align*}
+All 757{,}334{,}016 logical returned bytes matched the declared demand.  The store
+recorded 192 faults and 101 evictions.  Descriptive median route time was
+1.06744~s and nearest-rank p95 was 2.13648~s, but timing is not promoted because
+operating-system page-cache state was not controlled.  The report file SHA-256 is
+\texttt{7046ec0d6c1f61a499cd4c1aea7f07440fac8479b3fbc8872f74167d88e8cce7};
+its canonical digest is
+\texttt{7bd35f13fca7ccbaeb1d264c547d53cd4817d86658b2a3026d96fca3fec4d3a3}.
+Focused tests passed 3/3.  The bounded store was committed as
+\texttt{bc088100}.
+
 \subsection{Next measured gates}
 
 The next implementation stage is a bounded Qwen expert reader that uses the
