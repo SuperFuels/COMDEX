@@ -1,0 +1,76 @@
+% Append-only technical-record section. Requires amsmath and booktabs.
+\section{Exploratory Edge-Layer Mixed-Precision Experiment}
+\label{sec:qwen30b-q2q3-edge}
+
+\subsection{Predeclared question and scope}
+
+Following promotion of the resident Qwen3-30B-A3B selective-Q2 expert
+candidate, an explicitly quality-gated experiment asked whether allocating
+higher expert precision to the first and last eight transformer layers could
+recover quality while retaining at least 50 generated tokens per second on the
+18~GB M3 Pro.  This was a changed-weight experiment, not an exact-output
+optimisation.  The edge-layer allocation was declared as an architectural
+heuristic and was not represented as a measured sensitivity result.
+
+The experiment plan was written before candidate creation and is stored as
+\texttt{qwen3-30b-a3b-q2q3-edge-plan-v1.json}, with SHA-256
+\texttt{4b6912d12ef983e71dbe0db307095758541c7452522560fe3640e0a47eb12542}.
+The frozen acceptance rules required a structured strict score above 6/8, no
+semantic regression below 7/8, no multiple-choice regression below 11/12,
+repeatable parseable output, and replicated 256-token performance at or above
+the declared speed thresholds.
+
+\subsection{Candidate construction and physical boundary}
+
+Expert tensors in layers 0--7 and 40--47 were quantised to Q3\_K.  Expert
+tensors in layers 8--39 remained Q2\_K, while non-expert tensors retained the
+Q4\_K\_M base policy.  The resulting candidate is 11,497,672,192 bytes
+(10,959.34~MiB) with SHA-256
+\texttt{1cec6825acb0a912a449ac0f5aacfc376ca4dce548d1317b741a3253438287f4}.
+It was built on temporary internal storage because the SD evidence volume had
+only approximately 9~GiB free.  Consequently this experiment makes no claim
+about SD cold-load speed.  Neither SD-resident source model was overwritten or
+deleted.
+
+The candidate loaded successfully with all model layers on Metal.  A narrow
+32-prompt-token, 16-generation-token smoke test measured 164.14 prompt
+tokens/s and 58.13 generation tokens/s.  This established executability, not
+the predeclared replicated long-generation performance result.
+
+\subsection{Frozen quality result}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Evaluation & Q2 control & Q2/Q3 edge candidate & Gate \\
+\midrule
+Structured strict & 6/8 & 7/8 & pass \\
+Structured semantic & 7/8 & 8/8 & pass \\
+Structured parseable & 8/8 & 8/8 & pass \\
+Multiple choice & 11/12 & 10/12 & fail \\
+\bottomrule
+\end{tabular}
+\caption{Frozen quality results for the heuristic mixed-precision candidate.}
+\end{table}
+
+The structured cohort was run twice.  Both raw text and parsed values were
+identical between runs.  The sole strict miss returned
+\texttt{unit=``gram''} rather than the schema-exact \texttt{unit=``g''}, while
+the numerical conversion was correct.  In the multiple-choice cohort, the
+candidate missed cases \texttt{m03} and \texttt{m04}, producing 10/12 versus
+the Q2 control's 11/12.  Because the predeclared multiple-choice gate failed,
+the replicated 256-token performance stage was not run.
+
+\subsection{Decision and learning}
+
+The candidate is \textbf{NOT\_PROMOTED}.  Restoring precision at model edges
+improved one frozen structured cohort but regressed the separate
+multiple-choice cohort.  The result falsifies a general claim that first/last
+layers are automatically the best precision allocation for this model.  Any
+subsequent mixed-precision candidate must be based on task-diverse, measured
+layer-sensitivity evidence rather than positional intuition alone.
+
+The canonical result is
+\texttt{qwen3-30b-a3b-q2q3-edge-result-v1.json}, SHA-256
+\texttt{d47d6e0c65522c31f6c290c31b4cdba342c52d4c7a97a7860a7cf9d483eb0475}.
