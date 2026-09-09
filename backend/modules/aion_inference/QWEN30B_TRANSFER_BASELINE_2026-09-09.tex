@@ -1,0 +1,153 @@
+% Append-only section for the AION technical record.
+% Requires: amsmath, booktabs, url.
+\section{Transfer to Qwen3-30B-A3B on an 18~GB Commodity Mac}
+\label{sec:qwen30b-transfer-2026-09-09}
+
+\subsection{Objective and claim boundary}
+
+This stage tests whether the storage-addressing and bounded-execution principles
+developed on Granite transfer to a substantially larger sparse mixture-of-experts
+(MoE) model.  The target is the official Qwen3-30B-A3B Q4\_K\_M GGUF checkpoint,
+stored on the removable SD evidence volume and executed on the existing Apple M3
+Pro Mac with 18~GB unified memory.  The aspirational performance target is
+50 generated tokens per second, but it is neither assumed nor used to move an
+acceptance threshold.  At the end of this stage, feasibility and the storage
+addressing mechanism are established; a high-speed Qwen result is not yet
+claimed.
+
+\subsection{Storage preparation and provenance}
+
+Six historical Granite layer-pack directories, occupying approximately 31~GiB,
+were moved intact from the SD card to the reversible internal archive
+\texttt{/Users/kevinrobinson/AION-Artifact-Archive/2026-09-09-granite-layer-packs}.
+The relocation manifest records the six source and destination hashes, all of
+which matched after relocation.  The original Granite model, promoted expert
+banks, expert blocks, experiment evidence, runtime evidence and technical records
+were retained on the SD volume.  This increased available SD capacity from
+approximately 5.4~GiB to 36~GiB before the Qwen checkpoint was installed.
+
+The installed checkpoint has the following immutable identity:
+\begin{align*}
+  B_{\mathrm{model}} &= 18{,}556{,}685{,}824\ \mathrm{bytes},\\
+  H_{\mathrm{model}} &= \texttt{0d003f6662faee786ed5da3e31b29c97}\ldots
+                       \texttt{c606a7f3c01aa8f5}.
+\end{align*}
+The digest matched the upstream linked-file identity.  A complete sequential
+SHA-256 pass required 194.14~s, corresponding to 95.58~MB/s decimal sustained
+read throughput from the SD card.  This provides a directly measured cold
+storage floor rather than an advertised device rate.  The runtime was
+\texttt{llama.cpp 0.4.0}, build 10809, commit \texttt{5266f24da}.
+
+\subsection{Failed stock Metal control}
+
+The first completed stock placement used all eligible GPU layers, kept MoE
+weights on CPU, enabled memory mapping and retained the runtime's default weight
+repacking.  It generated no token and ended after 574.07~s with repeated Metal
+\texttt{Insufficient Memory} command-buffer failures.  This run is preserved
+with an \texttt{INVALID} sidecar and supplies no tokens-per-second value.  It
+demonstrates that storing the checkpoint is possible but conventional
+whole-checkpoint materialisation is not a viable execution path on this machine.
+
+Several measurement-harness defects were also caught and preserved: one rejected
+argument, one pseudo-terminal job-control stop, one chat frontend that wrote
+approximately 90~MB of spinner characters to the SD result stream, and one
+unsupported benchmark argument.  None is used as performance evidence.  The
+accepted control uses the non-interactive batched benchmark and compact JSONL
+output.
+
+\subsection{Valid CPU/no-repack feasibility baseline}
+
+The accepted control disabled repacking, assigned zero layers to Metal, retained
+all MoE tensors on CPU/SD, used memory mapping, and fixed context 1024,
+batch/physical batch 64, eight CPU threads, 32 prompt tokens, eight generated
+tokens and one sequence.  It completed without an out-of-memory failure.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lr}
+\toprule
+Metric & Measured value \\
+\midrule
+Cold wall time & 358.55~s \\
+Prompt time (32 tokens) & 44.878975~s \\
+Prompt throughput & 0.713029 tokens/s \\
+Generation time (8 tokens) & 14.593630~s \\
+Generation throughput & 0.548184 tokens/s \\
+Combined throughput (40 tokens) & 0.672579 tokens/s \\
+\bottomrule
+\end{tabular}
+\caption{First valid Qwen3-30B-A3B execution baseline on the SD-backed 18~GB M3 Pro.}
+\end{table}
+
+The result artifact SHA-256 is
+\texttt{e2bdc67c7df654c1d079f4f997f95a14e4bae8de11a49287d7c425c26b002e06};
+the runtime-log SHA-256 is
+\texttt{bfe862576d22a0a1578d6a6eff90140bf6257b86eb37174fa5fdf70543fe60af}.
+The benchmark establishes computational feasibility, not answer quality, because
+the batched harness measures token identifiers rather than a semantic response.
+
+\subsection{Whole-GGUF Metal placement is falsified}
+
+Disabling repacking did not make conventional Metal placement safe.  Placing all
+eligible layers on Metal crossed Apple's reported 12{,}884.92~MB recommended
+working set and terminated abnormally after 287.46~s.  A 24-layer bound crossed
+the same limit and terminated after 286.29~s.  An eight-layer bound also crossed
+the limit, reported Metal out-of-memory during decode at approximately 8~min
+29~s, and failed the fixed 600-second wall gate.  None emitted valid benchmark
+timing.
+
+This falsifies the idea that a small adjustment to the number of offloaded layers
+is sufficient.  On Apple silicon, CPU mappings and Metal allocations compete for
+one unified-memory pool.  The complete GGUF mapping must therefore be prevented
+from becoming the effective Metal residency unit.  Future execution must expose
+only bounded, currently required layer/expert buffers.
+
+\subsection{Zero-copy Glyph expert address map}
+
+GGUF inspection found 579 tensors.  Each of the 48 MoE layers stores its 128
+experts in three combined tensors: gate, up and down projections.  Each combined
+tensor divides evenly into 128 physically contiguous expert slices.  AION now
+parses the GGUF header and constructs a source-bound address for every slice
+without reading or copying the tensor payload.
+
+For layer $\ell$, expert $e$ and projection $p$, the address is
+\begin{equation}
+  G(\ell,e,p) = (H_{\mathrm{model}}, o_{\ell,p} + e s_{\ell,p},
+                 s_{\ell,p}, \tau_{\ell,p}),
+\end{equation}
+where $o$ is the absolute tensor offset, $s$ is its per-expert byte stride and
+$\tau$ records the GGML type and tensor dimensions.  The human-readable Glyph is
+\texttt{qwen3moe/layer/LL/expert/EEE}.
+
+The generated map contains 6{,}144 layer/expert instances and has these measured
+properties:
+\begin{align*}
+  B_{\mathrm{expert}} &= 17{,}553{,}162{,}240\ \mathrm{bytes},\\
+  \frac{B_{\mathrm{expert}}}{B_{\mathrm{model}}} &= 94.5921\%,\\
+  B_{\mathrm{one\ layer/expert}} &= 2{,}856{,}960\ \mathrm{bytes},\\
+  B_{\mathrm{eight\ active,48\ layers}} &= 1{,}097{,}072{,}640\ \mathrm{bytes/token}.
+\end{align*}
+The last quantity is the logical uncached expert demand, not necessarily physical
+SD traffic after reuse.  It proves why naive streaming cannot approach the target:
+at the measured 95.58~MB/s SD rate, reading 1.097~GB for every token would itself
+take more than eleven seconds before computation.  Large gains require reuse,
+bounded residency and direct packed computation, not merely more reader threads.
+
+The 6.6~MB address-map file SHA-256 is
+\texttt{70e3ca7f0db99a9f357a5d3789a56b4df878b667b1d0b2978439f4b317bf6ddc};
+its internal canonical digest is
+\texttt{f9518b63658231ccad3d07d48a445aa7303cf1fc29148bf4bb13f8aabda4e82e}.
+The parser and synthetic coverage test were committed in isolated commit
+\texttt{0ac48511}; focused result: 1/1 passed.
+
+\subsection{Next measured gates}
+
+The next implementation stage is a bounded Qwen expert reader that uses the
+Glyph map to read only selected slices into a 1--3~GiB working set, without
+registering the complete GGUF in Metal residency.  It must first measure cold and
+warm physical bytes, per-layer fault latency, route overlap and cache reuse.  Only
+then may packed Q4 computation, persistent Metal buffers, decode/transfer overlap,
+and route-aware retention be scaled.  Exact-output candidates must preserve token
+and step-logit equivalence; changed kernels or representations remain separately
+quality-gated.  No claim of 50 tokens/s, production usability, or general larger-
+model acceleration is made by the present results.
