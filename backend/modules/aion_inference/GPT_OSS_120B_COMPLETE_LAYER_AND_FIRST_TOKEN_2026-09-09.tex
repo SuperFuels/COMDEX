@@ -366,3 +366,63 @@ small-model path for interactive work and invoke unrestricted 120B selectively
 for depth, verification or offline work. Any learned compression, distillation
 or route-concentrated subnetwork remains a separately authorised,
 quality-gated programme with frozen semantic evaluation.
+
+\subsection{Sparse vocabulary shell and real prompt bridge}
+The prior complete transformer evidence began from the GGUF-declared beginning
+token. A new bridge now exposes each original shard's header through a
+temporary sparse file while leaving the tensor region as an unallocated hole.
+The standard installed llama.cpp vocabulary loader therefore sees the original
+two-shard metadata and its 201,088-token vocabulary without reconstructing or
+loading the 62,841,713,344 logical model bytes. The two sparse shells occupied
+13,025,280 physical bytes, a 99.9793\% reduction relative to their logical
+length, and were deleted after tokenisation and detokenisation.
+
+The real tokenizer mapped the raw prompt \texttt{Hello from AION} to token IDs
+\texttt{[13225, 591, 355, 2044]}. These four externally supplied tokens were
+teacher-forced through all 36 custom attention/MoE blocks with per-layer KV
+history. Two complete passes selected identical expert routes and produced
+bitwise-identical hidden arrays and logits. The first continuation token was
+ID 5913, which the same vocabulary metadata decoded as \texttt{etwork}.
+
+The first pass took 79.819~s and read 5,723,436,121 compressed expert bytes;
+the second took 88.744~s and read 5,330,588,521 bytes. This is therefore a
+functional breakthrough, not a throughput breakthrough: it proves that the
+bounded SD-backed engine accepts real text tokens rather than only its BOS
+token, while confirming that diverse prompt routes remain storage-bound. The
+raw continuation is not a chat-quality result because the GPT-OSS Harmony chat
+template was deliberately not yet applied. Status:
+\texttt{PROMOTE\_PROMPT\_BRIDGE}. Receipt canonical SHA-256:
+\texttt{ec16405dd2641eb352798baaac2c5aa82723d2e6e30928730a21c7c1f8e3bc99};
+complete transformer evidence canonical SHA-256:
+\texttt{673fae7e8d81ad2ff6858f4079b74c9a2fb8614f6f1c4e6ae34147d0697e3fcb}.
+
+The next functional gate is a correctly templated minimal user message and a
+short decoded response, with exact repeated routes and logits retained. Only
+after that gate passes may the 120B tier participate in the heterogeneous
+completed-task experiment.
+
+That next functional gate has now passed for the minimal user message
+\texttt{Hi}. The model-declared Harmony template produced seven input tokens:
+\texttt{[200006, 1428, 200008, 12194, 200007, 200006, 173781]}.
+After those tokens were teacher-forced, the model autonomously generated
+\texttt{[200005, 35644, 200008]}, decoded by its own vocabulary as
+\texttt{<|channel|>analysis<|message|>}. This is the correct structural opening
+of a Harmony assistant reasoning response.
+
+Both nine-position passes used complete 36-layer attention/MoE evaluation and
+produced identical response tokens, routes, hidden arrays and logits. The first
+pass took 241.381~s and read 9,604,782,675 compressed bytes; the second took
+412.017~s and read 9,160,755,501 bytes. One second-pass position suffered a
+232.228~s system/storage-pressure outlier, so these timings are retained as
+observed and are not promoted as steady-state throughput. The response header,
+however, is exact and repeatable. Status:
+\texttt{PROMOTE\_HARMONY\_RESPONSE\_HEADER}. Receipt canonical SHA-256:
+\texttt{f2a39370083fa15a91fbab48f238b73eee27618605fb533b7fa844540760cc9e};
+complete transformer evidence canonical SHA-256:
+\texttt{9cea326fe691bddd58f4312a3d9225826b00d332181e3c276aec764036a151db}.
+
+The remaining functional milestone is the first ordinary-language token after
+the Harmony header, then a short terminated response. The latency result also
+strengthens the heterogeneous-routing requirement: unrestricted 120B should be
+reserved for work whose added depth justifies minutes of prompt-prefill time on
+this particular SD card.

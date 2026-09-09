@@ -25,9 +25,13 @@ def compile_gate(source:Path,output:Path)->None:
                     '-L/opt/homebrew/lib','-lggml','-lggml-base','-ldl','-o',str(output)],check=True)
 
 def main()->None:
-    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');a=p.parse_args()
     if a.token_count < 1: raise SystemExit('token-count must be positive')
     if a.passes < 2: raise SystemExit('passes must be at least 2')
+    forced_input_ids=([int(value) for value in a.input_token_ids.split(',') if value]
+                      if a.input_token_ids else [a.input_token_id])
+    if not forced_input_ids: raise SystemExit('input-token-ids must not be empty')
+    if len(forced_input_ids)>a.token_count: raise SystemExit('token-count must cover all forced input tokens')
     if a.inprocess_attention and not a.resident_replay: raise SystemExit('in-process attention currently requires resident replay')
     if a.output.exists():raise SystemExit('refusing to overwrite evidence')
     manifest=json.loads(a.manifest.read_text()); sources=manifest['verified_sources']
@@ -64,7 +68,9 @@ def main()->None:
         def embed(token_id:int,label:str)->tuple[Path,dict,str]:
             row=readers[source].read_at(int(t['absolute_offset'])+token_id*row_bytes,row_bytes);row_path=root/f'{label}-embedding-row.bin';row_path.write_bytes(row);hidden=root/f'{label}-initial-hidden.bin'
             run=json.loads(subprocess.check_output([str(exe['embed']),str(row_path),str(hidden),str(a.threads)],text=True));return hidden,run,hashlib.sha256(row).hexdigest()
-        initial_hidden,embed_run,initial_row_sha=embed(BOS,'initial')
+        if any(not 0 <= token < int(t['dimensions'][1]) for token in forced_input_ids):
+            raise SystemExit('an input token ID is outside the model vocabulary')
+        initial_hidden,embed_run,initial_row_sha=embed(forced_input_ids[0],'initial')
         output_weight=root/'vocabulary-output-weight.bin'; output_norm=root/'output-norm.bin'
         output_stage_started=time.perf_counter()
         # Stream the 615 MB vocabulary matrix so no equivalent Python allocation is created.
@@ -100,11 +106,12 @@ def main()->None:
                           store_type(a.manifest,3*1024*1024*1024) if a.resident_replay else None)
 
         def pass_once(label:str)->dict:
-            store=persistent_store or GptOssExpertFrameStore(a.manifest,256*1024*1024);metrics_before=store.metrics();token_id=BOS
+            store=persistent_store or GptOssExpertFrameStore(a.manifest,256*1024*1024);metrics_before=store.metrics();token_id=forced_input_ids[0]
             if a.inprocess_attention: attention_reset()
             token_results=[];started=time.perf_counter()
             for position in range(a.token_count):
-              current,embedding,embedding_sha=(initial_hidden,embed_run,initial_row_sha) if position==0 else embed(token_id,f'{label}-token-{position}')
+              input_token_id=(forced_input_ids[position] if position<len(forced_input_ids) else token_id)
+              current,embedding,embedding_sha=(initial_hidden,embed_run,initial_row_sha) if position==0 else embed(input_token_id,f'{label}-token-{position}')
               layers=[];token_started=time.perf_counter()
               for layer in range(36):
                 mapping=layer_mapping(layer);layer_root=root/f'shared-layer-{layer}' if a.resident_replay else root
@@ -156,7 +163,7 @@ def main()->None:
                 if current != initial_hidden: current.unlink(missing_ok=True)
                 Path(str(prefix)+'-ffn-input.bin').unlink(missing_ok=True);router_path.unlink(missing_ok=True);current=next_hidden
               logits_path=root/f'{label}-token-{position}-logits.bin';output_started=time.perf_counter();output=json.loads(subprocess.check_output([str(exe['output']),str(output_weight),str(output_norm),str(current),str(logits_path),str(a.threads)],text=True));output_seconds=time.perf_counter()-output_started;token_id=output['argmax_token_id']
-              token_results.append({'position':position,'input_token_id':BOS if position==0 else token_results[-1]['generated_token_id'],'generated_token_id':token_id,'wall_seconds':time.perf_counter()-token_started,'output_process_seconds':output_seconds,'layers':layers,'final_hidden_sha256':sha(current),'logits_sha256':sha(logits_path),'output':output,'embedding':embedding,'embedding_row_sha256':embedding_sha})
+              token_results.append({'position':position,'input_token_id':input_token_id,'input_was_forced_prompt':position<len(forced_input_ids),'generated_token_id':token_id,'wall_seconds':time.perf_counter()-token_started,'output_process_seconds':output_seconds,'layers':layers,'final_hidden_sha256':sha(current),'logits_sha256':sha(logits_path),'output':output,'embedding':embedding,'embedding_row_sha256':embedding_sha})
             metrics_after=store.metrics();delta={key:metrics_after[key]-metrics_before.get(key,0) for key in ('hits','faults','evictions','compressed_bytes_read','raw_bytes_materialized')}
             return {'label':label,'wall_seconds':time.perf_counter()-started,'tokens':token_results,'layers':token_results[-1]['layers'],'final_hidden_sha256':token_results[-1]['final_hidden_sha256'],'logits_sha256':token_results[-1]['logits_sha256'],'output':token_results[-1]['output'],'store_metrics':metrics_after,'store_metric_delta':delta}
         runs=[pass_once(chr(ord('a')+index)) for index in range(a.passes)]
@@ -167,12 +174,12 @@ def main()->None:
             all(x['final_hidden_sha256']==y['final_hidden_sha256'] and x['logits_sha256']==y['logits_sha256'] and x['generated_token_id']==y['generated_token_id'] for x,y in zip(run_a['tokens'],run['tokens']))
             for run in runs[1:]))
         report={'schema':('aion.gptoss-multitoken-kv-gate.v1' if a.token_count>1 else 'aion.gptoss-first-token-gate.v1'),'status':'PASSED' if routes_equal and exact else 'FAILED','created_at':datetime.now(timezone.utc).isoformat(),
-                'model':'GPT-OSS 120B Q4_K_M/MXFP4','input_token_id':BOS,'token_count':a.token_count,'input_semantics':'GGUF-declared BOS token followed by greedy argmax tokens with per-layer KV history','generated_token_id':run_a['output']['argmax_token_id'],
+                'model':'GPT-OSS 120B Q4_K_M/MXFP4','input_token_id':forced_input_ids[0],'input_token_ids':forced_input_ids,'token_count':a.token_count,'input_semantics':('GGUF-declared BOS token followed by greedy argmax tokens with per-layer KV history' if forced_input_ids==[BOS] else 'Externally tokenized prompt tokens are teacher-forced in order, followed by greedy argmax tokens with per-layer KV history'),'generated_token_id':run_a['output']['argmax_token_id'],
                 'run_a':run_a,'run_b':run_b,'additional_runs':runs[2:],'passes':a.passes,'routes_repeatable':routes_equal,'final_hidden_and_logits_bitwise_repeatable':exact,
                 'embedding_row_bytes':row_bytes,'embedding_row_sha256':initial_row_sha,'embedding_run':embed_run,
                 'output_weight':{'bytes':output_weight.stat().st_size,'sha256':sha(output_weight),'one_time_stage_seconds':output_stage_seconds},'output_norm':output_norm_evidence,
                 'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'inprocess_finish':a.inprocess_finish,'inprocess_attention':a.inprocess_attention,'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(3*1024*1024*1024 if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,
-                'claim_boundary':('A BOS-conditioned greedy sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. This is exact repeatability evidence for the custom packed path, not yet text-quality validation or steady-state generation speed.' if a.token_count>1 else 'A BOS-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is first-token execution evidence, not yet text-quality validation or steady-state generation speed.')}
+                'claim_boundary':(('A token-conditioned sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. Declared prompt tokens were teacher-forced before greedy continuation. This is exact repeatability evidence for the custom packed path, not yet chat-template quality validation or steady-state generation speed.' if a.token_count>1 else 'A token-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is prompt-token execution evidence, not yet multi-token prompt quality validation or steady-state generation speed.') if forced_input_ids!=[BOS] else ('A BOS-conditioned greedy sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. This is exact repeatability evidence for the custom packed path, not yet text-quality validation or steady-state generation speed.' if a.token_count>1 else 'A BOS-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is first-token execution evidence, not yet text-quality validation or steady-state generation speed.'))}
         report['canonical_sha256']=hashlib.sha256(json.dumps(report,sort_keys=True,separators=(',',':')).encode()).hexdigest()
     a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
     print(json.dumps({k:report[k] for k in ('status','input_token_id','generated_token_id','routes_repeatable','final_hidden_and_logits_bitwise_repeatable','canonical_sha256')},sort_keys=True))

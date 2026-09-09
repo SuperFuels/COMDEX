@@ -1,0 +1,39 @@
+{
+  "acceptance": {
+    "hidden_and_logits_bitwise_repeatable": true,
+    "physical_vocab_shell_under_32_mib": true,
+    "prompt_has_at_least_one_token": true,
+    "routes_repeatable": true,
+    "transformer_evaluated_complete_prompt": true,
+    "transformer_evidence_hash_valid": true,
+    "transformer_execution_passed": true,
+    "transformer_input_matches_tokenizer": true,
+    "warehouse_complete_verified": true
+  },
+  "canonical_sha256": "ec16405dd2641eb352798baaac2c5aa82723d2e6e30928730a21c7c1f8e3bc99",
+  "claim_boundary": "One real text prompt was tokenized from header-only sparse GGUF shells, teacher-forced through the complete custom 36-layer SD-backed transformer twice with KV history, and its first continuation token was detokenized. This proves the prompt/vocabulary bridge and exact repeatability for this sequence; it is not chat-template quality or sustained throughput.",
+  "generated_text": "etwork",
+  "generated_token_id": 5913,
+  "hashes": {
+    "transformer_canonical_sha256": "673fae7e8d81ad2ff6858f4079b74c9a2fb8614f6f1c4e6ae34147d0697e3fcb",
+    "transformer_evidence_sha256": "a7923a37436450f7473d25ba091fa5e366799f7c34568514be5223a8661f1998",
+    "vocab_tool_source_sha256": "b619ce43394a4fef709af5da68053754ba916d347d2b14558636b620db390ffa",
+    "warehouse_manifest_sha256": "dfc85d22c833d3c25a6caf3575a40cb3964656b336c98b5873b94faa3dacc2c3"
+  },
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "prompt": "Hello from AION",
+  "prompt_token_ids": [
+    13225,
+    591,
+    355,
+    2044
+  ],
+  "schema": "aion.gptoss-120b-prompt-sequence-receipt.v1",
+  "sparse_vocab_shell": {
+    "logical_bytes": 62841713344,
+    "physical_bytes": 13025280,
+    "physical_reduction_percent": 99.97927287575898,
+    "temporary_and_deleted_after_use": true
+  },
+  "status": "PASSED"
+}

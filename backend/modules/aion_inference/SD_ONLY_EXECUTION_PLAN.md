@@ -1523,3 +1523,37 @@ ambiguous or policy-critical cases to 120B, and measure end-to-end successful
 tasks/hour, user latency, escalation rate and frozen quality. Keep the
 approximately 24 token/s promoted resident result separate from the roughly
 40 token/s bounded hybrid evidence and from the 120B rate.
+
+The missing real-text bridge is now promoted. Header-only sparse GGUF shells
+gave the installed tokenizer access to the complete 201,088-token vocabulary
+using 13,025,280 physical bytes instead of reconstructing 62,841,713,344
+logical model bytes. `Hello from AION` tokenized as `[13225, 591, 355, 2044]`;
+all four tokens were teacher-forced through the custom 36-layer engine twice
+with KV history. Routes, hidden states and logits repeated exactly, and token
+5913 decoded as `etwork`. The passes took 79.819 s and 88.744 s and read 5.723
+GB and 5.331 GB of compressed experts respectively. This is
+`PROMOTE_PROMPT_BRIDGE`, not a quality or speed promotion. Receipt canonical
+SHA-256:
+`ec16405dd2641eb352798baaac2c5aa82723d2e6e30928730a21c7c1f8e3bc99`.
+
+Next apply the model-declared Harmony chat template using the same sparse
+vocabulary shell, execute the smallest meaningful user message, and decode a
+short response. Retain exact repeated routes/logits, the 3 GiB ceiling and
+separate prompt-prefill versus continuation timing. Do not route business work
+to 120B until this functional quality gate passes.
+
+The minimal Harmony gate now passes. The seven-token model-declared template
+for `Hi` was teacher-forced through all 36 layers, after which the engine
+autonomously generated `[200005, 35644, 200008]`, decoded as
+`<|channel|>analysis<|message|>`. Both complete nine-position passes had exact
+response tokens, routes, hidden arrays and logits. Passes took 241.381 s and
+412.017 s, reading 9.605 GB and 9.161 GB of compressed experts; the latter
+contains a 232.228 s pressure outlier and is not throughput evidence. Status:
+`PROMOTE_HARMONY_RESPONSE_HEADER`; receipt canonical SHA-256:
+`f2a39370083fa15a91fbab48f238b73eee27618605fb533b7fa844540760cc9e`.
+
+Next generate the first ordinary-language token after this exact Harmony
+header, then the shortest terminated response that can be evaluated for basic
+coherence. Keep the response structure and quality claim separate from speed.
+Once usable text passes, integrate 120B only as a selective depth tier in the
+heterogeneous completed-task gate.
