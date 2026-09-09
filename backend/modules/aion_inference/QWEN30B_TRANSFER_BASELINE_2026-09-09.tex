@@ -236,6 +236,47 @@ canonical digest:
 \texttt{7b3e61ade808ca103d55dea77baa57fe8d6bbacc2e70f5302f42235074a0ffe9}.
 Focused tests passed 3/3; implementation commit \texttt{acced8fd}.
 
+\subsection{Direct packed CPU expert-compute boundary}
+
+The next narrow gate tested whether the Mac CPU could compute directly on Qwen's
+existing packed representation, avoiding FP16 expansion and Metal residency.
+Layer~0 expert~21, selected by the real route, was read as 884{,}736 bytes of
+Q4\_K gate weights, 884{,}736 bytes of Q4\_K up weights and 1{,}290{,}240 bytes
+of Q6\_K down weights.  A native ggml graph executed the complete
+$2048\rightarrow768\rightarrow2048$ SwiGLU expert.  Across 100 repetitions its
+p50 was 0.058125~ms and p95 was 0.107084~ms, with finite output.  Artifact
+SHA-256:
+\texttt{7d1fd174e3652f203ce75bed639c406b86e1647894bb1737fd60633d0b03f263}.
+
+The exact layer-0 route $[21,29,50,22,75,6,33,116]$ was then executed as eight
+complete packed experts with summed outputs.  It consumed exactly 24{,}477{,}696
+packed weight bytes.  Two independent 100-repetition runs produced the identical
+checksum $-36.9675$:
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Run & p50 (ms) & p95 (ms) & Expert-only 48-layer p50 projection \\
+\midrule
+v1 & 0.427917 & 0.806666 & 48.6855 tokens/s \\
+v2 & 0.416334 & 0.793791 & 50.0400 tokens/s \\
+\bottomrule
+\end{tabular}
+\caption{Direct packed CPU timing for one real eight-expert Qwen layer route.}
+\end{table}
+Both runs passed the predeclared 0.694445~ms p50 boundary corresponding to an
+expert-only 30-token/s projection.  V2 narrowly crossed the aspirational
+0.416667~ms expert-only 50-token/s boundary; V1 did not.  The correct claim is a
+replicated 48.69--50.04 token/s \emph{expert-compute ceiling at p50}, not
+end-to-end model speed.  P95 implies only approximately 25.8--26.2 expert-only
+tokens/s.  Attention, dense computation, router work, SD faults, transfers,
+cache management and orchestration remain excluded.  V1 and V2 file hashes are
+respectively
+\texttt{32f9aeb40f579dcdc3b826cd0e9144764db35f6aa3be1962b3f535e278ea117d}
+and
+\texttt{e5fd56263fd0283c362aaef810d52752ad3b76a16d602266fd8eb9e3affaaf42}.
+The native mechanism is isolated in commit \texttt{3617063a}.
+
 \subsection{Next measured gates}
 
 The next implementation stage is a bounded Qwen expert reader that uses the
