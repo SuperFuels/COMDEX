@@ -172,6 +172,27 @@ its canonical digest is
 Focused tests passed 3/3.  The bounded store was committed as
 \texttt{bc088100}.
 
+\subsection{Complete real Qwen route capture}
+
+The generic debug frontend was first filtered to the internal
+\texttt{ffn\_moe\_topk} tensors.  It confirmed that all 48 layer routers execute,
+but its human-readable formatter replaced the middle two of every eight-expert
+route with an ellipsis.  That diagnostic was preserved and invalidated for cache
+use.  A small local callback was then compiled against the installed llama/ggml
+interfaces.  It observes only the top-$k$ tensors, copies all eight \texttt{i32}
+identifiers after evaluation, and rejects incomplete, duplicated or out-of-range
+routes.
+
+For the fixed minimal prompt \texttt{Hello}, the corrected diagnostic captured
+all eight experts in all 48 layers.  It reported 48/48 complete layers, 384 valid
+identifiers, eight distinct identifiers per layer, and no identifier outside
+$[0,127]$.  The JSON route artifact SHA-256 is
+\texttt{f9a0c6ee2ae269547dba62f4c9cc133c89988d52559ba0a82896d0a1492e66de}.
+Its 242.26~s wall time is diagnostic and is not throughput evidence.  The native
+capture mechanism is isolated in commit \texttt{03e3abee}.  This closes the gap
+between the model's learned router and AION's exact expert byte addresses; the
+next cache trace can use model-selected IDs rather than invented routes.
+
 \subsection{Next measured gates}
 
 The next implementation stage is a bounded Qwen expert reader that uses the
