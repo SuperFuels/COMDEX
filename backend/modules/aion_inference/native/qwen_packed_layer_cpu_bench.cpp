@@ -6,6 +6,8 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <unistd.h>
 #include <vector>
 
@@ -27,17 +29,29 @@ static bool read_exact(int fd, void * output, size_t bytes, off_t offset) {
 }
 
 int main(int argc, char ** argv) {
-    if (argc != 3) {
-        std::cerr << "usage: packed_layer MODEL REPS\n";
+    if (argc != 9) {
+        std::cerr << "usage: packed_layer MODEL REPS LAYER GATE_BASE UP_BASE DOWN_BASE DOWN_GGML_TYPE ROUTE_CSV\n";
         return 2;
     }
-    constexpr std::array<int, 8> route{21, 29, 50, 22, 75, 6, 33, 116};
-    constexpr off_t gate_base = 612307456;
-    constexpr off_t up_base = 726610432;
-    constexpr off_t down_base = 447156736;
+    const int layer = std::stoi(argv[3]);
+    const off_t gate_base = std::stoll(argv[4]);
+    const off_t up_base = std::stoll(argv[5]);
+    const off_t down_base = std::stoll(argv[6]);
+    std::array<int, 8> route{};
+    const int down_type_number = std::stoi(argv[7]);
+    if (down_type_number != GGML_TYPE_Q4_K && down_type_number != GGML_TYPE_Q6_K) return 2;
+    const ggml_type down_type = static_cast<ggml_type>(down_type_number);
+    std::istringstream route_stream(argv[8]);
+    std::string route_part;
+    int route_index = 0;
+    while (std::getline(route_stream, route_part, ',')) {
+        if (route_index >= 8) return 2;
+        route[route_index++] = std::stoi(route_part);
+    }
+    if (route_index != 8) return 2;
     constexpr off_t gate_stride = 884736;
     constexpr off_t up_stride = 884736;
-    constexpr off_t down_stride = 1290240;
+    const off_t down_stride = down_type == GGML_TYPE_Q6_K ? 1290240 : 884736;
 
     const int fd = open(argv[1], O_RDONLY);
     if (fd < 0) return 3;
@@ -63,7 +77,7 @@ int main(int argc, char ** argv) {
     for (const int expert : route) {
         ggml_tensor * gate = ggml_new_tensor_2d(context, GGML_TYPE_Q4_K, 2048, 768);
         ggml_tensor * up = ggml_new_tensor_2d(context, GGML_TYPE_Q4_K, 2048, 768);
-        ggml_tensor * down = ggml_new_tensor_2d(context, GGML_TYPE_Q6_K, 768, 2048);
+        ggml_tensor * down = ggml_new_tensor_2d(context, down_type, 768, 2048);
         if (!read_exact(fd, gate->data, ggml_nbytes(gate), gate_base + expert * gate_stride) ||
             !read_exact(fd, up->data, ggml_nbytes(up), up_base + expert * up_stride) ||
             !read_exact(fd, down->data, ggml_nbytes(down), down_base + expert * down_stride)) {
@@ -101,7 +115,8 @@ int main(int argc, char ** argv) {
         finite = finite && std::isfinite(output_values[index]);
     }
     std::cout << "{\"schema\":\"aion.qwen3moe.packed-layer-cpu.v1\","
-              << "\"repetitions\":" << repetitions << ",\"experts\":8,"
+              << "\"repetitions\":" << repetitions << ",\"layer\":" << layer
+              << ",\"experts\":8,\"down_ggml_type\":" << down_type_number << ","
               << "\"weight_bytes\":" << weight_bytes << ",\"p50_ms\":" << p50
               << ",\"p95_ms\":" << p95 << ",\"expert_only_projected_tps_p50\":"
               << 1000.0 / (48.0 * p50) << ",\"checksum\":" << checksum

@@ -277,14 +277,45 @@ and
 \texttt{e5fd56263fd0283c362aaef810d52752ad3b76a16d602266fd8eb9e3affaaf42}.
 The native mechanism is isolated in commit \texttt{3617063a}.
 
+\subsection{Representative-layer packed-compute audit}
+
+The initial layer-0 timing was not assumed to generalise.  A follow-up
+exploratory audit executed real token-0 routes at layers
+$\{0,8,16,24,32,40,47\}$, with 200 repetitions per layer.  This audit also
+caught and corrected an implementation assumption: Qwen's down projection is
+not uniformly Q6\_K.  Exactly 24 layers use Q6\_K down weights and 24 use Q4\_K
+down weights.  A first exploratory layer-16 attempt made with the incorrect
+fixed-Q6 assumption produced a non-finite result and was rejected; the
+manifest-driven tensor type restored finite results for every sampled layer.
+
+The observed p50 range was 0.368709--0.430375~ms for eight experts in one
+layer; p95 ranged from 0.682000 to 0.855583~ms.  The median sampled Q4\_K-down
+layer cost was 0.369792~ms, while the median sampled Q6\_K-down cost was
+0.423833~ms.  Applying those two descriptive medians to the actual 24/24 layer
+split gives a 19.047~ms expert-only token projection, or 52.5017 tokens/s.
+This crosses the aspirational 50-token/s boundary only as a stratified narrow
+compute projection.
+
+The result remains \texttt{EXPLORATORY\_NOT\_PROMOTED}.  The input activation
+was synthetic; selected-expert gate coefficients were not applied; numerical
+equivalence to llama.cpp was not tested; and routing, attention, dense work,
+SD faults, cache control and orchestration were excluded.  It therefore does
+not establish 52.5 end-to-end tokens/s.  It does strengthen the engineering
+hypothesis that direct packed CPU expert arithmetic is not the limiting
+physical barrier once the correct expert bytes are resident.  The SD-backed
+report SHA-256 is
+\texttt{f9c885d73c4f35741f7422ba1bb042fcd424ae545c398c1cc42acac13bdc3867}.
+
 \subsection{Next measured gates}
 
 The next implementation stage is a bounded Qwen expert reader that uses the
 Glyph map to read only selected slices into a 1--3~GiB working set, without
 registering the complete GGUF in Metal residency.  It must first measure cold and
 warm physical bytes, per-layer fault latency, route overlap and cache reuse.  Only
-then may packed Q4 computation, persistent Metal buffers, decode/transfer overlap,
-and route-aware retention be scaled.  Exact-output candidates must preserve token
+then may packed computation, persistent Metal buffers, decode/transfer overlap,
+and route-aware retention be scaled.  The immediate correctness gate is to
+capture real layer activations and router coefficients and compare the direct
+packed output against the stock graph before integration.  Exact-output candidates must preserve token
 and step-logit equivalence; changed kernels or representations remain separately
 quality-gated.  No claim of 50 tokens/s, production usability, or general larger-
 model acceleration is made by the present results.
