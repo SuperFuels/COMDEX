@@ -305,3 +305,31 @@ measure speculative-token acceptance.  A draft/verify architecture is only
 useful if weight reuse and accepted tokens compensate for the additional draft
 work.  Until that full gate passes, no 120B generated-token rate is inferred
 from the expert-activation rates.
+
+\subsection{Real-route batching and dictionary feasibility}
+The eight-token exact route trace was used to test whether the favourable
+repeated-expert Metal batch exists naturally.  Its 1,152 routed activations
+were distributed across 661 distinct layer/expert pairs: only 1.743
+activations per loaded expert on average.  The maximum observed group was
+eight and no group reached the measured batch-16 Metal crossover.  Even a
+perfect layer-wise grouping schedule would reduce compressed expert bytes by
+42.64\%, materially useful but far below the reduction required for
+30--50 generated tokens/s from this SD device.
+
+A temporal dictionary check trained on the first four route tokens and measured
+the final four without changing their routes.  Four resident experts per layer
+required 1.909~GB and covered 26.74\% of held-out selections.  Six per layer
+required 2.863~GB, remained inside 3~GiB, and covered 30.90\%.  Eight per
+layer exceeded the ceiling at 3.804~GB while covering only 35.94\%.
+Sixteen per layer required 5.421~GB and still covered only 48.78\%.
+
+The decision is \texttt{STOP\_UNCONSTRAINED\_BATCHED\_METAL}; a naive
+fixed dictionary is also not promoted.  The calculation is bound to exact
+captured routes and exact warehouse frame sizes, but is not an executed
+batched transformer.  Canonical SHA-256:
+\texttt{7b365998ba18e978346692254cd09351e858db0147ced625fad9cfe5d555c766}.
+Further work must use a separately quality-gated architecture that changes
+physical expert demand---for example a learned route-concentrated subnetwork
+or shared expert basis---and compare it against frozen unrestricted 120B
+outputs.  Merely rescheduling the present diverse routes cannot meet the
+target.

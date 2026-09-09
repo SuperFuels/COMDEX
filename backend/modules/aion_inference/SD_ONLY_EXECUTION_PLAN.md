@@ -1487,3 +1487,22 @@ candidate activations by layer/expert, and measure unique expert SD reads,
 Metal batch occupancy, accepted draft tokens, end-to-end latency and quality.
 Stop if real route diversity prevents batches large enough to cross the Metal
 threshold. Do not report expert activations/s as generated tokens/s.
+
+The real-route feasibility gate stops that unconstrained batch integration
+before expensive implementation. Across eight exact tokens, 1,152 routed
+activations occupy 661 unique layer/expert pairs (mean batch 1.743, maximum
+eight); no real group reaches the batch-16 Metal crossover. Perfect grouping
+would save 42.64% of compressed bytes. A first-four-token dictionary with six
+experts per layer fits in 2.863 GB but covers only 30.90% of the final four
+tokens. Fixed dictionaries of 8--16 experts exceed 3 GiB and still cover less
+than half. Decision: `STOP_UNCONSTRAINED_BATCHED_METAL` and stop the naive
+fixed dictionary. Canonical SHA-256:
+`7b365998ba18e978346692254cd09351e858db0147ced625fad9cfe5d555c766`.
+
+The next permitted mechanism gate is a separately labelled changed-model
+study of shared expert structure or route concentration. First measure
+cross-expert functional redundancy on real packed weights using bounded random
+projections; do not train or inject new weights. Advance only if a compact
+basis predicts held-out expert responses at a predeclared error while reducing
+resident/SD bytes by at least one order of magnitude. Any later trained
+subnetwork requires explicit authorization and frozen semantic evaluation.
