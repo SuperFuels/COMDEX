@@ -1391,3 +1391,13 @@ was BOS-only and the gate has not yet validated text tokenisation, KV-cache
 generation, prompt quality or steady-state throughput. The next work must first
 reduce repeated physical weight traffic, then add a real prompt and multi-token
 KV cache without weakening repeatability or memory ceilings.
+
+The bounded resident replay gate then staged invariant shared tensors once and
+retained the complete observed 144-expert route set under a 3 GiB ceiling. The
+first cold-expert pass took 28.328 seconds. The exact replay produced 144/144
+expert hits, zero new expert SD reads, and took 11.864 seconds, 65.50% below the
+34.388-second non-resident replay. Hidden bytes, logits and token ID remained
+exact. Canonical report SHA-256:
+`7d840512519f85f87bc3451c15c84d39e0d9dff598c31a4747720e0e20fa8814`.
+This is an upper-bound reuse result, not a multi-token speed claim. Proceed to
+token-two KV history and measure genuine per-layer route overlap.

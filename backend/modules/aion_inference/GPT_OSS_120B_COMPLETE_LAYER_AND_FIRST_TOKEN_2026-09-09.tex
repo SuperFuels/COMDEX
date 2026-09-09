@@ -72,3 +72,22 @@ The immediate
 optimisation target is physical weight traffic: about 30~s of each pass was
 measured in expert and shared-weight retrieval, while the already resident
 packed expert arithmetic is comparatively small.
+
+\subsection{Bounded resident working-set replay}
+A follow-on gate staged the invariant shared layer tensors once and enlarged the
+verified raw expert LRU to the declared 3~GiB ceiling.  Shared-layer staging
+required 9.315~s and vocabulary-head staging 13.177~s.  The first execution
+remained a cold expert pass: it faulted all 144 addressed experts, read
+1,826,871,414 compressed bytes, materialised 1,908,541,440 raw bytes, and took
+28.328~s.  The second exact execution obtained 144/144 expert-cache hits, read
+zero additional expert bytes from SD, and took 11.864~s.  Relative to the
+34.388~s non-resident replay, this is a 65.50\% reduction in evaluation time.
+Routes, final hidden bytes, vocabulary logits, and token ID~2167 remained exact.
+The canonical report SHA-256 is
+\texttt{7d840512519f85f87bc3451c15c84d39e0d9dff598c31a4747720e0e20fa8814}.
+
+This result proves that a bounded resident warehouse working set can remove the
+dominant repeated SD traffic.  It is deliberately labelled exact replay: it
+does not establish the hit rate for a different next token.  The next gate must
+carry real per-layer K/V history into token two and measure overlap, faults and
+latency without assuming that the expert route repeats.
