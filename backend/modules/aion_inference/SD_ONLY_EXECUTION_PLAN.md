@@ -1443,3 +1443,17 @@ multi-token sequences with cold/warm separation. The candidate must preserve
 every token and step-logit hash while reporting route turnover, physical SD
 bytes, median and p95 token latency. Do not extrapolate the approximately
 0.411 position-zero evaluations/s median to normal text generation.
+
+The persistent K/V extension also passes on genuine token-two route turnover.
+The exact sequence remains `199998 -> 2167 -> 679` across two full runs, with
+all routes, hidden arrays and logit arrays repeated exactly. Opening token-two
+latency fell from 24.829 to 19.433 seconds (21.73%), raising validated
+later-token throughput from about 0.0403 to 0.0515 token/s. Canonical SHA-256:
+`38f8e1f62b7d38c8c789735f3c21f97c9b4a67284b98854201dc98bab1611e97`.
+
+The new profile is decisive: token two spends 16.405 of 19.433 seconds
+(84.42%) retrieving experts, while only 30/144 expert addresses overlap token
+one. Stop attention-only tuning. Measure longer raw-cache working-set growth
+and route-transition predictability, then test only a bounded strategy that can
+avoid or overlap physical expert reads. Keep exact routing/cache work separate
+from any quality-gated reduced-traffic model architecture.

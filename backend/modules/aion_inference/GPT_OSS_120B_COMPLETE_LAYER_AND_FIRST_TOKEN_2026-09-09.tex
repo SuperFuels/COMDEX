@@ -212,3 +212,35 @@ Real later tokens can select different experts, require K/V history, and cause
 SD faults.  The next gate must extend the persistent attention arena to
 multi-token K/V state and compare exact generated sequences under genuine route
 turnover.  No claim of 30 or 50 generated tokens/s is made for GPT-OSS 120B.
+
+\subsection{Persistent arenas under genuine route turnover}
+The attention ABI was next extended from position zero to persistent,
+per-layer K/V histories with the same NeoX-ordered YaRN rotation as the
+validated file-backed control.  Two complete two-token executions generated
+the exact sequence
+\[
+  199998 \longrightarrow 2167 \longrightarrow 679.
+\]
+Both executions reproduced all 72 layer routes, both hidden-state arrays, both
+201,088-way logit arrays, and both token IDs.  Token two again reused only
+30/144 routed experts, confirming that the test exercised genuine working-set
+turnover rather than replaying token one's route.
+
+On the opening execution, token-one latency fell from the earlier 28.723~s to
+22.907~s (20.25\%).  Token-two latency fell from 24.829~s to 19.433~s
+(21.73\%), increasing the fully validated later-token rate from approximately
+0.0403 to 0.0515 token/s.  Token two spent 16.405~s in expert retrieval,
+0.633~s in persistent attention, 0.720~s in the persistent MoE boundary, and
+1.482~s in vocabulary projection.  The opening two-token run faulted 258
+experts, hit 30, read 3,273,322,779 compressed bytes, and materialised
+3,419,470,080 raw bytes.  The report canonical SHA-256 is
+\texttt{38f8e1f62b7d38c8c789735f3c21f97c9b4a67284b98854201dc98bab1611e97}.
+
+This promotes the persistent arena as an exact multi-token optimisation, but
+it also establishes the new bound.  Expert retrieval occupies 84.42\% of
+token-two latency.  With 114 newly addressed experts on that token, removing
+all remaining attention, MoE-boundary and vocabulary time could not by itself
+approach interactive throughput.  The next strategy must reduce physical
+expert traffic or hide it behind useful work.  Any reduced-expert,
+lower-precision, pruning or surrogate-route approach remains a separately
+labelled quality-gated track.

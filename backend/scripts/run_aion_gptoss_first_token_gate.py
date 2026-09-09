@@ -28,7 +28,7 @@ def main()->None:
     p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);a=p.parse_args()
     if a.token_count < 1: raise SystemExit('token-count must be positive')
     if a.passes < 2: raise SystemExit('passes must be at least 2')
-    if a.inprocess_attention and (a.token_count != 1 or not a.resident_replay): raise SystemExit('in-process attention currently requires resident replay and token-count 1')
+    if a.inprocess_attention and not a.resident_replay: raise SystemExit('in-process attention currently requires resident replay')
     if a.output.exists():raise SystemExit('refusing to overwrite evidence')
     manifest=json.loads(a.manifest.read_text()); sources=manifest['verified_sources']
     readers={}; tensor_index={}
@@ -52,12 +52,13 @@ def main()->None:
             subprocess.run(['clang++','-std=c++17','-O3','-dynamiclib','-I/opt/homebrew/include',str(native/'gptoss_persistent_moe_library.cpp'),'-L/opt/homebrew/lib','-lggml','-lggml-base','-ldl','-o',str(library)],check=True)
             loaded=ctypes.CDLL(str(library));moe_function=loaded.aion_gptoss_moe_finish
             moe_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];moe_function.restype=ctypes.c_int
-        attention_function=None
+        attention_function=None;attention_reset=None
         if a.inprocess_attention:
             library=root/'libaion-gptoss-attention.dylib'
             subprocess.run(['clang++','-std=c++17','-O3','-dynamiclib','-I/opt/homebrew/include',str(native/'gptoss_persistent_attention_library.cpp'),'-L/opt/homebrew/lib','-lggml','-lggml-base','-ldl','-o',str(library)],check=True)
-            attention_loaded=ctypes.CDLL(str(library));attention_function=attention_loaded.aion_gptoss_attention_position_zero
-            attention_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.c_int,ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];attention_function.restype=ctypes.c_int
+            attention_loaded=ctypes.CDLL(str(library));attention_function=attention_loaded.aion_gptoss_attention;attention_reset=attention_loaded.aion_gptoss_attention_reset_kv
+            attention_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];attention_function.restype=ctypes.c_int
+            attention_reset.argtypes=[];attention_reset.restype=None
         emb_name='token_embd.weight';source,t=tensor_index[emb_name]
         row_bytes=int(t['byte_length'])//int(t['dimensions'][1])
         def embed(token_id:int,label:str)->tuple[Path,dict,str]:
@@ -100,6 +101,7 @@ def main()->None:
 
         def pass_once(label:str)->dict:
             store=persistent_store or GptOssExpertFrameStore(a.manifest,256*1024*1024);metrics_before=store.metrics();token_id=BOS
+            if a.inprocess_attention: attention_reset()
             token_results=[];started=time.perf_counter()
             for position in range(a.token_count):
               current,embedding,embedding_sha=(initial_hidden,embed_run,initial_row_sha) if position==0 else embed(token_id,f'{label}-token-{position}')
@@ -117,7 +119,7 @@ def main()->None:
                     attention_input=np.fromfile(current,dtype='<f4');ffn_result=np.empty(WIDTH,dtype=np.float32);router_result=np.empty(WIDTH,dtype=np.float32);attention_elapsed=ctypes.c_double()
                     references=[ctypes.c_char_p(blob) for blob in attention_resident[layer]];pointers=(ctypes.c_void_p*len(references))(*[ctypes.cast(ref,ctypes.c_void_p).value for ref in references])
                     value_is_q5=int(len(attention_resident[layer][5])==1013760)
-                    status=attention_function(attention_input.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,value_is_q5,ffn_result.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_result.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(attention_elapsed))
+                    status=attention_function(attention_input.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,value_is_q5,layer,position,ffn_result.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_result.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(attention_elapsed))
                     if status: raise RuntimeError(f'in-process attention failed: {status}')
                     ffn_path.write_bytes(ffn_result.tobytes());router_path.write_bytes(router_result.tobytes());attn={'schema':'aion.gptoss.persistent-attention-position-zero.v1','compute_ms':attention_elapsed.value,'finite':True}
                 else:
