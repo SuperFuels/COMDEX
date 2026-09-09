@@ -1401,3 +1401,13 @@ exact. Canonical report SHA-256:
 `7d840512519f85f87bc3451c15c84d39e0d9dff598c31a4747720e0e20fa8814`.
 This is an upper-bound reuse result, not a multi-token speed claim. Proceed to
 token-two KV history and measure genuine per-layer route overlap.
+
+That corrected NeoX-rotary K/V gate now passes. The BOS-conditioned sequence was
+`199998 -> 2167 -> 679`; two complete executions reproduced all routes, hidden
+states, logits and tokens. Token two reused 30/144 experts (20.83%). Opening-run
+latency fell from 28.723 to 24.829 seconds and expert retrieval from 20.108 to
+16.292 seconds. Canonical SHA-256:
+`30b8a1a4a643d01b805e85cd60fb5270e377b27d38e5e94e1764fe651903102a`.
+The earlier normal-RoPE diagnostic is preserved as INVALID. Cache-only scaling
+is insufficient because 114/144 token-two experts were new. Prioritise overlap
+of verified expert I/O with computation and persistent shared tensor arenas.

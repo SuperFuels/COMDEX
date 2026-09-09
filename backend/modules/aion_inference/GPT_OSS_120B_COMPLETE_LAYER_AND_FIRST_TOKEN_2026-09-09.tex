@@ -91,3 +91,29 @@ dominant repeated SD traffic.  It is deliberately labelled exact replay: it
 does not establish the hit rate for a different next token.  The next gate must
 carry real per-layer K/V history into token two and measure overlap, faults and
 latency without assuming that the expert route repeats.
+
+\subsection{First genuine two-token K/V generation}
+The multi-token gate added NeoX-ordered YaRN rotary position handling and a
+separate causal K/V history for every layer.  An initial diagnostic run used
+the wrong consecutive-pair rotary ordering and was marked \texttt{INVALID}; no
+claim uses its timings.  The corrected architecture run generated the sequence
+\[
+  199998 \longrightarrow 2167 \longrightarrow 679.
+\]
+Two independent complete runs reproduced every per-layer route, both final
+hidden states, both 201,088-way logit arrays, and both generated token IDs.
+Token two reused 30 of the 144 layer-addressed experts selected for token one,
+a genuine route overlap of 20.83\%.  On the opening run, expert retrieval fell
+from 20.108~s for token one to 16.292~s for token two, while total token latency
+fell from 28.723~s to 24.829~s (13.56\%).  Token-two throughput was therefore
+approximately 0.0403 token/s.  The 3~GiB cache recorded 30 hits, 258 faults and
+15 evictions across the two-token opening sequence.  The corrected report's
+canonical SHA-256 is
+\texttt{30b8a1a4a643d01b805e85cd60fb5270e377b27d38e5e94e1764fe651903102a}.
+
+This establishes sequential K/V-backed execution but also falsifies a stronger
+cache-only hypothesis: 79.17\% of token-two expert addresses were new.  A 3~GiB
+working set reduces demand but cannot by itself turn this route pattern into
+interactive generation.  Subsequent optimisation must overlap new expert
+retrieval with preceding-layer computation and avoid repeated shared-weight
+materialisation; gains must be evaluated on longer generated sequences.

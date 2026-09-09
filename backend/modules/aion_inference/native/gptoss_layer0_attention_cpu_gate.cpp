@@ -30,8 +30,9 @@ static size_t file_size(const std::string & path) {
 }
 
 int main(int argc, char ** argv) {
-    if (argc != 5) {
-        std::cerr << "usage: attention COMPONENT_DIR OUTPUT_PREFIX INPUT_OR_DASH THREADS\n";
+    const bool kv_mode = argc == 7;
+    if (argc != 5 && !kv_mode) {
+        std::cerr << "usage: attention COMPONENT_DIR OUTPUT_PREFIX INPUT_OR_DASH [POSITION KV_PREFIX] THREADS\n";
         return 2;
     }
     void * plugin = dlopen(
@@ -86,15 +87,25 @@ int main(int argc, char ** argv) {
     ggml_tensor * q = ggml_add(context, ggml_mul_mat(context, q_w, normalized), q_b);
     ggml_tensor * k = ggml_add(context, ggml_mul_mat(context, k_w, normalized), k_b);
     ggml_tensor * v = ggml_add(context, ggml_mul_mat(context, v_w, normalized), v_b);
+    const int position = kv_mode ? std::stoi(argv[4]) : 0;
+    if (kv_mode) {
+        ggml_tensor * pos = ggml_new_tensor_1d(context, GGML_TYPE_I32, 1);
+        *static_cast<int32_t *>(pos->data) = position;
+        q = ggml_rope_ext(context, ggml_reshape_3d(context, q, head_width, heads, 1),
+                          pos, nullptr, head_width, GGML_ROPE_TYPE_NEOX, 4096,
+                          150000.0f, 1.0f/32.0f, 1.0f, 1.0f, 32.0f, 1.0f);
+        k = ggml_rope_ext(context, ggml_reshape_3d(context, k, head_width, kv_heads, 1),
+                          pos, nullptr, head_width, GGML_ROPE_TYPE_NEOX, 4096,
+                          150000.0f, 1.0f/32.0f, 1.0f, 1.0f, 32.0f, 1.0f);
+    }
     ggml_cgraph * qkv_graph = ggml_new_graph_custom(context, GGML_DEFAULT_GRAPH_SIZE, false);
     ggml_build_forward_expand(qkv_graph, q);
     ggml_build_forward_expand(qkv_graph, k);
     ggml_build_forward_expand(qkv_graph, v);
-    const int threads = std::stoi(argv[4]);
+    const int threads = std::stoi(argv[kv_mode ? 6 : 4]);
     if (compute(context, qkv_graph, threads) != GGML_STATUS_SUCCESS) return 8;
 
-    // At token position zero RoPE is identity.  Attention sinks compete with the
-    // sole real key but contribute a zero value, matching the OpenAI-MoE graph.
+    // Attention sinks compete as an additional zero-value logit per query head.
     ggml_tensor * attended = ggml_new_tensor_1d(context, GGML_TYPE_F32, q_width);
     auto * attended_values = static_cast<float *>(attended->data);
     const auto * q_values = static_cast<const float *>(q->data);
@@ -102,17 +113,33 @@ int main(int argc, char ** argv) {
     const auto * v_values = static_cast<const float *>(v->data);
     const auto * sink_values = static_cast<const float *>(sinks->data);
     const float scale = 1.0f / std::sqrt(float(head_width));
+    const int tokens = position + 1;
+    std::vector<float> key_cache(tokens * kv_width), value_cache(tokens * kv_width);
+    if (kv_mode && position > 0) {
+        if (!read_exact(std::string(argv[5]) + "-k.bin", key_cache.data(), position * kv_width * sizeof(float)) ||
+            !read_exact(std::string(argv[5]) + "-v.bin", value_cache.data(), position * kv_width * sizeof(float))) return 9;
+    }
+    std::copy(k_values, k_values + kv_width, key_cache.begin() + position * kv_width);
+    std::copy(v_values, v_values + kv_width, value_cache.begin() + position * kv_width);
+    if (kv_mode) {
+        if (!write_exact(std::string(argv[5]) + "-k.bin", key_cache.data(), key_cache.size()*sizeof(float)) ||
+            !write_exact(std::string(argv[5]) + "-v.bin", value_cache.data(), value_cache.size()*sizeof(float))) return 10;
+    }
     for (int64_t head = 0; head < heads; ++head) {
         const int64_t kv_head = head / (heads / kv_heads);
-        float score = 0.0f;
-        for (int64_t d = 0; d < head_width; ++d) {
-            score += q_values[head * head_width + d] * k_values[kv_head * head_width + d];
+        std::vector<float> scores(tokens);
+        float maximum = sink_values[head];
+        for (int token = 0; token < tokens; ++token) {
+            float score = 0.0f;
+            for (int64_t d = 0; d < head_width; ++d) score += q_values[head*head_width+d] * key_cache[token*kv_width+kv_head*head_width+d];
+            scores[token] = score * scale; maximum = std::max(maximum, scores[token]);
         }
-        score *= scale;
-        const float real_weight = 1.0f / (1.0f + std::exp(sink_values[head] - score));
+        float denominator = std::exp(sink_values[head]-maximum);
+        for (float score : scores) denominator += std::exp(score-maximum);
         for (int64_t d = 0; d < head_width; ++d) {
-            attended_values[head * head_width + d] =
-                v_values[kv_head * head_width + d] * real_weight;
+            float value=0.0f;
+            for(int token=0;token<tokens;++token) value += std::exp(scores[token]-maximum)/denominator * value_cache[token*kv_width+kv_head*head_width+d];
+            attended_values[head * head_width + d] = value;
         }
     }
 
