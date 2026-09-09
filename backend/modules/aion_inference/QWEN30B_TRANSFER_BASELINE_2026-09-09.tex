@@ -193,6 +193,49 @@ capture mechanism is isolated in commit \texttt{03e3abee}.  This closes the gap
 between the model's learned router and AION's exact expert byte addresses; the
 next cache trace can use model-selected IDs rather than invented routes.
 
+\subsection{Stride-correct prompt corpus and measured reuse}
+
+Extending the callback to a 22-token business prompt exposed a further integrity
+defect.  The first multi-token capture passed its range and uniqueness checks but
+selected nearly every expert with almost no adjacent reuse.  A distribution audit
+revealed that \texttt{ffn\_moe\_topk} is a strided eight-row view of a 128-row
+argsort tensor.  Reading it as contiguous memory silently included non-top-$k$
+rows.  That artifact was invalidated.  The corrected callback performs one
+stride-aware eight-integer copy per token position.
+
+The new corpus captured 22 routes in layers 0--46 and one route in layer 47.
+The final-layer count is intentional: llama.cpp requests logits only for the last
+prompt position and prunes the other final-layer positions.  Every route contained
+eight unique IDs in $[0,127]$.  Across 987 adjacent route pairs, mean overlap was
+3.1925 of eight experts and median overlap was three.  The histogram contained
+61 zero-overlap pairs and 926 pairs with at least one reused expert.  The corpus
+made 8{,}280 expert accesses but touched only 2{,}656 unique layer/expert
+instances.  Corpus SHA-256:
+\texttt{9468395059a85391c02080a631f92b999185b04202644a648df7d08cad082004}.
+
+Replaying this genuine route in actual prompt layer-major order through the
+256~MiB store produced:
+\begin{align*}
+ B_{\mathrm{logical,no\ cache}} &= 23{,}621{,}566{,}464\ \mathrm{bytes},\\
+ B_{\mathrm{physical}} &= 7{,}576{,}731{,}648\ \mathrm{bytes},\\
+ \Delta B &= 67.9245\%,\\
+ h &= 5{,}624/8{,}280 = 67.9227\%,\\
+ B_{\mathrm{peak,resident}} &= 268{,}406{,}784\ \mathrm{bytes}
+ < 256\ \mathrm{MiB}.
+\end{align*}
+The store recorded 2{,}656 faults and 2{,}569 evictions.  Descriptive store time
+was 61.64~s, with per-layer p50 1.70353~s and nearest-rank p95 2.17476~s.
+These times are not promoted because page-cache state was uncontrolled and this
+reader is not integrated with matrix computation.  In particular, the logical
+no-cache denominator describes repeated addressed reads; it is not asserted to
+equal stock llama.cpp's physical I/O.  The result proves substantial real-route
+reuse and strict bounded residency, not end-to-end acceleration.  Report file
+SHA-256:
+\texttt{b3d186af4732e2adf91a20cb1424bbfb29782b7c27bc37084ecdb5889de9b6d6};
+canonical digest:
+\texttt{7b3e61ade808ca103d55dea77baa57fe8d6bbacc2e70f5302f42235074a0ffe9}.
+Focused tests passed 3/3; implementation commit \texttt{acced8fd}.
+
 \subsection{Next measured gates}
 
 The next implementation stage is a bounded Qwen expert reader that uses the
