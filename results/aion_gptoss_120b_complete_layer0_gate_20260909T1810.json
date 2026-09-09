@@ -1,0 +1,246 @@
+{
+  "attention_runs": [
+    {
+      "ffn_input_checksum": 32.6597,
+      "finite": true,
+      "position": 0,
+      "router_input_checksum": 0.547749,
+      "schema": "aion.gptoss.layer0-attention-cpu.v1",
+      "shared_weight_bytes": 19408896,
+      "threads": 8
+    },
+    {
+      "ffn_input_checksum": 32.6597,
+      "finite": true,
+      "position": 0,
+      "router_input_checksum": 0.547749,
+      "schema": "aion.gptoss.layer0-attention-cpu.v1",
+      "shared_weight_bytes": 19408896,
+      "threads": 8
+    }
+  ],
+  "attention_semantics": "RMSNorm, real Q/K/V+bias, grouped-query one-token attention with per-head sinks, output projection+bias, residual, post-attention RMSNorm",
+  "attention_state_repeatable": true,
+  "attention_two_run_wall_seconds": 0.7578351249685511,
+  "block_output_bitwise_repeatable": true,
+  "block_output_sha256": [
+    "809457099a254d8799e91be40466968fc98d9c5ad1edfb55e63565d00aa3e758",
+    "809457099a254d8799e91be40466968fc98d9c5ad1edfb55e63565d00aa3e758"
+  ],
+  "canonical_sha256": "d5d6f3b76ffec3b390f6eaf843904f5c9b46e5c06a68cf4811de9cd9061c1344",
+  "claim_boundary": "A complete position-zero layer-0 transformer block executed from verified SD-backed weights under bounded native arenas. The input is synthetic and embedding/final-vocabulary stages are excluded, so this is not yet a generated token.",
+  "created_at": "2026-09-09T16:05:03.784608+00:00",
+  "declared_native_arena_bytes_each_stage": 268435456,
+  "expert_load_seconds": 0.5505877499817871,
+  "expert_store_metrics": {
+    "capacity_bytes": 268435456,
+    "compressed_bytes_read": 50172758,
+    "evictions": 0,
+    "faults": 4,
+    "hit_rate": 0.0,
+    "hits": 0,
+    "peak_resident_bytes": 53015040,
+    "raw_bytes_materialized": 53015040,
+    "resident_bytes": 53015040
+  },
+  "finish_runs": [
+    {
+      "expert_weight_bytes": 52876800,
+      "finite": true,
+      "output_checksum": 1212.02,
+      "output_l2": 745.292,
+      "route": [
+        18,
+        96,
+        49,
+        9
+      ],
+      "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+    },
+    {
+      "expert_weight_bytes": 52876800,
+      "finite": true,
+      "output_checksum": 1212.02,
+      "output_l2": 745.292,
+      "route": [
+        18,
+        96,
+        49,
+        9
+      ],
+      "schema": "aion.gptoss.layer0-moe-finish-cpu.v1"
+    }
+  ],
+  "input": "deterministic synthetic hidden state",
+  "layer": 0,
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "moe_finish_two_run_wall_seconds": 0.3648715000017546,
+  "moe_semantics": "real router+bias, top-4 softmax gates, four real MXFP4 expert SwiGLU networks, weighted sum, residual",
+  "normalized_gates": [
+    0.2605158774443639,
+    0.257259995503165,
+    0.2451577499422813,
+    0.2370663771101899
+  ],
+  "route": [
+    18,
+    96,
+    49,
+    9
+  ],
+  "router_logits": [
+    1.8928546905517578,
+    1.8802781105041504,
+    1.8320927619934082,
+    1.7985310554504395
+  ],
+  "schema": "aion.gptoss-complete-layer0-gate.v1",
+  "shared_reader_metrics": {
+    "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf": {
+      "cache_capacity_bytes": 67108864,
+      "cache_hit_rate": 0.9999892117570272,
+      "cache_hits": 1297695,
+      "cache_resident_bytes": 33891232,
+      "compressed_bytes_read": 23481377,
+      "frame_faults": 14,
+      "peak_resident_bytes": 33891232,
+      "raw_bytes_materialized": 33891232
+    },
+    "openai_gpt-oss-120b-Q4_K_M-00002-of-00002.gguf": {
+      "cache_capacity_bytes": 67108864,
+      "cache_hit_rate": 0.999409681227863,
+      "cache_hits": 1693,
+      "cache_resident_bytes": 15392,
+      "compressed_bytes_read": 1812,
+      "frame_faults": 1,
+      "peak_resident_bytes": 15392,
+      "raw_bytes_materialized": 15392
+    }
+  },
+  "status": "PASSED",
+  "tensor_evidence": {
+    "blk.0.attn_k.bias": {
+      "bytes": 2048,
+      "dimensions": [
+        512
+      ],
+      "ggml_type": 0,
+      "sha256": "e5a00aa9991ac8a5ee3109844d84a55583bd20572ad3ffcd42792f3c36b183ad",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.attn_k.weight": {
+      "bytes": 1566720,
+      "dimensions": [
+        2880,
+        512
+      ],
+      "ggml_type": 8,
+      "sha256": "e3d6fc24999bedc82908f23cb040c9b93b161c4e07f6f772cb78ebde99a15388",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.attn_norm.weight": {
+      "bytes": 11520,
+      "dimensions": [
+        2880
+      ],
+      "ggml_type": 0,
+      "sha256": "e37bb3c6568aec9d78cdae638b7ea6b513e8ca8aeb2b1b5c75a56546e0ccc9a0",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.attn_output.bias": {
+      "bytes": 11520,
+      "dimensions": [
+        2880
+      ],
+      "ggml_type": 0,
+      "sha256": "5ed82909ec7364ce6912639c1b64f33804a3c99169a7cf306bcddfc8a819c3c9",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.attn_output.weight": {
+      "bytes": 8110080,
+      "dimensions": [
+        4096,
+        2880
+      ],
+      "ggml_type": 13,
+      "sha256": "4657c0c2e35a611a01e7a6d3c71ed2300964a0f55a265151090a766471b9d1c1",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.attn_q.bias": {
+      "bytes": 16384,
+      "dimensions": [
+        4096
+      ],
+      "ggml_type": 0,
+      "sha256": "b66b4c0a980bbd29126432747cce512df536d181c6199bee239da3e5b4066338",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.attn_q.weight": {
+      "bytes": 8110080,
+      "dimensions": [
+        2880,
+        4096
+      ],
+      "ggml_type": 6,
+      "sha256": "bb10367e35f8e5fa7f4befe697eaba92d40d7d87c702f3fd0468c2c8ca8377c2",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.attn_sinks.weight": {
+      "bytes": 256,
+      "dimensions": [
+        64
+      ],
+      "ggml_type": 0,
+      "sha256": "8e3ff262ef2a10c71c90f8319ed7fc628de47583e9fa405d493019f15a004064",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.attn_v.bias": {
+      "bytes": 2048,
+      "dimensions": [
+        512
+      ],
+      "ggml_type": 0,
+      "sha256": "0709c16073e76c17fc511e5796b42815f9958965639162a21e80d9ec92bef838",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.attn_v.weight": {
+      "bytes": 1566720,
+      "dimensions": [
+        2880,
+        512
+      ],
+      "ggml_type": 8,
+      "sha256": "a08b18580e0c97a67d46c76be883358abb52d5ffb0897d204e14960c49674623",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.ffn_gate_inp.bias": {
+      "bytes": 512,
+      "dimensions": [
+        128
+      ],
+      "ggml_type": 0,
+      "sha256": "43ede288c1e7aaa87872ba6e4fedcb34fcba81e099290bf8b059833b96619792",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.ffn_gate_inp.weight": {
+      "bytes": 1474560,
+      "dimensions": [
+        2880,
+        128
+      ],
+      "ggml_type": 0,
+      "sha256": "44251a07d758a1c06dc6b0718fbede03c7941e2bc9298a7b1a07ff8f060952b3",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    },
+    "blk.0.post_attention_norm.weight": {
+      "bytes": 11520,
+      "dimensions": [
+        2880
+      ],
+      "ggml_type": 0,
+      "sha256": "1849858a1a256c666f2053461387bf276c9f859667528784b9b69b2d2199a3b2",
+      "source_shard": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf"
+    }
+  },
+  "token_position": 0
+}

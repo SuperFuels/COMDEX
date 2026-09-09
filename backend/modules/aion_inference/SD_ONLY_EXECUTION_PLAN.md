@@ -1363,3 +1363,31 @@ free-running wording, arbitrary larger models, or direct continuous SD streaming
 at the resident-bank rate. The next optimisation target must be selected from a
 fresh profile of the 256-token dynamic path; no speed claim should be inferred
 before measuring its largest remaining component.
+
+### GPT-OSS 120B complete execution breakthrough (2026-09-09)
+
+The verified 64 GB compressed SD warehouse has advanced beyond isolated expert
+tests. A complete layer-0 position-zero block executed RMS-normalised attention,
+real Q/K/V and sinks, residuals, the real 128-way router, its selected four
+MXFP4 experts and the final residual. Two executions produced identical output
+bytes. The route was `[18, 96, 49, 9]`; the report canonical SHA-256 is
+`d5d6f3b76ffec3b390f6eaf843904f5c9b46e5c06a68cf4811de9cd9061c1344`.
+
+The next gate reconstructed the model-declared BOS embedding (token 199998),
+chained all 36 real attention/MoE layers, applied the final norm and evaluated
+all 201,088 vocabulary logits. Two independent executions selected identical
+routes at all 36 layers, produced bit-identical final hidden states and logits,
+and generated the same argmax token ID 2167. The 256 MiB expert cache faulted
+144 layer-addressed experts under bounded memory; the largest native arena was
+768 MiB for the vocabulary projection. The canonical report SHA-256 is
+`9c286d588d9976a6436204f43ffe02f873cc7070bde322219172ce8f3079b954`.
+
+This promotes feasibility, not speed or quality. Vocabulary staging took 9.469
+seconds. The two subsequent layer-chain/vocabulary passes took 36.675 and
+34.388 seconds, approximately 0.028 token/s after staging; the first complete
+cold path was approximately 46.1 seconds. Expert retrieval accounted for about
+20.2 seconds per pass and shared-weight retrieval about 9.1 seconds. The input
+was BOS-only and the gate has not yet validated text tokenisation, KV-cache
+generation, prompt quality or steady-state throughput. The next work must first
+reduce repeated physical weight traffic, then add a real prompt and multi-token
+KV cache without weakening repeatability or memory ceilings.

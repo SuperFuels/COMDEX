@@ -1,0 +1,74 @@
+% Append-only section. Requires amsmath, booktabs, hyperref.
+\section{GPT-OSS 120B: Complete Layer and First Generated Token}
+\label{sec:gptoss120b-first-token}
+
+\subsection{Scope and integrity boundary}
+This stage advances the verified 64~GB SD-card warehouse from isolated expert
+arithmetic to a complete transformer block and then to a complete 36-layer,
+position-zero evaluation.  The selected representation remains GPT-OSS 120B
+Q4\_K\_M with MXFP4 experts.  No model was downloaded and no integrity gate was
+weakened.  Exactness in this section means repeatability of the selected routes,
+hidden-state bytes, and final logit bytes between two AION executions of the
+same representation; it does not mean equality to an unquantised model.
+
+\subsection{Complete layer-0 gate}
+The native bounded gate implemented the model's RMS-normalised Q/K/V attention,
+64 query heads, eight key/value heads, attention sinks, output projection,
+residual connection, post-attention RMS normalisation, 128-way router, top-four
+softmax weighting, four real packed expert networks, and final residual.
+Position zero makes RoPE the identity.  For the deterministic hidden state the
+router selected experts
+\[
+  (18,96,49,9)
+\]
+with gates $(0.260516,0.257260,0.245158,0.237066)$.  Two executions produced the
+same 2,880-element block output with SHA-256
+\texttt{809457099a254d8799e91be40466968fc98d9c5ad1edfb55e63565d00aa3e758}.
+The four-expert cold fault took 0.5506~s.  The shared attention/router path
+materialised 33,891,232 raw bytes from 23,481,377 compressed bytes; the expert
+path materialised 53,015,040 raw bytes from 50,172,758 compressed bytes.  Each
+native stage declared a 256~MiB arena.  The canonical report SHA-256 is
+\texttt{d5d6f3b76ffec3b390f6eaf843904f5c9b46e5c06a68cf4811de9cd9061c1344}.
+
+\subsection{First complete 36-layer token gate}
+The next gate used GGUF token~199998, the model-declared beginning-of-sequence
+token.  Its packed embedding row was reconstructed from the SD warehouse and
+dequantised.  The hidden state then traversed all 36 real transformer layers.
+At every layer, AION loaded the layer's shared tensors, computed attention and
+the residual state, evaluated the real router, faulted exactly four selected
+experts in parallel, computed their weighted MXFP4 outputs, and advanced the
+residual state.  Final RMS normalisation and the 201,088-way vocabulary head
+produced argmax token ID~2167.
+
+Two independent passes selected identical routes in all 36 layers (144 routed
+expert selections), produced identical final hidden-state bytes, and produced
+bit-for-bit identical logits.  Their final hidden SHA-256 was
+\texttt{f2e99f840dc4ff1880b1b5f40b3e39ac883e08ab9fce3b83de9a105f4f9a4e64};
+their logit SHA-256 was
+\texttt{aa5c9b4ed7725bb2626401f4e4470271cb34e4e76e401b264c0bedadd5bd50fa}.
+The first and second layer-chain/vocabulary evaluations took 36.675~s and
+34.388~s respectively after one-time vocabulary-head staging.  That exact
+615,329,280-byte vocabulary matrix required 9.469~s to stage and its SHA-256 was
+\texttt{049b19820999b23070d21c7d623bb31a697d8bf5f7492f175b5701084aa98692}.
+Per pass, expert retrieval consumed approximately 20.14--20.17~s and
+shared-layer retrieval approximately 9.05--9.23~s.  The 256~MiB expert cache faulted 144 experts and
+evicted 124, materialising 1,908,541,440 raw expert bytes from 1,826,871,414
+compressed bytes.  The largest native arena was 768~MiB for the vocabulary
+projection; all layer stages remained 256~MiB.
+
+\subsection{Interpretation and limitations}
+This is the first evidence in this programme that an 18~GB M3 Pro can execute
+the complete neural path of a 120B-class model whose approximately 63~GB logical
+representation resides in an addressable compressed 64~GB SD-card warehouse.
+It is a feasibility breakthrough, not a performance promotion.  The measured
+approximately 35.5~s median evaluation corresponds to roughly 0.028 token/s
+after vocabulary staging.  Including that 9.469~s one-time stage, the first
+cold-path result was approximately 46.1~s, or 0.022 token/s.  The input
+was a single BOS token, so the result does not establish prompt quality,
+multi-token KV-cache correctness, or steady-state generation speed.  The
+canonical report SHA-256 is
+\texttt{9c286d588d9976a6436204f43ffe02f873cc7070bde322219172ce8f3079b954}.
+The immediate
+optimisation target is physical weight traffic: about 30~s of each pass was
+measured in expert and shared-weight retrieval, while the already resident
+packed expert arithmetic is comparatively small.
