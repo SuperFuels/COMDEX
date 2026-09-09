@@ -1424,3 +1424,22 @@ aggregate repeat time 3.57% and opening time materially. Both are
 Stop cache representation tuning. Build one persistent native arena that
 accepts verified frames directly and removes temporary-file and per-layer
 process/allocation boundaries before testing longer generation.
+
+That persistent-arena gate now passes for position-zero execution. Profiling
+showed that the former exact warm path spent 7.363 seconds writing already
+resident expert buffers back to temporary files. A direct read-only native
+weight view removed the redundant 1,908,541,440-byte expert restage, and a
+single-copy persistent attention/router arena removed the equivalent shared
+weight process boundary. Across one opening plus five warm complete 36-layer
+passes per variant, every route, hidden byte, logit byte and token remained
+exact. Warm median fell from 4.204 to 2.436 seconds (42.05%); p95 fell from
+4.380 to 3.345 seconds (23.63%). The final report canonical SHA-256 is
+`a0efa41e27578e4ebb4e5c7d91d18d876afbb83778f48dbadbac02ffc4627368`.
+
+Promote this only for exact position-zero/resident replay. It is not a
+steady-state generation-rate result. Extend the persistent attention interface
+to per-layer K/V state, retain the 3 GiB expert ceiling, and rerun genuine
+multi-token sequences with cold/warm separation. The candidate must preserve
+every token and step-logit hash while reporting route turnover, physical SD
+bytes, median and p95 token latency. Do not extrapolate the approximately
+0.411 position-zero evaluations/s median to normal text generation.

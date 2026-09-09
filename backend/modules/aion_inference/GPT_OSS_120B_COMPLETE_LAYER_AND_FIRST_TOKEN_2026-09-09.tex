@@ -139,3 +139,76 @@ SHA-256:
 Together these failures localise the next target: remove intermediate files,
 per-layer process creation, repeated arena allocation and decode-to-file-to-
 native rematerialisation through a persistent in-process native arena.
+
+\subsection{Persistent single-copy native arenas}
+\label{subsec:gptoss120b-persistent-arenas}
+A boundary profile separated expert retrieval, expert-file staging, attention
+processes, MoE-finish processes, and vocabulary projection.  On an exact
+resident replay, 144/144 expert addresses hit the 3~GiB raw cache and no new
+expert bytes were read from SD, yet the pass still took 12.975~s.  Writing the
+already resident experts to temporary files consumed 7.363~s, attention
+boundaries consumed 2.149~s, and MoE-finish boundaries consumed 2.785~s.
+Thus the largest warm-path cost was redundant rematerialisation rather than
+neural arithmetic.  The profile report has canonical SHA-256
+\texttt{cd4b2b3a7471b60bbed1355a029de35758672fc4fa89a78fcfe36a8af593066f}.
+
+A native C ABI was then introduced for the four-expert MoE calculation.  The
+first trial passed internal repeatability but used unrounded Python gate values
+and therefore did not match the established control hashes; it is preserved
+with an \texttt{INVALID} sidecar and is excluded from every performance claim.
+Rounding gates to the existing nine-significant-digit boundary restored the
+control hidden and logit hashes.  A further profile showed that merely keeping
+the backing vector alive was insufficient because repeated contexts and copies
+still incurred lifecycle cost.
+
+The promoted implementation keeps one native ggml context alive, resets its
+graph allocator between layers, and points read-only graph leaves directly at
+the verified resident expert buffers.  It therefore avoids restaging
+1,908,541,440 raw expert bytes on each complete layer chain.  The same design
+was applied to position-zero attention and router weights.  A single resident
+copy supplies the native graphs; duplicate temporary shared-weight files are
+not created.
+
+The final comparison used six complete 36-layer passes per variant: one
+expert-cache-cold pass followed by five warm passes.  Every pass selected the
+same 144 layer-addressed experts, generated token~2167, and reproduced the
+control final-hidden SHA-256
+\texttt{7b351da4d5b31a660e882ed18f7e0b37e8f0234205b295621cd5d42ec572f697}
+and logit SHA-256
+\texttt{d3d15da87e276fcc808de4c605a510899bd30c3afaa8f42121f5d6fb4379e006}.
+All warm passes recorded 144/144 expert hits and zero additional expert SD
+reads.  Results are summarised in Table~\ref{tab:gptoss120b-persistent}.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Variant & Warm median (s) & Warm p95 (s) & Median change \\
+\midrule
+Persistent zero-copy MoE; process attention & 4.204 & 4.380 & baseline \\
+Single-copy persistent attention and MoE & 2.436 & 3.345 & $-42.05\%$ \\
+\bottomrule
+\end{tabular}
+\caption{Five warm position-zero 120B layer-chain replays after one opening
+pass.  Percentages use wall time and preserve exact model arithmetic.}
+\label{tab:gptoss120b-persistent}
+\end{table}
+
+Relative to the earlier 12.975~s profiled resident path, the final warm median
+is 81.22\% lower.  Relative to the original 11.864~s resident-replay milestone,
+it is 79.47\% lower.  The best observed warm pass was 1.970~s; it is reported
+as an observation, not as the promoted central estimate.  The final
+single-copy report's canonical SHA-256 is
+\texttt{a0efa41e27578e4ebb4e5c7d91d18d876afbb83778f48dbadbac02ffc4627368};
+the replicated MoE-only control SHA-256 is
+\texttt{7e537637be613fb78b2c33ce4134c948771ee1acaa914dedf43ea3ae2f7b0350}.
+
+This is a substantial execution-boundary result, but it is not a
+steady-state text-generation throughput claim.  The measurement repeats a
+single BOS-conditioned position-zero route whose complete expert working set
+fits under the declared 3~GiB cache.  The equivalent median rate for this
+bounded replay is approximately 0.411 layer-chain evaluations per second.
+Real later tokens can select different experts, require K/V history, and cause
+SD faults.  The next gate must extend the persistent attention arena to
+multi-token K/V state and compare exact generated sequences under genuine route
+turnover.  No claim of 30 or 50 generated tokens/s is made for GPT-OSS 120B.
