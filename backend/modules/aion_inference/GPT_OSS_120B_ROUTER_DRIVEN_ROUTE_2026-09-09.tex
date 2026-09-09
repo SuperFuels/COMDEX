@@ -1,0 +1,55 @@
+% Append-only technical-record section. Requires amsmath, booktabs and hyperref.
+\begingroup
+\sloppy
+\section{First Router-Driven Four-Expert 120B Route}
+\label{sec:gptoss120b-router-driven-route}
+
+The first multi-expert execution gate used the real layer-0
+\texttt{ffn\_gate\_inp} weights and bias from the verified GPT-OSS 120B
+warehouse.  A deterministic 2,880-element hidden activation was evaluated by
+the 128-way router.  Its top-four route was experts 25, 112, 32 and 127, with
+normalised gates 0.26327852, 0.25436795, 0.24231303 and 0.24004049.
+This deliberately non-adjacent route prevents the result from depending on a
+convenient contiguous expert selection.
+
+AION demanded the six components of all four experts from the compressed SD
+warehouse.  The route represented 53,015,040 raw bytes and required
+50,506,171 compressed bytes.  Initial sequential demand loading took
+0.672565~s under a 256~MiB cache ceiling, with four faults, no eviction and
+exact verification of every compressed and decoded frame.
+
+The four packed MXFP4 expert networks were evaluated and combined with their
+router gates.  Two independent eight-repetition runs produced the same finite
+checksum, 88.9221.  Their resident-compute p50 values were 1.28996~ms and
+0.959583~ms.  This passes the first real router-driven four-expert computation
+gate.  It excludes attention, residual and normalisation operations and is
+therefore not yet a complete transformer layer or token.  The canonical
+evidence SHA-256 is
+\texttt{98ab3e9b23679fa5e635e8fa10462cc6}%
+\allowbreak\texttt{fa31da2c26f3d02fa2a94903ba8a9d2a}.
+
+\subsection{Bounded parallel-loading candidate}
+
+The exact selected route was subsequently tested in a rotating sequential /
+parallel / parallel / sequential order.  Both conditions requested macOS
+\texttt{F\_NOCACHE}; this reduces ordinary caching effects but does not prove
+that all pages were absent from every operating-system cache.  Four bounded
+workers loaded and decoded the 24 independent component frames.  All outputs
+were hash-identical across all 16 trials.
+
+Sequential loading measured 0.683740~s p50 and 0.692560~s p95.  Parallel
+loading measured 0.553441~s p50 and 0.557982~s p95, a p50 improvement of
+19.0568\%.  Because the candidate passed its integrity and timing gate, a
+bounded parallel route-fault method was integrated into the expert store.
+The integrated implementation reproduced the route in 0.552086~s and remained
+within the declared 256~MiB cache ceiling.  Six focused store/reader tests
+passed 6/6.  The mechanism evidence canonical SHA-256 is
+\texttt{660a27b4cca4a78ef3840515dae778b71}%
+\allowbreak\texttt{c9e6318dd8f15076e0ca867a39b967c}.
+
+The result proves a real reduction in exact expert-route preparation, not an
+end-to-end token improvement.  Initial route preparation is still more than
+500 times slower than the approximately 1~ms resident four-expert arithmetic.
+The next gate must add the real layer-0 attention, normalisation and residual
+tensors and execute one complete transformer block before any token claim.
+\endgroup

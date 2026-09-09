@@ -9,14 +9,14 @@ def _sha(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
-def _region(tmp_path, index, name, raw):
+def _region(tmp_path, index, name, raw, expert=0):
     path = tmp_path / f"region-{index}.zstpack"
     subprocess.run(["zstd", "-q", "-c"], input=raw,
                    stdout=path.open("wb"), check=True)
     encoded = path.read_bytes()
     return {
         "region_name": name, "pack_relative_path": path.name,
-        "frames": [{"expert": 0, "encoded_offset": 0,
+        "frames": [{"expert": expert, "encoded_offset": 0,
                     "compressed_bytes": len(encoded), "compressed_sha256": _sha(encoded),
                     "raw_bytes": len(raw), "raw_sha256": _sha(raw)}],
     }
@@ -59,3 +59,30 @@ def test_rejects_duplicate_route(tmp_path):
         assert "unique" in str(exc)
     else:
         raise AssertionError("duplicate route was accepted")
+
+
+def test_parallel_route_faults_then_reuses_two_complete_experts(tmp_path):
+    regions = []
+    expected = []
+    index = 0
+    for expert in (0, 1):
+        value = {}
+        for projection in ("gate", "up", "down"):
+            value[projection] = {}
+            for kind in ("weight", "bias"):
+                raw = f"{expert}-{projection}-{kind}".encode() * 100
+                value[projection][kind] = raw
+                regions.append(_region(tmp_path, index,
+                    f"blk.0.ffn_{projection}_exps.{kind}", raw, expert=expert))
+                index += 1
+        expected.append(value)
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1",
+                                         "status": "COMPLETE_VERIFIED", "regions": regions}))
+    total = sum(len(component) for value in expected for projection in value.values()
+                for component in projection.values())
+    store = GptOssExpertFrameStore(manifest_path, total)
+    assert store.get_layer_route_parallel(0, [0, 1], workers=2) == expected
+    assert store.get_layer_route_parallel(0, [0, 1], workers=2) == expected
+    assert store.metrics()["faults"] == 2
+    assert store.metrics()["hits"] == 2

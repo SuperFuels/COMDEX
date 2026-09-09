@@ -8,7 +8,9 @@ import hashlib
 import json
 import os
 import re
+import threading
 from collections import OrderedDict
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -69,6 +71,7 @@ class GptOssExpertFrameStore:
         self.compressed_bytes_read = 0
         self.raw_bytes_materialized = 0
         self.peak_resident_bytes = 0
+        self._metrics_lock = threading.Lock()
 
     def _component(self, layer: int, expert: int, projection: str, kind: str) -> bytes:
         key = (layer, expert, projection, kind)
@@ -92,9 +95,36 @@ class GptOssExpertFrameStore:
         raw = target.raw
         if hashlib.sha256(raw).hexdigest() != address["raw_sha256"]:
             raise RuntimeError(f"decoded expert-frame hash mismatch: {path}")
-        self.compressed_bytes_read += len(encoded)
-        self.raw_bytes_materialized += len(raw)
+        with self._metrics_lock:
+            self.compressed_bytes_read += len(encoded)
+            self.raw_bytes_materialized += len(raw)
         return raw
+
+    def _load_value(self, layer: int, expert: int) -> dict[str, dict[str, bytes]]:
+        return {
+            projection: {
+                kind: self._component(layer, expert, projection, kind)
+                for kind in ("weight", "bias")
+            }
+            for projection in ("gate", "up", "down")
+        }
+
+    @staticmethod
+    def _value_size(value: dict[str, dict[str, bytes]]) -> int:
+        return sum(len(component) for projection in value.values()
+                   for component in projection.values())
+
+    def _retain(self, cache_key: tuple[int, int],
+                value: dict[str, dict[str, bytes]]) -> None:
+        size = self._value_size(value)
+        if size <= self.capacity_bytes:
+            while self._cache and self._resident + size > self.capacity_bytes:
+                _, removed = self._cache.popitem(last=False)
+                self._resident -= self._value_size(removed)
+                self.evictions += 1
+            self._cache[cache_key] = value
+            self._resident += size
+            self.peak_resident_bytes = max(self.peak_resident_bytes, self._resident)
 
     def get(self, layer: int, expert: int) -> dict[str, dict[str, bytes]]:
         cache_key = (layer, expert)
@@ -104,30 +134,44 @@ class GptOssExpertFrameStore:
             self._cache[cache_key] = cached
             return cached
         self.faults += 1
-        value = {
-            projection: {
-                kind: self._component(layer, expert, projection, kind)
-                for kind in ("weight", "bias")
-            }
-            for projection in ("gate", "up", "down")
-        }
-        size = sum(len(component) for projection in value.values()
-                   for component in projection.values())
-        if size <= self.capacity_bytes:
-            while self._cache and self._resident + size > self.capacity_bytes:
-                _, removed = self._cache.popitem(last=False)
-                self._resident -= sum(len(component) for projection in removed.values()
-                                      for component in projection.values())
-                self.evictions += 1
-            self._cache[cache_key] = value
-            self._resident += size
-            self.peak_resident_bytes = max(self.peak_resident_bytes, self._resident)
+        value = self._load_value(layer, expert)
+        self._retain(cache_key, value)
         return value
 
     def get_layer_route(self, layer: int, experts: list[int]) -> list[dict[str, dict[str, bytes]]]:
         if len(experts) != len(set(experts)):
             raise ValueError("route must contain unique experts")
         return [self.get(layer, expert) for expert in experts]
+
+    def get_layer_route_parallel(self, layer: int, experts: list[int],
+                                 workers: int = 4) -> list[dict[str, dict[str, bytes]]]:
+        """Fault missing experts concurrently, then retain them deterministically."""
+        if workers < 1:
+            raise ValueError("workers must be positive")
+        if len(experts) != len(set(experts)):
+            raise ValueError("route must contain unique experts")
+        results: list[dict[str, dict[str, bytes]] | None] = [None] * len(experts)
+        missing: list[tuple[int, int]] = []
+        for position, expert in enumerate(experts):
+            cache_key = (layer, expert)
+            cached = self._cache.pop(cache_key, None)
+            if cached is None:
+                self.faults += 1
+                missing.append((position, expert))
+            else:
+                self.hits += 1
+                self._cache[cache_key] = cached
+                results[position] = cached
+        if missing:
+            with ThreadPoolExecutor(max_workers=min(workers, len(missing)),
+                                    thread_name_prefix="aion-gptoss-expert") as pool:
+                loaded = list(pool.map(lambda item: self._load_value(layer, item[1]), missing))
+            for (position, expert), value in zip(missing, loaded, strict=True):
+                self._retain((layer, expert), value)
+                results[position] = value
+        if any(value is None for value in results):
+            raise RuntimeError("parallel expert route remained incomplete")
+        return [value for value in results if value is not None]
 
     def metrics(self) -> dict[str, int | float]:
         accesses = self.hits + self.faults
