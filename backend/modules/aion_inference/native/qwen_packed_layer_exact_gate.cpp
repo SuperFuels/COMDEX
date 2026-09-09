@@ -17,6 +17,11 @@
 using compute_function = ggml_status (*)(ggml_context *, ggml_cgraph *, int);
 
 struct capture_state {
+    int layer = 0;
+    std::string topk_name;
+    std::string weights_name;
+    std::string gate_name;
+    std::string output_name;
     std::array<int32_t, 8> route{};
     std::array<float, 8> gates{};
     std::array<float, 2048> input{};
@@ -25,6 +30,7 @@ struct capture_state {
     bool gates_ok = false;
     bool input_ok = false;
     bool output_ok = false;
+    int64_t batch_tokens = 0;
 };
 
 static void get_f32_vector(ggml_tensor * tensor, float * destination, size_t count) {
@@ -34,25 +40,24 @@ static void get_f32_vector(ggml_tensor * tensor, float * destination, size_t cou
 
 static bool capture_layer_zero(ggml_tensor * tensor, bool ask, void * opaque) {
     const char * name = ggml_get_name(tensor);
-    const bool wanted = std::strcmp(name, "ffn_moe_topk-0") == 0 ||
-        std::strcmp(name, "ffn_moe_weights_norm-0") == 0 ||
-        std::strcmp(name, "ffn_moe_gate-0") == 0 ||
-        std::strcmp(name, "ffn_moe_out-0") == 0;
+    auto * state = static_cast<capture_state *>(opaque);
+    const bool wanted = name == state->topk_name || name == state->weights_name ||
+        name == state->gate_name || name == state->output_name;
     if (!wanted) return false;
     if (ask) return true;
-    auto * state = static_cast<capture_state *>(opaque);
-    if (std::strcmp(name, "ffn_moe_topk-0") == 0) {
+    if (name == state->topk_name) {
         ggml_backend_tensor_get_2d(tensor, state->route.data(), 0, 8 * sizeof(int32_t),
                                    1, tensor->nb[1], 8 * sizeof(int32_t));
         state->route_ok = true;
-    } else if (std::strcmp(name, "ffn_moe_weights_norm-0") == 0) {
+    } else if (name == state->weights_name) {
         get_f32_vector(tensor, state->gates.data(), 8);
         state->gates_ok = true;
-    } else if (std::strcmp(name, "ffn_moe_gate-0") == 0) {
+    } else if (name == state->gate_name) {
         for (ggml_tensor * source : tensor->src) {
             if (source != nullptr && source->type == GGML_TYPE_F32 &&
-                    ggml_nelements(source) == 2048) {
+                    source->ne[0] == 2048) {
                 get_f32_vector(source, state->input.data(), 2048);
+                state->batch_tokens = source->ne[1];
                 state->input_ok = true;
                 break;
             }
@@ -77,8 +82,24 @@ static bool read_exact(int fd, void * output, size_t bytes, off_t offset) {
 }
 
 int main(int argc, char ** argv) {
-    if (argc != 2) return 2;
+    if (argc != 7 && argc != 8) {
+        std::cerr << "usage: exact_gate MODEL LAYER GATE_BASE UP_BASE DOWN_BASE DOWN_GGML_TYPE [PROMPT]\n";
+        return 2;
+    }
+    const int layer = std::stoi(argv[2]);
+    const off_t gate_base = std::stoll(argv[3]);
+    const off_t up_base = std::stoll(argv[4]);
+    const off_t down_base = std::stoll(argv[5]);
+    const int down_type_number = std::stoi(argv[6]);
+    if (layer < 0 || layer >= 48 ||
+            (down_type_number != GGML_TYPE_Q4_K && down_type_number != GGML_TYPE_Q6_K)) return 2;
+    const ggml_type down_type = static_cast<ggml_type>(down_type_number);
     capture_state captured;
+    captured.layer = layer;
+    captured.topk_name = "ffn_moe_topk-" + std::to_string(layer);
+    captured.weights_name = "ffn_moe_weights_norm-" + std::to_string(layer);
+    captured.gate_name = "ffn_moe_gate-" + std::to_string(layer);
+    captured.output_name = "ffn_moe_out-" + std::to_string(layer);
     llama_backend_init();
     llama_model_params mp = llama_model_default_params();
     mp.n_gpu_layers = 0;
@@ -99,7 +120,7 @@ int main(int argc, char ** argv) {
     cp.cb_eval_user_data = &captured;
     llama_context * context = llama_init_from_model(model, cp);
     if (context == nullptr) return 4;
-    const std::string prompt = "Hello";
+    const std::string prompt = argc == 8 ? argv[7] : "Hello";
     const llama_vocab * vocab = llama_model_get_vocab(model);
     int32_t count = llama_tokenize(vocab, prompt.c_str(), prompt.size(), nullptr, 0, true, true);
     if (count >= 0) return 5;
@@ -124,17 +145,15 @@ int main(int argc, char ** argv) {
     ggml_tensor * input = ggml_new_tensor_2d(direct, GGML_TYPE_F32, 2048, 1);
     std::copy(captured.input.begin(), captured.input.end(), static_cast<float *>(input->data));
     ggml_tensor * sum = nullptr;
-    constexpr off_t gate_base = 612307456;
-    constexpr off_t up_base = 726610432;
-    constexpr off_t down_base = 447156736;
+    const off_t down_stride = down_type == GGML_TYPE_Q6_K ? 1290240 : 884736;
     for (int index = 0; index < 8; ++index) {
         const int expert = captured.route[index];
         ggml_tensor * gate = ggml_new_tensor_2d(direct, GGML_TYPE_Q4_K, 2048, 768);
         ggml_tensor * up = ggml_new_tensor_2d(direct, GGML_TYPE_Q4_K, 2048, 768);
-        ggml_tensor * down = ggml_new_tensor_2d(direct, GGML_TYPE_Q6_K, 768, 2048);
+        ggml_tensor * down = ggml_new_tensor_2d(direct, down_type, 768, 2048);
         if (!read_exact(fd, gate->data, ggml_nbytes(gate), gate_base + expert * 884736) ||
             !read_exact(fd, up->data, ggml_nbytes(up), up_base + expert * 884736) ||
-            !read_exact(fd, down->data, ggml_nbytes(down), down_base + expert * 1290240)) return 10;
+            !read_exact(fd, down->data, ggml_nbytes(down), down_base + expert * down_stride)) return 10;
         ggml_tensor * hidden = ggml_mul(direct,
             ggml_silu(direct, ggml_mul_mat(direct, gate, input)),
             ggml_mul_mat(direct, up, input));
@@ -161,7 +180,8 @@ int main(int argc, char ** argv) {
     mean_abs /= 2048.0;
     const double relative_l2 = std::sqrt(error_norm / stock_norm);
     std::cout << "{\"schema\":\"aion.qwen3moe.packed-layer-exact-gate.v1\","
-              << "\"route\":[";
+              << "\"layer\":" << layer << ",\"down_ggml_type\":" << down_type_number
+              << ",\"batch_tokens\":" << captured.batch_tokens << ",\"route\":[";
     for (int i = 0; i < 8; ++i) std::cout << (i ? "," : "") << captured.route[i];
     std::cout << "],\"gates\":[";
     for (int i = 0; i < 8; ++i) std::cout << (i ? "," : "") << captured.gates[i];

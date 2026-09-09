@@ -332,16 +332,26 @@ gate must repeat the reconstruction over representative Q4\_K- and Q6\_K-down
 layers and multiple real tokens before the mechanism is integrated into a
 bounded decoder.
 
+The representative-layer expansion then repeated the comparison at layers 16
+and 32 on the same prompt, and at layer 8 on a distinct seven-word business
+prompt.  This covered both Q4\_K and Q6\_K down projections.  Every one of the
+8{,}192 compared floating-point values was bit-for-bit equal to the stock graph;
+all four cases had zero maximum, mean and relative $L_2$ error.  The cohort
+therefore passed the representative-layer exactness gate.  Its SD-backed report
+SHA-256 is
+\texttt{df3f57fb5419a621f96eb944dc597f5fa78e84cabf07cc287a25c823bd79d0a8}.
+This broader result still does not substitute for every-layer, multi-token and
+step-logit equivalence in an integrated decoder.
+
 \subsection{Next measured gates}
 
-The next implementation stage is a bounded Qwen expert reader that uses the
-Glyph map to read only selected slices into a 1--3~GiB working set, without
-registering the complete GGUF in Metal residency.  It must first measure cold and
-warm physical bytes, per-layer fault latency, route overlap and cache reuse.  Only
-then may packed computation, persistent Metal buffers, decode/transfer overlap,
-and route-aware retention be scaled.  The immediate correctness gate is now to
-repeat the exact direct-packed comparison across both down-weight types,
-representative layers and multiple real tokens.  Exact-output candidates must preserve token
+The next implementation stage is to combine the already bounded Qwen expert
+reader with the now exact direct-packed calculation, without registering the
+complete GGUF in Metal residency.  The immediate correctness gate is every-layer
+and multi-token reconstruction, followed by step-logit and generated-token
+equivalence in the bounded decoder.  Only after those gates may persistent
+buffers, decode/read/compute overlap and route-aware retention be judged by
+end-to-end timing.  Exact-output candidates must preserve token
 and step-logit equivalence; changed kernels or representations remain separately
 quality-gated.  No claim of 50 tokens/s, production usability, or general larger-
 model acceleration is made by the present results.
