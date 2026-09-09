@@ -306,6 +306,32 @@ physical barrier once the correct expert bytes are resident.  The SD-backed
 report SHA-256 is
 \texttt{f9c885d73c4f35741f7422ba1bb042fcd424ae545c398c1cc42acac13bdc3867}.
 
+\subsection{First exact direct-packed reconstruction}
+
+The correctness gate was then exercised on a real layer-0 token.  The stock
+llama.cpp graph supplied the normalized 2{,}048-element layer input, selected
+route $[62,21,75,87,36,34,126,47]$, eight normalized router coefficients and
+the 2{,}048-element stock MoE output.  An independent graph read only those
+eight packed expert slices from the SD-resident GGUF, evaluated the native
+Q4\_K/Q6\_K matrix operations directly on the CPU, applied the captured router
+coefficients and reduced the expert outputs.
+
+All 2{,}048 reconstructed output values equalled the stock graph bit for bit:
+maximum absolute error, mean absolute error and relative $L_2$ error were all
+exactly zero.  This is the first proof that the direct-packed path is not merely
+fast in a synthetic benchmark: for this real layer and token it reproduces the
+reference MoE calculation exactly without expanding the expert weights to
+FP16 or placing the complete expert bank in Metal memory.  The SD-backed report
+SHA-256 is
+\texttt{a9189f7d99dd0aa8cdad4b0057e9c10a38b62748f57abc44ecefe412756ab2bd}.
+
+The acceptance boundary remains narrow.  One layer and one prompt token do not
+establish all-layer, multi-token, step-logit or generated-token equivalence.
+No end-to-end throughput claim is derived from this exactness result.  The next
+gate must repeat the reconstruction over representative Q4\_K- and Q6\_K-down
+layers and multiple real tokens before the mechanism is integrated into a
+bounded decoder.
+
 \subsection{Next measured gates}
 
 The next implementation stage is a bounded Qwen expert reader that uses the
@@ -313,9 +339,9 @@ Glyph map to read only selected slices into a 1--3~GiB working set, without
 registering the complete GGUF in Metal residency.  It must first measure cold and
 warm physical bytes, per-layer fault latency, route overlap and cache reuse.  Only
 then may packed computation, persistent Metal buffers, decode/transfer overlap,
-and route-aware retention be scaled.  The immediate correctness gate is to
-capture real layer activations and router coefficients and compare the direct
-packed output against the stock graph before integration.  Exact-output candidates must preserve token
+and route-aware retention be scaled.  The immediate correctness gate is now to
+repeat the exact direct-packed comparison across both down-weight types,
+representative layers and multiple real tokens.  Exact-output candidates must preserve token
 and step-logit equivalence; changed kernels or representations remain separately
 quality-gated.  No claim of 50 tokens/s, production usability, or general larger-
 model acceleration is made by the present results.
