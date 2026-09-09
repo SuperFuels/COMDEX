@@ -27,6 +27,13 @@ from backend.modules.codex.beam_event_bus import beam_event_bus
         ("Calculate the area of 5 m by 4 m.", "CALCULATE_RECTANGLE_AREA", {"area": "20", "unit": "m²"}),
         ("Calculate volume of 5 m by 4 m by 2.5 m.", "CALCULATE_RECTANGULAR_VOLUME", {"volume": "50", "unit": "m³"}),
         ("Convert 2.5 metres to centimetres.", "CONVERT_LENGTH", {"value": "250", "unit": "cm"}),
+        ("Convert 3 metres to centimetres; give the exact result.", "CONVERT_LENGTH", {"value": "300", "unit": "cm"}),
+        ("Convert 2.5 kilograms to grams.", "CONVERT_MASS", {"value": "2500", "unit": "g"}),
+        (
+            "Revenue is EUR 84000 and cost is EUR 51500. Return only JSON with gross_profit and gross_margin_percent, rounded to two decimals.",
+            "CALCULATE_GROSS_MARGIN",
+            {"gross_profit": "32500", "gross_margin_percent": "38.69"},
+        ),
         ("Calculate the area of 10 ft by 12 ft.", "CALCULATE_RECTANGLE_AREA", {"area": "11.1483648", "unit": "m²"}),
     ],
 )
@@ -48,6 +55,9 @@ def test_verified_calculation_catalog(prompt, intent, expected):
         "Calculate the area of -5 m by 4 m.",
         "Convert roughly a few metres to centimetres.",
         "Calculate volume of 5 m by 4 m.",
+        "Convert 2 kilograms or 3 kilograms to grams.",
+        "Revenue is 0 and cost is 50. Return gross margin.",
+        "Revenue and cost are unknown. Return gross margin.",
     ],
 )
 def test_ambiguous_or_invalid_calculations_require_model(prompt):

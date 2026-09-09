@@ -169,3 +169,65 @@ This extension establishes a functioning, repeatable local service at the
 headline generation rate.  It does not change the production decision: the
 candidate remains quality-gated pending a substantially broader blinded suite
 and a precision/quality study.
+
+\subsection{Balanced Metal scheduling experiments}
+
+A 15-condition runtime-only sweep varied host orchestration threads
+$\{4,6,8,10,12\}$ and automatic, forced-on and forced-off flash attention.  No
+weights or graph semantics changed.  The ordered sweep initially suggested that
+eight threads with flash attention disabled improved 256-token generation to
+57.659738 tokens/s.  That apparent win was then subjected to an independent
+auto/off/off/auto comparison.  Automatic-attention arm means were 62.210202 and
+62.932588 tokens/s, while forced-off means were 60.278952 and 60.094493
+tokens/s.  Forced-off flash attention was therefore slower and was not
+promoted.  Forced-on flash attention also produced severe tail regressions,
+including a 27.9454-token/s repetition at twelve threads.
+
+A separate predeclared polling sweep tested host polling percentages
+$\{0,25,50,75,100\}$.  The ordered means were respectively 64.091537,
+64.111109, 63.898380, 63.407876 and 61.957193 tokens/s.  Poll 25 appeared to
+cross the 2\% promotion gate, but a balanced 50/25/25/50 validation reduced its
+advantage to 0.242674\%, below the unchanged gate.  It was not promoted.
+
+These experiments establish an honest warm-state range rather than a new fixed
+configuration: automatic attention with the default poll remained at roughly
+61--63 tokens/s in balanced runs.  Individual 64-token/s observations are
+preserved but not represented as a guaranteed setting.  The flash/thread plan
+SHA-256 is
+\texttt{3b7e1d4c881219274b993173f33f48128168047bc57d135ff2e1154459ba46a0};
+the poll plan SHA-256 is
+\texttt{fa539bd663535fa65bedb46f707a2848b8a5dcefb6be5707b4ea94af8a4293fa}.
+
+\subsection{Verified AtomSheet assistance and hybrid result}
+
+The two strict structured failures were next treated as a systems problem rather
+than hidden with prompt changes.  The verified calculation catalog gained two
+general, fail-closed contracts: mass conversion and gross-margin calculation.
+Both use Decimal arithmetic, declared canonical units, inverse or recomposition
+verification, content-bound receipts and model fallback for ambiguous,
+compound, missing or out-of-range inputs.
+
+In 1{,}000 replay measurements per contract, first execution required 2.875~ms
+for gross margin and 2.029~ms for mass conversion.  Replay p50/p95 were
+0.775/0.939~ms and 0.698/0.882~ms respectively.  Both former model failures now
+returned the exact stored answer with zero model calls.  The focused calculation,
+ambiguity, SQI-beam, trace and replay suite passed 27/27.
+
+The complete eight-case structured cohort was then run twice through the real
+hybrid path.  AION performed SQI candidate evaluation and route collapse first;
+verified AtomSheets served two cases, and the resident 30B Qwen service served
+the remaining six.  Both runs passed 8/8 with identical answers and identical
+route decisions.  Relative to direct-Qwen execution, model calls fell from eight
+to six (25\%), and generated model tokens fell from 175 to 124 (29.142857\%).
+The two verified requests completed in 2.4--3.6~ms; second-run Qwen fallback
+latency ranged from 0.209 to 1.107~s.
+
+This is a narrow but genuine architecture promotion: exact repetitive work is
+removed from the neural path, while language and reasoning remain assigned to
+the large model.  Strict task success rose from 6/8 for direct Qwen to 8/8 for
+the hybrid without relaxing an expected value or silently rewriting a model
+answer.  It does not establish broad model quality, because the cohort is small
+and only two families used the new verified routes.
+
+The combined tuning and hybrid evidence SHA-256 is
+\texttt{3157fbb590133b5a037026529d15c02b3549802637b2e46c756abccd31700ba8}.

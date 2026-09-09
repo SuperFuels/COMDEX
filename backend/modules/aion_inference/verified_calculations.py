@@ -29,6 +29,19 @@ UNIT_ALIASES = {
     "kilometre": "km", "kilometres": "km", "kilometer": "km", "kilometers": "km",
     "foot": "ft", "feet": "ft", "inch": "in", "inches": "in",
 }
+MASS_UNIT = r"\b(kilograms?|kilogrammes?|kg|grams?|grammes?|g|milligrams?|milligrammes?|mg|tonnes?|metric\s+tons?)\b"
+MASS_FACTORS = {
+    "mg": Decimal("0.001"),
+    "g": Decimal("1"),
+    "kg": Decimal("1000"),
+    "t": Decimal("1000000"),
+}
+MASS_ALIASES = {
+    "milligram": "mg", "milligrams": "mg", "milligramme": "mg", "milligrammes": "mg",
+    "gram": "g", "grams": "g", "gramme": "g", "grammes": "g",
+    "kilogram": "kg", "kilograms": "kg", "kilogramme": "kg", "kilogrammes": "kg",
+    "tonne": "t", "tonnes": "t", "metric ton": "t", "metric tons": "t",
+}
 
 
 def _decimal(raw: str) -> Decimal:
@@ -127,7 +140,15 @@ class VerifiedCalculationRouter:
         ):
             return self._fallback("compound_action_requires_orchestration", text)
         try:
+            if (
+                "revenue" in lowered
+                and "cost" in lowered
+                and re.search(r"\bgross[ _-]+margin(?:\b|_)", lowered)
+            ):
+                return self._gross_margin(lowered, text)
             if "convert" in lowered:
+                if re.search(MASS_UNIT, lowered):
+                    return self._convert_mass(lowered, text)
                 return self._convert_length(lowered, text)
             if "%" in lowered or "percent" in lowered:
                 return self._percentage(lowered, text)
@@ -138,6 +159,40 @@ class VerifiedCalculationRouter:
         except (InvalidOperation, ArithmeticError):
             return self._fallback("invalid_numeric_input", text)
         return self._fallback("no_verified_calculation_match", text)
+
+    def _gross_margin(self, lowered: str, source: str) -> VerifiedCalculationResult:
+        revenue_matches = re.findall(
+            rf"\brevenue(?:\s+is)?(?:\s+[a-z]{{3}})?\s+{NUMBER}\b", lowered
+        )
+        cost_matches = re.findall(
+            rf"\bcost(?:\s+is)?(?:\s+[a-z]{{3}})?\s+{NUMBER}\b", lowered
+        )
+        if len(revenue_matches) != 1 or len(cost_matches) != 1:
+            return self._fallback("gross_margin_inputs_ambiguous", source)
+        revenue = _decimal(revenue_matches[0])
+        cost = _decimal(cost_matches[0])
+        if revenue == 0 or any(abs(value) > self.limit for value in (revenue, cost)):
+            return self._fallback("gross_margin_outside_validity_boundary", source)
+        with localcontext() as context:
+            context.prec = 40
+            gross_profit = revenue - cost
+            unrounded_margin = gross_profit / revenue * Decimal("100")
+            margin = unrounded_margin.quantize(Decimal("0.01"))
+            verified = gross_profit + cost == revenue and (
+                unrounded_margin * revenue / Decimal("100") == gross_profit
+            )
+        inputs = {"revenue": _display(revenue), "cost": _display(cost)}
+        result = {
+            "gross_profit": _display(gross_profit),
+            "gross_margin_percent": format(margin, ".2f"),
+        }
+        return self._success(
+            intent="CALCULATE_GROSS_MARGIN",
+            inputs=inputs,
+            result=result,
+            answer=json.dumps(result, sort_keys=True, separators=(",", ":")),
+            verified=verified,
+        )
 
     def _percentage(self, lowered: str, source: str) -> VerifiedCalculationResult:
         matches = re.findall(rf"{NUMBER}\s*(?:%|percent)\s+of\s+{NUMBER}", lowered)
@@ -200,3 +255,32 @@ class VerifiedCalculationRouter:
         inputs = {"value": _display(value), "source_unit": source_unit, "target_unit": target_unit}
         result = {"value": _display(converted), "unit": target_unit}
         return self._success(intent="CONVERT_LENGTH", inputs=inputs, result=result, answer=f"{_display(converted)} {target_unit}", verified=verified)
+
+    def _convert_mass(self, lowered: str, source: str) -> VerifiedCalculationResult:
+        matches = re.findall(
+            rf"convert\s+{NUMBER}\s*{MASS_UNIT}\s+(?:to|into)\s+{MASS_UNIT}\b",
+            lowered,
+        )
+        if len(matches) != 1:
+            return self._fallback("mass_conversion_pattern_ambiguous", source)
+        raw_value, source_unit, target_unit = matches[0]
+        value = _decimal(raw_value)
+        source_unit = MASS_ALIASES.get(source_unit.casefold(), source_unit.casefold())
+        target_unit = MASS_ALIASES.get(target_unit.casefold(), target_unit.casefold())
+        if abs(value) > self.limit:
+            return self._fallback("mass_conversion_outside_validity_boundary", source)
+        converted = value * MASS_FACTORS[source_unit] / MASS_FACTORS[target_unit]
+        verified = converted * MASS_FACTORS[target_unit] / MASS_FACTORS[source_unit] == value
+        inputs = {
+            "value": _display(value),
+            "source_unit": source_unit,
+            "target_unit": target_unit,
+        }
+        result = {"value": _display(converted), "unit": target_unit}
+        return self._success(
+            intent="CONVERT_MASS",
+            inputs=inputs,
+            result=result,
+            answer=f"{_display(converted)} {target_unit}",
+            verified=verified,
+        )

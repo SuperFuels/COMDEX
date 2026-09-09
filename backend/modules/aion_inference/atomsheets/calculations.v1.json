@@ -28,6 +28,20 @@
       "required_inputs": ["value", "source_unit", "target_unit"],
       "operation": "value * source_factor / target_factor",
       "verification": "result * target_factor / source_factor == value"
+    },
+    {
+      "sheet_id": "aion.mass.convert.v1",
+      "intent": "CONVERT_MASS",
+      "required_inputs": ["value", "source_unit", "target_unit"],
+      "operation": "value * source_factor / target_factor",
+      "verification": "result * target_factor / source_factor == value"
+    },
+    {
+      "sheet_id": "aion.gross.margin.v1",
+      "intent": "CALCULATE_GROSS_MARGIN",
+      "required_inputs": ["revenue", "cost"],
+      "operation": "gross_profit = revenue - cost; gross_margin_percent = gross_profit / revenue * 100",
+      "verification": "gross_profit + cost == revenue and gross_margin_percent derives from unrounded gross_profit / revenue"
     }
   ],
   "shared_validity": {
