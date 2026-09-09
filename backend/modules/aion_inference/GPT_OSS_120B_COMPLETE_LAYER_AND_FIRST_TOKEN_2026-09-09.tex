@@ -333,3 +333,36 @@ physical expert demand---for example a learned route-concentrated subnetwork
 or shared expert basis---and compare it against frozen unrestricted 120B
 outputs.  Merely rescheduling the present diverse routes cannot meet the
 target.
+
+\subsection{Cross-expert functional-basis falsification}
+The remaining no-training compression hypothesis was tested on all 128 real
+packed experts in layer zero. Each expert evaluated 24 deterministic training
+activations and 12 disjoint held-out activations. An optimistic expert-space
+principal basis was derived only from the training responses and then applied
+to the held-out response matrix. Promotion required both at least a tenfold
+representation reduction and held-out relative $L_2$ error no greater than
+0.05.
+
+Rank 12 provided a nominal 10.67-fold reduction, but explained only 39.06\% of
+training variance and produced 0.5890 held-out relative $L_2$ error. Even rank
+64 reduced representation by only twofold while retaining 0.4001 held-out
+relative $L_2$ error. The decision is
+\texttt{STOP\_SHARED\_EXPERT\_BASIS}; no basis compilation or training is
+justified by these results. Canonical SHA-256:
+\texttt{57f565c6b77228ee642f7e0980321949e4ccb9bcd0338489290aabbb8061ae43}.
+
+The report's 622.97-second retrieval total is excluded from storage-throughput
+claims because the long scan experienced external system interference. A
+fresh diagnostic read of eight previously untouched layer-one experts
+retrieved 101,561,864 compressed bytes in 1.346 seconds. Neither timing alters
+the failed functional-error gate or the measured model generation rate.
+
+Together, the exact cache, route grouping, fixed dictionary, single-token
+Metal and shared-basis experiments establish a physical boundary for the
+present unrestricted 120B model: scheduling and lossless representation alone
+cannot credibly produce 30--50 token/s from one SD card on this 18~GB Mac. The
+practical AION path is therefore heterogeneous: use the promoted resident
+small-model path for interactive work and invoke unrestricted 120B selectively
+for depth, verification or offline work. Any learned compression, distillation
+or route-concentrated subnetwork remains a separately authorised,
+quality-gated programme with frozen semantic evaluation.

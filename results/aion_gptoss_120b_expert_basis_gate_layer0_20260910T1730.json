@@ -1,0 +1,80 @@
+{
+  "canonical_sha256": "57f565c6b77228ee642f7e0980321949e4ccb9bcd0338489290aabbb8061ae43",
+  "claim_boundary": "A bounded random-projection mechanism test on all 128 real experts in one layer. The expert-space basis is learned only from training activations and evaluated on disjoint held-out activations. It is an optimistic functional-rank bound, not a compiled basis, transformer generation, or semantic evaluation.",
+  "created_at": "2026-09-09T18:34:53.059470+00:00",
+  "expert_process_seconds_total": 6.797397542221006,
+  "experts": 128,
+  "gates": {
+    "holdout_relative_l2_error_at_most": 0.05,
+    "representation_reduction_at_least": 10.0
+  },
+  "holdout_probes": 12,
+  "layer": 0,
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "rank_results": [
+    {
+      "holdout_max_abs_error": 134.73232771149378,
+      "holdout_mean_abs_error": 1.4509061260847127,
+      "holdout_relative_l2_error": 0.6381423467399188,
+      "rank": 4,
+      "representation_reduction": 32.0,
+      "train_variance_explained": 0.27869675270146665
+    },
+    {
+      "holdout_max_abs_error": 99.92360814928159,
+      "holdout_mean_abs_error": 1.3874142850917743,
+      "holdout_relative_l2_error": 0.6082463102586517,
+      "rank": 8,
+      "representation_reduction": 16.0,
+      "train_variance_explained": 0.34463007736340046
+    },
+    {
+      "holdout_max_abs_error": 81.95644981958748,
+      "holdout_mean_abs_error": 1.3406697170847477,
+      "holdout_relative_l2_error": 0.589041484468982,
+      "rank": 12,
+      "representation_reduction": 10.666666666666666,
+      "train_variance_explained": 0.39055546583120215
+    },
+    {
+      "holdout_max_abs_error": 78.0686826859475,
+      "holdout_mean_abs_error": 1.3051821976912679,
+      "holdout_relative_l2_error": 0.5736204761746009,
+      "rank": 16,
+      "representation_reduction": 8.0,
+      "train_variance_explained": 0.42808591194897944
+    },
+    {
+      "holdout_max_abs_error": 71.5157872380853,
+      "holdout_mean_abs_error": 1.1517329483435348,
+      "holdout_relative_l2_error": 0.5146913149740547,
+      "rank": 32,
+      "representation_reduction": 4.0,
+      "train_variance_explained": 0.549309627132986
+    },
+    {
+      "holdout_max_abs_error": 62.37039153296992,
+      "holdout_mean_abs_error": 0.8495719268939823,
+      "holdout_relative_l2_error": 0.4001348341397965,
+      "rank": 64,
+      "representation_reduction": 2.0,
+      "train_variance_explained": 0.7372268519841453
+    }
+  ],
+  "retrieval_seconds_total": 622.9709562450298,
+  "schema": "aion.gptoss-expert-functional-basis-gate.v1",
+  "seed": 120036,
+  "status": "STOP_SHARED_EXPERT_BASIS",
+  "train_probes": 24,
+  "warehouse_metrics": {
+    "capacity_bytes": 67108864,
+    "compressed_bytes_read": 1607674377,
+    "evictions": 123,
+    "faults": 128,
+    "hit_rate": 0.0,
+    "hits": 0,
+    "peak_resident_bytes": 66268800,
+    "raw_bytes_materialized": 1696481280,
+    "resident_bytes": 66268800
+  }
+}

@@ -1506,3 +1506,20 @@ projections; do not train or inject new weights. Advance only if a compact
 basis predicts held-out expert responses at a predeclared error while reducing
 resident/SD bytes by at least one order of magnitude. Any later trained
 subnetwork requires explicit authorization and frozen semantic evaluation.
+
+The bounded cross-expert functional-basis gate has now falsified that final
+no-training compression hypothesis. On all 128 real layer-zero experts, rank
+12 met the nominal 10.67x representation target but produced 0.5890 held-out
+relative L2 error against a maximum of 0.05. Even rank 64 retained 0.4001 error
+for only 2x reduction. Decision: `STOP_SHARED_EXPERT_BASIS`; canonical SHA-256:
+`57f565c6b77228ee642f7e0980321949e4ccb9bcd0338489290aabbb8061ae43`.
+
+Do not repeat exact cache growth, naive route batching, fixed dictionaries,
+single-token Metal, or untrained shared-basis work. The unrestricted 120B path
+remains an exact selective depth/verification tier at 0.0515 genuine token/s.
+The next stage is the heterogeneous completed-task architecture: use the
+promoted resident small-model path for interactive generation, escalate only
+ambiguous or policy-critical cases to 120B, and measure end-to-end successful
+tasks/hour, user latency, escalation rate and frozen quality. Keep the
+approximately 24 token/s promoted resident result separate from the roughly
+40 token/s bounded hybrid evidence and from the 120B rate.
