@@ -57,7 +57,7 @@ def main()->None:
     if a.l2_cartridge_plan and not a.persistent_l2_root: raise SystemExit('L2 cartridge requires persistent L2')
     if a.route_arena_l1_hotset and not (a.reusable_arena_persistent_l2 and a.l2_cartridge_plan and a.preload_expert_pool): raise SystemExit('route-arena L1 hotset requires reusable arena, cartridge plan and preloaded pool')
     if a.overlap_l2_read_compute and not (a.reusable_arena_persistent_l2 and a.inprocess_finish): raise SystemExit('L2 read/compute overlap requires reusable arena and in-process finish')
-    if a.overlap_l2_read_compute and (a.parallel_moe or a.route_arena_l1_hotset or a.mapped_l2_willneed or a.mapped_l2_parallel_prefault): raise SystemExit('L2 read/compute overlap is incompatible with other expert execution probes')
+    if a.overlap_l2_read_compute and (a.parallel_moe or a.mapped_l2_willneed or a.mapped_l2_parallel_prefault): raise SystemExit('L2 read/compute overlap is incompatible with other expert execution probes')
     if a.overlap_pass_pattern and (not a.overlap_l2_read_compute or len(a.overlap_pass_pattern)!=a.passes or set(a.overlap_pass_pattern)-set('01')): raise SystemExit('overlap pass pattern requires overlap mode and exactly one 0/1 character per pass')
     if a.persistent_l2_root and not a.resident_replay: raise SystemExit('persistent L2 requires resident replay')
     if a.persistent_l2_root and (a.compressed_cache or a.tiered_cache): raise SystemExit('persistent L2 cannot be combined with compressed or tiered cache modes')
@@ -333,6 +333,8 @@ def main()->None:
                             slot,expert=futures[future];value=future.result()
                             if value is None:
                                 store.sd_fallbacks+=1;value=GptOssExpertFrameStore._load_value(store,layer,expert);store._write_l2(layer,expert,value)
+                            if a.route_arena_l1_hotset:
+                                value=store.maybe_admit_route_arena_l1(layer,expert,value)
                             native_ms+=calculate_contribution(slot,value)
                     out=np.empty(WIDTH,dtype=np.float32)
                     status=combine_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),contributions.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),1,out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))

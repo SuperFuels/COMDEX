@@ -700,6 +700,25 @@ class GptOssReusableArenaPersistentL2ExpertFrameStore(
             for layer, experts in layer_experts.items() for expert in experts
         }
 
+    def maybe_admit_route_arena_l1(self, layer: int, expert: int, value):
+        """Copy an allowlisted transient arena value into durable bounded L1."""
+        cache_key = (layer, expert)
+        if cache_key not in self._route_arena_l1_allowlist:
+            return value
+        stable = {
+            projection: {
+                kind: bytes(component)
+                for kind, component in components.items()
+            }
+            for projection, components in value.items()
+        }
+        before = self._resident
+        self._retain(cache_key, stable)
+        if self._resident > before:
+            self.route_arena_l1_admissions += 1
+            self.route_arena_l1_admission_bytes += self._resident - before
+        return stable
+
     def _read_l2_into_slot(self, layer: int, expert: int, slot: int):
         cache_key = (layer, expert)
         if cache_key in self._l2_bypass:
@@ -796,21 +815,7 @@ class GptOssReusableArenaPersistentL2ExpertFrameStore(
                                     thread_name_prefix="aion-gptoss-l2-arena") as pool:
                 loaded = list(pool.map(load, missing))
             for (position, expert), value in zip(missing, loaded, strict=True):
-                cache_key = (layer, expert)
-                if cache_key in self._route_arena_l1_allowlist:
-                    stable = {
-                        projection: {
-                            kind: bytes(component)
-                            for kind, component in components.items()
-                        }
-                        for projection, components in value.items()
-                    }
-                    before = self._resident
-                    self._retain(cache_key, stable)
-                    if self._resident > before:
-                        self.route_arena_l1_admissions += 1
-                        self.route_arena_l1_admission_bytes += self._resident - before
-                        value = stable
+                value = self.maybe_admit_route_arena_l1(layer, expert, value)
                 results[position] = value
         if any(value is None for value in results):
             raise RuntimeError("reusable-arena route remained incomplete")

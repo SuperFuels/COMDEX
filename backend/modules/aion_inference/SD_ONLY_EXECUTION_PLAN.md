@@ -2289,3 +2289,33 @@ two-family result, not merely arithmetic-specific.  Extraction canonical/file
 SHA-256:
 `180d4ec6595450dd4da79ee6c6ec3ad6381e54b1e380d6242f9fac42032dddc6` /
 `2ca647e49f037a91a9ca1dec7b0d440b992c03670d92651d302aa2c05afb779f`.
+
+### Exact response reuse frontier and sub-GiB memory cliff (2026-09-11)
+
+Response-only analysis after removing the existing exact RAM pools found a
+hard first-touch floor.  Arithmetic delivered 36.1665 GiB across 33 response
+positions, but 14.6394 GiB was unique first-touch demand; eliminating 50% would
+require 4.7029 GiB of extra resident experts.  Extraction delivered 23.2675
+GiB, with a 12.6891 GiB first-touch floor, so even unlimited within-response
+retention could remove only 45.46%.  Weighted p50/p95 reuse distances were
+3.22/10.81 GiB arithmetic and 2.06/8.61 GiB extraction.
+
+Six-component retention was materially identical to whole-expert retention:
+its advantage was about 0.10 percentage points at 0.5 GiB and below 0.004
+points at 4 GiB.  Stop component-granularity caching.
+
+The live 0.5 GiB hotset plus overlap test admitted exactly 40 experts and cut
+settled L2 delivery 12.51%, from 45,129,243,480 to 39,483,117,864 bytes.  It
+remained fully exact with zero settled SD fallbacks, but median throughput fell
+from 1.72455 to 1.50127 token/s, a 12.95% regression.  Stop the unrun 1.0 GiB
+candidate and all additional RAM expert hotsets on this 18 GB Mac.  The next
+exact architecture must reduce transient delivery or consume a lossless packed
+representation with bounded scratch space; it cannot enlarge durable expert
+residency.
+
+Offline frontier canonical/file SHA-256:
+`8c2821c48a7acd28c5327eefdbd0832923ee8daa3f941479ec2e6cbf90046401` /
+`5f4f404074a9735cbae82b4345ca44a96295f4870f71d071f4ac8dcf30719045`.
+Live boundary canonical/file SHA-256:
+`b476d87e10a10f35c2f7591ea3a3c126fb0a9ece24071d01fb896967cfcb553d` /
+`f89a2936c38998359ededd0534aae4adc39a3bcf4abb4f581cdc522389f22a2d`.

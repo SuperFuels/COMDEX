@@ -516,6 +516,32 @@ def test_reusable_route_arena_admits_only_declared_l1_hotset(tmp_path):
     assert metrics["hits"] == 1
 
 
+def test_reusable_route_arena_direct_hotset_admission_is_idempotent(tmp_path):
+    regions = []
+    expected = {}
+    for index, (projection, kind) in enumerate(
+            (p, k) for p in ("gate", "up", "down") for k in ("weight", "bias")):
+        raw = f"0-{projection}-{kind}".encode() * 100
+        expected.setdefault(projection, {})[kind] = raw
+        regions.append(_region(tmp_path, index,
+                               f"blk.0.ffn_{projection}_exps.{kind}", raw))
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({
+        "schema": "aion.expert-frame-warehouse.v1",
+        "status": "COMPLETE_VERIFIED", "regions": regions,
+    }))
+    hot_size = sum(len(component) for components in expected.values()
+                   for component in components.values())
+    arena = GptOssReusableArenaPersistentL2ExpertFrameStore(
+        manifest_path, hot_size, tmp_path / "l2", 1024 * 1024)
+    arena.set_route_arena_l1_allowlist({"0": [0]})
+    first = arena.maybe_admit_route_arena_l1(0, 0, expected)
+    second = arena.maybe_admit_route_arena_l1(0, 0, expected)
+    assert first == expected
+    assert second == expected
+    assert arena.metrics()["route_arena_l1_admissions"] == 1
+
+
 def test_component_pointer_array_uses_buffer_without_copy():
     raw = bytearray(b"mapped-packed-weight")
     view = memoryview(raw)
