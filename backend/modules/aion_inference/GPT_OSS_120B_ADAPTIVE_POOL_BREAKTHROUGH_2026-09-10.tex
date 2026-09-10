@@ -478,3 +478,41 @@ or injection has occurred.  Dataset-manifest canonical SHA-256 is
 \texttt{d9896a4188b9a8d4ca1ff1af84cbd7904a5775acb562f26fdc5520d35f2768a8},
 with identical local/SD file SHA-256
 \texttt{51332ef74510ebe10873bbf6df0398a210f191d5d60cb48eeb021b9f112a4fa2}.
+
+\subsection{Shadow target capture and fallback-evaluator readiness}
+
+The governed 120B runner now supports a v2 numerical capture row containing
+the post-attention FFN input, router input, unrestricted route and gates,
+complete layer output, and the observable F32 combined four-expert residual.
+Every blob is SHA-256 bound to metadata that also identifies the warehouse
+manifest, both verified model shards, implementation and arithmetic precision.
+No prompt text or personal/customer data is stored.
+
+The dataset builder now refuses readiness unless every row has a verified
+residual target and at least four family-disjoint splits exist.  A separate
+frozen evaluator verifies target, prediction and confidence-receipt hashes,
+measures held-out relative $L_2$ error, applies a declared rejection threshold,
+and simulates fallback to the unchanged exact SD path.  Its focused oracle test
+passed: two exact holdout predictions still imply only a conservative
+2$\times$ demonstrated traffic bound and therefore correctly fail the locked
+10$\times$ mechanism gate.  The historical 16-row v1 corpus remains
+\texttt{INSUFFICIENT\_FAMILY\_COVERAGE} and contains zero target-bearing rows.
+The re-audit has canonical SHA-256
+\texttt{423eeb80778e8762e7db8d0c9543bc23154f29c14d034a54d5116efd7e115403}
+and local result file SHA-256
+\texttt{a8cd38dda08cb49aa5f3ebd83e71fb661f4bef6b948e0919a7468fdda0109a2e}.
+No derived weights were trained or injected.
+
+The v2 path was then exercised on a genuine 120B pass.  A BOS family traversed
+all 36 layers in two executions with identical routes, final hidden state and
+logits.  Layers 0, 12, 24 and 35 produced 4/4 verified residual-target rows.
+The capture report has canonical SHA-256
+\texttt{cf3aebf7fc00f6cd3e6b6e724923802e676f8ea04191c0390db00f17eeb1205a}
+and identical local/SD file SHA-256
+\texttt{5f1f8e097d522c04cf77b6f8e71286e3a606a450a8e29ee559f1caadd9282789}.
+The target-manifest canonical SHA-256 is
+\texttt{da0cfd31c517b1269f5f15487c6cfa0f7e01fadd6ca69052bc3522bd76285a54},
+with identical local/SD file SHA-256
+\texttt{bc7ccb7700370cbcf6babcabc3aea0582d5eec139ce778271938f9b1458fccfe}.
+It remains \texttt{INSUFFICIENT\_FAMILY\_COVERAGE}; real target collection is
+working, but one family cannot support a learning or generalization claim.

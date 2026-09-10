@@ -1,0 +1,383 @@
+{
+  "all_records_have_verified_targets": false,
+  "canonical_sha256": "423eeb80778e8762e7db8d0c9543bc23154f29c14d034a54d5116efd7e115403",
+  "claim_boundary": "This manifest verifies numerical capture files and freezes a family-disjoint split. Readiness additionally requires a verified combined-residual target for every row. This manifest authorizes no training or weight injection.",
+  "contains_personal_or_customer_data": false,
+  "contains_prompt_text": false,
+  "created_at": "2026-09-10T10:00:13.218359+00:00",
+  "cross_family_activation_hash_collisions": [],
+  "families": [
+    {
+      "capture_directory": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910",
+      "family_id": "bos_two_token",
+      "record_count": 16,
+      "records": [
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-0-ffn.bin",
+          "ffn_sha256": "97e070bbb19ecd010d8c8c243e6b42d2f01aafc7f985b9410baf2ed81123dddb",
+          "gates": [
+            0.35435001892133555,
+            0.23256869298351415,
+            0.21423559121209743,
+            0.19884569688305279
+          ],
+          "layer": 0,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-0.json",
+          "metadata_sha256": "0a8941f7f3f5f39a24d8383703b28929def0e1edeb9f57f5f0d6e9dec4a9310f",
+          "position": 0,
+          "route": [
+            83,
+            84,
+            30,
+            7
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-0-router.bin",
+          "router_sha256": "e0b3ff5d0648aa9d05f2bf9e929402e3efe3061d5172a4da867bf647e31c968b"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-10-ffn.bin",
+          "ffn_sha256": "6fd9db6c27148f99d512879184ac1cfc6ea5e8cc72d323aee3d301dd50d00d6a",
+          "gates": [
+            0.5637496378736613,
+            0.18566466779771348,
+            0.1402515005367609,
+            0.11033419379186439
+          ],
+          "layer": 10,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-10.json",
+          "metadata_sha256": "c514c38c446b5ca753f35d6ddef091587d09978fefdd74dbed11bf9943645601",
+          "position": 0,
+          "route": [
+            20,
+            41,
+            80,
+            74
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-10-router.bin",
+          "router_sha256": "337f8dcbe7df837cba34eb5d8a829fee17092159aea3a662c75ab7868359c39c"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-15-ffn.bin",
+          "ffn_sha256": "25a1fd32d7d600971c2e73d06a66ee29e936cca189f284f20344611218cd0b06",
+          "gates": [
+            0.34534183784444783,
+            0.3207730421844909,
+            0.1751860617021615,
+            0.1586990582688999
+          ],
+          "layer": 15,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-15.json",
+          "metadata_sha256": "9d2c96fa50ea24b844b6296e4ddb6b600de30e278cf922f767549c062caa9a41",
+          "position": 0,
+          "route": [
+            33,
+            124,
+            26,
+            100
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-15-router.bin",
+          "router_sha256": "7642108bccec14a7da22d052fa54c995c26f5ac931e4cc752d8781af3c1aeb73"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-20-ffn.bin",
+          "ffn_sha256": "b00a648fcf2b213b7ca5f68380f111eb280a20df11c0f90df9018ef20021df43",
+          "gates": [
+            0.2775917946947535,
+            0.2754798284197947,
+            0.24855682237249266,
+            0.19837155451295932
+          ],
+          "layer": 20,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-20.json",
+          "metadata_sha256": "898e99d6338d406d630846c32d9b5c4fcf22bdc53c65ec7f2eff74a094d15464",
+          "position": 0,
+          "route": [
+            51,
+            9,
+            104,
+            59
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-20-router.bin",
+          "router_sha256": "e136c18c6b355fb7875a4a2ba58cd0606782485029564f94fccd6a9dd6bf9986"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-25-ffn.bin",
+          "ffn_sha256": "cb3a61e5be06492364285a2558f67be1268b82500ac5009710ce5e9b8ff54a54",
+          "gates": [
+            0.3039487484272479,
+            0.2659922676425329,
+            0.22111619013746286,
+            0.2089427937927565
+          ],
+          "layer": 25,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-25.json",
+          "metadata_sha256": "2e737fa683c284ad5b349994600c23204252f85fa006415e3767bdd3178e73b6",
+          "position": 0,
+          "route": [
+            7,
+            89,
+            37,
+            68
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-25-router.bin",
+          "router_sha256": "0ad355d1e7594a474c61a1469b92fc34bf2b7dd6383568519cfe6e14b9beb826"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-30-ffn.bin",
+          "ffn_sha256": "bf5c8d67fb67fe920d36726ba8cc7919f70dafaa39fb72b9a4d2df3b7b328be0",
+          "gates": [
+            0.34781827899404943,
+            0.22277541722069788,
+            0.22072439388488188,
+            0.20868190990037086
+          ],
+          "layer": 30,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-30.json",
+          "metadata_sha256": "32c26a4d90e75ba4ef20b2f2a33fcc3c0b88183e18055ac5e71552eb31161e11",
+          "position": 0,
+          "route": [
+            66,
+            88,
+            117,
+            26
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-30-router.bin",
+          "router_sha256": "71610b558d2fa8e1cf275601e6bad0a46263005a575746c8b81793f455c729e2"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-35-ffn.bin",
+          "ffn_sha256": "fb2756abbe205133969a4543fe32d93599395e3fe1e27cef654fe03a9457dad8",
+          "gates": [
+            0.3539880615430974,
+            0.2736292214809755,
+            0.19792816449707473,
+            0.17445455247885233
+          ],
+          "layer": 35,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-35.json",
+          "metadata_sha256": "d47f74db4ba5cd19b60f2ce979711457dda0f2e6ce921dc0acb3983fd8813325",
+          "position": 0,
+          "route": [
+            111,
+            98,
+            76,
+            116
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-35-router.bin",
+          "router_sha256": "2f5e8485ce567a744728da53f552ba0f44ad17632aefa086917cc389039b855f"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-5-ffn.bin",
+          "ffn_sha256": "c8a0b65649d608b3c99d3c893f8c55a3fac0a4a96a1460cc0edb658b278d5b24",
+          "gates": [
+            0.5831418937832429,
+            0.20896623203876125,
+            0.1158000592009165,
+            0.09209181497707948
+          ],
+          "layer": 5,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-5.json",
+          "metadata_sha256": "8a0333351a5a0f11faa6d1d6ca826c516bdea0b645b308787c536ac14f2b4acc",
+          "position": 0,
+          "route": [
+            111,
+            29,
+            6,
+            44
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-0-layer-5-router.bin",
+          "router_sha256": "bc54095da65b46fd9a94e668df969962275e53bb33181576350538493cda7e71"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-0-ffn.bin",
+          "ffn_sha256": "585f666d60d407f6c4109e8572c7b0afb29229d9974a3cfda8424a14940dc13b",
+          "gates": [
+            0.3820763232628945,
+            0.3495023381841216,
+            0.13847864515480895,
+            0.12994269339817507
+          ],
+          "layer": 0,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-0.json",
+          "metadata_sha256": "8f879bae02ff828dce54d07295373a46638d75de503424a426dc3e4503b2356e",
+          "position": 1,
+          "route": [
+            8,
+            82,
+            87,
+            63
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-0-router.bin",
+          "router_sha256": "ede110c5b0128a81d246da46fb07945068dab8053365241641c968fc23064627"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-10-ffn.bin",
+          "ffn_sha256": "0d3de80cfc5e400ad7d05694fea46f5241024eab4dd254ea22f4810ea755d2b0",
+          "gates": [
+            0.40094169293765647,
+            0.21414739151248735,
+            0.20798386662030932,
+            0.1769270489295469
+          ],
+          "layer": 10,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-10.json",
+          "metadata_sha256": "8037a2f9a07c83fe4b051f4b279d7cfed370d7d053224461569d18801201de12",
+          "position": 1,
+          "route": [
+            97,
+            60,
+            72,
+            75
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-10-router.bin",
+          "router_sha256": "140eb658ea9b480b47429729c43f1afbf7a74f1486f38f967abeb7497814e115"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-15-ffn.bin",
+          "ffn_sha256": "721a35c3575bea9f1f72a5193b3544a5670c0e9071886597b5e68421299028e8",
+          "gates": [
+            0.4387242656273836,
+            0.19793417674587696,
+            0.19468895578828493,
+            0.16865260183845432
+          ],
+          "layer": 15,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-15.json",
+          "metadata_sha256": "6de12e37784d8a7a9037bc1a7a1f108fec7ed423241be3d6215b2cc18fda7cd9",
+          "position": 1,
+          "route": [
+            100,
+            33,
+            64,
+            30
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-15-router.bin",
+          "router_sha256": "58c3c78e81e6c2ab3f30016c0538ca55103992199f9473e9f668719c4298a8b1"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-20-ffn.bin",
+          "ffn_sha256": "0400dbbf27ea5f2f438e847dc414f6d29aae2e901904776071751f00f5c9a3fa",
+          "gates": [
+            0.26410567235117316,
+            0.2558630722892265,
+            0.24463572387849433,
+            0.23539553148110587
+          ],
+          "layer": 20,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-20.json",
+          "metadata_sha256": "88f3084df89a4ebd3cb3a7642367d7f420c3c6e8349f13369418271049172c13",
+          "position": 1,
+          "route": [
+            20,
+            12,
+            95,
+            51
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-20-router.bin",
+          "router_sha256": "302c1c8a208dc7031b82756470712281aca9aae087576721b58f0b6bc7895370"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-25-ffn.bin",
+          "ffn_sha256": "e575aa0baa9990b86b3600aa498d49538857ef481c660ecc2800c53b34ba2fd9",
+          "gates": [
+            0.2866778390790323,
+            0.25479902395971377,
+            0.22995706978575112,
+            0.2285660671755028
+          ],
+          "layer": 25,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-25.json",
+          "metadata_sha256": "f2119663c499fea7938a15fbca57532b33b3e707060c0dd749575e6895547ff6",
+          "position": 1,
+          "route": [
+            63,
+            66,
+            107,
+            76
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-25-router.bin",
+          "router_sha256": "b2ca67e65b33e732e10e96a3bab2cc86d1b621d9002396d87599a91f1af52d2a"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-30-ffn.bin",
+          "ffn_sha256": "49151183cd202e55f44564c62a01f7ca5474bc38d90d9843ba7772d7203ec294",
+          "gates": [
+            0.45449831898830706,
+            0.18535761342027512,
+            0.18521834828066375,
+            0.17492571931075418
+          ],
+          "layer": 30,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-30.json",
+          "metadata_sha256": "cae3e8049db8b9d2c865674bf024ccab3c606bd26bc15d29cad4253d583275b5",
+          "position": 1,
+          "route": [
+            63,
+            87,
+            33,
+            88
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-30-router.bin",
+          "router_sha256": "49b968c9a9f7624899fcd90d5a9672f3bdf6f0ff420b483d3f8bb41d993b69cd"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-35-ffn.bin",
+          "ffn_sha256": "17ba018cd614decff95cfcf1c730718dd569bb1898d32b7ad3bf9da54d2706c9",
+          "gates": [
+            0.34431484658393674,
+            0.2935203387922203,
+            0.21852404949862017,
+            0.14364076512522267
+          ],
+          "layer": 35,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-35.json",
+          "metadata_sha256": "e01f3cdbeeee9211092eea17cbc1ffecef002410c4d0a7071bec6718c18798ce",
+          "position": 1,
+          "route": [
+            126,
+            52,
+            99,
+            34
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-35-router.bin",
+          "router_sha256": "d21adb2be5689b4555e905daa045ce3d466ee605c6585df64ec38ee363c51090"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-5-ffn.bin",
+          "ffn_sha256": "7f0e203915fad3b1822e2bd8278e9fa2ee927703d9532f9c79c4a3ab11f570af",
+          "gates": [
+            0.5301801287459855,
+            0.1843439896977694,
+            0.15370940411699965,
+            0.1317664774392455
+          ],
+          "layer": 5,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-5.json",
+          "metadata_sha256": "11fe96de1c79a1da2ec37d75e40612d8ea116c23b7fa76616273f66c71b0f419",
+          "position": 1,
+          "route": [
+            29,
+            14,
+            44,
+            126
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_real_activations_20260910/position-1-layer-5-router.bin",
+          "router_sha256": "e44e58042087e927c1406695f59a16a400a71d7279c086af10edb6f353372891"
+        }
+      ]
+    }
+  ],
+  "family_disjoint_split": {
+    "calibration": [],
+    "numerical_holdout": [],
+    "semantic_holdout": [],
+    "train": [
+      "bos_two_token"
+    ]
+  },
+  "minimum_required_families": 4,
+  "schema": "aion.shadow-expert-dataset-manifest.v1",
+  "status": "INSUFFICIENT_FAMILY_COVERAGE",
+  "target_record_count": 0,
+  "training_authorized": false
+}

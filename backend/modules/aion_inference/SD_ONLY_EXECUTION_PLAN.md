@@ -1935,3 +1935,42 @@ This closes naive whole-expert omission, activation-block omission and exact
 packed-weight sparsification. The next order-of-magnitude model path requires
 a learned/distilled representation or another changed architecture and may not
 start without explicit authorization to train or inject derived weights.
+
+### Shadow target capture and exact-fallback evaluator readiness (2026-09-10)
+
+The governed readiness path now records a complete hash-bound target row from
+the live 120B runner: post-attention FFN input, router input, unrestricted route
+and gates, complete layer output, and the F32 observable combined four-expert
+residual. Metadata binds the warehouse manifest, both verified source-model
+shards, implementation and precision. Prompt text and personal/customer data
+are explicitly excluded.
+
+The manifest builder now requires every row to carry a verified residual target
+in addition to four family-disjoint splits. A frozen evaluator verifies target,
+prediction and confidence-receipt hashes, measures held-out relative L2 error,
+applies a predeclared confidence rejection threshold and models fallback to the
+unchanged exact SD route. A focused synthetic readiness test passed and confirms
+that two perfect holdout predictions still fail the 10x traffic gate; a tiny
+oracle corpus therefore cannot be promoted. The existing 16-row v1 corpus was
+re-audited as `INSUFFICIENT_FAMILY_COVERAGE` with zero target-bearing rows.
+Readiness canonical SHA-256:
+`423eeb80778e8762e7db8d0c9543bc23154f29c14d034a54d5116efd7e115403`.
+Local result file SHA-256:
+`a8cd38dda08cb49aa5f3ebd83e71fb661f4bef6b948e0919a7468fdda0109a2e`.
+No Shadow Expert weights have been trained or injected; explicit authorization
+remains required before that boundary.
+
+The v2 capture was then validated on the real 120B execution path. One BOS
+family traversed all 36 layers twice; routes, final hidden state and logits were
+bitwise repeatable. Layers 0, 12, 24 and 35 yielded 4/4 hash-verified target
+rows, each with the complete F32 layer output and combined residual. The
+capture-run canonical SHA-256 is
+`cf3aebf7fc00f6cd3e6b6e724923802e676f8ea04191c0390db00f17eeb1205a`;
+identical local/SD file SHA-256 is
+`5f1f8e097d522c04cf77b6f8e71286e3a606a450a8e29ee559f1caadd9282789`.
+The target-manifest canonical SHA-256 is
+`da0cfd31c517b1269f5f15487c6cfa0f7e01fadd6ca69052bc3522bd76285a54`;
+identical local/SD file SHA-256 is
+`bc7ccb7700370cbcf6babcabc3aea0582d5eec139ce778271938f9b1458fccfe`.
+Its status remains `INSUFFICIENT_FAMILY_COVERAGE`: this proves the capture
+plumbing against genuine 120B arithmetic but makes no learning or quality claim.

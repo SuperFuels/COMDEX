@@ -208,13 +208,10 @@ def main()->None:
                 route_pool_complete=(expert_pool is not None and
                                      all(expert in expert_pool['layers'][str(layer)] for expert in route))
                 sel=logits[route].astype(np.float64);sel-=sel.max();gates=np.exp(sel);gates/=gates.sum()
+                capture_stem=None
                 if (a.activation_capture_dir and label=='a'
                         and position in capture_positions and layer in capture_layers):
-                    stem=a.activation_capture_dir/f'position-{position}-layer-{layer}'
-                    ffn_bytes=np.asarray(ffn_result,dtype='<f4').tobytes();router_bytes=np.asarray(router_result,dtype='<f4').tobytes()
-                    Path(str(stem)+'-ffn.bin').write_bytes(ffn_bytes);Path(str(stem)+'-router.bin').write_bytes(router_bytes)
-                    metadata={'schema':'aion.gptoss-120b-real-activation-capture.v1','position':position,'layer':layer,'route':route,'gates':gates.tolist(),'ffn_sha256':hashlib.sha256(ffn_bytes).hexdigest(),'router_sha256':hashlib.sha256(router_bytes).hexdigest()}
-                    Path(str(stem)+'.json').write_text(json.dumps(metadata,indent=2,sort_keys=True)+'\n')
+                    capture_stem=a.activation_capture_dir/f'position-{position}-layer-{layer}'
                 load_started=time.perf_counter();values=store.get_layer_route_parallel(layer,route,workers=4);load_seconds=time.perf_counter()-load_started
                 expert_stage_started=time.perf_counter()
                 if not a.inprocess_finish:
@@ -235,6 +232,38 @@ def main()->None:
                 else:
                     finish=json.loads(subprocess.check_output([str(exe['finish']),str(layer_root),','.join(map(str,route)),','.join(f'{x:.9g}' for x in gates),str(ffn_path),str(router_path),str(next_hidden),str(a.threads)],text=True))
                 finish_seconds=time.perf_counter()-finish_started
+                if capture_stem is not None:
+                    output_values=(out if a.inprocess_finish else
+                                   np.fromfile(next_hidden,dtype='<f4'))
+                    ffn_capture=np.asarray(ffn_result,dtype='<f4')
+                    router_capture=np.asarray(router_result,dtype='<f4')
+                    output_capture=np.asarray(output_values,dtype='<f4')
+                    # Store the observable four-expert contribution in F32.  The
+                    # original output is retained too, allowing independent
+                    # verification that target + residual input reconstructs it
+                    # within the declared F32 subtraction/addition boundary.
+                    residual_capture=np.asarray(output_capture-ffn_capture,dtype='<f4')
+                    blobs={'ffn':ffn_capture.tobytes(),'router':router_capture.tobytes(),
+                           'output':output_capture.tobytes(),'residual':residual_capture.tobytes()}
+                    for name,value in blobs.items():
+                        Path(str(capture_stem)+f'-{name}.bin').write_bytes(value)
+                    metadata={
+                        'schema':'aion.gptoss-120b-shadow-target-capture.v2',
+                        'position':position,'layer':layer,'route':route,'gates':gates.tolist(),
+                        **{f'{name}_sha256':hashlib.sha256(value).hexdigest()
+                           for name,value in blobs.items()},
+                        'target_definition':'F32 layer output minus F32 post-attention residual input',
+                        'warehouse_manifest_canonical_sha256':manifest.get('canonical_sha256'),
+                        'source_model_shards':[
+                            {'name':source['name'],'sha256':source['verified_sha256']}
+                            for source in sources],
+                        'collection_implementation':'run_aion_gptoss_first_token_gate.py',
+                        'collection_precision':'GGML MXFP4 expert arithmetic with F32 accumulation/output',
+                        'contains_prompt_text':False,
+                        'contains_personal_or_customer_data':False,
+                    }
+                    Path(str(capture_stem)+'.json').write_text(
+                        json.dumps(metadata,indent=2,sort_keys=True)+'\n')
                 layer_output_sha=(hashlib.sha256(current_values.tobytes()).hexdigest()
                                   if a.inmemory_layer_flow else sha(next_hidden))
                 layers.append({'layer':layer,'route':route,'gates':gates.tolist(),'route_pool_complete':route_pool_complete,'shared_load_seconds':shared_seconds,'expert_load_seconds':load_seconds,'expert_file_stage_seconds':expert_stage_seconds,'attention_process_seconds':attention_seconds,'finish_process_seconds':finish_seconds,'attention':attn,'finish':finish,'output_sha256':layer_output_sha})

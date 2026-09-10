@@ -41,12 +41,25 @@ def main() -> int:
                 leakage.append({"activation_sha256": activation_key,
                                 "families": sorted({seen_hashes[activation_key], family_id})})
             seen_hashes[activation_key] = family_id
-            records.append({"position": metadata["position"], "layer": metadata["layer"],
+            record = {"position": metadata["position"], "layer": metadata["layer"],
                             "route": metadata["route"], "gates": metadata["gates"],
                             "metadata_path": str(metadata_path),
                             "metadata_sha256": digest(metadata_path),
                             "ffn_path": str(ffn_path), "ffn_sha256": metadata["ffn_sha256"],
-                            "router_path": str(router_path), "router_sha256": metadata["router_sha256"]})
+                            "router_path": str(router_path), "router_sha256": metadata["router_sha256"]}
+            if metadata.get("schema") == "aion.gptoss-120b-shadow-target-capture.v2":
+                if metadata.get("contains_prompt_text") is not False:
+                    raise RuntimeError("shadow capture does not explicitly exclude prompt text")
+                if metadata.get("contains_personal_or_customer_data") is not False:
+                    raise RuntimeError("shadow capture does not explicitly exclude personal/customer data")
+                for name in ("output", "residual"):
+                    path = Path(str(stem) + f"-{name}.bin")
+                    if digest(path) != metadata[f"{name}_sha256"]:
+                        raise RuntimeError(f"{name} target failed hash verification")
+                    record[f"{name}_path"] = str(path)
+                    record[f"{name}_sha256"] = metadata[f"{name}_sha256"]
+                record["target_definition"] = metadata["target_definition"]
+            records.append(record)
         families.append({"family_id": family_id, "capture_directory": str(directory),
                          "records": records, "record_count": len(records)})
     family_ids = sorted(item["family_id"] for item in families)
@@ -56,19 +69,32 @@ def main() -> int:
     split = {name: [] for name in split_names}
     for index, family_id in enumerate(family_ids):
         split[split_names[index % len(split_names)]].append(family_id)
-    ready = len(family_ids) >= 4 and not leakage and all(split.values())
+    target_records = sum("residual_sha256" in record for family in families
+                         for record in family["records"])
+    total_records = sum(family["record_count"] for family in families)
+    if len(family_ids) < 4 or not all(split.values()):
+        status = "INSUFFICIENT_FAMILY_COVERAGE"
+    elif leakage:
+        status = "CROSS_FAMILY_ACTIVATION_LEAKAGE"
+    elif target_records != total_records or total_records == 0:
+        status = "INSUFFICIENT_TARGET_COVERAGE"
+    else:
+        status = "READY_FOR_AUTHORIZED_TRAINING"
     report = {
         "schema": "aion.shadow-expert-dataset-manifest.v1",
-        "status": "READY_FOR_AUTHORIZED_TRAINING" if ready else "INSUFFICIENT_FAMILY_COVERAGE",
+        "status": status,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "contains_prompt_text": False, "contains_personal_or_customer_data": False,
         "families": families, "family_disjoint_split": split,
         "cross_family_activation_hash_collisions": leakage,
+        "target_record_count": target_records,
+        "all_records_have_verified_targets": target_records == total_records and total_records > 0,
         "minimum_required_families": 4,
         "training_authorized": False,
         "claim_boundary": (
             "This manifest verifies numerical capture files and freezes a family-disjoint split. "
-            "It contains no target residuals yet and authorizes no training or weight injection."
+            "Readiness additionally requires a verified combined-residual target for every row. "
+            "This manifest authorizes no training or weight injection."
         ),
     }
     body = json.dumps(report, sort_keys=True, separators=(",", ":"))

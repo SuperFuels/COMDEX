@@ -1,0 +1,139 @@
+{
+  "all_records_have_verified_targets": true,
+  "canonical_sha256": "da0cfd31c517b1269f5f15487c6cfa0f7e01fadd6ca69052bc3522bd76285a54",
+  "claim_boundary": "This manifest verifies numerical capture files and freezes a family-disjoint split. Readiness additionally requires a verified combined-residual target for every row. This manifest authorizes no training or weight injection.",
+  "contains_personal_or_customer_data": false,
+  "contains_prompt_text": false,
+  "created_at": "2026-09-10T10:04:33.536350+00:00",
+  "cross_family_activation_hash_collisions": [],
+  "families": [
+    {
+      "capture_directory": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957",
+      "family_id": "bos_position_zero",
+      "record_count": 4,
+      "records": [
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-0-ffn.bin",
+          "ffn_sha256": "97e070bbb19ecd010d8c8c243e6b42d2f01aafc7f985b9410baf2ed81123dddb",
+          "gates": [
+            0.35435001892133555,
+            0.23256869298351415,
+            0.21423559121209743,
+            0.19884569688305279
+          ],
+          "layer": 0,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-0.json",
+          "metadata_sha256": "349c9cb457d7768eb4f641a6f2b4ca2f3ec3bfbf741bb05cc9618eb66eed6ed3",
+          "output_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-0-output.bin",
+          "output_sha256": "bb83b44acb537ab2c4824a0537c0fc3ae938d9c2ff8d0c681dde79151d554bf8",
+          "position": 0,
+          "residual_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-0-residual.bin",
+          "residual_sha256": "27e56132e560d26452c7f156a64b92434dd0e5a8518b1baa3a3e47e16f277443",
+          "route": [
+            83,
+            84,
+            30,
+            7
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-0-router.bin",
+          "router_sha256": "e0b3ff5d0648aa9d05f2bf9e929402e3efe3061d5172a4da867bf647e31c968b",
+          "target_definition": "F32 layer output minus F32 post-attention residual input"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-12-ffn.bin",
+          "ffn_sha256": "13c0f03dbdd1db230758a5ddb770f15b06a7b3dbfbccd455dea2affeb3cd4338",
+          "gates": [
+            0.41138748346131376,
+            0.3414174536168071,
+            0.1256273185261118,
+            0.12156774439576737
+          ],
+          "layer": 12,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-12.json",
+          "metadata_sha256": "c72ec8b02aef28ccdbd99704b4e748a53e25e4feb37fd7e0aaf82a5c70b379e8",
+          "output_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-12-output.bin",
+          "output_sha256": "6e835ebabb600f314ed9a25cc0819944d0845e4c3a7695d6ed5306e28878510c",
+          "position": 0,
+          "residual_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-12-residual.bin",
+          "residual_sha256": "464f558deaeb205d873e6ad94e4b775391308e8ca2fbfde19fd20d2fd5cfc373",
+          "route": [
+            109,
+            16,
+            86,
+            37
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-12-router.bin",
+          "router_sha256": "90c692aea02a671d95bc28aa550f6d9c6c56b3cb27d3af9ad45a62c96549cad1",
+          "target_definition": "F32 layer output minus F32 post-attention residual input"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-24-ffn.bin",
+          "ffn_sha256": "8d57ae034e036cbc58ca84c230a3eb6b6c4b769eefd5270ae7d2febddb0a691d",
+          "gates": [
+            0.34230720053614366,
+            0.2258183924568259,
+            0.21785003359849642,
+            0.21402437340853417
+          ],
+          "layer": 24,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-24.json",
+          "metadata_sha256": "21a86ac90edd2cdb85d6a768e8e937691cabc21c88e6730dea44e195bf961413",
+          "output_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-24-output.bin",
+          "output_sha256": "3600b5449dce893e44307b8b6228a114a25c494dc33705b69297254c346a9544",
+          "position": 0,
+          "residual_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-24-residual.bin",
+          "residual_sha256": "688c2170270eca763d370e8ac438cee5ad4dca87a119cd64af84e6de57ad442f",
+          "route": [
+            17,
+            113,
+            105,
+            86
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-24-router.bin",
+          "router_sha256": "19442b661e17a61150b74910e99dcaf456c059fb67c2c59b02f78edd9e14e3b6",
+          "target_definition": "F32 layer output minus F32 post-attention residual input"
+        },
+        {
+          "ffn_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-35-ffn.bin",
+          "ffn_sha256": "fb2756abbe205133969a4543fe32d93599395e3fe1e27cef654fe03a9457dad8",
+          "gates": [
+            0.3539880615430974,
+            0.2736292214809755,
+            0.19792816449707473,
+            0.17445455247885233
+          ],
+          "layer": 35,
+          "metadata_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-35.json",
+          "metadata_sha256": "21d95adadb6ce2cbff9c7e526880b54a31f89dc9fa86487a44ddf2fca08742dd",
+          "output_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-35-output.bin",
+          "output_sha256": "0a77ccdf537b4f558e022526517de9385d2d750b1e1c9621050994f9a37581bc",
+          "position": 0,
+          "residual_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-35-residual.bin",
+          "residual_sha256": "c6dcfbe7e8f7d0843fd4cd965e44346ea92e0b7abc8b3a47347993cdfb50785a",
+          "route": [
+            111,
+            98,
+            76,
+            116
+          ],
+          "router_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_capture_bos_20260910T0957/position-0-layer-35-router.bin",
+          "router_sha256": "2f5e8485ce567a744728da53f552ba0f44ad17632aefa086917cc389039b855f",
+          "target_definition": "F32 layer output minus F32 post-attention residual input"
+        }
+      ]
+    }
+  ],
+  "family_disjoint_split": {
+    "calibration": [],
+    "numerical_holdout": [],
+    "semantic_holdout": [],
+    "train": [
+      "bos_position_zero"
+    ]
+  },
+  "minimum_required_families": 4,
+  "schema": "aion.shadow-expert-dataset-manifest.v1",
+  "status": "INSUFFICIENT_FAMILY_COVERAGE",
+  "target_record_count": 4,
+  "training_authorized": false
+}

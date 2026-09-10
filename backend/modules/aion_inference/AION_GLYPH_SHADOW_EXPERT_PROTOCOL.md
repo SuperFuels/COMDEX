@@ -124,3 +124,35 @@ as held-out evidence.
 
 Dataset-manifest canonical SHA-256:
 `d9896a4188b9a8d4ca1ff1af84cbd7904a5775acb562f26fdc5520d35f2768a8`.
+
+## Target capture and fallback evaluator readiness (2026-09-10)
+
+The exact 120B runner now has a v2 capture path that records the post-attention
+FFN input, router input, complete layer output and the observable combined
+four-expert residual. Every numerical blob is SHA-256 bound to its metadata,
+warehouse manifest and verified source-model shard hashes. The record explicitly
+excludes prompt text and personal/customer data. Existing v1 captures remain
+valid historical evidence but cannot be mistaken for training-ready rows because
+they contain no residual targets.
+
+A separate frozen evaluator now verifies the dataset manifest, target and
+candidate hashes, calculates held-out residual error, applies a declared
+confidence threshold, and simulates rejection to the unchanged exact SD path.
+It refuses tiny-corpus promotion: even perfect predictions on two holdout rows
+can demonstrate at most a conservative 2x traffic bound, not the required 10x.
+This completes capture/evaluator plumbing only. No derived weights were trained,
+loaded or injected.
+
+The v2 path was then exercised through all 36 genuine GPT-OSS 120B layers and
+two repeat passes. Routes, final hidden state and logits remained bitwise
+repeatable, and four selected layers produced 4/4 fully verified residual-target
+rows. The capture run canonical SHA-256 is
+`cf3aebf7fc00f6cd3e6b6e724923802e676f8ea04191c0390db00f17eeb1205a`;
+its identical local/SD file SHA-256 is
+`5f1f8e097d522c04cf77b6f8e71286e3a606a450a8e29ee559f1caadd9282789`.
+The resulting target-manifest canonical SHA-256 is
+`da0cfd31c517b1269f5f15487c6cfa0f7e01fadd6ca69052bc3522bd76285a54`;
+its identical local/SD file SHA-256 is
+`bc7ccb7700370cbcf6babcabc3aea0582d5eec139ce778271938f9b1458fccfe`.
+It remains `INSUFFICIENT_FAMILY_COVERAGE`, as designed: a successful single
+family validates collection, not generalization or authorization.
