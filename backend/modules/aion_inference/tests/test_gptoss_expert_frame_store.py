@@ -1,10 +1,15 @@
 import hashlib
 import json
 import subprocess
+import ctypes
 
 from backend.modules.aion_inference.gptoss_expert_frame_store import (
+    ctypes_component_pointer_array,
     GptOssCompressedExpertFrameStore, GptOssExpertFrameStore,
+    GptOssMappedPersistentL2ExpertFrameStore,
+    GptOssPinnedVerifiedPersistentL2ExpertFrameStore,
     GptOssPersistentL2ExpertFrameStore,
+    GptOssReusableArenaPersistentL2ExpertFrameStore,
 )
 
 
@@ -283,3 +288,164 @@ def test_persistent_l2_bypass_avoids_duplicate_disk_frame(tmp_path):
     assert metrics["l2_bypass_entries"] == 1
     assert metrics["l2_entries"] == 0
     assert metrics["l2_bytes_written"] == 0
+
+
+def test_mapped_l2_verifies_once_then_reuses_views_without_materializing(tmp_path):
+    regions = []
+    expected = {}
+    for index, (projection, kind) in enumerate(
+            (p, k) for p in ("gate", "up", "down") for k in ("weight", "bias")):
+        raw = f"{projection}-{kind}".encode() * 100
+        expected.setdefault(projection, {})[kind] = raw
+        regions.append(_region(tmp_path, index,
+                               f"blk.0.ffn_{projection}_exps.{kind}", raw))
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1",
+                                         "status": "COMPLETE_VERIFIED", "regions": regions}))
+    l2_root = tmp_path / "l2"
+    populate = GptOssPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    assert populate.get(0, 0) == expected
+    mapped = GptOssMappedPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    first = mapped.get(0, 0)
+    second = mapped.get(0, 0)
+    assert first == expected
+    assert second == expected
+    assert isinstance(first["gate"]["weight"], memoryview)
+    metrics = mapped.metrics()
+    assert metrics["l2_verification_passes"] == 1
+    assert metrics["l2_verification_reuses"] == 1
+    assert metrics["raw_bytes_materialized"] == 0
+    assert metrics["mapped_l2_hits"] == 2
+
+
+def test_new_mapped_store_revalidates_changed_file_and_repairs_from_sd(tmp_path):
+    regions = []
+    expected = {}
+    for index, (projection, kind) in enumerate(
+            (p, k) for p in ("gate", "up", "down") for k in ("weight", "bias")):
+        raw = f"{projection}-{kind}".encode() * 100
+        expected.setdefault(projection, {})[kind] = raw
+        regions.append(_region(tmp_path, index,
+                               f"blk.0.ffn_{projection}_exps.{kind}", raw))
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1",
+                                         "status": "COMPLETE_VERIFIED", "regions": regions}))
+    l2_root = tmp_path / "l2"
+    populate = GptOssPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    assert populate.get(0, 0) == expected
+    mapped = GptOssMappedPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    value = mapped.get(0, 0)
+    assert value == expected
+    del value
+    frame = next(l2_root.rglob("*.aionraw"))
+    payload = bytearray(frame.read_bytes())
+    payload[-1] ^= 0xFF
+    frame.write_bytes(payload)
+    del mapped
+    reopened = GptOssMappedPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    assert reopened.get(0, 0) == expected
+    metrics = reopened.metrics()
+    assert metrics["l2_integrity_failures"] == 1
+    assert metrics["sd_fallbacks"] == 1
+
+
+def test_pinned_verified_l2_hashes_once_but_keeps_bulk_copies(tmp_path):
+    regions = []
+    expected = {}
+    for index, (projection, kind) in enumerate(
+            (p, k) for p in ("gate", "up", "down") for k in ("weight", "bias")):
+        raw = f"{projection}-{kind}".encode() * 100
+        expected.setdefault(projection, {})[kind] = raw
+        regions.append(_region(tmp_path, index,
+                               f"blk.0.ffn_{projection}_exps.{kind}", raw))
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1",
+                                         "status": "COMPLETE_VERIFIED", "regions": regions}))
+    l2_root = tmp_path / "l2"
+    populate = GptOssPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    assert populate.get(0, 0) == expected
+    pinned = GptOssPinnedVerifiedPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    assert pinned.get(0, 0) == expected
+    assert pinned.get(0, 0) == expected
+    metrics = pinned.metrics()
+    assert metrics["l2_verification_passes"] == 1
+    assert metrics["l2_verification_reuses"] == 1
+    assert metrics["l2_hits"] == 2
+    assert metrics["raw_bytes_materialized"] > 0
+
+
+def test_new_pinned_verified_store_revalidates_and_repairs_corruption(tmp_path):
+    regions = []
+    expected = {}
+    for index, (projection, kind) in enumerate(
+            (p, k) for p in ("gate", "up", "down") for k in ("weight", "bias")):
+        raw = f"{projection}-{kind}".encode() * 100
+        expected.setdefault(projection, {})[kind] = raw
+        regions.append(_region(tmp_path, index,
+                               f"blk.0.ffn_{projection}_exps.{kind}", raw))
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1",
+                                         "status": "COMPLETE_VERIFIED", "regions": regions}))
+    l2_root = tmp_path / "l2"
+    populate = GptOssPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    assert populate.get(0, 0) == expected
+    frame = next(l2_root.rglob("*.aionraw"))
+    payload = bytearray(frame.read_bytes())
+    payload[-1] ^= 0xFF
+    frame.write_bytes(payload)
+    reopened = GptOssPinnedVerifiedPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    assert reopened.get(0, 0) == expected
+    metrics = reopened.metrics()
+    assert metrics["l2_integrity_failures"] == 1
+    assert metrics["sd_fallbacks"] == 1
+
+
+def test_reusable_route_arena_returns_exact_writable_views(tmp_path):
+    regions = []
+    expected = {}
+    for expert in range(4):
+        expected[expert] = {}
+        for index, (projection, kind) in enumerate(
+                (p, k) for p in ("gate", "up", "down") for k in ("weight", "bias")):
+            raw = f"{expert}-{projection}-{kind}".encode() * 100
+            expected[expert].setdefault(projection, {})[kind] = raw
+            regions.append(_region(tmp_path, expert * 6 + index,
+                                   f"blk.0.ffn_{projection}_exps.{kind}", raw,
+                                   expert=expert))
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1",
+                                         "status": "COMPLETE_VERIFIED", "regions": regions}))
+    l2_root = tmp_path / "l2"
+    populate = GptOssPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    for expert in range(4):
+        assert populate.get(0, expert) == expected[expert]
+    arena = GptOssReusableArenaPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    values = arena.get_layer_route_parallel(0, [0, 1, 2, 3], workers=4)
+    assert values == [expected[index] for index in range(4)]
+    assert all(isinstance(value["gate"]["weight"], memoryview) for value in values)
+    metrics = arena.metrics()
+    assert metrics["route_arena_reads"] == 4
+    assert metrics["l2_verification_passes"] == 4
+    assert metrics["sd_fallbacks"] == 0
+
+
+def test_component_pointer_array_uses_buffer_without_copy():
+    raw = bytearray(b"mapped-packed-weight")
+    view = memoryview(raw)
+    references, pointers = ctypes_component_pointer_array([view, b"bias"])
+    assert ctypes.string_at(pointers[0], len(raw)) == raw
+    assert ctypes.string_at(pointers[1], 4) == b"bias"
+    raw[0] = ord("M")
+    assert ctypes.string_at(pointers[0], len(raw)) == raw
+    assert len(references) == 2

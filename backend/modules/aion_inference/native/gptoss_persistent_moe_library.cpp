@@ -4,9 +4,49 @@
 #include <dlfcn.h>
 #include <thread>
 #include <vector>
+#include <cstdint>
+#include <unistd.h>
 #include "ggml.h"
 
 using compute_function = ggml_status (*)(ggml_context *, ggml_cgraph *, int);
+
+extern "C" int aion_gptoss_prefault_components(
+        const void * const * components, const size_t * component_sizes,
+        int component_count, int workers, uint64_t * checksum,
+        double * elapsed_ms) {
+    if (!components || !component_sizes || !checksum || !elapsed_ms) return 1;
+    if (component_count < 1 || component_count % 6 != 0 || workers < 1) return 2;
+    const int experts = component_count / 6;
+    const int worker_count = std::min(workers, experts);
+    const size_t page_size = static_cast<size_t>(sysconf(_SC_PAGESIZE));
+    if (page_size == 0) return 3;
+    std::vector<uint64_t> partial(worker_count, 0);
+    std::vector<std::thread> threads;
+    const auto begin = std::chrono::steady_clock::now();
+    for (int worker = 0; worker < worker_count; ++worker) {
+        threads.emplace_back([&, worker]() {
+            uint64_t sum = 0;
+            for (int expert = worker; expert < experts; expert += worker_count) {
+                for (int component = expert * 6; component < expert * 6 + 6; ++component) {
+                    const auto * bytes = static_cast<const volatile uint8_t *>(
+                        components[component]);
+                    const size_t size = component_sizes[component];
+                    for (size_t offset = 0; offset < size; offset += page_size)
+                        sum += bytes[offset];
+                    if (size > 0) sum += bytes[size - 1];
+                }
+            }
+            partial[worker] = sum;
+        });
+    }
+    for (auto & thread : threads) thread.join();
+    uint64_t sum = 0;
+    for (const auto value : partial) sum += value;
+    *checksum = sum;
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    return 0;
+}
 
 extern "C" int aion_gptoss_moe_finish(
         const float * ffn_input_values, const float * router_input_values,

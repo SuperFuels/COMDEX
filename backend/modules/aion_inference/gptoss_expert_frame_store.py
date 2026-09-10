@@ -6,6 +6,7 @@ import ctypes
 import ctypes.util
 import hashlib
 import json
+import mmap
 import os
 import re
 import struct
@@ -375,6 +376,424 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
             "sd_fallbacks": self.sd_fallbacks,
             "l2_bypass_entries": len(self._l2_bypass),
         }
+
+
+class GptOssMappedPersistentL2ExpertFrameStore(GptOssPersistentL2ExpertFrameStore):
+    """Expose verified L2 frame components as mmap-backed packed-weight views.
+
+    The first access in a process verifies every component exactly. The
+    resulting private mapping is then a process-lifetime verified snapshot,
+    matching the trust boundary of the raw RAM L1. A new process revalidates
+    the frame. AION modifies frames only by atomic replacement, so a path
+    replacement cannot alter an already admitted mapping. The returned views
+    retain the mapping for as long as native calculation can reference it.
+    """
+
+    def __init__(self, manifest_path: Path, capacity_bytes: int,
+                 l2_root: Path, l2_capacity_bytes: int) -> None:
+        super().__init__(manifest_path, capacity_bytes, l2_root, l2_capacity_bytes)
+        self._verified_l2: dict[tuple[int, int], tuple[int, int, int, int, int]] = {}
+        self._mapped_values: OrderedDict[
+            tuple[int, int],
+            tuple[tuple[int, int, int, int, int], dict[str, dict[str, memoryview]]],
+        ] = OrderedDict()
+        self.mapped_l2_hits = 0
+        self.mapped_l2_view_reuses = 0
+        self.mapped_l2_logical_bytes = 0
+        self.l2_verification_passes = 0
+        self.l2_verification_reuses = 0
+        self.l2_verification_bytes = 0
+        self.mapped_l2_willneed_calls = 0
+
+    @staticmethod
+    def _file_signature(stat_result: os.stat_result) -> tuple[int, int, int, int, int]:
+        return (stat_result.st_dev, stat_result.st_ino, stat_result.st_size,
+                stat_result.st_mtime_ns, stat_result.st_ctime_ns)
+
+    def _read_l2(self, layer: int, expert: int) -> dict[str, dict[str, memoryview]] | None:
+        cache_key = (layer, expert)
+        if cache_key in self._l2_bypass:
+            self.l2_misses += 1
+            return None
+        path = self._l2_path(layer, expert)
+        mapped = self._mapped_values.pop(cache_key, None)
+        if mapped is not None:
+            self._mapped_values[cache_key] = mapped
+            logical_bytes = self._HEADER.size + sum(
+                len(component) for projection in mapped[1].values()
+                for component in projection.values())
+            self.l2_hits += 1
+            self.mapped_l2_hits += 1
+            self.mapped_l2_view_reuses += 1
+            self.l2_verification_reuses += 1
+            self.l2_bytes_read += logical_bytes
+            self.mapped_l2_logical_bytes += logical_bytes
+            return mapped[1]
+        try:
+            with path.open("rb", buffering=0) as handle:
+                signature = self._file_signature(os.fstat(handle.fileno()))
+                mapping = mmap.mmap(handle.fileno(), 0, access=mmap.ACCESS_COPY)
+                mapping.madvise(mmap.MADV_SEQUENTIAL)
+        except FileNotFoundError:
+            self.l2_misses += 1
+            return None
+        value: dict[str, dict[str, memoryview]] = {}
+        try:
+            if len(mapping) < self._HEADER.size:
+                raise ValueError("short mapped L2 header")
+            magic, *lengths = self._HEADER.unpack_from(mapping)
+            if magic != self._MAGIC or self._HEADER.size + sum(lengths) != len(mapping):
+                raise ValueError("invalid mapped L2 frame")
+            verify_components = self._verified_l2.get(cache_key) != signature
+            cursor = self._HEADER.size
+            for (projection, kind), length in zip(self._ORDER, lengths, strict=True):
+                raw = memoryview(mapping)[cursor:cursor + length]
+                cursor += length
+                address = self._component_address(layer, expert, projection, kind)
+                if length != int(address["raw_bytes"]):
+                    raise ValueError("mapped L2 component length mismatch")
+                if (verify_components
+                        and hashlib.sha256(raw).hexdigest() != address["raw_sha256"]):
+                    raise ValueError("mapped L2 component hash mismatch")
+                value.setdefault(projection, {})[kind] = raw
+            if verify_components:
+                self.l2_verification_passes += 1
+                self.l2_verification_bytes += len(mapping) - self._HEADER.size
+            else:
+                self.l2_verification_reuses += 1
+        except (KeyError, ValueError, struct.error):
+            self.l2_integrity_failures += 1
+            self.l2_misses += 1
+            self._verified_l2.pop(cache_key, None)
+            value.clear()
+            if "raw" in locals():
+                raw.release()
+            mapping.close()
+            path.unlink(missing_ok=True)
+            return None
+        os.utime(path, None)
+        signature = self._file_signature(path.stat())
+        self._verified_l2[cache_key] = signature
+        self._mapped_values[cache_key] = (signature, value)
+        self.l2_hits += 1
+        self.mapped_l2_hits += 1
+        self.l2_bytes_read += len(mapping)
+        self.mapped_l2_logical_bytes += len(mapping)
+        return value
+
+    def metrics(self) -> dict[str, int | float | str]:
+        return {
+            **super().metrics(),
+            "cache_representation": "direct_mapped_hash_verified_internal_disk_l2",
+            "mapped_l2_hits": self.mapped_l2_hits,
+            "mapped_l2_open_views": len(self._mapped_values),
+            "mapped_l2_view_reuses": self.mapped_l2_view_reuses,
+            "mapped_l2_logical_bytes": self.mapped_l2_logical_bytes,
+            "l2_verification_passes": self.l2_verification_passes,
+            "l2_verification_reuses": self.l2_verification_reuses,
+            "l2_verification_bytes": self.l2_verification_bytes,
+            "mapped_l2_willneed_calls": self.mapped_l2_willneed_calls,
+        }
+
+    def advise_route_willneed(self, values: list[dict[str, dict[str, Any]]]) -> None:
+        """Ask the kernel to begin paging mapped route experts before compute."""
+        mappings: dict[int, mmap.mmap] = {}
+        for value in values:
+            for projection in ("gate", "up", "down"):
+                for kind in ("weight", "bias"):
+                    component = value[projection][kind]
+                    if isinstance(component, memoryview) and isinstance(component.obj, mmap.mmap):
+                        mappings[id(component.obj)] = component.obj
+        for mapping in mappings.values():
+            mapping.madvise(mmap.MADV_WILLNEED)
+        self.mapped_l2_willneed_calls += len(mappings)
+
+    def get_layer_route_parallel(self, layer: int, experts: list[int],
+                                 workers: int = 4) -> list[dict[str, dict[str, Any]]]:
+        """Avoid constructing a fault pool when every requested view is open."""
+        if workers < 1:
+            raise ValueError("workers must be positive")
+        if len(experts) != len(set(experts)):
+            raise ValueError("route must contain unique experts")
+        keys = [(layer, expert) for expert in experts]
+        if all(key in self._cache or key in self._mapped_values for key in keys):
+            return [self.get(layer, expert) for expert in experts]
+        return super().get_layer_route_parallel(layer, experts, workers)
+
+    def _evict_l2_for(self, incoming: int) -> bool:
+        files = self._l2_files()
+        resident = sum(path.stat().st_size for path in files)
+        if incoming > self.l2_capacity_bytes:
+            return False
+        for victim in sorted(files, key=lambda path: (path.stat().st_mtime_ns, path.name)):
+            if resident + incoming <= self.l2_capacity_bytes:
+                break
+            match = re.fullmatch(r"layer-(\d+)-expert-(\d+)\.aionraw", victim.name)
+            if match:
+                key = (int(match.group(1)), int(match.group(2)))
+                # Dropping our references is safe even if a currently executing
+                # route still owns views; those views keep the old mapping alive
+                # until native execution returns.
+                self._mapped_values.pop(key, None)
+                self._verified_l2.pop(key, None)
+            size = victim.stat().st_size
+            victim.unlink(missing_ok=True)
+            resident -= size
+            self.l2_evictions += 1
+        return resident + incoming <= self.l2_capacity_bytes
+
+    def set_l2_bypass(self, layer_experts: dict[str, list[int]]) -> None:
+        super().set_l2_bypass(layer_experts)
+        for key in self._l2_bypass:
+            self._mapped_values.pop(key, None)
+            self._verified_l2.pop(key, None)
+
+
+class GptOssPinnedVerifiedPersistentL2ExpertFrameStore(
+        GptOssPersistentL2ExpertFrameStore):
+    """Bulk-read L2 frames while hashing each immutable frame once per process.
+
+    AION writes L2 frames by atomic replacement and never mutates an admitted
+    frame in place. Consequently, a frame that passed all six manifest hashes
+    can use the same process-lifetime trust epoch as an admitted RAM-cache
+    value. A new process has an empty epoch and verifies the frame again. This
+    retains the copied representation that avoids demand paging during native
+    calculation while removing repeated SHA-256 work from stable reuse.
+    """
+
+    def __init__(self, manifest_path: Path, capacity_bytes: int,
+                 l2_root: Path, l2_capacity_bytes: int) -> None:
+        super().__init__(manifest_path, capacity_bytes, l2_root, l2_capacity_bytes)
+        self._verified_l2: set[tuple[int, int]] = set()
+        self.l2_verification_passes = 0
+        self.l2_verification_reuses = 0
+        self.l2_verification_bytes = 0
+
+    def _read_l2(self, layer: int, expert: int) -> dict[str, dict[str, bytes]] | None:
+        cache_key = (layer, expert)
+        if cache_key in self._l2_bypass:
+            self.l2_misses += 1
+            return None
+        path = self._l2_path(layer, expert)
+        try:
+            payload = path.read_bytes()
+        except FileNotFoundError:
+            self.l2_misses += 1
+            self._verified_l2.discard(cache_key)
+            return None
+        verify_components = cache_key not in self._verified_l2
+        try:
+            if len(payload) < self._HEADER.size:
+                raise ValueError("short L2 header")
+            magic, *lengths = self._HEADER.unpack_from(payload)
+            if magic != self._MAGIC or self._HEADER.size + sum(lengths) != len(payload):
+                raise ValueError("invalid L2 frame")
+            cursor = self._HEADER.size
+            value: dict[str, dict[str, bytes]] = {}
+            for (projection, kind), length in zip(self._ORDER, lengths, strict=True):
+                raw = payload[cursor:cursor + length]
+                cursor += length
+                address = self._component_address(layer, expert, projection, kind)
+                if length != int(address["raw_bytes"]):
+                    raise ValueError("L2 component length mismatch")
+                if (verify_components
+                        and hashlib.sha256(raw).hexdigest() != address["raw_sha256"]):
+                    raise ValueError("L2 component hash mismatch")
+                value.setdefault(projection, {})[kind] = raw
+        except (KeyError, ValueError, struct.error):
+            self.l2_integrity_failures += 1
+            self.l2_misses += 1
+            self._verified_l2.discard(cache_key)
+            path.unlink(missing_ok=True)
+            return None
+        if verify_components:
+            self._verified_l2.add(cache_key)
+            self.l2_verification_passes += 1
+            self.l2_verification_bytes += len(payload) - self._HEADER.size
+        else:
+            self.l2_verification_reuses += 1
+        os.utime(path, None)
+        self.l2_hits += 1
+        self.l2_bytes_read += len(payload)
+        with self._metrics_lock:
+            self.raw_bytes_materialized += len(payload) - self._HEADER.size
+        return value
+
+    def _evict_l2_for(self, incoming: int) -> bool:
+        before = set(self._l2_files())
+        accepted = super()._evict_l2_for(incoming)
+        after = set(self._l2_files())
+        for victim in before - after:
+            match = re.fullmatch(r"layer-(\d+)-expert-(\d+)\.aionraw", victim.name)
+            if match:
+                self._verified_l2.discard((int(match.group(1)), int(match.group(2))))
+        return accepted
+
+    def metrics(self) -> dict[str, int | float | str]:
+        return {
+            **super().metrics(),
+            "cache_representation": "bulk_copied_process_verified_internal_disk_l2",
+            "l2_verified_epoch_entries": len(self._verified_l2),
+            "l2_verification_passes": self.l2_verification_passes,
+            "l2_verification_reuses": self.l2_verification_reuses,
+            "l2_verification_bytes": self.l2_verification_bytes,
+        }
+
+
+class GptOssReusableArenaPersistentL2ExpertFrameStore(
+        GptOssPinnedVerifiedPersistentL2ExpertFrameStore):
+    """Read transient four-expert routes directly into reusable resident arenas.
+
+    The ordinary copied L2 path first allocates a whole-file ``bytes`` object
+    and then copies each of its six slices into another ``bytes`` object. This
+    variant performs one ``preadv`` into each preallocated expert slot and
+    exposes component memoryviews to the existing packed native kernel. The
+    read dirties/touches every destination page before calculation, avoiding
+    the deferred page-fault behaviour of file-backed mmap.
+    """
+
+    def __init__(self, manifest_path: Path, capacity_bytes: int,
+                 l2_root: Path, l2_capacity_bytes: int) -> None:
+        super().__init__(manifest_path, capacity_bytes, l2_root, l2_capacity_bytes)
+        largest = max(
+            self._HEADER.size + sum(int(self._component_address(layer, expert, p, k)["raw_bytes"])
+                                    for p, k in self._ORDER)
+            for layer, expert in {(key[0], key[1]) for key in self._addresses}
+        )
+        self._route_arenas = [bytearray(largest) for _ in range(4)]
+        self.route_arena_capacity_bytes = largest * len(self._route_arenas)
+        self.route_arena_reads = 0
+        self.route_arena_bytes_read = 0
+
+    def _read_l2_into_slot(self, layer: int, expert: int, slot: int):
+        cache_key = (layer, expert)
+        if cache_key in self._l2_bypass:
+            self.l2_misses += 1
+            return None
+        path = self._l2_path(layer, expert)
+        try:
+            size = path.stat().st_size
+            arena = self._route_arenas[slot]
+            if size > len(arena):
+                raise ValueError("L2 frame exceeds route arena")
+            with path.open("rb", buffering=0) as handle:
+                written = os.preadv(handle.fileno(), [memoryview(arena)[:size]], 0)
+        except FileNotFoundError:
+            self.l2_misses += 1
+            self._verified_l2.discard(cache_key)
+            return None
+        if written != size:
+            raise RuntimeError("short reusable-arena L2 read")
+        frame = memoryview(arena)[:size]
+        verify_components = cache_key not in self._verified_l2
+        try:
+            if size < self._HEADER.size:
+                raise ValueError("short L2 header")
+            magic, *lengths = self._HEADER.unpack_from(frame)
+            if magic != self._MAGIC or self._HEADER.size + sum(lengths) != size:
+                raise ValueError("invalid L2 frame")
+            cursor = self._HEADER.size
+            value: dict[str, dict[str, memoryview]] = {}
+            for (projection, kind), length in zip(self._ORDER, lengths, strict=True):
+                raw = frame[cursor:cursor + length]
+                cursor += length
+                address = self._component_address(layer, expert, projection, kind)
+                if length != int(address["raw_bytes"]):
+                    raise ValueError("L2 component length mismatch")
+                if (verify_components
+                        and hashlib.sha256(raw).hexdigest() != address["raw_sha256"]):
+                    raise ValueError("L2 component hash mismatch")
+                value.setdefault(projection, {})[kind] = raw
+        except (KeyError, ValueError, struct.error):
+            self.l2_integrity_failures += 1
+            self.l2_misses += 1
+            self._verified_l2.discard(cache_key)
+            path.unlink(missing_ok=True)
+            return None
+        if verify_components:
+            self._verified_l2.add(cache_key)
+            self.l2_verification_passes += 1
+            self.l2_verification_bytes += size - self._HEADER.size
+        else:
+            self.l2_verification_reuses += 1
+        self.l2_hits += 1
+        self.l2_bytes_read += size
+        self.route_arena_reads += 1
+        self.route_arena_bytes_read += size
+        with self._metrics_lock:
+            self.raw_bytes_materialized += size - self._HEADER.size
+        return value
+
+    def get_layer_route_parallel(self, layer: int, experts: list[int],
+                                 workers: int = 4):
+        if workers < 1:
+            raise ValueError("workers must be positive")
+        if len(experts) != len(set(experts)):
+            raise ValueError("route must contain unique experts")
+        # Protected-pool startup can request dozens of experts. It is a
+        # one-time admission operation whose values must outlive a layer call,
+        # so retain the ordinary verified copied loader for that case.
+        if len(experts) > len(self._route_arenas):
+            return super().get_layer_route_parallel(layer, experts, workers)
+        results = [None] * len(experts)
+        missing: list[tuple[int, int]] = []
+        for position, expert in enumerate(experts):
+            cache_key = (layer, expert)
+            cached = self._cache.pop(cache_key, None)
+            if cached is None:
+                self.faults += 1
+                missing.append((position, expert))
+            else:
+                self.hits += 1
+                self._cache[cache_key] = cached
+                results[position] = cached
+        if missing:
+            def load(item):
+                position, expert = item
+                value = self._read_l2_into_slot(layer, expert, position)
+                if value is not None:
+                    return value
+                self.sd_fallbacks += 1
+                value = GptOssExpertFrameStore._load_value(self, layer, expert)
+                self._write_l2(layer, expert, value)
+                return value
+            with ThreadPoolExecutor(max_workers=min(workers, len(missing)),
+                                    thread_name_prefix="aion-gptoss-l2-arena") as pool:
+                loaded = list(pool.map(load, missing))
+            for (position, _), value in zip(missing, loaded, strict=True):
+                results[position] = value
+        if any(value is None for value in results):
+            raise RuntimeError("reusable-arena route remained incomplete")
+        return results
+
+    def metrics(self) -> dict[str, int | float | str]:
+        return {
+            **super().metrics(),
+            "cache_representation": "bulk_preadv_process_verified_reusable_route_arena",
+            "route_arena_capacity_bytes": self.route_arena_capacity_bytes,
+            "route_arena_reads": self.route_arena_reads,
+            "route_arena_bytes_read": self.route_arena_bytes_read,
+        }
+
+
+def ctypes_component_pointer_array(
+        blobs: list[bytes | bytearray | memoryview],
+) -> tuple[list[Any], Any]:
+    """Build native pointers without copying writable mapped component views."""
+    references: list[Any] = []
+    addresses: list[int] = []
+    for blob in blobs:
+        if isinstance(blob, bytes):
+            reference = ctypes.c_char_p(blob)
+            address = ctypes.cast(reference, ctypes.c_void_p).value
+        else:
+            reference = (ctypes.c_ubyte * len(blob)).from_buffer(blob)
+            address = ctypes.addressof(reference)
+        if address is None:
+            raise RuntimeError("component buffer has no native address")
+        references.append(reference)
+        addresses.append(address)
+    return references, (ctypes.c_void_p * len(addresses))(*addresses)
 
 
 class GptOssCompressedExpertFrameStore(GptOssExpertFrameStore):

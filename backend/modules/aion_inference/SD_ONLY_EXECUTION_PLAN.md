@@ -2190,3 +2190,31 @@ still had at least 0.5 missing mass. A safe exact escape would therefore restore
 most SD faults. The next speed work must target resident packed-kernel execution
 and a genuinely broader learned/request-family pool, not another lower top-k
 threshold on this static extraction workbench.
+
+### Exact L2 access and reusable-route-arena frontier (2026-09-10)
+
+Direct process-lifetime mapping produced a 17.10x exact real-layer microgate
+win but regressed complete arithmetic generation to 0.66837 token/s because
+page faults moved into native compute. MADV_WILLNEED (0.37269 token/s) and
+explicit parallel page touching (0.70108 token/s) also lost. Stop mapped L2 as
+a full-model path on this Mac; retain the evidence and diagnostic support.
+
+Bulk sequential reads with one verification epoch per process transferred.
+The exact arithmetic warm rate rose from 1.06950 to 1.45591 token/s and the
+settled extraction median reached 1.41036 token/s. Every tested token, route,
+layer output, hidden state and logit remained exact, with zero settled SD
+fallbacks.
+
+A four-slot 50.56 MiB reusable route arena then removed the second Python
+component copy while retaining page-resident bulk reads. The zero-fallback real
+layer improved 2.610x. At an equal 20 GiB internal-disk L2 ceiling, its settled
+arithmetic median was 1.59411 token/s versus 1.38184 for verified bulk copy, a
+15.36% arena gain. Against the prior 17 GiB exact control this is a combined
+49.05% improvement. Promote for the frozen task-aligned arithmetic session.
+
+Do not generalize this rate to rapid mixed-family switching. Following the
+arithmetic run, extraction still incurred 690/230/51 SD fallbacks across three
+passes at 20 GiB and its third pass reached 1.22879 token/s. The combined
+cross-family working set exceeds this local tier. Next test signed per-family
+cartridges or admission forecasting; report cartridge-switch fill time and do
+not label an unsettled family as warm.
