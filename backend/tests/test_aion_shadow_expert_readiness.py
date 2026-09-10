@@ -77,3 +77,5 @@ def test_manifest_and_exact_fallback_evaluator(tmp_path: Path) -> None:
     # Two holdout samples cannot prove the predeclared 10x traffic gate, even
     # with oracle predictions. This guards against tiny-corpus promotion.
     assert result["summary"]["projected_expert_traffic_reduction"] == 2.0
+    assert result["summary"]["holdout_observations_sufficient"] is False
+    assert "INSUFFICIENT_HOLDOUT_OBSERVATIONS" in result["failure_reasons"]

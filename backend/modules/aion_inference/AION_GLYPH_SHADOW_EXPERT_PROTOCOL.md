@@ -177,3 +177,23 @@ control produced relative L2 error 1.0 and detected no violations at its false
 high confidence, so also failed. This proves the evaluator distinguishes
 perfect arithmetic, inadequate evidence volume and unsafe confidence. It does
 not show that a compact predictor exists.
+
+## Evidence-volume gate closure (2026-09-10)
+
+Each of the four frozen families was recaptured at 12 distributed layers,
+yielding 48/48 verified targets and 24 holdout observations. All eight complete
+120B passes (two per family) remained route-, hidden-state- and logit-bitwise
+repeatable. The expanded manifest has no activation-hash leakage and canonical
+SHA-256
+`f91d9c8c1e9f4db2ffae76e2dcecf2b2500e6668ec8ecd38d79f75d0d35b37e3`;
+its identical local/SD file SHA-256 is
+`688192f92c0c18d9a19070d38976c48e3f58b6c31364cd11cb74d2173fabc07f`.
+
+The evaluator now reports explicit failure reasons, requires at least ten
+holdout observations, and labels deterministic controls separately from real
+candidates. On 24 holdout rows, the oracle control passed its control gate with
+zero error and a conservative 24x traffic bound. The false-high-confidence zero
+control failed with p50/p95/max relative L2 all 1.0, 24 violations and zero
+violation capture. This establishes that the collection and refusal machinery
+can reach both expected outcomes. It is not evidence for a learned predictor;
+training remains unauthorized.

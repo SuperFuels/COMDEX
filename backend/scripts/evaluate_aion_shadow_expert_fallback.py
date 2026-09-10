@@ -43,6 +43,8 @@ def main() -> int:
     split = manifest["family_disjoint_split"]
     holdout = set(split["numerical_holdout"] + split["semantic_holdout"])
     observations = []
+    receipt_schemas = set()
+    control_modes = set()
     for family in manifest["families"]:
         if family["family_id"] not in holdout:
             continue
@@ -60,6 +62,9 @@ def main() -> int:
             if prediction.size != WIDTH or target.size != WIDTH:
                 raise SystemExit("candidate or target width mismatch")
             confidence_receipt = json.loads(confidence_path.read_text())
+            receipt_schemas.add(confidence_receipt.get("schema"))
+            if confidence_receipt.get("schema") == "aion.shadow-expert-deterministic-control.v1":
+                control_modes.add(confidence_receipt.get("mode"))
             if confidence_receipt.get("prediction_sha256") != digest(prediction_path):
                 raise SystemExit("prediction failed confidence-receipt hash verification")
             confidence = float(confidence_receipt["confidence"])
@@ -85,17 +90,37 @@ def main() -> int:
     capture_rate = captured / len(violations) if violations else 1.0
     accepted_fraction = len(accepted) / len(observations)
     projected_traffic_reduction = (1.0 / max(1.0 - accepted_fraction, 1 / len(observations)))
-    passed = (percentile(errors, .95) <= .02 and max(errors) <= .05
-              and capture_rate >= .999 and projected_traffic_reduction >= 10.0)
+    minimum_holdout_observations = 10
+    failure_reasons = []
+    if len(observations) < minimum_holdout_observations:
+        failure_reasons.append("INSUFFICIENT_HOLDOUT_OBSERVATIONS")
+    if percentile(errors, .95) > .02:
+        failure_reasons.append("RESIDUAL_ERROR_P95")
+    if max(errors) > .05:
+        failure_reasons.append("RESIDUAL_ERROR_MAX")
+    if capture_rate < .999:
+        failure_reasons.append("UNSAFE_CONFIDENCE_GATE")
+    if projected_traffic_reduction < 10.0:
+        failure_reasons.append("INSUFFICIENT_TRAFFIC_REDUCTION")
+    passed = not failure_reasons
+    deterministic_control = receipt_schemas == {"aion.shadow-expert-deterministic-control.v1"}
+    if deterministic_control:
+        status = "CONTROL_GATE_PASSED" if passed else "CONTROL_GATE_FAILED"
+    else:
+        status = "MECHANISM_GATE_PASSED" if passed else "MECHANISM_GATE_FAILED"
     report = {
         "schema": "aion.shadow-expert-exact-fallback-evaluation.v1",
-        "status": "MECHANISM_GATE_PASSED" if passed else "MECHANISM_GATE_FAILED",
+        "status": status,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "quality_track": True, "training_authorized": False,
         "dataset_manifest_path": str(args.manifest.resolve()),
         "dataset_manifest_canonical_sha256": claimed,
         "candidate_directory": str(args.candidate_dir.resolve()),
         "confidence_threshold": args.confidence_threshold,
+        "deterministic_control": deterministic_control,
+        "control_modes": sorted(mode for mode in control_modes if mode is not None),
+        "receipt_schemas": sorted(str(schema) for schema in receipt_schemas),
+        "failure_reasons": failure_reasons,
         "observations": observations,
         "summary": {
             "samples": len(observations), "relative_l2_p50": statistics.median(errors),
@@ -103,6 +128,8 @@ def main() -> int:
             "accepted_fraction": accepted_fraction, "violations": len(violations),
             "violation_capture_rate": capture_rate,
             "projected_expert_traffic_reduction": projected_traffic_reduction,
+            "minimum_holdout_observations": minimum_holdout_observations,
+            "holdout_observations_sufficient": len(observations) >= minimum_holdout_observations,
         },
         "claim_boundary": (
             "This evaluator measures a frozen changed-arithmetic candidate on family-disjoint "

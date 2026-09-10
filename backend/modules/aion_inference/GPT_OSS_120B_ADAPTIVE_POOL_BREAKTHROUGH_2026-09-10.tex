@@ -539,3 +539,27 @@ and
 \texttt{1521922cf33b7988583eab72df605f03a202ef54b67edc0e1f22707387920b7b}.
 This verifies the refusal boundary; it does not establish that a compact
 predictor exists, and no training occurred.
+
+\subsection{Evidence-volume gate closure}
+
+Without training, all four frozen families were recaptured at 12 distributed
+layers.  The result is 48/48 hash-verified targets and 24 holdout observations.
+All eight complete 120B passes repeated their routes, final hidden states and
+logits bitwise, and no cross-family activation-hash collision was detected.
+The expanded manifest has canonical SHA-256
+\texttt{f91d9c8c1e9f4db2ffae76e2dcecf2b2500e6668ec8ecd38d79f75d0d35b37e3}
+and identical local/SD file SHA-256
+\texttt{688192f92c0c18d9a19070d38976c48e3f58b6c31364cd11cb74d2173fabc07f}.
+
+The evaluator now requires ten or more holdout rows, emits explicit failure
+reasons, and labels deterministic controls separately.  Across 24 rows, the
+oracle control produced zero error and passed only
+\texttt{CONTROL\_GATE\_PASSED}, with a conservative 24$\times$ traffic bound.
+The false-high-confidence zero control failed with relative $L_2=1.0$ at
+p50, p95 and maximum, 24 violations, and zero violation capture.  Their
+canonical SHA-256 values are respectively
+\texttt{896bbb66c468505498b4d89e119c3be67345370aa87f60cec9dc70c7335e1c02}
+and
+\texttt{9a91c59077fe705fe32cf2e9339b14c9ff050d7230e2da6bc9e2c5b805468999}.
+Readiness is now sufficient to test a trained candidate, but this work did not
+train or inject one; that boundary still requires explicit authorization.

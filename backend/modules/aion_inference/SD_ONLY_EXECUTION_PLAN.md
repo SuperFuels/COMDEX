@@ -1997,3 +1997,26 @@ Identical local/SD file hashes are respectively
 `1fe5eccd38a51f2c1599705715981e2e40aa748223da293923a03d02dc121387`
 and `a6025a95d163db85343afbf542ce469ad4428422bf6f0df4b427afa5a2d4c404`.
 This validates refusal logic, not model quality. No learning occurred.
+
+The evidence-volume readiness gate was then closed without training. All four
+families were recaptured at 12 distributed layers, producing 48/48 verified
+targets and 24 holdout observations. Two complete passes per family remained
+route-, final-hidden- and logit-bitwise repeatable. The expanded manifest has no
+cross-family activation collision. Canonical SHA-256:
+`f91d9c8c1e9f4db2ffae76e2dcecf2b2500e6668ec8ecd38d79f75d0d35b37e3`.
+Identical local/SD file SHA-256:
+`688192f92c0c18d9a19070d38976c48e3f58b6c31364cd11cb74d2173fabc07f`.
+
+The evaluator now requires at least ten holdout observations, emits precise
+failure reasons, and labels deterministic controls so they cannot be confused
+with deployable candidates. The 24-row oracle achieved zero error and passed
+only `CONTROL_GATE_PASSED`, demonstrating a conservative 24x bound. The zero
+control failed with relative L2 1.0 at p50/p95/max, 24 violations and zero
+capture. Oracle/zero canonical SHA-256 values are
+`896bbb66c468505498b4d89e119c3be67345370aa87f60cec9dc70c7335e1c02`
+and `9a91c59077fe705fe32cf2e9339b14c9ff050d7230e2da6bc9e2c5b805468999`;
+identical local/SD files are
+`b2221d5d4dcc3fa77c08c6ab344429539c8c967d826ca6c262c691ed19ac29f6`
+and `588bd891127afb46c6531e9ddb6cd91022c0d4ed798674bb9fb0e61b04443632`.
+This completes the authorized readiness scope. Training/injection remains a
+separate explicit user decision.
