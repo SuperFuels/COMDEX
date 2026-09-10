@@ -1747,3 +1747,35 @@ Analysis canonical SHA-256:
 `61b38d7c794ae7ee05fa191193ed37ac4a9a591039ae02fb1cb5262b70743bd3`.
 Identical local/SD file SHA-256:
 `e9ad17df819676f81b36cf1339e1dc477045e52f354aade43cfd61de2faca75f`.
+
+### Native compute and host-flow gates (2026-09-10)
+
+A real four-expert GPT-OSS route was evaluated as one fused GGML Metal graph.
+It was not a win: CPU p50 was 0.6928 ms and warm Metal p50 was 1.9372 ms,
+so Metal was 2.80x slower. Relative L2 error was 0.00749 and the output was
+not bitwise equal. Decision: `NOT_PROMOTED`; do not integrate this single-token
+Metal graph or repeat it without a materially different packed kernel.
+
+Reusing the exact CPU GGML graph metadata preserved bitwise output but improved
+median wall time by only 1.71% (0.7116 to 0.6996 ms), below the 10% gate.
+Decision: `NOT_PROMOTED`; graph construction is not the material resident cost.
+
+Removing the remaining per-layer host-file writes and reads was material. On a
+paired, exact BOS position-zero resident replay, warm wall time fell from
+0.40756 s to 0.06531 s, a 6.240x speedup. The selected experts, final hidden
+state, logits and token 2167 matched exactly. Decision:
+`PROMOTE_EXACT_RESIDENT_FLOW`. This is a resident position-zero execution rate,
+not sustained generation throughput.
+
+The required genuine two-token KV check also passed repeatability and produced
+tokens 2167 and 679, but its warm second token still took 16.080 s under the
+3 GiB cache. The in-memory change therefore removes host orchestration overhead
+when weights are resident but does not solve SD expert faults. Apply it to the
+exact 6+4 GiB core/halo runner next, while retaining the measured conclusion
+that expert movement remains the primary path to higher unrestricted 120B
+generation speed.
+
+Bound-summary canonical SHA-256:
+`25768d87a531e5c803a6869a52f7be6c626af498fa4a00d42f513e4d7cdd0e3`.
+Identical local/SD file SHA-256:
+`62b33c5b82114372c1e9d289e41761a3af38ac8bd61e550f0236c22de7c1552e`.

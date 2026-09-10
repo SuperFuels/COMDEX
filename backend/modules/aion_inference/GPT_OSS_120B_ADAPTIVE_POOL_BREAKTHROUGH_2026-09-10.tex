@@ -306,3 +306,44 @@ expert execution.  The analysis has canonical SHA-256
 \texttt{61b38d7c794ae7ee05fa191193ed37ac4a9a591039ae02fb1cb5262b70743bd3}
 and identical local/SD file SHA-256
 \texttt{e9ad17df819676f81b36cf1339e1dc477045e52f354aade43cfd61de2faca75f}.
+
+\subsection{Native route and in-memory host-flow gates}
+
+Three narrow experiments separated resident neural arithmetic from host
+orchestration.  First, one real four-expert route was calculated as a single
+GGML Metal graph.  The CPU reference required 0.6928~ms at p50, whereas the
+warm fused Metal graph required 1.9372~ms.  Metal was therefore 2.80$\times$
+slower.  Its relative $L_2$ error was 0.00749 and its output was not bitwise
+equal to CPU.  The candidate is \texttt{NOT\_PROMOTED}.  This falsifies the
+available single-token fused Metal path; it does not falsify a future native
+MXFP4 Metal kernel with a materially different implementation.
+
+Second, the exact CPU GGML graph was retained and its leaf pointers were
+updated between calls.  Output remained bit-for-bit identical, but median wall
+time improved only from 0.7116 to 0.6996~ms, or 1.71\%, below the declared
+10\% promotion gate.  Graph construction is therefore not a material resident
+bottleneck and this mechanism is also \texttt{NOT\_PROMOTED}.
+
+Third, the existing exact native attention, router, MoE and vocabulary stages
+were connected through in-memory arrays rather than writing and rereading a
+hidden-state file at every layer.  A paired resident BOS position-zero control
+fell from 0.40756~s to 0.06531~s on the warm pass, a 6.240$\times$ speedup.
+All 36 expert routes, the final hidden-state hash, the complete logit hash and
+token 2167 matched exactly.  The mechanism is therefore promoted as
+\texttt{PROMOTE\_EXACT\_RESIDENT\_FLOW}.
+
+The 0.06531~s measurement is not a sustained-generation claim.  A genuine
+two-token test used changing hidden state, per-layer KV history and changing
+routes.  It repeated bit-for-bit across two passes and produced tokens 2167
+and 679, but the warm second token still required 16.080~s with the declared
+3~GiB cache.  Thus the host-file bottleneck is now removed when weights are
+resident, while unrestricted SD misses remain dominant when they are not.
+
+The bound summary has canonical SHA-256
+\texttt{25768d87a531e5c803a6869a52f7be6c626af498fa4a00d42f513e4d7cdd0e3}
+and identical local/SD file SHA-256
+\texttt{62b33c5b82114372c1e9d289e41761a3af38ac8bd61e550f0236c22de7c1552e}.
+The next justified scale test is the same exact in-memory flow combined with
+the promoted 6+4~GiB protected-core/exception-halo policy.  It must preserve
+every token and step-logit hash and must not relabel position-zero resident
+execution as generated tokens per second.

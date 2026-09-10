@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstdlib>
 #include <dlfcn.h>
 #include <fstream>
 #include <iostream>
@@ -95,6 +96,11 @@ int main(int argc, char ** argv) {
     double checksum = 0.0;
     bool finite = true;
     for (int64_t i = 0; i < width; ++i) { checksum += values[i]; finite &= std::isfinite(values[i]); }
+    if (const char * output_path = std::getenv("AION_OUTPUT_PATH")) {
+        std::ofstream output_file(output_path, std::ios::binary | std::ios::trunc);
+        output_file.write(reinterpret_cast<const char *>(values), width * sizeof(float));
+        if (!output_file.good()) return 11;
+    }
     std::cout << "{\"schema\":\"aion.gptoss.packed-route-cpu.v1\",\"route\":[";
     for (size_t i = 0; i < routes.size(); ++i) std::cout << (i ? "," : "") << routes[i];
     std::cout << "],\"gates\":[";

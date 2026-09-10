@@ -25,7 +25,7 @@ def compile_gate(source:Path,output:Path)->None:
                     '-L/opt/homebrew/lib','-lggml','-lggml-base','-ldl','-o',str(output)],check=True)
 
 def main()->None:
-    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');a=p.parse_args()
     if a.parallel_moe and not a.inprocess_finish: raise SystemExit('--parallel-moe requires --inprocess-finish')
     if a.token_count < 1: raise SystemExit('token-count must be positive')
     if a.passes < 2: raise SystemExit('passes must be at least 2')
@@ -34,6 +34,7 @@ def main()->None:
     if not forced_input_ids: raise SystemExit('input-token-ids must not be empty')
     if len(forced_input_ids)>a.token_count: raise SystemExit('token-count must cover all forced input tokens')
     if a.inprocess_attention and not a.resident_replay: raise SystemExit('in-process attention currently requires resident replay')
+    if a.inmemory_layer_flow and not (a.inprocess_attention and a.inprocess_finish and a.inprocess_output): raise SystemExit('--inmemory-layer-flow requires all in-process stages')
     if a.expert_cache_gib <= 0: raise SystemExit('expert-cache-gib must be positive')
     if a.preload_expert_pool and not (a.expert_pool and a.resident_replay): raise SystemExit('pool preload requires --expert-pool and --resident-replay')
     if a.constrain_after_prompt and not a.expert_pool: raise SystemExit('--constrain-after-prompt requires --expert-pool')
@@ -160,6 +161,7 @@ def main()->None:
                     store.protect(expert_pool['layers'])
               input_token_id=(forced_input_ids[position] if position<len(forced_input_ids) else token_id)
               current,embedding,embedding_sha=(initial_hidden,embed_run,initial_row_sha) if position==0 else embed(input_token_id,f'{label}-token-{position}')
+              current_values=np.fromfile(current,dtype='<f4') if a.inmemory_layer_flow else None
               layers=[];token_started=time.perf_counter()
               for layer in range(36):
                 mapping=layer_mapping(layer);layer_root=root/f'shared-layer-{layer}' if a.resident_replay else root
@@ -171,19 +173,21 @@ def main()->None:
                 router_path=Path(str(prefix)+'-router-input.bin');ffn_path=Path(str(prefix)+'-ffn-input.bin')
                 attention_started=time.perf_counter()
                 if a.inprocess_attention:
-                    attention_input=np.fromfile(current,dtype='<f4');ffn_result=np.empty(WIDTH,dtype=np.float32);router_result=np.empty(WIDTH,dtype=np.float32);attention_elapsed=ctypes.c_double()
+                    attention_input=current_values if a.inmemory_layer_flow else np.fromfile(current,dtype='<f4');ffn_result=np.empty(WIDTH,dtype=np.float32);router_result=np.empty(WIDTH,dtype=np.float32);attention_elapsed=ctypes.c_double()
                     references=[ctypes.c_char_p(blob) for blob in attention_resident[layer]];pointers=(ctypes.c_void_p*len(references))(*[ctypes.cast(ref,ctypes.c_void_p).value for ref in references])
                     value_is_q5=int(len(attention_resident[layer][5])==1013760)
                     status=attention_function(attention_input.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,value_is_q5,layer,position,ffn_result.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_result.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(attention_elapsed))
                     if status: raise RuntimeError(f'in-process attention failed: {status}')
-                    ffn_path.write_bytes(ffn_result.tobytes());router_path.write_bytes(router_result.tobytes());attn={'schema':'aion.gptoss.persistent-attention-position-zero.v1','compute_ms':attention_elapsed.value,'finite':True}
+                    if not a.inmemory_layer_flow:
+                        ffn_path.write_bytes(ffn_result.tobytes());router_path.write_bytes(router_result.tobytes())
+                    attn={'schema':'aion.gptoss.persistent-attention-position-zero.v1','compute_ms':attention_elapsed.value,'finite':True}
                 else:
                     attention_command=[str(exe['attention']),str(layer_root),str(prefix),str(current)]
                     if a.token_count > 1: attention_command += [str(position),str(root/f'{label}-kv-layer-{layer}')]
                     attention_command += [str(a.threads)]
                     attn=json.loads(subprocess.check_output(attention_command,text=True))
                 attention_seconds=time.perf_counter()-attention_started
-                hidden=np.fromfile(router_path,dtype='<f4')
+                hidden=router_result if a.inmemory_layer_flow else np.fromfile(router_path,dtype='<f4')
                 if a.inprocess_attention:
                     w=np.frombuffer(router_resident[layer][0],dtype='<f4').reshape(EXPERTS,WIDTH);b=np.frombuffer(router_resident[layer][1],dtype='<f4')
                 else:
@@ -206,28 +210,38 @@ def main()->None:
                 expert_stage_seconds=time.perf_counter()-expert_stage_started
                 next_hidden=root/f'{label}-token-{position}-layer-{layer}-output.bin';finish_started=time.perf_counter()
                 if a.inprocess_finish:
-                    ffn=np.fromfile(ffn_path,dtype='<f4');router_values=np.fromfile(router_path,dtype='<f4');gate_values=np.asarray([float(f'{x:.9g}') for x in gates],dtype=np.float32);out=np.empty(WIDTH,dtype=np.float32);elapsed=ctypes.c_double()
+                    ffn=ffn_result if a.inmemory_layer_flow else np.fromfile(ffn_path,dtype='<f4');router_values=router_result if a.inmemory_layer_flow else np.fromfile(router_path,dtype='<f4');gate_values=np.asarray([float(f'{x:.9g}') for x in gates],dtype=np.float32);out=np.empty(WIDTH,dtype=np.float32);elapsed=ctypes.c_double()
                     blobs=[value[proj][kind] for value in values for proj in ('gate','up','down') for kind in ('weight','bias')]
                     references=[ctypes.c_char_p(blob) for blob in blobs];pointers=(ctypes.c_void_p*len(references))(*[ctypes.cast(ref,ctypes.c_void_p).value for ref in references])
                     status=moe_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,gate_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
                     if status: raise RuntimeError(f'in-process MoE failed: {status}')
-                    next_hidden.write_bytes(out.tobytes());finish={'schema':'aion.gptoss.persistent-moe.v1','compute_ms':elapsed.value,'output_checksum':float(out.astype(np.float64).sum()),'finite':bool(np.isfinite(out).all())}
+                    if a.inmemory_layer_flow: current_values=out
+                    else: next_hidden.write_bytes(out.tobytes())
+                    finish={'schema':'aion.gptoss.persistent-moe.v1','compute_ms':elapsed.value,'output_checksum':float(out.astype(np.float64).sum()),'finite':bool(np.isfinite(out).all())}
                 else:
                     finish=json.loads(subprocess.check_output([str(exe['finish']),str(layer_root),','.join(map(str,route)),','.join(f'{x:.9g}' for x in gates),str(ffn_path),str(router_path),str(next_hidden),str(a.threads)],text=True))
                 finish_seconds=time.perf_counter()-finish_started
-                layers.append({'layer':layer,'route':route,'gates':gates.tolist(),'route_pool_complete':route_pool_complete,'shared_load_seconds':shared_seconds,'expert_load_seconds':load_seconds,'expert_file_stage_seconds':expert_stage_seconds,'attention_process_seconds':attention_seconds,'finish_process_seconds':finish_seconds,'attention':attn,'finish':finish,'output_sha256':sha(next_hidden)})
-                if current != initial_hidden: current.unlink(missing_ok=True)
-                Path(str(prefix)+'-ffn-input.bin').unlink(missing_ok=True);router_path.unlink(missing_ok=True);current=next_hidden
+                layer_output_sha=(hashlib.sha256(current_values.tobytes()).hexdigest()
+                                  if a.inmemory_layer_flow else sha(next_hidden))
+                layers.append({'layer':layer,'route':route,'gates':gates.tolist(),'route_pool_complete':route_pool_complete,'shared_load_seconds':shared_seconds,'expert_load_seconds':load_seconds,'expert_file_stage_seconds':expert_stage_seconds,'attention_process_seconds':attention_seconds,'finish_process_seconds':finish_seconds,'attention':attn,'finish':finish,'output_sha256':layer_output_sha})
+                if not a.inmemory_layer_flow:
+                    if current != initial_hidden: current.unlink(missing_ok=True)
+                    Path(str(prefix)+'-ffn-input.bin').unlink(missing_ok=True);router_path.unlink(missing_ok=True);current=next_hidden
               logits_path=root/f'{label}-token-{position}-logits.bin';output_started=time.perf_counter()
               if a.inprocess_output:
-                  hidden_values=np.fromfile(current,dtype='<f4');logit_values=np.empty(201088,dtype=np.float32);native_token=ctypes.c_int();checksum=ctypes.c_double();elapsed=ctypes.c_double()
+                  hidden_values=current_values if a.inmemory_layer_flow else np.fromfile(current,dtype='<f4');logit_values=np.empty(201088,dtype=np.float32);native_token=ctypes.c_int();checksum=ctypes.c_double();elapsed=ctypes.c_double()
                   status=output_function(ctypes.c_void_p(output_weight_view.ctypes.data),output_norm_view.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),hidden_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),logit_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(native_token),ctypes.byref(checksum),ctypes.byref(elapsed))
                   if status: raise RuntimeError(f'in-process output failed: {status}')
-                  logits_path.write_bytes(logit_values.tobytes());token_id=native_token.value;output={'schema':'aion.gptoss.persistent-output.v1','argmax_token_id':token_id,'max_logit':float(logit_values[token_id]),'logit_checksum':checksum.value,'finite':True,'compute_ms':elapsed.value}
+                  if not a.inmemory_layer_flow: logits_path.write_bytes(logit_values.tobytes())
+                  token_id=native_token.value;output={'schema':'aion.gptoss.persistent-output.v1','argmax_token_id':token_id,'max_logit':float(logit_values[token_id]),'logit_checksum':checksum.value,'finite':True,'compute_ms':elapsed.value}
               else:
                   output=json.loads(subprocess.check_output([str(exe['output']),str(output_weight),str(output_norm),str(current),str(logits_path),str(a.threads)],text=True));token_id=output['argmax_token_id']
               output_seconds=time.perf_counter()-output_started
-              token_results.append({'position':position,'input_token_id':input_token_id,'input_was_forced_prompt':position<len(forced_input_ids),'generated_token_id':token_id,'wall_seconds':time.perf_counter()-token_started,'output_process_seconds':output_seconds,'layers':layers,'final_hidden_sha256':sha(current),'logits_sha256':sha(logits_path),'output':output,'embedding':embedding,'embedding_row_sha256':embedding_sha})
+              final_hidden_sha=(hashlib.sha256(current_values.tobytes()).hexdigest()
+                                if a.inmemory_layer_flow else sha(current))
+              logits_sha=(hashlib.sha256(logit_values.tobytes()).hexdigest()
+                           if a.inmemory_layer_flow else sha(logits_path))
+              token_results.append({'position':position,'input_token_id':input_token_id,'input_was_forced_prompt':position<len(forced_input_ids),'generated_token_id':token_id,'wall_seconds':time.perf_counter()-token_started,'output_process_seconds':output_seconds,'layers':layers,'final_hidden_sha256':final_hidden_sha,'logits_sha256':logits_sha,'output':output,'embedding':embedding,'embedding_row_sha256':embedding_sha})
             metrics_after=store.metrics();delta={key:metrics_after[key]-metrics_before.get(key,0) for key in ('hits','faults','evictions','compressed_bytes_read','raw_bytes_materialized')}
             return {'label':label,'wall_seconds':time.perf_counter()-started,'tokens':token_results,'layers':token_results[-1]['layers'],'final_hidden_sha256':token_results[-1]['final_hidden_sha256'],'logits_sha256':token_results[-1]['logits_sha256'],'output':token_results[-1]['output'],'store_metrics':metrics_after,'store_metric_delta':delta,'prompt_to_continuation_rehydrate_seconds':transition_rehydrate_seconds,'prompt_to_continuation_rehydrate_metric_delta':transition_rehydrate_delta}
         runs=[pass_once(chr(ord('a')+index)) for index in range(a.passes)]
@@ -242,7 +256,7 @@ def main()->None:
                 'run_a':run_a,'run_b':run_b,'additional_runs':runs[2:],'passes':a.passes,'routes_repeatable':routes_equal,'final_hidden_and_logits_bitwise_repeatable':exact,
                 'embedding_row_bytes':row_bytes,'embedding_row_sha256':initial_row_sha,'embedding_run':embed_run,
                 'output_weight':{'bytes':output_weight.stat().st_size,'sha256':sha(output_weight),'one_time_stage_seconds':output_stage_seconds},'output_norm':output_norm_evidence,
-                'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'inprocess_finish':a.inprocess_finish,'inprocess_attention':a.inprocess_attention,'inprocess_output':a.inprocess_output,'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(expert_cache_bytes if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,'quality_track':expert_pool is not None and not a.exact_pool_escape_after_prompt,'constrained_expert_pool_path':str(a.expert_pool.resolve()) if a.expert_pool else None,'constrained_expert_pool_canonical_sha256':expert_pool_sha,'constrained_expert_pool_preloaded':a.preload_expert_pool,'constrain_after_prompt':a.constrain_after_prompt,'exact_pool_escape_after_prompt':a.exact_pool_escape_after_prompt,'incremental_pool_admission':a.incremental_pool_admission,'constrained_expert_pool_preload_seconds':pool_preload_seconds,'constrained_expert_pool_preload_metrics':pool_preload_metrics,
+                'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'inprocess_finish':a.inprocess_finish,'inprocess_attention':a.inprocess_attention,'inprocess_output':a.inprocess_output,'inmemory_layer_flow':a.inmemory_layer_flow,'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(expert_cache_bytes if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,'quality_track':expert_pool is not None and not a.exact_pool_escape_after_prompt,'constrained_expert_pool_path':str(a.expert_pool.resolve()) if a.expert_pool else None,'constrained_expert_pool_canonical_sha256':expert_pool_sha,'constrained_expert_pool_preloaded':a.preload_expert_pool,'constrain_after_prompt':a.constrain_after_prompt,'exact_pool_escape_after_prompt':a.exact_pool_escape_after_prompt,'incremental_pool_admission':a.incremental_pool_admission,'constrained_expert_pool_preload_seconds':pool_preload_seconds,'constrained_expert_pool_preload_metrics':pool_preload_metrics,
                 'claim_boundary':(('A token-conditioned sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. Declared prompt tokens were teacher-forced before greedy continuation. This is exact repeatability evidence for the custom packed path, not yet chat-template quality validation or steady-state generation speed.' if a.token_count>1 else 'A token-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is prompt-token execution evidence, not yet multi-token prompt quality validation or steady-state generation speed.') if forced_input_ids!=[BOS] else ('A BOS-conditioned greedy sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. This is exact repeatability evidence for the custom packed path, not yet text-quality validation or steady-state generation speed.' if a.token_count>1 else 'A BOS-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is first-token execution evidence, not yet text-quality validation or steady-state generation speed.'))}
         if a.exact_pool_escape_after_prompt:
             report['claim_boundary']=('The complete GPT-OSS 120B attention/residual backbone, unrestricted 128-expert router and original selected expert weights were executed at every position. A hash-bound protected pool served resident hits; any unrestricted winning expert outside the pool was fetched exactly from the verified SD warehouse. Such exceptions remain transient when the declared cache is full, or occupy only unprotected LRU capacity when an exception halo is declared; they can never evict the protected core. No router eligibility or neural mathematics was changed. Repeatability is measured against a second run; equivalence to a separately frozen unrestricted control requires explicit token, hidden-state and logit comparison.')

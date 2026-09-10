@@ -1,0 +1,64 @@
+{
+  "canonical_sha256": "25768d87a531e5c803a6869a52f7be6c626af498fa4a00d42f513e4d7cdd0e3c",
+  "claim_boundary": "The in-memory flow removes exact host-file round trips and is promoted for the resident execution path. Its 6.24x position-zero warm gain is not generated-token throughput. A genuine two-token run remained dominated by SD expert faults at about 16 seconds for the second token under a 3 GiB cache. Fused Metal and reusable graph metadata are stopped by their predeclared narrow gates.",
+  "created_at": "2026-09-10T06:15:15.144979+00:00",
+  "decision": "PROMOTE_INMEMORY_LAYER_FLOW_ONLY",
+  "fused_metal": {
+    "bitwise_equal": false,
+    "cpu_p50_ms": 0.692833,
+    "metal_p50_ms": 1.93715,
+    "metal_speedup": 0.3576558346023798,
+    "relative_l2_error": 0.007492741200291697,
+    "status": "NOT_PROMOTED"
+  },
+  "genuine_two_token_check": {
+    "routes_repeatable": true,
+    "status": "PASSED",
+    "token_wall_seconds": [
+      16.27972387499176,
+      16.08018141699722
+    ],
+    "tokens": [
+      2167,
+      679
+    ],
+    "two_pass_bitwise_repeatable": true
+  },
+  "inmemory_layer_flow": {
+    "exact_control_match": true,
+    "file_flow_warm_seconds": 0.40756166604114696,
+    "generated_token_id": 2167,
+    "memory_flow_warm_seconds": 0.06531466700835153,
+    "status": "PROMOTE_EXACT_RESIDENT_FLOW",
+    "warm_speedup": 6.239971582325202
+  },
+  "inputs": {
+    "file_layer_flow": {
+      "file_sha256": "3b6a6b4969f929064f9b10b3d60637e148c717dd94d4e4fdbe3343e9b442aa37",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-bos-file-layer-flow-control-2026-09-10.json"
+    },
+    "fused_metal": {
+      "file_sha256": "55e5306f416dc8b299487088a02411ada2df7bf01583d8d4625a3443aa7daabe",
+      "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_fused_route_metal_gate_20260910.json"
+    },
+    "memory_layer_flow": {
+      "file_sha256": "6b3cb25989f0e63dc14ec09b4fdded396b9ea110eaa7cb862c63c89240c2c1df",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-bos-inmemory-layer-flow-2026-09-10.json"
+    },
+    "reusable_graph": {
+      "file_sha256": "46f9cf4b1a59342aa3c4875b44bbc9a029d495e42e4f7d5a8962abf2799d9842",
+      "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_persistent_moe_graph_gate_20260910.json"
+    },
+    "two_token_memory_flow": {
+      "file_sha256": "e43b70c7273d295e8231bbf16d75cdeea62c65f4a74a7e852eec4b11ea9174ee",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-two-token-inmemory-layer-flow-2026-09-10.json"
+    }
+  },
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "reusable_graph": {
+    "bitwise_equal": true,
+    "status": "NOT_PROMOTED",
+    "wall_speedup": 1.0171223306438761
+  },
+  "schema": "aion.gptoss-120b-native-flow-gates.v1"
+}

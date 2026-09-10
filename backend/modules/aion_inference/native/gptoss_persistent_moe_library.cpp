@@ -132,3 +132,75 @@ extern "C" int aion_gptoss_moe_finish_parallel(
         if (!std::isfinite(output_values[index])) return 5;
     return 0;
 }
+
+extern "C" int aion_gptoss_moe_finish_reuse_graph(
+        const float * ffn_input_values, const float * router_input_values,
+        const void * const * components, const float * gates,
+        float * output_values, int threads, double * elapsed_ms) {
+    struct PersistentGraph {
+        std::vector<char> memory = std::vector<char>(256 * 1024 * 1024);
+        ggml_context * context = nullptr;
+        ggml_tensor * ffn_input = nullptr;
+        ggml_tensor * router_input = nullptr;
+        ggml_tensor * component_tensors[24] = {};
+        ggml_tensor * scale_tensors[4] = {};
+        ggml_tensor * output = nullptr;
+        ggml_cgraph * graph = nullptr;
+    };
+    static void * plugin = dlopen(
+        "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
+        RTLD_NOW | RTLD_LOCAL);
+    static compute_function compute = plugin ? reinterpret_cast<compute_function>(
+        dlsym(plugin, "ggml_graph_compute_with_ctx")) : nullptr;
+    static PersistentGraph state;
+    if (!compute) return 2;
+    constexpr int64_t width = 2880;
+    if (!state.context) {
+        state.context = ggml_init({state.memory.size(), state.memory.data(), false});
+        if (!state.context) return 3;
+        state.ffn_input = ggml_new_tensor_1d(state.context, GGML_TYPE_F32, width);
+        state.router_input = ggml_new_tensor_1d(state.context, GGML_TYPE_F32, width);
+        ggml_tensor * combined = nullptr;
+        for (int position = 0; position < 4; ++position) {
+            auto * gate_w = ggml_new_tensor_2d(state.context, GGML_TYPE_MXFP4, width, width);
+            auto * gate_b = ggml_new_tensor_1d(state.context, GGML_TYPE_F32, width);
+            auto * up_w = ggml_new_tensor_2d(state.context, GGML_TYPE_MXFP4, width, width);
+            auto * up_b = ggml_new_tensor_1d(state.context, GGML_TYPE_F32, width);
+            auto * down_w = ggml_new_tensor_2d(state.context, GGML_TYPE_MXFP4, width, width);
+            auto * down_b = ggml_new_tensor_1d(state.context, GGML_TYPE_F32, width);
+            ggml_tensor * tensors[] = {gate_w, gate_b, up_w, up_b, down_w, down_b};
+            for (int component = 0; component < 6; ++component)
+                state.component_tensors[position * 6 + component] = tensors[component];
+            auto * gate = ggml_add(state.context,
+                ggml_mul_mat(state.context, gate_w, state.router_input), gate_b);
+            auto * up = ggml_add(state.context,
+                ggml_mul_mat(state.context, up_w, state.router_input), up_b);
+            auto * hidden = ggml_swiglu_oai(state.context, gate, up, 1.702f, 7.0f);
+            auto * expert = ggml_add(state.context,
+                ggml_mul_mat(state.context, down_w, hidden), down_b);
+            state.scale_tensors[position] = ggml_scale(state.context, expert, 1.0f);
+            combined = combined ? ggml_add(state.context, combined,
+                                            state.scale_tensors[position])
+                                : state.scale_tensors[position];
+        }
+        state.output = ggml_add(state.context, state.ffn_input, combined);
+        state.graph = ggml_new_graph_custom(
+            state.context, GGML_DEFAULT_GRAPH_SIZE, false);
+        ggml_build_forward_expand(state.graph, state.output);
+    }
+    state.ffn_input->data = const_cast<float *>(ffn_input_values);
+    state.router_input->data = const_cast<float *>(router_input_values);
+    for (int component = 0; component < 24; ++component)
+        state.component_tensors[component]->data = const_cast<void *>(components[component]);
+    for (int position = 0; position < 4; ++position)
+        std::memcpy(state.scale_tensors[position]->op_params, &gates[position], sizeof(float));
+    const auto begin = std::chrono::steady_clock::now();
+    const int status = compute(state.context, state.graph, threads);
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    if (status != GGML_STATUS_SUCCESS) return 4;
+    std::memcpy(output_values, state.output->data, width * sizeof(float));
+    for (int64_t index = 0; index < width; ++index)
+        if (!std::isfinite(output_values[index])) return 5;
+    return 0;
+}
