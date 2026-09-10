@@ -1557,3 +1557,36 @@ header, then the shortest terminated response that can be evaluated for basic
 coherence. Keep the response structure and quality claim separate from speed.
 Once usable text passes, integrate 120B only as a selective depth tier in the
 heterogeneous completed-task gate.
+
+### Exact 120B route-cartridge falsification and quality-track pivot (2026-09-10)
+
+The proposed 6--10 GiB exact resident route cartridge was tested before full
+integration against three independent, bitwise-repeatable GPT-OSS 120B route
+families. Each family used its first half as the only permitted training prefix
+and its remaining tokens as held-out expert demand. Separate leave-one-family-
+out measurements tested cross-family transfer. The calculation used the exact
+raw and compressed byte lengths from the `COMPLETE_VERIFIED` SD warehouse.
+
+The predeclared gate required at least 90% held-out route coverage for every
+family, which is the minimum needed for a tenfold reduction in expert faults.
+It failed. Within-family coverage ranged from 30.2083% to 66.1111%; the best
+minimum coverage across 6, 8 and 10 GiB was 30.2083%. Cross-family minimum
+coverage remained below 47%. More capacity did not repair prefix holdout because
+the additional required experts had never occurred in the observed prefix.
+Decision: `STOP_EXACT_ROUTE_CARTRIDGE`. Canonical report SHA-256:
+`295232993424e95c44cac975933210dd5bbc3883dbc39cee30099ec21711df4c`.
+The identical report is preserved on the mounted SD evidence volume; stored-file
+SHA-256: `d76d9ab5d5d43539b494516ced869427f3c58008916670da0c2e47e9e690b99d`.
+
+Do not integrate a family-prefix exact cartridge or enlarge its cache. The exact
+120B control remains 0.0515 genuine token/s. The only remaining route to the
+tens-of-tokens/s target on this hardware is a separately labelled changed-model
+track: constrain each layer to a bounded pool of original resident GPT-OSS
+experts, retain the original attention/backbone and router scoring, and select
+the top four only within that pool. Freeze the evaluation set and baseline before
+testing it. Report semantic quality, probability divergence, memory, TTFT and
+genuine generation speed; never describe the constrained subnetwork as exact
+full-model execution. In parallel, move the now-resident shared attention path
+to a persistent Metal implementation, because the existing approximately
+2.4-second resident evaluation boundary cannot reach 30 token/s even after SD
+faults are removed.

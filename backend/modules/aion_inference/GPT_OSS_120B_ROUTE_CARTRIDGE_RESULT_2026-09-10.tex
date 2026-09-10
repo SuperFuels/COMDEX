@@ -1,0 +1,64 @@
+% Append-only section for the AION technical record.
+\section{Exact 120B Route-Cartridge Gate and Quality-Track Pivot}
+\label{sec:gptoss-120b-route-cartridge}
+
+\subsection{Question and predeclared acceptance rule}
+
+The next candidate attempted to turn the verified GPT-OSS 120B SD warehouse
+into a bounded resident route cartridge.  The intended mechanism retained
+between 6 and 10~GiB of original packed experts, left the original router
+authoritative, and used the exact verified SD fault path whenever a required
+expert was absent.  To justify integration, every prompt family had to achieve
+at least 90\% held-out route coverage, corresponding to a minimum tenfold
+reduction in expert faults.  The threshold was frozen before inspecting the
+result.
+
+\subsection{Method}
+
+Three independent route families were drawn from previously passed,
+bitwise-repeatable GPT-OSS 120B executions: an eight-token BOS-conditioned
+sequence, the four-token \texttt{Hello from AION} sequence, and the nine-token
+Harmony \texttt{Hi} sequence.  For each family, the first half of the token
+sequence was used to construct a deterministic frequency-per-byte cartridge;
+the remaining tokens were held out.  Separate leave-one-family-out trials
+trained on the other two families.  Resident and missed bytes were calculated
+from the exact component lengths in the \texttt{COMPLETE\_VERIFIED} warehouse
+manifest rather than from a constant expert-size assumption.
+
+\subsection{Result}
+
+The exact cartridge failed its promotion gate.  Within-family prefix-to-future
+coverage was 48.7847\% for the BOS sequence, 30.2083\% for
+\texttt{Hello from AION}, and 66.1111\% for the Harmony sequence.  Increasing
+the ceiling from 6 to 8 or 10~GiB did not improve these measurements: the
+additional future experts had not appeared in the observed prefix and could not
+be selected exactly without speculation.  Minimum leave-one-family-out coverage
+was 36.9792\%, 42.0139\%, and 46.1806\% at the three respective ceilings.  The
+decision is therefore \texttt{STOP\_EXACT\_ROUTE\_CARTRIDGE}.
+
+The canonical report SHA--256 is
+\texttt{295232993424e95c44cac975933210dd5bbc3883dbc39cee30099ec21711df4c}.
+The repository and SD copies are byte-identical, with stored-file SHA--256
+\texttt{d76d9ab5d5d43539b494516ced869427f3c58008916670da0c2e47e9e690b99d}.
+Six focused tests, including the existing verified expert-store tests, passed.
+
+\subsection{Meaning and next boundary}
+
+This result falsifies an exact prefix-trained cartridge as the route to
+30--50 generated tokens/s on the present 18~GB M3 Pro.  It does not invalidate
+the lossless SD warehouse, complete transformer execution, or the exact 0.0515
+token/s later-token control.  It prevents a cache-coverage projection from being
+reported as executed speed.
+
+The next permitted experiment is explicitly a quality-gated changed-model
+track.  Each layer may be constrained to a bounded resident pool selected from
+the original GPT-OSS experts; original router scores choose the top four within
+that pool.  The full 36-layer attention and residual backbone remains present.
+Evaluation data and the unrestricted baseline must be frozen first, and results
+must report semantic quality, probability divergence, memory, time to first
+token, and genuine later-token throughput.  This constrained subnetwork must
+never be labelled bit-exact full-model inference.  Removal of expert SD faults
+is also insufficient by itself: the persistent resident execution boundary is
+approximately 2.4 seconds per evaluation, so persistent Metal attention and
+shared-tensor execution remain necessary before a 30-token/s claim is
+physically credible.
