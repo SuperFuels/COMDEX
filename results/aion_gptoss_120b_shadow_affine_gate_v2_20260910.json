@@ -1,0 +1,337 @@
+{
+  "accepted_holdout_fraction": 0.0,
+  "accepted_layers": [],
+  "authorization_sha256": "e1bd12cbde252a410b6cd293c71f70c46edb8a99f1b2bc84a57f549dfcfbaa90",
+  "calculation_ms_p50": 0.018167,
+  "calculation_ms_p95": 0.018583,
+  "canonical_sha256": "c7ff59cb0b96bdb3ae3eeea67d5536f5c08f251113a9c81b8dbf5aaee0c1ee32",
+  "cartridge_bytes": 2860,
+  "cartridge_canonical_sha256": "e743d47af422eb61950f20e2c6ba0dff14ce8f5040fe2112bcf95a0d224c143a",
+  "cartridge_path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_shadow_affine_cartridge_v2_20260910.json",
+  "cartridge_sha256": "277934f58dc5948555c5c29c13fc77f1a818cf7fe18a30bb6afd5dc8a6f3dec1",
+  "claim_boundary": "This is the first authorized changed-arithmetic baseline. It may advance only as an experimental rung; exact SD experts remain the fallback and 10x remains the target.",
+  "created_at": "2026-09-10T12:45:44.558147+00:00",
+  "manifest_canonical_sha256": "f91d9c8c1e9f4db2ffae76e2dcecf2b2500e6668ec8ecd38d79f75d0d35b37e3",
+  "observations": [
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 0,
+      "relative_l2": 1.1254729415380953,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 12,
+      "relative_l2": 17.818192303374488,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 15,
+      "relative_l2": 15.738130526774622,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 18,
+      "relative_l2": 0.9466772064838054,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 21,
+      "relative_l2": 0.822196737882887,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 24,
+      "relative_l2": 0.8955813863751044,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 27,
+      "relative_l2": 0.9771914311775761,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 3,
+      "relative_l2": 1.3359837796837872,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 30,
+      "relative_l2": 0.7236908633709382,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 35,
+      "relative_l2": 1.0360669906129476,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 6,
+      "relative_l2": 0.9069580272539289,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 9,
+      "relative_l2": 18.46838861802741,
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 0,
+      "relative_l2": 1.0198964110571345,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 12,
+      "relative_l2": 20.020768114278834,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 15,
+      "relative_l2": 15.253002103142615,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 18,
+      "relative_l2": 0.9427654893213848,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 21,
+      "relative_l2": 0.8098358378293616,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 24,
+      "relative_l2": 1.2927036795713405,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 27,
+      "relative_l2": 0.9731996153281683,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 3,
+      "relative_l2": 1.1161408073764865,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 30,
+      "relative_l2": 0.9561578083451625,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 35,
+      "relative_l2": 0.9139957527290826,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 6,
+      "relative_l2": 0.9019082468157543,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 9,
+      "relative_l2": 20.61689811924647,
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 0,
+      "relative_l2": 0.9609258504973298,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 12,
+      "relative_l2": 21.410693215700952,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 15,
+      "relative_l2": 15.977548914972154,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 18,
+      "relative_l2": 0.9061137046596301,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 21,
+      "relative_l2": 0.9307650237820472,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 24,
+      "relative_l2": 0.9698459819316552,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 27,
+      "relative_l2": 0.8307745851360424,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 3,
+      "relative_l2": 1.0763163856491214,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 30,
+      "relative_l2": 0.8685053191435873,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 35,
+      "relative_l2": 0.9627595484334749,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 6,
+      "relative_l2": 0.7258311035581675,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 9,
+      "relative_l2": 24.711064449804685,
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 0,
+      "relative_l2": 0.9697925828569682,
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 12,
+      "relative_l2": 0.8735172076998396,
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 15,
+      "relative_l2": 0.5937894153678586,
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 18,
+      "relative_l2": 0.8376944507365873,
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 21,
+      "relative_l2": 0.6706747179467504,
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 24,
+      "relative_l2": 0.7192079405902856,
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 27,
+      "relative_l2": 0.7533293396057708,
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 3,
+      "relative_l2": 0.9060522952935113,
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 30,
+      "relative_l2": 0.6876225989569403,
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 35,
+      "relative_l2": 0.9631942313818951,
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 6,
+      "relative_l2": 0.7786092726687902,
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 9,
+      "relative_l2": 0.48528764865072804,
+      "split": "train"
+    }
+  ],
+  "projected_expert_traffic_reduction": 1.0,
+  "quality_track": true,
+  "schema": "aion.shadow-expert-affine-training-gate.v1",
+  "status": "STOP_AFFINE_BASELINE",
+  "summaries": {
+    "calibration": {
+      "relative_l2_max": 18.46838861802741,
+      "relative_l2_p50": 1.006629210895262,
+      "relative_l2_p95": 17.818192303374488,
+      "samples": 12
+    },
+    "numerical_holdout": {
+      "relative_l2_max": 20.61689811924647,
+      "relative_l2_p50": 0.9965480131926514,
+      "relative_l2_p95": 20.020768114278834,
+      "samples": 12
+    },
+    "semantic_holdout": {
+      "relative_l2_max": 24.711064449804685,
+      "relative_l2_p50": 0.9618426994654024,
+      "relative_l2_p95": 21.410693215700952,
+      "samples": 12
+    },
+    "train": {
+      "relative_l2_max": 0.9697925828569682,
+      "relative_l2_p50": 0.7659693061372805,
+      "relative_l2_p95": 0.9631942313818951,
+      "samples": 12
+    }
+  },
+  "training_authorized": true,
+  "unsafe_accepted_holdout_rows": []
+}

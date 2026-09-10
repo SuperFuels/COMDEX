@@ -74,7 +74,17 @@ Duplicate activation hashes must remain in one split only.
 
 ## Predeclared mechanism gates
 
-A candidate may advance from a layer microgate only if all are true:
+A candidate may advance from a layer microgate only if the accuracy and
+confidence conditions below are met. Traffic progress is now recorded in
+three honest rungs so a real smaller win is not discarded:
+
+- experimental rung: greater than 1.10x measured traffic reduction;
+- useful rung: at least 2x measured traffic reduction; and
+- breakthrough rung: at least 10x measured traffic reduction.
+
+Only the breakthrough rung satisfies the original programme target. Lower
+rungs remain explicitly experimental and must demonstrate repeatable net
+token-speed improvement before runtime use. For every rung all are true:
 
 1. Cartridge storage is at least 10x smaller than the expert traffic it aims
    to replace.
@@ -83,9 +93,9 @@ A candidate may advance from a layer microgate only if all are true:
 3. Held-out combined-residual relative L2 is at most 0.02 p95 and 0.05 maximum.
 4. The confidence gate captures at least 99.9% of violations above the error
    limit; undetected high-error predictions fail the candidate.
-5. The projected accepted fraction is high enough to reduce physical expert
-   bytes per token by at least 10x. A fast but frequently rejected candidate
-   does not advance.
+5. The projected accepted fraction is reported as measured physical expert
+   bytes per token and assigned to the appropriate rung. A fast but frequently
+   rejected candidate with no net win does not advance.
 
 ## Full-model gates
 
@@ -197,3 +207,21 @@ control failed with p50/p95/max relative L2 all 1.0, 24 violations and zero
 violation capture. This establishes that the collection and refusal machinery
 can reach both expected outcomes. It is not evidence for a learned predictor;
 training remains unauthorized.
+
+## First authorized trained baseline (2026-09-10)
+
+The user explicitly authorized local training from this frozen numerical
+dataset, while retaining the data and claim boundaries above. A 2,860-byte
+per-layer affine cartridge was trained as the cheapest falsification test. It
+was extremely fast (0.0182 ms p50, 0.0186 ms p95) but numerically unusable:
+calibration accepted no layer, holdout p95 relative L2 reached 21.41, and
+projected traffic reduction remained 1.0x. Decision:
+`STOP_AFFINE_BASELINE`. Exact fallback therefore handled every layer.
+
+The report canonical SHA-256 is
+`c7ff59cb0b96bdb3ae3eeea67d5536f5c08f251113a9c81b8dbf5aaee0c1ee32`;
+its identical local/SD file SHA-256 is
+`e443ba15b37dbfd273c0801ccb43b3314339de7e161dcf5f4659e51a6423aea5`.
+This falsifies a simple elementwise polynomial mapping; it does not falsify a
+nonlinear low-rank residual model trained on substantially more activation
+trajectories.

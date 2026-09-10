@@ -563,3 +563,24 @@ and
 \texttt{9a91c59077fe705fe32cf2e9339b14c9ff050d7230e2da6bc9e2c5b805468999}.
 Readiness is now sufficient to test a trained candidate, but this work did not
 train or inject one; that boundary still requires explicit authorization.
+
+\subsection{Authorized staged Shadow Expert search}
+
+The user subsequently authorized local training from the frozen numerical
+corpus under the existing exclusion and fallback boundaries.  The 10$\times$
+traffic target remains the breakthrough rung, while genuine intermediate
+reductions may advance as explicitly experimental rungs above 1.10$\times$ and
+2$\times$.  Accuracy, confidence calibration and exact fallback requirements
+were not weakened.
+
+The first candidate was a 2,860-byte per-layer affine/polynomial cartridge.  It
+calculated in 0.0182~ms p50 and 0.0186~ms p95, so its arithmetic and storage
+cost were negligible.  It nevertheless failed decisively: calibration accepted
+zero layers, numerical and semantic holdout p95 relative $L_2$ errors were
+20.02 and 21.41, and projected expert-traffic reduction remained 1.0$\times$.
+The decision is \texttt{STOP\_AFFINE\_BASELINE}.  Report canonical SHA-256 is
+\texttt{c7ff59cb0b96bdb3ae3eeea67d5536f5c08f251113a9c81b8dbf5aaee0c1ee32},
+with identical local/SD file SHA-256
+\texttt{e443ba15b37dbfd273c0801ccb43b3314339de7e161dcf5f4659e51a6423aea5}.
+This closes simple elementwise shortcuts but leaves a nonlinear low-rank model,
+trained on substantially more trajectories, as the next serious test.

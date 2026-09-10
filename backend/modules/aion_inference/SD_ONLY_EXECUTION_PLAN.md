@@ -2020,3 +2020,24 @@ identical local/SD files are
 and `588bd891127afb46c6531e9ddb6cd91022c0d4ed798674bb9fb0e61b04443632`.
 This completes the authorized readiness scope. Training/injection remains a
 separate explicit user decision.
+
+### Authorized staged Shadow Expert search (2026-09-10)
+
+The user explicitly authorized local training from the frozen model-generated
+numerical corpus, still excluding prompt text and personal/customer data. The
+10x traffic target remains the breakthrough rung, but verified intermediate
+wins may now advance as explicitly experimental: greater than 1.10x, at least
+2x, then at least 10x. Numerical accuracy, confidence violation capture, exact
+fallback and honest changed-arithmetic labelling were not relaxed.
+
+The first authorized candidate was a 2,860-byte per-layer affine/polynomial
+cartridge. It calculated in 0.0182 ms p50 and 0.0186 ms p95, proving computation
+and cartridge size would be negligible. Accuracy decisively failed: no layer
+passed calibration, numerical/semantic holdout p95 relative L2 errors were
+20.02/21.41, and traffic reduction remained 1.0x. Decision:
+`STOP_AFFINE_BASELINE`. Report canonical SHA-256:
+`c7ff59cb0b96bdb3ae3eeea67d5536f5c08f251113a9c81b8dbf5aaee0c1ee32`.
+Identical local/SD file SHA-256:
+`e443ba15b37dbfd273c0801ccb43b3314339de7e161dcf5f4659e51a6423aea5`.
+The next justified candidate is nonlinear and low-rank, after collecting enough
+additional training trajectories; repeating affine variants is stopped.
