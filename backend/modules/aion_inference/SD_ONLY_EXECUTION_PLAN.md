@@ -2241,3 +2241,11 @@ control. Promote the mechanism for exact two-family cache stability. Do not
 claim 30--50 token/s or general unseen-family coverage. Next profile stable
 internal-L2 delivery versus native compute and advance only the largest real
 cost.
+
+The immediate 1.5 GiB durable-L1 hotset extension was then stopped. It admitted
+exactly 121 measured hot experts and reduced settled L2 delivery by 28.67%, but
+raised resident expert memory from 7.90 to 9.39 GiB. Native expert calculation
+slowed enough that settled arithmetic fell from 1.62106 to 1.31965 token/s, an
+18.59% regression, despite exact outputs. Do not retry larger RAM expert halos
+on this 18 GB host. Preserve the promoted demand-admitted disk cartridge and
+seek a fused/lower-copy path that does not increase the resident footprint.

@@ -477,6 +477,45 @@ def test_reusable_route_arena_returns_exact_writable_views(tmp_path):
     assert metrics["sd_fallbacks"] == 0
 
 
+def test_reusable_route_arena_admits_only_declared_l1_hotset(tmp_path):
+    regions = []
+    expected = {}
+    for expert in range(2):
+        expected[expert] = {}
+        for index, (projection, kind) in enumerate(
+                (p, k) for p in ("gate", "up", "down") for k in ("weight", "bias")):
+            raw = f"{expert}-{projection}-{kind}".encode() * 100
+            expected[expert].setdefault(projection, {})[kind] = raw
+            regions.append(_region(
+                tmp_path, expert * 6 + index,
+                f"blk.0.ffn_{projection}_exps.{kind}", raw, expert=expert))
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({
+        "schema": "aion.expert-frame-warehouse.v1",
+        "status": "COMPLETE_VERIFIED", "regions": regions,
+    }))
+    l2_root = tmp_path / "l2"
+    populate = GptOssPersistentL2ExpertFrameStore(
+        manifest_path, 0, l2_root, 1024 * 1024)
+    for expert in range(2):
+        assert populate.get(0, expert) == expected[expert]
+    hot_size = sum(len(component) for components in expected[0].values()
+                   for component in components.values())
+    arena = GptOssReusableArenaPersistentL2ExpertFrameStore(
+        manifest_path, hot_size, l2_root, 1024 * 1024)
+    arena.set_route_arena_l1_allowlist({"0": [0]})
+    assert arena.get_layer_route_parallel(0, [0, 1], workers=2) == [
+        expected[0], expected[1]]
+    assert arena.get_layer_route_parallel(0, [0, 1], workers=2) == [
+        expected[0], expected[1]]
+    metrics = arena.metrics()
+    assert metrics["route_arena_reads"] == 3
+    assert metrics["route_arena_l1_allowlist_entries"] == 1
+    assert metrics["route_arena_l1_admissions"] == 1
+    assert metrics["route_arena_l1_admission_bytes"] == hot_size
+    assert metrics["hits"] == 1
+
+
 def test_component_pointer_array_uses_buffer_without_copy():
     raw = bytearray(b"mapped-packed-weight")
     view = memoryview(raw)

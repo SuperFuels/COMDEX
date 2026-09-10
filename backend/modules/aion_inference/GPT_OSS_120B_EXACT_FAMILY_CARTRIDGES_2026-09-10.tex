@@ -104,6 +104,30 @@ disabled.  The focused cache and analysis suite passed 19/19 tests, including
 a test proving that a protected exact cartridge entry cannot be displaced by
 an unprotected halo admission.
 
+\subsection{Stopped RAM-hotset extension}
+
+The settled profile assigned 43--48\% of continuation time to internal expert
+delivery, 32--34\% to native expert calculation, 16--19\% to attention and
+approximately 1.6\% to output.  Offline replay predicted that a 1.5~GiB
+family-specific RAM hotset could retain 121 repeatedly used arithmetic experts
+and avoid 10.5537~GiB of later decoded L2 traffic.  A capacity-only experiment
+was first invalidated as an optimisation: the reusable arena intentionally
+kept transient misses out of durable L1, so resident expert memory remained
+7.8999~GiB and settled throughput regressed 2.66\%.
+
+A second implementation explicitly copied only those 121 hash-bound hot
+experts into durable L1 on their first genuine unrestricted use.  It behaved
+as designed: resident expert memory reached 9.3934~GiB, all 121 experts were
+admitted once, and settled L2 delivery fell from approximately 42.03 to
+29.98~GiB per pass, a 28.67\% reduction.  Nevertheless, arithmetic settled at
+only 1.35679 and 1.28251~t/s, median 1.31965~t/s.  This was 18.59\% below the
+1.62106~t/s cartridge control.  Native expert-finish time rose to 11.41 and
+12.67~s from roughly 6--7~s in the lower-pressure control.  The added residency
+therefore reduced weight delivery but created enough memory/cache pressure to
+make calculation materially slower.  Exact tokens, routes, hidden states and
+logits still passed.  Decision:
+\texttt{NOT\_PROMOTED\_STOP\_L1\_HOTSET\_ON\_18GB\_HOST}.
+
 \subsection{Interpretation and next gate}
 
 This is a genuine cross-family cache-stability breakthrough, not the requested
@@ -121,6 +145,12 @@ representations must remain in a separately labelled quality track with a
 frozen semantic evaluation.  No exact-track claim may extrapolate trace
 coverage to unseen families.
 
+The RAM-hotset falsification narrows that next gate further: it is not enough
+to reduce bytes if doing so increases the resident working set.  The next
+exact experiment should retain the promoted memory footprint and test a
+single-pass fused native four-expert kernel or a lower-copy internal-delivery
+path.  Both delivery bytes and native compute time must improve together.
+
 \subsection{Evidence identifiers}
 
 The offline plan's canonical SHA-256 is
@@ -135,3 +165,7 @@ The extraction runtime canonical SHA-256 is
 \texttt{381373997ca16a6bf4bc0876f5c719a472e49742b6af2f58f3b14ff6265b8bdd},
 with stored-file SHA-256
 \texttt{8132f9200b6ff4649c018048bd331984359da5775c804800b04cf6a91d855c68}.
+The stopped durable-L1 hotset runtime canonical SHA-256 is
+\texttt{45cc9cca1692da4e29744b7633ff7455556b61eb8d9cea4ba32132aa616bb783},
+with stored-file SHA-256
+\texttt{3918a2e4c622d58f05962df35a5a40ea354d76ce436a1c1acc0e42e43b943ff5}.

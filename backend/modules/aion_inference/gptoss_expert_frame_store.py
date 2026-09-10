@@ -688,6 +688,17 @@ class GptOssReusableArenaPersistentL2ExpertFrameStore(
         self.route_arena_capacity_bytes = largest * len(self._route_arenas)
         self.route_arena_reads = 0
         self.route_arena_bytes_read = 0
+        self._route_arena_l1_allowlist: set[tuple[int, int]] = set()
+        self.route_arena_l1_admissions = 0
+        self.route_arena_l1_admission_bytes = 0
+
+    def set_route_arena_l1_allowlist(
+            self, layer_experts: dict[str, list[int]]) -> None:
+        """Admit only a measured hot subset from transient arenas into durable L1."""
+        self._route_arena_l1_allowlist = {
+            (int(layer), int(expert))
+            for layer, experts in layer_experts.items() for expert in experts
+        }
 
     def _read_l2_into_slot(self, layer: int, expert: int, slot: int):
         cache_key = (layer, expert)
@@ -784,7 +795,22 @@ class GptOssReusableArenaPersistentL2ExpertFrameStore(
             with ThreadPoolExecutor(max_workers=min(workers, len(missing)),
                                     thread_name_prefix="aion-gptoss-l2-arena") as pool:
                 loaded = list(pool.map(load, missing))
-            for (position, _), value in zip(missing, loaded, strict=True):
+            for (position, expert), value in zip(missing, loaded, strict=True):
+                cache_key = (layer, expert)
+                if cache_key in self._route_arena_l1_allowlist:
+                    stable = {
+                        projection: {
+                            kind: bytes(component)
+                            for kind, component in components.items()
+                        }
+                        for projection, components in value.items()
+                    }
+                    before = self._resident
+                    self._retain(cache_key, stable)
+                    if self._resident > before:
+                        self.route_arena_l1_admissions += 1
+                        self.route_arena_l1_admission_bytes += self._resident - before
+                        value = stable
                 results[position] = value
         if any(value is None for value in results):
             raise RuntimeError("reusable-arena route remained incomplete")
@@ -797,6 +823,10 @@ class GptOssReusableArenaPersistentL2ExpertFrameStore(
             "route_arena_capacity_bytes": self.route_arena_capacity_bytes,
             "route_arena_reads": self.route_arena_reads,
             "route_arena_bytes_read": self.route_arena_bytes_read,
+            "route_arena_l1_allowlist_entries": len(
+                self._route_arena_l1_allowlist),
+            "route_arena_l1_admissions": self.route_arena_l1_admissions,
+            "route_arena_l1_admission_bytes": self.route_arena_l1_admission_bytes,
         }
 
 

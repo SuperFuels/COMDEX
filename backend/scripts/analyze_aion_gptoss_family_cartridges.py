@@ -118,6 +118,7 @@ def main() -> int:
     parser.add_argument("--ram-pool", action="append", default=[],
                         help="family_id:path for an already-protected exact RAM pool")
     parser.add_argument("--capacities-gib", default="20,25,30")
+    parser.add_argument("--ram-hotset-gib", type=float, default=1.5)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
@@ -275,6 +276,7 @@ def main() -> int:
         segment_budget = int(row["capacity_gib"] * GIB) - bytes_for(core, sizes) \
             - int(row["halo_budget_gib"] * GIB)
         cartridges = {}
+        ram_hotsets = {}
         for family_id, family in families.items():
             ranking = sorted(
                 (key for key in family["counts"] if key not in core),
@@ -288,6 +290,30 @@ def main() -> int:
                  "compressed_bytes": compressed_sizes[key]}
                 for key in sorted(selected)
             ]
+            hot_rank = sorted(
+                family["counts"],
+                key=lambda key: (
+                    max(family["counts"][key] - 1, 0) / sizes[key],
+                    family["counts"][key], -sizes[key]),
+                reverse=True,
+            )
+            hot = select_within_budget(
+                hot_rank, sizes, int(args.ram_hotset_gib * GIB))
+            ram_hotsets[family_id] = {
+                "budget_gib": args.ram_hotset_gib,
+                "entries": [
+                    {"layer": key[0], "expert": key[1], "raw_bytes": sizes[key],
+                     "compressed_bytes": compressed_sizes[key],
+                     "observed_accesses": family["counts"][key]}
+                    for key in sorted(hot)
+                ],
+                "raw_bytes": bytes_for(hot, sizes),
+                "observed_future_hits": sum(
+                    max(family["counts"][key] - 1, 0) for key in hot),
+                "observed_avoided_l2_raw_bytes": sum(
+                    max(family["counts"][key] - 1, 0) * sizes[key]
+                    for key in hot),
+            }
         return {
             "capacity_gib": row["capacity_gib"],
             "core_budget_gib": row["core_budget_gib"],
@@ -296,6 +322,7 @@ def main() -> int:
                       "compressed_bytes": compressed_sizes[key]}
                      for key in sorted(core)],
             "cartridges": cartridges,
+            "ram_hotsets": ram_hotsets,
         }
     recommended_plan = materialize_plan(recommended)
     sets = [family["unique"] for family in families.values()]
