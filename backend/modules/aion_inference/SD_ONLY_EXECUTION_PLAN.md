@@ -1882,6 +1882,18 @@ sparse exact representation. If real packed blocks are not strongly sparse,
 stop storage-level sparsification and require a separately authorized learned
 surrogate for any further order-of-magnitude model-traffic reduction.
 
+The governed next architecture is specified in
+`AION_GLYPH_SHADOW_EXPERT_PROTOCOL.md`. It predicts the combined four-expert
+residual from the already-resident layer activation, unrestricted route and
+gates, then either accepts under a calibrated error bound or falls back to the
+unchanged exact warehouse. It is explicitly a changed-arithmetic quality track
+and cannot be called exact GPT-OSS 120B. Its mechanism gate requires at least
+10x projected traffic reduction, sub-1 ms p50 calculation, held-out residual
+relative L2 at most 0.02 p95, and detection of at least 99.9% of violations.
+No personal/customer data may be collected. The protocol, capture schema,
+split and evaluator may be built now; training or injecting a derived cartridge
+requires separate explicit user authorization.
+
 The intrinsic MXFP4 structure gate then sampled 16 routed layer/expert
 addresses and all three packed matrices. Median signed-zero code content was
 12.19% (range 11.36--18.63%), no sampled 32-value block was entirely zero, and
