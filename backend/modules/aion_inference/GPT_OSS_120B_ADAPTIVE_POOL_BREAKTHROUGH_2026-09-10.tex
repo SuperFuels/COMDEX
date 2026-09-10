@@ -452,3 +452,29 @@ deliver a multiple-times reduction.  Canonical SHA-256 is
 \texttt{cc90b6456b0ff5549691331d3cd383418b50e80297f125ebad11f2cc2459a692},
 with identical local/SD file SHA-256
 \texttt{da3819abf1925cfb112bb77f320d728d73d4c8df513b8e59638b5e3bd9bab061}.
+
+\subsection{Exact drafting bound and Shadow Expert readiness}
+
+Before implementing speculative decoding, an intentionally optimistic bound
+combined the measured eight-token route grouping with the best exact core/halo
+rate.  Perfect grouping could remove at most 42.64\% of expert bytes.  Even
+assuming 100\% draft acceptance, zero draft and scheduling cost, perfect
+grouping and no non-I/O work, the resulting upper bound is only 0.18034
+token/s.  The decision is
+\texttt{STOP\_EXACT\_DRAFT\_AS\_BREAKTHROUGH\_PATH}.  Canonical SHA-256 is
+\texttt{778585165210d14bbc92f20118f3f054e028c8b6872054b0ad1006bc3c5d7c34},
+with identical local/SD file SHA-256
+\texttt{0cdd982fcec9141aeacc03682b5c4de7fe9e8b34cf037db6186e5d4be3825e84}.
+
+A governed AION Glyph Shadow Expert protocol now defines the only remaining
+order-of-magnitude model-traffic experiment.  It predicts the combined
+four-expert residual from already-resident activation, unrestricted route and
+gates, rejects low-confidence predictions, and retains exact SD fallback.  It
+is explicitly changed arithmetic.  Its dataset builder verified the existing
+16 numerical captures but returned
+\texttt{INSUFFICIENT\_FAMILY\_COVERAGE}: one family cannot populate disjoint
+train, calibration, numerical-holdout and semantic-holdout splits.  No training
+or injection has occurred.  Dataset-manifest canonical SHA-256 is
+\texttt{d9896a4188b9a8d4ca1ff1af84cbd7904a5775acb562f26fdc5520d35f2768a8},
+with identical local/SD file SHA-256
+\texttt{51332ef74510ebe10873bbf6df0398a210f191d5d60cb48eeb021b9f112a4fa2}.

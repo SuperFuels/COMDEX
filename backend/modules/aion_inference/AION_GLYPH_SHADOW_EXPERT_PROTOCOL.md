@@ -111,3 +111,16 @@ This protocol does not authorize training or injection. Training a first
 cartridge requires explicit user approval for local model-derived training,
 the declared dataset boundary above, and the frozen gates. Until then, work is
 limited to data-schema, capture, split, evaluator and fallback implementation.
+
+## Initial readiness state (2026-09-10)
+
+The hash-bound split builder has been implemented and run on the existing
+capture corpus. It verified 16 numerical activation records, no prompt text and
+no personal/customer data. The corpus contains only one BOS/two-token family,
+so it is correctly marked `INSUFFICIENT_FAMILY_COVERAGE`. At least four
+independent synthetic prompt families are required for train, calibration,
+numerical holdout and semantic holdout. No existing record is silently reused
+as held-out evidence.
+
+Dataset-manifest canonical SHA-256:
+`d9896a4188b9a8d4ca1ff1af84cbd7904a5775acb562f26fdc5520d35f2768a8`.

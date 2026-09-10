@@ -1894,6 +1894,30 @@ No personal/customer data may be collected. The protocol, capture schema,
 split and evaluator may be built now; training or injecting a derived cartridge
 requires separate explicit user authorization.
 
+The dataset split builder is now operational. It hash-verified the existing 16
+real numerical activation captures and correctly returned
+`INSUFFICIENT_FAMILY_COVERAGE`: there is only one family, versus the locked
+minimum of four disjoint train/calibration/numerical-holdout/semantic-holdout
+families. No training is authorized and no holdout claim may use this seed
+corpus alone. Manifest canonical SHA-256:
+`d9896a4188b9a8d4ca1ff1af84cbd7904a5775acb562f26fdc5520d35f2768a8`.
+Identical local/SD file SHA-256:
+`51332ef74510ebe10873bbf6df0398a210f191d5d60cb48eeb021b9f112a4fa2`.
+
+An exact draft/verify upper bound was also completed before implementation.
+The captured eight-token route allows at most 42.64% perfect grouping byte
+reduction. Even assuming 100% draft acceptance, zero draft/scheduling cost,
+perfect grouping and zero non-I/O work, applying that reduction to the best
+exact 0.10345 token/s rate yields only 0.18034 token/s. Decision:
+`STOP_EXACT_DRAFT_AS_BREAKTHROUGH_PATH`. It may offer an incremental throughput
+improvement in another product context, but cannot reach even 1 token/s here
+and must not consume the breakthrough programme.
+
+Upper-bound canonical SHA-256:
+`778585165210d14bbc92f20118f3f054e028c8b6872054b0ad1006bc3c5d7c34`.
+Identical local/SD file SHA-256:
+`0cdd982fcec9141aeacc03682b5c4de7fe9e8b34cf037db6186e5d4be3825e84`.
+
 The intrinsic MXFP4 structure gate then sampled 16 routed layer/expert
 addresses and all three packed matrices. Median signed-zero code content was
 12.19% (range 11.36--18.63%), no sampled 32-value block was entirely zero, and
