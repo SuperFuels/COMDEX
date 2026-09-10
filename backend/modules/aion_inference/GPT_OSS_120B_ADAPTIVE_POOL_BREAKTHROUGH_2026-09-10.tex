@@ -763,3 +763,23 @@ extraction pool, and median missing unrestricted gate mass was 0.595.  An exact
 confidence escape would consequently reinstate most SD faults.  The next
 credible orders-of-magnitude work is resident packed-kernel acceleration and a
 broader learned/request-family working set, not a lower fixed top-$k$ threshold.
+
+\subsection{Resident CPU Thread Frontier}
+
+The exact resident four-expert MXFP4 route was swept at 1, 2, 4, 6, 8 and
+10 CPU threads.  All outputs remained bitwise identical.  Ten threads gave the
+best isolated hot-route median, 0.7176~ms, but its p95 widened to 2.3816~ms.
+The setting was therefore tested in the complete 48-position arithmetic path
+with exact unrestricted prefill, the unchanged 8~GiB workbench and all four
+continuation experts.
+
+The two exact and repeatable candidate continuations reached 7.9533 and
+5.8810 tokens/s, a median of 6.9172 tokens/s.  The paired six-thread control
+reached 6.2574 and 8.2591 tokens/s, a median of 7.2582 tokens/s.  Ten threads
+therefore regressed the paired median by 4.70\%.  Token arrays matched the
+control and candidate hidden states and logits repeated bitwise, so this is a
+performance falsification rather than a numerical failure.  The decision is
+\texttt{STOP\_THREAD\_COUNT\_AS\_PRIMARY\_SPEED\_LEVER}: a small hot-cache
+microbenchmark win did not survive full 8~GiB workbench pressure.  The compact
+evidence file is
+\texttt{aion\_gptoss\_120b\_resident\_thread\_frontier\_20260910.json}.
