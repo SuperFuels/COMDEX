@@ -2277,3 +2277,15 @@ on blinded extraction/reasoning and 128--256-token gates before broadening it.
 Balanced runtime canonical/file SHA-256:
 `c000c889c84025a510552e31341831bfb12c7b8878b60f008ea06961a95faa52` /
 `392b30f3b60749d10488ddd7ce2e3bd053b5ede615d102c843dfb6575f87afe8`.
+
+The frozen invoice-extraction replication then passed more strongly.  After
+one hostile arithmetic-to-extraction switch/warm-up, balanced settled passes
+had identical 42,531,495,544-byte L2 delivery and zero SD fallbacks.  Median
+22-token response time fell from 14.456209 to 12.031206 s (20.1559%), raising
+throughput from 1.52184 to 1.82858 token/s.  Overlap applied to 616/792 response
+layer evaluations.  Routes, tokens, final hidden states and step logits were
+exact across all five passes.  This promotes the mechanism as a measured exact
+two-family result, not merely arithmetic-specific.  Extraction canonical/file
+SHA-256:
+`180d4ec6595450dd4da79ee6c6ec3ad6381e54b1e380d6242f9fac42032dddc6` /
+`2ca647e49f037a91a9ca1dec7b0d440b992c03670d92651d302aa2c05afb779f`.

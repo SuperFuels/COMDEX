@@ -96,6 +96,38 @@ followed by longer generation only if exactness and at least a 5\% paired gain
 survive.  A larger RAM hotset remains stopped because it previously reduced
 traffic while regressing total speed under memory pressure.
 
+\subsection{Independent extraction-family replication}
+
+The identical five-pass \texttt{00110} protocol was then applied to the frozen
+invoice-extraction family.  This prompt contains 26 teacher-forced positions
+and 22 genuine continuation positions.  Its warm-up incurred 354 SD fallbacks
+while changing from the arithmetic-shaped cartridge state; all four settled
+comparison passes then recorded zero SD fallbacks and identical L2 delivery of
+42,531,495,544 bytes per pass.
+
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+Pass & Mode & 22-token time (s) & Throughput (t/s) & p50 latency (ms) \\
+\midrule
+A & switch/warm-up control & 67.3321 & 0.3267 & 2434.85 \\
+B & control & 14.2713 & 1.5416 & 636.66 \\
+C & adaptive overlap & 11.3956 & 1.9306 & 511.32 \\
+D & adaptive overlap & 12.6668 & 1.7368 & 547.55 \\
+E & control & 14.6411 & 1.5026 & 618.13 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Median settled control time was 14.456209~s and candidate time was 12.031206~s,
+an end-to-end improvement of 20.1559\%.  Median throughput rose from 1.52184 to
+1.82858~tokens/s.  Adaptive overlap was selected for 616 of 792 continuation
+layer evaluations (77.78\%).  All five runs retained identical unrestricted
+routes, generated tokens, final hidden states and step logits.  This second
+family therefore promotes the mechanism from an arithmetic-only observation to
+an exact two-family result.  It remains unproven on unseen families and longer
+generation.
+
 \subsection{Evidence identifiers}
 
 The isolated eight-thread gate's canonical SHA-256 is
@@ -106,3 +138,7 @@ The balanced complete-model report's canonical SHA-256 is
 \texttt{c000c889c84025a510552e31341831bfb12c7b8878b60f008ea06961a95faa52},
 with stored-file SHA-256
 \texttt{392b30f3b60749d10488ddd7ce2e3bd053b5ede615d102c843dfb6575f87afe8}.
+The extraction replication's canonical SHA-256 is
+\texttt{180d4ec6595450dd4da79ee6c6ec3ad6381e54b1e380d6242f9fac42032dddc6},
+with stored-file SHA-256
+\texttt{2ca647e49f037a91a9ca1dec7b0d440b992c03670d92651d302aa2c05afb779f}.
