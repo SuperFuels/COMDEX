@@ -11,12 +11,12 @@ smaller fallback model.  All transformer evaluations used the GPT-OSS 120B
 Q4\_K\_M/MXFP4 checkpoint, its original attention and backbone tensors, and
 original expert weights retrieved losslessly from the verified warehouse.
 
-The accelerated configuration is nevertheless a \emph{changed-model quality
+The first accelerated configuration below is a \emph{changed-model quality
 track}: each layer's router may select only from a bounded resident pool of
 original experts.  It is therefore not bit-exact unrestricted GPT-OSS 120B and
-must not be described as such.  The unrestricted path remains the exact
-reference.  The result advances broader frozen quality testing; it is not yet
-a semantic-quality promotion and it has not reached 30--50 tokens/s.
+must not be described as such.  A later protected-core/exception-halo variant
+restores unrestricted routing and is explicitly compared bit-for-bit with the
+exact reference.  Neither track has reached 30--50 tokens/s.
 
 \subsection{Exact route-cartridge falsification}
 
@@ -230,3 +230,67 @@ The capacity-frontier report has canonical SHA-256
 \texttt{51bfd50c3a419aff439831b51964404d6a71d1e5efd3ec5d8107aeef82bcc4d8}
 and identical local/SD stored-file SHA-256
 \texttt{e79acafb405462858bb842caa5b2adb5ef807b84cafbd418bf4234a3e904f059}.
+
+\subsection{Extraction-family falsification and exact exception halo}
+
+Transfer to a frozen precision-extraction prompt exposed an important boundary.
+The prompt was ``Extract the invoice number and total from: Invoice A-104,
+total EUR 287.50.''  Its unrestricted 48-position control repeated bit-for-bit
+across two passes.  Independently built 8 and 10~GiB constrained pools also
+repeated exactly within their respective candidates and ran rapidly, but both
+corrupted the decimal amount and entered repetition.  The 8~GiB continuation
+reached 5.7062 and 7.9151 tokens/s; the 10~GiB continuation reached 3.0925 and
+3.2640 tokens/s.  Neither emitted the frozen required pair A-104 and 287.50,
+so both are \texttt{NOT\_PROMOTED}.  Determinism is not semantic correctness,
+and the arithmetic-specific 8~GiB result must not be generalised.
+
+This failure motivated an exact design.  The full 128-expert router now remains
+unrestricted.  A hash-bound core is protected in memory, while every winning
+expert outside that core is retrieved exactly from the verified SD warehouse.
+With no room outside an 8~GiB core, misses were transient.  This matched the
+unrestricted control at every token, route, hidden-state hash and logit hash,
+but only 45 of 792 response layer-routes were wholly inside the core and speed
+was only 0.07980 and 0.08027 tokens/s.
+
+A separate ordinary LRU \emph{exception halo} was then placed around the
+protected core.  The halo may retain recurring unrestricted winners but cannot
+evict the core.  No routing eligibility, gates, weights, or neural arithmetic
+are changed.
+
+\begin{center}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Configuration & Response tokens/s A/B & Faults A/B & Hits A/B & Exact control match \\
+\midrule
+Unrestricted control & 0.07106 / 0.07103 & 4718 / 4716 & 2194 / 2196 & reference \\
+8~GiB core, transient & 0.07980 / 0.08027 & 3209 / 3209 & 3703 / 3703 & yes \\
+8~GiB core + 2~GiB halo & 0.10064 / 0.10090 & 2506 / 2465 & 4406 / 4447 & yes \\
+6~GiB core + 4~GiB halo & 0.10282 / 0.10345 & 2584 / 2508 & 4328 / 4404 & yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The 8+2~GiB design improved paired response speed by 41.63\% and 42.05\%.
+The 6+4~GiB design improved it by 44.70\% and 45.64\%.  Both candidates were
+bit-for-bit identical to the separately frozen unrestricted run across all 48
+positions and both repeats.  The larger halo was only about 2.3\% faster than
+8+2 during response and incurred slightly more faults, so it is a marginal
+frontier rather than a second major breakthrough.
+
+The promoted result is the \emph{exact protected-core plus adaptive-exception-
+halo mechanism}.  It proves that a bounded portion of ordinary Mac memory can
+serve as a reusable loading dock around the SD warehouse while preserving the
+unrestricted 120B computation.  It does not establish 30 tokens/s, broad prompt
+quality, or full model residency.  At approximately 0.103 tokens/s, expert
+movement remains the dominant gap; the next justified work is per-layer halo
+allocation and fused four-expert MXFP4 execution.
+
+The bound summary has canonical SHA-256
+\texttt{f8dd3ed93e6132fe8159d5422007aeda170d30771ee445154832cd2cf0026d7e}
+and identical local/SD file SHA-256
+\texttt{193af2360b9d36c51e20610267a0cae2106adaf88f5567d484dab0189fae42e3}.
+Two immutable halo runtime receipts inherited an earlier transient-only claim
+sentence.  A correction sidecar clarifies that outside-core experts occupied
+unprotected LRU capacity when the halo existed; measured arrays and timings
+were unaffected.  Its identical local/SD SHA-256 is
+\texttt{ac2b804b3496c45681964059258ebef8d5d5c4faee74616a0cfd256551c34fe9}.

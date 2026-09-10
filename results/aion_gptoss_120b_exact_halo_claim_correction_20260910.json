@@ -1,0 +1,18 @@
+{
+  "schema": "aion.evidence-claim-correction.v1",
+  "status": "CORRECTED_CLAIM_TEXT_ONLY",
+  "created_at": "2026-09-10T06:46:56+02:00",
+  "affected_evidence": [
+    {
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-extraction-invoice-exact-pool-escape8-halo2-48token-2026-09-10.json",
+      "file_sha256": "3e1e0bda756486f5d5bd3fd8a48ed45b83de3c963cf8993e800dff28e7ee7fe0"
+    },
+    {
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-extraction-invoice-exact-pool-escape6-halo4-48token-2026-09-10.json",
+      "file_sha256": "da0e3175765579aa17e001a78a090f631689bdf6272cd41e4c47ecc7012c0aab"
+    }
+  ],
+  "incorrect_phrase": "any unrestricted winning expert outside the pool was fetched exactly from the verified SD warehouse and remained transient",
+  "correction": "Outside-core winners were fetched exactly. With total cache capacity larger than the protected core, they occupied the remaining unprotected LRU exception halo and could be reused; they could not evict protected core entries. With no spare capacity they remained transient.",
+  "impact": "Claim wording only. Runtime arrays, routes, tokens, hidden-state hashes, logit hashes, timings, fault counts, hit counts and exact-control comparisons are unchanged."
+}

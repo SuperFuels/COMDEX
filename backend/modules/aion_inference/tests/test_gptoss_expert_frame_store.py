@@ -152,6 +152,45 @@ def test_admission_allowlist_builds_pool_during_exact_reads(tmp_path):
     assert metrics["hits"] == 1
 
 
+def test_protected_core_retains_an_unprotected_lru_halo(tmp_path):
+    regions = []
+    expected = []
+    index = 0
+    for expert in (0, 1, 2):
+        value = {}
+        for projection in ("gate", "up", "down"):
+            value[projection] = {}
+            for kind in ("weight", "bias"):
+                raw = f"{expert}-{projection}-{kind}".encode() * 100
+                value[projection][kind] = raw
+                regions.append(_region(
+                    tmp_path, index, f"blk.0.ffn_{projection}_exps.{kind}",
+                    raw, expert=expert,
+                ))
+                index += 1
+        expected.append(value)
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({
+        "schema": "aion.expert-frame-warehouse.v1",
+        "status": "COMPLETE_VERIFIED",
+        "regions": regions,
+    }))
+    one_expert = sum(len(component) for projection in expected[0].values()
+                     for component in projection.values())
+    store = GptOssExpertFrameStore(manifest_path, 2 * one_expert)
+    assert store.get(0, 0) == expected[0]
+    store.protect({"0": [0]})
+    assert store.get(0, 1) == expected[1]
+    assert store.get(0, 1) == expected[1]
+    assert store.get(0, 2) == expected[2]
+    assert store.get(0, 0) == expected[0]
+    metrics = store.metrics()
+    assert metrics["protected_entries"] == 1
+    assert metrics["evictions"] == 1
+    assert metrics["hits"] == 2
+    assert metrics["admission_bypasses"] == 0
+
+
 def test_compressed_cache_redecodes_without_second_physical_read(tmp_path):
     regions = []
     expected = {}

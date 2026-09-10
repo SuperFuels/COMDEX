@@ -1,0 +1,147 @@
+{
+  "canonical_sha256": "f8dd3ed93e6132fe8159d5422007aeda170d30771ee445154832cd2cf0026d7e",
+  "claim_boundary": "This is exact 48-position extraction-prompt execution evidence on one prompt, not a 30-token/s result, not broad semantic validation, and not proof that the full 120B checkpoint is resident in Mac memory.",
+  "conclusion": "A protected resident expert core plus an ordinary LRU exception halo preserved every unrestricted route, token, hidden-state hash and logit hash while materially reducing SD faults. The 6+4 GiB split was only marginally faster in response than 8+2 GiB and is not an order-of-magnitude result. Static constrained 8 and 10 GiB pools failed the separate extraction-quality gate and remain NOT_PROMOTED.",
+  "created_at": "2026-09-10T04:43:55.059336+00:00",
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "results": {
+    "protected_6gib_plus_4gib_halo": {
+      "bit_exact_to_unrestricted_control": true,
+      "canonical_sha256": "67787317cff3cc811fc1af6b39c9e899a9704372bd5096c3bc1fe5aa8a1680e3",
+      "file_sha256": "da0e3175765579aa17e001a78a090f631689bdf6272cd41e4c47ecc7012c0aab",
+      "paired_speedup_percent": [
+        44.704630385967704,
+        45.63724472083752
+      ],
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-extraction-invoice-exact-pool-escape6-halo4-48token-2026-09-10.json",
+      "response": {
+        "run_a": {
+          "evictions": 2260,
+          "faults": 2584,
+          "hits": 4328,
+          "latency_median_seconds": 10.262149604503065,
+          "latency_p95_seconds": 11.94924499996705,
+          "tokens": 22,
+          "tokens_per_second": 0.10282241465883382,
+          "total_pass_wall_seconds": 414.6759169169818,
+          "wall_seconds": 213.96112971083494
+        },
+        "run_b": {
+          "evictions": 2508,
+          "faults": 2508,
+          "hits": 4404,
+          "latency_median_seconds": 10.135151229478652,
+          "latency_p95_seconds": 11.904191166977398,
+          "tokens": 22,
+          "tokens_per_second": 0.10344747627057407,
+          "total_pass_wall_seconds": 409.4980630829814,
+          "wall_seconds": 212.66831046179868
+        }
+      }
+    },
+    "protected_8gib_plus_2gib_halo": {
+      "bit_exact_to_unrestricted_control": true,
+      "canonical_sha256": "8053be6ffe49d60781926c75ef6dc6604f0bf610f032eb0fb0851f3bbfcf63ea",
+      "file_sha256": "3e1e0bda756486f5d5bd3fd8a48ed45b83de3c963cf8993e800dff28e7ee7fe0",
+      "paired_speedup_percent": [
+        41.63089121145207,
+        42.05478374851563
+      ],
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-extraction-invoice-exact-pool-escape8-halo2-48token-2026-09-10.json",
+      "response": {
+        "run_a": {
+          "evictions": 2344,
+          "faults": 2506,
+          "hits": 4406,
+          "latency_median_seconds": 10.324113125010626,
+          "latency_p95_seconds": 12.680437125032768,
+          "tokens": 22,
+          "tokens_per_second": 0.10063831534485779,
+          "total_pass_wall_seconds": 399.0172441250179,
+          "wall_seconds": 218.6046132093179
+        },
+        "run_b": {
+          "evictions": 2465,
+          "faults": 2465,
+          "hits": 4447,
+          "latency_median_seconds": 10.235443291981937,
+          "latency_p95_seconds": 12.78075870795874,
+          "tokens": 22,
+          "tokens_per_second": 0.10090282124682037,
+          "total_pass_wall_seconds": 403.47864241700154,
+          "wall_seconds": 218.03156470903195
+        }
+      }
+    },
+    "protected_8gib_transient_escape": {
+      "bit_exact_to_unrestricted_control": true,
+      "canonical_sha256": "12a1e4d7bbf52bf0430dc37d722a2781e34ce8d70651f5e5cc886365c2b87ef2",
+      "file_sha256": "ca05abdcf29f69c6dbc6e198b6e419383280dc0fd6cf38b65933b3ff923c8ebb",
+      "paired_speedup_percent": [
+        12.299129396124119,
+        13.001310264667222
+      ],
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-extraction-invoice-exact-pool-escape8-48token-2026-09-10.json",
+      "response": {
+        "run_a": {
+          "evictions": 0,
+          "faults": 3209,
+          "hits": 3703,
+          "latency_median_seconds": 13.460979208000936,
+          "latency_p95_seconds": 14.739008667005692,
+          "tokens": 22,
+          "tokens_per_second": 0.07979611722026851,
+          "total_pass_wall_seconds": 486.4716769999941,
+          "wall_seconds": 275.7026377520524
+        },
+        "run_b": {
+          "evictions": 0,
+          "faults": 3209,
+          "hits": 3703,
+          "latency_median_seconds": 13.098543687490746,
+          "latency_p95_seconds": 14.5596215420519,
+          "tokens": 22,
+          "tokens_per_second": 0.08026587144349757,
+          "total_pass_wall_seconds": 484.84295416699024,
+          "wall_seconds": 274.08909421093995
+        }
+      }
+    },
+    "unrestricted_control": {
+      "bit_exact_to_unrestricted_control": true,
+      "canonical_sha256": "9a5a1544efae96f6455d5feb1a335bf3834a4e90b520f148de445a708950f484",
+      "file_sha256": "4ce868e49d4b5cc88023c17336d97660e09f397526da30bf15f7c73abb55cb97",
+      "paired_speedup_percent": [
+        0.0,
+        0.0
+      ],
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-extraction-invoice-unrestricted-48token-2026-09-10.json",
+      "response": {
+        "run_a": {
+          "evictions": 4475,
+          "faults": 4718,
+          "hits": 2194,
+          "latency_median_seconds": 13.938765728962608,
+          "latency_p95_seconds": 17.456172083038837,
+          "tokens": 22,
+          "tokens_per_second": 0.07105675498052667,
+          "total_pass_wall_seconds": 687.6376376670087,
+          "wall_seconds": 309.6116619177046
+        },
+        "run_b": {
+          "evictions": 4716,
+          "faults": 4716,
+          "hits": 2196,
+          "latency_median_seconds": 13.935047541453969,
+          "latency_p95_seconds": 17.394261333043687,
+          "tokens": 22,
+          "tokens_per_second": 0.07103092101808556,
+          "total_pass_wall_seconds": 687.1614574579871,
+          "wall_seconds": 309.72426775092026
+        }
+      }
+    }
+  },
+  "schema": "aion.gptoss-120b-exact-core-halo-gate.v1",
+  "status": "PROMOTE_EXACT_CORE_HALO_MECHANISM"
+}

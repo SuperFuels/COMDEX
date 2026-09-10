@@ -1696,3 +1696,43 @@ why resident MXFP4 route compute is 8--10x slower under a large pool than in the
 hot microgate; test fused four-expert Metal/CPU kernels only against exact
 candidate outputs and measured memory pressure. The primary product metric is
 time to correct answer, with response token/s and TTFT reported separately.
+
+### Exact protected core and adaptive exception halo (2026-09-10)
+
+The frozen extraction family falsified static constrained-pool generalisation.
+Eight- and ten-GiB candidates were internally bitwise repeatable and fast, but
+both corrupted `EUR 287.50` and repeated partial text. Decisions:
+`STOP_STATIC_EXTRACTION_POOL_8G` and `STOP_STATIC_EXTRACTION_POOL_10G`.
+
+The router was therefore restored to unrestricted top-four selection at every
+position. A hash-bound resident core is protected, while winners outside the
+core are fetched exactly from the verified SD warehouse. With an eight-GiB
+core and no exception space, only 45/792 response layer-routes were completely
+resident and response speed improved only from 0.07103--0.07106 to
+0.07980--0.08027 token/s.
+
+Adding a separate two-GiB ordinary LRU exception halo reduced faults to
+2,465--2,506 and produced 0.10064--0.10090 token/s, a paired 41.63--42.05%
+improvement. Rebalancing the same ten-GiB total budget to a six-GiB protected
+core plus four-GiB halo produced 0.10282--0.10345 token/s, a paired
+44.70--45.64% improvement. Every route, token, hidden-state hash and logit hash
+matched the separately frozen unrestricted 48-position control on both passes.
+Decision: `PROMOTE_EXACT_CORE_HALO_MECHANISM`. The 6+4 split is only a marginal
+frontier over 8+2, not a separate order-of-magnitude result.
+
+Canonical summary SHA-256:
+`f8dd3ed93e6132fe8159d5422007aeda170d30771ee445154832cd2cf0026d7e`.
+Identical local/SD file SHA-256:
+`193af2360b9d36c51e20610267a0cae2106adaf88f5567d484dab0189fae42e3`.
+The two immutable halo receipts inherited inaccurate transient-only wording.
+Correction sidecar local/SD SHA-256:
+`ac2b804b3496c45681964059258ebef8d5d5c4faee74616a0cfd256551c34fe9`.
+The correction changes claim text only, not measured evidence.
+
+Next stop global core/halo ratio sweeps. Derive per-layer miss and reuse-distance
+profiles from the exact traces, allocate the halo per layer under the same
+total ceiling, and scale only if exact fault count and response time improve.
+In parallel, implement a fused four-expert MXFP4 route kernel against real
+resident pool weights; the naive isolated single-expert Metal probe remains
+stopped. Continue to separate TTFT from response speed and do not describe
+0.103 token/s as approaching the 30-token/s target.
