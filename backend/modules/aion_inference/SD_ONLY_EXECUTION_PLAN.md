@@ -2249,3 +2249,31 @@ slowed enough that settled arithmetic fell from 1.62106 to 1.31965 token/s, an
 18.59% regression, despite exact outputs. Do not retry larger RAM expert halos
 on this 18 GB host. Preserve the promoted demand-admitted disk cartridge and
 seek a fused/lower-copy path that does not increase the resident footprint.
+
+### Exact adaptive L2-read/compute overlap (2026-09-11)
+
+The lower-copy branch passed.  Sixteen real SD-backed layer routes first proved
+that independent expert delivery can overlap exact per-expert MXFP4 arithmetic.
+An isolated eight-thread gate reduced median route time from 5.1670 to 4.8970
+ms (5.51%), with exact outputs on 16/16 routes.  Concurrent exploratory
+four/eight-thread timings were invalidated and are not evidence.
+
+The full integration is adaptive: it preserves the ordinary fused four-expert
+call when fewer than two experts are missing from the RAM workbench, and uses
+read/compute overlap only for two to four pending experts.  A five-pass
+in-process protocol used warm-up then control/candidate/candidate/control.  All
+five runs retained exact unrestricted routes, token IDs, final hidden states
+and step logits.  Settled L2 delivery was identical at 45,129,243,480 bytes per
+pass with zero SD fallbacks.
+
+For 33 genuine continuation positions, median control time was 20.744085 s and
+median overlap time was 19.135475 s: an exact 8.4064% end-to-end improvement.
+Median throughput rose from 1.59081 to 1.72455 token/s.  Overlap was selected
+for 937/1,188 continuation-layer evaluations (78.87%).  Decision:
+`PROMOTE_EXACT_ADAPTIVE_L2_READ_COMPUTE_OVERLAP` for the frozen arithmetic
+family.  This is not 30--50 token/s and not yet a cross-family claim.  Replicate
+on blinded extraction/reasoning and 128--256-token gates before broadening it.
+
+Balanced runtime canonical/file SHA-256:
+`c000c889c84025a510552e31341831bfb12c7b8878b60f008ea06961a95faa52` /
+`392b30f3b60749d10488ddd7ce2e3bd053b5ede615d102c843dfb6575f87afe8`.

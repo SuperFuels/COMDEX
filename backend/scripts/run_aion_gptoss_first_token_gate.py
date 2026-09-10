@@ -2,6 +2,7 @@
 """Chain all 36 gpt-oss blocks and produce a first BOS-conditioned token."""
 from __future__ import annotations
 import argparse, ctypes, hashlib, json, subprocess, tempfile, time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 import numpy as np
@@ -29,8 +30,17 @@ def compile_gate(source:Path,output:Path)->None:
     subprocess.run(['clang++','-std=c++17','-O3','-I/opt/homebrew/include',str(source),
                     '-L/opt/homebrew/lib','-lggml','-lggml-base','-ldl','-o',str(output)],check=True)
 
+def overlap_enabled_for_pass(enabled:bool,pattern:str|None,index:int)->bool:
+    return enabled and (pattern is None or pattern[index]=='1')
+
+def should_overlap_layer(enabled:bool,missing_experts:int)->bool:
+    # Splitting the fused four-expert calculation has a fixed cost.  The live
+    # gate showed that cost is repaid only when at least two L2 reads can be
+    # hidden behind already-available expert arithmetic.
+    return enabled and missing_experts>=2
+
 def main()->None:
-    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');a=p.parse_args()
     if a.parallel_moe and not a.inprocess_finish: raise SystemExit('--parallel-moe requires --inprocess-finish')
     if a.token_count < 1: raise SystemExit('token-count must be positive')
     if a.passes < 2: raise SystemExit('passes must be at least 2')
@@ -46,6 +56,9 @@ def main()->None:
     if bool(a.l2_cartridge_plan) != bool(a.l2_cartridge_family): raise SystemExit('L2 cartridge requires both plan and family')
     if a.l2_cartridge_plan and not a.persistent_l2_root: raise SystemExit('L2 cartridge requires persistent L2')
     if a.route_arena_l1_hotset and not (a.reusable_arena_persistent_l2 and a.l2_cartridge_plan and a.preload_expert_pool): raise SystemExit('route-arena L1 hotset requires reusable arena, cartridge plan and preloaded pool')
+    if a.overlap_l2_read_compute and not (a.reusable_arena_persistent_l2 and a.inprocess_finish): raise SystemExit('L2 read/compute overlap requires reusable arena and in-process finish')
+    if a.overlap_l2_read_compute and (a.parallel_moe or a.route_arena_l1_hotset or a.mapped_l2_willneed or a.mapped_l2_parallel_prefault): raise SystemExit('L2 read/compute overlap is incompatible with other expert execution probes')
+    if a.overlap_pass_pattern and (not a.overlap_l2_read_compute or len(a.overlap_pass_pattern)!=a.passes or set(a.overlap_pass_pattern)-set('01')): raise SystemExit('overlap pass pattern requires overlap mode and exactly one 0/1 character per pass')
     if a.persistent_l2_root and not a.resident_replay: raise SystemExit('persistent L2 requires resident replay')
     if a.persistent_l2_root and (a.compressed_cache or a.tiered_cache): raise SystemExit('persistent L2 cannot be combined with compressed or tiered cache modes')
     if a.mapped_persistent_l2 and not a.persistent_l2_root: raise SystemExit('mapped persistent L2 requires persistent L2')
@@ -113,7 +126,7 @@ def main()->None:
         root=Path(temp); exe={}
         for key,file in [('embed','gptoss_embedding_cpu_gate.cpp'),('attention','gptoss_layer0_attention_cpu_gate.cpp'),('finish','gptoss_layer0_moe_finish_cpu_gate.cpp'),('output','gptoss_output_cpu_gate.cpp')]:
             exe[key]=root/key;compile_gate(native/file,exe[key])
-        moe_function=None;prefault_function=None
+        moe_function=None;prefault_function=None;contribution_function=None;combine_function=None
         if a.inprocess_finish:
             library=root/'libaion-gptoss-moe.dylib'
             subprocess.run(['clang++','-std=c++17','-O3','-dynamiclib','-I/opt/homebrew/include',str(native/'gptoss_persistent_moe_library.cpp'),'-L/opt/homebrew/lib','-lggml','-lggml-base','-ldl','-o',str(library)],check=True)
@@ -121,9 +134,13 @@ def main()->None:
             if a.parallel_moe: moe_function=loaded.aion_gptoss_moe_finish_parallel
             reduced_moe_function=loaded.aion_gptoss_moe_finish_active
             prefault_function=loaded.aion_gptoss_prefault_components
+            contribution_function=loaded.aion_gptoss_one_expert_contribution_batch
+            combine_function=loaded.aion_gptoss_combine_four_contributions
             moe_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];moe_function.restype=ctypes.c_int
             reduced_moe_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];reduced_moe_function.restype=ctypes.c_int
             prefault_function.argtypes=[ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_size_t),ctypes.c_int,ctypes.c_int,ctypes.POINTER(ctypes.c_uint64),ctypes.POINTER(ctypes.c_double)];prefault_function.restype=ctypes.c_int
+            contribution_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];contribution_function.restype=ctypes.c_int
+            combine_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_float)];combine_function.restype=ctypes.c_int
         attention_function=None;attention_reset=None
         if a.inprocess_attention:
             library=root/'libaion-gptoss-attention.dylib'
@@ -215,6 +232,9 @@ def main()->None:
                 persistent_store.protect(expert_pool['layers'])
 
         def pass_once(label:str)->dict:
+            pass_index=ord(label)-ord('a')
+            overlap_enabled=overlap_enabled_for_pass(
+                a.overlap_l2_read_compute,a.overlap_pass_pattern,pass_index)
             store=persistent_store or GptOssExpertFrameStore(a.manifest,256*1024*1024);metrics_before=store.metrics();token_id=forced_input_ids[0]
             if a.inprocess_attention: attention_reset()
             token_results=[];started=time.perf_counter();transition_rehydrate_seconds=0.0;transition_rehydrate_delta=None
@@ -286,39 +306,75 @@ def main()->None:
                 if (a.activation_capture_dir and label=='a'
                         and position in capture_positions and layer in capture_layers):
                     capture_stem=a.activation_capture_dir/f'position-{position}-layer-{layer}'
-                load_started=time.perf_counter();values=store.get_layer_route_parallel(layer,route,workers=4);prepared_components=None;prefault_ms=0.0;prefault_checksum=None
-                if a.mapped_l2_willneed: store.advise_route_willneed(values)
-                if a.mapped_l2_parallel_prefault:
-                    blobs=[value[proj][kind] for value in values for proj in ('gate','up','down') for kind in ('weight','bias')]
-                    references,pointers=ctypes_component_pointer_array(blobs);sizes=(ctypes.c_size_t*len(blobs))(*map(len,blobs));native_prefault_ms=ctypes.c_double();checksum=ctypes.c_uint64()
-                    status=prefault_function(pointers,sizes,len(blobs),4,ctypes.byref(checksum),ctypes.byref(native_prefault_ms))
-                    if status: raise RuntimeError(f'mapped L2 prefault failed: {status}')
-                    prepared_components=(blobs,references,pointers);prefault_ms=native_prefault_ms.value;prefault_checksum=checksum.value
-                load_seconds=time.perf_counter()-load_started
-                expert_stage_started=time.perf_counter()
-                if not a.inprocess_finish:
-                    for pos,value in enumerate(values):
-                        for proj in ('gate','up','down'):
-                            for kind in ('weight','bias'):(layer_root/f'{pos}-{proj}-{kind}.bin').write_bytes(value[proj][kind])
-                expert_stage_seconds=time.perf_counter()-expert_stage_started
-                next_hidden=root/f'{label}-token-{position}-layer-{layer}-output.bin';finish_started=time.perf_counter()
-                if a.inprocess_finish:
-                    ffn=ffn_result if a.inmemory_layer_flow else np.fromfile(ffn_path,dtype='<f4');router_values=router_result if a.inmemory_layer_flow else np.fromfile(router_path,dtype='<f4');gate_values=np.asarray([float(f'{x:.9g}') for x in gates],dtype=np.float32);out=np.empty(WIDTH,dtype=np.float32);elapsed=ctypes.c_double()
-                    if prepared_components is None:
-                        blobs=[value[proj][kind] for value in values for proj in ('gate','up','down') for kind in ('weight','bias')]
-                        references,pointers=ctypes_component_pointer_array(blobs)
-                    else: blobs,references,pointers=prepared_components
-                    if active_experts == 4:
-                        status=moe_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,gate_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
-                    else:
-                        status=reduced_moe_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,gate_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),active_experts,out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
-                    if status: raise RuntimeError(f'in-process MoE failed: {status}')
+                prepared_components=None;prefault_ms=0.0;prefault_checksum=None;overlap_seconds=0.0
+                next_hidden=root/f'{label}-token-{position}-layer-{layer}-output.bin'
+                overlap_missing_experts=(sum((layer,expert) not in store._cache for expert in route)
+                                         if overlap_enabled else 0)
+                overlap_applied=should_overlap_layer(overlap_enabled,overlap_missing_experts)
+                if overlap_applied:
+                    if active_experts != 4: raise RuntimeError('overlap path requires four exact experts')
+                    ffn=ffn_result if a.inmemory_layer_flow else np.fromfile(ffn_path,dtype='<f4');router_values=router_result if a.inmemory_layer_flow else np.fromfile(router_path,dtype='<f4');gate_values=np.asarray([float(f'{x:.9g}') for x in gates],dtype=np.float32)
+                    contributions=np.empty((4,WIDTH),dtype=np.float32);native_ms=0.0;overlap_started=time.perf_counter();cached=[];missing=[]
+                    for slot,expert in enumerate(route):
+                        key=(layer,expert);value=store._cache.pop(key,None)
+                        if value is None: store.faults+=1;missing.append((slot,expert))
+                        else: store.hits+=1;store._cache[key]=value;cached.append((slot,value))
+                    def calculate_contribution(slot,value):
+                        blobs=[value[proj][kind] for proj in ('gate','up','down') for kind in ('weight','bias')]
+                        references,pointers=ctypes_component_pointer_array(blobs);one_gate=np.asarray([gate_values[slot]],dtype=np.float32);elapsed=ctypes.c_double()
+                        status=contribution_function(router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,one_gate.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),1,contributions[slot].ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
+                        if status: raise RuntimeError(f'overlapped expert contribution failed: {status}')
+                        _=references
+                        return elapsed.value
+                    with ThreadPoolExecutor(max_workers=max(1,len(missing)),thread_name_prefix='aion-overlap-read') as pool:
+                        futures={pool.submit(store._read_l2_into_slot,layer,expert,slot):(slot,expert) for slot,expert in missing}
+                        for slot,value in cached: native_ms+=calculate_contribution(slot,value)
+                        for future in as_completed(futures):
+                            slot,expert=futures[future];value=future.result()
+                            if value is None:
+                                store.sd_fallbacks+=1;value=GptOssExpertFrameStore._load_value(store,layer,expert);store._write_l2(layer,expert,value)
+                            native_ms+=calculate_contribution(slot,value)
+                    out=np.empty(WIDTH,dtype=np.float32)
+                    status=combine_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),contributions.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),1,out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))
+                    if status: raise RuntimeError(f'overlapped expert combine failed: {status}')
+                    overlap_seconds=time.perf_counter()-overlap_started;load_seconds=0.0;expert_stage_seconds=0.0;finish_seconds=overlap_seconds
                     if a.inmemory_layer_flow: current_values=out
                     else: next_hidden.write_bytes(out.tobytes())
-                    finish={'schema':'aion.gptoss.persistent-moe.v1','compute_ms':elapsed.value,'output_checksum':float(out.astype(np.float64).sum()),'finite':bool(np.isfinite(out).all())}
+                    finish={'schema':'aion.gptoss.overlapped-persistent-moe.v1','compute_ms':native_ms,'output_checksum':float(out.astype(np.float64).sum()),'finite':bool(np.isfinite(out).all())}
                 else:
-                    finish=json.loads(subprocess.check_output([str(exe['finish']),str(layer_root),','.join(map(str,route)),','.join(f'{x:.9g}' for x in gates),str(ffn_path),str(router_path),str(next_hidden),str(a.threads)],text=True))
-                finish_seconds=time.perf_counter()-finish_started
+                    load_started=time.perf_counter();values=store.get_layer_route_parallel(layer,route,workers=4)
+                    if a.mapped_l2_willneed: store.advise_route_willneed(values)
+                    if a.mapped_l2_parallel_prefault:
+                        blobs=[value[proj][kind] for value in values for proj in ('gate','up','down') for kind in ('weight','bias')]
+                        references,pointers=ctypes_component_pointer_array(blobs);sizes=(ctypes.c_size_t*len(blobs))(*map(len,blobs));native_prefault_ms=ctypes.c_double();checksum=ctypes.c_uint64()
+                        status=prefault_function(pointers,sizes,len(blobs),4,ctypes.byref(checksum),ctypes.byref(native_prefault_ms))
+                        if status: raise RuntimeError(f'mapped L2 prefault failed: {status}')
+                        prepared_components=(blobs,references,pointers);prefault_ms=native_prefault_ms.value;prefault_checksum=checksum.value
+                    load_seconds=time.perf_counter()-load_started
+                    expert_stage_started=time.perf_counter()
+                    if not a.inprocess_finish:
+                        for pos,value in enumerate(values):
+                            for proj in ('gate','up','down'):
+                                for kind in ('weight','bias'):(layer_root/f'{pos}-{proj}-{kind}.bin').write_bytes(value[proj][kind])
+                    expert_stage_seconds=time.perf_counter()-expert_stage_started
+                    finish_started=time.perf_counter()
+                    if a.inprocess_finish:
+                        ffn=ffn_result if a.inmemory_layer_flow else np.fromfile(ffn_path,dtype='<f4');router_values=router_result if a.inmemory_layer_flow else np.fromfile(router_path,dtype='<f4');gate_values=np.asarray([float(f'{x:.9g}') for x in gates],dtype=np.float32);out=np.empty(WIDTH,dtype=np.float32);elapsed=ctypes.c_double()
+                        if prepared_components is None:
+                            blobs=[value[proj][kind] for value in values for proj in ('gate','up','down') for kind in ('weight','bias')]
+                            references,pointers=ctypes_component_pointer_array(blobs)
+                        else: blobs,references,pointers=prepared_components
+                        if active_experts == 4:
+                            status=moe_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,gate_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
+                        else:
+                            status=reduced_moe_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,gate_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),active_experts,out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
+                        if status: raise RuntimeError(f'in-process MoE failed: {status}')
+                        if a.inmemory_layer_flow: current_values=out
+                        else: next_hidden.write_bytes(out.tobytes())
+                        finish={'schema':'aion.gptoss.persistent-moe.v1','compute_ms':elapsed.value,'output_checksum':float(out.astype(np.float64).sum()),'finite':bool(np.isfinite(out).all())}
+                    else:
+                        finish=json.loads(subprocess.check_output([str(exe['finish']),str(layer_root),','.join(map(str,route)),','.join(f'{x:.9g}' for x in gates),str(ffn_path),str(router_path),str(next_hidden),str(a.threads)],text=True))
+                    finish_seconds=time.perf_counter()-finish_started
                 if capture_stem is not None:
                     output_values=(out if a.inprocess_finish else
                                    np.fromfile(next_hidden,dtype='<f4'))
@@ -353,7 +409,7 @@ def main()->None:
                         json.dumps(metadata,indent=2,sort_keys=True)+'\n')
                 layer_output_sha=(hashlib.sha256(current_values.tobytes()).hexdigest()
                                   if a.inmemory_layer_flow else sha(next_hidden))
-                layers.append({'layer':layer,'route':route,'gates':gates.tolist(),'route_pool_complete':route_pool_complete,'shared_load_seconds':shared_seconds,'expert_load_seconds':load_seconds,'mapped_prefault_ms':prefault_ms,'mapped_prefault_checksum':prefault_checksum,'expert_file_stage_seconds':expert_stage_seconds,'attention_process_seconds':attention_seconds,'finish_process_seconds':finish_seconds,'attention':attn,'finish':finish,'output_sha256':layer_output_sha})
+                layers.append({'layer':layer,'route':route,'gates':gates.tolist(),'route_pool_complete':route_pool_complete,'shared_load_seconds':shared_seconds,'expert_load_seconds':load_seconds,'overlap_applied':overlap_applied,'overlap_missing_experts':overlap_missing_experts,'overlapped_expert_read_compute_seconds':overlap_seconds,'mapped_prefault_ms':prefault_ms,'mapped_prefault_checksum':prefault_checksum,'expert_file_stage_seconds':expert_stage_seconds,'attention_process_seconds':attention_seconds,'finish_process_seconds':finish_seconds,'attention':attn,'finish':finish,'output_sha256':layer_output_sha})
                 if not a.inmemory_layer_flow:
                     if current != initial_hidden: current.unlink(missing_ok=True)
                     Path(str(prefix)+'-ffn-input.bin').unlink(missing_ok=True);router_path.unlink(missing_ok=True);current=next_hidden
@@ -384,7 +440,7 @@ def main()->None:
             )
             delta={key:metrics_after[key]-metrics_before.get(key,0)
                    for key in metric_keys if key in metrics_after}
-            return {'label':label,'wall_seconds':time.perf_counter()-started,'tokens':token_results,'layers':token_results[-1]['layers'],'final_hidden_sha256':token_results[-1]['final_hidden_sha256'],'logits_sha256':token_results[-1]['logits_sha256'],'output':token_results[-1]['output'],'store_metrics':metrics_after,'store_metric_delta':delta,'prompt_to_continuation_rehydrate_seconds':transition_rehydrate_seconds,'prompt_to_continuation_rehydrate_metric_delta':transition_rehydrate_delta}
+            return {'label':label,'overlap_enabled':overlap_enabled,'wall_seconds':time.perf_counter()-started,'tokens':token_results,'layers':token_results[-1]['layers'],'final_hidden_sha256':token_results[-1]['final_hidden_sha256'],'logits_sha256':token_results[-1]['logits_sha256'],'output':token_results[-1]['output'],'store_metrics':metrics_after,'store_metric_delta':delta,'prompt_to_continuation_rehydrate_seconds':transition_rehydrate_seconds,'prompt_to_continuation_rehydrate_metric_delta':transition_rehydrate_delta}
         runs=[pass_once(chr(ord('a')+index)) for index in range(a.passes)]
         run_a,run_b=runs[:2]
         route_sequences=[[[x['route'] for x in token['layers']] for token in run['tokens']] for run in runs]
@@ -397,7 +453,7 @@ def main()->None:
                 'run_a':run_a,'run_b':run_b,'additional_runs':runs[2:],'passes':a.passes,'routes_repeatable':routes_equal,'final_hidden_and_logits_bitwise_repeatable':exact,
                 'embedding_row_bytes':row_bytes,'embedding_row_sha256':initial_row_sha,'embedding_run':embed_run,
                 'output_weight':{'bytes':output_weight.stat().st_size,'sha256':sha(output_weight),'one_time_stage_seconds':output_stage_seconds},'output_norm':output_norm_evidence,'continuation_active_experts':a.continuation_active_experts,'continuation_gate_mass_threshold':a.continuation_gate_mass_threshold,'preserve_dropped_gate_mass':a.preserve_dropped_gate_mass,
-                'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'persistent_l2_root':str(a.persistent_l2_root.resolve()) if a.persistent_l2_root else None,'declared_persistent_l2_bytes':int(a.persistent_l2_gib*1024*1024*1024) if a.persistent_l2_gib else 0,'l2_cartridge_plan_path':str(a.l2_cartridge_plan.resolve()) if a.l2_cartridge_plan else None,'l2_cartridge_plan_canonical_sha256':cartridge_sha,'l2_cartridge_family':a.l2_cartridge_family,'l2_cartridge_protected_entries':sum(map(len,cartridge_layers.values())) if cartridge_layers else 0,'l2_cartridge_eager_prefetch':False,'route_arena_l1_hotset':a.route_arena_l1_hotset,'route_arena_l1_hotset_entries':sum(map(len,cartridge_hotset_layers.values())) if cartridge_hotset_layers else 0,'mapped_persistent_l2':a.mapped_persistent_l2,'pinned_verified_persistent_l2':a.pinned_verified_persistent_l2,'reusable_arena_persistent_l2':a.reusable_arena_persistent_l2,'mapped_l2_willneed':a.mapped_l2_willneed,'mapped_l2_parallel_prefault':a.mapped_l2_parallel_prefault,'inprocess_finish':a.inprocess_finish,'inprocess_attention':a.inprocess_attention,'inprocess_output':a.inprocess_output,'inmemory_layer_flow':a.inmemory_layer_flow,'activation_capture_dir':str(a.activation_capture_dir.resolve()) if a.activation_capture_dir else None,'capture_positions':sorted(capture_positions),'capture_layers':sorted(capture_layers),'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(expert_cache_bytes if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,'quality_track':(expert_pool is not None and not a.exact_pool_escape_after_prompt) or a.continuation_active_experts != 4 or a.continuation_gate_mass_threshold is not None,'constrained_expert_pool_path':str(a.expert_pool.resolve()) if a.expert_pool else None,'constrained_expert_pool_canonical_sha256':expert_pool_sha,'constrained_expert_pool_preloaded':a.preload_expert_pool,'constrain_after_prompt':a.constrain_after_prompt,'exact_pool_escape_after_prompt':a.exact_pool_escape_after_prompt,'incremental_pool_admission':a.incremental_pool_admission,'constrained_expert_pool_preload_seconds':pool_preload_seconds,'constrained_expert_pool_preload_metrics':pool_preload_metrics,
+                'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'persistent_l2_root':str(a.persistent_l2_root.resolve()) if a.persistent_l2_root else None,'declared_persistent_l2_bytes':int(a.persistent_l2_gib*1024*1024*1024) if a.persistent_l2_gib else 0,'l2_cartridge_plan_path':str(a.l2_cartridge_plan.resolve()) if a.l2_cartridge_plan else None,'l2_cartridge_plan_canonical_sha256':cartridge_sha,'l2_cartridge_family':a.l2_cartridge_family,'l2_cartridge_protected_entries':sum(map(len,cartridge_layers.values())) if cartridge_layers else 0,'l2_cartridge_eager_prefetch':False,'route_arena_l1_hotset':a.route_arena_l1_hotset,'route_arena_l1_hotset_entries':sum(map(len,cartridge_hotset_layers.values())) if cartridge_hotset_layers else 0,'overlap_l2_read_compute':a.overlap_l2_read_compute,'overlap_pass_pattern':a.overlap_pass_pattern,'mapped_persistent_l2':a.mapped_persistent_l2,'pinned_verified_persistent_l2':a.pinned_verified_persistent_l2,'reusable_arena_persistent_l2':a.reusable_arena_persistent_l2,'mapped_l2_willneed':a.mapped_l2_willneed,'mapped_l2_parallel_prefault':a.mapped_l2_parallel_prefault,'inprocess_finish':a.inprocess_finish,'inprocess_attention':a.inprocess_attention,'inprocess_output':a.inprocess_output,'inmemory_layer_flow':a.inmemory_layer_flow,'activation_capture_dir':str(a.activation_capture_dir.resolve()) if a.activation_capture_dir else None,'capture_positions':sorted(capture_positions),'capture_layers':sorted(capture_layers),'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(expert_cache_bytes if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,'quality_track':(expert_pool is not None and not a.exact_pool_escape_after_prompt) or a.continuation_active_experts != 4 or a.continuation_gate_mass_threshold is not None,'constrained_expert_pool_path':str(a.expert_pool.resolve()) if a.expert_pool else None,'constrained_expert_pool_canonical_sha256':expert_pool_sha,'constrained_expert_pool_preloaded':a.preload_expert_pool,'constrain_after_prompt':a.constrain_after_prompt,'exact_pool_escape_after_prompt':a.exact_pool_escape_after_prompt,'incremental_pool_admission':a.incremental_pool_admission,'constrained_expert_pool_preload_seconds':pool_preload_seconds,'constrained_expert_pool_preload_metrics':pool_preload_metrics,
                 'claim_boundary':(('A token-conditioned sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. Declared prompt tokens were teacher-forced before greedy continuation. This is exact repeatability evidence for the custom packed path, not yet chat-template quality validation or steady-state generation speed.' if a.token_count>1 else 'A token-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is prompt-token execution evidence, not yet multi-token prompt quality validation or steady-state generation speed.') if forced_input_ids!=[BOS] else ('A BOS-conditioned greedy sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. This is exact repeatability evidence for the custom packed path, not yet text-quality validation or steady-state generation speed.' if a.token_count>1 else 'A BOS-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is first-token execution evidence, not yet text-quality validation or steady-state generation speed.'))}
         if a.exact_pool_escape_after_prompt:
             report['claim_boundary']=('The complete GPT-OSS 120B attention/residual backbone, unrestricted 128-expert router and original selected expert weights were executed at every position. A hash-bound protected pool served resident hits; any unrestricted winning expert outside the pool was fetched exactly from the verified SD warehouse. Such exceptions remain transient when the declared cache is full, or occupy only unprotected LRU capacity when an exception halo is declared; they can never evict the protected core. No router eligibility or neural mathematics was changed. Repeatability is measured against a second run; equivalence to a separately frozen unrestricted control requires explicit token, hidden-state and logit comparison.')
