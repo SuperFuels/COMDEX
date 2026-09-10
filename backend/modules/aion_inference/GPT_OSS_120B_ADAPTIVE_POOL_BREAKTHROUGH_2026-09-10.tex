@@ -841,3 +841,64 @@ layer gate therefore failed.  The decision is
 speedups cannot repay grouping and dispatch overhead when real route reuse is
 sparse.  The canonical evidence SHA-256 is
 \texttt{ff5f5f4ede1f7406be83d3357cf6f0e9fcaa970029b18e22fd0a6c363ad70196}.
+
+\subsection{Exact Persistent Internal-L2 Working-Set Breakthrough}
+
+An exact three-tier expert path was implemented: an 8~GiB bounded RAM expert
+pool, a manifest-bound persistent cache on the Mac's ordinary internal storage,
+and the authoritative compressed model warehouse on the 64~GB SD card.  The
+internal tier stores complete raw six-component expert frames, writes them
+atomically, binds its namespace to the warehouse manifest hash, verifies every
+component against the authoritative manifest SHA-256 on read, and repairs a
+corrupt disposable entry from the SD source.  It does not alter router logits,
+expert selection, expert weights, gates, attention, or output arithmetic.
+
+A four-expert cross-process microgate first measured the physical opportunity.
+Initial SD reconstruction required 563.959~ms and 50,659,400 compressed bytes.
+Four fresh processes then retrieved the same verified experts from the
+persistent tier at an 11.3616~ms median and 12.2684~ms p95, with zero SD
+fallbacks.  This is a 49.6372$\times$ retrieval improvement.  Because macOS may
+retain newly written pages in its page cache, this microgate is cross-process
+warm-L2 evidence, not reboot-cold NVMe evidence.  Its canonical report SHA-256
+is
+\texttt{303b99f80a56f50ae0b2b2c33355895a7b6e2087e0f6eb69d75a66e1aecf72f8}.
+
+The first complete integration used a 2~GiB persistent tier.  It remained
+bitwise exact but retained only 705 and 747 of 3,209 out-of-pool accesses per
+pass, because the cache continually evicted entries.  Continuation reached
+0.1001 and 0.09835 tokens/s.  This was a useful positive control, but it merely
+matched the earlier 2~GiB RAM halo and was not promoted as the final design.
+
+Route measurement then identified 1,315 distinct out-of-pool layer-experts in
+the frozen 48-position invoice-extraction trace, occupying approximately
+16.23~GiB.  The persistent tier was therefore increased to a measured-bound
+17~GiB capacity and the identical unrestricted sequence was rerun.  On the
+second pass, all 3,209 out-of-RAM expert demands hit the persistent tier, with
+zero misses, zero SD fallbacks and zero compressed SD bytes read.  The 22-token
+continuation completed in 17.7469~s, or 1.23965 tokens/s.  Median token latency
+was 0.78714~s and p95 was 0.88607~s.
+
+The paired unrestricted SD-streamed control required 309.7243~s for the same
+continuation, or 0.0710309 tokens/s.  The new exact path is therefore
+17.4523$\times$ faster and reduces continuation time by 94.2701\%.  It is also
+approximately 12.02$\times$ faster than the prior best exact extraction result
+of 0.103133 tokens/s.
+
+Independent comparison against the original unrestricted control confirmed
+equality of every generated token ID, every one of the 48-by-36 layer routes,
+every step's final-hidden SHA-256 and every step-logit SHA-256 for both
+candidate passes.  This is consequently an exact unrestricted execution
+promotion, not an adaptive/reduced-expert quality track.  The full candidate
+report canonical SHA-256 is
+\texttt{8d08104ad3036aafb4d9e1eb1085d319ff98eadffafd5082be5d3773a5fd91b9};
+its stored-file SHA-256 is
+\texttt{18541b52c9883006253465b812470ca344ec286762782dce66607dd4b4993dae}.
+
+The claim remains deliberately bounded.  This proves one exact, unrestricted,
+cross-pass warm 120B extraction trace on the 18~GB M3 Pro, with the complete
+model remaining on the SD warehouse and a 16.23~GiB request working set
+promoted to internal storage.  It does not yet establish reboot-cold behavior,
+multi-prompt generalization, or 30--50 tokens/s.  The next gate is blinded
+multi-family validation followed by compact/direct computation from the
+persistent representation so that the 42.53~GB of warm per-pass raw expert
+reads can be reduced rather than merely moved to a faster tier.

@@ -4,6 +4,7 @@ import subprocess
 
 from backend.modules.aion_inference.gptoss_expert_frame_store import (
     GptOssCompressedExpertFrameStore, GptOssExpertFrameStore,
+    GptOssPersistentL2ExpertFrameStore,
 )
 
 
@@ -210,3 +211,75 @@ def test_compressed_cache_redecodes_without_second_physical_read(tmp_path):
     assert store.metrics()["compressed_bytes_read"] == physical
     assert store.metrics()["hits"] == 1
     assert store.metrics()["cache_representation"] == "verified_compressed_frames"
+
+
+def test_persistent_l2_reuses_exact_expert_across_store_instances(tmp_path):
+    regions = []
+    expected = {}
+    for index, (projection, kind) in enumerate(
+            (p, k) for p in ("gate", "up", "down") for k in ("weight", "bias")):
+        raw = f"{projection}-{kind}".encode() * 100
+        expected.setdefault(projection, {})[kind] = raw
+        regions.append(_region(tmp_path, index,
+                               f"blk.0.ffn_{projection}_exps.{kind}", raw))
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1",
+                                         "status": "COMPLETE_VERIFIED", "regions": regions}))
+    l2_root = tmp_path / "l2"
+    first = GptOssPersistentL2ExpertFrameStore(manifest_path, 0, l2_root, 1024 * 1024)
+    assert first.get(0, 0) == expected
+    assert first.metrics()["sd_fallbacks"] == 1
+    second = GptOssPersistentL2ExpertFrameStore(manifest_path, 0, l2_root, 1024 * 1024)
+    assert second.get(0, 0) == expected
+    metrics = second.metrics()
+    assert metrics["l2_hits"] == 1
+    assert metrics["sd_fallbacks"] == 0
+    assert metrics["l2_entries"] == 1
+
+
+def test_persistent_l2_rejects_corruption_and_repairs_from_source(tmp_path):
+    regions = []
+    expected = {}
+    for index, (projection, kind) in enumerate(
+            (p, k) for p in ("gate", "up", "down") for k in ("weight", "bias")):
+        raw = f"{projection}-{kind}".encode() * 100
+        expected.setdefault(projection, {})[kind] = raw
+        regions.append(_region(tmp_path, index,
+                               f"blk.0.ffn_{projection}_exps.{kind}", raw))
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1",
+                                         "status": "COMPLETE_VERIFIED", "regions": regions}))
+    l2_root = tmp_path / "l2"
+    first = GptOssPersistentL2ExpertFrameStore(manifest_path, 0, l2_root, 1024 * 1024)
+    assert first.get(0, 0) == expected
+    frame = next(l2_root.rglob("*.aionraw"))
+    payload = bytearray(frame.read_bytes())
+    payload[-1] ^= 0xFF
+    frame.write_bytes(payload)
+    repaired = GptOssPersistentL2ExpertFrameStore(manifest_path, 0, l2_root, 1024 * 1024)
+    assert repaired.get(0, 0) == expected
+    metrics = repaired.metrics()
+    assert metrics["l2_integrity_failures"] == 1
+    assert metrics["sd_fallbacks"] == 1
+
+
+def test_persistent_l2_bypass_avoids_duplicate_disk_frame(tmp_path):
+    regions = []
+    expected = {}
+    for index, (projection, kind) in enumerate(
+            (p, k) for p in ("gate", "up", "down") for k in ("weight", "bias")):
+        raw = f"{projection}-{kind}".encode() * 100
+        expected.setdefault(projection, {})[kind] = raw
+        regions.append(_region(tmp_path, index,
+                               f"blk.0.ffn_{projection}_exps.{kind}", raw))
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1",
+                                         "status": "COMPLETE_VERIFIED", "regions": regions}))
+    store = GptOssPersistentL2ExpertFrameStore(
+        manifest_path, 1024 * 1024, tmp_path / "l2", 1024 * 1024)
+    store.set_l2_bypass({"0": [0]})
+    assert store.get(0, 0) == expected
+    metrics = store.metrics()
+    assert metrics["l2_bypass_entries"] == 1
+    assert metrics["l2_entries"] == 0
+    assert metrics["l2_bytes_written"] == 0

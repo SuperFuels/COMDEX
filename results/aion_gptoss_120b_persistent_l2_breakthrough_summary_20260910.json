@@ -1,0 +1,44 @@
+{
+  "schema": "aion.gptoss-120b.persistent-l2-breakthrough-summary.v1",
+  "status": "PROMOTED_EXACT_PERSISTENT_L2",
+  "date": "2026-09-10",
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "hardware": "Apple M3 Pro Mac with 18 GB unified memory",
+  "authoritative_model_tier": "64 GB SD-card AION warehouse",
+  "candidate": {
+    "ram_expert_pool_gib": 8.0,
+    "persistent_internal_l2_capacity_gib": 17.0,
+    "measured_persistent_l2_resident_gib": 16.23,
+    "prompt_positions": 26,
+    "continuation_positions": 22,
+    "warm_continuation_seconds": 17.746942959958687,
+    "warm_continuation_tokens_per_second": 1.239650121693478,
+    "warm_token_latency_p50_seconds": 0.7871367709885817,
+    "warm_token_latency_p95_seconds": 0.8860651660361327,
+    "warm_l2_hits": 3209,
+    "warm_l2_misses": 0,
+    "warm_sd_fallbacks": 0,
+    "warm_compressed_sd_bytes_read": 0,
+    "warm_l2_bytes_read": 42531495544
+  },
+  "unrestricted_sd_control": {
+    "continuation_seconds": 309.72426775092026,
+    "continuation_tokens_per_second": 0.07103092101808556
+  },
+  "comparison": {
+    "speedup": 17.452260282220532,
+    "continuation_time_reduction_percent": 94.2700831649941,
+    "speedup_over_prior_best_exact_0_103133_tps": 12.01990454153201
+  },
+  "integrity": {
+    "candidate_internal_repeatability": true,
+    "token_ids_equal_to_unrestricted_control": true,
+    "all_layer_routes_equal_to_unrestricted_control": true,
+    "all_step_hidden_hashes_equal_to_unrestricted_control": true,
+    "all_step_logit_hashes_equal_to_unrestricted_control": true,
+    "candidate_report_canonical_sha256": "8d08104ad3036aafb4d9e1eb1085d319ff98eadffafd5082be5d3773a5fd91b9",
+    "candidate_report_file_sha256": "18541b52c9883006253465b812470ca344ec286762782dce66607dd4b4993dae",
+    "unrestricted_control_canonical_sha256": "9a5a1544efae96f6455d5feb1a335bf3834a4e90b520f148de445a708950f484"
+  },
+  "claim_boundary": "This proves an exact, unrestricted, cross-pass warm continuation improvement for one 48-position extraction trace. The SD warehouse remains authoritative, while a 16.23 GiB request working set is persisted on ordinary internal storage behind an 8 GiB RAM pool. It is not reboot-cold NVMe evidence, multi-prompt generalization, or a 30-50 tokens/s result."
+}

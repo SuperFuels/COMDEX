@@ -8,7 +8,9 @@ import hashlib
 import json
 import os
 import re
+import struct
 import threading
+import uuid
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -215,6 +217,163 @@ class GptOssExpertFrameStore:
             "admission_bypasses": self.admission_bypasses,
             "compressed_bytes_read": self.compressed_bytes_read,
             "raw_bytes_materialized": self.raw_bytes_materialized,
+        }
+
+
+class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
+    """Exact RAM LRU backed by a bounded process-persistent internal-disk L2.
+
+    The SD warehouse remains authoritative. A verified SD miss is serialized as
+    one raw expert frame under a manifest-bound namespace. Later processes may
+    reconstruct the six components from that file only after checking every
+    original component hash from the warehouse manifest.
+    """
+
+    _MAGIC = b"AIONL2R1"
+    _ORDER = tuple((projection, kind)
+                   for projection in ("gate", "up", "down")
+                   for kind in ("weight", "bias"))
+    _HEADER = struct.Struct("<8s6Q")
+
+    def __init__(self, manifest_path: Path, capacity_bytes: int,
+                 l2_root: Path, l2_capacity_bytes: int) -> None:
+        if l2_capacity_bytes < 0:
+            raise ValueError("l2_capacity_bytes must be non-negative")
+        super().__init__(manifest_path, capacity_bytes)
+        manifest_sha = hashlib.sha256(self.manifest_path.read_bytes()).hexdigest()
+        self.l2_root = l2_root.resolve() / manifest_sha
+        self.l2_root.mkdir(parents=True, exist_ok=True)
+        self.l2_capacity_bytes = l2_capacity_bytes
+        self.l2_hits = 0
+        self.l2_misses = 0
+        self.l2_bytes_read = 0
+        self.l2_bytes_written = 0
+        self.l2_evictions = 0
+        self.l2_integrity_failures = 0
+        self.sd_fallbacks = 0
+        self._l2_bypass: set[tuple[int, int]] = set()
+        self._l2_lock = threading.Lock()
+
+    def _l2_path(self, layer: int, expert: int) -> Path:
+        return self.l2_root / f"layer-{layer:02d}-expert-{expert:03d}.aionraw"
+
+    def _component_address(self, layer: int, expert: int,
+                           projection: str, kind: str) -> dict[str, Any]:
+        return self._addresses[(layer, expert, projection, kind)]
+
+    def _read_l2(self, layer: int, expert: int) -> dict[str, dict[str, bytes]] | None:
+        if (layer, expert) in self._l2_bypass:
+            self.l2_misses += 1
+            return None
+        path = self._l2_path(layer, expert)
+        try:
+            payload = path.read_bytes()
+        except FileNotFoundError:
+            self.l2_misses += 1
+            return None
+        try:
+            if len(payload) < self._HEADER.size:
+                raise ValueError("short L2 header")
+            magic, *lengths = self._HEADER.unpack_from(payload)
+            if magic != self._MAGIC or self._HEADER.size + sum(lengths) != len(payload):
+                raise ValueError("invalid L2 frame")
+            cursor = self._HEADER.size
+            value: dict[str, dict[str, bytes]] = {}
+            for (projection, kind), length in zip(self._ORDER, lengths, strict=True):
+                raw = payload[cursor:cursor + length]
+                cursor += length
+                address = self._component_address(layer, expert, projection, kind)
+                if (length != int(address["raw_bytes"])
+                        or hashlib.sha256(raw).hexdigest() != address["raw_sha256"]):
+                    raise ValueError("L2 component hash mismatch")
+                value.setdefault(projection, {})[kind] = raw
+        except (KeyError, ValueError, struct.error):
+            self.l2_integrity_failures += 1
+            self.l2_misses += 1
+            path.unlink(missing_ok=True)
+            return None
+        os.utime(path, None)
+        self.l2_hits += 1
+        self.l2_bytes_read += len(payload)
+        with self._metrics_lock:
+            self.raw_bytes_materialized += len(payload) - self._HEADER.size
+        return value
+
+    def _l2_files(self) -> list[Path]:
+        return [path for path in self.l2_root.glob("*.aionraw") if path.is_file()]
+
+    def _evict_l2_for(self, incoming: int) -> bool:
+        files = self._l2_files()
+        resident = sum(path.stat().st_size for path in files)
+        if incoming > self.l2_capacity_bytes:
+            return False
+        for victim in sorted(files, key=lambda path: (path.stat().st_mtime_ns, path.name)):
+            if resident + incoming <= self.l2_capacity_bytes:
+                break
+            size = victim.stat().st_size
+            victim.unlink(missing_ok=True)
+            resident -= size
+            self.l2_evictions += 1
+        return resident + incoming <= self.l2_capacity_bytes
+
+    def _write_l2(self, layer: int, expert: int,
+                  value: dict[str, dict[str, bytes]]) -> None:
+        if (layer, expert) in self._l2_bypass:
+            return
+        components = [value[projection][kind] for projection, kind in self._ORDER]
+        payload_size = self._HEADER.size + sum(map(len, components))
+        with self._l2_lock:
+            destination = self._l2_path(layer, expert)
+            if destination.exists() or not self._evict_l2_for(payload_size):
+                return
+            temporary = destination.with_name(
+                destination.name + f".{os.getpid()}.{uuid.uuid4().hex}.tmp")
+            try:
+                with temporary.open("xb", buffering=0) as handle:
+                    handle.write(self._HEADER.pack(
+                        self._MAGIC, *(len(component) for component in components)))
+                    for component in components:
+                        handle.write(component)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(temporary, destination)
+                self.l2_bytes_written += payload_size
+            finally:
+                temporary.unlink(missing_ok=True)
+
+    def _load_value(self, layer: int, expert: int) -> dict[str, dict[str, bytes]]:
+        cached = self._read_l2(layer, expert)
+        if cached is not None:
+            return cached
+        self.sd_fallbacks += 1
+        value = super()._load_value(layer, expert)
+        self._write_l2(layer, expert, value)
+        return value
+
+    def set_l2_bypass(self, layer_experts: dict[str, list[int]]) -> None:
+        """Do not duplicate a separately resident/protected RAM pool in L2."""
+        self._l2_bypass = {(int(layer), expert)
+                           for layer, experts in layer_experts.items()
+                           for expert in experts}
+
+    def metrics(self) -> dict[str, int | float | str]:
+        result = super().metrics()
+        files = self._l2_files()
+        return {
+            **result,
+            "cache_representation": "raw_hash_verified_internal_disk_l2",
+            "l2_root": str(self.l2_root),
+            "l2_capacity_bytes": self.l2_capacity_bytes,
+            "l2_resident_bytes": sum(path.stat().st_size for path in files),
+            "l2_entries": len(files),
+            "l2_hits": self.l2_hits,
+            "l2_misses": self.l2_misses,
+            "l2_bytes_read": self.l2_bytes_read,
+            "l2_bytes_written": self.l2_bytes_written,
+            "l2_evictions": self.l2_evictions,
+            "l2_integrity_failures": self.l2_integrity_failures,
+            "sd_fallbacks": self.sd_fallbacks,
+            "l2_bypass_entries": len(self._l2_bypass),
         }
 
 
