@@ -1,0 +1,290 @@
+{
+  "canonical_sha256": "f997d884eb821774e63004735b761734dd2a49df3f63cdd000f18507e7a53b28",
+  "claim_boundary": "This is an impossible oracle lower bound: holdout targets choose their best projection inside the complete training-residual span. A failure therefore stops codebooks confined to that span; it is not a deployable predictor or speed result.",
+  "created_at": "2026-09-10T13:07:54.289430+00:00",
+  "manifest_canonical_sha256": "a2dfe446585f12466dba6decd210e195974759872410516e48f2240c960d5f3a",
+  "observations": [
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 0,
+      "oracle_relative_l2": 0.8771413688359762,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 0,
+      "oracle_relative_l2": 0.5600477557028362,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 0,
+      "oracle_relative_l2": 0.5264055422177267,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 3,
+      "oracle_relative_l2": 0.8935200649009467,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 3,
+      "oracle_relative_l2": 0.8212510381695183,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 3,
+      "oracle_relative_l2": 0.8329662027495484,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 6,
+      "oracle_relative_l2": 0.01665292627000569,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 6,
+      "oracle_relative_l2": 0.01737575906141799,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 6,
+      "oracle_relative_l2": 0.015041133218831406,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 9,
+      "oracle_relative_l2": 0.02187241404334326,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 9,
+      "oracle_relative_l2": 0.015811573089433463,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 9,
+      "oracle_relative_l2": 0.016818345169967695,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 12,
+      "oracle_relative_l2": 0.06654526624013149,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 12,
+      "oracle_relative_l2": 0.05815911937215385,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 12,
+      "oracle_relative_l2": 0.052267630246283454,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 15,
+      "oracle_relative_l2": 0.21788891394993554,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 15,
+      "oracle_relative_l2": 0.21771616438454525,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 15,
+      "oracle_relative_l2": 0.18425063823276877,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 18,
+      "oracle_relative_l2": 0.42118774472914716,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 18,
+      "oracle_relative_l2": 0.37034220330969214,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 18,
+      "oracle_relative_l2": 0.3641890835051258,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 21,
+      "oracle_relative_l2": 0.706995587510397,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 21,
+      "oracle_relative_l2": 0.7846416818514036,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 21,
+      "oracle_relative_l2": 0.6631202259450135,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 24,
+      "oracle_relative_l2": 0.47700653431679363,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 24,
+      "oracle_relative_l2": 0.5210677039320138,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 24,
+      "oracle_relative_l2": 0.29383344631175373,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 27,
+      "oracle_relative_l2": 0.5692858168830591,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 27,
+      "oracle_relative_l2": 0.7993797611754938,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 27,
+      "oracle_relative_l2": 0.5968820899372653,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 30,
+      "oracle_relative_l2": 0.3570568828462437,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 30,
+      "oracle_relative_l2": 0.6842623857298477,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 30,
+      "oracle_relative_l2": 0.6248971281029947,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 35,
+      "oracle_relative_l2": 0.2900506486008126,
+      "split": "calibration",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 35,
+      "oracle_relative_l2": 0.8083933446060151,
+      "split": "semantic_holdout",
+      "training_span_rank": 21
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 35,
+      "oracle_relative_l2": 0.6088189035672297,
+      "split": "numerical_holdout",
+      "training_span_rank": 21
+    }
+  ],
+  "oracle_uses_holdout_target": true,
+  "quality_track": true,
+  "schema": "aion.shadow-expert-residual-subspace-oracle-bound.v1",
+  "status": "STOP_RESIDUAL_DICTIONARY_SUBSPACE",
+  "summaries": {
+    "calibration": {
+      "oracle_relative_l2_max": 0.8935200649009467,
+      "oracle_relative_l2_p50": 0.38912231378769546,
+      "oracle_relative_l2_p95": 0.8771413688359762,
+      "rows_below_0_02": 1,
+      "rows_below_0_05": 2,
+      "samples": 12
+    },
+    "numerical_holdout": {
+      "oracle_relative_l2_max": 0.8329662027495484,
+      "oracle_relative_l2_p50": 0.44529731286142626,
+      "oracle_relative_l2_p95": 0.6631202259450135,
+      "rows_below_0_02": 2,
+      "rows_below_0_05": 2,
+      "samples": 12
+    },
+    "semantic_holdout": {
+      "oracle_relative_l2_max": 0.8212510381695183,
+      "oracle_relative_l2_p50": 0.540557729817425,
+      "oracle_relative_l2_p95": 0.8083933446060151,
+      "rows_below_0_02": 2,
+      "rows_below_0_05": 2,
+      "samples": 12
+    }
+  }
+}

@@ -2041,3 +2041,41 @@ Identical local/SD file SHA-256:
 `e443ba15b37dbfd273c0801ccb43b3314339de7e161dcf5f4659e51a6423aea5`.
 The next justified candidate is nonlinear and low-rank, after collecting enough
 additional training trajectories; repeating affine variants is stopped.
+
+### Nonlinear and route-aware Shadow Expert results (2026-09-10)
+
+Calibration and both holdout families were frozen while four new first-token
+families and two genuine eight-token KV trajectories were added only to
+training. Each long capture repeated routes, final hidden state and logits
+bitwise. The explicit manifest now binds 288 targets and 21 training states per
+captured layer. Canonical/file SHA-256:
+`a2dfe446585f12466dba6decd210e195974759872410516e48f2240c960d5f3a` /
+`03b9384eafebd632bb7bb784454db2444918af8d28e1864d97b4736923e1a1e8`.
+
+Nonlinear RBF/multikernel models reduced worst holdout p95 from 21.41 to 0.918,
+but no layer met the locked error gate. An impossible holdout-target oracle
+projection established a lower bound for residual dictionaries: overall
+numerical/semantic p95 errors remained 0.663/0.808 even when the oracle chose
+the best combination in the full training span. Layers 6 and 9 were exceptions,
+with individual oracle errors near 0.015--0.017. Global decision:
+`STOP_RESIDUAL_DICTIONARY_SUBSPACE`. Canonical/file SHA-256:
+`f997d884eb821774e63004735b761734dd2a49df3f63cdd000f18507e7a53b28` /
+`7ffe73a807b4a507b2cadb2707ad257d25e5f0e386af2a64e221a89ea0633c87`.
+
+Encoding unrestricted expert IDs and gates as a route Glyph created the first
+narrow near-signal. Layer 6 reached 0.0192 calibration relative L2 and
+0.0282/0.0312 on the two frozen holdouts. Candidate calculation was 0.0850 ms
+p50 and 0.1070 ms p95. However, held-out p95 still missed 0.02 and skipping one
+of twelve measured layer fetches projects only 1.0909x traffic reduction, below
+the unchanged >1.10x experimental rung. Decision: `STOP_KERNEL_BASELINE`, not
+promoted. Canonical/file SHA-256:
+`9f1b12cf4ca4660d9031abd51b2f1124c2b362a16ac7cbc142f0293ac9d153fb` /
+`ef31a56cfac110d2fefabbdf1a8fe7e137e47cff26b8fa0a123e3238b37dcfa8`.
+
+Formal route coverage shows why: median closest-route overlap is 2/4, one of 24
+holdout rows has zero overlap, and only 8/24 have all four experts seen anywhere
+in training. Route-coverage canonical/file SHA-256:
+`6f0d2b505b88b3bcb6dff2012d9f253cabc115f1251775edc44233ccca38028c` /
+`89b00377375d69e6efbb384fc721fd6d8052ae35e11710eb4e9459727e5cd37a`.
+Next collect for missing layer/expert coverage and focus layers 6 and 9; random
+corpus expansion and global residual dictionaries are stopped.

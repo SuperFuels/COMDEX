@@ -225,3 +225,39 @@ its identical local/SD file SHA-256 is
 This falsifies a simple elementwise polynomial mapping; it does not falsify a
 nonlinear low-rank residual model trained on substantially more activation
 trajectories.
+
+## Nonlinear trajectory and route-aware gates (2026-09-10)
+
+Four further independent first-token families and two eight-token KV-linked
+trajectories were captured as training-only data; calibration and both holdout
+families stayed frozen. Both long trajectories repeated routes, hidden states
+and logits bitwise. The explicit frozen manifest contains 288 verified rows,
+including 21 training observations per captured layer. Canonical SHA-256:
+`a2dfe446585f12466dba6decd210e195974759872410516e48f2240c960d5f3a`;
+file SHA-256: `03b9384eafebd632bb7bb784454db2444918af8d28e1864d97b4736923e1a1e8`.
+
+A nonlinear residual-kernel model reduced worst holdout p95 from 21.41 to 0.918
+but accepted no layer. An impossible oracle projection then showed that a
+training-residual dictionary is insufficient overall (holdout p95 0.663 and
+0.808), while exposing a narrow opportunity at layers 6 and 9, whose individual
+oracle holdout errors were approximately 0.015--0.017. Decision:
+`STOP_RESIDUAL_DICTIONARY_SUBSPACE` globally. Canonical SHA-256:
+`f997d884eb821774e63004735b761734dd2a49df3f63cdd000f18507e7a53b28`.
+
+Adding the unrestricted route IDs and gates as an AION route Glyph materially
+improved layer 6. Its polynomial route-aware candidate reached 0.0192
+calibration error and 0.0282/0.0312 on the two frozen holdouts, at 0.0850 ms p50
+and 0.1070 ms p95. This stayed below the 0.05 hard ceiling but missed the 0.02
+p95 gate. One of twelve layers would yield only 1.0909x projected traffic
+reduction, also below the 1.10x experimental rung. Decision:
+`STOP_KERNEL_BASELINE`; this is a near-signal, not a promoted win. Report
+canonical SHA-256:
+`9f1b12cf4ca4660d9031abd51b2f1124c2b362a16ac7cbc142f0293ac9d153fb`;
+identical local/SD file SHA-256:
+`ef31a56cfac110d2fefabbdf1a8fe7e137e47cff26b8fa0a123e3238b37dcfa8`.
+
+The route audit explains the remaining generalization problem: the median
+held-out route overlaps only two of four experts with its closest training
+route; one row has zero overlap and only eight of 24 rows have all four experts
+represented anywhere in training. The next collection must therefore target
+route coverage, not merely add random examples.
