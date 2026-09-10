@@ -2130,3 +2130,44 @@ Runtime canonical/file SHA-256:
 This remains a layer microgate. Build complete causal block attention plus
 layer-major MoE, then measure draft acceptance and end-to-end exact generated
 tokens per second before making a full-model speed claim.
+
+### Full causal block closure and adaptive active-expert frontier (2026-09-10)
+
+The layer-major candidate was extended through all 36 causal attention/MoE
+layers and the complete 201,088-logit output head. Frozen teacher traces supplied
+two, four and eight known positions. Every run retained unrestricted routing and
+original weights; every hidden-state and logit hash matched bit-for-bit.
+
+The exact mechanism did not transfer its logical-traffic gain to wall time.
+Two positions reduced compressed traffic 1.1754x but improved median wall time
+only 1.0265x. Four positions reduced traffic 1.3683x but improved wall time only
+1.0222x. The exploratory eight-position run reduced traffic 1.8617x but improved
+wall time only 1.0383x. macOS page caching already served repeated logical reads
+without equivalent physical SD traffic. Decision:
+`STOP_EXACT_BLOCK_AS_PRIMARY_SPEED_STRATEGY`. Preserve it as supporting
+infrastructure, but do not report the earlier 2.35x layer microgate as a
+full-model token-rate gain.
+
+A separately labelled quality track tested fewer original experts only during
+continuation after exact unrestricted prefill into the protected 8 GiB request
+workbench. Fixed top two reached 10.8786/5.9082 token/s but failed to emit 391
+in the frozen window. Fixed top three emitted 391 but repeated the calculation.
+A gate-mass-adaptive candidate preserved the original four-expert gate values
+instead of renormalizing after omission. At a 0.75 cumulative-mass threshold it
+used 1,087 three-expert and 101 two-expert layer decisions per 33-position
+response, produced coherent text containing 391, and repeated routes, hidden
+states, logits and tokens bitwise. Its four-pass rates were 5.2649, 5.7622,
+3.2772 and 8.3831 token/s; post-warmup median was 5.7622 token/s. This does not
+beat the promoted narrow four-expert 8 GiB arithmetic control median of 6.6608
+token/s, so it is retained for broader quality research but not promoted for
+speed.
+
+A 7.5 GiB workbench was structurally impossible because the required frozen
+seven-token route prefix alone occupies 7.8505 GiB. A valid 7.9 GiB pool retained
+640 layer/expert entries and still emitted 391, but reached only 4.8776 and
+3.5381 token/s. Retain the 8 GiB control as the narrow arithmetic frontier.
+
+Compact canonical SHA-256:
+`74f4d7ec92b946939a941334ca99a7997a4c17a7dbbd21d10c60569fadb2d806`.
+Identical local/SD stored-file SHA-256:
+`ce6bde87c72a71020d0e015d583547ffae5b117795cf35ecbfb44d0225288644`.

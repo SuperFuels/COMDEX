@@ -698,3 +698,50 @@ This is a genuine exact layer-level speed result, not yet an end-to-end token
 rate.  It excludes draft generation, rejection, batched causal attention and
 the remaining 35 layers.  The next gate is a complete layer-major token block
 whose teacher logits drive exact speculative acceptance.
+
+\section{Full Causal Block Closure and Adaptive Active Experts}
+
+The exact layer-major mechanism was extended through all 36 causal attention
+and MoE layers and the complete 201,088-logit output projection.  Frozen teacher
+traces supplied two, four and eight positions.  Every run retained unrestricted
+routing and original GPT-OSS weights, and every final hidden-state and logit
+hash matched bit-for-bit.
+
+The full-model timing falsified block scheduling as the primary speed strategy.
+At two positions, compressed traffic fell by 1.1754$\times$ but median wall time
+improved only 1.0265$\times$.  At four positions the respective results were
+1.3683$\times$ and 1.0222$\times$.  The exploratory eight-position run reached
+1.8617$\times$ logical traffic reduction but only 1.0383$\times$ wall speedup.
+The operating-system page cache had already removed much of the repeated
+physical SD access, so explicit union scheduling mostly removed logical reads
+rather than new physical waiting.  The decision is
+\texttt{STOP\_EXACT\_BLOCK\_AS\_PRIMARY\_SPEED\_STRATEGY}.  The earlier
+2.3461$\times$ layer microgate remains valid but must not be represented as a
+full-model token-rate gain.
+
+A separate quality track retained exact unrestricted prefill and the protected
+8~GiB request workbench while reducing only continuation experts.  Fixed top
+two reached 10.8786 and 5.9082 tokens/s but failed to emit 391 inside the frozen
+window.  Fixed top three emitted 391 but degenerated into repetition.  A
+gate-mass-adaptive policy then preserved the original four-expert gate values
+when omitting weak experts, rather than renormalizing the survivors.  With a
+0.75 cumulative-mass threshold it made 1,087 three-expert and 101 two-expert
+layer decisions per 33-position response.  The response remained coherent,
+contained 391, and repeated routes, hidden states, logits and tokens bitwise.
+
+Four continuation passes reached 5.2649, 5.7622, 3.2772 and 8.3831 tokens/s.
+The post-warmup median was 5.7622 tokens/s.  This is not faster than the promoted
+narrow four-expert 8~GiB control median of 6.6608 tokens/s; it is retained for
+broader frozen quality testing but is not a speed promotion.  A 7.5~GiB pool was
+structurally impossible because the required route prefix alone occupies
+7.8505~GiB.  A valid 7.9~GiB/640-entry pool still found 391 but slowed to 4.8776
+and 3.5381 tokens/s.  The 8~GiB four-expert workbench therefore remains the
+narrow arithmetic frontier.
+
+The compact report canonical SHA-256 is
+\texttt{74f4d7ec92b946939a941334ca99a7997a4c17a7dbbd21d10c60569fadb2d806}.
+The identical local/SD stored-file SHA-256 is
+\texttt{ce6bde87c72a71020d0e015d583547ffae5b117795cf35ecbfb44d0225288644}.
+The adaptive experiments are changed-model quality tracks using original 120B
+weights; they are not bit-exact unrestricted GPT-OSS 120B inference, and one
+arithmetic prompt is not evidence of broad model quality.

@@ -330,3 +330,19 @@ This is an exact layer microgate, not a generated-token result. It excludes
 draft cost, rejection, batched causal attention and the remaining 35 layers.
 The next implementation must process a complete token block layer-major and
 retain exact teacher logits for speculative acceptance.
+
+## Full-block and adaptive-expert closure (2026-09-10)
+
+The exact block mechanism was subsequently executed through all 36 layers and
+the full output head at two, four and eight positions. Bitwise hidden/logit
+equivalence passed throughout, but maximum whole-model wall improvement was
+only 1.0383x despite 1.8617x logical traffic reduction. Exact block scheduling
+is therefore stopped as the primary speed strategy; operating-system page-cache
+reuse had already captured most repeated physical reads.
+
+Changed-model continuation experiments must record active-expert count and
+whether dropped gate mass is preserved. Fixed two-expert and fixed three-expert
+policies failed the frozen arithmetic completion/coherence boundary. The 0.75
+preserved-mass adaptive policy passed narrow correctness and repeatability but
+did not beat the four-expert 8 GiB control median. It may advance only to the
+already-frozen broader semantic families, never as an unrestricted-exact claim.
