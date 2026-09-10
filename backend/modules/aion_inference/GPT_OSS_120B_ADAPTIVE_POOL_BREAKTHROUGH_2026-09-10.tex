@@ -902,3 +902,32 @@ multi-prompt generalization, or 30--50 tokens/s.  The next gate is blinded
 multi-family validation followed by compact/direct computation from the
 persistent representation so that the 42.53~GB of warm per-pass raw expert
 reads can be reduced rather than merely moved to a faster tier.
+
+\subsubsection{Independent arithmetic-family replication}
+
+The same 17~GiB persistent tier was next presented with the unrelated frozen
+$17\times23$ arithmetic family.  Its bounded LRU contents initially represented
+the extraction request, so this test required the tier to replace entries and
+learn a different exact working set.  The RAM pool was 7.9~GiB; all experts
+outside it remained eligible through exact fallback.
+
+On the second pass, all 3,405 out-of-RAM expert demands hit the persistent tier.
+There were zero L2 misses, zero SD fallbacks and zero compressed SD bytes read.
+The complete 33-token continuation ran in 30.8556~s, or 1.06950 tokens/s, with
+0.94006~s median and 1.12305~s p95 token latency.
+
+The separately frozen unrestricted control contains a directly comparable
+17-token continuation window.  That control required 235.8738~s, or
+0.0720724 tokens/s; the persistent-tier candidate required 14.8253~s, or
+1.14668 tokens/s.  This is a 15.9102$\times$ exact speedup and a 93.7147\%
+time reduction.  Across that complete shared window, both candidate passes
+matched the unrestricted control's token IDs, all layer routes, step-hidden
+hashes and step-logit hashes exactly.
+
+The second-family report canonical SHA-256 is
+\texttt{40b6070f6260910b3819ff6925cced3954371186e15f28e8049fe674d3f3cda3};
+its stored-file SHA-256 is
+\texttt{20e71d66a9228c8aaab58befa0c9e28cde9845ba7ad0ba2eefe55cab8666e7d7}.
+Together with the extraction result, this reproduces the order-of-magnitude
+exact improvement across two prompt families.  It still does not establish
+reboot-cold behavior or the final 30--50 tokens/s objective.

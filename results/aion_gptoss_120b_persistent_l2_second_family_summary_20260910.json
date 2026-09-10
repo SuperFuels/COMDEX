@@ -1,0 +1,42 @@
+{
+  "schema": "aion.gptoss-120b.persistent-l2-second-family-summary.v1",
+  "status": "PASSED_SECOND_FAMILY_EXACT",
+  "date": "2026-09-10",
+  "family": "arithmetic 17x23",
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "hardware": "Apple M3 Pro Mac with 18 GB unified memory",
+  "authoritative_model_tier": "64 GB SD-card AION warehouse",
+  "candidate": {
+    "ram_expert_pool_gib": 7.9,
+    "persistent_internal_l2_capacity_gib": 17.0,
+    "prompt_positions": 15,
+    "continuation_positions": 33,
+    "full_warm_continuation_seconds": 30.855619209003635,
+    "full_warm_continuation_tokens_per_second": 1.0694972535301006,
+    "warm_token_latency_p50_seconds": 0.9400557090411894,
+    "warm_token_latency_p95_seconds": 1.1230497919605114,
+    "warm_l2_hits": 3405,
+    "warm_l2_misses": 0,
+    "warm_sd_fallbacks": 0,
+    "warm_compressed_sd_bytes_read": 0,
+    "warm_l2_bytes_read": 45129243480
+  },
+  "shared_17_token_control_window": {
+    "candidate_seconds": 14.825344749027863,
+    "candidate_tokens_per_second": 1.1466849700823811,
+    "unrestricted_control_seconds": 235.87378616805654,
+    "unrestricted_control_tokens_per_second": 0.07207244296272819,
+    "speedup": 15.91017208443152,
+    "time_reduction_percent": 93.71471285984063
+  },
+  "integrity": {
+    "candidate_internal_repeatability": true,
+    "first_32_token_ids_equal_to_unrestricted_control": true,
+    "first_32_all_layer_routes_equal_to_unrestricted_control": true,
+    "first_32_step_hidden_hashes_equal_to_unrestricted_control": true,
+    "first_32_step_logit_hashes_equal_to_unrestricted_control": true,
+    "candidate_report_canonical_sha256": "40b6070f6260910b3819ff6925cced3954371186e15f28e8049fe674d3f3cda3",
+    "candidate_report_file_sha256": "20e71d66a9228c8aaab58befa0c9e28cde9845ba7ad0ba2eefe55cab8666e7d7"
+  },
+  "claim_boundary": "This independently reproduces the exact persistent-L2 improvement on a second prompt family. The comparable frozen-control window is 17 continuation tokens; the full 33-token warm rate has no same-length unrestricted control in this receipt. This is not reboot-cold evidence or a 30-50 tokens/s result."
+}
