@@ -261,3 +261,29 @@ held-out route overlaps only two of four experts with its closest training
 route; one row has zero overlap and only eight of 24 rows have all four experts
 represented anywhere in training. The next collection must therefore target
 route coverage, not merely add random examples.
+
+## GHX route-crystal falsification and retained selector (2026-09-10)
+
+The earlier holdouts were explicitly reclassified as development-only after
+they suggested a simple GHX route-crystal hypothesis. The configuration was
+then frozen before two new synthetic-token families (85001 and 95001) were
+captured. Both unrestricted 120B passes repeated routes, final hidden state and
+logits bitwise. The layer-6 candidate combined the normalized router state with
+the four gated expert identities and calculated in 0.0190 ms p50.
+
+It did not generalize. Fresh relative L2 was 0.0560 and 0.0736, exceeding both
+the 0.02 p95 target and the 0.05 maximum. One substituted layer would also
+project only 1.0909x traffic reduction. Decision:
+`STOP_GHX_ROUTE_CRYSTAL`. Report canonical SHA-256:
+`562ed9cad0fb2c9a3f6fd6bbc0a7531c6a4a4d9e01efca532dc19c8a8ac43b87`;
+file SHA-256: `207cdb9f1059ed517798a2fc4f0245ba2bdb2411f0d952dc24e2d07df303ea0b`.
+The SD evidence inventory has SHA-256
+`f6c3ad2c2e83f195a27b78a0d7a1007f0cff5050c1c81012cff1ca509b31062c`.
+
+The failed numerical output is never eligible for injection. Its fast matching
+primitive is retained separately as a hash-verified, non-authorizing selector:
+it ranks route prototypes, reports expert coverage and a score margin, but can
+only choose a future independently verified calculator or exact fallback. A
+1,000-query check measured 0.0239 ms p50 and 0.0289 ms p95. The next strategy
+remains route-coverage collection followed by a structured per-expert low-rank
+surrogate for layers 6 and 9.

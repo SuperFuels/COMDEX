@@ -620,3 +620,33 @@ four experts; one holdout row had zero overlap and only eight of 24 had all
 four experts represented anywhere in training.  Route-aware collection for
 layers 6 and 9 is therefore the next justified experiment; undirected corpus
 growth is stopped.
+
+\subsection{GHX route-crystal experiment}
+
+The previous holdouts were made development-only after they suggested a compact
+GHX route-memory hypothesis.  The layer-6 configuration was frozen, and two
+new unrestricted token families, 85001 and 95001, were captured for validation.
+Both complete 120B executions repeated routes, final hidden states and logits
+bitwise.  The candidate combined a normalized router activation with the four
+gated expert identities.  It calculated in 0.0190~ms p50, demonstrating that
+the matching machinery itself is negligible.
+
+The numerical substitution nevertheless failed.  Fresh relative $L_2$ errors
+were 0.0560 and 0.0736, above the 0.02 p95 and 0.05 maximum gates.  Substituting
+one of the 12 measured layers would project only 1.0909$\times$ traffic
+reduction, also below the $>1.10\times$ experimental rung.  The decision is
+\texttt{STOP\_GHX\_ROUTE\_CRYSTAL}.  Report canonical SHA-256 is
+\texttt{562ed9cad0fb2c9a3f6fd6bbc0a7531c6a4a4d9e01efca532dc19c8a8ac43b87};
+file SHA-256 is
+\texttt{207cdb9f1059ed517798a2fc4f0245ba2bdb2411f0d952dc24e2d07df303ea0b}.
+The SD evidence inventory SHA-256 is
+\texttt{f6c3ad2c2e83f195a27b78a0d7a1007f0cff5050c1c81012cff1ca509b31062c}.
+
+The inaccurate output path is not eligible for inference.  The fast primitive
+is retained only as a governed route selector: it ranks prototype calculators,
+reports coverage and margin, and leaves authorization to an independently
+validated confidence gate with exact SD fallback.  A 1,000-query selector
+check measured 0.0239~ms p50 and 0.0289~ms p95.  GHX therefore contributes a
+cheap control mechanism, not weight compression or a demonstrated expert
+replacement.  Targeted route coverage and structured per-expert low-rank
+modelling at layers 6 and 9 remain the next numerical strategy.

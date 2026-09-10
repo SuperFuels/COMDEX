@@ -2079,3 +2079,21 @@ in training. Route-coverage canonical/file SHA-256:
 `89b00377375d69e6efbb384fc721fd6d8052ae35e11710eb4e9459727e5cd37a`.
 Next collect for missing layer/expert coverage and focus layers 6 and 9; random
 corpus expansion and global residual dictionaries are stopped.
+
+### GHX route memory result (2026-09-10)
+
+A bounded GHX-inspired test represented the unrestricted layer-6 route as a
+compact gated expert crystal. Two new post-freeze validation token families
+were captured; both complete 120B executions repeated routes, final hidden
+state and logits bitwise. The candidate was computationally negligible at
+0.0190 ms p50, but fresh relative L2 errors were 0.0560 and 0.0736. Its one-layer
+traffic projection was only 1.0909x. Decision: `STOP_GHX_ROUTE_CRYSTAL`.
+Canonical/file SHA-256:
+`562ed9cad0fb2c9a3f6fd6bbc0a7531c6a4a4d9e01efca532dc19c8a8ac43b87` /
+`207cdb9f1059ed517798a2fc4f0245ba2bdb2411f0d952dc24e2d07df303ea0b`.
+
+The numerical substitute is stopped. The 0.02--0.03 ms prototype-matching
+primitive is retained only as a governed selector for a future per-expert
+calculator and exact fallback. GHX is not treated as lossless neural-weight
+compression. Continue with targeted route coverage and structured low-rank
+per-expert modelling at layers 6 and 9.
