@@ -1,0 +1,92 @@
+{
+  "canonical_sha256": "2ae716234c238aca912dd6bbba766975bcf008521968959c35a54c4c5cb4b78e",
+  "claim_boundary": "The exact in-memory layer flow was scaled to the promoted 6+4 GiB core/halo configuration over a 26-position prompt and 22 generated positions, twice. It remained bit-exact but delivered no replicated response-speed improvement: one pass was marginally faster and one regressed. The resident-only 6.24x gain therefore does not transfer while SD expert faults dominate.",
+  "created_at": "2026-09-10T07:09:16.685328+00:00",
+  "decision": "NOT_PROMOTED_FOR_SD_BOUND_GENERATION",
+  "exact_to_file_flow_core_halo": true,
+  "exact_to_unrestricted_control": true,
+  "file_flow": {
+    "run_a": {
+      "latency_p50_seconds": 10.262149604503065,
+      "latency_p95_seconds": 11.94924499996705,
+      "store_metric_delta": {
+        "compressed_bytes_read": 32791904081,
+        "evictions": 2260,
+        "faults": 2584,
+        "hits": 4328,
+        "raw_bytes_materialized": 34247715840
+      },
+      "tokens": 22,
+      "tokens_per_second": 0.10282241465883382,
+      "wall_seconds": 213.96112971083494
+    },
+    "run_b": {
+      "latency_p50_seconds": 10.135151229478652,
+      "latency_p95_seconds": 11.904191166977398,
+      "store_metric_delta": {
+        "compressed_bytes_read": 31827125906,
+        "evictions": 2508,
+        "faults": 2508,
+        "hits": 4404,
+        "raw_bytes_materialized": 33240430080
+      },
+      "tokens": 22,
+      "tokens_per_second": 0.10344747627057407,
+      "wall_seconds": 212.66831046179868
+    }
+  },
+  "inputs": {
+    "file_flow_core_halo": {
+      "canonical_sha256": "67787317cff3cc811fc1af6b39c9e899a9704372bd5096c3bc1fe5aa8a1680e3",
+      "file_sha256": "da0e3175765579aa17e001a78a090f631689bdf6272cd41e4c47ecc7012c0aab",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-extraction-invoice-exact-pool-escape6-halo4-48token-2026-09-10.json"
+    },
+    "memory_flow_core_halo": {
+      "canonical_sha256": "f1382df9b27628573bbd142650077ee643e447cfebfed05e701d609ceea1f63a",
+      "file_sha256": "6400b1b1d554cd0820dfe9b3015419de2aad6526881e544ddb92682e95563e5b",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-extraction-invoice-exact-pool-escape6-halo4-inmemory-48token-2026-09-10.json"
+    },
+    "unrestricted_control": {
+      "canonical_sha256": "9a5a1544efae96f6455d5feb1a335bf3834a4e90b520f148de445a708950f484",
+      "file_sha256": "4ce868e49d4b5cc88023c17336d97660e09f397526da30bf15f7c73abb55cb97",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-extraction-invoice-unrestricted-48token-2026-09-10.json"
+    }
+  },
+  "memory_flow": {
+    "run_a": {
+      "latency_p50_seconds": 10.113592687499477,
+      "latency_p95_seconds": 11.727899582998361,
+      "store_metric_delta": {
+        "compressed_bytes_read": 32791904081,
+        "evictions": 2260,
+        "faults": 2584,
+        "hits": 4328,
+        "raw_bytes_materialized": 34247715840
+      },
+      "tokens": 22,
+      "tokens_per_second": 0.10313312791766668,
+      "wall_seconds": 213.31652054190636
+    },
+    "run_b": {
+      "latency_p50_seconds": 10.410025999997742,
+      "latency_p95_seconds": 12.301669834007043,
+      "store_metric_delta": {
+        "compressed_bytes_read": 31827125906,
+        "evictions": 2508,
+        "faults": 2508,
+        "hits": 4404,
+        "raw_bytes_materialized": 33240430080
+      },
+      "tokens": 22,
+      "tokens_per_second": 0.10180592714726841,
+      "wall_seconds": 216.0974377078819
+    }
+  },
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "paired_speedup_percent": [
+    0.3021843630727883,
+    -1.5868430845157322
+  ],
+  "prompt_positions": 26,
+  "schema": "aion.gptoss-120b-inmemory-core-halo-scale-gate.v1"
+}

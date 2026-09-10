@@ -347,3 +347,20 @@ The next justified scale test is the same exact in-memory flow combined with
 the promoted 6+4~GiB protected-core/exception-halo policy.  It must preserve
 every token and step-logit hash and must not relabel position-zero resident
 execution as generated tokens per second.
+
+That scale test has now completed.  Across the same 26-position extraction
+prompt and 22 generated positions, the in-memory 6+4~GiB candidate produced
+0.10313 and 0.10181 token/s.  The earlier file-flow candidate produced 0.10282
+and 0.10345 token/s.  The paired changes were therefore +0.30\% and -1.59\%:
+no replicated speed improvement.  Every route, token, final hidden-state hash
+and step-logit hash nevertheless matched both the file-flow candidate and the
+separately frozen unrestricted control on all 48 positions of both passes.
+
+The scale decision is
+\texttt{NOT\_PROMOTED\_FOR\_SD\_BOUND\_GENERATION}.  The in-memory flow remains
+valuable for resident execution, but it does not reduce the 2,508--2,584
+expert faults or 31.8--32.8~GB of compressed traffic observed per complete
+pass.  The scale summary has canonical SHA-256
+\texttt{2ae716234c238aca912dd6bbba766975bcf008521968959c35a54c4c5cb4b78e}
+and identical local/SD file SHA-256
+\texttt{371f6ac87cc8de68653a4c003e1e6d2eb386e9b859246fd7dd53728511f2b653}.

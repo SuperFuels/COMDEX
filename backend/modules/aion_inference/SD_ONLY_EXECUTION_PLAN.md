@@ -1779,3 +1779,19 @@ Bound-summary canonical SHA-256:
 `25768d87a531e5c803a6869a52f7be6c626af498fa4a00d42f513e4d7cdd0e3`.
 Identical local/SD file SHA-256:
 `62b33c5b82114372c1e9d289e41761a3af38ac8bd61e550f0236c22de7c1552e`.
+
+The full 48-position scale gate then combined the in-memory flow with the exact
+6 GiB core + 4 GiB halo. It matched the frozen unrestricted control at every
+position, route, token, hidden-state hash and logit hash on both passes. It did
+not improve SD-bound generation: response rates were 0.10313 and 0.10181
+token/s, versus 0.10282 and 0.10345 token/s for the file-flow candidate. Paired
+changes were +0.30% and -1.59%. Decision:
+`NOT_PROMOTED_FOR_SD_BOUND_GENERATION`. Retain in-memory flow for resident
+execution but stop expecting host-file removal to improve the exact core/halo
+path. The identical fault/byte counts and opposite timing movement confirm
+that SD traffic dominates this cohort.
+
+Scale-summary canonical SHA-256:
+`2ae716234c238aca912dd6bbba766975bcf008521968959c35a54c4c5cb4b78e`.
+Identical local/SD file SHA-256:
+`371f6ac87cc8de68653a4c003e1e6d2eb386e9b859246fd7dd53728511f2b653`.
