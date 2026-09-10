@@ -1,0 +1,139 @@
+{
+  "all_decoded_values_exact": true,
+  "canonical_sha256": "6536c8a70c6d5b20a8ba11bb4b9c10faf15755c6b26849eaae73b68e076c71ba",
+  "claim_boundary": "This is an uncached one-layer I/O/decompression microgate over routes contained in a 32-expert trace-selected micropack. It tests exact physical layout and does not establish full-token speed or held-out route coverage.",
+  "created_at": "2026-09-10T07:56:23.324909+00:00",
+  "decoded_route_digests": [
+    "b77b43d8d5cbb3c827dcc53355275f1eb91a68eb0ab6aefba3d78a336584c4c8",
+    "21254897c236b4f2344b6bff9e49ab14ee94c8268e8585c80beaa36ba210f9f2",
+    "124ee6fed93373b03c06e6cda6aeae345239c3f3c8b976da0996e23a34720495",
+    "7dfde6581b9a746004600331015457789e421bc99e7857f004a5e79b4e269da0",
+    "b22b99188ab7ad12ad00da926c714ab7c1df610e0456c64899540adbe04b5fb4",
+    "d31be6c4ce2947e391ab55262628c8921815a4dbc439ca685755cb001fa885be",
+    "2c429bdb1956aa4dc3b25ffa0fa03bccaddb4c22aca5941d01a45e1bc1047e29",
+    "2c429bdb1956aa4dc3b25ffa0fa03bccaddb4c22aca5941d01a45e1bc1047e29",
+    "2daa1c0202c63dca9905ca897e080b21361140a02582c4dbce72f139a9b84857",
+    "866b5a43825d272b6114beafb096dd7a466c45749b0cd370b4a25912388dbbd6",
+    "0c793459f910db3dc9ae594e3ee060a31ec57cc35da20c1bdaf9039e56794c80",
+    "f956c9770306c01c41ad0c5f4bca1c85a2fa98b2db6f0149f104233b9828c448",
+    "2c429bdb1956aa4dc3b25ffa0fa03bccaddb4c22aca5941d01a45e1bc1047e29",
+    "45088729d6db3cb9de6d6b5da96950a04522739509fbfbf557beac4c8ad35ebe",
+    "b22b99188ab7ad12ad00da926c714ab7c1df610e0456c64899540adbe04b5fb4"
+  ],
+  "layer": 0,
+  "macos_f_nocache": true,
+  "median_speedup": 0.9755614769817801,
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "route_count": 15,
+  "route_local_manifest": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/layout-gates/layer0-top32-expert-local.manifest.json",
+  "route_local_manifest_sha256": "d53d5f764b3a5639e6ec8775044b2748ecfaec8721497ce730f575e7ed406ce9",
+  "routes": [
+    [
+      83,
+      30,
+      14,
+      63
+    ],
+    [
+      28,
+      8,
+      55,
+      46
+    ],
+    [
+      21,
+      0,
+      111,
+      46
+    ],
+    [
+      28,
+      46,
+      76,
+      83
+    ],
+    [
+      99,
+      113,
+      15,
+      105
+    ],
+    [
+      28,
+      105,
+      76,
+      16
+    ],
+    [
+      23,
+      11,
+      118,
+      51
+    ],
+    [
+      23,
+      11,
+      118,
+      51
+    ],
+    [
+      56,
+      83,
+      14,
+      30
+    ],
+    [
+      28,
+      46,
+      108,
+      105
+    ],
+    [
+      45,
+      72,
+      15,
+      83
+    ],
+    [
+      21,
+      0,
+      111,
+      105
+    ],
+    [
+      23,
+      11,
+      118,
+      51
+    ],
+    [
+      28,
+      46,
+      30,
+      108
+    ],
+    [
+      99,
+      113,
+      15,
+      105
+    ]
+  ],
+  "schema": "aion.gptoss-120b-route-local-io-gate.v1",
+  "status": "NOT_PROMOTED",
+  "summaries": {
+    "route_local": {
+      "p50_ms": 109.1983545,
+      "p95_ms": 115.182875,
+      "read_calls_per_route": 4,
+      "samples": 30
+    },
+    "scattered": {
+      "p50_ms": 106.529708,
+      "p95_ms": 113.0405,
+      "read_calls_per_route": 24,
+      "samples": 30
+    }
+  },
+  "trace_sha256": "4ce868e49d4b5cc88023c17336d97660e09f397526da30bf15f7c73abb55cb97"
+}

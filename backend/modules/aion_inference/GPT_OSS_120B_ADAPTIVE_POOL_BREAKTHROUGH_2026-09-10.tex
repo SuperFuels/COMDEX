@@ -364,3 +364,29 @@ pass.  The scale summary has canonical SHA-256
 \texttt{2ae716234c238aca912dd6bbba766975bcf008521968959c35a54c4c5cb4b78e}
 and identical local/SD file SHA-256
 \texttt{371f6ac87cc8de68653a4c003e1e6d2eb386e9b859246fd7dd53728511f2b653}.
+
+\subsection{Route-local SD layout falsification}
+
+A bounded physical-layout experiment tested whether the six discontiguous
+component reads per expert were responsible for the remaining delay.  A
+402,624,694-byte layer-0 micropack copied the existing verified compressed
+frames without changing a single encoded or decoded byte and placed each
+selected expert's six components next to one another.  The frozen top-32 set
+contained 15 complete four-expert routes.  macOS uncached I/O was requested and
+the ABBA order was balanced across the routes.
+
+The layout reduced physical read calls from 24 to four per route, but did not
+improve time.  Scattered p50/p95 latency was 106.530/113.041~ms, compared with
+109.198/115.183~ms for the expert-local pack, a median speedup of only
+0.976$\times$.  Every decoded raw component remained hash-exact.  The decision
+is \texttt{NOT\_PROMOTED}: seek count at this granularity is not the dominant
+cost on the present SD card, and a full duplicate expert-local warehouse must
+not be built.
+
+The gate has canonical SHA-256
+\texttt{6536c8a70c6d5b20a8ba11bb4b9c10faf15755c6b26849eaae73b68e076c71ba}
+and identical local/SD file SHA-256
+\texttt{80728464f191e288ddffdf023e40656fb14c5bb5d5261ac332af1dc66b30ccef}.
+The next narrow experiment must separate the remaining compressed read,
+integrity-hash, zstd decode, allocation and Python-copy costs and test direct
+decompression into reusable aligned buffers before any full-runtime change.

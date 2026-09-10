@@ -1795,3 +1795,24 @@ Scale-summary canonical SHA-256:
 `2ae716234c238aca912dd6bbba766975bcf008521968959c35a54c4c5cb4b78e`.
 Identical local/SD file SHA-256:
 `371f6ac87cc8de68653a4c003e1e6d2eb386e9b859246fd7dd53728511f2b653`.
+
+### Route-local physical-layout microgate (2026-09-10)
+
+A bounded, lossless 402,624,694-byte layer-0 micropack placed each selected
+expert's six already-compressed components contiguously. The 32 experts were
+selected from a frozen trace and supported 15 complete four-expert routes.
+macOS `F_NOCACHE` was enabled and the order was balanced. The candidate reduced
+read calls per route from 24 to 4, and every decoded raw component remained
+hash-exact. It did not reduce elapsed time: scattered p50/p95 were
+106.530/113.041 ms, versus 109.198/115.183 ms route-local. Median speedup was
+0.976x. Decision: `NOT_PROMOTED`. On this SD and frame size, six-component seek
+count is not the dominant cost; do not build a full duplicate route-local bank.
+
+Gate canonical SHA-256:
+`6536c8a70c6d5b20a8ba11bb4b9c10faf15755c6b26849eaae73b68e076c71ba`.
+Identical local/SD gate file SHA-256:
+`80728464f191e288ddffdf023e40656fb14c5bb5d5261ac332af1dc66b30ccef`.
+The bounded pack and manifest remain immutable SD evidence. Next isolate
+compressed read time, source/target copies, hashing and zstd decode; advance
+only a direct reusable decode-buffer candidate that wins a narrow real-frame
+gate before attempting runtime integration.
