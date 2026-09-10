@@ -1630,3 +1630,34 @@ Next freeze and execute representative blinded prompts against the unrestricted
 reference. Do not promote the pool on the minimal `Hi` prompt. If quality holds,
 attack the now-dominant native MoE stage with fused packed kernels; otherwise
 revise pool construction under the same capacity and quality gates.
+
+### Exact-prefill / bounded-continuation breakthrough (2026-09-10)
+
+The first frozen held-out arithmetic gate falsified constraining prompt and
+response together: the universal pool changed `23` to `2?` and did not reach
+the correct answer within 33 generated positions. The full 15-position prompt
+itself touched 1,005 layer/expert addresses (12.405 GiB raw), exceeding the
+10 GiB resident budget. Preserve this failure; do not claim the universal pool
+as quality-promoted.
+
+The runtime was changed so prompt positions retain unrestricted exact 120B
+routing, followed by a prompt/response-boundary rehydration of a request-derived
+10 GiB original-weight pool. On `What is 17 multiplied by 23?`, both 15-position
+prompt passes matched unrestricted token IDs, hidden arrays and logits
+bit-for-bit. Both candidate continuations repeated exactly and produced
+`17*23 = 391`. The 33-position response phases reached 3.0707 and 2.7253 token/s
+versus 0.07213 and 0.07207 token/s for the matched unrestricted reference:
+42.571x and 37.813x faster. Post-rehydration expert loading across each whole
+response was only 12.6 ms and 19.1 ms.
+
+Status: `PASSED_NARROW_ARITHMETIC`, not general quality promotion. Initial pool
+activation remained 113.6 seconds and boundary repair remained 61.6 seconds,
+reading 5.58 GB compressed per repair. The next target is TTFT: overlap
+request-pool construction/rehydration with exact prompt computation, then run
+the already-frozen explanation, extraction and business-diagnosis families.
+Do not trade away exact prompt semantics to improve TTFT.
+
+Canonical summary SHA-256:
+`ca807decf327196d3fd1ece56012fc5fc3fc3c1a26701b4c5dd94885084cccdc`.
+Identical local/SD file SHA-256:
+`799e66834c4a724ac26f9ab49bf706cbda2dd7d25c27133c1ef14012793329e6`.

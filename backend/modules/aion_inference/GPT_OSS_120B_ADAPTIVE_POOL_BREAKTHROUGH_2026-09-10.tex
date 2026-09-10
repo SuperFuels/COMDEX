@@ -131,3 +131,45 @@ and stored-file SHA-256
 An identical copy is retained on the mounted SD evidence volume.  The four-pass
 runtime report has canonical SHA-256
 \texttt{731120e59eb5c2ade5aabfcf34f4b1c614bbd779eca5156f3694db068df5ecf9}.
+
+\subsection{Exact semantic prefill with rehydrated bounded generation}
+
+The first held-out arithmetic prompt exposed the limitation of constraining the
+entire sequence.  The all-constrained candidate changed ``23'' to ``2?'' in its
+analysis and did not reach the correct result within 33 response positions.
+This failure was retained.  Exact unrestricted profiling also showed why a
+single 10~GiB pool cannot simply preserve the complete prompt route: the
+15-position prompt touched 1,005 distinct layer/expert addresses representing
+12.405~GiB of original raw expert data.
+
+The runtime boundary was therefore changed, not the acceptance criterion.  All
+prompt positions use the unrestricted router and exact selected experts.  At
+the prompt/response boundary, AION rehydrates a request-derived 10~GiB pool;
+only subsequent autoregressive routing is constrained.  The arithmetic pool
+was frozen from the first nine exact prompt positions before its candidate run.
+
+For ``What is 17 multiplied by 23?'', both candidate prompt passes matched the
+unrestricted reference token IDs, final hidden arrays, and logits bit-for-bit
+across all 15 positions.  Both candidate continuations were internally
+bit-for-bit repeatable and produced the correct statement
+``17*23 = 391''.  The two 33-position continuations achieved 3.0707 and 2.7253
+tokens/s, compared with 0.07213 and 0.07207 tokens/s in the matched unrestricted
+reference.  The paired speedups were 42.571$\times$ and 37.813$\times$.
+After rehydration, total expert lookup/load time across each 33-position
+continuation was only 12.6~ms and 19.1~ms.
+
+This result carries a substantial latency cost.  Initial pool activation took
+113.6 seconds and the post-prompt rehydration took 61.6 seconds per pass,
+including 5.58~GB of compressed SD reads.  It is therefore a sustained-response
+and narrow-quality breakthrough, not an interactive TTFT result.  The correct
+next systems experiment is to construct or restore the response working set
+incrementally while exact prefill is executing, overlapping its SD work with
+neural computation and never allowing it to compete with demand reads.
+
+The narrow arithmetic gate status is
+\texttt{PASSED\_NARROW\_ARITHMETIC}; its canonical SHA-256 is
+\texttt{ca807decf327196d3fd1ece56012fc5fc3fc3c1a26701b4c5dd94885084cccdc}
+and its identical local/SD stored-file SHA-256 is
+\texttt{799e66834c4a724ac26f9ab49bf706cbda2dd7d25c27133c1ef14012793329e6}.
+The claim remains narrow until the frozen explanation, extraction, and business
+diagnosis families pass.
