@@ -1,0 +1,624 @@
+{
+  "accepted_holdout_accuracy_passed": false,
+  "accepted_holdout_relative_l2_max": null,
+  "accepted_holdout_relative_l2_p95": null,
+  "accepted_layers": [],
+  "authorization_sha256": "e1bd12cbde252a410b6cd293c71f70c46edb8a99f1b2bc84a57f549dfcfbaa90",
+  "calculation_ms_p50": 0.030458,
+  "calculation_ms_p95": 0.03425,
+  "calibration_by_layer": {
+    "6": 0.19219923679368514,
+    "9": 0.3463417964168624
+  },
+  "canonical_sha256": "4c61233adde48fd804371073e798c818f40f46805200aa0e7a8c05088445a262",
+  "cartridge_receipt_sha256": "584f3710687e6ee57c3726dd17d304947976205b6be9082081a097a4f44e2551",
+  "claim_boundary": "Training-only group-selected structured per-expert low-rank microgate. Changed arithmetic; exact fallback remains mandatory. No full-model speed or quality claim is made.",
+  "created_at": "2026-09-10T13:50:30.299450+00:00",
+  "exact_fallback_required": true,
+  "observations": [
+    {
+      "family_id": "bos_position_zero",
+      "layer": 6,
+      "relative_l2": 0.22744909693847987,
+      "route": [
+        121,
+        55,
+        37,
+        88
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 6,
+      "relative_l2": 0.19219923679368514,
+      "route": [
+        121,
+        122,
+        35,
+        98
+      ],
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 6,
+      "relative_l2": 0.20361825695903846,
+      "route": [
+        121,
+        88,
+        122,
+        35
+      ],
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 6,
+      "relative_l2": 0.19340775232637697,
+      "route": [
+        121,
+        91,
+        35,
+        122
+      ],
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_25001",
+      "layer": 6,
+      "relative_l2": 0.19755255626554766,
+      "route": [
+        121,
+        55,
+        77,
+        35
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_token_35001",
+      "layer": 6,
+      "relative_l2": 0.20137533989492626,
+      "route": [
+        121,
+        88,
+        55,
+        26
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_token_45001",
+      "layer": 6,
+      "relative_l2": 0.1900086671820821,
+      "route": [
+        121,
+        88,
+        55,
+        66
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_token_55001",
+      "layer": 6,
+      "relative_l2": 0.21149925001660858,
+      "route": [
+        121,
+        55,
+        88,
+        122
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 6,
+      "relative_l2": 0.19729052147377196,
+      "route": [
+        121,
+        55,
+        116,
+        88
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 6,
+      "relative_l2": 6.928086344399302,
+      "route": [
+        121,
+        25,
+        116,
+        77
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 6,
+      "relative_l2": 6.754937285361011,
+      "route": [
+        49,
+        121,
+        21,
+        24
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 6,
+      "relative_l2": 0.6930758255475471,
+      "route": [
+        116,
+        11,
+        115,
+        55
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 6,
+      "relative_l2": 0.9614336061144565,
+      "route": [
+        49,
+        62,
+        114,
+        11
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 6,
+      "relative_l2": 0.924841712112699,
+      "route": [
+        16,
+        49,
+        24,
+        114
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 6,
+      "relative_l2": 0.7249943608141853,
+      "route": [
+        16,
+        58,
+        111,
+        116
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 6,
+      "relative_l2": 0.9298194444017517,
+      "route": [
+        18,
+        116,
+        66,
+        11
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 6,
+      "relative_l2": 0.20526573407176404,
+      "route": [
+        121,
+        88,
+        55,
+        47
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 6,
+      "relative_l2": 7.375053258120083,
+      "route": [
+        88,
+        90,
+        121,
+        74
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 6,
+      "relative_l2": 0.723734947918894,
+      "route": [
+        86,
+        88,
+        96,
+        90
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 6,
+      "relative_l2": 1.2625222514149885,
+      "route": [
+        24,
+        50,
+        51,
+        88
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 6,
+      "relative_l2": 6.379051591545949,
+      "route": [
+        51,
+        84,
+        121,
+        40
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 6,
+      "relative_l2": 5.055681791079031,
+      "route": [
+        66,
+        51,
+        121,
+        40
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 6,
+      "relative_l2": 1.1918884638265315,
+      "route": [
+        66,
+        88,
+        51,
+        40
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 6,
+      "relative_l2": 0.6092538667487856,
+      "route": [
+        88,
+        66,
+        11,
+        19
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "bos_position_zero",
+      "layer": 9,
+      "relative_l2": 0.12252057547636062,
+      "route": [
+        85,
+        87,
+        6,
+        98
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_token_1001",
+      "layer": 9,
+      "relative_l2": 0.3463417964168624,
+      "route": [
+        85,
+        87,
+        6,
+        98
+      ],
+      "split": "calibration"
+    },
+    {
+      "family_id": "synthetic_token_5001",
+      "layer": 9,
+      "relative_l2": 0.2851514401184119,
+      "route": [
+        85,
+        87,
+        6,
+        89
+      ],
+      "split": "semantic_holdout"
+    },
+    {
+      "family_id": "synthetic_token_15001",
+      "layer": 9,
+      "relative_l2": 0.32275689753101683,
+      "route": [
+        85,
+        87,
+        6,
+        89
+      ],
+      "split": "numerical_holdout"
+    },
+    {
+      "family_id": "synthetic_token_25001",
+      "layer": 9,
+      "relative_l2": 0.20808268150188083,
+      "route": [
+        85,
+        87,
+        6,
+        89
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_token_35001",
+      "layer": 9,
+      "relative_l2": 0.24676382448402975,
+      "route": [
+        85,
+        87,
+        6,
+        98
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_token_45001",
+      "layer": 9,
+      "relative_l2": 0.1891999139599916,
+      "route": [
+        85,
+        87,
+        6,
+        98
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_token_55001",
+      "layer": 9,
+      "relative_l2": 0.2676461357263845,
+      "route": [
+        85,
+        87,
+        6,
+        98
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 9,
+      "relative_l2": 0.2299574633948591,
+      "route": [
+        85,
+        87,
+        6,
+        89
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 9,
+      "relative_l2": 0.6403345969774726,
+      "route": [
+        78,
+        120,
+        48,
+        108
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 9,
+      "relative_l2": 0.6973326141523468,
+      "route": [
+        112,
+        78,
+        36,
+        103
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 9,
+      "relative_l2": 0.6071100006391394,
+      "route": [
+        78,
+        120,
+        110,
+        18
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 9,
+      "relative_l2": 0.6103663873658898,
+      "route": [
+        78,
+        108,
+        36,
+        120
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 9,
+      "relative_l2": 0.7028632133353728,
+      "route": [
+        118,
+        78,
+        36,
+        108
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 9,
+      "relative_l2": 0.6342351442313021,
+      "route": [
+        78,
+        108,
+        120,
+        113
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_65001",
+      "layer": 9,
+      "relative_l2": 0.8273877653677636,
+      "route": [
+        110,
+        73,
+        78,
+        103
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 9,
+      "relative_l2": 0.2217609196456476,
+      "route": [
+        85,
+        87,
+        6,
+        89
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 9,
+      "relative_l2": 0.7141535040073654,
+      "route": [
+        36,
+        91,
+        23,
+        111
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 9,
+      "relative_l2": 0.7018153013494278,
+      "route": [
+        91,
+        111,
+        69,
+        25
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 9,
+      "relative_l2": 0.6454674956166033,
+      "route": [
+        91,
+        54,
+        111,
+        36
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 9,
+      "relative_l2": 0.676488273030661,
+      "route": [
+        108,
+        91,
+        69,
+        54
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 9,
+      "relative_l2": 0.7152614580338568,
+      "route": [
+        91,
+        69,
+        108,
+        36
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 9,
+      "relative_l2": 0.7893172274034409,
+      "route": [
+        108,
+        69,
+        80,
+        91
+      ],
+      "split": "train"
+    },
+    {
+      "family_id": "synthetic_trajectory_75001",
+      "layer": 9,
+      "relative_l2": 0.7008632874901021,
+      "route": [
+        91,
+        36,
+        108,
+        69
+      ],
+      "split": "train"
+    }
+  ],
+  "projected_expert_traffic_reduction": 1.0,
+  "quality_track": true,
+  "schema": "aion.shadow-per-expert-low-rank-gate.v1",
+  "selection": [
+    {
+      "activation_dimensions": 0,
+      "layer": 6,
+      "ridge": 1.0,
+      "shared_weight": 0.0,
+      "target_rank": 16,
+      "training_group_cv_relative_l2_max": 8.52960778963788,
+      "training_group_cv_relative_l2_p50": 0.9993359418403189,
+      "training_group_cv_relative_l2_p95": 8.380385070459841
+    },
+    {
+      "activation_dimensions": 0,
+      "layer": 9,
+      "ridge": 1.0,
+      "shared_weight": 0.0,
+      "target_rank": 4,
+      "training_group_cv_relative_l2_max": 1.0,
+      "training_group_cv_relative_l2_p50": 0.9469931014808762,
+      "training_group_cv_relative_l2_p95": 1.0
+    }
+  ],
+  "selection_used_training_group_cv_only": true,
+  "source_manifest_canonical_sha256": "a2dfe446585f12466dba6decd210e195974759872410516e48f2240c960d5f3a",
+  "status": "STOP_PER_EXPERT_LOW_RANK"
+}

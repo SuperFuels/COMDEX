@@ -287,3 +287,46 @@ only choose a future independently verified calculator or exact fallback. A
 1,000-query check measured 0.0239 ms p50 and 0.0289 ms p95. The next strategy
 remains route-coverage collection followed by a structured per-expert low-rank
 surrogate for layers 6 and 9.
+
+## Structured per-expert low-rank result (2026-09-10)
+
+A dual-kernel implementation assigned a separate gated affine feature block to
+each of 128 experts and compressed the combined residual into a learned low-rank
+basis. Hyperparameters were selected using training-family leave-one-out only;
+the calibration and holdout families did not participate in selection. The
+calculator remained cheap at 0.0305 ms p50 and 0.0343 ms p95, but both target
+layers failed calibration: layer 6 relative L2 was 0.1922 and layer 9 was
+0.3463. No layer was accepted and projected traffic reduction was 1.0x.
+Decision: `STOP_PER_EXPERT_LOW_RANK`. Report canonical/file SHA-256:
+`4c61233adde48fd804371073e798c818f40f46805200aa0e7a8c05088445a262` /
+`246c18e1e558b70d9f5c4f8d725fb72d3428a8b5abb01650b527d0e521a4a2e6`.
+The SD inventory SHA-256 is
+`99acf071b3df6ea44977622b0b0f6e062f352a04feb7ab6ca18f93c0052aee68`.
+Do not scale this form. The next exact opportunity is multi-token block
+verification, which may amortize one expert load across several drafted token
+positions without altering 120B mathematics.
+
+## Exact multi-token block breakthrough (2026-09-10)
+
+Two bitwise-repeatable eight-token 120B traces first established an analytical
+layer-major load bound of 1.8611x and 1.9136x across all 36 layers. A real
+SD-backed layer-12 gate then fetched each unique expert once and reused it for
+all applicable positions. The two cases reduced 32 sequential expert faults to
+13 and 16; compressed traffic fell from approximately 406.7 MB to 165.2 MB and
+203.3 MB. Traffic reductions were 2.4616x and 2.0001x. Wall speedups were
+2.4784x and 2.2137x, or 2.3461x median. All 16 candidate outputs matched their
+captured exact outputs bitwise. Peak live expert bytes were 212,060,160, below
+the 512 MiB gate. Decision: `ADVANCE_EXACT_BLOCK_RUNTIME`.
+
+The runtime report canonical/file SHA-256 values are
+`e22f692a633aa269a4d0280e4db004d95f6466fbc4fb2c26c8f7351558e963f1` /
+`af978a55c128973beb5253f507fa2a7f1b615b37aaafb62389515ad891cb2f3e`.
+The analytical report canonical/file SHA-256 values are
+`6b9a801146fbb15feaa8b41ba9e465d8923c56723f79fb1305bb05ae25481c45` /
+`e198aa323cb1fcca0fdbfb0afe2af0e902d5157bd8d4df3122c3dff1d42df420`.
+The SD inventory SHA-256 is
+`a3182fe9c40c19e3594c13ff12b546b7986e2890dcb98508498e7161aaa92b2a`.
+This is an exact layer microgate, not a generated-token result. It excludes
+draft cost, rejection, batched causal attention and the remaining 35 layers.
+The next implementation must process a complete token block layer-major and
+retain exact teacher logits for speculative acceptance.

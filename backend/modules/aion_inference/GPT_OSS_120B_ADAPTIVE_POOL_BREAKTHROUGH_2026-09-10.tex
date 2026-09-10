@@ -650,3 +650,51 @@ check measured 0.0239~ms p50 and 0.0289~ms p95.  GHX therefore contributes a
 cheap control mechanism, not weight compression or a demonstrated expert
 replacement.  Targeted route coverage and structured per-expert low-rank
 modelling at layers 6 and 9 remain the next numerical strategy.
+
+\subsection{Structured per-expert low-rank closure}
+
+A subsequent candidate represented each of the 128 experts with a separate
+gate-weighted affine feature block and represented the combined residual in a
+learned low-rank basis.  Hyperparameters were chosen using grouped
+training-family cross-validation only.  The calculation remained negligible at
+0.0305~ms p50 and 0.0343~ms p95.  Accuracy did not survive: calibration relative
+$L_2$ was 0.1922 at layer 6 and 0.3463 at layer 9.  Consequently no layer was
+accepted and projected traffic reduction remained 1.0$\times$.
+
+The decision is \texttt{STOP\_PER\_EXPERT\_LOW\_RANK}.  Report canonical
+SHA-256 is
+\texttt{4c61233adde48fd804371073e798c818f40f46805200aa0e7a8c05088445a262};
+file SHA-256 is
+\texttt{246c18e1e558b70d9f5c4f8d725fb72d3428a8b5abb01650b527d0e521a4a2e6}.
+The SD evidence inventory SHA-256 is
+\texttt{99acf071b3df6ea44977622b0b0f6e062f352a04feb7ab6ca18f93c0052aee68}.
+This closes small-data additive expert factorization.  The next exact-track
+opportunity is multi-token block verification, in which a resident draft model
+proposes several positions and the 120B teacher processes them layer-major so
+one exact expert load may serve several positions.
+
+\subsection{Exact multi-token block execution breakthrough}
+
+Two bitwise-repeatable eight-position traces first established an analytical
+all-layer expert-load bound of 1.8611$\times$ and 1.9136$\times$.  A real
+SD-backed layer-12 implementation then loaded the union of required experts
+once and reused each expert across all applicable positions.  The two cases
+reduced 32 sequential expert faults to 13 and 16.  Compressed traffic fell from
+approximately 406.7~MB to 165.2~MB and 203.3~MB, corresponding to
+2.4616$\times$ and 2.0001$\times$ reductions.  Wall-time speedups were
+2.4784$\times$ and 2.2137$\times$, or 2.3461$\times$ at the median.
+
+All 16 layer outputs were bitwise identical to the captured exact outputs.
+Peak live expert storage was 212,060,160 bytes, below the declared 512~MiB gate.
+The decision is \texttt{ADVANCE\_EXACT\_BLOCK\_RUNTIME}.  Runtime report
+canonical/file SHA-256 values are
+\texttt{e22f692a633aa269a4d0280e4db004d95f6466fbc4fb2c26c8f7351558e963f1}
+and
+\texttt{af978a55c128973beb5253f507fa2a7f1b615b37aaafb62389515ad891cb2f3e}.
+The SD inventory SHA-256 is
+\texttt{a3182fe9c40c19e3594c13ff12b546b7986e2890dcb98508498e7161aaa92b2a}.
+
+This is a genuine exact layer-level speed result, not yet an end-to-end token
+rate.  It excludes draft generation, rejection, batched causal attention and
+the remaining 35 layers.  The next gate is a complete layer-major token block
+whose teacher logits drive exact speculative acceptance.

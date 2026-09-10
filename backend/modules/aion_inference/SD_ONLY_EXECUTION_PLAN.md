@@ -2097,3 +2097,36 @@ primitive is retained only as a governed selector for a future per-expert
 calculator and exact fallback. GHX is not treated as lossless neural-weight
 compression. Continue with targeted route coverage and structured low-rank
 per-expert modelling at layers 6 and 9.
+
+### Structured per-expert low-rank closure (2026-09-10)
+
+The per-expert candidate used separate gated feature blocks for all 128 experts
+and a low-rank output basis, with configuration selected solely by grouped
+training cross-validation. It calculated in 0.0305 ms p50 but produced 0.1922
+and 0.3463 calibration relative L2 at layers 6 and 9. No layer was accepted;
+traffic remained 1.0x. Decision: `STOP_PER_EXPERT_LOW_RANK`. Canonical/file
+SHA-256: `4c61233adde48fd804371073e798c818f40f46805200aa0e7a8c05088445a262` /
+`246c18e1e558b70d9f5c4f8d725fb72d3428a8b5abb01650b527d0e521a4a2e6`.
+
+This closes small-data additive expert factorization. Preserve the fast GHX
+selector, but do not fit another low-capacity residual form to the same corpus.
+The next exact-track test is layer-major multi-token verification: draft a
+short block with an already-resident small model, then group the exact 120B
+positions by layer and expert so each fetched expert serves multiple positions.
+
+### Exact eight-position layer block result (2026-09-10)
+
+Existing exact traces predicted 1.8611x--1.9136x fewer expert loads when eight
+positions are processed layer-major. The real SD-backed layer-12 implementation
+exceeded that conservative aggregate bound locally: two independent cases cut
+32 expert faults to 13 and 16, reduced compressed traffic by 2.4616x and
+2.0001x, and improved wall time by 2.4784x and 2.2137x. All 16 outputs were
+bitwise identical to their exact captured targets. Peak live expert storage was
+212,060,160 bytes. Decision: `ADVANCE_EXACT_BLOCK_RUNTIME`.
+
+Runtime canonical/file SHA-256:
+`e22f692a633aa269a4d0280e4db004d95f6466fbc4fb2c26c8f7351558e963f1` /
+`af978a55c128973beb5253f507fa2a7f1b615b37aaafb62389515ad891cb2f3e`.
+This remains a layer microgate. Build complete causal block attention plus
+layer-major MoE, then measure draft acceptance and end-to-end exact generated
+tokens per second before making a full-model speed claim.
