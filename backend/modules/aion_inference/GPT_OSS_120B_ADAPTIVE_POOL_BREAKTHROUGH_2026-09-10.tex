@@ -783,3 +783,30 @@ performance falsification rather than a numerical failure.  The decision is
 microbenchmark win did not survive full 8~GiB workbench pressure.  The compact
 evidence file is
 \texttt{aion\_gptoss\_120b\_resident\_thread\_frontier\_20260910.json}.
+
+\subsection{Disjoint Two-Family Workbench Holdout}
+
+Before spending another full generation run, three 8~GiB static workbenches
+were trained solely from exact numerical routes for the ``hello'' and arithmetic
+families, then evaluated offline on the disjoint invoice-extraction response
+trace.  No extraction route was used to select the experts.  Each candidate
+held 648 original layer-experts.  The policies were equal 18-per-layer,
+global frequency-per-byte with a per-layer floor, and global accumulated
+gate-mass-per-byte with a per-layer floor.
+
+The equal allocation was best on complete-route coverage, but contained all
+four unrestricted holdout experts on only 81 of 792 layer-routes (10.23\%).
+Frequency allocation covered 74 routes (9.34\%), and gate-mass allocation
+covered 79 (9.97\%).  Their median retained unrestricted gate masses were
+0.4684, 0.4722 and 0.4743 respectively.  In every candidate, more than 53.9\%
+of layer-routes lost at least half of the unrestricted gate mass.
+
+The decision is \texttt{STOP\_STATIC\_TWO\_FAMILY\_POOL}.  These candidates
+were rejected before changed-model generation because their blinded numerical
+coverage cannot justify either an exact escape speed claim or a credible
+quality claim.  This does not invalidate the narrow request-specific workbench;
+it proves that merely redistributing the same 648 original experts does not
+generalize across these families.  General 120B acceleration now requires a
+more compact resident expert representation or dynamic exchange that increases
+effective coverage.  The compact report is
+\texttt{aion\_gptoss\_120b\_two\_family\_pool\_holdout\_summary\_20260910.json}.
