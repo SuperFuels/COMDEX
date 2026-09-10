@@ -402,3 +402,26 @@ traffic dominates.  Canonical SHA-256 is
 \texttt{3c2fa7ecf29f4cd902efbce220d7bd67f3bffab78e2ff8f18a84d2f03ef69000},
 with identical local/SD file SHA-256
 \texttt{1f5c7746846f076880df60ed486661f469e947b565b02dffcdcfbd52303dc86e}.
+
+\subsection{Real-activation expert-omission falsification}
+
+The reduced-traffic quality track next captured 16 genuine activation and
+route pairs from two KV-linked token positions at layers 0, 5, 10, 15, 20, 25,
+30 and 35.  The source execution repeated every route, hidden state and logit
+hash.  Each four-expert route was recalculated while retaining its leading
+three, two or one experts, with both unchanged and renormalized gate weights.
+
+No candidate met the predeclared numerical gate.  With original gates, top-3
+execution offered only a 1.33$\times$ theoretical expert-byte reduction but
+produced p95 relative $L_2$ errors of 0.0847 on the full layer output and
+0.3757 on the expert contribution.  Top-2 offered 2$\times$ fewer expert bytes
+but raised those errors to 0.1606 and 0.5771.  Top-1 offered 4$\times$ fewer
+bytes but errors reached 0.2573 and 0.7881.  Renormalization did not repair the
+error distribution.
+
+The decision is \texttt{STOP\_TOPK\_EXPERT\_OMISSION}.  On these real states,
+all four routed experts make material contributions; expert rank alone is not
+a safe confidence signal.  The report has canonical SHA-256
+\texttt{7ec161947c242517d44c9da5323f39ef8031862627f276fbd441b1d88a9f9488}
+and identical local/SD file SHA-256
+\texttt{f72ca17418f852a7222598fbe2c38141bc54c91c7026a401ff7eded1cfd53423}.

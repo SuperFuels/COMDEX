@@ -1836,3 +1836,29 @@ narrow gates. Further orders-of-magnitude work must be separately quality-
 gated and reduce the number of expert bytes mathematically required per token,
 or use exact verified multi-token/task avoidance. It must not be presented as
 an exact full-model speedup unless the 120B token/logit sequence is preserved.
+
+### Real-activation expert-omission gate (2026-09-10)
+
+The changed-arithmetic track captured 16 genuine activation/route pairs from
+two KV-linked token positions across layers 0, 5, 10, 15, 20, 25, 30 and 35.
+The source two-token run remained route-, hidden- and logit-repeatable. Each
+captured route was recalculated with four, three, two and one expert, using
+both original retained gates and renormalized gates.
+
+No candidate passed. With original gates, top-3 reduced expert bytes only
+1.33x yet had p95 layer-output relative L2 error 0.0847 and p95 expert-
+contribution error 0.3757. Top-2 offered 2x theoretical byte reduction but
+errors rose to 0.1606 and 0.5771. Top-1 offered 4x but errors were 0.2573 and
+0.7881. Renormalization did not repair the result. Decision:
+`STOP_TOPK_EXPERT_OMISSION`. All four routed experts make material numerical
+contributions on real states; do not scale naive expert dropping to a semantic
+run.
+
+Canonical SHA-256:
+`7ec161947c242517d44c9da5323f39ef8031862627f276fbd441b1d88a9f9488`.
+Identical local/SD result file SHA-256:
+`f72ca17418f852a7222598fbe2c38141bc54c91c7026a401ff7eded1cfd53423`.
+Next test structured activation/weight-block omission only as a quality-gated
+mechanism. Because gate mass is distributed and all experts matter, confidence
+cannot be inferred from expert rank alone. Any later learned surrogate or
+residual expert requires separate explicit training authorization.

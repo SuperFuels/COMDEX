@@ -1,0 +1,19 @@
+{
+  "ffn_sha256": "cb3a61e5be06492364285a2558f67be1268b82500ac5009710ce5e9b8ff54a54",
+  "gates": [
+    0.3039487484272479,
+    0.2659922676425329,
+    0.22111619013746286,
+    0.2089427937927565
+  ],
+  "layer": 25,
+  "position": 0,
+  "route": [
+    7,
+    89,
+    37,
+    68
+  ],
+  "router_sha256": "0ad355d1e7594a474c61a1469b92fc34bf2b7dd6383568519cfe6e14b9beb826",
+  "schema": "aion.gptoss-120b-real-activation-capture.v1"
+}
