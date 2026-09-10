@@ -829,3 +829,15 @@ autoregressive generation.  The primitive is retained as supporting machinery
 for a future genuinely accepted multi-position teacher block, not as a new
 token-rate claim.  Its report canonical SHA-256 is
 \texttt{265c0790e2e4eba40a917fd0e26abf106c89d4ea9d3e34f8320edce08aa6d68b}.
+
+The primitive was then integrated into a real eight-position layer-0 gate.
+The exact teacher routes contained 32 expert occurrences but 26 distinct
+experts: twenty groups had size one and only six had size two.  The grouped
+outputs remained bit-for-bit identical to the scalar layer outputs.  However,
+the grouped median was 6.4235~ms versus 6.2350~ms for scalar execution, a
+0.9706$\times$ ratio or 2.94\% regression.  The unchanged 1.10$\times$ real
+layer gate therefore failed.  The decision is
+\texttt{STOP\_GROUPED\_EXPERT\_BATCHING\_AS\_PRIMARY}: large synthetic batch
+speedups cannot repay grouping and dispatch overhead when real route reuse is
+sparse.  The canonical evidence SHA-256 is
+\texttt{ff5f5f4ede1f7406be83d3357cf6f0e9fcaa970029b18e22fd0a6c363ad70196}.
