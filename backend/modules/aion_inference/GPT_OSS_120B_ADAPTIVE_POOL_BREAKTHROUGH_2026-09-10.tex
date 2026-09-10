@@ -1,0 +1,133 @@
+% Append-only section for the AION technical record.
+% Requires amsmath, booktabs, hyperref, and xurl (or equivalent URL wrapping).
+\section{GPT-OSS 120B Adaptive Working-Set and Persistent-Output Breakthrough}
+\label{sec:gptoss120b-adaptive-pool-20260910}
+
+\subsection{Scope and claim boundary}
+
+This section records a substantial performance result on the existing 18~GB
+Apple M3 Pro and the 64~GB SD-backed AION warehouse.  It does not report a
+smaller fallback model.  All transformer evaluations used the GPT-OSS 120B
+Q4\_K\_M/MXFP4 checkpoint, its original attention and backbone tensors, and
+original expert weights retrieved losslessly from the verified warehouse.
+
+The accelerated configuration is nevertheless a \emph{changed-model quality
+track}: each layer's router may select only from a bounded resident pool of
+original experts.  It is therefore not bit-exact unrestricted GPT-OSS 120B and
+must not be described as such.  The unrestricted path remains the exact
+reference.  The result advances broader frozen quality testing; it is not yet
+a semantic-quality promotion and it has not reached 30--50 tokens/s.
+
+\subsection{Exact route-cartridge falsification}
+
+An exact 6--10~GiB route cartridge was first tested using held-out route demand.
+The predeclared minimum was 90\% coverage for every family.  Same-family
+coverage ranged from 30.2083\% to 66.1111\%, while cross-family minimum
+coverage stayed below 47\%.  Increasing capacity did not add unobserved future
+experts.  The exact cartridge was therefore stopped rather than integrated.
+Its canonical SHA-256 is
+\texttt{295232993424e95c44cac975933210dd5bbc3883dbc39cee30099ec21711df4c}.
+
+Uniform pools of 16 and 20 experts per layer were then tested in the separately
+labelled quality track.  Both removed continuation-time SD faults, but both
+damaged the Harmony response structure.  These variants were retained as
+non-promoted failures.  This motivated a variable-width pool that protects all
+experts required by the complete seven-token prompt prefix before allocating
+the remaining capacity by observed frequency per byte.
+
+\subsection{Adaptive 10~GiB working set}
+
+The resulting pool contains 810 layer/expert addresses and
+10,735,545,600 resident raw bytes.  Individual layers retain between 15 and 46
+experts.  It includes all 499 distinct layer/expert addresses observed in the
+seven-token Harmony prefix.  Activation required approximately 114 seconds of
+one-time SD retrieval and verification.  Once resident, every measured
+continuation pass recorded zero expert faults, zero evictions, and zero
+compressed SD bytes read.  This 10~GiB quality-track pool is intentionally
+separate from the 1--3~GiB exact streaming-cache ceiling.
+
+The 24-position test comprised seven teacher-forced prompt positions followed
+by 17 genuinely autoregressive positions with KV history, changing hidden
+state, and changing routes.  The initial persistent-output candidate achieved
+2.8363 and 4.3807 tokens/s, compared with 0.07679 and 0.07754 tokens/s for the
+matched unrestricted control.  The corresponding paired speedups were
+36.934$\times$ and 56.496$\times$.
+
+\subsection{Persistent vocabulary output}
+
+Profiling showed that every position recreated a process and reread a roughly
+615~MB vocabulary projection.  A bounded persistent native output arena was
+therefore added.  It holds a read-only memory mapping of the original Q8 output
+weight and reuses a 768~MiB GGML arena.  On an unrestricted BOS gate it
+preserved the final hidden state, all logits, and token 2167 bit-for-bit.  Warm
+output processing fell to approximately 6.7~ms from roughly 1.1--1.5 seconds.
+
+Within the adaptive candidate, the persistent implementation reproduced every
+token ID and every step-logit hash from the earlier subprocess implementation.
+It improved the two 17-position continuation passes by 3.14$\times$ and
+6.32$\times$.  The resulting speedup is thus an execution improvement, not a
+change introduced by the vocabulary calculation.
+
+\subsection{Thread allocation and replicated result}
+
+A real four-expert route sweep found that six native CPU threads provided the
+best stable tail latency.  A four-pass, 24-position validation was then run
+with the same adaptive pool.  Routes, final hidden arrays, logits, and token IDs
+were identical in all four passes.  The first pass retained cold/warm-up
+effects; the three post-warm-up continuation results were:
+
+\begin{center}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Pass & Continuation tokens/s & Median token latency & p95 token latency \\
+\midrule
+2 & 4.9671 & 0.1703~s & 0.3115~s \\
+3 & 5.1954 & 0.1703~s & 0.2713~s \\
+4 & 5.3528 & 0.1834~s & 0.2293~s \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The post-warm-up median is 5.1954 tokens/s.  Relative to the matched
+unrestricted 0.07754-token/s pass, this is approximately a 67$\times$ rate
+increase.  This comparison is an architectural quality-track comparison, not
+an exact-model acceleration claim.
+
+\subsection{Parallel-expert falsification}
+
+Calculating the four active experts concurrently produced an attractive
+isolated BOS result: the exact warm evaluation fell from 0.448 to 0.244 seconds
+while preserving the unrestricted final state and logits.  It did not transfer
+to sustained generation.  The two 17-position passes fell to 1.7735 and 2.2655
+tokens/s despite remaining bit-exact to the serial candidate.  CPU and memory-
+bandwidth contention dominated, so sustained parallel-expert execution is
+\texttt{STOPPED}.  The isolated micro-result is not used as generation evidence.
+
+\subsection{Quality limitation and next gates}
+
+The adaptive and unrestricted paths shared the first six response-side tokens,
+including ``We need to'', then diverged as expected for different router
+eligibility.  The minimal prompt ``Hi'' is not a meaningful semantic benchmark;
+both resulting short continuations were unsuitable as broad quality evidence.
+Consequently the result is \texttt{ADVANCE\_BROADER\_QUALITY\_GATE}, not
+\texttt{PROMOTED}.
+
+The next required experiment is a frozen, blinded set of representative
+reasoning, extraction, writing, arithmetic, and business prompts.  It must
+compare task correctness and response quality against the unrestricted 120B
+reference while reporting TTFT, cold activation, warm tokens/s, p50/p95, memory,
+and SD traffic.  Only after that gate passes may the pool be called usable.  The
+largest remaining warm cost is the native 36-layer MoE calculation, followed by
+attention.  Future performance work should test fused packed kernels or a
+measured CPU/Metal division under the same frozen quality boundary; it must not
+weaken that boundary merely to approach the 30--50 tokens/s research target.
+
+\subsection{Evidence binding}
+
+The compact comparison report has canonical SHA-256
+\texttt{4b9cce1d391c1bf09b415202cf390a2f13c9ba68b43b7675dbb6614cc514de09}
+and stored-file SHA-256
+\texttt{5f7da76b3cdd33fd04fdc82f7e747fcc8e6b32cf43ffe6ad01fe1006d5947004}.
+An identical copy is retained on the mounted SD evidence volume.  The four-pass
+runtime report has canonical SHA-256
+\texttt{731120e59eb5c2ade5aabfcf34f4b1c614bbd779eca5156f3694db068df5ecf9}.

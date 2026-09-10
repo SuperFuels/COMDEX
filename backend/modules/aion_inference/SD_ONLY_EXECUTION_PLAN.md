@@ -1590,3 +1590,43 @@ full-model execution. In parallel, move the now-resident shared attention path
 to a persistent Metal implementation, because the existing approximately
 2.4-second resident evaluation boundary cannot reach 30 token/s even after SD
 faults are removed.
+
+### Adaptive 120B quality-track working set and persistent-output result (2026-09-10)
+
+Uniform 16- and 20-expert-per-layer changed-model pools eliminated continuation
+faults but damaged Harmony response structure and are `NOT_PROMOTED`. A
+variable-width 10 GiB pool was then built by retaining every expert required by
+the complete seven-token prompt prefix and using remaining capacity for the
+highest observed value-per-byte entries. It contains 810 layer/expert entries,
+10,735,545,600 raw resident bytes, and 15--46 experts per layer. One-time SD
+activation took about 114 seconds. Timed continuation then recorded zero faults,
+zero evictions and zero compressed SD bytes read.
+
+A persistent 768 MiB vocabulary-output arena removed repeated process creation
+and approximately 615 MB weight access per position. An unrestricted BOS gate
+preserved final hidden bytes, logits and token bit-for-bit. Within the adaptive
+candidate, every token and logit hash also remained unchanged. The initial
+17-position candidate reached 2.8363 and 4.3807 token/s versus matched
+unrestricted control rates of 0.07679 and 0.07754 token/s: 36.934x and 56.496x
+faster respectively.
+
+Six-thread tuning was subsequently replicated over four 24-position passes.
+All routes, hidden states, logits and tokens repeated exactly within the
+candidate. After the first warm-up pass, continuation rates were 4.9671,
+5.1954 and 5.3528 token/s; median 5.1954 token/s. This is a real later-token
+result for a GPT-OSS 120B-derived constrained subnetwork using only original
+weights. It is not bit-exact unrestricted GPT-OSS 120B and semantic quality has
+not passed a broad frozen corpus. Decision: `ADVANCE_BROADER_QUALITY_GATE`.
+
+Four-way concurrent expert calculation passed an isolated exact BOS gate but
+regressed sustained continuation to 1.7735 and 2.2655 token/s because of CPU and
+memory-bandwidth contention. Decision: `STOP_SUSTAINED_PARALLEL_EXPERTS`.
+
+Compact evidence canonical SHA-256:
+`4b9cce1d391c1bf09b415202cf390a2f13c9ba68b43b7675dbb6614cc514de09`.
+Identical local/SD file SHA-256:
+`5f7da76b3cdd33fd04fdc82f7e747fcc8e6b32cf43ffe6ad01fe1006d5947004`.
+Next freeze and execute representative blinded prompts against the unrestricted
+reference. Do not promote the pool on the minimal `Hi` prompt. If quality holds,
+attack the now-dominant native MoE stage with fused packed kernels; otherwise
+revise pool construction under the same capacity and quality gates.

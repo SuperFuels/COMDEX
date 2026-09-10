@@ -1,0 +1,312 @@
+{
+  "acceptance": {
+    "broad_semantic_quality_passed": false,
+    "candidate_internal_logits_bitwise_repeatable": true,
+    "mechanism_repeatable": true,
+    "persistent_output_exact_within_candidate": true,
+    "zero_candidate_execution_faults": true,
+    "zero_candidate_execution_sd_bytes": true
+  },
+  "canonical_sha256": "4b9cce1d391c1bf09b415202cf390a2f13c9ba68b43b7675dbb6614cc514de09",
+  "claim_boundary": "This is genuine later-token execution of a 36-layer GPT-OSS 120B-derived subnetwork using only original weights and a constrained resident expert pool. It is not bit-exact unrestricted GPT-OSS 120B and not yet a quality promotion.",
+  "comparisons": [
+    {
+      "candidate": {
+        "attention_seconds": 1.0925856138928793,
+        "continuation_positions": 17,
+        "continuation_seconds": 5.993649334006477,
+        "continuation_tokens_per_second": 2.836335436500468,
+        "expert_load_seconds": 0.00887228996725753,
+        "median_token_seconds": 0.29132170899538323,
+        "moe_seconds": 4.498125092533883,
+        "p95_token_seconds": 0.5981179579976015,
+        "store_metric_delta": {
+          "compressed_bytes_read": 0,
+          "evictions": 0,
+          "faults": 0,
+          "hits": 3456,
+          "raw_bytes_materialized": 0
+        },
+        "vocabulary_seconds": 0.11649391503306106
+      },
+      "candidate_and_control_complete_token_sequences_equal": false,
+      "candidate_before_persistent_output": {
+        "attention_seconds": 1.5642794505110942,
+        "continuation_positions": 17,
+        "continuation_seconds": 18.817110620846506,
+        "continuation_tokens_per_second": 0.9034330691113958,
+        "expert_load_seconds": 0.01127536891726777,
+        "median_token_seconds": 1.1036870410316624,
+        "moe_seconds": 7.866741036705207,
+        "p95_token_seconds": 1.2380437499959953,
+        "store_metric_delta": {
+          "compressed_bytes_read": 0,
+          "evictions": 0,
+          "faults": 0,
+          "hits": 3456,
+          "raw_bytes_materialized": 0
+        },
+        "vocabulary_seconds": 8.996728041034658
+      },
+      "candidate_tokens_and_logits_unchanged_by_persistent_output": true,
+      "candidate_vs_control_common_output_prefix_positions": 12,
+      "candidate_vs_control_speedup": 36.934188455924314,
+      "control": {
+        "attention_seconds": 0.715768365713302,
+        "continuation_positions": 17,
+        "continuation_seconds": 221.37057404092047,
+        "continuation_tokens_per_second": 0.07679430779656171,
+        "expert_load_seconds": 212.13216407370055,
+        "median_token_seconds": 12.881727750005666,
+        "moe_seconds": 1.2301039083395153,
+        "p95_token_seconds": 16.52183874999173,
+        "store_metric_delta": {
+          "compressed_bytes_read": 26896245200,
+          "evictions": 1877,
+          "faults": 2120,
+          "hits": 1336,
+          "raw_bytes_materialized": 28097971200
+        },
+        "vocabulary_seconds": 6.941329791909084
+      },
+      "pass": 1,
+      "persistent_output_candidate_speedup": 3.1395080980268393
+    },
+    {
+      "candidate": {
+        "attention_seconds": 0.6898659881553613,
+        "continuation_positions": 17,
+        "continuation_seconds": 3.8806571229943074,
+        "continuation_tokens_per_second": 4.380701376390304,
+        "expert_load_seconds": 0.007664181524887681,
+        "median_token_seconds": 0.19795075000729412,
+        "moe_seconds": 2.8037320417934097,
+        "p95_token_seconds": 0.319845833000727,
+        "store_metric_delta": {
+          "compressed_bytes_read": 0,
+          "evictions": 0,
+          "faults": 0,
+          "hits": 3456,
+          "raw_bytes_materialized": 0
+        },
+        "vocabulary_seconds": 0.11440724995918572
+      },
+      "candidate_and_control_complete_token_sequences_equal": false,
+      "candidate_before_persistent_output": {
+        "attention_seconds": 2.0670477148960344,
+        "continuation_positions": 17,
+        "continuation_seconds": 24.542696791875642,
+        "continuation_tokens_per_second": 0.6926704161389267,
+        "expert_load_seconds": 0.015154520573560148,
+        "median_token_seconds": 1.3485959999961779,
+        "moe_seconds": 12.579622042481788,
+        "p95_token_seconds": 1.9491302499664016,
+        "store_metric_delta": {
+          "compressed_bytes_read": 0,
+          "evictions": 0,
+          "faults": 0,
+          "hits": 3456,
+          "raw_bytes_materialized": 0
+        },
+        "vocabulary_seconds": 9.406417455000337
+      },
+      "candidate_tokens_and_logits_unchanged_by_persistent_output": true,
+      "candidate_vs_control_common_output_prefix_positions": 12,
+      "candidate_vs_control_speedup": 56.495652263864386,
+      "control": {
+        "attention_seconds": 0.7478709148708731,
+        "continuation_positions": 17,
+        "continuation_seconds": 219.2402553759748,
+        "continuation_tokens_per_second": 0.0775405044609473,
+        "expert_load_seconds": 210.99873257882427,
+        "median_token_seconds": 12.784001708962023,
+        "moe_seconds": 1.0289880086202174,
+        "p95_token_seconds": 16.713404749985784,
+        "store_metric_delta": {
+          "compressed_bytes_read": 26858100077,
+          "evictions": 2117,
+          "faults": 2117,
+          "hits": 1339,
+          "raw_bytes_materialized": 28058209920
+        },
+        "vocabulary_seconds": 6.153553124051541
+      },
+      "pass": 2,
+      "persistent_output_candidate_speedup": 6.324366212735266
+    }
+  ],
+  "created_at": "2026-09-10T01:12:57.074211+00:00",
+  "decision_rule": "Advance performance engineering but do not promote the constrained model until multiple frozen, representative prompts establish semantic quality. Wording divergence from unrestricted GPT-OSS is permitted only in this explicitly labelled quality track.",
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "one_time_pool_preload_seconds": 113.88303945900407,
+  "parallel_moe_falsification": {
+    "bitwise_exact_to_serial_candidate": true,
+    "decision": "STOP_SUSTAINED_PARALLEL_EXPERTS",
+    "passes": [
+      {
+        "attention_seconds": 2.2074464631732553,
+        "continuation_positions": 17,
+        "continuation_seconds": 9.585479334986303,
+        "continuation_tokens_per_second": 1.7735158989860043,
+        "expert_load_seconds": 0.01056779595091939,
+        "median_token_seconds": 0.5551090419758111,
+        "moe_seconds": 6.882787414069753,
+        "p95_token_seconds": 0.7729456250090152,
+        "store_metric_delta": {
+          "compressed_bytes_read": 0,
+          "evictions": 0,
+          "faults": 0,
+          "hits": 3456,
+          "raw_bytes_materialized": 0
+        },
+        "vocabulary_seconds": 0.1384010409237817
+      },
+      {
+        "attention_seconds": 2.4618049726705067,
+        "continuation_positions": 17,
+        "continuation_seconds": 7.503860582073685,
+        "continuation_tokens_per_second": 2.265500513244086,
+        "expert_load_seconds": 0.011377992515917867,
+        "median_token_seconds": 0.4183321659802459,
+        "moe_seconds": 4.5148303656606,
+        "p95_token_seconds": 0.7631821249960922,
+        "store_metric_delta": {
+          "compressed_bytes_read": 0,
+          "evictions": 0,
+          "faults": 0,
+          "hits": 3456,
+          "raw_bytes_materialized": 0
+        },
+        "vocabulary_seconds": 0.15289733081590384
+      }
+    ],
+    "reason": "Memory-bandwidth and CPU contention made both sustained passes slower.",
+    "source": {
+      "canonical_sha256": "1238f84104b2922c8962a459aec0cbc64450de874458b024a4a85ea708b07b8b",
+      "file_sha256": "2aa2630ce6e5ed5703bb65a25af27432f180a4869c440e40b06c608d41b387b2",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-harmony-hi-adaptive-prefix-pool-10gib-parallel-moe-persistent-output-24token-2026-09-10.json"
+    }
+  },
+  "pool": {
+    "capacity_bytes": 10737418240,
+    "maximum_experts_per_layer": 46,
+    "minimum_experts_per_layer": 15,
+    "required_prefix_experts": 499,
+    "resident_raw_bytes": 10735545600,
+    "total_layer_experts": 810
+  },
+  "prompt_tokens": 7,
+  "schema": "aion.gptoss-120b-adaptive-pool-performance-gate.v1",
+  "six_thread_replication": {
+    "all_routes_hidden_logits_and_tokens_repeatable": true,
+    "passes": [
+      {
+        "attention_seconds": 1.2567054097889923,
+        "continuation_positions": 17,
+        "continuation_seconds": 6.901263413776178,
+        "continuation_tokens_per_second": 2.4633170740976076,
+        "expert_load_seconds": 0.009312138019595295,
+        "median_token_seconds": 0.3730879999930039,
+        "moe_seconds": 5.054562204750255,
+        "p95_token_seconds": 0.7233241249923594,
+        "store_metric_delta": {
+          "compressed_bytes_read": 0,
+          "evictions": 0,
+          "faults": 0,
+          "hits": 3456,
+          "raw_bytes_materialized": 0
+        },
+        "vocabulary_seconds": 0.22714091703528538
+      },
+      {
+        "attention_seconds": 0.5904995025484823,
+        "continuation_positions": 17,
+        "continuation_seconds": 3.422533498960547,
+        "continuation_tokens_per_second": 4.967080674349293,
+        "expert_load_seconds": 0.006943214044440538,
+        "median_token_seconds": 0.17028104199562222,
+        "moe_seconds": 2.504872009041719,
+        "p95_token_seconds": 0.3114783330238424,
+        "store_metric_delta": {
+          "compressed_bytes_read": 0,
+          "evictions": 0,
+          "faults": 0,
+          "hits": 3456,
+          "raw_bytes_materialized": 0
+        },
+        "vocabulary_seconds": 0.1094937899033539
+      },
+      {
+        "attention_seconds": 0.54755832569208,
+        "continuation_positions": 17,
+        "continuation_seconds": 3.2721385408076458,
+        "continuation_tokens_per_second": 5.195379042784654,
+        "expert_load_seconds": 0.006885125243570656,
+        "median_token_seconds": 0.1702751669799909,
+        "moe_seconds": 2.416014284302946,
+        "p95_token_seconds": 0.27125329099362716,
+        "store_metric_delta": {
+          "compressed_bytes_read": 0,
+          "evictions": 0,
+          "faults": 0,
+          "hits": 3456,
+          "raw_bytes_materialized": 0
+        },
+        "vocabulary_seconds": 0.10769904201151803
+      },
+      {
+        "attention_seconds": 0.5834622993716039,
+        "continuation_positions": 17,
+        "continuation_seconds": 3.1759372912347317,
+        "continuation_tokens_per_second": 5.352750524047907,
+        "expert_load_seconds": 0.009028998494613916,
+        "median_token_seconds": 0.18338287505321205,
+        "moe_seconds": 2.263836288882885,
+        "p95_token_seconds": 0.22930537501815706,
+        "store_metric_delta": {
+          "compressed_bytes_read": 0,
+          "evictions": 0,
+          "faults": 0,
+          "hits": 3456,
+          "raw_bytes_materialized": 0
+        },
+        "vocabulary_seconds": 0.10989954404067248
+      }
+    ],
+    "post_warmup_median_tokens_per_second": 5.195379042784654,
+    "post_warmup_tokens_per_second": [
+      4.967080674349293,
+      5.195379042784654,
+      5.352750524047907
+    ],
+    "source": {
+      "canonical_sha256": "731120e59eb5c2ade5aabfcf34f4b1c614bbd779eca5156f3694db068df5ecf9",
+      "file_sha256": "8ad1701d8f855238422b9f11bd16c94750506fa3fbc36441386a40d93ca033cc",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-harmony-hi-adaptive-prefix-pool-10gib-serial6-persistent-output-24token-fourpass-2026-09-10.json"
+    }
+  },
+  "sources": {
+    "adaptive_candidate": {
+      "canonical_sha256": "e37230460b49a07a249b565f8bdfed4ac3d79110c7ccc03fc02fb0de55960a91",
+      "file_sha256": "cb84189277503ad3ad880bd0f190f6afcd52087a356937d66e0ef35ca3af7ccc",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-harmony-hi-adaptive-prefix-pool-10gib-persistent-output-24token-2026-09-10.json"
+    },
+    "adaptive_pool": {
+      "canonical_sha256": "7f21bedbb550defcc0d63d3e294630e6e4e5bdbcd8b332e52062ca8b1c79a0f0",
+      "file_sha256": "ee16558dc9aa21bd90410f426342592740fbd0282cb7982581663c67ecd0628c",
+      "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_adaptive_prefix_pool_10gib_20260910.json"
+    },
+    "candidate_before_persistent_output": {
+      "canonical_sha256": "6a1b12fdb345b23d0cdc2cc2a0d37fe2593faa6d71178e7a0815ebcda3adff3b",
+      "file_sha256": "1dfc580286cb16e2e9baafcea6cf00c0b3edc7f786afcc5be5747c7ab374b624",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-harmony-hi-adaptive-prefix-pool-10gib-24token-2026-09-10.json"
+    },
+    "unrestricted_control": {
+      "canonical_sha256": "89f8febf4784646256b29094731d627a90c5031a72f8f4896b3b29ca67af5878",
+      "file_sha256": "179fca7fe1f755d8a7959ed25c083682fc33bae128f0d9eaa5e670652ab010c8",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-harmony-hi-unrestricted-24token-2026-09-10.json"
+    }
+  },
+  "status": "ADVANCE_BROADER_QUALITY_GATE",
+  "total_positions": 24
+}

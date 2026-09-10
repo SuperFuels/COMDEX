@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstring>
 #include <dlfcn.h>
+#include <thread>
 #include <vector>
 #include "ggml.h"
 
@@ -56,5 +57,78 @@ extern "C" int aion_gptoss_moe_finish(
     if(status!=GGML_STATUS_SUCCESS)return 4;
     std::memcpy(output_values,output->data,width*sizeof(float));
     for(int i=0;i<width;++i)if(!std::isfinite(output_values[i]))return 5;
+    return 0;
+}
+
+extern "C" int aion_gptoss_moe_finish_parallel(
+        const float * ffn_input_values, const float * router_input_values,
+        const void * const * components, const float * gates,
+        float * output_values, int threads, double * elapsed_ms) {
+    static void * plugin = dlopen(
+        "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
+        RTLD_NOW | RTLD_LOCAL);
+    static compute_function compute = plugin ? reinterpret_cast<compute_function>(
+        dlsym(plugin, "ggml_graph_compute_with_ctx")) : nullptr;
+    static std::vector<char> memories[4] = {
+        std::vector<char>(64 * 1024 * 1024), std::vector<char>(64 * 1024 * 1024),
+        std::vector<char>(64 * 1024 * 1024), std::vector<char>(64 * 1024 * 1024)};
+    static ggml_context * contexts[4] = {
+        ggml_init({memories[0].size(), memories[0].data(), false}),
+        ggml_init({memories[1].size(), memories[1].data(), false}),
+        ggml_init({memories[2].size(), memories[2].data(), false}),
+        ggml_init({memories[3].size(), memories[3].data(), false})};
+    if (!compute) return 2;
+    for (auto * context : contexts) if (!context) return 3;
+    constexpr int64_t width = 2880;
+    std::vector<float> expert_outputs[4];
+    int statuses[4] = {};
+    const int expert_threads = std::max(1, threads / 4);
+    auto begin = std::chrono::steady_clock::now();
+    std::thread workers[4];
+    for (int position = 0; position < 4; ++position) {
+        workers[position] = std::thread([&, position]() {
+            auto * context = contexts[position];
+            ggml_reset(context);
+            auto * router_input = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+            router_input->data = const_cast<float *>(router_input_values);
+            auto * gate_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+            auto * gate_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+            auto * up_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+            auto * up_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+            auto * down_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+            auto * down_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+            ggml_tensor * tensors[] = {gate_w, gate_b, up_w, up_b, down_w, down_b};
+            for (int component = 0; component < 6; ++component)
+                tensors[component]->data = const_cast<void *>(components[position * 6 + component]);
+            auto * gate = ggml_add(context, ggml_mul_mat(context, gate_w, router_input), gate_b);
+            auto * up = ggml_add(context, ggml_mul_mat(context, up_w, router_input), up_b);
+            auto * hidden = ggml_swiglu_oai(context, gate, up, 1.702f, 7.0f);
+            auto * expert = ggml_add(context, ggml_mul_mat(context, down_w, hidden), down_b);
+            expert = ggml_scale(context, expert, gates[position]);
+            auto * graph = ggml_new_graph_custom(context, GGML_DEFAULT_GRAPH_SIZE, false);
+            ggml_build_forward_expand(graph, expert);
+            statuses[position] = compute(context, graph, expert_threads);
+            if (statuses[position] == GGML_STATUS_SUCCESS) {
+                const auto * values = static_cast<const float *>(expert->data);
+                expert_outputs[position].assign(values, values + width);
+            }
+        });
+    }
+    for (auto & worker : workers) worker.join();
+    for (int position = 0; position < 4; ++position)
+        if (statuses[position] != GGML_STATUS_SUCCESS) return 4;
+    // Preserve the serial graph's left-associated expert reduction and final
+    // residual addition order. This makes equivalence a testable gate rather
+    // than silently accepting a parallel floating-point reassociation.
+    for (int64_t index = 0; index < width; ++index) {
+        float combined = expert_outputs[0][index] + expert_outputs[1][index];
+        combined = combined + expert_outputs[2][index];
+        combined = combined + expert_outputs[3][index];
+        output_values[index] = ffn_input_values[index] + combined;
+    }
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    for (int64_t index = 0; index < width; ++index)
+        if (!std::isfinite(output_values[index])) return 5;
     return 0;
 }
