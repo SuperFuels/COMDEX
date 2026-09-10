@@ -745,3 +745,21 @@ The identical local/SD stored-file SHA-256 is
 The adaptive experiments are changed-model quality tracks using original 120B
 weights; they are not bit-exact unrestricted GPT-OSS 120B inference, and one
 arithmetic prompt is not evidence of broad model quality.
+
+The immediate frozen extraction test confirmed that boundary.  For the prompt
+containing invoice number A-104 and total EUR 287.50, the adaptive candidate was
+internally bitwise repeatable and ran at 5.1222 and 5.3437 tokens/s.  It retained
+the invoice identifier but corrupted the amount into an incomplete ``EUR
+287\ldots''.  The decision is
+\texttt{STOP\_ADAPTIVE\_075\_FOR\_EXTRACTION}.  Runtime and receipt files were
+copied without overwrite to the SD evidence volume; their identical local/SD
+SHA-256 values are
+\texttt{a55965c9b935f7d24b30e62018beb3b23ea6106857803d1a9f63dab56eaa7b21}
+and
+\texttt{363655c525cf7c327ba82df9db2e93eaf81af97e6d6113c7cd81f782c4aac550}.
+
+Only 45 of 792 unrestricted response layer-routes were wholly inside the static
+extraction pool, and median missing unrestricted gate mass was 0.595.  An exact
+confidence escape would consequently reinstate most SD faults.  The next
+credible orders-of-magnitude work is resident packed-kernel acceleration and a
+broader learned/request-family working set, not a lower fixed top-$k$ threshold.

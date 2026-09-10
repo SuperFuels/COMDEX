@@ -2171,3 +2171,22 @@ Compact canonical SHA-256:
 `74f4d7ec92b946939a941334ca99a7997a4c17a7dbbd21d10c60569fadb2d806`.
 Identical local/SD stored-file SHA-256:
 `ce6bde87c72a71020d0e015d583547ffae5b117795cf35ecbfb44d0225288644`.
+
+The immediate frozen extraction gate then stopped semantic generalization. On
+`Invoice A-104, total EUR 287.50`, the preserved-mass adaptive candidate was
+internally bitwise repeatable and reached 5.1222/5.3437 token/s with only
+16.6/24.1 ms total response expert lookup. It retained `A-104` but corrupted
+the amount into an incomplete `EUR 287...`; therefore semantic acceptance
+failed. Decision: `STOP_ADAPTIVE_075_FOR_EXTRACTION`. Do not lower thresholds
+or describe arithmetic correctness as general quality. Runtime/receipt local
+and SD hashes are respectively
+`a55965c9b935f7d24b30e62018beb3b23ea6106857803d1a9f63dab56eaa7b21` and
+`363655c525cf7c327ba82df9db2e93eaf81af97e6d6113c7cd81f782c4aac550`.
+
+The unrestricted extraction trace shows why a simple confidence escape is not
+an orders-of-magnitude repair: only 45/792 response layer-routes were wholly in
+the pool, median missing unrestricted gate mass was 0.595, and 62.9% of routes
+still had at least 0.5 missing mass. A safe exact escape would therefore restore
+most SD faults. The next speed work must target resident packed-kernel execution
+and a genuinely broader learned/request-family pool, not another lower top-k
+threshold on this static extraction workbench.

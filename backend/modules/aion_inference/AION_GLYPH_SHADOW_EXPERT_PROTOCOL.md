@@ -346,3 +346,10 @@ policies failed the frozen arithmetic completion/coherence boundary. The 0.75
 preserved-mass adaptive policy passed narrow correctness and repeatability but
 did not beat the four-expert 8 GiB control median. It may advance only to the
 already-frozen broader semantic families, never as an unrestricted-exact claim.
+
+The first broader extraction family failed: `A-104` survived but `EUR 287.50`
+did not. The 0.75 preserved-mass policy is therefore stopped for extraction.
+Confidence-gated exact escape is not promoted from this trace because most
+routes have substantial missing unrestricted gate mass and would reinstate most
+SD faults. Future adaptive policies require a disjoint broader training family
+and unchanged frozen extraction validation.
