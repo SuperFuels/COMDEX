@@ -260,3 +260,57 @@ extern "C" int aion_gptoss_moe_finish_reuse_graph(
         if (!std::isfinite(output_values[index])) return 5;
     return 0;
 }
+
+// Exact-track probe for amortising one resident expert over several independent
+// activation rows. The packed MXFP4 weights remain unchanged. Each row retains
+// its own residual and gate value; ggml performs the same row dot products but
+// can reuse the packed matrix while it is hot in cache.
+extern "C" int aion_gptoss_moe_finish_one_expert_batch(
+        const float * ffn_input_values, const float * router_input_values,
+        const void * const * components, const float * gates, int batch,
+        float * output_values, int threads, double * elapsed_ms) {
+    static void * plugin = dlopen(
+        "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
+        RTLD_NOW | RTLD_LOCAL);
+    static compute_function compute = plugin ? reinterpret_cast<compute_function>(
+        dlsym(plugin, "ggml_graph_compute_with_ctx")) : nullptr;
+    static std::vector<char> memory(256 * 1024 * 1024);
+    static ggml_context * context = ggml_init({memory.size(), memory.data(), false});
+    if (!compute) return 2;
+    if (!context) return 3;
+    if (batch < 1 || batch > 64) return 6;
+    ggml_reset(context);
+    constexpr int64_t width = 2880;
+    auto * ffn_input = ggml_new_tensor_2d(context, GGML_TYPE_F32, width, batch);
+    auto * router_input = ggml_new_tensor_2d(context, GGML_TYPE_F32, width, batch);
+    auto * gate_values = ggml_new_tensor_2d(context, GGML_TYPE_F32, 1, batch);
+    ffn_input->data = const_cast<float *>(ffn_input_values);
+    router_input->data = const_cast<float *>(router_input_values);
+    gate_values->data = const_cast<float *>(gates);
+    auto * gate_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+    auto * gate_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    auto * up_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+    auto * up_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    auto * down_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+    auto * down_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    ggml_tensor * tensors[] = {gate_w, gate_b, up_w, up_b, down_w, down_b};
+    for (int component = 0; component < 6; ++component)
+        tensors[component]->data = const_cast<void *>(components[component]);
+    auto * gate = ggml_add(context, ggml_mul_mat(context, gate_w, router_input), gate_b);
+    auto * up = ggml_add(context, ggml_mul_mat(context, up_w, router_input), up_b);
+    auto * hidden = ggml_swiglu_oai(context, gate, up, 1.702f, 7.0f);
+    auto * expert = ggml_add(context, ggml_mul_mat(context, down_w, hidden), down_b);
+    auto * scaled = ggml_mul(context, expert, ggml_repeat(context, gate_values, expert));
+    auto * output = ggml_add(context, ffn_input, scaled);
+    auto * graph = ggml_new_graph_custom(context, GGML_DEFAULT_GRAPH_SIZE, false);
+    ggml_build_forward_expand(graph, output);
+    const auto begin = std::chrono::steady_clock::now();
+    const int status = compute(context, graph, threads);
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    if (status != GGML_STATUS_SUCCESS) return 4;
+    std::memcpy(output_values, output->data, width * batch * sizeof(float));
+    for (int64_t index = 0; index < width * batch; ++index)
+        if (!std::isfinite(output_values[index])) return 5;
+    return 0;
+}

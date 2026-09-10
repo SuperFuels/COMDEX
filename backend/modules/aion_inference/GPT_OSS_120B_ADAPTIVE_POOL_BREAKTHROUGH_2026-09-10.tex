@@ -810,3 +810,22 @@ generalize across these families.  General 120B acceleration now requires a
 more compact resident expert representation or dynamic exchange that increases
 effective coverage.  The compact report is
 \texttt{aion\_gptoss\_120b\_two\_family\_pool\_holdout\_summary\_20260910.json}.
+
+\subsection{Exact Batched Resident-Expert Near-Signal}
+
+A new exact CPU primitive evaluated one original packed MXFP4 expert over
+multiple independent activation rows while reusing the resident matrix.  Every
+batched output matched the corresponding scalar output bit-for-bit for batches
+1, 2, 4, 8, 16 and 32.  Relative to repeated scalar calls, wall speedups were
+1.1282$\times$, 1.2308$\times$, 1.4128$\times$, 1.4707$\times$ and
+1.4960$\times$ for batches 2 through 32 respectively.
+
+The predeclared 1.5$\times$ arithmetic gate was missed narrowly and was not
+relaxed after measurement, so the result is \texttt{NOT\_PROMOTED}.  More
+importantly, the exact eight-position teacher trace has a mean reuse group of
+only 1.667 activations per expert: 435 groups occur once and 132 occur twice.
+Consequently the large-batch headline cannot be extrapolated to ordinary
+autoregressive generation.  The primitive is retained as supporting machinery
+for a future genuinely accepted multi-position teacher block, not as a new
+token-rate claim.  Its report canonical SHA-256 is
+\texttt{265c0790e2e4eba40a917fd0e26abf106c89d4ea9d3e34f8320edce08aa6d68b}.
