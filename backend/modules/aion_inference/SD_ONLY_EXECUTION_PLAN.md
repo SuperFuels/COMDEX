@@ -1661,3 +1661,38 @@ Canonical summary SHA-256:
 `ca807decf327196d3fd1ece56012fc5fc3fc3c1a26701b4c5dd94885084cccdc`.
 Identical local/SD file SHA-256:
 `799e66834c4a724ac26f9ab49bf706cbda2dd7d25c27133c1ef14012793329e6`.
+
+### Protected response workbench and 8 GiB quality frontier (2026-09-10)
+
+The 61.6-second post-prompt repair was eliminated by pinning the response pool
+and making exact-prefill misses transient. Exact prompt experts are still read,
+verified and calculated, but cannot evict response experts. The boundary fell
+to 0.315--0.575 ms with zero faults, reads or evictions and the complete correct
+candidate remained bit-for-bit unchanged. Continuation reached 3.8144 and
+3.1990 token/s. Promote the protected-workbench mechanism.
+
+Incremental admission retained pool experts while exact prefill naturally
+requested them and reduced the first boundary fill to 26 experts / 330 MB /
+4.16 seconds. Cold first-response readiness remained 161.6 seconds because the
+same unique SD bytes still had to arrive. Retain it for warm-request study but
+do not claim a cold-TTFT win.
+
+The protected capacity sweep established a narrow quality frontier. Six GiB
+reached 7.3975/7.7451 token/s and seven GiB reached 6.4707/7.8199 token/s, but
+neither produced 391 in the unchanged 33-position gate. A longer six-GiB
+diagnostic also failed. Eight GiB produced `17*23 = 391` at 5.7792 and 7.5425
+token/s, 80.12x and 104.65x faster than paired unrestricted response rates.
+Ten GiB remained correct but slower at 3.8144/3.1990 token/s. Decision:
+`PROMOTE_NARROW_8G_FRONTIER`; do not generalize it beyond this arithmetic task.
+
+Capacity-frontier canonical SHA-256:
+`51bfd50c3a419aff439831b51964404d6a71d1e5efd3ec5d8107aeef82bcc4d8`.
+Identical local/SD file SHA-256:
+`e79acafb405462858bb842caa5b2adb5ef807b84cafbd418bf4234a3e904f059`.
+
+Next execute the frozen extraction, explanation and business-diagnosis families
+using exact prefill and protected request-specific pools. In parallel, isolate
+why resident MXFP4 route compute is 8--10x slower under a large pool than in the
+hot microgate; test fused four-expert Metal/CPU kernels only against exact
+candidate outputs and measured memory pressure. The primary product metric is
+time to correct answer, with response token/s and TTFT reported separately.

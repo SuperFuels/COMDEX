@@ -173,3 +173,60 @@ and its identical local/SD stored-file SHA-256 is
 \texttt{799e66834c4a724ac26f9ab49bf706cbda2dd7d25c27133c1ef14012793329e6}.
 The claim remains narrow until the frozen explanation, extraction, and business
 diagnosis families pass.
+
+\subsection{Protected workbench and elimination of boundary repair}
+
+The 61.6-second repair was not a necessary property of the model.  It was caused
+by ordinary LRU admission: exact prompt misses displaced experts that had
+already been loaded for response generation.  A protected-pool store was added.
+Pool members are pinned; exact experts outside the pool are still retrieved,
+verified and calculated, but remain transient and cannot evict the workbench.
+
+The protected 10~GiB rerun preserved every token, hidden-state hash and logit
+hash from the previously correct candidate.  Boundary repair fell to 0.575 and
+0.315~ms, with zero repair faults, reads, or evictions.  The two continuation
+rates increased to 3.8144 and 3.1990 tokens/s.  The key result is architectural:
+exact prompt execution and a stable response working set can coexist inside the
+same bounded process without destructive cache interference.
+
+An incremental-admission variant attempted to eliminate the separate initial
+activation by retaining useful pool experts as exact prefill requested them.
+It was exact and correct, and the first boundary needed only 26 remaining
+experts (330~MB compressed, 4.16 seconds).  Cold first-response readiness,
+however, remained 161.6 seconds, essentially equal to the protected-preload
+condition, because the same unique SD bytes still had to be delivered.  It is
+retained as a useful warm-request mechanism, not promoted as a cold-TTFT win.
+
+\subsection{Memory-capacity frontier}
+
+The unexpectedly large difference between an isolated 0.6~ms four-expert CPU
+route and 5--6~ms route calculation inside the 10~GiB pool indicated unified-
+memory pressure.  Request-derived pools of 6, 7, 8 and 10~GiB were therefore
+tested under identical exact-prefill and protected-continuation rules.  The
+unchanged quality requirement was that the 33-position response contain 391.
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Pool & Response tokens/s (passes A/B) & First-response readiness & Quality \\
+\midrule
+6~GiB & 7.3975 / 7.7451 & 187.9 / 186.4~s & failed \\
+7~GiB & 6.4707 / 7.8199 & 181.1 / 179.3~s & failed \\
+8~GiB & 5.7792 / 7.5425 & 166.1 / 164.8~s & passed \\
+10~GiB & 3.8144 / 3.1990 & 162.0 / 157.9~s & passed \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The 6 and 7~GiB candidates remained grammatical but repeated partial arithmetic
+and did not emit 391 in the frozen window.  A longer 6~GiB diagnostic also
+failed to recover and is not a promotion.  The 8~GiB candidate stated
+``17*23 = 391'' and is the fastest passing configuration, reaching 80.12$\times$
+and 104.65$\times$ the paired unrestricted response rates.  It is therefore
+promoted only as the \emph{narrow arithmetic capacity frontier}.  The result
+does not establish that 8~GiB is sufficient for other prompt families.
+
+The capacity-frontier report has canonical SHA-256
+\texttt{51bfd50c3a419aff439831b51964404d6a71d1e5efd3ec5d8107aeef82bcc4d8}
+and identical local/SD stored-file SHA-256
+\texttt{e79acafb405462858bb842caa5b2adb5ef807b84cafbd418bf4234a3e904f059}.

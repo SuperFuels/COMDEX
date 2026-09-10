@@ -1,0 +1,117 @@
+{
+  "acceptance": {
+    "candidate_above_2_tokens_per_second_both_passes": true,
+    "candidate_routes_hidden_logits_and_tokens_repeatable": true,
+    "continuation_expert_load_under_50ms_both_passes": true,
+    "expected_arithmetic_answer_present": true,
+    "prompt_bit_exact_to_unrestricted_both_passes": true,
+    "receipt_passed": true
+  },
+  "architecture": "unrestricted exact prompt prefill, rehydrated constrained continuation",
+  "canonical_sha256": "2abb7080ca15ca1ba69bab993ef3d73b7b770eef37928ce29578ce9a090ab28c",
+  "claim_boundary": "The prompt state is bit-exact to unrestricted GPT-OSS 120B and the arithmetic answer is correct. Autoregressive routing is constrained to a request-derived pool of original experts, so continuation is not exact unrestricted 120B. This single arithmetic prompt is a narrow quality pass, not general model validation.",
+  "comparisons": [
+    {
+      "candidate": {
+        "attention_seconds": 1.5294121976476163,
+        "expert_load_seconds": 0.014073356811422855,
+        "median_token_seconds": 0.25356570800067857,
+        "moe_seconds": 6.456366468919441,
+        "p95_token_seconds": 0.39915237500099465,
+        "positions": 33,
+        "seconds": 8.65135520795593,
+        "tokens_per_second": 3.8144312892912606,
+        "vocabulary_seconds": 0.21346591506153345
+      },
+      "candidate_rehydrate_metric_delta": {
+        "compressed_bytes_read": 0,
+        "evictions": 0,
+        "faults": 0,
+        "hits": 810,
+        "raw_bytes_materialized": 0
+      },
+      "candidate_rehydrate_seconds": 0.0005745830130763352,
+      "candidate_speedup": 52.88237954569108,
+      "control": {
+        "attention_seconds": 0.5017804999370128,
+        "expert_load_seconds": 233.77875965443673,
+        "median_token_seconds": 13.57239699998172,
+        "moe_seconds": 0.9793909231084399,
+        "p95_token_seconds": 18.593921791005414,
+        "positions": 17,
+        "seconds": 235.68400741694495,
+        "tokens_per_second": 0.07213047752504294,
+        "vocabulary_seconds": 0.11087629181565717
+      },
+      "pass": "run_a",
+      "prompt_bit_exact_to_unrestricted": true
+    },
+    {
+      "candidate": {
+        "attention_seconds": 1.6598564922460355,
+        "expert_load_seconds": 0.01709774654591456,
+        "median_token_seconds": 0.25553424999816343,
+        "moe_seconds": 7.896538378670812,
+        "p95_token_seconds": 0.587666250008624,
+        "positions": 33,
+        "seconds": 10.315773164038546,
+        "tokens_per_second": 3.198984649550083,
+        "vocabulary_seconds": 0.24441620812285691
+      },
+      "candidate_rehydrate_metric_delta": {
+        "compressed_bytes_read": 0,
+        "evictions": 0,
+        "faults": 0,
+        "hits": 810,
+        "raw_bytes_materialized": 0
+      },
+      "candidate_rehydrate_seconds": 0.0003149580443277955,
+      "candidate_speedup": 44.38568359899244,
+      "control": {
+        "attention_seconds": 0.5518753673532046,
+        "expert_load_seconds": 233.8819911077735,
+        "median_token_seconds": 13.62545512500219,
+        "moe_seconds": 1.0154672104399651,
+        "p95_token_seconds": 18.52339991700137,
+        "positions": 17,
+        "seconds": 235.87378616805654,
+        "tokens_per_second": 0.07207244296272819,
+        "vocabulary_seconds": 0.10519850003765896
+      },
+      "pass": "run_b",
+      "prompt_bit_exact_to_unrestricted": true
+    }
+  ],
+  "created_at": "2026-09-10T02:12:21.649693+00:00",
+  "decision": "ADVANCE_MULTI_FAMILY_QUALITY_AND_OVERLAPPED_REHYDRATION",
+  "expected_text": "391",
+  "generated_text": "<|channel|>analysis<|message|>We need to answer: \"What is 17 multiplied by 23?\" presumably a simple arithmetic. 17*23 = 391. Let's compute:",
+  "initial_pool_preload_seconds": 113.4874117920408,
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "pool_raw_bytes": 10735545600,
+  "prompt_positions": 15,
+  "schema": "aion.gptoss-120b-exact-prefill-quality-gate.v1",
+  "sources": {
+    "candidate": {
+      "canonical_sha256": "6ecaf1312231026afd433e85c752fd73901b65d160a3f7f303ca6b014606272d",
+      "file_sha256": "dd29f68bd6a5952ff8a67e77f58bf9b010eae753f0abdf59708667e854ca24b4",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-protected-pool-exact-prefill-48token-2026-09-10.json"
+    },
+    "detokenized_receipt": {
+      "canonical_sha256": "d84f967f2bfc7ae68e6ec29be5b8d756b47691ff411517012cae8b69f790cf3a",
+      "file_sha256": "be6a9a74bde131c1e1dd461ec027cf3f4e93ccd3968bcc80eb7a92368db7fd08",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-protected-pool-exact-prefill-48token-receipt-2026-09-10.json"
+    },
+    "expert_pool": {
+      "canonical_sha256": "9ca1e78e3ec47a2653e45a1b0d6ac98c4b673ed154afffcfff318fff3b2c6fe4",
+      "file_sha256": "a52a4b791ead5db7b6b630865401c7c7a26c074fa7b3b78d5f63fbf93dcde816",
+      "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_prefix9_pool_10gib_20260910.json"
+    },
+    "unrestricted_control": {
+      "canonical_sha256": "86a45d1d51eeb1c93ac2a45d8662b3c17323d008b6673b62c8e190ab9cca6d5d",
+      "file_sha256": "865e1ff33e9ac647f1b9c578d2a09d39b3fa8483a622ab6366439389d3fec704",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-unrestricted-32token-2026-09-10.json"
+    }
+  },
+  "status": "PASSED_NARROW_ARITHMETIC"
+}

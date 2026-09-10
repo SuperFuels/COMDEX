@@ -1,0 +1,225 @@
+{
+  "candidates": [
+    {
+      "capacity_gib": 6.0,
+      "expected_answer_present": false,
+      "generated_text": "<|channel|>analysis<|message|>We need to answer: 17 multiplied 23. It's 17 * 23 = 17 * 2. Wait: 17 * 23",
+      "passes": [
+        {
+          "continuation_expert_load_seconds": 0.010712760093156248,
+          "continuation_positions": 33,
+          "continuation_seconds": 4.460986376681831,
+          "first_response_ready_seconds": 187.89197508298093,
+          "median_token_seconds": 0.11466079199453816,
+          "p95_token_seconds": 0.21857912500854582,
+          "pass": 1,
+          "prompt_seconds": 120.12315774901072,
+          "speedup_vs_unrestricted": 102.55674666104166,
+          "tokens_per_second": 7.397467110075787
+        },
+        {
+          "continuation_expert_load_seconds": 0.01335294876480475,
+          "continuation_positions": 33,
+          "continuation_seconds": 4.260732793947682,
+          "first_response_ready_seconds": 186.44556450110395,
+          "median_token_seconds": 0.11290274997008964,
+          "p95_token_seconds": 0.2018087090109475,
+          "pass": 2,
+          "prompt_seconds": 118.67670183506561,
+          "speedup_vs_unrestricted": 107.46335569045647,
+          "tokens_per_second": 7.745146573583796
+        }
+      ],
+      "pool_entries": 486,
+      "pool_raw_bytes": 6441327360,
+      "sources": {
+        "pool": {
+          "canonical_sha256": "c01a1683e339fa515cfb5f6ff170c272b75d9783c06be164f6fe67d75c6f4984",
+          "file_sha256": "7087d3c53a2fcde236a7833649ec3238cd953f65092de09f93b8e262da3c2832",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_prefix5_pool_6gib_20260910.json"
+        },
+        "receipt": {
+          "canonical_sha256": "0613e77af54ba479b0ebb4f5adb7cde166dfe6df54a51fc002c68273e4ea68a9",
+          "file_sha256": "62281ca4fa941ae2b5450bd8c6fa43b2206eed1b70c9a3785521e4cf8d7bf57b",
+          "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-protected-pool6-exact-prefill-48token-receipt-2026-09-10.json"
+        },
+        "runtime": {
+          "canonical_sha256": "50d8baf1acd1d030ebd4f106652133bec9c10bc15704fc8434bd0bd3b97472ce",
+          "file_sha256": "df0311f34309859040141acc130a3a4e21f908366ceb70106d7a0c6c05c512e4",
+          "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-protected-pool6-exact-prefill-48token-2026-09-10.json"
+        }
+      }
+    },
+    {
+      "capacity_gib": 7.0,
+      "expected_answer_present": false,
+      "generated_text": "<|channel|>analysis<|message|>We need to compute 17 multiplied by 23. The user asks \"What is 17 multiplied by 23?\" Probably a simple arithmetic. 17",
+      "passes": [
+        {
+          "continuation_expert_load_seconds": 0.010786470957100391,
+          "continuation_positions": 33,
+          "continuation_seconds": 5.099917458952405,
+          "first_response_ready_seconds": 181.11301329213893,
+          "median_token_seconds": 0.12169175001326948,
+          "p95_token_seconds": 0.3159876659628935,
+          "pass": 1,
+          "prompt_seconds": 102.03962175111519,
+          "speedup_vs_unrestricted": 89.70816750938053,
+          "tokens_per_second": 6.47069296034816
+        },
+        {
+          "continuation_expert_load_seconds": 0.011593597533646971,
+          "continuation_positions": 33,
+          "continuation_seconds": 4.2200218320358545,
+          "first_response_ready_seconds": 179.27390158211347,
+          "median_token_seconds": 0.1093011669581756,
+          "p95_token_seconds": 0.22637712501455098,
+          "pass": 2,
+          "prompt_seconds": 100.2005042071105,
+          "speedup_vs_unrestricted": 108.5000651565591,
+          "tokens_per_second": 7.819864757448398
+        }
+      ],
+      "pool_entries": 567,
+      "pool_raw_bytes": 7514881920,
+      "sources": {
+        "pool": {
+          "canonical_sha256": "0ec953eac94bd065440a5420a4a2c92030fca9590370880e250ac7a1c034e0ea",
+          "file_sha256": "7b191f72cfb2f650a795117b9afe550e70d02930df08e9ea2dcf36aeb62564b3",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_prefix6_pool_7gib_20260910.json"
+        },
+        "receipt": {
+          "canonical_sha256": "b75890c0c692038cd1fa402d8c2716c7dc964c3a9db1549e524973fdb527c5a3",
+          "file_sha256": "d25f0c7d98475f548d632af20d629c8e61898952c8d004ad93f9b6ec19f24b32",
+          "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-protected-pool7-exact-prefill-48token-receipt-2026-09-10.json"
+        },
+        "runtime": {
+          "canonical_sha256": "0d0e33b6e1c146d5f86ef9cdf1b51b378c33da103c7e404371b5cba83017b109",
+          "file_sha256": "02a5de8ead23a3bb2937bb6017ea5aaf8d77319a99bdc94229394d35e8accd14",
+          "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-protected-pool7-exact-prefill-48token-2026-09-10.json"
+        }
+      }
+    },
+    {
+      "capacity_gib": 8.0,
+      "expected_answer_present": true,
+      "generated_text": "<|channel|>analysis<|message|>We need to answer: 17 multiplied 23. The result is 17*23 = 391. So we need to output with the final answer",
+      "passes": [
+        {
+          "continuation_expert_load_seconds": 0.012496972281951457,
+          "continuation_positions": 33,
+          "continuation_seconds": 5.7101489569759,
+          "first_response_ready_seconds": 166.06585324910702,
+          "median_token_seconds": 0.14912091701989993,
+          "p95_token_seconds": 0.2938532499829307,
+          "pass": 1,
+          "prompt_seconds": 75.5360553751234,
+          "speedup_vs_unrestricted": 80.12124607236363,
+          "tokens_per_second": 5.77918373910106
+        },
+        {
+          "continuation_expert_load_seconds": 0.011339980876073241,
+          "continuation_positions": 33,
+          "continuation_seconds": 4.37522762286244,
+          "first_response_ready_seconds": 164.8306859569857,
+          "median_token_seconds": 0.1133649589610286,
+          "p95_token_seconds": 0.22691899997880682,
+          "pass": 2,
+          "prompt_seconds": 74.30084287497448,
+          "speedup_vs_unrestricted": 104.65115948377435,
+          "tokens_per_second": 7.542464722877698
+        }
+      ],
+      "pool_entries": 648,
+      "pool_raw_bytes": 8588436480,
+      "sources": {
+        "pool": {
+          "canonical_sha256": "9cf9f09b4f6faaa9712151a1160d6750983bd5a5322e040a8a5924eb35cbc480",
+          "file_sha256": "0efe62bb95e64841a3bdc68e18c9d996366e65cc95cb2ce737f82082c75b67b4",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_prefix7_pool_8gib_20260910.json"
+        },
+        "receipt": {
+          "canonical_sha256": "b9c4e89bf65138fda49238df93c7fc056da927d037786da5468c4be80d6fac9c",
+          "file_sha256": "bca00b714eee3a8df7901bf6cf971823aa5920c38399df9403fc303bd759080f",
+          "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-protected-pool8-exact-prefill-48token-receipt-2026-09-10.json"
+        },
+        "runtime": {
+          "canonical_sha256": "a2dc3763a77c9856c781e6619041d9e151e251cadee3a96d5fd52c14d93b6f88",
+          "file_sha256": "415bfa4697ae3cca667dbf8a2d229b100d6d53369a678c561d759362a72a9801",
+          "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-protected-pool8-exact-prefill-48token-2026-09-10.json"
+        }
+      }
+    },
+    {
+      "capacity_gib": 10.0,
+      "expected_answer_present": true,
+      "generated_text": "<|channel|>analysis<|message|>We need to answer: \"What is 17 multiplied by 23?\" presumably a simple arithmetic. 17*23 = 391. Let's compute:",
+      "passes": [
+        {
+          "continuation_expert_load_seconds": 0.014073356811422855,
+          "continuation_positions": 33,
+          "continuation_seconds": 8.65135520795593,
+          "first_response_ready_seconds": 161.98652053897968,
+          "median_token_seconds": 0.25356570800067857,
+          "p95_token_seconds": 0.39915237500099465,
+          "pass": 1,
+          "prompt_seconds": 48.4985341639258,
+          "speedup_vs_unrestricted": 52.88237954569108,
+          "tokens_per_second": 3.8144312892912606
+        },
+        {
+          "continuation_expert_load_seconds": 0.01709774654591456,
+          "continuation_positions": 33,
+          "continuation_seconds": 10.315773164038546,
+          "first_response_ready_seconds": 157.89145516610006,
+          "median_token_seconds": 0.25553424999816343,
+          "p95_token_seconds": 0.587666250008624,
+          "pass": 2,
+          "prompt_seconds": 44.40372841601493,
+          "speedup_vs_unrestricted": 44.38568359899244,
+          "tokens_per_second": 3.198984649550083
+        }
+      ],
+      "pool_entries": 810,
+      "pool_raw_bytes": 10735545600,
+      "sources": {
+        "pool": {
+          "canonical_sha256": "9ca1e78e3ec47a2653e45a1b0d6ac98c4b673ed154afffcfff318fff3b2c6fe4",
+          "file_sha256": "a52a4b791ead5db7b6b630865401c7c7a26c074fa7b3b78d5f63fbf93dcde816",
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/aion_gptoss_120b_arithmetic_prefix9_pool_10gib_20260910.json"
+        },
+        "receipt": {
+          "canonical_sha256": "d84f967f2bfc7ae68e6ec29be5b8d756b47691ff411517012cae8b69f790cf3a",
+          "file_sha256": "be6a9a74bde131c1e1dd461ec027cf3f4e93ccd3968bcc80eb7a92368db7fd08",
+          "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-protected-pool-exact-prefill-48token-receipt-2026-09-10.json"
+        },
+        "runtime": {
+          "canonical_sha256": "6ecaf1312231026afd433e85c752fd73901b65d160a3f7f303ca6b014606272d",
+          "file_sha256": "dd29f68bd6a5952ff8a67e77f58bf9b010eae753f0abdf59708667e854ca24b4",
+          "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-protected-pool-exact-prefill-48token-2026-09-10.json"
+        }
+      }
+    }
+  ],
+  "canonical_sha256": "51bfd50c3a419aff439831b51964404d6a71d1e5efd3ec5d8107aeef82bcc4d8",
+  "claim_boundary": "A single frozen arithmetic task identifies a narrow request-pool frontier. It does not establish a universal capacity threshold or general GPT-OSS 120B quality.",
+  "control": {
+    "source": {
+      "canonical_sha256": "86a45d1d51eeb1c93ac2a45d8662b3c17323d008b6673b62c8e190ab9cca6d5d",
+      "file_sha256": "865e1ff33e9ac647f1b9c578d2a09d39b3fa8483a622ab6366439389d3fec704",
+      "path": "/Volumes/AION_120B/AION-Warehouse/v1/evidence/results/gptoss-arithmetic-17x23-unrestricted-32token-2026-09-10.json"
+    },
+    "tokens_per_second": [
+      0.07213047752504294,
+      0.07207244296272819
+    ]
+  },
+  "created_at": "2026-09-10T02:50:15.210901+00:00",
+  "decision": "Advance the 8 GiB pool to the remaining frozen prompt families. Stop 6 and 7 GiB for this gate because neither emitted the expected answer in the unchanged window.",
+  "expected_text": "391",
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "promoted_narrow_capacity_gib": 8.0,
+  "prompt": "What is 17 multiplied by 23?",
+  "schema": "aion.gptoss-120b-capacity-frontier.v1",
+  "status": "PROMOTE_NARROW_8G_FRONTIER"
+}

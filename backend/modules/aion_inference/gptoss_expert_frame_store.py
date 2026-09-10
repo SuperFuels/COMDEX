@@ -63,6 +63,8 @@ class GptOssExpertFrameStore:
             raise RuntimeError("warehouse contains no expert frames")
         self.capacity_bytes = capacity_bytes
         self._cache: OrderedDict[tuple[int, int], dict[str, dict[str, bytes]]] = OrderedDict()
+        self._protected: set[tuple[int, int]] = set()
+        self._admission_allowlist: set[tuple[int, int]] | None = None
         self._resident = 0
         self._zstd = _zstd()
         self.hits = 0
@@ -71,6 +73,7 @@ class GptOssExpertFrameStore:
         self.compressed_bytes_read = 0
         self.raw_bytes_materialized = 0
         self.peak_resident_bytes = 0
+        self.admission_bypasses = 0
         self._metrics_lock = threading.Lock()
 
     def _component(self, layer: int, expert: int, projection: str, kind: str) -> bytes:
@@ -117,14 +120,37 @@ class GptOssExpertFrameStore:
     def _retain(self, cache_key: tuple[int, int],
                 value: dict[str, dict[str, bytes]]) -> None:
         size = self._value_size(value)
+        if (self._admission_allowlist is not None
+                and cache_key not in self._admission_allowlist):
+            self.admission_bypasses += 1
+            return
         if size <= self.capacity_bytes:
             while self._cache and self._resident + size > self.capacity_bytes:
-                _, removed = self._cache.popitem(last=False)
+                victim = next((key for key in self._cache if key not in self._protected), None)
+                if victim is None:
+                    self.admission_bypasses += 1
+                    return
+                removed = self._cache.pop(victim)
                 self._resident -= self._value_size(removed)
                 self.evictions += 1
             self._cache[cache_key] = value
             self._resident += size
             self.peak_resident_bytes = max(self.peak_resident_bytes, self._resident)
+
+    def protect(self, layer_experts: dict[str, list[int]]) -> None:
+        """Pin an already-resident bounded pool; later misses remain transient."""
+        requested = {(int(layer), expert) for layer, experts in layer_experts.items()
+                     for expert in experts}
+        missing = requested.difference(self._cache)
+        if missing:
+            raise ValueError(f"cannot protect {len(missing)} non-resident experts")
+        self._protected = requested
+
+    def set_admission_allowlist(self, layer_experts: dict[str, list[int]]) -> None:
+        """Retain only pool members while still serving exact transient misses."""
+        self._admission_allowlist = {
+            (int(layer), expert) for layer, experts in layer_experts.items()
+            for expert in experts}
 
     def get(self, layer: int, expert: int) -> dict[str, dict[str, bytes]]:
         cache_key = (layer, expert)
@@ -182,6 +208,11 @@ class GptOssExpertFrameStore:
             "hits": self.hits, "faults": self.faults,
             "hit_rate": self.hits / accesses if accesses else 0.0,
             "evictions": self.evictions,
+            "protected_entries": len(self._protected),
+            "admission_allowlist_entries": (
+                len(self._admission_allowlist)
+                if self._admission_allowlist is not None else 0),
+            "admission_bypasses": self.admission_bypasses,
             "compressed_bytes_read": self.compressed_bytes_read,
             "raw_bytes_materialized": self.raw_bytes_materialized,
         }
