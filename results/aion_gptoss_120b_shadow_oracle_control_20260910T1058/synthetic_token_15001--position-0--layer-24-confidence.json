@@ -1,0 +1,8 @@
+{
+  "claim_boundary": "Evaluator control only; not a deployable Shadow Expert.",
+  "confidence": 1.0,
+  "mode": "oracle",
+  "prediction_sha256": "df2b418d32286deb8d292654650a55b973a4aed5c77ef5b7c1009834d6cbe881",
+  "schema": "aion.shadow-expert-deterministic-control.v1",
+  "training_performed": false
+}

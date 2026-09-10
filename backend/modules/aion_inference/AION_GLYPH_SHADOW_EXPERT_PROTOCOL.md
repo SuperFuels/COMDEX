@@ -156,3 +156,24 @@ its identical local/SD file SHA-256 is
 `bc7ccb7700370cbcf6babcabc3aea0582d5eec139ce778271938f9b1458fccfe`.
 It remains `INSUFFICIENT_FAMILY_COVERAGE`, as designed: a successful single
 family validates collection, not generalization or authorization.
+
+## Four-family frozen split readiness (2026-09-10)
+
+Three additional independent synthetic token families were captured through
+the same real 36-layer path. Every run repeated routes, final hidden state and
+logits bitwise. Together with the BOS family, the frozen manifest now contains
+four family-disjoint groups and 16/16 verified residual targets, with no
+cross-family activation-hash collision. It is marked
+`READY_FOR_AUTHORIZED_TRAINING` while retaining `training_authorized: false`.
+The manifest canonical SHA-256 is
+`6564bc3fef79e40528046a7c05af104791eb24a0663b14e0349d9785d49b9b27`;
+its identical local/SD file SHA-256 is
+`fd0279e8f3eb9887470205e266183a8531bd116f1c89f2a5f21054606010394b`.
+
+Non-trained oracle and zero controls exercised the evaluator. The oracle had
+zero residual error, but correctly failed promotion because eight holdout rows
+can demonstrate only an 8x conservative traffic bound, below 10x. The zero
+control produced relative L2 error 1.0 and detected no violations at its false
+high confidence, so also failed. This proves the evaluator distinguishes
+perfect arithmetic, inadequate evidence volume and unsafe confidence. It does
+not show that a compact predictor exists.

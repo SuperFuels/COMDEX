@@ -1974,3 +1974,26 @@ identical local/SD file SHA-256 is
 `bc7ccb7700370cbcf6babcabc3aea0582d5eec139ce778271938f9b1458fccfe`.
 Its status remains `INSUFFICIENT_FAMILY_COVERAGE`: this proves the capture
 plumbing against genuine 120B arithmetic but makes no learning or quality claim.
+
+Three further synthetic token families then traversed the complete 36-layer
+runtime twice each. All three were route-, hidden-state- and logit-bitwise
+repeatable. The combined frozen manifest has four family-disjoint groups,
+16/16 verified target rows, no cross-family activation-hash collision, and is
+`READY_FOR_AUTHORIZED_TRAINING` with `training_authorized: false`. Manifest
+canonical SHA-256:
+`6564bc3fef79e40528046a7c05af104791eb24a0663b14e0349d9785d49b9b27`.
+Identical local/SD file SHA-256:
+`fd0279e8f3eb9887470205e266183a8531bd116f1c89f2a5f21054606010394b`.
+
+The frozen evaluator was exercised with non-trained deterministic controls.
+An oracle candidate achieved zero error but remained `MECHANISM_GATE_FAILED`:
+eight holdout observations prove only an 8x conservative traffic bound, below
+the locked 10x minimum. A false-high-confidence zero candidate produced 1.0
+relative L2 error, eight violations and zero violation capture, and also failed.
+Oracle/zero evaluation canonicals are respectively
+`a4216d7064eed72f5c8a6ef057645adc62bc3a0ec2dc429794851a142da57aa6`
+and `1521922cf33b7988583eab72df605f03a202ef54b67edc0e1f22707387920b7b`.
+Identical local/SD file hashes are respectively
+`1fe5eccd38a51f2c1599705715981e2e40aa748223da293923a03d02dc121387`
+and `a6025a95d163db85343afbf542ce469ad4428422bf6f0df4b427afa5a2d4c404`.
+This validates refusal logic, not model quality. No learning occurred.

@@ -516,3 +516,26 @@ with identical local/SD file SHA-256
 \texttt{bc7ccb7700370cbcf6babcabc3aea0582d5eec139ce778271938f9b1458fccfe}.
 It remains \texttt{INSUFFICIENT\_FAMILY\_COVERAGE}; real target collection is
 working, but one family cannot support a learning or generalization claim.
+
+Three independent synthetic token families were then captured through the
+same complete 36-layer, two-pass path.  Every route, final hidden state and
+logit repeated bitwise.  The combined frozen manifest contains four disjoint
+families, 16/16 verified targets and no cross-family activation-hash collision.
+It is \texttt{READY\_FOR\_AUTHORIZED\_TRAINING}, while its explicit
+\texttt{training\_authorized} field remains false.  Manifest canonical SHA-256
+is
+\texttt{6564bc3fef79e40528046a7c05af104791eb24a0663b14e0349d9785d49b9b27};
+identical local/SD file SHA-256 is
+\texttt{fd0279e8f3eb9887470205e266183a8531bd116f1c89f2a5f21054606010394b}.
+
+Two non-trained controls tested the frozen evaluator.  The oracle produced
+zero residual error but still failed promotion because eight holdout rows can
+demonstrate only an 8$\times$ conservative traffic bound, below the locked
+10$\times$ gate.  A false-high-confidence zero predictor produced relative
+$L_2$ error 1.0, eight violations and zero violation capture.  Their canonical
+SHA-256 values are respectively
+\texttt{a4216d7064eed72f5c8a6ef057645adc62bc3a0ec2dc429794851a142da57aa6}
+and
+\texttt{1521922cf33b7988583eab72df605f03a202ef54b67edc0e1f22707387920b7b}.
+This verifies the refusal boundary; it does not establish that a compact
+predictor exists, and no training occurred.
