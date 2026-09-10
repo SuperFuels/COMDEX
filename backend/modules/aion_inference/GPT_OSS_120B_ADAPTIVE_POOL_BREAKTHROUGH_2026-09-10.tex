@@ -425,3 +425,30 @@ a safe confidence signal.  The report has canonical SHA-256
 \texttt{7ec161947c242517d44c9da5323f39ef8031862627f276fbd441b1d88a9f9488}
 and identical local/SD file SHA-256
 \texttt{f72ca17418f852a7222598fbe2c38141bc54c91c7026a401ff7eded1cfd53423}.
+
+The finer activation-block hypothesis also failed.  Retaining the highest-
+energy 75\% of individual activation values retained 99.30\% median activation
+energy, but offered only a 1.20$\times$ theoretical total expert-weight
+reduction and still produced p95 layer-output relative $L_2$ error 0.0225.
+The required 2$\times$ traffic candidate retained 25\% of values and produced
+p95 output/contribution errors of 0.1963/0.6565.  Storage-addressable 32-value
+blocks were materially worse, reaching errors of 0.4085/1.3675 at the same
+2$\times$ target.  The decision is
+\texttt{STOP\_ACTIVATION\_BLOCK\_OMISSION}; no full block-addressable warehouse
+is justified.  Canonical SHA-256 is
+\texttt{e8b7b8250ddc550d36dd7676ce0044a184bf76860fe35eee2c65428a28635eec},
+with identical local/SD file SHA-256
+\texttt{bfc58e4e5e06d02ba9e8a54c59ef85c78269001c70472e389da5462837c4bfaf}.
+
+An intrinsic packed-weight audit then tested whether exact sparsity or repeated
+MXFP4 blocks could provide the missing reduction.  Sixteen routed layer/expert
+addresses were sampled across all three expert matrices.  Median signed-zero
+code content was only 12.19\%, no sampled 32-value block was entirely zero,
+and every sampled 17-byte block was unique.  Packed-value entropy was a median
+3.864 of the available 4 bits.  The decision is
+\texttt{STOP\_EXACT\_MXFP4\_SPARSIFICATION}: these real weights are dense,
+high-entropy and non-repetitive, so lossless sparse or dictionary storage cannot
+deliver a multiple-times reduction.  Canonical SHA-256 is
+\texttt{cc90b6456b0ff5549691331d3cd383418b50e80297f125ebad11f2cc2459a692},
+with identical local/SD file SHA-256
+\texttt{da3819abf1925cfb112bb77f320d728d73d4c8df513b8e59638b5e3bd9bab061}.

@@ -1862,3 +1862,40 @@ Next test structured activation/weight-block omission only as a quality-gated
 mechanism. Because gate mass is distributed and all experts matter, confidence
 cannot be inferred from expert rank alone. Any later learned surrogate or
 residual expert requires separate explicit training authorization.
+
+The real-activation internal-block gate also failed. Keeping the highest-energy
+75% of individual activation values retained a median 99.30% of activation
+energy, but could reduce total expert weight traffic by only 1.20x and still
+produced p95 layer-output relative L2 error 0.0225. The required 2x traffic
+candidate retained 25% of values and produced p95 output/contribution errors
+of 0.1963/0.6565. Storage-addressable 32-value blocks were worse: the 2x
+candidate retained only 35.87% median activation energy and errors reached
+0.4085/1.3675. Decision: `STOP_ACTIVATION_BLOCK_OMISSION`. Do not build a
+block-addressable full warehouse for this mechanism.
+
+Canonical SHA-256:
+`e8b7b8250ddc550d36dd7676ce0044a184bf76860fe35eee2c65428a28635eec`.
+Identical local/SD file SHA-256:
+`bfc58e4e5e06d02ba9e8a54c59ef85c78269001c70472e389da5462837c4bfaf`.
+Next measure intrinsic MXFP4 zero/repetition structure before proposing any
+sparse exact representation. If real packed blocks are not strongly sparse,
+stop storage-level sparsification and require a separately authorized learned
+surrogate for any further order-of-magnitude model-traffic reduction.
+
+The intrinsic MXFP4 structure gate then sampled 16 routed layer/expert
+addresses and all three packed matrices. Median signed-zero code content was
+12.19% (range 11.36--18.63%), no sampled 32-value block was entirely zero, and
+the unique-block fraction was 1.0 throughout. Median packed-value entropy was
+3.864 of 4 bits. Decision: `STOP_EXACT_MXFP4_SPARSIFICATION`. The real expert
+weights are dense, high-entropy and non-repetitive; lossless sparse or
+dictionary storage cannot provide the required multiple-times traffic
+reduction.
+
+Canonical SHA-256:
+`cc90b6456b0ff5549691331d3cd383418b50e80297f125ebad11f2cc2459a692`.
+Identical local/SD file SHA-256:
+`da3819abf1925cfb112bb77f320d728d73d4c8df513b8e59638b5e3bd9bab061`.
+This closes naive whole-expert omission, activation-block omission and exact
+packed-weight sparsification. The next order-of-magnitude model path requires
+a learned/distilled representation or another changed architecture and may not
+start without explicit authorization to train or inject derived weights.
