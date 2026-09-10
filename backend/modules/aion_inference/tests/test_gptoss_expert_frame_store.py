@@ -290,6 +290,43 @@ def test_persistent_l2_bypass_avoids_duplicate_disk_frame(tmp_path):
     assert metrics["l2_bytes_written"] == 0
 
 
+def test_persistent_l2_cartridge_protection_never_evicts_protected_expert(tmp_path):
+    regions = []
+    expected = []
+    index = 0
+    for expert in (0, 1):
+        value = {}
+        for projection in ("gate", "up", "down"):
+            value[projection] = {}
+            for kind in ("weight", "bias"):
+                raw = f"{expert}-{projection}-{kind}".encode() * 100
+                value[projection][kind] = raw
+                regions.append(_region(
+                    tmp_path, index, f"blk.0.ffn_{projection}_exps.{kind}",
+                    raw, expert=expert))
+                index += 1
+        expected.append(value)
+    manifest_path = tmp_path / "manifest.v1.json"
+    manifest_path.write_text(json.dumps({
+        "schema": "aion.expert-frame-warehouse.v1",
+        "status": "COMPLETE_VERIFIED", "regions": regions,
+    }))
+    first_size = 56 + sum(len(component) for component in expected[0].values()
+                          for component in component.values())
+    store = GptOssPersistentL2ExpertFrameStore(
+        manifest_path, 0, tmp_path / "l2", first_size)
+    store.set_l2_protected({"0": [0]})
+    assert store.get(0, 0) == expected[0]
+    assert store.get(0, 1) == expected[1]
+    assert store.get(0, 0) == expected[0]
+    metrics = store.metrics()
+    assert metrics["l2_entries"] == 1
+    assert metrics["l2_protected_entries"] == 1
+    assert metrics["l2_protected_resident_entries"] == 1
+    assert metrics["l2_hits"] == 1
+    assert metrics["sd_fallbacks"] == 2
+
+
 def test_mapped_l2_verifies_once_then_reuses_views_without_materializing(tmp_path):
     regions = []
     expected = {}

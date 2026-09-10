@@ -2218,3 +2218,26 @@ passes at 20 GiB and its third pass reached 1.22879 token/s. The combined
 cross-family working set exceeds this local tier. Next test signed per-family
 cartridges or admission forecasting; report cartridge-switch fill time and do
 not label an unsettled family as warm.
+
+### Exact demand-admitted family cartridges (2026-09-10)
+
+The signed family-cartridge branch passed its paired live gate. Offline
+analysis used two real semantic traces plus six explicitly labelled synthetic
+stress traces and selected a 20 GiB layout: 10 GiB shared core, an active
+family segment and a 2 GiB exact exception halo. Observed replay coverage was
+100%, but this is not an unseen-family claim.
+
+Eager family staging was rejected because arithmetic/extraction switches would
+read 14.01/14.45 GiB compressed from SD including their RAM pools. The runtime
+instead protects planned L2 frames only after genuine unrestricted demand.
+Arithmetic and extraction hostile switches each fetched 311 experts (about
+3.67 GiB compressed), after which both settled passes had zero SD fallbacks.
+Every token, route, layer output, hidden state and logit remained exact.
+
+Settled continuation medians were 1.62106 token/s arithmetic and 1.59706
+token/s extraction. Extraction improved 86.33% over the prior thrashing
+mixed-family reusable-arena settled median and 13.24% over its stable bulk-copy
+control. Promote the mechanism for exact two-family cache stability. Do not
+claim 30--50 token/s or general unseen-family coverage. Next profile stable
+internal-L2 delivery versus native compute and advance only the largest real
+cost.

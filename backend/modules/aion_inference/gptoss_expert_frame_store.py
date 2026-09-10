@@ -253,6 +253,7 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
         self.l2_integrity_failures = 0
         self.sd_fallbacks = 0
         self._l2_bypass: set[tuple[int, int]] = set()
+        self._l2_protected: set[tuple[int, int]] = set()
         self._l2_lock = threading.Lock()
 
     def _l2_path(self, layer: int, expert: int) -> Path:
@@ -303,12 +304,24 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
     def _l2_files(self) -> list[Path]:
         return [path for path in self.l2_root.glob("*.aionraw") if path.is_file()]
 
+    @staticmethod
+    def _l2_file_key(path: Path) -> tuple[int, int] | None:
+        match = re.fullmatch(r"layer-(\d+)-expert-(\d+)\.aionraw", path.name)
+        return ((int(match.group(1)), int(match.group(2))) if match else None)
+
+    def _l2_evictable_files(self, files: list[Path]) -> list[Path]:
+        """Return LRU victims without sacrificing an active exact cartridge."""
+        return sorted(
+            (path for path in files if self._l2_file_key(path) not in self._l2_protected),
+            key=lambda path: (path.stat().st_mtime_ns, path.name),
+        )
+
     def _evict_l2_for(self, incoming: int) -> bool:
         files = self._l2_files()
         resident = sum(path.stat().st_size for path in files)
         if incoming > self.l2_capacity_bytes:
             return False
-        for victim in sorted(files, key=lambda path: (path.stat().st_mtime_ns, path.name)):
+        for victim in self._l2_evictable_files(files):
             if resident + incoming <= self.l2_capacity_bytes:
                 break
             size = victim.stat().st_size
@@ -357,6 +370,15 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
                            for layer, experts in layer_experts.items()
                            for expert in experts}
 
+    def set_l2_protected(self, layer_experts: dict[str, list[int]]) -> None:
+        """Protect an exact core/cartridge from L2 eviction without prefetching it."""
+        protected = {(int(layer), int(expert))
+                     for layer, experts in layer_experts.items()
+                     for expert in experts}
+        if protected & self._l2_bypass:
+            raise ValueError("an L2 expert cannot be both protected and bypassed")
+        self._l2_protected = protected
+
     def metrics(self) -> dict[str, int | float | str]:
         result = super().metrics()
         files = self._l2_files()
@@ -375,6 +397,9 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
             "l2_integrity_failures": self.l2_integrity_failures,
             "sd_fallbacks": self.sd_fallbacks,
             "l2_bypass_entries": len(self._l2_bypass),
+            "l2_protected_entries": len(self._l2_protected),
+            "l2_protected_resident_entries": sum(
+                self._l2_file_key(path) in self._l2_protected for path in files),
         }
 
 
@@ -525,12 +550,11 @@ class GptOssMappedPersistentL2ExpertFrameStore(GptOssPersistentL2ExpertFrameStor
         resident = sum(path.stat().st_size for path in files)
         if incoming > self.l2_capacity_bytes:
             return False
-        for victim in sorted(files, key=lambda path: (path.stat().st_mtime_ns, path.name)):
+        for victim in self._l2_evictable_files(files):
             if resident + incoming <= self.l2_capacity_bytes:
                 break
-            match = re.fullmatch(r"layer-(\d+)-expert-(\d+)\.aionraw", victim.name)
-            if match:
-                key = (int(match.group(1)), int(match.group(2)))
+            key = self._l2_file_key(victim)
+            if key is not None:
                 # Dropping our references is safe even if a currently executing
                 # route still owns views; those views keep the old mapping alive
                 # until native execution returns.
