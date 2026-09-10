@@ -1736,3 +1736,14 @@ In parallel, implement a fused four-expert MXFP4 route kernel against real
 resident pool weights; the naive isolated single-expert Metal probe remains
 stopped. Continue to separate TTFT from response speed and do not describe
 0.103 token/s as approaching the 30-token/s target.
+
+Offline per-layer halo analysis found only a modest same-trace ceiling. Under
+the 6+4 GiB split, uniform per-layer quotas predicted 2,555 faults / 32.423 GB
+compressed traffic, while a trace-fitted optimum predicted 2,468 faults /
+31.317 GB: only 3.4% fewer bytes and 87 fewer faults. Do not spend a full long
+runtime gate on this fitted allocation yet. Prioritize fused real four-expert
+MXFP4 execution; revisit per-layer quotas only with a held-out allocation rule.
+Analysis canonical SHA-256:
+`61b38d7c794ae7ee05fa191193ed37ac4a9a591039ae02fb1cb5262b70743bd3`.
+Identical local/SD file SHA-256:
+`e9ad17df819676f81b36cf1339e1dc477045e52f354aade43cfd61de2faca75f`.

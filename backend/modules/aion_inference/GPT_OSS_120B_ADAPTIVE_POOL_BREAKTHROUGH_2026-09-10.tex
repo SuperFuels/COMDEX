@@ -294,3 +294,15 @@ sentence.  A correction sidecar clarifies that outside-core experts occupied
 unprotected LRU capacity when the halo existed; measured arrays and timings
 were unaffected.  Its identical local/SD SHA-256 is
 \texttt{ac2b804b3496c45681964059258ebef8d5d5c4faee74616a0cfd256551c34fe9}.
+
+An offline same-trace per-layer allocation bound was then computed for the
+6+4~GiB configuration.  A uniform 324-slot per-layer partition predicted 2,555
+faults and 32.423~GB compressed traffic; a trace-optimized allocation predicted
+2,468 faults and 31.317~GB.  The theoretical reduction is only 3.4\% in bytes
+and 87 faults on this trace.  Because the allocation is fitted to the same
+route sequence and the attainable gain is modest, a full long runtime sweep is
+not yet justified.  Per-layer quota work is deprioritized behind fused packed
+expert execution.  The analysis has canonical SHA-256
+\texttt{61b38d7c794ae7ee05fa191193ed37ac4a9a591039ae02fb1cb5262b70743bd3}
+and identical local/SD file SHA-256
+\texttt{e9ad17df819676f81b36cf1339e1dc477045e52f354aade43cfd61de2faca75f}.
