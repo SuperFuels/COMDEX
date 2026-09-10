@@ -1816,3 +1816,23 @@ The bounded pack and manifest remain immutable SD evidence. Next isolate
 compressed read time, source/target copies, hashing and zstd decode; advance
 only a direct reusable decode-buffer candidate that wins a narrow real-frame
 gate before attempting runtime integration.
+
+The direct reusable decode-buffer gate was exact but missed its declared 10%
+speed threshold. On one real six-component expert, the current copied decode
+path measured 22.871 ms p50; removing the encoded-source copy measured
+21.761 ms; additionally reusing all six output buffers measured 20.996 ms.
+The final gain was 8.93%, with all raw hashes exact. Decision:
+`NOT_PROMOTED`. Do not add buffer-lifetime complexity to the full runtime for
+an effect below the narrow gate, especially while SD traffic dominates.
+Canonical SHA-256:
+`3c2fa7ecf29f4cd902efbce220d7bd67f3bffab78e2ff8f18a84d2f03ef69000`.
+Identical local/SD file SHA-256:
+`1f5c7746846f076880df60ed486661f469e947b565b02dffcdcfbd52303dc86e`.
+
+Exact-track micro-optimisation has now exhausted three adjacent mechanisms:
+host-file flow, route-local layout, and reusable decode buffers. The resident
+host-flow win does not transfer under SD faults; layout and decode fail their
+narrow gates. Further orders-of-magnitude work must be separately quality-
+gated and reduce the number of expert bytes mathematically required per token,
+or use exact verified multi-token/task avoidance. It must not be presented as
+an exact full-model speedup unless the 120B token/logit sequence is preserved.

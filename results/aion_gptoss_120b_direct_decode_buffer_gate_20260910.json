@@ -1,0 +1,36 @@
+{
+  "all_outputs_hash_exact": true,
+  "canonical_sha256": "3c2fa7ecf29f4cd902efbce220d7bd67f3bffab78e2ff8f18a84d2f03ef69000",
+  "claim_boundary": "One real expert's six encoded components were already resident for this decode-only ABBA gate. It isolates zstd source/target copies and allocation; it does not measure SD reads, native matrix calculation, full layers or generated-token throughput.",
+  "compressed_bytes": 12656238,
+  "created_at": "2026-09-10T08:18:01.430116+00:00",
+  "direct_reuse_speedup": 1.089310741459581,
+  "expert": 46,
+  "layer": 0,
+  "manifest_sha256": "d53d5f764b3a5639e6ec8775044b2748ecfaec8721497ce730f575e7ed406ce9",
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "promotion_gate": {
+    "minimum_median_speedup": 1.1,
+    "requires_exact_hashes": true
+  },
+  "raw_bytes": 13253760,
+  "schema": "aion.gptoss-120b-direct-decode-buffer-gate.v1",
+  "status": "NOT_PROMOTED",
+  "summaries": {
+    "copied": {
+      "p50_ms": 22.870896000000002,
+      "p95_ms": 27.217542,
+      "samples": 60
+    },
+    "direct_allocated": {
+      "p50_ms": 21.7614375,
+      "p95_ms": 24.781834,
+      "samples": 60
+    },
+    "direct_reused": {
+      "p50_ms": 20.99575,
+      "p95_ms": 22.794958,
+      "samples": 60
+    }
+  }
+}

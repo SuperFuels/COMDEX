@@ -390,3 +390,15 @@ and identical local/SD file SHA-256
 The next narrow experiment must separate the remaining compressed read,
 integrity-hash, zstd decode, allocation and Python-copy costs and test direct
 decompression into reusable aligned buffers before any full-runtime change.
+
+The reusable-buffer follow-up remained exact but missed its declared gate.  On
+one real six-component expert, the existing copied decode path required
+22.871~ms p50.  Removing the encoded-source copy reduced this to 21.761~ms,
+and reusing all six decode targets reduced it to 20.996~ms.  The maximum median
+gain was 8.93\%, below the predeclared 10\% threshold.  All decoded component
+hashes remained exact.  The decision is \texttt{NOT\_PROMOTED}; the additional
+buffer ownership and lifetime complexity is not justified while physical SD
+traffic dominates.  Canonical SHA-256 is
+\texttt{3c2fa7ecf29f4cd902efbce220d7bd67f3bffab78e2ff8f18a84d2f03ef69000},
+with identical local/SD file SHA-256
+\texttt{1f5c7746846f076880df60ed486661f469e947b565b02dffcdcfbd52303dc86e}.
