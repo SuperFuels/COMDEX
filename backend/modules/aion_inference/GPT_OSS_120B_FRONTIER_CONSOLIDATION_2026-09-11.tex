@@ -149,16 +149,31 @@ more RAM residency, less RAM residency, ordinary Metal offload, removal of the
 Metal upload copy, activation-column omission, nor teacher-block reuse provides
 the missing order-of-magnitude improvement under the tested constraints.
 
-The next exact experiment is component-pipelined expert execution.  Each expert
-already has independently addressable gate, up, and down components in the SD
-warehouse.  The candidate will retrieve gate/up data, begin the original packed
-calculation, and concurrently retrieve the down component into a bounded
-persistent arena.  It must preserve the unrestricted router and bitwise output,
-and will be evaluated separately for cold SD and warm L2 service under the real
-8~GiB protected-pool pressure.  It advances only if it materially improves
-end-to-end route time and p50/p95 latency; otherwise it will be preserved and
-stopped.  This is expected to be an incremental latency-hiding mechanism, not
-an unsupported claim that 30--50 tokens/s has already been reached.
+For completeness, component-pipelined expert execution had already been tested
+before this consolidation.  That exact candidate read and calculated gate/up
+components first while fetching the down projection concurrently.  Across
+eight captured four-expert routes and 48 balanced observations per mode, every
+output remained bitwise identical.  Whole-expert overlap required 4.9073~ms
+median per route, whereas staged projection required 7.3853~ms, giving a
+candidate/control speed ratio of only 0.6645.  Extra file operations, graph
+execution, and synchronization exceeded the short gate/up interval available
+for hiding the down read.  Decision:
+\texttt{STOP\_STAGED\_PROJECTION\_IO}.  This branch is preserved in commit
+\texttt{962e2c35} and must not be repeated without a fundamentally different
+single-dispatch implementation.
+
+The resulting frontier changes the next research abstraction.  The exact
+engine remains the oracle and fallback, while the primary order-of-magnitude
+candidate becomes an explicitly quality-gated transformed expert
+representation.  Its first gate must operate on genuine original matrices and
+unseen real activations, require no more than 20\% of the original physical
+expert traffic, and measure complete expert and layer-output error.  It must not
+repeat previously stopped magnitude pruning, activation-column omission,
+global residual dictionaries, simple low-rank output imitation, or fixed
+lower-bit MXFP4 codebooks.  No full-model implementation is justified until a
+multi-family microgate demonstrates both the required traffic reduction and a
+predeclared numerical acceptance region with exact fallback for rejected
+states.
 
 \subsection{Consolidated conclusion}
 
