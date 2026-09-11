@@ -65,7 +65,8 @@ def nearest_mxfp4_codes(centers: np.ndarray) -> np.ndarray:
 
 
 def quantize_blob(blob: bytes, dictionary_codes: np.ndarray,
-                  chunk_vectors: int = 8192) -> tuple[bytes, np.ndarray]:
+                  exact_residual_fraction: float = 0.0,
+                  chunk_vectors: int = 8192) -> tuple[bytes, np.ndarray, int]:
     scales, codes = unpack_codes(blob)
     vector_codes = dictionary_codes.shape[1]
     vectors = codes.reshape(-1, vector_codes)
@@ -81,7 +82,12 @@ def quantize_blob(blob: bytes, dictionary_codes: np.ndarray,
         selected = np.argmin(distance, axis=1).astype(np.uint8)
         indices[begin:begin + len(batch)] = selected
         reconstructed[begin:begin + len(batch)] = dictionary_codes[selected]
-    return pack_codes(scales, reconstructed.reshape(-1, 32)), indices
+    residual_count = min(len(vectors), math.ceil(len(vectors) * exact_residual_fraction))
+    if residual_count:
+        errors = np.square(KVALUES[vectors] - KVALUES[reconstructed]).sum(axis=1)
+        exact = np.argpartition(errors, -residual_count)[-residual_count:]
+        reconstructed[exact] = vectors[exact]
+    return pack_codes(scales, reconstructed.reshape(-1, 32)), indices, residual_count
 
 
 def main() -> int:
@@ -94,6 +100,7 @@ def main() -> int:
     parser.add_argument("--dictionary-size", type=int, default=256)
     parser.add_argument("--subvector-codes", type=int, choices=(4, 8, 16), default=16)
     parser.add_argument("--minimum-reduction", type=float, default=5.0)
+    parser.add_argument("--exact-residual-fraction", type=float, default=0.0)
     parser.add_argument("--threads", type=int, default=8)
     parser.add_argument("--seed", type=int, default=1200911)
     parser.add_argument("--output", type=Path, required=True)
@@ -102,6 +109,8 @@ def main() -> int:
         raise SystemExit("refusing to overwrite evidence")
     if args.dictionary_size != 256:
         raise SystemExit("this gate requires a one-byte 256-entry dictionary")
+    if not 0.0 <= args.exact_residual_fraction <= 1.0:
+        raise SystemExit("exact residual fraction must be within [0, 1]")
     captures = sorted(args.activations.glob("position-*-layer-*.json"))
     required = args.train_captures + args.holdout_captures
     if len(captures) < required:
@@ -182,14 +191,17 @@ def main() -> int:
                 for projection in ("gate", "up", "down") for kind in ("weight", "bias")
             ]
             compact_indices = []
+            residual_counts = []
             candidate_blobs = []
             for index, blob in enumerate(original_blobs):
                 if index % 2:
                     candidate_blobs.append(blob)
                 else:
-                    reconstructed, indices = quantize_blob(blob, dictionary_codes)
+                    reconstructed, indices, residual_count = quantize_blob(
+                        blob, dictionary_codes, args.exact_residual_fraction)
                     candidate_blobs.append(reconstructed)
                     compact_indices.append(indices)
+                    residual_counts.append(residual_count)
             gates = np.asarray(capture["gates"], dtype=np.float32)
             reference, reference_ms = calculate(ffn, router, original_blobs, gates)
             candidate, candidate_ms = calculate(ffn, router, candidate_blobs, gates)
@@ -200,6 +212,9 @@ def main() -> int:
             compact_weight_bytes = sum(indices.nbytes for indices in compact_indices)
             compact_weight_bytes += raw_weight_bytes // 17  # one E8M0 scale per block
             compact_weight_bytes += dictionary_codes.nbytes
+            compact_weight_bytes += sum(math.ceil(len(indices) / 8)
+                                        for indices in compact_indices)  # residual bitmaps
+            compact_weight_bytes += sum(residual_counts) * (args.subvector_codes // 2)
             observations.append({
                 "capture": capture_path.name, "layer": capture["layer"],
                 "route": capture["route"], "reference_compute_ms": reference_ms,
@@ -207,6 +222,7 @@ def main() -> int:
                 "raw_weight_bytes": raw_weight_bytes,
                 "projected_compact_weight_bytes": compact_weight_bytes,
                 "projected_weight_reduction": raw_weight_bytes / compact_weight_bytes,
+                "exact_residual_vectors": sum(residual_counts),
                 "output_relative_l2": float(np.linalg.norm(delta) / np.linalg.norm(reference)),
                 "contribution_relative_l2": float(np.linalg.norm(delta)
                                                   / np.linalg.norm(reference_contribution)),
@@ -231,6 +247,7 @@ def main() -> int:
         "training_experts": sorted([list(value) for value in training_experts]),
         "training_vectors": len(training), "dictionary_entries": len(dictionary_codes),
         "dictionary_vector_codes": args.subvector_codes,
+        "exact_residual_fraction": args.exact_residual_fraction,
         "dictionary_sha256": dictionary_sha256,
         "observations": observations,
         "summary": {
@@ -255,6 +272,8 @@ def main() -> int:
             f"A training-only shared 256-entry product dictionary represents each "
             f"{args.subvector_codes}-code MXFP4 subvector with one byte while retaining every "
             "E8M0 block scale. Evaluation "
+            f"retains the highest-error {args.exact_residual_fraction:.1%} of subvectors exactly "
+            "behind a residual bitmap. "
             "uses disjoint routed experts and real activations. Original-format matrices are "
             "reconstructed only to reuse the frozen reference kernel; compact size is projected. "
             "No compact warehouse, direct dictionary kernel, full-model quality, or token-speed "

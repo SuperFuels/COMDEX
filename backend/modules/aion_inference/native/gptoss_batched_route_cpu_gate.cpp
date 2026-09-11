@@ -60,7 +60,9 @@ int main(int argc, char ** argv) {
     const char * names[] = {"gate-weight", "gate-bias", "up-weight", "up-bias",
                             "down-weight", "down-bias"};
     const bool mmap_components = std::getenv("AION_MMAP_COMPONENTS") != nullptr;
+    const bool repack_components = std::getenv("AION_REPACK_COMPONENTS") != nullptr;
     std::vector<std::pair<void *, size_t>> mappings;
+    std::vector<std::vector<char>> source_components(24);
     const auto mapping_started = std::chrono::steady_clock::now();
     for (int component = 0; component < 6; ++component) {
         const size_t slice_bytes = ggml_nbytes(tensors[component]) / experts;
@@ -85,8 +87,15 @@ int main(int argc, char ** argv) {
                     MAP_PRIVATE | MAP_FIXED, descriptor, 0);
                 close(descriptor);
                 if (mapped == MAP_FAILED) return 14;
-            } else if (!read_exact(path, target + expert * slice_bytes, slice_bytes)) {
-                return 7;
+            } else {
+                if (repack_components) {
+                    auto & source = source_components[component * experts + expert];
+                    source.resize(slice_bytes);
+                    if (!read_exact(path, source.data(), slice_bytes)) return 7;
+                    std::copy(source.begin(), source.end(), target + expert * slice_bytes);
+                } else if (!read_exact(path, target + expert * slice_bytes, slice_bytes)) {
+                    return 7;
+                }
             }
         }
     }
@@ -121,14 +130,30 @@ int main(int argc, char ** argv) {
     const int threads = std::stoi(argv[4]);
     if (compute(context, graph, threads) != GGML_STATUS_SUCCESS) return 9;
     std::vector<double> milliseconds;
+    std::vector<double> repack_milliseconds;
     for (int iteration = 0; iteration < std::stoi(argv[3]); ++iteration) {
         const auto started = std::chrono::steady_clock::now();
+        if (repack_components) {
+            const auto repack_started = std::chrono::steady_clock::now();
+            for (int component = 0; component < 6; ++component) {
+                const size_t slice_bytes = ggml_nbytes(tensors[component]) / experts;
+                auto * target = static_cast<char *>(tensors[component]->data);
+                for (int expert = 0; expert < experts; ++expert) {
+                    const auto & source = source_components[component * experts + expert];
+                    std::copy(source.begin(), source.end(), target + expert * slice_bytes);
+                }
+            }
+            repack_milliseconds.push_back(std::chrono::duration<double, std::milli>(
+                std::chrono::steady_clock::now() - repack_started).count());
+        }
         if (compute(context, graph, threads) != GGML_STATUS_SUCCESS) return 10;
         milliseconds.push_back(std::chrono::duration<double, std::milli>(
             std::chrono::steady_clock::now() - started).count());
     }
     auto ordered = milliseconds;
     std::sort(ordered.begin(), ordered.end());
+    auto ordered_repack = repack_milliseconds;
+    std::sort(ordered_repack.begin(), ordered_repack.end());
     if (const char * output_path = std::getenv("AION_OUTPUT_PATH")) {
         std::ofstream output(output_path, std::ios::binary | std::ios::trunc);
         output.write(static_cast<const char *>(combined->data), ggml_nbytes(combined));
@@ -136,6 +161,9 @@ int main(int argc, char ** argv) {
     }
     std::cout << "{\"schema\":\"aion.gptoss.batched-route-cpu.v1\",\"mmap_components\":"
               << (mmap_components ? "true" : "false") << ",\"mapping_ms\":" << mapping_ms
+              << ",\"repack_components\":" << (repack_components ? "true" : "false")
+              << ",\"repack_p50_ms\":"
+              << (ordered_repack.empty() ? 0.0 : ordered_repack[ordered_repack.size()/2])
               << ",\"p50_ms\":"
               << ordered[ordered.size()/2] << ",\"p95_ms\":"
               << ordered[(95*ordered.size()+99)/100-1] << "}\n";

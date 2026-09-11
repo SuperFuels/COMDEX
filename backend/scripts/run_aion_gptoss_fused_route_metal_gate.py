@@ -32,6 +32,7 @@ def main() -> int:
     parser.add_argument("--zero-copy-host", action="store_true")
     parser.add_argument("--batched-cpu", action="store_true")
     parser.add_argument("--batched-cpu-mmap", action="store_true")
+    parser.add_argument("--batched-cpu-repack", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
@@ -103,6 +104,8 @@ def main() -> int:
             batched_env = {**child_env, "AION_OUTPUT_PATH": str(batched_output)}
             if args.batched_cpu_mmap:
                 batched_env["AION_MMAP_COMPONENTS"] = "1"
+            if args.batched_cpu_repack:
+                batched_env["AION_REPACK_COMPONENTS"] = "1"
             batched = json.loads(subprocess.check_output([
                 str(batched_executable), str(root), gate_text, "10", str(args.threads),
             ], env=batched_env, text=True))
