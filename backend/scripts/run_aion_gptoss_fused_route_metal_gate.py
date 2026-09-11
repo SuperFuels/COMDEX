@@ -9,6 +9,7 @@ import json
 import os
 import subprocess
 import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -24,15 +25,36 @@ def main() -> int:
     parser.add_argument("--position", type=int, default=0)
     parser.add_argument("--layer", type=int, default=0)
     parser.add_argument("--threads", type=int, default=6)
+    parser.add_argument("--resident-pool", type=Path)
+    parser.add_argument("--resident-pool-gib", type=float, default=8.0)
+    parser.add_argument("--activation-capture", type=Path)
+    parser.add_argument("--cpu-cache-thrash-mib", type=int, default=0)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
         raise SystemExit("refusing to overwrite evidence")
     trace = json.loads(args.trace.read_text())
     layer = trace["run_a"]["tokens"][args.position]["layers"][args.layer]
+    activation_path = None
+    if args.activation_capture:
+        capture = json.loads(args.activation_capture.read_text())
+        if capture["position"] != args.position or capture["layer"] != args.layer:
+            raise SystemExit("activation capture position/layer does not match")
+        layer = capture
+        activation_path = args.activation_capture.with_suffix("")
+        activation_path = Path(str(activation_path) + "-router.bin")
     route = layer["route"]
     gates = layer["gates"]
-    store = GptOssExpertFrameStore(args.manifest, 64 * 1024 * 1024)
+    capacity = int(args.resident_pool_gib * 1024 ** 3) if args.resident_pool else 64 * 1024 * 1024
+    store = GptOssExpertFrameStore(args.manifest, capacity)
+    pool_preload_seconds = 0.0
+    if args.resident_pool:
+        pool = json.loads(args.resident_pool.read_text())
+        started = time.perf_counter()
+        for pool_layer in range(36):
+            store.get_layer_route_parallel(pool_layer, pool["layers"][str(pool_layer)], workers=4)
+        store.protect(pool["layers"])
+        pool_preload_seconds = time.perf_counter() - started
     values = store.get_layer_route_parallel(args.layer, route, workers=4)
     native = Path(__file__).parents[1] / "modules/aion_inference/native"
     with tempfile.TemporaryDirectory(prefix="aion-gptoss-fused-metal-route-") as temporary:
@@ -54,19 +76,25 @@ def main() -> int:
         gate_text = ",".join(f"{value:.9g}" for value in gates)
         cpu_output = root / "cpu-output.bin"
         metal_output = root / "metal-output.bin"
+        child_env = dict(os.environ)
+        if activation_path:
+            child_env["AION_INPUT_PATH"] = str(activation_path.resolve())
+        if args.cpu_cache_thrash_mib:
+            child_env["AION_CPU_CACHE_THRASH_MIB"] = str(args.cpu_cache_thrash_mib)
         cpu = json.loads(subprocess.check_output([
             str(cpu_executable), str(root), ",".join(map(str, route)), gate_text,
             "10", str(args.threads),
-        ], env={**os.environ, "AION_OUTPUT_PATH": str(cpu_output)}, text=True))
+        ], env={**child_env, "AION_OUTPUT_PATH": str(cpu_output)}, text=True))
         metal = json.loads(subprocess.check_output([
             str(metal_executable), str(root), gate_text, str(metal_output),
-        ], text=True))
+        ], env=child_env, text=True))
         reference = np.fromfile(cpu_output, dtype="<f4").astype(np.float64)
         candidate = np.fromfile(metal_output, dtype="<f4").astype(np.float64)
     delta = reference - candidate
     relative_l2 = float(np.linalg.norm(delta) / np.linalg.norm(reference))
     max_abs = float(np.abs(delta).max())
-    speedup = cpu["p50_ms"] / metal["warm_p50_ms"]
+    metal_charged_ms = metal["warm_p50_ms"] + (metal["upload_ms"] if args.cpu_cache_thrash_mib else 0.0)
+    speedup = cpu["p50_ms"] / metal_charged_ms
     promoted = speedup >= 1.15 and relative_l2 <= 0.01
     result = {
         "schema": "aion.gptoss-120b-fused-four-expert-metal-gate.v1",
@@ -80,9 +108,14 @@ def main() -> int:
         "route": route,
         "normalized_gates": gates,
         "warehouse_metrics": store.metrics(),
+        "resident_pool_path": str(args.resident_pool.resolve()) if args.resident_pool else None,
+        "resident_pool_preload_seconds": pool_preload_seconds,
+        "activation_capture_path": str(args.activation_capture.resolve()) if args.activation_capture else None,
+        "activation_capture_sha256": hashlib.sha256(args.activation_capture.read_bytes()).hexdigest() if args.activation_capture else None,
         "cpu": cpu,
         "fused_metal": metal,
         "metal_speedup": speedup,
+        "metal_charged_route_ms": metal_charged_ms,
         "relative_l2_error": relative_l2,
         "max_abs_error": max_abs,
         "argmax_equal": int(reference.argmax()) == int(candidate.argmax()),
@@ -90,8 +123,14 @@ def main() -> int:
         "promotion_gates": {"speedup_at_least": 1.15, "relative_l2_at_most": 0.01},
         "claim_boundary": (
             "One real four-expert layer route from a frozen GPT-OSS 120B trace was "
-            "calculated as one Metal graph. This is a changed-arithmetic microgate, not "
-            "a full token, semantic-quality result, or generated tokens-per-second claim."
+            "calculated as one Metal graph under the recorded parent-process resident-pool pressure. "
+            + (
+                "The CPU cache-thrash buffer is a synthetic cold-cache diagnostic; its touch time "
+                "is excluded, while the Metal comparison charges route upload plus warm compute. "
+                if args.cpu_cache_thrash_mib else ""
+            )
+            + "This is a changed-arithmetic microgate, not a full token, semantic-quality result, "
+            "or generated tokens-per-second claim."
         ),
     }
     result["canonical_sha256"] = hashlib.sha256(json.dumps(

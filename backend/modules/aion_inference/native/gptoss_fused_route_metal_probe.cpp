@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -50,6 +51,14 @@ int main(int argc, char ** argv) {
     std::vector<float> input_values(width);
     for (int64_t i = 0; i < width; ++i)
         input_values[i] = std::sin(static_cast<float>(i) * 0.00390625f);
+    if (const char * input_path = std::getenv("AION_INPUT_PATH")) {
+        std::ifstream input_file(input_path, std::ios::binary | std::ios::ate);
+        if (!input_file || static_cast<size_t>(input_file.tellg()) != input_values.size() * sizeof(float)) return 21;
+        input_file.seekg(0);
+        input_file.read(reinterpret_cast<char *>(input_values.data()),
+                        static_cast<std::streamsize>(input_values.size() * sizeof(float)));
+        if (!input_file.good()) return 22;
+    }
 
     const char * names[] = {"gate-weight", "gate-bias", "up-weight", "up-bias",
                             "down-weight", "down-bias"};

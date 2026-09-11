@@ -53,6 +53,9 @@ int main(int argc, char ** argv) {
     ggml_tensor * input = ggml_new_tensor_2d(context, GGML_TYPE_F32, width, 1);
     auto * input_values = static_cast<float *>(input->data);
     for (int64_t i = 0; i < width; ++i) input_values[i] = std::sin(float(i) * 0.00390625f);
+    if (const char * input_path = std::getenv("AION_INPUT_PATH")) {
+        if (!read_exact(input_path, input_values, width * sizeof(float))) return 12;
+    }
     ggml_tensor * combined = nullptr;
     size_t packed_weight_bytes = 0;
     for (size_t position = 0; position < routes.size(); ++position) {
@@ -83,8 +86,17 @@ int main(int argc, char ** argv) {
     const int threads = std::stoi(argv[5]);
     if (compute(context, graph, threads) != GGML_STATUS_SUCCESS) return 8;
     const int repetitions = std::stoi(argv[4]);
+    const int cache_thrash_mib = std::getenv("AION_CPU_CACHE_THRASH_MIB")
+        ? std::stoi(std::getenv("AION_CPU_CACHE_THRASH_MIB")) : 0;
+    std::vector<unsigned char> cache_thrash(
+        static_cast<size_t>(cache_thrash_mib) * 1024 * 1024);
+    volatile unsigned long long cache_thrash_checksum = 0;
     std::vector<double> milliseconds;
     for (int i = 0; i < repetitions; ++i) {
+        for (size_t offset = 0; offset < cache_thrash.size(); offset += 64) {
+            cache_thrash[offset] = static_cast<unsigned char>(cache_thrash[offset] + i + 1);
+            cache_thrash_checksum += cache_thrash[offset];
+        }
         const auto begin = std::chrono::steady_clock::now();
         if (compute(context, graph, threads) != GGML_STATUS_SUCCESS) return 9;
         milliseconds.push_back(std::chrono::duration<double, std::milli>(
@@ -107,6 +119,8 @@ int main(int argc, char ** argv) {
     for (size_t i = 0; i < route_gates.size(); ++i) std::cout << (i ? "," : "") << route_gates[i];
     std::cout << "],\"repetitions\":" << repetitions << ",\"threads\":" << threads
               << ",\"weight_bytes\":" << packed_weight_bytes
+              << ",\"cache_thrash_mib\":" << cache_thrash_mib
+              << ",\"cache_thrash_checksum\":" << cache_thrash_checksum
               << ",\"p50_ms\":" << ordered[ordered.size()/2]
               << ",\"p95_ms\":" << ordered[(95*ordered.size()+99)/100-1]
               << ",\"checksum\":" << checksum << ",\"finite\":"
