@@ -176,3 +176,29 @@ The report/receipt file SHA-256 values are
 \texttt{10c82534b8b26f40c0c69bffba4b30fc14643adce7bf59001ff1bc33085915b8}
 and
 \texttt{6811c48f2a35214f53cd58e6b61623f55212788e0d7fd284d95fa1a8bd386bd8}.
+
+\subsection{Held-out arithmetic transfer}
+
+The promoted three-touch policy was frozen and transferred without threshold or
+cache-policy adjustment to the separate arithmetic family, using the prompt
+``What is 17 multiplied by 23?''.  The first 64-position run was internally
+bitwise repeatable and contained the tentative value 391, but ended while the
+model was still writing its calculation; it is retained as an inconclusive
+output-window check.  A predeclared extension to 72 positions completed the
+reasoning: $20\times23=460$, $3\times23=69$, and $460-69=391$, explicitly
+confirming 391 as the answer.
+
+The two 72-position executions again repeated routes, final hidden states,
+logits, and tokens bitwise.  Their continuation rates were 0.8825 and 1.1113
+tokens/s (0.9969 median), with 204 and 170 SD fallbacks and only 8 and 19 L2
+evictions.  The result is \texttt{PASS\_HELDOUT\_ARITHMETIC\_QUALITY}; it
+demonstrates transfer of the frozen policy across a second task family, not an
+apples-to-apples speed promotion against the shorter exact control.  Reasoning
+and business hold-outs remain outstanding.
+
+The 72-position canonical report SHA-256 is
+\texttt{f2cc0131d86b1d4af4675d3a113642746a5cf63acc4c644cd55eb29f7ea57581}.
+The report/receipt file SHA-256 values are
+\texttt{ccb2609ad8be56b8af6f37c72ed08517c88111ac88dde30e34c412227a6edad9}
+and
+\texttt{0d047e710aeab7915ee6e47e84df27df64151d64bb7fb4cdf5e93f76fe14dec6}.
