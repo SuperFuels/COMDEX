@@ -32,7 +32,8 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--activations", type=Path, required=True)
     parser.add_argument("--holdout-captures", type=int, default=4)
-    parser.add_argument("--representation", choices=("q2_0", "padded_q2_k", "padded_q3_k",
+    parser.add_argument("--representation", choices=("q2_0", "top1_mxfp4_q2_0",
+                                                       "padded_q2_k", "padded_q3_k",
                                                        "padded_mixed_k"),
                         default="q2_0")
     parser.add_argument("--threads", type=int, default=8)
@@ -55,7 +56,8 @@ def main() -> int:
         native = Path(__file__).parents[1] / "modules/aion_inference/native"
         common = ["clang++", "-std=c++17", "-O3", "-I/opt/homebrew/include"]
         libraries = ["-L/opt/homebrew/lib", "-lggml", "-lggml-base", "-ldl"]
-        converter_source = ("gptoss_mxfp4_to_q2_0.cpp" if args.representation == "q2_0"
+        converter_source = ("gptoss_mxfp4_to_q2_0.cpp" if args.representation in
+                            ("q2_0", "top1_mxfp4_q2_0")
                             else "gptoss_mxfp4_to_padded_k.cpp")
         subprocess.run([*common, str(native / converter_source),
                         *libraries, "-o", str(converter)], check=True)
@@ -65,7 +67,9 @@ def main() -> int:
         library = ctypes.CDLL(str(library_path))
         reference_function = library.aion_gptoss_moe_finish
         candidate_function = (library.aion_gptoss_moe_finish_q2_0
-                              if args.representation == "q2_0"
+                              if args.representation == "q2_0" else
+                              library.aion_gptoss_moe_finish_top1_mxfp4_q2_0
+                              if args.representation == "top1_mxfp4_q2_0"
                               else library.aion_gptoss_moe_finish_padded_k)
         signature = [ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
                      ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_float),
@@ -73,7 +77,8 @@ def main() -> int:
                      ctypes.POINTER(ctypes.c_double)]
         reference_function.argtypes = signature
         reference_function.restype = ctypes.c_int
-        candidate_function.argtypes = (signature[:4] + [ctypes.c_int] + signature[4:]
+        candidate_function.argtypes = (signature if args.representation == "top1_mxfp4_q2_0" else
+                                       signature[:4] + [ctypes.c_int] + signature[4:]
                                        if args.representation == "q2_0" else
                                        signature[:4] + [ctypes.c_int, ctypes.c_int] + signature[4:])
         candidate_function.restype = ctypes.c_int
@@ -117,7 +122,8 @@ def main() -> int:
                     weight = value[projection]["weight"]
                     original_blobs.extend((weight, value[projection]["bias"]))
                     base_key = (capture["layer"], expert, projection)
-                    formats = (("q2_0",) if args.representation == "q2_0" else
+                    formats = (("q2_0",) if args.representation in
+                               ("q2_0", "top1_mxfp4_q2_0") else
                                ("q2_k", "q3_k") if args.representation == "padded_mixed_k" else
                                ("q2_k",) if args.representation == "padded_q2_k" else ("q3_k",))
                     for compact_format in formats:
@@ -129,16 +135,18 @@ def main() -> int:
                         source.write_bytes(weight)
                         converter_arguments = ([str(converter), str(source), str(target),
                                                 str(WIDTH), str(args.threads)]
-                                               if args.representation == "q2_0" else
+                                               if args.representation in
+                                               ("q2_0", "top1_mxfp4_q2_0") else
                                                [str(converter), str(source), str(target),
                                                 compact_format, str(WIDTH), str(args.threads)])
                         subprocess.run(converter_arguments, check=True,
                                        stdout=subprocess.DEVNULL)
                         converted[key] = target.read_bytes()
                     bias = value[projection]["bias"]
-                    if args.representation != "q2_0":
+                    if args.representation not in ("q2_0", "top1_mxfp4_q2_0"):
                         bias = bias + bytes((3072 - WIDTH) * 4)
-                    q2 = converted[(*base_key, "q2_0" if args.representation == "q2_0" else "q2_k")]
+                    q2 = converted[(*base_key, "q2_0" if args.representation in
+                                    ("q2_0", "top1_mxfp4_q2_0") else "q2_k")]
                     q3 = (converted.get((*base_key, "q3_k"), q2))
                     projection_blobs.append((weight, q2, q3, bias))
                     original_weight_bytes += len(weight)
@@ -146,14 +154,17 @@ def main() -> int:
             gates = np.asarray(capture["gates"], dtype=np.float32)
             reference, reference_ms = calculate(
                 reference_function, ffn, router, original_blobs, gates)
-            masks = (range(1, 8) if args.representation == "q2_0" else
+            masks = ((None,) if args.representation == "top1_mxfp4_q2_0" else
+                     range(1, 8) if args.representation == "q2_0" else
                      range(0, 8) if args.representation == "padded_mixed_k" else (7,))
             for mask in masks:
                 candidate_blobs = []
                 candidate_weight_bytes = 0
                 for index, (original, q2, q3, bias) in enumerate(projection_blobs):
                     projection_bit = 1 << (index % 3)
-                    if args.representation == "q2_0":
+                    if args.representation == "top1_mxfp4_q2_0":
+                        selected = original if index // 3 == 0 else q2
+                    elif args.representation == "q2_0":
                         selected = q2 if mask & projection_bit else original
                     elif args.representation == "padded_q2_k":
                         selected = q2
@@ -181,10 +192,11 @@ def main() -> int:
                     "output_max_abs": float(np.abs(delta).max()),
                     "argmax_equal": int(np.argmax(candidate)) == int(np.argmax(reference)),
                 })
-            print(f"holdout {capture.name}", flush=True)
+            print(f"holdout {capture_path.name}", flush=True)
     summaries = {}
     advancing_masks = []
-    masks = (range(1, 8) if args.representation == "q2_0" else
+    masks = ((None,) if args.representation == "top1_mxfp4_q2_0" else
+             range(1, 8) if args.representation == "q2_0" else
              range(0, 8) if args.representation == "padded_mixed_k" else (7,))
     for mask in masks:
         rows = [row for row in observations if row["q2_projection_mask"] == mask]

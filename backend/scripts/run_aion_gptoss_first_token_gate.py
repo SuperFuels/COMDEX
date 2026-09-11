@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Chain all 36 gpt-oss blocks and produce a first BOS-conditioned token."""
 from __future__ import annotations
-import argparse, ctypes, hashlib, json, subprocess, tempfile, time
+import argparse, ctypes, hashlib, json, os, subprocess, tempfile, time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
@@ -64,8 +64,13 @@ def parse_optional_layer_spec(spec:str|None)->set[int]:
     return parse_layer_spec(spec) if spec else set()
 
 def main()->None:
-    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--l2-two-touch-admission',action='store_true');p.add_argument('--l2-admission-touches',type=int,default=2);p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--native-router',action='store_true');p.add_argument('--inprocess-embedding',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--metal-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-threshold-layers');p.add_argument('--continuation-min-active-experts',type=int,choices=(1,2),default=2);p.add_argument('--continuation-adaptive-layers');p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');p.add_argument('--early-exit-diagnostic-layers');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--l2-two-touch-admission',action='store_true');p.add_argument('--l2-admission-touches',type=int,default=2);p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--pad-reduced-to-four',action='store_true');p.add_argument('--native-router',action='store_true');p.add_argument('--inprocess-embedding',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--metal-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-layer-active-experts',type=int,choices=(1,2,3));p.add_argument('--continuation-fixed-expert-layers');p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-threshold-layers');p.add_argument('--continuation-min-active-experts',type=int,choices=(1,2),default=2);p.add_argument('--continuation-adaptive-layers');p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');p.add_argument('--capture-counterfactuals',action='store_true');p.add_argument('--capture-metadata-only',action='store_true');p.add_argument('--early-exit-diagnostic-layers');a=p.parse_args()
+    serial_active_contributions=os.environ.get('AION_SERIAL_ACTIVE_CONTRIBUTIONS')=='1'
     if a.parallel_moe and not a.inprocess_finish: raise SystemExit('--parallel-moe requires --inprocess-finish')
+    if a.pad_reduced_to_four and not a.inprocess_finish: raise SystemExit('--pad-reduced-to-four requires --inprocess-finish')
+    if a.pad_reduced_to_four and a.parallel_moe: raise SystemExit('fixed-shape padding is incompatible with parallel MoE')
+    if serial_active_contributions and not a.inprocess_finish: raise SystemExit('serial contributions require in-process finish')
+    if serial_active_contributions and (a.parallel_moe or a.pad_reduced_to_four): raise SystemExit('serial contributions are mutually exclusive with parallel/padded MoE')
     if a.native_router and not a.inprocess_finish: raise SystemExit('--native-router requires --inprocess-finish')
     if a.inprocess_embedding and not a.inprocess_finish: raise SystemExit('--inprocess-embedding requires --inprocess-finish')
     if a.metal_output and not a.inprocess_output: raise SystemExit('--metal-output requires --inprocess-output')
@@ -99,6 +104,8 @@ def main()->None:
     if a.mapped_l2_parallel_prefault and not a.mapped_persistent_l2: raise SystemExit('parallel prefault requires mapped persistent L2')
     if a.mapped_l2_parallel_prefault and a.mapped_l2_willneed: raise SystemExit('choose one mapped L2 prefetch mode')
     if a.continuation_active_experts not in (1,2,3,4): raise SystemExit('continuation-active-experts must be 1..4')
+    if bool(a.continuation_layer_active_experts) != bool(a.continuation_fixed_expert_layers): raise SystemExit('fixed layer expert count requires both count and layers')
+    if a.continuation_layer_active_experts is not None and not (a.expert_pool and a.constrain_after_prompt): raise SystemExit('fixed layer expert count requires a constrained post-prompt quality track')
     if a.continuation_active_experts != 4 and not (a.expert_pool and a.constrain_after_prompt): raise SystemExit('reduced continuation experts require a constrained post-prompt quality track')
     if a.continuation_gate_mass_threshold is not None and not (0.5<a.continuation_gate_mass_threshold<1.0): raise SystemExit('continuation-gate-mass-threshold must be between 0.5 and 1')
     if a.continuation_secondary_gate_mass_threshold is not None and not (0.5<a.continuation_secondary_gate_mass_threshold<1.0): raise SystemExit('secondary gate-mass threshold must be between 0.5 and 1')
@@ -106,7 +113,7 @@ def main()->None:
     if a.continuation_secondary_gate_mass_threshold is not None and a.continuation_gate_mass_threshold is None: raise SystemExit('secondary gate-mass threshold requires a primary threshold')
     if a.continuation_gate_mass_threshold is not None and not (a.expert_pool and (a.constrain_after_prompt or a.exact_pool_escape_after_prompt)): raise SystemExit('adaptive continuation experts require a preloaded pool plus constrained routing or exact unrestricted escape')
     if a.continuation_adaptive_layers and a.continuation_gate_mass_threshold is None: raise SystemExit('adaptive layer selection requires a gate-mass threshold')
-    if a.preserve_dropped_gate_mass and not (a.continuation_active_experts != 4 or a.continuation_gate_mass_threshold is not None): raise SystemExit('preserving dropped mass requires a reduced-expert continuation')
+    if a.preserve_dropped_gate_mass and not (a.continuation_active_experts != 4 or a.continuation_layer_active_experts is not None or a.continuation_gate_mass_threshold is not None): raise SystemExit('preserving dropped mass requires a reduced-expert continuation')
     if a.preload_expert_pool and not (a.expert_pool and a.resident_replay): raise SystemExit('pool preload requires --expert-pool and --resident-replay')
     if a.constrain_after_prompt and not a.expert_pool: raise SystemExit('--constrain-after-prompt requires --expert-pool')
     if a.exact_pool_escape_after_prompt and not (a.expert_pool and a.preload_expert_pool and a.resident_replay): raise SystemExit('--exact-pool-escape-after-prompt requires a preloaded resident expert pool')
@@ -123,6 +130,9 @@ def main()->None:
             a.continuation_secondary_threshold_layers)
     except ValueError as error: raise SystemExit(str(error)) from error
     try:
+        fixed_expert_layers=parse_optional_layer_spec(a.continuation_fixed_expert_layers)
+    except ValueError as error: raise SystemExit(str(error)) from error
+    try:
         early_exit_layers=parse_optional_layer_spec(a.early_exit_diagnostic_layers)
     except ValueError as error: raise SystemExit(str(error)) from error
     if early_exit_layers and not (a.inprocess_output and a.inmemory_layer_flow):
@@ -130,6 +140,8 @@ def main()->None:
     if any(value<0 or value>=36 for value in early_exit_layers): raise SystemExit('early-exit diagnostic layer is outside 0..35')
     if bool(a.activation_capture_dir) != bool(capture_positions and capture_layers): raise SystemExit('activation capture requires a directory plus non-empty positions and layers')
     if a.activation_capture_dir and not a.inprocess_attention: raise SystemExit('activation capture requires in-process attention')
+    if a.capture_counterfactuals and not (a.activation_capture_dir and a.inprocess_finish): raise SystemExit('counterfactual capture requires activation capture and in-process finish')
+    if a.capture_metadata_only and not a.capture_counterfactuals: raise SystemExit('metadata-only capture requires counterfactual capture')
     if any(value<0 or value>=a.token_count for value in capture_positions): raise SystemExit('capture position is outside token-count')
     if any(value<0 or value>=36 for value in capture_layers): raise SystemExit('capture layer is outside 0..35')
     if a.activation_capture_dir: a.activation_capture_dir.mkdir(parents=True,exist_ok=False)
@@ -181,14 +193,18 @@ def main()->None:
             reduced_moe_function=loaded.aion_gptoss_moe_finish_active
             prefault_function=loaded.aion_gptoss_prefault_components
             contribution_function=loaded.aion_gptoss_one_expert_contribution_batch
+            contribution_reuse_function=loaded.aion_gptoss_one_expert_contribution_reuse_graph
             combine_function=loaded.aion_gptoss_combine_four_contributions
+            combine_active_function=loaded.aion_gptoss_combine_active_contributions
             router_function=loaded.aion_gptoss_router_f32
             embedding_function=loaded.aion_gptoss_embedding_q5_0
             moe_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];moe_function.restype=ctypes.c_int
             reduced_moe_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];reduced_moe_function.restype=ctypes.c_int
             prefault_function.argtypes=[ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_size_t),ctypes.c_int,ctypes.c_int,ctypes.POINTER(ctypes.c_uint64),ctypes.POINTER(ctypes.c_double)];prefault_function.restype=ctypes.c_int
             contribution_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];contribution_function.restype=ctypes.c_int
+            contribution_reuse_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.c_float,ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];contribution_reuse_function.restype=ctypes.c_int
             combine_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_float)];combine_function.restype=ctypes.c_int
+            combine_active_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_float)];combine_active_function.restype=ctypes.c_int
             router_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_double)];router_function.restype=ctypes.c_int
             embedding_function.argtypes=[ctypes.c_void_p,ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];embedding_function.restype=ctypes.c_int
         attention_function=None;attention_reset=None
@@ -365,10 +381,13 @@ def main()->None:
                                  and (not a.constrain_after_prompt or position>=len(forced_input_ids)))
                 adaptive_here=(a.continuation_gate_mass_threshold is not None and
                                position>=len(forced_input_ids) and layer in adaptive_layers)
+                fixed_here=(a.continuation_layer_active_experts is not None and
+                            position>=len(forced_input_ids) and layer in fixed_expert_layers)
                 active_experts=(a.continuation_active_experts if position>=len(forced_input_ids) else 4)
                 if a.continuation_gate_mass_threshold is not None and not adaptive_here:
                     active_experts=4
-                candidate_count=(4 if (adaptive_here or a.preserve_dropped_gate_mass) and position>=len(forced_input_ids) else active_experts)
+                if fixed_here: active_experts=a.continuation_layer_active_experts
+                candidate_count=(4 if (adaptive_here or fixed_here or a.preserve_dropped_gate_mass) and position>=len(forced_input_ids) else active_experts)
                 if constrain_route:
                     eligible=np.asarray(expert_pool['layers'][str(layer)],dtype=np.int64);local=np.argsort(logits[eligible],kind='stable')[-candidate_count:][::-1];route=eligible[local].astype(int).tolist()
                 else: route=np.argsort(logits,kind='stable')[-candidate_count:][::-1].astype(int).tolist()
@@ -458,6 +477,24 @@ def main()->None:
                         else: blobs,references,pointers=prepared_components
                         if active_experts == 4:
                             status=moe_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,gate_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
+                        elif serial_active_contributions:
+                            contributions=np.empty((active_experts,WIDTH),dtype=np.float32);native_ms=0.0
+                            for slot in range(active_experts):
+                                slot_blobs=blobs[slot*6:(slot+1)*6]
+                                slot_references,slot_pointers=ctypes_component_pointer_array(slot_blobs)
+                                slot_elapsed=ctypes.c_double()
+                                status=contribution_reuse_function(router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),slot_pointers,ctypes.c_float(gate_values[slot]),contributions[slot].ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(slot_elapsed))
+                                if status: raise RuntimeError(f'serial expert contribution failed: {status}')
+                                native_ms+=slot_elapsed.value;_=slot_references
+                            status=combine_active_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),contributions.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),active_experts,out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))
+                            elapsed.value=native_ms
+                        elif a.pad_reduced_to_four:
+                            padded_blobs=list(blobs)
+                            while len(padded_blobs)<24: padded_blobs.extend(blobs[-6:])
+                            padded_references,padded_pointers=ctypes_component_pointer_array(padded_blobs)
+                            padded_gates=np.zeros(4,dtype=np.float32);padded_gates[:active_experts]=gate_values
+                            status=moe_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),padded_pointers,padded_gates.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
+                            _=padded_references
                         else:
                             status=reduced_moe_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,gate_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),active_experts,out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
                         if status: raise RuntimeError(f'in-process MoE failed: {status}')
@@ -478,15 +515,44 @@ def main()->None:
                     # verification that target + residual input reconstructs it
                     # within the declared F32 subtraction/addition boundary.
                     residual_capture=np.asarray(output_capture-ffn_capture,dtype='<f4')
-                    blobs={'ffn':ffn_capture.tobytes(),'router':router_capture.tobytes(),
-                           'output':output_capture.tobytes(),'residual':residual_capture.tobytes()}
-                    for name,value in blobs.items():
-                        Path(str(capture_stem)+f'-{name}.bin').write_bytes(value)
+                    capture_blobs={'ffn':ffn_capture.tobytes(),'router':router_capture.tobytes(),
+                                   'output':output_capture.tobytes(),'residual':residual_capture.tobytes()}
+                    if not a.capture_metadata_only:
+                        for name,value in capture_blobs.items():
+                            Path(str(capture_stem)+f'-{name}.bin').write_bytes(value)
+                    counterfactuals={}
+                    if a.capture_counterfactuals:
+                        expert_contributions=[]
+                        for slot in range(active_experts):
+                            slot_blobs=blobs[slot*6:(slot+1)*6]
+                            slot_references,slot_pointers=ctypes_component_pointer_array(slot_blobs)
+                            slot_gate=np.asarray([gate_values[slot]],dtype=np.float32)
+                            slot_output=np.empty(WIDTH,dtype=np.float32);slot_elapsed=ctypes.c_double()
+                            status=contribution_function(router_capture.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),slot_pointers,slot_gate.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),1,slot_output.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(slot_elapsed))
+                            if status: raise RuntimeError(f'counterfactual contribution failed: {status}')
+                            expert_contributions.append(slot_output.astype(np.float64))
+                            _=slot_references
+                        full_contribution=output_capture.astype(np.float64)-ffn_capture.astype(np.float64)
+                        reconstructed=ffn_capture.astype(np.float64)+sum(expert_contributions)
+                        for retained in range(1,active_experts):
+                            candidate=ffn_capture.astype(np.float64)+sum(expert_contributions[:retained])
+                            delta=candidate-output_capture.astype(np.float64)
+                            omitted=sum(expert_contributions[retained:])
+                            counterfactuals[str(retained)]={
+                                'output_relative_l2':float(np.linalg.norm(delta)/max(np.linalg.norm(output_capture),1e-30)),
+                                'contribution_relative_l2':float(np.linalg.norm(omitted)/max(np.linalg.norm(full_contribution),1e-30)),
+                                'output_max_abs':float(np.max(np.abs(delta))),
+                                'retained_gate_mass':float(gate_values[:retained].sum()),
+                            }
+                        counterfactuals['reconstruction_relative_l2']=float(np.linalg.norm(reconstructed-output_capture.astype(np.float64))/max(np.linalg.norm(output_capture),1e-30))
                     metadata={
                         'schema':'aion.gptoss-120b-shadow-target-capture.v2',
                         'position':position,'layer':layer,'route':route,'gates':gates.tolist(),
                         **{f'{name}_sha256':hashlib.sha256(value).hexdigest()
-                           for name,value in blobs.items()},
+                           for name,value in capture_blobs.items()},
+                        'activation_features':{'ffn_rms':float(np.sqrt(np.mean(ffn_capture.astype(np.float64)**2))),'ffn_max_abs':float(np.max(np.abs(ffn_capture))),'router_rms':float(np.sqrt(np.mean(router_capture.astype(np.float64)**2))),'router_max_abs':float(np.max(np.abs(router_capture))),'gate_entropy':float(-np.sum(gate_values.astype(np.float64)*np.log(np.maximum(gate_values,1e-30)))),'top_gate_gap':float(gate_values[0]-gate_values[1]) if len(gate_values)>1 else float(gate_values[0])},
+                        'counterfactuals':counterfactuals,
+                        'metadata_only':a.capture_metadata_only,
                         'target_definition':'F32 layer output minus F32 post-attention residual input',
                         'warehouse_manifest_canonical_sha256':manifest.get('canonical_sha256'),
                         'source_model_shards':[
@@ -554,9 +620,10 @@ def main()->None:
                 'model':'GPT-OSS 120B Q4_K_M/MXFP4','input_token_id':forced_input_ids[0],'input_token_ids':forced_input_ids,'token_count':a.token_count,'input_semantics':('GGUF-declared BOS token followed by greedy argmax tokens with per-layer KV history' if forced_input_ids==[BOS] else 'Externally tokenized prompt tokens are teacher-forced in order, followed by greedy argmax tokens with per-layer KV history'),'generated_token_id':run_a['output']['argmax_token_id'],
                 'run_a':run_a,'run_b':run_b,'additional_runs':runs[2:],'passes':a.passes,'routes_repeatable':routes_equal,'final_hidden_and_logits_bitwise_repeatable':exact,
                 'embedding_row_bytes':row_bytes,'embedding_row_sha256':initial_row_sha,'embedding_run':embed_run,
-                'output_weight':{'bytes':output_weight.stat().st_size,'sha256':sha(output_weight),'one_time_stage_seconds':output_stage_seconds},'output_norm':output_norm_evidence,'continuation_active_experts':a.continuation_active_experts,'continuation_gate_mass_threshold':a.continuation_gate_mass_threshold,'continuation_secondary_gate_mass_threshold':a.continuation_secondary_gate_mass_threshold,'continuation_secondary_threshold_layers':sorted(secondary_threshold_layers),'continuation_min_active_experts':a.continuation_min_active_experts,'continuation_adaptive_layers':sorted(adaptive_layers) if a.continuation_gate_mass_threshold is not None else None,'preserve_dropped_gate_mass':a.preserve_dropped_gate_mass,'early_exit_diagnostic_layers':sorted(early_exit_layers),
-                'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'persistent_l2_root':str(a.persistent_l2_root.resolve()) if a.persistent_l2_root else None,'declared_persistent_l2_bytes':int(a.persistent_l2_gib*1024*1024*1024) if a.persistent_l2_gib else 0,'l2_cartridge_plan_path':str(a.l2_cartridge_plan.resolve()) if a.l2_cartridge_plan else None,'l2_cartridge_plan_canonical_sha256':cartridge_sha,'l2_cartridge_family':a.l2_cartridge_family,'l2_cartridge_protected_entries':sum(map(len,cartridge_layers.values())) if cartridge_layers else 0,'l2_cartridge_eager_prefetch':False,'l2_two_touch_admission':a.l2_two_touch_admission,'l2_admission_touches':a.l2_admission_touches,'route_arena_l1_hotset':a.route_arena_l1_hotset,'route_arena_l1_hotset_entries':sum(map(len,cartridge_hotset_layers.values())) if cartridge_hotset_layers else 0,'overlap_l2_read_compute':a.overlap_l2_read_compute,'overlap_pass_pattern':a.overlap_pass_pattern,'mapped_persistent_l2':a.mapped_persistent_l2,'pinned_verified_persistent_l2':a.pinned_verified_persistent_l2,'reusable_arena_persistent_l2':a.reusable_arena_persistent_l2,'mapped_l2_willneed':a.mapped_l2_willneed,'mapped_l2_parallel_prefault':a.mapped_l2_parallel_prefault,'inprocess_finish':a.inprocess_finish,'native_router':a.native_router,'inprocess_embedding':a.inprocess_embedding,'inprocess_attention':a.inprocess_attention,'inprocess_output':a.inprocess_output,'metal_output':a.metal_output,'inmemory_layer_flow':a.inmemory_layer_flow,'activation_capture_dir':str(a.activation_capture_dir.resolve()) if a.activation_capture_dir else None,'capture_positions':sorted(capture_positions),'capture_layers':sorted(capture_layers),'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(expert_cache_bytes if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,'quality_track':(expert_pool is not None and not a.exact_pool_escape_after_prompt) or a.continuation_active_experts != 4 or a.continuation_gate_mass_threshold is not None or a.native_router or a.metal_output,'constrained_expert_pool_path':str(a.expert_pool.resolve()) if a.expert_pool else None,'constrained_expert_pool_canonical_sha256':expert_pool_sha,'constrained_expert_pool_preloaded':a.preload_expert_pool,'constrain_after_prompt':a.constrain_after_prompt,'exact_pool_escape_after_prompt':a.exact_pool_escape_after_prompt,'incremental_pool_admission':a.incremental_pool_admission,'constrained_expert_pool_preload_seconds':pool_preload_seconds,'constrained_expert_pool_preload_metrics':pool_preload_metrics,
+                'output_weight':{'bytes':output_weight.stat().st_size,'sha256':sha(output_weight),'one_time_stage_seconds':output_stage_seconds},'output_norm':output_norm_evidence,'continuation_active_experts':a.continuation_active_experts,'continuation_layer_active_experts':a.continuation_layer_active_experts,'continuation_fixed_expert_layers':sorted(fixed_expert_layers),'continuation_gate_mass_threshold':a.continuation_gate_mass_threshold,'continuation_secondary_gate_mass_threshold':a.continuation_secondary_gate_mass_threshold,'continuation_secondary_threshold_layers':sorted(secondary_threshold_layers),'continuation_min_active_experts':a.continuation_min_active_experts,'continuation_adaptive_layers':sorted(adaptive_layers) if a.continuation_gate_mass_threshold is not None else None,'preserve_dropped_gate_mass':a.preserve_dropped_gate_mass,'early_exit_diagnostic_layers':sorted(early_exit_layers),
+                'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'persistent_l2_root':str(a.persistent_l2_root.resolve()) if a.persistent_l2_root else None,'declared_persistent_l2_bytes':int(a.persistent_l2_gib*1024*1024*1024) if a.persistent_l2_gib else 0,'l2_cartridge_plan_path':str(a.l2_cartridge_plan.resolve()) if a.l2_cartridge_plan else None,'l2_cartridge_plan_canonical_sha256':cartridge_sha,'l2_cartridge_family':a.l2_cartridge_family,'l2_cartridge_protected_entries':sum(map(len,cartridge_layers.values())) if cartridge_layers else 0,'l2_cartridge_eager_prefetch':False,'l2_two_touch_admission':a.l2_two_touch_admission,'l2_admission_touches':a.l2_admission_touches,'route_arena_l1_hotset':a.route_arena_l1_hotset,'route_arena_l1_hotset_entries':sum(map(len,cartridge_hotset_layers.values())) if cartridge_hotset_layers else 0,'overlap_l2_read_compute':a.overlap_l2_read_compute,'overlap_pass_pattern':a.overlap_pass_pattern,'mapped_persistent_l2':a.mapped_persistent_l2,'pinned_verified_persistent_l2':a.pinned_verified_persistent_l2,'reusable_arena_persistent_l2':a.reusable_arena_persistent_l2,'mapped_l2_willneed':a.mapped_l2_willneed,'mapped_l2_parallel_prefault':a.mapped_l2_parallel_prefault,'inprocess_finish':a.inprocess_finish,'pad_reduced_to_four':a.pad_reduced_to_four,'native_router':a.native_router,'inprocess_embedding':a.inprocess_embedding,'inprocess_attention':a.inprocess_attention,'inprocess_output':a.inprocess_output,'metal_output':a.metal_output,'inmemory_layer_flow':a.inmemory_layer_flow,'activation_capture_dir':str(a.activation_capture_dir.resolve()) if a.activation_capture_dir else None,'capture_positions':sorted(capture_positions),'capture_layers':sorted(capture_layers),'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(expert_cache_bytes if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,'quality_track':(expert_pool is not None and not a.exact_pool_escape_after_prompt) or a.continuation_active_experts != 4 or a.continuation_layer_active_experts is not None or a.continuation_gate_mass_threshold is not None or a.native_router or a.metal_output,'constrained_expert_pool_path':str(a.expert_pool.resolve()) if a.expert_pool else None,'constrained_expert_pool_canonical_sha256':expert_pool_sha,'constrained_expert_pool_preloaded':a.preload_expert_pool,'constrain_after_prompt':a.constrain_after_prompt,'exact_pool_escape_after_prompt':a.exact_pool_escape_after_prompt,'incremental_pool_admission':a.incremental_pool_admission,'constrained_expert_pool_preload_seconds':pool_preload_seconds,'constrained_expert_pool_preload_metrics':pool_preload_metrics,
                 'claim_boundary':(('A token-conditioned sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. Declared prompt tokens were teacher-forced before greedy continuation. This is exact repeatability evidence for the custom packed path, not yet chat-template quality validation or steady-state generation speed.' if a.token_count>1 else 'A token-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is prompt-token execution evidence, not yet multi-token prompt quality validation or steady-state generation speed.') if forced_input_ids!=[BOS] else ('A BOS-conditioned greedy sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. This is exact repeatability evidence for the custom packed path, not yet text-quality validation or steady-state generation speed.' if a.token_count>1 else 'A BOS-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is first-token execution evidence, not yet text-quality validation or steady-state generation speed.'))}
+        report['serial_active_contributions']=serial_active_contributions
         if a.exact_pool_escape_after_prompt and a.continuation_gate_mass_threshold is None:
             report['claim_boundary']=('The complete GPT-OSS 120B attention/residual backbone, unrestricted 128-expert router and original selected expert weights were executed at every position. A hash-bound protected pool served resident hits; any unrestricted winning expert outside the pool was fetched exactly from the verified SD warehouse. Such exceptions remain transient when the declared cache is full, or occupy only unprotected LRU capacity when an exception halo is declared; they can never evict the protected core. No router eligibility or neural mathematics was changed. Repeatability is measured against a second run; equivalence to a separately frozen unrestricted control requires explicit token, hidden-state and logit comparison.')
         elif expert_pool:

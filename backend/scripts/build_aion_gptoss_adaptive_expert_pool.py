@@ -17,6 +17,26 @@ from backend.scripts.run_aion_gptoss_route_cartridge_gate import (
 )
 
 
+def extract_reduced_routes(report: dict) -> list[list[list[int]]]:
+    tokens = report.get("run_b", {}).get("tokens", [])
+    result = []
+    for token in tokens:
+        layers = token.get("layers", [])
+        if len(layers) != 36:
+            raise ValueError("route evidence is not complete across 36 layers")
+        route_set = []
+        for expected_layer, layer in enumerate(layers):
+            route = layer.get("route", [])
+            if (layer.get("layer") != expected_layer or not 1 <= len(route) <= 4 or
+                    len(route) != len(set(route)) or any(not 0 <= expert < 128 for expert in route)):
+                raise ValueError("route evidence contains an invalid reduced route")
+            route_set.append(route)
+        result.append(route_set)
+    if not result:
+        raise ValueError("route evidence contains no tokens")
+    return result
+
+
 def _file_sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -26,6 +46,8 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--required-prefix-report", type=Path, required=True)
     parser.add_argument("--required-prefix-tokens", type=int, required=True)
+    parser.add_argument("--required-prefix-offset", type=int, default=0)
+    parser.add_argument("--allow-reduced-routes", action="store_true")
     parser.add_argument("--supplemental-report", action="append", type=Path, default=[])
     parser.add_argument("--capacity-gib", type=float, required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -37,12 +59,16 @@ def main() -> int:
         raise SystemExit("warehouse is not complete and verified")
     _, raw_sizes = expert_sizes(manifest)
     prefix_report = json.loads(args.required_prefix_report.read_text())
-    prefix_routes = extract_routes(prefix_report)
-    if not 1 <= args.required_prefix_tokens <= len(prefix_routes):
+    prefix_routes = (extract_reduced_routes(prefix_report) if args.allow_reduced_routes
+                     else extract_routes(prefix_report))
+    if (args.required_prefix_offset < 0 or args.required_prefix_tokens < 1 or
+            args.required_prefix_offset + args.required_prefix_tokens > len(prefix_routes)):
         raise SystemExit("required prefix token count is invalid")
+    required_routes = prefix_routes[
+        args.required_prefix_offset:args.required_prefix_offset + args.required_prefix_tokens]
     required: set[tuple[int, int]] = {
         (layer, expert)
-        for token in prefix_routes[:args.required_prefix_tokens]
+        for token in required_routes
         for layer, route in enumerate(token)
         for expert in route
     }
@@ -55,8 +81,11 @@ def main() -> int:
     sources = []
     for path in source_paths:
         report = json.loads(path.read_text())
-        routes = extract_routes(report)
-        used = (routes[:args.required_prefix_tokens]
+        routes = (extract_reduced_routes(report)
+                  if args.allow_reduced_routes and path.resolve() == args.required_prefix_report.resolve()
+                  else extract_routes(report))
+        used = (routes[args.required_prefix_offset:
+                       args.required_prefix_offset + args.required_prefix_tokens]
                 if path.resolve() == args.required_prefix_report.resolve() else routes)
         for token in used:
             for layer, route in enumerate(token):
@@ -83,7 +112,9 @@ def main() -> int:
         "created_at": datetime.now(timezone.utc).isoformat(),
         "model": "GPT-OSS 120B Q4_K_M/MXFP4",
         "quality_track": True,
-        "selection": "all exact required-prefix routes, then observed frequency per raw byte",
+        "selection": ("all observed reduced-route active experts, then frequency per raw byte"
+                      if args.allow_reduced_routes else
+                      "all exact required-prefix routes, then observed frequency per raw byte"),
         "capacity_bytes": capacity,
         "resident_raw_bytes": resident,
         "required_prefix_experts": len(required),
@@ -92,12 +123,14 @@ def main() -> int:
         "minimum_experts_per_layer": min(map(len, layers.values())),
         "maximum_experts_per_layer": max(map(len, layers.values())),
         "required_prefix": {"path": str(args.required_prefix_report.resolve()),
-                            "tokens": args.required_prefix_tokens},
+                            "offset": args.required_prefix_offset,
+                            "tokens": args.required_prefix_tokens,
+                            "allow_reduced_routes": args.allow_reduced_routes},
         "sources": sources,
         "warehouse_manifest_sha256": _file_sha(args.manifest),
         "layers": layers,
         "claim_boundary": (
-            "All original expert routes observed during the declared request prefix are retained, "
+            "All original active experts observed during the declared request prefix are retained, "
             "but later routing is constrained to this bounded original-weight pool. This is a "
             "changed-model quality track, not unrestricted exact GPT-OSS 120B inference."
         ),
