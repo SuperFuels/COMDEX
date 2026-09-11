@@ -520,6 +520,92 @@ extern "C" int aion_gptoss_moe_finish_parallel(
     return 0;
 }
 
+// Exact rotating two-lane scheduler. Two experts calculate concurrently,
+// followed by the next pair, reducing four-way memory-bandwidth contention.
+extern "C" int aion_gptoss_moe_finish_pairwise(
+        const float * ffn_input_values, const float * router_input_values,
+        const void * const * components, const float * gates,
+        float * output_values, int threads, double * elapsed_ms) {
+    struct PersistentLane {
+        std::vector<char> memory = std::vector<char>(128 * 1024 * 1024);
+        ggml_context * context = nullptr;
+        ggml_tensor * input = nullptr;
+        ggml_tensor * components[6] = {};
+        ggml_tensor * scaled = nullptr;
+        ggml_cgraph * graph = nullptr;
+    };
+    static void * plugin = dlopen(
+        "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
+        RTLD_NOW | RTLD_LOCAL);
+    static compute_function compute = plugin ? reinterpret_cast<compute_function>(
+        dlsym(plugin, "ggml_graph_compute_with_ctx")) : nullptr;
+    static PersistentLane lanes[2];
+    if (!compute) return 2;
+    constexpr int64_t width = 2880;
+    for (auto & lane : lanes) {
+        if (lane.context) continue;
+        lane.context = ggml_init({lane.memory.size(), lane.memory.data(), false});
+        if (!lane.context) return 3;
+        lane.input = ggml_new_tensor_1d(lane.context, GGML_TYPE_F32, width);
+        lane.components[0] = ggml_new_tensor_2d(lane.context, GGML_TYPE_MXFP4, width, width);
+        lane.components[1] = ggml_new_tensor_1d(lane.context, GGML_TYPE_F32, width);
+        lane.components[2] = ggml_new_tensor_2d(lane.context, GGML_TYPE_MXFP4, width, width);
+        lane.components[3] = ggml_new_tensor_1d(lane.context, GGML_TYPE_F32, width);
+        lane.components[4] = ggml_new_tensor_2d(lane.context, GGML_TYPE_MXFP4, width, width);
+        lane.components[5] = ggml_new_tensor_1d(lane.context, GGML_TYPE_F32, width);
+        auto * gate = ggml_add(lane.context,
+            ggml_mul_mat(lane.context, lane.components[0], lane.input), lane.components[1]);
+        auto * up = ggml_add(lane.context,
+            ggml_mul_mat(lane.context, lane.components[2], lane.input), lane.components[3]);
+        auto * hidden = ggml_swiglu_oai(lane.context, gate, up, 1.702f, 7.0f);
+        auto * expert = ggml_add(lane.context,
+            ggml_mul_mat(lane.context, lane.components[4], hidden), lane.components[5]);
+        lane.scaled = ggml_scale(lane.context, expert, 1.0f);
+        lane.graph = ggml_new_graph_custom(
+            lane.context, GGML_DEFAULT_GRAPH_SIZE, false);
+        ggml_build_forward_expand(lane.graph, lane.scaled);
+    }
+    std::vector<float> expert_outputs[4];
+    int statuses[4] = {};
+    const int expert_threads = std::max(1, threads / 2);
+    const auto begin = std::chrono::steady_clock::now();
+    for (int pair = 0; pair < 2; ++pair) {
+        std::thread workers[2];
+        for (int lane = 0; lane < 2; ++lane) {
+            const int position = pair * 2 + lane;
+            workers[lane] = std::thread([&, lane, position]() {
+                auto & state = lanes[lane];
+                state.input->data = const_cast<float *>(router_input_values);
+                for (int component = 0; component < 6; ++component)
+                    state.components[component]->data = const_cast<void *>(
+                        components[position * 6 + component]);
+                std::memcpy(state.scaled->op_params,
+                            &gates[position], sizeof(float));
+                statuses[position] = compute(
+                    state.context, state.graph, expert_threads);
+                if (statuses[position] == GGML_STATUS_SUCCESS) {
+                    const auto * values = static_cast<const float *>(state.scaled->data);
+                    expert_outputs[position].assign(values, values + width);
+                }
+            });
+        }
+        for (auto & worker : workers) worker.join();
+    }
+    for (int position = 0; position < 4; ++position)
+        if (statuses[position] != GGML_STATUS_SUCCESS) return 4;
+    for (int64_t index = 0; index < width; ++index) {
+        float combined = expert_outputs[0][index] + expert_outputs[1][index];
+        combined = combined + expert_outputs[2][index];
+        combined = combined + expert_outputs[3][index];
+        output_values[index] = ffn_input_values[index] + combined;
+    }
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    for (int64_t index = 0; index < width; ++index)
+        if (!std::isfinite(output_values[index])) return 5;
+    return 0;
+}
+
 extern "C" int aion_gptoss_moe_finish_reuse_graph(
         const float * ffn_input_values, const float * router_input_values,
         const void * const * components, const float * gates,
