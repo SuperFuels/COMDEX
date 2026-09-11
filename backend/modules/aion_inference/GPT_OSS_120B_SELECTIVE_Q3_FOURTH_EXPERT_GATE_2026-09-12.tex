@@ -98,3 +98,62 @@ The corresponding stored-file SHA-256 values are
 and
 \texttt{9a166c8541703e9b7acac47d2ca8124cb643191f0e7957d8f4b20eee8a6d2ad8},
 respectively.
+
+\subsection{Full-transformer transfer and confidence fallback}
+
+The layer-12 candidate was subsequently integrated into the complete
+36-layer runtime.  The implementation accepts an explicit layer allowlist,
+caches each derived Q3\_K projection, records conversion cost separately, and
+labels the result as a changed-weight quality track.  No converted weight was
+written into the source warehouse.  An initial persistent-L2 integration run
+caught a Python boundary defect (a zero-copy \texttt{memoryview} was combined
+with a byte string); it terminated before emitting an evidence file and was
+repaired without changing the numerical or performance gate.
+
+In a two-pass BOS test, both unrestricted control and layer-12 candidate were
+internally bitwise repeatable and generated token ID 2167.  The changed layer
+did propagate: the first route difference appeared at layer 19 and only 25 of
+36 routes matched the separately executed control.  Thus token equality at BOS
+was treated as a narrow result, not as proof of semantic equivalence.
+
+The candidate was then evaluated on a 15-token arithmetic prompt followed by
+five autoregressive positions.  In the proven 8\,GiB workbench plus 20\,GiB
+demand-admitted cartridge configuration, the unconditional candidate matched
+all five teacher token IDs
+\[
+  [35644,,200008,,2167,,1309,,316]
+\]
+and remained bitwise repeatable across its two candidate runs.  Nevertheless,
+its settled five-token rate was 1.32879 tokens/s, below the frozen unrestricted
+control's 1.74117 tokens/s.  The unconditional candidate was therefore stopped
+as a performance strategy.
+
+A confidence gate was derived from the existing cross-family layer captures:
+use the selective Q3\_K gate/up path only when the fourth normalized router
+gate is at most 0.20; otherwise execute the original fourth expert.  Every
+previously measured admitted position had output-relative $L_2<0.018$.  In the
+same 20-position arithmetic execution, this rule applied the candidate on 17
+of 20 layer-12 calls, matched all five teacher continuation tokens, and remained
+internally repeatable.  It recovered settled continuation to 1.67846 tokens/s
+and median token latency to 0.56382\,s, compared with 1.74117 tokens/s and
+0.56672\,s for the frozen exact control.  Since aggregate throughput remained
+3.60\% lower, the confidence-gated candidate is also
+\texttt{NOT\_PROMOTED} for speed.
+
+This experiment establishes a useful but bounded conclusion: selective
+projection compaction can survive a real prompt and preserve a short generated
+token sequence, while confidence fallback removes most of its route-induced
+performance regression.  However, compacting two projections of the fourth
+expert in only one layer saves too little physical traffic to beat the complete
+exact runtime.  The promoted exact frontier therefore remains approximately
+1.72--1.83 tokens/s.  Further multi-layer expansion is prohibited until a new
+candidate predicts downstream consequence, not merely local layer error, and
+demonstrates a positive balanced end-to-end speed gate.
+
+The full-transformer evidence canonical hashes are:
+\begin{itemize}
+  \item BOS control: \texttt{4013a5499845ee929bcd619b9e9c77da3d8a791e7d9645870aca651640be4f1e};
+  \item BOS layer-12 candidate: \texttt{c03026b34741bc2d1c88da5df893c723fec3b5f902cca90fec40c921e72b284d};
+  \item unconditional 20-position arithmetic candidate: \texttt{7c96952e54d4c694b576b9955a59126bb6399d9b04cd4998727d45419cae64bd};
+  \item confidence-gated 20-position candidate: \texttt{63473dd2ca7cf6f623338cd51601d5da54843dc2f8bd4a7f8b4e6bf841f8a6e9}.
+\end{itemize}
