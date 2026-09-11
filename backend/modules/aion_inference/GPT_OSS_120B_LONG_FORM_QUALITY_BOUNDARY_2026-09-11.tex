@@ -147,6 +147,33 @@ It is consequently not honest to describe the present system as a usable
 120B model at either 12 or 28 tokens/s.  The quality-preserving frontier and
 the physical ceiling are both real, but they have not yet been joined.
 
+\subsection{Teacher-forced confidence-fallback bound}
+
+A pre-commit confidence gate was then tested as a possible bridge.  The
+preserved-mass $0.75$ candidate was evaluated at every continuation position
+while being forced to consume the exact teacher's preceding tokens.  This
+removed autoregressive contamination: every comparison asked independently
+whether the reduced-expert model would choose the same next token from the
+correct causal history.
+
+The candidate agreed at 51 of 70 positions, or 72.86\%, and disagreed at 19.
+Its teacher-forced traversal itself measured 11.093 tokens/s, compared with
+0.17697 tokens/s for the exact teacher over the same positions.  However, even
+an impossible perfect classifier that knew all unsafe positions before
+calculation would reach only 0.6525 tokens/s when measured candidate and exact
+position costs were composed.  A post-candidate oracle would reach 0.6444
+tokens/s.
+
+Output margin did not cleanly separate safe and unsafe decisions.  Catching
+all 19 unsafe positions required rejecting every candidate whose top-two logit
+margin was at most 1.4021.  That rule rejected 34 of 70 positions, including 15
+safe ones, and its optimistic measured upper bound was only 0.3574 tokens/s.
+Decision: \texttt{STOP\_CONFIDENCE\_FALLBACK\_AS\_NORTH\_STAR\_PATH}.  A
+confidence gate may still be a useful integrity mechanism, but it cannot
+approach the 28-token/s ceiling while exact fallback remains this expensive.
+The canonical evidence digest is
+\texttt{b74277faa908c958e65eb866ae8e82c28d78324fff20cee1bc6b148d95a27c2f}.
+
 \subsection{Required next architecture}
 
 Closing the gap now requires reducing the physical work while restoring the
