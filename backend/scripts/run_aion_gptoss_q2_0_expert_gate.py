@@ -33,15 +33,19 @@ def main() -> int:
     parser.add_argument("--activations", type=Path, required=True)
     parser.add_argument("--holdout-captures", type=int, default=4)
     parser.add_argument("--representation", choices=("q2_0", "top1_mxfp4_q2_0",
+                                                       "top3_mxfp4_q2_0",
                                                        "padded_q2_k", "padded_q3_k",
                                                        "padded_mixed_k"),
                         default="q2_0")
+    parser.add_argument("--layer", type=int)
     parser.add_argument("--threads", type=int, default=8)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
         raise SystemExit("refusing to overwrite evidence")
-    captures = sorted(args.activations.glob("position-*-layer-*.json"))
+    pattern = (f"position-*-layer-{args.layer}.json" if args.layer is not None
+               else "position-*-layer-*.json")
+    captures = sorted(args.activations.glob(pattern))
     if len(captures) < args.holdout_captures:
         raise SystemExit("insufficient captures")
     # Use the final captures so this gate remains disjoint from the captures
@@ -57,7 +61,7 @@ def main() -> int:
         common = ["clang++", "-std=c++17", "-O3", "-I/opt/homebrew/include"]
         libraries = ["-L/opt/homebrew/lib", "-lggml", "-lggml-base", "-ldl"]
         converter_source = ("gptoss_mxfp4_to_q2_0.cpp" if args.representation in
-                            ("q2_0", "top1_mxfp4_q2_0")
+                            ("q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0")
                             else "gptoss_mxfp4_to_padded_k.cpp")
         subprocess.run([*common, str(native / converter_source),
                         *libraries, "-o", str(converter)], check=True)
@@ -70,6 +74,8 @@ def main() -> int:
                               if args.representation == "q2_0" else
                               library.aion_gptoss_moe_finish_top1_mxfp4_q2_0
                               if args.representation == "top1_mxfp4_q2_0"
+                              else library.aion_gptoss_moe_finish_top3_mxfp4_q2_0
+                              if args.representation == "top3_mxfp4_q2_0"
                               else library.aion_gptoss_moe_finish_padded_k)
         signature = [ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
                      ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_float),
@@ -77,7 +83,8 @@ def main() -> int:
                      ctypes.POINTER(ctypes.c_double)]
         reference_function.argtypes = signature
         reference_function.restype = ctypes.c_int
-        candidate_function.argtypes = (signature if args.representation == "top1_mxfp4_q2_0" else
+        candidate_function.argtypes = (signature if args.representation in
+                                       ("top1_mxfp4_q2_0", "top3_mxfp4_q2_0") else
                                        signature[:4] + [ctypes.c_int] + signature[4:]
                                        if args.representation == "q2_0" else
                                        signature[:4] + [ctypes.c_int, ctypes.c_int] + signature[4:])
@@ -123,7 +130,7 @@ def main() -> int:
                     original_blobs.extend((weight, value[projection]["bias"]))
                     base_key = (capture["layer"], expert, projection)
                     formats = (("q2_0",) if args.representation in
-                               ("q2_0", "top1_mxfp4_q2_0") else
+                               ("q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0") else
                                ("q2_k", "q3_k") if args.representation == "padded_mixed_k" else
                                ("q2_k",) if args.representation == "padded_q2_k" else ("q3_k",))
                     for compact_format in formats:
@@ -136,17 +143,20 @@ def main() -> int:
                         converter_arguments = ([str(converter), str(source), str(target),
                                                 str(WIDTH), str(args.threads)]
                                                if args.representation in
-                                               ("q2_0", "top1_mxfp4_q2_0") else
+                                               ("q2_0", "top1_mxfp4_q2_0",
+                                                "top3_mxfp4_q2_0") else
                                                [str(converter), str(source), str(target),
                                                 compact_format, str(WIDTH), str(args.threads)])
                         subprocess.run(converter_arguments, check=True,
                                        stdout=subprocess.DEVNULL)
                         converted[key] = target.read_bytes()
                     bias = value[projection]["bias"]
-                    if args.representation not in ("q2_0", "top1_mxfp4_q2_0"):
+                    if args.representation not in (
+                            "q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0"):
                         bias = bias + bytes((3072 - WIDTH) * 4)
                     q2 = converted[(*base_key, "q2_0" if args.representation in
-                                    ("q2_0", "top1_mxfp4_q2_0") else "q2_k")]
+                                    ("q2_0", "top1_mxfp4_q2_0",
+                                     "top3_mxfp4_q2_0") else "q2_k")]
                     q3 = (converted.get((*base_key, "q3_k"), q2))
                     projection_blobs.append((weight, q2, q3, bias))
                     original_weight_bytes += len(weight)
@@ -154,7 +164,8 @@ def main() -> int:
             gates = np.asarray(capture["gates"], dtype=np.float32)
             reference, reference_ms = calculate(
                 reference_function, ffn, router, original_blobs, gates)
-            masks = ((None,) if args.representation == "top1_mxfp4_q2_0" else
+            masks = ((None,) if args.representation in
+                     ("top1_mxfp4_q2_0", "top3_mxfp4_q2_0") else
                      range(1, 8) if args.representation == "q2_0" else
                      range(0, 8) if args.representation == "padded_mixed_k" else (7,))
             for mask in masks:
@@ -164,6 +175,8 @@ def main() -> int:
                     projection_bit = 1 << (index % 3)
                     if args.representation == "top1_mxfp4_q2_0":
                         selected = original if index // 3 == 0 else q2
+                    elif args.representation == "top3_mxfp4_q2_0":
+                        selected = original if index // 3 < 3 else q2
                     elif args.representation == "q2_0":
                         selected = q2 if mask & projection_bit else original
                     elif args.representation == "padded_q2_k":
@@ -195,7 +208,10 @@ def main() -> int:
             print(f"holdout {capture_path.name}", flush=True)
     summaries = {}
     advancing_masks = []
-    masks = ((None,) if args.representation == "top1_mxfp4_q2_0" else
+    output_error_limit = (0.02 if args.representation == "top3_mxfp4_q2_0"
+                          else 0.05)
+    masks = ((None,) if args.representation in
+             ("top1_mxfp4_q2_0", "top3_mxfp4_q2_0") else
              range(1, 8) if args.representation == "q2_0" else
              range(0, 8) if args.representation == "padded_mixed_k" else (7,))
     for mask in masks:
@@ -213,7 +229,7 @@ def main() -> int:
                    "all_argmax_equal": all(row["argmax_equal"] for row in rows)}
         summaries[str(mask)] = summary
         if (summary["weight_reduction"] >= 1.15
-                and summary["output_relative_l2_p95"] <= .05
+                and summary["output_relative_l2_p95"] <= output_error_limit
                 and summary["contribution_relative_l2_p95"] <= .25
                 and summary["all_argmax_equal"]):
             advancing_masks.append(mask)
@@ -231,13 +247,14 @@ def main() -> int:
         "advancing_masks": advancing_masks,
         "projection_mask_bits": {"1": "gate", "2": "up", "4": "down"},
         "promotion_gate": {"minimum_weight_reduction": 1.15,
-                           "maximum_output_relative_l2_p95": .05,
+                           "maximum_output_relative_l2_p95": output_error_limit,
                            "maximum_contribution_relative_l2_p95": .25,
                            "all_argmax_equal": True},
         "warehouse_metrics": store.metrics(),
         "claim_boundary": (
-            "Four held-out real layer routes use the unrestricted selected experts, original "
-            "gates and biases, but their three expert matrices are requantized to Q2_0. This is "
+            "Held-out real layer routes use the unrestricted selected experts, original gates "
+            "and biases. The selected quality-track representation changes only the declared "
+            "expert matrices to Q2_0. This is "
             "a directly executable one-layer quality microgate, not a full compact warehouse, "
             "semantic-quality result, or generated-token speed claim."),
     }
