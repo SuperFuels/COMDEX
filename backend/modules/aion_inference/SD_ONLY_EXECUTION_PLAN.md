@@ -2319,3 +2319,13 @@ Offline frontier canonical/file SHA-256:
 Live boundary canonical/file SHA-256:
 `b476d87e10a10f35c2f7591ea3a3c126fb0a9ece24071d01fb896967cfcb553d` /
 `f89a2936c38998359ededd0534aae4adc39a3bcf4abb4f581cdc522389f22a2d`.
+
+The dependency-staged packed-I/O branch was then stopped at its real-route
+microgate.  Splitting gate/up from down arithmetic was bitwise exact and added
+only 4.55% resident compute overhead, but process-verified partial L2 reads
+raised median four-expert route time from 4.9073 to 7.3853 ms.  The second read,
+second native graph and synchronization boundary overwhelmed the tiny overlap
+window.  All 96 compared outputs were exact.  Do not integrate this path into
+full generation.  Canonical/file SHA-256:
+`f10a46617ed6ef1129b4f3919837981836d34d040b34bcca6c3981447bc9559d` /
+`33fe30fe9bb7fb54f9ab29d503dad0d36b4a2772656a51053fba929de55e3c4b`.

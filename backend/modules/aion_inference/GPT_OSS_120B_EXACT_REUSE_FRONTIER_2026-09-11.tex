@@ -101,3 +101,26 @@ The live 0.5~GiB report canonical/stored values are
 \texttt{b476d87e10a10f35c2f7591ea3a3c126fb0a9ece24071d01fb896967cfcb553d}
 and
 \texttt{f89a2936c38998359ededd0534aae4adc39a3bcf4abb4f581cdc522389f22a2d}.
+
+\subsection{Stopped dependency-staged L2 pipeline}
+
+A final bounded-scratch exact probe split each expert at its true dependency
+boundary.  Gate and up components were read and evaluated first while the down
+projection was fetched concurrently; the resulting F32 SwiGLU activation was
+then consumed by the original packed MXFP4 down calculation.  A resident-only
+gate over eight captured experts first established bitwise equivalence and
+measured only 4.55\% splitting overhead, permitting an L2 microgate.
+
+The real process-verified L2 gate used eight captured four-expert routes and six
+balanced rounds, producing 48 observations per mode.  All outputs remained
+bit-for-bit identical.  Nevertheless, whole-expert overlap required a median
+4.9073~ms per route while staged projection required 7.3853~ms.  The
+candidate/control speed ratio was 0.6645.  The extra file operation, graph call
+and synchronization boundary cost substantially more than the short gate/up
+compute interval could hide.  Decision:
+\texttt{STOP\_STAGED\_PROJECTION\_IO}; do not integrate it into full generation.
+
+The stopped runtime's canonical/stored SHA-256 values are
+\texttt{f10a46617ed6ef1129b4f3919837981836d34d040b34bcca6c3981447bc9559d}
+and
+\texttt{33fe30fe9bb7fb54f9ab29d503dad0d36b4a2772656a51053fba929de55e3c4b}.

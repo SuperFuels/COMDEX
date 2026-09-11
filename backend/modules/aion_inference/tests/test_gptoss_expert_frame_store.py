@@ -471,10 +471,17 @@ def test_reusable_route_arena_returns_exact_writable_views(tmp_path):
     values = arena.get_layer_route_parallel(0, [0, 1, 2, 3], workers=4)
     assert values == [expected[index] for index in range(4)]
     assert all(isinstance(value["gate"]["weight"], memoryview) for value in values)
+    first = arena.read_verified_l2_component_group_into_slot(
+        0, 0, 0, (0, 1, 2, 3))
+    second = arena.read_verified_l2_component_group_into_slot(
+        0, 0, 0, (4, 5))
+    assert first == {"gate": expected[0]["gate"], "up": expected[0]["up"]}
+    assert second == {"down": expected[0]["down"]}
     metrics = arena.metrics()
     assert metrics["route_arena_reads"] == 4
     assert metrics["l2_verification_passes"] == 4
     assert metrics["sd_fallbacks"] == 0
+    assert metrics["partial_l2_read_calls"] == 2
 
 
 def test_reusable_route_arena_admits_only_declared_l1_hotset(tmp_path):

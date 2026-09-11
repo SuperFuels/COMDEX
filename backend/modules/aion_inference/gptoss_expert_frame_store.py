@@ -691,6 +691,8 @@ class GptOssReusableArenaPersistentL2ExpertFrameStore(
         self._route_arena_l1_allowlist: set[tuple[int, int]] = set()
         self.route_arena_l1_admissions = 0
         self.route_arena_l1_admission_bytes = 0
+        self.partial_l2_read_calls = 0
+        self.partial_l2_bytes_read = 0
 
     def set_route_arena_l1_allowlist(
             self, layer_experts: dict[str, list[int]]) -> None:
@@ -778,6 +780,65 @@ class GptOssReusableArenaPersistentL2ExpertFrameStore(
             self.raw_bytes_materialized += size - self._HEADER.size
         return value
 
+    def read_verified_l2_component_group_into_slot(
+            self, layer: int, expert: int, slot: int,
+            component_indices: tuple[int, ...]):
+        """Read selected components into their normal arena offsets.
+
+        Partial reads are permitted only after this process has verified every
+        component of the immutable L2 frame once.  This retains the existing
+        integrity boundary while allowing gate/up calculation to overlap the
+        later down-projection read.
+        """
+        cache_key = (layer, expert)
+        if cache_key not in self._verified_l2:
+            raise ValueError("partial L2 read requires process-verified frame")
+        if not component_indices or any(index < 0 or index >= len(self._ORDER)
+                                        for index in component_indices):
+            raise ValueError("invalid partial L2 component selection")
+        path = self._l2_path(layer, expert)
+        arena = self._route_arenas[slot]
+        try:
+            with path.open("rb", buffering=0) as handle:
+                header = os.pread(handle.fileno(), self._HEADER.size, 0)
+                if len(header) != self._HEADER.size:
+                    raise ValueError("short L2 header")
+                magic, *lengths = self._HEADER.unpack(header)
+                if magic != self._MAGIC:
+                    raise ValueError("invalid L2 frame")
+                offsets = []
+                cursor = self._HEADER.size
+                for length in lengths:
+                    offsets.append(cursor)
+                    cursor += length
+                if cursor != path.stat().st_size:
+                    raise ValueError("invalid L2 frame size")
+                value: dict[str, dict[str, memoryview]] = {}
+                bytes_read = len(header)
+                for index in component_indices:
+                    projection, kind = self._ORDER[index]
+                    length = lengths[index]
+                    offset = offsets[index]
+                    address = self._component_address(layer, expert, projection, kind)
+                    if length != int(address["raw_bytes"]):
+                        raise ValueError("L2 component length mismatch")
+                    target = memoryview(arena)[offset:offset + length]
+                    written = os.preadv(handle.fileno(), [target], offset)
+                    if written != length:
+                        raise RuntimeError("short partial reusable-arena L2 read")
+                    value.setdefault(projection, {})[kind] = target
+                    bytes_read += written
+        except (FileNotFoundError, KeyError, ValueError, struct.error):
+            self.l2_integrity_failures += 1
+            raise
+        self.partial_l2_read_calls += 1
+        self.partial_l2_bytes_read += bytes_read
+        self.l2_bytes_read += bytes_read
+        self.route_arena_bytes_read += bytes_read
+        with self._metrics_lock:
+            self.raw_bytes_materialized += bytes_read - self._HEADER.size
+        return value
+
     def get_layer_route_parallel(self, layer: int, experts: list[int],
                                  workers: int = 4):
         if workers < 1:
@@ -832,6 +893,8 @@ class GptOssReusableArenaPersistentL2ExpertFrameStore(
                 self._route_arena_l1_allowlist),
             "route_arena_l1_admissions": self.route_arena_l1_admissions,
             "route_arena_l1_admission_bytes": self.route_arena_l1_admission_bytes,
+            "partial_l2_read_calls": self.partial_l2_read_calls,
+            "partial_l2_bytes_read": self.partial_l2_bytes_read,
         }
 
 

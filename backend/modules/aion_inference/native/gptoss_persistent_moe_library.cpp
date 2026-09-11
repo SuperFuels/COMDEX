@@ -405,6 +405,88 @@ extern "C" int aion_gptoss_one_expert_contribution_batch(
     return 0;
 }
 
+// Exact-track probe for staging one expert at its true dependency boundary.
+// Gate/up weights can be consumed before down weights have arrived.  The
+// intermediate is the same F32 SwiGLU tensor that the unsplit ggml graph
+// materialises, allowing delivery of the down projection to overlap useful
+// gate/up arithmetic without changing packed values.
+extern "C" int aion_gptoss_expert_gate_up(
+        const float * router_input_values, const void * const * components,
+        float * hidden_values, int threads, double * elapsed_ms) {
+    static void * plugin = dlopen(
+        "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
+        RTLD_NOW | RTLD_LOCAL);
+    static compute_function compute = plugin ? reinterpret_cast<compute_function>(
+        dlsym(plugin, "ggml_graph_compute_with_ctx")) : nullptr;
+    static std::vector<char> memory(128 * 1024 * 1024);
+    static ggml_context * context = ggml_init({memory.size(), memory.data(), false});
+    if (!compute) return 2;
+    if (!context) return 3;
+    ggml_reset(context);
+    constexpr int64_t width = 2880;
+    auto * input = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    input->data = const_cast<float *>(router_input_values);
+    auto * gate_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+    auto * gate_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    auto * up_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+    auto * up_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    ggml_tensor * tensors[] = {gate_w, gate_b, up_w, up_b};
+    for (int component = 0; component < 4; ++component)
+        tensors[component]->data = const_cast<void *>(components[component]);
+    auto * gate = ggml_add(context, ggml_mul_mat(context, gate_w, input), gate_b);
+    auto * up = ggml_add(context, ggml_mul_mat(context, up_w, input), up_b);
+    auto * hidden = ggml_swiglu_oai(context, gate, up, 1.702f, 7.0f);
+    auto * graph = ggml_new_graph_custom(context, GGML_DEFAULT_GRAPH_SIZE, false);
+    ggml_build_forward_expand(graph, hidden);
+    const auto begin = std::chrono::steady_clock::now();
+    const int status = compute(context, graph, threads);
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    if (status != GGML_STATUS_SUCCESS) return 4;
+    std::memcpy(hidden_values, hidden->data, width * sizeof(float));
+    for (int64_t index = 0; index < width; ++index)
+        if (!std::isfinite(hidden_values[index])) return 5;
+    return 0;
+}
+
+extern "C" int aion_gptoss_expert_down_contribution(
+        const float * hidden_values, const void * const * components,
+        float gate_value, float * contribution_values,
+        int threads, double * elapsed_ms) {
+    static void * plugin = dlopen(
+        "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
+        RTLD_NOW | RTLD_LOCAL);
+    static compute_function compute = plugin ? reinterpret_cast<compute_function>(
+        dlsym(plugin, "ggml_graph_compute_with_ctx")) : nullptr;
+    static std::vector<char> memory(128 * 1024 * 1024);
+    static ggml_context * context = ggml_init({memory.size(), memory.data(), false});
+    if (!compute) return 2;
+    if (!context) return 3;
+    ggml_reset(context);
+    constexpr int64_t width = 2880;
+    auto * hidden = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    hidden->data = const_cast<float *>(hidden_values);
+    auto * down_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+    auto * down_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    auto * gate = ggml_new_tensor_1d(context, GGML_TYPE_F32, 1);
+    down_w->data = const_cast<void *>(components[0]);
+    down_b->data = const_cast<void *>(components[1]);
+    gate->data = &gate_value;
+    auto * expert = ggml_add(context, ggml_mul_mat(context, down_w, hidden), down_b);
+    auto * scaled = ggml_mul(context, expert, ggml_repeat(context, gate, expert));
+    auto * graph = ggml_new_graph_custom(context, GGML_DEFAULT_GRAPH_SIZE, false);
+    ggml_build_forward_expand(graph, scaled);
+    const auto begin = std::chrono::steady_clock::now();
+    const int status = compute(context, graph, threads);
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    if (status != GGML_STATUS_SUCCESS) return 4;
+    std::memcpy(contribution_values, scaled->data, width * sizeof(float));
+    for (int64_t index = 0; index < width; ++index)
+        if (!std::isfinite(contribution_values[index])) return 5;
+    return 0;
+}
+
 extern "C" int aion_gptoss_combine_four_contributions(
         const float * ffn_input_values, const float * contributions,
         int batch, float * output_values) {
