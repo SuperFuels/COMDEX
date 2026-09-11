@@ -39,8 +39,22 @@ def should_overlap_layer(enabled:bool,missing_experts:int)->bool:
     # hidden behind already-available expert arithmetic.
     return enabled and missing_experts>=2
 
+def parse_layer_spec(spec:str|None)->set[int]:
+    if spec is None:
+        return set(range(36))
+    layers:set[int]=set()
+    for item in spec.split(','):
+        bounds=item.split('-',1)
+        start=int(bounds[0]);end=int(bounds[-1])
+        if start>end or start<0 or end>=36:
+            raise ValueError('adaptive layer range must stay within 0..35')
+        layers.update(range(start,end+1))
+    if not layers:
+        raise ValueError('adaptive layer selection must not be empty')
+    return layers
+
 def main()->None:
-    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--continuation-adaptive-layers');p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');a=p.parse_args()
     if a.parallel_moe and not a.inprocess_finish: raise SystemExit('--parallel-moe requires --inprocess-finish')
     if a.token_count < 1: raise SystemExit('token-count must be positive')
     if a.passes < 2: raise SystemExit('passes must be at least 2')
@@ -71,7 +85,8 @@ def main()->None:
     if a.continuation_active_experts not in (1,2,3,4): raise SystemExit('continuation-active-experts must be 1..4')
     if a.continuation_active_experts != 4 and not (a.expert_pool and a.constrain_after_prompt): raise SystemExit('reduced continuation experts require a constrained post-prompt quality track')
     if a.continuation_gate_mass_threshold is not None and not (0.5<a.continuation_gate_mass_threshold<1.0): raise SystemExit('continuation-gate-mass-threshold must be between 0.5 and 1')
-    if a.continuation_gate_mass_threshold is not None and not (a.expert_pool and a.constrain_after_prompt): raise SystemExit('adaptive continuation experts require a constrained post-prompt quality track')
+    if a.continuation_gate_mass_threshold is not None and not (a.expert_pool and (a.constrain_after_prompt or a.exact_pool_escape_after_prompt)): raise SystemExit('adaptive continuation experts require a preloaded pool plus constrained routing or exact unrestricted escape')
+    if a.continuation_adaptive_layers and a.continuation_gate_mass_threshold is None: raise SystemExit('adaptive layer selection requires a gate-mass threshold')
     if a.preserve_dropped_gate_mass and not (a.continuation_active_experts != 4 or a.continuation_gate_mass_threshold is not None): raise SystemExit('preserving dropped mass requires a reduced-expert continuation')
     if a.preload_expert_pool and not (a.expert_pool and a.resident_replay): raise SystemExit('pool preload requires --expert-pool and --resident-replay')
     if a.constrain_after_prompt and not a.expert_pool: raise SystemExit('--constrain-after-prompt requires --expert-pool')
@@ -82,6 +97,8 @@ def main()->None:
     if a.output.exists():raise SystemExit('refusing to overwrite evidence')
     capture_positions=({int(value) for value in a.capture_positions.split(',') if value} if a.capture_positions else set())
     capture_layers=({int(value) for value in a.capture_layers.split(',') if value} if a.capture_layers else set())
+    try: adaptive_layers=parse_layer_spec(a.continuation_adaptive_layers)
+    except ValueError as error: raise SystemExit(str(error)) from error
     if bool(a.activation_capture_dir) != bool(capture_positions and capture_layers): raise SystemExit('activation capture requires a directory plus non-empty positions and layers')
     if a.activation_capture_dir and not a.inprocess_attention: raise SystemExit('activation capture requires in-process attention')
     if any(value<0 or value>=a.token_count for value in capture_positions): raise SystemExit('capture position is outside token-count')
@@ -286,15 +303,19 @@ def main()->None:
                 logits=w@hidden+b
                 constrain_route=(expert_pool is not None and not a.exact_pool_escape_after_prompt
                                  and (not a.constrain_after_prompt or position>=len(forced_input_ids)))
+                adaptive_here=(a.continuation_gate_mass_threshold is not None and
+                               position>=len(forced_input_ids) and layer in adaptive_layers)
                 active_experts=(a.continuation_active_experts if position>=len(forced_input_ids) else 4)
-                candidate_count=(4 if (a.continuation_gate_mass_threshold is not None or a.preserve_dropped_gate_mass) and position>=len(forced_input_ids) else active_experts)
+                if a.continuation_gate_mass_threshold is not None and not adaptive_here:
+                    active_experts=4
+                candidate_count=(4 if (adaptive_here or a.preserve_dropped_gate_mass) and position>=len(forced_input_ids) else active_experts)
                 if constrain_route:
                     eligible=np.asarray(expert_pool['layers'][str(layer)],dtype=np.int64);local=np.argsort(logits[eligible],kind='stable')[-candidate_count:][::-1];route=eligible[local].astype(int).tolist()
                 else: route=np.argsort(logits,kind='stable')[-candidate_count:][::-1].astype(int).tolist()
                 route_pool_complete=(expert_pool is not None and
                                      all(expert in expert_pool['layers'][str(layer)] for expert in route))
                 sel=logits[route].astype(np.float64);sel-=sel.max();gates=np.exp(sel);gates/=gates.sum()
-                if a.continuation_gate_mass_threshold is not None and position>=len(forced_input_ids):
+                if adaptive_here:
                     threshold=a.continuation_gate_mass_threshold
                     active_experts=(2 if gates[:2].sum()>=threshold else 3 if gates[:3].sum()>=threshold else 4)
                     route=route[:active_experts];gates=gates[:active_experts]
@@ -310,9 +331,14 @@ def main()->None:
                 next_hidden=root/f'{label}-token-{position}-layer-{layer}-output.bin'
                 overlap_missing_experts=(sum((layer,expert) not in store._cache for expert in route)
                                          if overlap_enabled else 0)
-                overlap_applied=should_overlap_layer(overlap_enabled,overlap_missing_experts)
+                # The exact overlap primitive currently evaluates four expert
+                # contributions.  Adaptive continuation may deliberately keep
+                # only two or three.  Those layers must use the reduced native
+                # kernel, while unchanged four-expert layers can still hide L2
+                # delivery behind useful calculation.
+                overlap_applied=(active_experts == 4 and
+                                 should_overlap_layer(overlap_enabled,overlap_missing_experts))
                 if overlap_applied:
-                    if active_experts != 4: raise RuntimeError('overlap path requires four exact experts')
                     ffn=ffn_result if a.inmemory_layer_flow else np.fromfile(ffn_path,dtype='<f4');router_values=router_result if a.inmemory_layer_flow else np.fromfile(router_path,dtype='<f4');gate_values=np.asarray([float(f'{x:.9g}') for x in gates],dtype=np.float32)
                     contributions=np.empty((4,WIDTH),dtype=np.float32);native_ms=0.0;overlap_started=time.perf_counter();cached=[];missing=[]
                     for slot,expert in enumerate(route):
@@ -454,7 +480,7 @@ def main()->None:
                 'model':'GPT-OSS 120B Q4_K_M/MXFP4','input_token_id':forced_input_ids[0],'input_token_ids':forced_input_ids,'token_count':a.token_count,'input_semantics':('GGUF-declared BOS token followed by greedy argmax tokens with per-layer KV history' if forced_input_ids==[BOS] else 'Externally tokenized prompt tokens are teacher-forced in order, followed by greedy argmax tokens with per-layer KV history'),'generated_token_id':run_a['output']['argmax_token_id'],
                 'run_a':run_a,'run_b':run_b,'additional_runs':runs[2:],'passes':a.passes,'routes_repeatable':routes_equal,'final_hidden_and_logits_bitwise_repeatable':exact,
                 'embedding_row_bytes':row_bytes,'embedding_row_sha256':initial_row_sha,'embedding_run':embed_run,
-                'output_weight':{'bytes':output_weight.stat().st_size,'sha256':sha(output_weight),'one_time_stage_seconds':output_stage_seconds},'output_norm':output_norm_evidence,'continuation_active_experts':a.continuation_active_experts,'continuation_gate_mass_threshold':a.continuation_gate_mass_threshold,'preserve_dropped_gate_mass':a.preserve_dropped_gate_mass,
+                'output_weight':{'bytes':output_weight.stat().st_size,'sha256':sha(output_weight),'one_time_stage_seconds':output_stage_seconds},'output_norm':output_norm_evidence,'continuation_active_experts':a.continuation_active_experts,'continuation_gate_mass_threshold':a.continuation_gate_mass_threshold,'continuation_adaptive_layers':sorted(adaptive_layers) if a.continuation_gate_mass_threshold is not None else None,'preserve_dropped_gate_mass':a.preserve_dropped_gate_mass,
                 'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'persistent_l2_root':str(a.persistent_l2_root.resolve()) if a.persistent_l2_root else None,'declared_persistent_l2_bytes':int(a.persistent_l2_gib*1024*1024*1024) if a.persistent_l2_gib else 0,'l2_cartridge_plan_path':str(a.l2_cartridge_plan.resolve()) if a.l2_cartridge_plan else None,'l2_cartridge_plan_canonical_sha256':cartridge_sha,'l2_cartridge_family':a.l2_cartridge_family,'l2_cartridge_protected_entries':sum(map(len,cartridge_layers.values())) if cartridge_layers else 0,'l2_cartridge_eager_prefetch':False,'route_arena_l1_hotset':a.route_arena_l1_hotset,'route_arena_l1_hotset_entries':sum(map(len,cartridge_hotset_layers.values())) if cartridge_hotset_layers else 0,'overlap_l2_read_compute':a.overlap_l2_read_compute,'overlap_pass_pattern':a.overlap_pass_pattern,'mapped_persistent_l2':a.mapped_persistent_l2,'pinned_verified_persistent_l2':a.pinned_verified_persistent_l2,'reusable_arena_persistent_l2':a.reusable_arena_persistent_l2,'mapped_l2_willneed':a.mapped_l2_willneed,'mapped_l2_parallel_prefault':a.mapped_l2_parallel_prefault,'inprocess_finish':a.inprocess_finish,'inprocess_attention':a.inprocess_attention,'inprocess_output':a.inprocess_output,'inmemory_layer_flow':a.inmemory_layer_flow,'activation_capture_dir':str(a.activation_capture_dir.resolve()) if a.activation_capture_dir else None,'capture_positions':sorted(capture_positions),'capture_layers':sorted(capture_layers),'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(expert_cache_bytes if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,'quality_track':(expert_pool is not None and not a.exact_pool_escape_after_prompt) or a.continuation_active_experts != 4 or a.continuation_gate_mass_threshold is not None,'constrained_expert_pool_path':str(a.expert_pool.resolve()) if a.expert_pool else None,'constrained_expert_pool_canonical_sha256':expert_pool_sha,'constrained_expert_pool_preloaded':a.preload_expert_pool,'constrain_after_prompt':a.constrain_after_prompt,'exact_pool_escape_after_prompt':a.exact_pool_escape_after_prompt,'incremental_pool_admission':a.incremental_pool_admission,'constrained_expert_pool_preload_seconds':pool_preload_seconds,'constrained_expert_pool_preload_metrics':pool_preload_metrics,
                 'claim_boundary':(('A token-conditioned sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. Declared prompt tokens were teacher-forced before greedy continuation. This is exact repeatability evidence for the custom packed path, not yet chat-template quality validation or steady-state generation speed.' if a.token_count>1 else 'A token-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is prompt-token execution evidence, not yet multi-token prompt quality validation or steady-state generation speed.') if forced_input_ids!=[BOS] else ('A BOS-conditioned greedy sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. This is exact repeatability evidence for the custom packed path, not yet text-quality validation or steady-state generation speed.' if a.token_count>1 else 'A BOS-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is first-token execution evidence, not yet text-quality validation or steady-state generation speed.'))}
         if a.exact_pool_escape_after_prompt:

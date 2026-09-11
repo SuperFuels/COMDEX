@@ -1,0 +1,101 @@
+% Append-only section for the AION GPT-OSS 120B technical record.
+% Requires only the packages already used by the parent record.
+\section{Layer-Sensitive Adaptive Continuation and Long-Window Cache Boundary}
+\label{sec:gptoss120b-layer-sensitive-quality-20260911}
+
+This section records a deliberately separate changed-model quality track.  The
+prompt/prefill path remained the unrestricted four-expert GPT-OSS 120B path.
+During greedy continuation, the runtime first selected the unrestricted top
+four experts from all 128 experts in each layer.  On explicitly selected layers
+only, it retained the smallest prefix of two, three, or four experts whose
+cumulative unrestricted gate mass exceeded a declared threshold.  The original
+surviving gate values were preserved rather than renormalized.  This changes
+the neural calculation whenever fewer than four experts are retained; it is
+therefore not bit-exact unrestricted GPT-OSS 120B inference.
+
+The runtime gained an explicit, bounded layer-range parser and records the
+selected layer set in every evidence report.  A second execution mode combines
+the same adaptive rule with exact pool escape: expert eligibility remains
+unrestricted and any winning expert absent from the resident request pool is
+retrieved through the verified warehouse/L2 path.  This removed the confound in
+the earlier experiment, where even nominally four-expert layers were forced to
+choose from the static resident pool.  The exact I/O/compute overlap primitive
+was also made composable: unchanged four-expert layers may overlap L2 delivery
+with useful expert arithmetic, whereas reduced two/three-expert layers use the
+existing reduced native kernel.
+
+\subsection{Static-pool layer restriction: stopped}
+
+The first candidate applied a preserved-mass threshold of 0.80 only to layers
+24--35 but continued to constrain all continuation routes to the static
+request pool.  Over the 38-position response it made 6 two-expert, 201
+three-expert, and 1,161 four-expert layer decisions and reached 4.2875 response
+tokens/s on its settled pass.  The two runs were internally bitwise repeatable,
+but the decoded text truncated the source amount to ``EUR 287\ldots'' and did
+not produce a valid extraction.  The branch is therefore
+\texttt{STOPPED\_QUALITY\_FAIL}; its speed is not promoted.  The canonical
+report SHA-256 is
+\texttt{c7325bed1064504e57836eb272b3ab6df71f53f4aa84134e6f3641062fa26fed}.
+The report/receipt file SHA-256 values are
+\texttt{1ad04c161a5a82359753e8cc2fbc8de2ea0697eef6ae58788f418a1fb593d0a8}
+and
+\texttt{0f540dc5707fa0c62c659c7154d8d0365fc7d5425cdcf48e1947ee869fa04ba0}.
+
+\subsection{Unrestricted routing on layers 24--35: coherent but truncated}
+
+The next candidate retained unrestricted router winners and exact pool escape,
+while applying the same 0.80 threshold only to layers 24--35.  Its settled
+38-position continuation reached 1.9083 tokens/s with only three SD fallbacks.
+It made 4 two-expert, 225 three-expert, and 1,139 four-expert layer decisions.
+Routes, final hidden states, step logits, and tokens repeated bitwise across the
+two executions.  The decoded trace correctly identified invoice
+\texttt{A-104} and remained coherent, but the fixed 64-position experimental
+window ended immediately before printing the requested amount.  This result is
+neither a quality failure nor a quality promotion; it is retained as
+\texttt{INCONCLUSIVE\_OUTPUT\_WINDOW}.  The canonical report SHA-256 is
+\texttt{82337728942312494dcca37952c6e60694e26412897d0ef07ffcffe4c7c85fea}.
+The report/receipt file SHA-256 values are
+\texttt{f35433f5339e63fe5ec81309f1973ac6dc3af7f65f3e248094f2ac8db281e809}
+and
+\texttt{1cb7a7a2f719729b8017bbe73757ce484da5c9973137503dc894570516328ab4}.
+
+\subsection{Unrestricted 0.85 adaptive policy: quality pass, speed failure}
+
+To remove the output-window ambiguity, an 80-position paired run applied the
+more conservative 0.85 preserved-mass threshold across layers 0--35.  Across
+the 54-position response, the settled pass made 9 two-expert, 474 three-expert,
+and 1,461 four-expert layer decisions.  Both executions produced the same
+routes, final hidden states, logits, and token sequence.  The decoded answer was
+coherent structured JSON containing both required values exactly:
+\texttt{A-104} and \texttt{EUR 287.50}.  This is the first clean extraction
+quality pass for the unrestricted-route adaptive formulation.
+
+It was not a speed promotion.  The longer generation exceeded the useful
+working set of the 20~GiB demand-admitted L2 cartridge.  The two passes incurred
+462 and 451 SD fallbacks and approximately 68.10 and 68.24 decimal GB of L2
+delivery.  Continuation rates were only 0.4476 and 0.4672 tokens/s; settled p50
+and p95 token latencies were 1.9489 and 4.1650 seconds.  Thus the neural policy
+passed this frozen quality case, while the long-window cache policy thrashed and
+failed the operational speed gate.  The decision is
+\texttt{QUALITY\_PASS\_STORAGE\_NOT\_PROMOTED}.
+
+The canonical report SHA-256 is
+\texttt{688d31963eae5142a2c38e88d06cfce452ac9227b373dd916b79c54435a6aaab}.
+The report/receipt file SHA-256 values are
+\texttt{5326cea2e24c4c172633e60213b445623cf39a77b2f67e156986fc52ba870fe6}
+and
+\texttt{860889c6727cfd9c152391d9bec508e071c0356bae086546afbc75a7ffd36a56}.
+
+\subsection{Interpretation and next gate}
+
+The experiments separate two previously entangled failure modes.  Static pool
+restriction can damage output even when only late layers reduce their expert
+count.  Unrestricted winner selection with exact escape and a conservative
+gate-mass rule can preserve this extraction result, but a 20~GiB scan-prone L2
+cartridge cannot sustain the longer response.  Therefore lowering the mass
+threshold is not the next justified action.  The next gate composes adaptive
+selection with I/O/compute overlap on unchanged four-expert layers and replaces
+the long-window scan behaviour with a bounded admission policy.  It must retain
+the exact extracted values and improve settled throughput; otherwise the branch
+is stopped.  Broader arithmetic, reasoning, and business hold-outs remain
+mandatory before any general quality claim.
