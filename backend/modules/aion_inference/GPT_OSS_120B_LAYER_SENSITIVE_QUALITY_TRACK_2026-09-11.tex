@@ -240,3 +240,94 @@ storage boundary: across twelve distinct cold SD experts, balanced medians were
 end-to-end gain is below 1\%, so the candidate was removed without a costly
 full-model run.  Decision: \texttt{STOP\_DIRECT\_SD\_ARENA}.  Cold transfer
 time, rather than temporary allocation, dominates authoritative fallback.
+
+\subsection{Four-touch admission: promoted on held-out arithmetic}
+
+The exception-frequency boundary was advanced by one demand without changing
+the frozen neural policy: exact unrestricted prefill, preserved-mass 0.85
+adaptive continuation, the original selected weights, the 8~GiB request pool,
+the protected 20~GiB cartridge, and selective read/compute overlap were held
+constant.  Only non-cartridge exceptions now required four observed exact
+demands before L2 admission.  Protected cartridge entries remained immediately
+admissible and every miss retained authoritative SD fallback.
+
+On the unchanged 72-position arithmetic case, both executions reproduced all
+routes, final hidden states, step logits and token identifiers bitwise.  The
+detokenized response again completed the correct calculation
+$20\times23=460$, $3\times23=69$, and $460-69=391$.  Continuation rates were
+1.0816 and 1.1043 tokens/s, for a median of 1.0929 tokens/s.  This is 9.64\%
+above the preceding frozen three-touch median of 0.9969 tokens/s.  The two
+candidate passes each incurred 153 authoritative SD fallbacks, zero L2
+evictions and 68.535 decimal GB of decoded L2 delivery.  Their p50 token
+latencies were 0.7361 and 0.6637 seconds; p95 values were 1.9857 and 2.0636
+seconds.
+
+The provisional arithmetic decision is
+\texttt{ADVANCE\_FOUR\_TOUCH\_ARITHMETIC\_ONLY}; it is the faster observation
+for this frozen long arithmetic track, but the persistent cartridge already
+contained state from preceding experiments and therefore prevents attributing
+the complete timing difference to the admission threshold alone.  It does not
+supersede the 1.7246/1.8286-token/s exact 48-position arithmetic/extraction
+frontier, does not prove transfer to extraction, reasoning or business tasks,
+and is not an unrestricted four-expert model claim because continuation retains
+the separately labelled adaptive expert-count policy.  The canonical
+transformer and receipt SHA-256 values are respectively
+\texttt{cd71833f47b4fc1ec8478a65cd81d9775bd5529b1f3399feb6da78c445975f7f}
+and
+\texttt{7e436a310f3245b767a09c68efdf139cbfa617d772126a785569efbb96ea91e1}.
+The corresponding file SHA-256 values are
+\texttt{922c3d8dd64c762ff2aa9fa2f684f4de697b389b4e03f3fc07a98cc4b9de142e}
+and
+\texttt{719b4d123d02f084887ff59c48a9f295b6ce75faff6b05193ec189a8ae8fa2b9}.
+
+The unchanged four-touch mechanism was then transferred to the frozen
+80-position extraction case.  Neural correctness again passed: both runs were
+bitwise repeatable, their token arrays were identical to the preceding
+three-touch candidate, and the decoded JSON contained the exact required
+values \texttt{A-104} and \texttt{EUR 287.50}.  Performance failed sharply.
+The two continuation rates were 0.3049 and 0.5085 tokens/s, a 0.4067 median,
+43.63\% below the three-touch extraction median of 0.7215 tokens/s.  The first
+pass incurred 1,182 SD fallbacks and 490 L2 evictions; even the second incurred
+461 fallbacks and 139 evictions, versus three-touch medians of 289 and 56.
+The family change also exposed the importance of cartridge starting state,
+because the same physical L2 had most recently served arithmetic.
+
+The cross-family decision is therefore
+\texttt{STOP\_FOUR\_TOUCH\_AS\_GENERAL\_POLICY}.  Three-touch remains the
+promoted cross-family admission control; four-touch may only be reconsidered as
+an explicitly family-specific policy under a balanced cache-state protocol.
+The extraction transformer and receipt canonical SHA-256 values are
+\texttt{baa8cdd1fb2a54f5a4c8b87269bb9f6f9b54be87c57a64f216fa48e4c4a2060a}
+and
+\texttt{d7d6e6ccf4f74cc9958731d58213cac86ee19580655eeddae852d7c4bc9efd5e};
+their file SHA-256 values are
+\texttt{8f55e6ccb50853233b0a8c23e46119123f64a0f54bb45d818f8652d97f978ee9}
+and
+\texttt{4533d655caba65cb6390f443e20cad973559bd34022b7f98c3080c7e5d518d62}.
+
+\subsection{Lower-bit MXFP4 codebook branch: stopped}
+
+A separate changed-weight simulation tested whether the existing MXFP4 expert
+bank could be reduced below four bits per code without first constructing a
+new warehouse.  The probe retained each E8M0 block scale and restricted the
+32 within-block codes to symmetric codebooks representable in three or two
+bits.  It evaluated the best global codebooks on sixteen frozen real routed
+activations.  A second microgate allowed each block to select its best codebook
+and explicitly charged the selector metadata in projected storage.
+
+No candidate crossed the numerical gate.  The best global three-bit candidate
+projected a 1.3077$\times$ weight reduction but produced p95 layer-output
+relative $L_2$ error 0.1238 and contribution error 0.3535.  The best global
+two-bit candidate projected 1.8889$\times$ but reached errors 0.2475 and
+0.7932.  Per-block adaptation improved a one-capture three-bit microgate to
+0.0688 output error and 0.2302 contribution error, while metadata reduced the
+projected storage gain to 1.2364$\times$; it still missed the declared
+0.02/0.15 gates by large margins.  The two-bit per-block form remained worse.
+
+The decision is \texttt{STOP\_LOWBIT\_CODEBOOKS}.  Neither a compact warehouse
+nor a lower-bit kernel is justified from these results, and no generated-token
+speed is claimed.  Canonical SHA-256 values for the sixteen-capture global gate
+and one-capture block-adaptive microgate are respectively
+\texttt{84e8e41e0ff71490e6cf98c649f3443d755cbb726e9aa9810fd6233299a6908b}
+and
+\texttt{8f00969cd6175b872eac81eefd2882c24f4b868a68a7b5224d62ea09df491355}.
