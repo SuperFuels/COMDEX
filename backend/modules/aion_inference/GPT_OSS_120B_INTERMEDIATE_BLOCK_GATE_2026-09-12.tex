@@ -1,0 +1,65 @@
+% Append-only technical-record section. Requires amsmath and booktabs.
+\section{Intermediate-Activation Block Addressing Gate}
+
+\subsection{First-principles hypothesis}
+
+The exact 120B path remains dominated by moving and evaluating four selected
+experts in each of 36 layers.  A new mechanism tested whether the down
+projection could be made block-addressable after the gate and up projections
+had already calculated the exact SwiGLU intermediate.  If most intermediate
+energy were concentrated in a small number of 32-coordinate blocks, AION could
+retain the exact gate/up calculation and fetch only the consequential columns
+of the down matrix from a warehouse-native layout.
+
+This differs from the stopped router-input sparsity experiment: selection is
+performed at the true internal dependency boundary, after each real expert's
+nonlinear intermediate is known.  The experiment used original unrestricted
+routes, router gates, MXFP4 weights and biases.  It then zeroed only the lowest
+energy intermediate blocks before the down projection.  All source weights
+were loaded for measurement, so the reported traffic reductions are
+theoretical bounds rather than speed claims.
+
+\subsection{Cross-family result}
+
+The gate covered 681 real layer-position observations drawn from the frozen
+arithmetic, extraction and unseen-reasoning capture sets.  The result was a
+decisive falsification.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{rrrrr}
+\toprule
+Retained blocks & Minimum energy retained & Traffic bound & p50 output $L_2$ & p95 output $L_2$ \\
+\midrule
+25\% & 0.3385 & $1.333\times$ & 0.1303 & 0.2520 \\
+50\% & 0.6175 & $1.200\times$ & 0.0765 & 0.1490 \\
+75\% & 0.8380 & $1.091\times$ & 0.0384 & 0.0763 \\
+90\% & 0.9428 & $1.034\times$ & 0.0205 & 0.0391 \\
+\bottomrule
+\end{tabular}
+\caption{Intermediate-block omission across 681 real observations.}
+\end{table}
+
+No candidate met the predeclared combination of at least $1.25\times$
+theoretical traffic reduction, p95 output-relative $L_2\leq0.02$, and p95
+expert-contribution-relative $L_2\leq0.15$.  Retaining only 25\% of down blocks
+provided the sole material traffic bound, but its p95 output error was 0.2520.
+Retaining 90\% reduced p95 output error only to 0.0391 while making the maximum
+traffic benefit just $1.034\times$.  Status:
+\texttt{STOP\_INTERMEDIATE\_BLOCK\_OMISSION}.
+
+\subsection{Conclusion and evidence binding}
+
+The nonlinear expert intermediate is dense in the sense relevant to accurate
+down-projection execution.  An intelligent warehouse can address the blocks,
+but it cannot omit enough of them to generate the missing multi-fold gain.
+This closes unconditional energy-ranked intermediate block omission as a speed
+branch.  It does not alter the promoted unrestricted exact frontier of
+approximately 1.72--1.83 tokens/s or the non-quality top-1 physical ceiling of
+28.62 tokens/s.
+
+The canonical evidence hash is
+\texttt{154c609534b70a4d32342fa9af80ac1a903c4bd40df68f035a84fc61d537e31a}.
+The experiment remains a changed-arithmetic quality-track probe; no generated
+token, semantic-quality or measured block-addressable warehouse speed is
+claimed.
