@@ -2,7 +2,7 @@
 \section{Confidence-Gated Intermediate-Depth Token Diagnostic}
 \label{sec:intermediate-depth-diagnostic}
 
-The next exact-track investigation asked whether the final token identity becomes
+The next quality-track execution investigation asked whether the final token identity becomes
 stable before all 36 transformer blocks have completed.  This is materially
 different from substituting cached expert outputs: no expert result, router
 decision, gate, weight, hidden state, or final output was changed.  At selected
@@ -15,8 +15,10 @@ through all 36 layers.
 Two frozen families were measured under the promoted three-touch, exact-pool-
 escape configuration.  Arithmetic contributed nine distinct autoregressive
 positions and extraction contributed ten; each was repeated in a second pass.
-The full-depth path remained bitwise repeatable in final hidden state and logits,
-and routes were repeatable in both runs.
+The full-depth candidate path remained bitwise repeatable in final hidden state
+and logits, and routes were repeatable in both runs.  Because continuation used
+the existing preserved-mass adaptive expert count, this is not unrestricted,
+bit-exact GPT-OSS 120B evidence.
 
 The strongest signal occurred after layer 32.  Across 38 observations (19
 distinct continuation positions repeated twice), unconditional agreement with
@@ -54,3 +56,30 @@ Only if it retains perfect accepted-token precision may it advance to an
 asynchronous exact-catch-up prototype.  The authoritative sustained-throughput
 frontier remains the promoted exact arithmetic/extraction control; this
 diagnostic does not replace or lower that bar.
+
+\subsection{Predeclared unseen-family transfer gate: stopped}
+
+The predeclared layer-32 margin threshold of 0.25 was then tested without change
+on the two previously unseen frozen families: technical explanation and business
+diagnosis.  Each family contributed ten distinct continuation positions and was
+repeated twice.  The business family passed all 10/10 positions, but explanation
+accepted all 10 and matched the full-depth token on only 8/10.  Across all four
+families, the frozen rule therefore accepted 37/39 distinct positions and matched
+35/37, or 94.59\% accepted-token precision.  It failed the required perfect-
+precision gate and is \texttt{STOPPED}; it will not be implemented as an early
+exit or described as a speed improvement.
+
+A post-hoc threshold of 2.0 would have matched all 32 accepted distinct positions
+at layer 32, and the layer-34 threshold of 0.25 matched all 36 accepted positions.
+Neither is promoted: the former was selected after seeing the held-out result,
+while the latter can avoid only one of 36 transformer blocks and still leaves the
+subsequent-token KV catch-up problem.  These observations may inform a future
+independently frozen study, but they do not justify further work on this branch
+against the present sustained-throughput objective.
+
+The explanation and business transformer evidence have canonical SHA-256 values
+\texttt{740356240573f1455e9fd5e73289b4fd8cfc1df4bfe0f1d22e51831032a7d610}
+and
+\texttt{8c566e66103fc9ffe1b089dbf0e13a0a41796049dd08eb85f3a0580fdd8e9c4d}.
+The four-family diagnostic receipt has canonical SHA-256
+\texttt{7d704a255da003f56afc8bcef513dacb611a951f0854893fd37eeab9237f0e2b}.
