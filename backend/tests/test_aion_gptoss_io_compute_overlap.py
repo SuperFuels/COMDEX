@@ -35,7 +35,8 @@ def test_two_touch_l2_admission_protects_cartridge_and_promotes_reuse():
     store = object.__new__(GptOssPersistentL2ExpertFrameStore)
     store._l2_two_touch_admission = True
     store._l2_protected = {(0, 1)}
-    store._l2_probation = set()
+    store._l2_admission_touches = 2
+    store._l2_probation = {}
     store.l2_admission_bypasses = 0
     store.l2_admission_promotions = 0
 
@@ -45,3 +46,19 @@ def test_two_touch_l2_admission_protects_cartridge_and_promotes_reuse():
     assert store.l2_admission_bypasses == 1
     assert store.l2_admission_promotions == 1
     assert not store._l2_probation
+
+
+def test_three_touch_l2_admission_rejects_low_frequency_exceptions():
+    store = object.__new__(GptOssPersistentL2ExpertFrameStore)
+    store._l2_two_touch_admission = True
+    store._l2_admission_touches = 3
+    store._l2_protected = set()
+    store._l2_probation = {}
+    store.l2_admission_bypasses = 0
+    store.l2_admission_promotions = 0
+
+    assert not store._should_admit_l2((4, 9))
+    assert not store._should_admit_l2((4, 9))
+    assert store._should_admit_l2((4, 9))
+    assert store.l2_admission_bypasses == 2
+    assert store.l2_admission_promotions == 1

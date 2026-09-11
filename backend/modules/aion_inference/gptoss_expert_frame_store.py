@@ -255,7 +255,8 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
         self._l2_bypass: set[tuple[int, int]] = set()
         self._l2_protected: set[tuple[int, int]] = set()
         self._l2_two_touch_admission = False
-        self._l2_probation: set[tuple[int, int]] = set()
+        self._l2_admission_touches = 2
+        self._l2_probation: dict[tuple[int, int], int] = {}
         self.l2_admission_bypasses = 0
         self.l2_admission_promotions = 0
         self._l2_lock = threading.Lock()
@@ -387,7 +388,8 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
             raise ValueError("an L2 expert cannot be both protected and bypassed")
         self._l2_protected = protected
 
-    def set_l2_two_touch_admission(self, enabled: bool = True) -> None:
+    def set_l2_two_touch_admission(self, enabled: bool = True,
+                                   required_touches: int = 2) -> None:
         """Admit non-cartridge exceptions only after a repeated demand.
 
         A long sequential route can otherwise fill the small unprotected tail
@@ -396,7 +398,10 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
         admissible; exact first-touch exceptions are served transiently from
         the authoritative SD warehouse.
         """
+        if required_touches < 2:
+            raise ValueError("L2 exception admission requires at least two touches")
         self._l2_two_touch_admission = enabled
+        self._l2_admission_touches = required_touches
         if not enabled:
             self._l2_probation.clear()
 
@@ -404,11 +409,12 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
         if (not self._l2_two_touch_admission
                 or cache_key in self._l2_protected):
             return True
-        if cache_key in self._l2_probation:
-            self._l2_probation.remove(cache_key)
+        touches = self._l2_probation.get(cache_key, 0) + 1
+        if touches >= self._l2_admission_touches:
+            self._l2_probation.pop(cache_key, None)
             self.l2_admission_promotions += 1
             return True
-        self._l2_probation.add(cache_key)
+        self._l2_probation[cache_key] = touches
         self.l2_admission_bypasses += 1
         return False
 
@@ -434,6 +440,7 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
             "l2_protected_resident_entries": sum(
                 self._l2_file_key(path) in self._l2_protected for path in files),
             "l2_two_touch_admission": self._l2_two_touch_admission,
+            "l2_admission_required_touches": self._l2_admission_touches,
             "l2_probation_entries": len(self._l2_probation),
             "l2_admission_bypasses": self.l2_admission_bypasses,
             "l2_admission_promotions": self.l2_admission_promotions,

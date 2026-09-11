@@ -140,3 +140,39 @@ The report/receipt file SHA-256 values are
 \texttt{360a18348b98b90be2dabf9e4b05e1d78f9c6f0471859ad13ad085ac468f5df2}
 and
 \texttt{56613356d1a39334b661c307afe7533cc183d51fad9367568ed270511997444c}.
+
+\subsection{Frequency-gated exception admission}
+
+An offline reuse audit of the same unrestricted-route trace found 444 unique
+non-cartridge exceptions.  Of these, 249 appeared only once in one 80-position
+pass, 97 appeared twice, and only 98 appeared at least three times.  The
+two-touch rule therefore still admitted many low-frequency entries when the
+paired execution repeated the request.  The admission mechanism was generalized
+without inspecting prompt text: the number of observed demands required before
+L2 admission is now explicit, bounded, and written into the evidence report.
+
+A three-touch candidate was run with every other neural and storage setting
+unchanged.  It produced exactly the same token array as the two-touch candidate
+(token-array SHA-256
+\texttt{1981c74470815ed080ccb8af3c654ba068dbb3726b46fe44b962bca35c75b4dd}),
+remained internally bitwise repeatable, and decoded to the same correct JSON.
+Continuation rates were 0.6522 and 0.7907 tokens/s, a median of 0.7215 tokens/s.
+This is 30.4\% faster than the two-touch composite and 57.7\% faster than the
+immediate-admission 0.4574-token/s control for the identical neural policy.
+
+Median SD fallbacks fell to 289, 25.1\% below two-touch and 36.7\% below the
+immediate-admission control.  Median L2 evictions fell to 56, 65.4\% below
+two-touch and 87.7\% below immediate admission.  Median p50 token latency fell
+to 1.3194 seconds and median p95 fell to 2.9790 seconds, improvements of 34.8\%
+and 30.0\% respectively against immediate admission.
+
+The decision is \texttt{PROMOTE\_THREE\_TOUCH\_EXCEPTION\_ADMISSION} for this
+80-position extraction quality track.  This is a material cache-policy
+breakthrough, but it remains a single-family, two-pass changed-model result and
+still does not reach the exact short-window frontier or the 30--50-token/s
+programme target.  The canonical report SHA-256 is
+\texttt{8bb4ff5b8e97d6e7d1fbae65a5bff7d9df4d0ace8763ffce0b11f47549119259}.
+The report/receipt file SHA-256 values are
+\texttt{10c82534b8b26f40c0c69bffba4b30fc14643adce7bf59001ff1bc33085915b8}
+and
+\texttt{6811c48f2a35214f53cd58e6b61623f55212788e0d7fd284d95fa1a8bd386bd8}.
