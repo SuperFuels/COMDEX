@@ -30,6 +30,8 @@ def main() -> int:
     parser.add_argument("--activation-capture", type=Path)
     parser.add_argument("--cpu-cache-thrash-mib", type=int, default=0)
     parser.add_argument("--zero-copy-host", action="store_true")
+    parser.add_argument("--batched-cpu", action="store_true")
+    parser.add_argument("--batched-cpu-mmap", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
@@ -62,12 +64,16 @@ def main() -> int:
         root = Path(temporary)
         cpu_executable = root / "cpu"
         metal_executable = root / "metal"
+        batched_executable = root / "batched"
         compile_prefix = ["clang++", "-std=c++17", "-O3", "-I/opt/homebrew/include"]
         libraries = ["-L/opt/homebrew/lib", "-lggml", "-lggml-base", "-ldl"]
         subprocess.run([*compile_prefix, str(native / "gptoss_packed_route_cpu_gate.cpp"),
                         *libraries, "-o", str(cpu_executable)], check=True)
         subprocess.run([*compile_prefix, str(native / "gptoss_fused_route_metal_probe.cpp"),
                         *libraries, "-o", str(metal_executable)], check=True)
+        if args.batched_cpu:
+            subprocess.run([*compile_prefix, str(native / "gptoss_batched_route_cpu_gate.cpp"),
+                            *libraries, "-o", str(batched_executable)], check=True)
         for position, value in enumerate(values):
             for projection in ("gate", "up", "down"):
                 for kind in ("weight", "bias"):
@@ -91,8 +97,19 @@ def main() -> int:
         metal = json.loads(subprocess.check_output([
             str(metal_executable), str(root), gate_text, str(metal_output),
         ], env=child_env, text=True))
+        batched = None
+        batched_output = root / "batched-output.bin"
+        if args.batched_cpu:
+            batched_env = {**child_env, "AION_OUTPUT_PATH": str(batched_output)}
+            if args.batched_cpu_mmap:
+                batched_env["AION_MMAP_COMPONENTS"] = "1"
+            batched = json.loads(subprocess.check_output([
+                str(batched_executable), str(root), gate_text, "10", str(args.threads),
+            ], env=batched_env, text=True))
         reference = np.fromfile(cpu_output, dtype="<f4").astype(np.float64)
         candidate = np.fromfile(metal_output, dtype="<f4").astype(np.float64)
+        batched_candidate = (np.fromfile(batched_output, dtype="<f4").astype(np.float64)
+                             if args.batched_cpu else None)
     delta = reference - candidate
     relative_l2 = float(np.linalg.norm(delta) / np.linalg.norm(reference))
     max_abs = float(np.abs(delta).max())
@@ -119,12 +136,21 @@ def main() -> int:
         "activation_capture_sha256": hashlib.sha256(args.activation_capture.read_bytes()).hexdigest() if args.activation_capture else None,
         "cpu": cpu,
         "fused_metal": metal,
+        "batched_cpu": batched,
         "metal_speedup": speedup,
         "metal_charged_route_ms": metal_charged_ms,
         "relative_l2_error": relative_l2,
         "max_abs_error": max_abs,
         "argmax_equal": int(reference.argmax()) == int(candidate.argmax()),
         "outputs_bitwise_equal": bool(np.array_equal(reference, candidate)),
+        "batched_cpu_speedup": (cpu["p50_ms"] / batched["p50_ms"]
+                                if batched is not None else None),
+        "batched_cpu_relative_l2_error": (
+            float(np.linalg.norm(reference - batched_candidate) / np.linalg.norm(reference))
+            if batched_candidate is not None else None),
+        "batched_cpu_outputs_bitwise_equal": (
+            bool(np.array_equal(reference, batched_candidate))
+            if batched_candidate is not None else None),
         "promotion_gates": {"speedup_at_least": 1.15, "relative_l2_at_most": 0.01},
         "claim_boundary": (
             "One real four-expert layer route from a frozen GPT-OSS 120B trace was "
