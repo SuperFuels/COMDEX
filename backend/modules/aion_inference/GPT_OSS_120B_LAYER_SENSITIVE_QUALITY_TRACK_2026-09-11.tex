@@ -202,3 +202,28 @@ The report/receipt file SHA-256 values are
 \texttt{ccb2609ad8be56b8af6f37c72ed08517c88111ac88dde30e34c412227a6edad9}
 and
 \texttt{0d047e710aeab7915ee6e47e84df27df64151d64bb7fb4cdf5e93f76fe14dec6}.
+
+\subsection{Parallel authoritative SD fallback: stopped}
+
+Inspection found that the overlap path issued missing L2 reads concurrently but
+resolved multiple authoritative SD fallbacks serially.  A candidate moved the
+complete verified SD read/decompression operation into the existing per-route
+workers while resident expert arithmetic continued.  The unchanged 72-position
+arithmetic gate again produced the correct 391 reasoning trace and repeated
+routes, hidden states, logits, and tokens bitwise.
+
+The candidate rates were 0.9719 and 0.9754 tokens/s, or 0.9737 median, versus
+0.9969 median for the preceding serial-fallback run.  This is a 2.3\%
+regression.  Although the warmed cartridge happened to show 153 fallbacks and
+zero evictions in each candidate pass, that different starting cache state
+cannot be attributed to concurrent SD service and does not rescue the wall-time
+failure.  The parallel fallback code was removed.  Decision:
+\texttt{STOP\_PARALLEL\_SD\_FALLBACK}.  The SD/card-controller path does not
+provide useful request-level parallelism under this workload.
+
+The canonical report SHA-256 is
+\texttt{ee6e955d98c350cbbae5cffc5cbb2da9a759e01d3349f8dc78f9a201c5d8446f}.
+The report/receipt file SHA-256 values are
+\texttt{8bf054b1c721ef2b54b57fda83cc3426a6040d7e6cadca833821b12c222842fd}
+and
+\texttt{6f797b16d80275ca6c37ec8f0dc0c6c00755fec1b9f2a72baf4ebae1064e850c}.
