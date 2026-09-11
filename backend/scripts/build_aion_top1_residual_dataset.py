@@ -44,6 +44,7 @@ def main() -> int:
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--threads", type=int, default=6)
+    parser.add_argument("--retained-experts", type=int, choices=(1, 2, 3), default=1)
     args = parser.parse_args()
     if args.dataset.exists() or args.output.exists():
         raise SystemExit("refusing to overwrite evidence")
@@ -87,32 +88,36 @@ def main() -> int:
                 ffn = load(record["ffn_path"])
                 router = load(record["router_path"])
                 full = load(record["residual_path"])
-                expert = store.get_layer_route_parallel(
-                    record["layer"], record["route"][:1], workers=1,
-                )[0]
-                blobs = [expert[projection][kind]
+                experts = store.get_layer_route_parallel(
+                    record["layer"], record["route"][:args.retained_experts],
+                    workers=args.retained_experts,
+                )
+                blobs = [expert[projection][kind] for expert in experts
                          for projection in ("gate", "up", "down")
                          for kind in ("weight", "bias")]
                 references = [ctypes.c_char_p(blob) for blob in blobs]
-                pointers = (ctypes.c_void_p * 6)(*[
+                pointers = (ctypes.c_void_p * len(blobs))(*[
                     ctypes.cast(reference, ctypes.c_void_p).value
                     for reference in references
                 ])
-                gates = np.asarray(record["gates"][:1], dtype=np.float32)
+                gates = np.asarray(
+                    record["gates"][:args.retained_experts], dtype=np.float32,
+                )
                 top1_output = np.empty(WIDTH, dtype=np.float32)
                 elapsed = ctypes.c_double()
                 status = function(
                     ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
                     router.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), pointers,
-                    gates.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), 1,
+                    gates.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                    args.retained_experts,
                     top1_output.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
                     args.threads, ctypes.byref(elapsed),
                 )
                 if status:
                     raise RuntimeError(f"native top-1 status {status}")
-                top1 = top1_output - ffn
-                values = {"ffn": ffn, "router": router, "top1": top1,
-                          "full": full, "omitted": full - top1}
+                retained = top1_output - ffn
+                values = {"ffn": ffn, "router": router, "top1": retained,
+                          "full": full, "omitted": full - retained}
                 index = len(rows)
                 for name, value in values.items():
                     arrays[name].append(value)
@@ -121,7 +126,8 @@ def main() -> int:
                     "split": split[family["family_id"]],
                     "position": record["position"], "layer": record["layer"],
                     "route": record["route"], "gates": record["gates"],
-                    "top1_compute_ms": elapsed.value,
+                    "retained_experts": args.retained_experts,
+                    "retained_compute_ms": elapsed.value,
                 })
     args.dataset.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(args.dataset, **{
@@ -135,6 +141,7 @@ def main() -> int:
         "dataset_path": str(args.dataset.resolve()),
         "dataset_sha256": digest(args.dataset), "rows": rows,
         "row_count": len(rows), "width": WIDTH,
+        "retained_experts": args.retained_experts,
         "source_manifest_path": str(args.captures.resolve()),
         "source_manifest_canonical_sha256": source["canonical_sha256"],
         "authorization_sha256": digest(args.authorization),
@@ -142,8 +149,8 @@ def main() -> int:
         "contains_prompt_text": False,
         "contains_personal_or_customer_data": False,
         "claim_boundary": (
-            "Every row contains an original top-1 contribution and the exact combined "
-            "gated contribution omitted from experts two through four, derived from "
+            "Every row contains the original retained-expert contribution and the exact "
+            "combined gated contribution omitted from the remaining routed experts, derived from "
             "previously frozen numerical captures. This authorizes quality-track "
             "training only and is not model-quality or token-speed evidence."
         ),
