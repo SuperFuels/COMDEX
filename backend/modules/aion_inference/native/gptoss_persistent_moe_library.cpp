@@ -10,6 +10,63 @@
 
 using compute_function = ggml_status (*)(ggml_context *, ggml_cgraph *, int);
 
+// Persistent small-matrix router for the 128 x 2880 gate projection.  Calling
+// a general BLAS dispatcher 36 times per token is disproportionately expensive
+// for this shape, especially while the large expert pool is resident.  Keep the
+// reduction explicit and deterministic; routing policy and top-k stay with the
+// caller.
+extern "C" int aion_gptoss_router_f32(
+        const float * weights, const float * bias, const float * input,
+        float * logits, double * elapsed_ms) {
+    if (!weights || !bias || !input || !logits || !elapsed_ms) return 1;
+    constexpr int experts = 128;
+    constexpr int width = 2880;
+    const auto begin = std::chrono::steady_clock::now();
+    for (int expert = 0; expert < experts; ++expert) {
+        const float * row = weights + expert * width;
+        float sum = bias[expert];
+        for (int index = 0; index < width; ++index)
+            sum += row[index] * input[index];
+        logits[expert] = sum;
+    }
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    return 0;
+}
+
+extern "C" int aion_gptoss_embedding_q5_0(
+        const void * packed_row, float * output_values, int threads,
+        double * elapsed_ms) {
+    static void * plugin = dlopen(
+        "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
+        RTLD_NOW | RTLD_LOCAL);
+    static compute_function compute = plugin ? reinterpret_cast<compute_function>(
+        dlsym(plugin, "ggml_graph_compute_with_ctx")) : nullptr;
+    static std::vector<char> memory(16 * 1024 * 1024);
+    static ggml_context * context = ggml_init({memory.size(), memory.data(), false});
+    if (!packed_row || !output_values || !elapsed_ms) return 1;
+    if (!compute) return 2;
+    if (!context) return 3;
+    ggml_reset(context);
+    constexpr int64_t width = 2880;
+    auto * weight = ggml_new_tensor_2d(context, GGML_TYPE_Q5_0, width, 1);
+    auto * index = ggml_new_tensor_1d(context, GGML_TYPE_I32, 1);
+    weight->data = const_cast<void *>(packed_row);
+    *static_cast<int32_t *>(index->data) = 0;
+    auto * output = ggml_get_rows(context, weight, index);
+    auto * graph = ggml_new_graph_custom(context, GGML_DEFAULT_GRAPH_SIZE, false);
+    ggml_build_forward_expand(graph, output);
+    const auto begin = std::chrono::steady_clock::now();
+    const int status = compute(context, graph, threads);
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    if (status != GGML_STATUS_SUCCESS) return 4;
+    std::memcpy(output_values, output->data, width * sizeof(float));
+    for (int64_t index_value = 0; index_value < width; ++index_value)
+        if (!std::isfinite(output_values[index_value])) return 5;
+    return 0;
+}
+
 extern "C" int aion_gptoss_prefault_components(
         const void * const * components, const size_t * component_sizes,
         int component_count, int workers, uint64_t * checksum,
