@@ -39,6 +39,8 @@ def _value(handle: BinaryIO, kind: int, retain: bool) -> Any:
     if kind == _ARRAY:
         element = _scalar(handle, "<I")
         count = _scalar(handle, "<Q")
+        if retain:
+            return [_value(handle, element, True) for _ in range(count)]
         if element in _SCALARS:
             handle.seek(struct.calcsize(_SCALARS[element]) * count, 1)
         else:
