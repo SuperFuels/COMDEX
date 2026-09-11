@@ -385,6 +385,102 @@ extern "C" int aion_gptoss_moe_finish_top3_mxfp4_q2_0(
     return 0;
 }
 
+// Accuracy-recovery quality track: preserve the three strongest routed experts
+// exactly as MXFP4 at the model's native width, and encode only the fourth
+// (lowest-gate) expert as padded Q3_K. The first three reductions retain their
+// original order; the compact fourth contribution is sliced back to 2880.
+extern "C" int aion_gptoss_moe_finish_top3_mxfp4_q3_k(
+        const float * ffn_input_values, const float * router_input_values,
+        const void * const * components, const float * gates,
+        int quant_projection_mask, float * output_values, int threads,
+        double * elapsed_ms) {
+    static void * plugin = dlopen(
+        "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
+        RTLD_NOW | RTLD_LOCAL);
+    static compute_function compute = plugin ? reinterpret_cast<compute_function>(
+        dlsym(plugin, "ggml_graph_compute_with_ctx")) : nullptr;
+    static std::vector<char> memory(320 * 1024 * 1024);
+    static ggml_context * context = ggml_init({memory.size(), memory.data(), false});
+    if (!compute) return 2;
+    if (!context) return 3;
+    if (quant_projection_mask < 1 || quant_projection_mask > 7) return 6;
+    ggml_reset(context);
+    constexpr int64_t width = 2880;
+    constexpr int64_t padded = 3072;
+    auto * ffn_input = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    auto * router_input = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    ffn_input->data = const_cast<float *>(ffn_input_values);
+    router_input->data = const_cast<float *>(router_input_values);
+    ggml_tensor * combined = nullptr;
+    for (int position = 0; position < 3; ++position) {
+        auto * gate_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+        auto * gate_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+        auto * up_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+        auto * up_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+        auto * down_w = ggml_new_tensor_2d(context, GGML_TYPE_MXFP4, width, width);
+        auto * down_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+        ggml_tensor * tensors[] = {gate_w, gate_b, up_w, up_b, down_w, down_b};
+        for (int component = 0; component < 6; ++component)
+            tensors[component]->data = const_cast<void *>(components[position * 6 + component]);
+        auto * gate = ggml_add(context, ggml_mul_mat(context, gate_w, router_input), gate_b);
+        auto * up = ggml_add(context, ggml_mul_mat(context, up_w, router_input), up_b);
+        auto * hidden = ggml_swiglu_oai(context, gate, up, 1.702f, 7.0f);
+        auto * expert = ggml_add(context, ggml_mul_mat(context, down_w, hidden), down_b);
+        expert = ggml_scale(context, expert, gates[position]);
+        combined = combined ? ggml_add(context, combined, expert) : expert;
+    }
+    auto * padded_router = ggml_new_tensor_1d(context, GGML_TYPE_F32, padded);
+    std::memset(padded_router->data, 0, padded * sizeof(float));
+    std::memcpy(padded_router->data, router_input_values, width * sizeof(float));
+    const bool compact_gate = quant_projection_mask & 1;
+    const bool compact_up = quant_projection_mask & 2;
+    const bool compact_down = quant_projection_mask & 4;
+    auto * gate_w = ggml_new_tensor_2d(context,
+        compact_gate ? GGML_TYPE_Q3_K : GGML_TYPE_MXFP4,
+        compact_gate ? padded : width, compact_gate ? padded : width);
+    auto * gate_b = ggml_new_tensor_1d(context, GGML_TYPE_F32,
+        compact_gate ? padded : width);
+    auto * up_w = ggml_new_tensor_2d(context,
+        compact_up ? GGML_TYPE_Q3_K : GGML_TYPE_MXFP4,
+        compact_up ? padded : width, compact_up ? padded : width);
+    auto * up_b = ggml_new_tensor_1d(context, GGML_TYPE_F32,
+        compact_up ? padded : width);
+    auto * down_w = ggml_new_tensor_2d(context,
+        compact_down ? GGML_TYPE_Q3_K : GGML_TYPE_MXFP4,
+        compact_down ? padded : width, compact_down ? padded : width);
+    auto * down_b = ggml_new_tensor_1d(context, GGML_TYPE_F32,
+        compact_down ? padded : width);
+    ggml_tensor * tensors[] = {gate_w, gate_b, up_w, up_b, down_w, down_b};
+    for (int component = 0; component < 6; ++component)
+        tensors[component]->data = const_cast<void *>(components[18 + component]);
+    auto * gate = ggml_add(context, ggml_mul_mat(context, gate_w,
+        compact_gate ? padded_router : router_input), gate_b);
+    auto * up = ggml_add(context, ggml_mul_mat(context, up_w,
+        compact_up ? padded_router : router_input), up_b);
+    if (compact_gate) gate = ggml_view_1d(context, gate, width, 0);
+    if (compact_up) up = ggml_view_1d(context, up, width, 0);
+    auto * hidden = ggml_swiglu_oai(context, gate, up, 1.702f, 7.0f);
+    auto * down_input = compact_down ? ggml_pad(context, hidden, padded - width, 0, 0, 0)
+                                     : hidden;
+    auto * fourth_full = ggml_add(context, ggml_mul_mat(context, down_w, down_input), down_b);
+    auto * fourth = compact_down ? ggml_view_1d(context, fourth_full, width, 0)
+                                 : fourth_full;
+    fourth = ggml_scale(context, fourth, gates[3]);
+    combined = ggml_add(context, combined, fourth);
+    auto * output = ggml_add(context, ffn_input, combined);
+    auto * graph = ggml_new_graph_custom(context, GGML_DEFAULT_GRAPH_SIZE, false);
+    ggml_build_forward_expand(graph, output);
+    const auto begin = std::chrono::steady_clock::now();
+    const int status = compute(context, graph, threads);
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    if (status != GGML_STATUS_SUCCESS) return 4;
+    std::memcpy(output_values, output->data, width * sizeof(float));
+    for (int64_t index = 0; index < width; ++index)
+        if (!std::isfinite(output_values[index])) return 5;
+    return 0;
+}
+
 // Quality-track grouped quantisation on a zero-padded 3072-wide matrix.  The
 // public hidden state remains 2880 values; padding exists only inside this ABI.
 extern "C" int aion_gptoss_moe_finish_padded_k(

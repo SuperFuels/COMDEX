@@ -34,6 +34,7 @@ def main() -> int:
     parser.add_argument("--holdout-captures", type=int, default=4)
     parser.add_argument("--representation", choices=("q2_0", "top1_mxfp4_q2_0",
                                                        "top3_mxfp4_q2_0",
+                                                       "top3_mxfp4_q3_k",
                                                        "padded_q2_k", "padded_q3_k",
                                                        "padded_mixed_k"),
                         default="q2_0")
@@ -76,6 +77,8 @@ def main() -> int:
                               if args.representation == "top1_mxfp4_q2_0"
                               else library.aion_gptoss_moe_finish_top3_mxfp4_q2_0
                               if args.representation == "top3_mxfp4_q2_0"
+                              else library.aion_gptoss_moe_finish_top3_mxfp4_q3_k
+                              if args.representation == "top3_mxfp4_q3_k"
                               else library.aion_gptoss_moe_finish_padded_k)
         signature = [ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
                      ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_float),
@@ -86,7 +89,8 @@ def main() -> int:
         candidate_function.argtypes = (signature if args.representation in
                                        ("top1_mxfp4_q2_0", "top3_mxfp4_q2_0") else
                                        signature[:4] + [ctypes.c_int] + signature[4:]
-                                       if args.representation == "q2_0" else
+                                       if args.representation in
+                                       ("q2_0", "top3_mxfp4_q3_k") else
                                        signature[:4] + [ctypes.c_int, ctypes.c_int] + signature[4:])
         candidate_function.restype = ctypes.c_int
 
@@ -101,7 +105,7 @@ def main() -> int:
                       ctypes.byref(elapsed)]
             candidate_arguments = []
             if mask is not None:
-                if args.representation == "q2_0":
+                if args.representation in ("q2_0", "top3_mxfp4_q3_k"):
                     candidate_arguments = [mask]
                 else:
                     q2_mask = (7 if args.representation == "padded_q2_k" else 0
@@ -150,15 +154,21 @@ def main() -> int:
                         subprocess.run(converter_arguments, check=True,
                                        stdout=subprocess.DEVNULL)
                         converted[key] = target.read_bytes()
-                    bias = value[projection]["bias"]
+                    original_bias = value[projection]["bias"]
+                    bias = original_bias
                     if args.representation not in (
                             "q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0"):
                         bias = bias + bytes((3072 - WIDTH) * 4)
-                    q2 = converted[(*base_key, "q2_0" if args.representation in
-                                    ("q2_0", "top1_mxfp4_q2_0",
-                                     "top3_mxfp4_q2_0") else "q2_k")]
-                    q3 = (converted.get((*base_key, "q3_k"), q2))
-                    projection_blobs.append((weight, q2, q3, bias))
+                    q2_format = ("q2_0" if args.representation in
+                                 ("q2_0", "top1_mxfp4_q2_0",
+                                  "top3_mxfp4_q2_0") else "q2_k")
+                    q2 = converted.get((*base_key, q2_format))
+                    q3 = converted.get((*base_key, "q3_k"))
+                    q2 = q2 if q2 is not None else q3
+                    q3 = q3 if q3 is not None else q2
+                    if q2 is None or q3 is None:
+                        raise RuntimeError("compact projection conversion missing")
+                    projection_blobs.append((weight, q2, q3, original_bias, bias))
                     original_weight_bytes += len(weight)
                     q2_0_weight_bytes += len(q2)
             gates = np.asarray(capture["gates"], dtype=np.float32)
@@ -166,17 +176,22 @@ def main() -> int:
                 reference_function, ffn, router, original_blobs, gates)
             masks = ((None,) if args.representation in
                      ("top1_mxfp4_q2_0", "top3_mxfp4_q2_0") else
+                     range(1, 8) if args.representation == "top3_mxfp4_q3_k" else
                      range(1, 8) if args.representation == "q2_0" else
                      range(0, 8) if args.representation == "padded_mixed_k" else (7,))
             for mask in masks:
                 candidate_blobs = []
                 candidate_weight_bytes = 0
-                for index, (original, q2, q3, bias) in enumerate(projection_blobs):
+                for index, (original, q2, q3, original_bias, padded_bias) in enumerate(
+                        projection_blobs):
                     projection_bit = 1 << (index % 3)
                     if args.representation == "top1_mxfp4_q2_0":
                         selected = original if index // 3 == 0 else q2
                     elif args.representation == "top3_mxfp4_q2_0":
                         selected = original if index // 3 < 3 else q2
+                    elif args.representation == "top3_mxfp4_q3_k":
+                        selected = (original if index // 3 < 3 or not mask & projection_bit
+                                    else q3)
                     elif args.representation == "q2_0":
                         selected = q2 if mask & projection_bit else original
                     elif args.representation == "padded_q2_k":
@@ -185,6 +200,11 @@ def main() -> int:
                         selected = q3
                     else:
                         selected = q2 if mask & projection_bit else q3
+                    bias = (original_bias if args.representation in
+                            ("q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0")
+                            or (args.representation == "top3_mxfp4_q3_k"
+                                and (index // 3 < 3 or not mask & projection_bit))
+                            else padded_bias)
                     candidate_blobs.extend((selected, bias))
                     candidate_weight_bytes += len(selected)
                 candidate, candidate_ms = calculate(
@@ -208,10 +228,14 @@ def main() -> int:
             print(f"holdout {capture_path.name}", flush=True)
     summaries = {}
     advancing_masks = []
-    output_error_limit = (0.02 if args.representation == "top3_mxfp4_q2_0"
+    output_error_limit = (0.02 if args.representation in
+                          ("top3_mxfp4_q2_0", "top3_mxfp4_q3_k")
                           else 0.05)
+    minimum_weight_reduction = (1.005 if args.representation == "top3_mxfp4_q3_k"
+                                else 1.15)
     masks = ((None,) if args.representation in
              ("top1_mxfp4_q2_0", "top3_mxfp4_q2_0") else
+             range(1, 8) if args.representation == "top3_mxfp4_q3_k" else
              range(1, 8) if args.representation == "q2_0" else
              range(0, 8) if args.representation == "padded_mixed_k" else (7,))
     for mask in masks:
@@ -228,7 +252,7 @@ def main() -> int:
                    "contribution_relative_l2_p95": percentile(contribution_errors, .95),
                    "all_argmax_equal": all(row["argmax_equal"] for row in rows)}
         summaries[str(mask)] = summary
-        if (summary["weight_reduction"] >= 1.15
+        if (summary["weight_reduction"] >= minimum_weight_reduction
                 and summary["output_relative_l2_p95"] <= output_error_limit
                 and summary["contribution_relative_l2_p95"] <= .25
                 and summary["all_argmax_equal"]):
@@ -246,7 +270,7 @@ def main() -> int:
         "observations": observations, "summaries": summaries,
         "advancing_masks": advancing_masks,
         "projection_mask_bits": {"1": "gate", "2": "up", "4": "down"},
-        "promotion_gate": {"minimum_weight_reduction": 1.15,
+        "promotion_gate": {"minimum_weight_reduction": minimum_weight_reduction,
                            "maximum_output_relative_l2_p95": output_error_limit,
                            "maximum_contribution_relative_l2_p95": .25,
                            "all_argmax_equal": True},
@@ -254,7 +278,7 @@ def main() -> int:
         "claim_boundary": (
             "Held-out real layer routes use the unrestricted selected experts, original gates "
             "and biases. The selected quality-track representation changes only the declared "
-            "expert matrices to Q2_0. This is "
+            "expert matrices to the declared compact representation. This is "
             "a directly executable one-layer quality microgate, not a full compact warehouse, "
             "semantic-quality result, or generated-token speed claim."),
     }
