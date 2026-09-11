@@ -227,3 +227,16 @@ The report/receipt file SHA-256 values are
 \texttt{8bf054b1c721ef2b54b57fda83cc3426a6040d7e6cadca833821b12c222842fd}
 and
 \texttt{6f797b16d80275ca6c37ec8f0dc0c6c00755fec1b9f2a72baf4ebae1064e850c}.
+
+\subsection{Direct compressed-SD-to-native arena: stopped}
+
+A zero-allocation fallback prototype read each compressed component into a
+persistent encoded arena and decompressed it directly into the native route
+arena, retaining both compressed and raw manifest-hash verification.  A warm
+balanced single-expert microbenchmark improved median materialisation from
+22.42 to 20.06~ms (1.118$\times$).  This result did not survive the physical
+storage boundary: across twelve distinct cold SD experts, balanced medians were
+163.26 and 161.73~ms, only a 1.0095$\times$ improvement.  The projected
+end-to-end gain is below 1\%, so the candidate was removed without a costly
+full-model run.  Decision: \texttt{STOP\_DIRECT\_SD\_ARENA}.  Cold transfer
+time, rather than temporary allocation, dominates authoritative fallback.
