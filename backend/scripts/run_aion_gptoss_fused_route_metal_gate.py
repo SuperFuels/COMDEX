@@ -29,6 +29,7 @@ def main() -> int:
     parser.add_argument("--resident-pool-gib", type=float, default=8.0)
     parser.add_argument("--activation-capture", type=Path)
     parser.add_argument("--cpu-cache-thrash-mib", type=int, default=0)
+    parser.add_argument("--zero-copy-host", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
@@ -81,6 +82,8 @@ def main() -> int:
             child_env["AION_INPUT_PATH"] = str(activation_path.resolve())
         if args.cpu_cache_thrash_mib:
             child_env["AION_CPU_CACHE_THRASH_MIB"] = str(args.cpu_cache_thrash_mib)
+        if args.zero_copy_host:
+            child_env["AION_ZERO_COPY_HOST"] = "1"
         cpu = json.loads(subprocess.check_output([
             str(cpu_executable), str(root), ",".join(map(str, route)), gate_text,
             "10", str(args.threads),
@@ -93,7 +96,9 @@ def main() -> int:
     delta = reference - candidate
     relative_l2 = float(np.linalg.norm(delta) / np.linalg.norm(reference))
     max_abs = float(np.abs(delta).max())
-    metal_charged_ms = metal["warm_p50_ms"] + (metal["upload_ms"] if args.cpu_cache_thrash_mib else 0.0)
+    metal_charged_ms = metal["warm_p50_ms"] + (
+        metal["upload_ms"] if args.cpu_cache_thrash_mib and not args.zero_copy_host else 0.0
+    )
     speedup = cpu["p50_ms"] / metal_charged_ms
     promoted = speedup >= 1.15 and relative_l2 <= 0.01
     result = {
@@ -128,6 +133,11 @@ def main() -> int:
                 "The CPU cache-thrash buffer is a synthetic cold-cache diagnostic; its touch time "
                 "is excluded, while the Metal comparison charges route upload plus warm compute. "
                 if args.cpu_cache_thrash_mib else ""
+            )
+            + (
+                "The zero-copy candidate binds a page-aligned host arena through the Metal backend; "
+                "its separately recorded host packing time is excluded from the compute comparison. "
+                if args.zero_copy_host else ""
             )
             + "This is a changed-arithmetic microgate, not a full token, semantic-quality result, "
             "or generated tokens-per-second claim."

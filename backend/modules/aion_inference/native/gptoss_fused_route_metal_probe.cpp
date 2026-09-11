@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -42,6 +43,10 @@ int main(int argc, char ** argv) {
     if (!device) return 5;
     auto backend = ggml_backend_dev_init(device, nullptr);
     if (!backend) return 6;
+    const bool zero_copy_host = std::getenv("AION_ZERO_COPY_HOST") != nullptr;
+    ggml_backend_dev_props device_props{};
+    ggml_backend_dev_get_props(device, &device_props);
+    if (zero_copy_host && !device_props.caps.buffer_from_host_ptr) return 23;
 
     constexpr int64_t width = 2880;
     std::vector<char> metadata(32 * 1024 * 1024);
@@ -96,13 +101,48 @@ int main(int argc, char ** argv) {
             return 20;
         }
     }
+    ggml_backend_buffer_t host_buffer = nullptr;
+    void * host_arena = nullptr;
+    size_t host_arena_bytes = 0;
+    double host_pack_ms = 0.0;
+    if (zero_copy_host) {
+        const size_t alignment = 16384;
+        for (size_t index = 0; index < leaves.size(); ++index) {
+            host_arena_bytes = (host_arena_bytes + alignment - 1) & ~(alignment - 1);
+            host_arena_bytes += ggml_nbytes(leaves[index]);
+        }
+        host_arena_bytes = (host_arena_bytes + alignment - 1) & ~(alignment - 1);
+        if (posix_memalign(&host_arena, alignment, host_arena_bytes) != 0) return 24;
+        std::memset(host_arena, 0, host_arena_bytes);
+        host_buffer = ggml_backend_dev_buffer_from_host_ptr(
+            device, host_arena, host_arena_bytes, host_arena_bytes);
+        if (!host_buffer) return 25;
+        size_t offset = 0;
+        const auto pack_begin = std::chrono::steady_clock::now();
+        for (size_t index = 0; index < leaves.size(); ++index) {
+            offset = (offset + alignment - 1) & ~(alignment - 1);
+            void * address = static_cast<char *>(host_arena) + offset;
+            const auto status = ggml_backend_tensor_alloc(host_buffer, leaves[index], address);
+            if (status != GGML_STATUS_SUCCESS) return 26;
+            if (index == 0) {
+                std::memcpy(address, input_values.data(), input_values.size() * sizeof(float));
+            } else {
+                std::memcpy(address, values[index - 1].data(), values[index - 1].size());
+            }
+            offset += ggml_nbytes(leaves[index]);
+        }
+        host_pack_ms = std::chrono::duration<double, std::milli>(
+            std::chrono::steady_clock::now() - pack_begin).count();
+    }
     auto buffer = ggml_backend_alloc_ctx_tensors(context, backend);
     if (!buffer) return 10;
     const auto upload_begin = std::chrono::steady_clock::now();
-    ggml_backend_tensor_set(input, input_values.data(), 0, input_values.size() * sizeof(float));
-    for (size_t index = 1; index < leaves.size(); ++index)
-        ggml_backend_tensor_set(leaves[index], values[index - 1].data(), 0,
-                                values[index - 1].size());
+    if (!zero_copy_host) {
+        ggml_backend_tensor_set(input, input_values.data(), 0, input_values.size() * sizeof(float));
+        for (size_t index = 1; index < leaves.size(); ++index)
+            ggml_backend_tensor_set(leaves[index], values[index - 1].data(), 0,
+                                    values[index - 1].size());
+    }
     const auto upload_end = std::chrono::steady_clock::now();
     std::vector<double> samples;
     for (int repetition = 0; repetition < 11; ++repetition) {
@@ -127,12 +167,18 @@ int main(int argc, char ** argv) {
         upload_end - upload_begin).count();
     std::cout << "{\"status\":\"" << (finite ? "PASSED" : "FAILED")
               << "\",\"device\":\"" << ggml_backend_dev_name(device)
-              << "\",\"upload_ms\":" << upload_ms
+              << "\",\"zero_copy_host\":" << (zero_copy_host ? "true" : "false")
+              << ",\"buffer_from_host_ptr\":" << (device_props.caps.buffer_from_host_ptr ? "true" : "false")
+              << ",\"host_arena_bytes\":" << host_arena_bytes
+              << ",\"host_pack_ms\":" << host_pack_ms
+              << ",\"upload_ms\":" << upload_ms
               << ",\"first_compute_ms\":" << samples.front()
               << ",\"warm_p50_ms\":" << (warm[4] + warm[5]) * 0.5
               << ",\"warm_p95_ms\":" << warm[9]
               << ",\"checksum\":" << checksum << "}\n";
     ggml_backend_buffer_free(buffer);
+    if (host_buffer) ggml_backend_buffer_free(host_buffer);
+    if (host_arena) free(host_arena);
     ggml_backend_free(backend);
     ggml_free(context);
     ggml_backend_unload(registration);

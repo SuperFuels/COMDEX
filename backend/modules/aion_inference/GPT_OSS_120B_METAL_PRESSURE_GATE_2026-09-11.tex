@@ -48,3 +48,33 @@ and
 \texttt{9ff415bb76a86eee7842146f72694f553ef7454ed986319f7f213d422a61ee38},
 respectively.  Neither result changes the promoted exact frontier of 1.725
 tokens/s on arithmetic and 1.829 tokens/s on extraction.
+
+\subsection{Direct host-buffer binding follow-up}
+
+The final permitted Metal question was tested directly rather than left as a
+hypothesis.  GGML reports that the M3 Pro Metal device supports buffers created
+from host pointers.  A page-aligned 53,100,544-byte arena was therefore built,
+the real four-expert route was bound into that arena, and Metal consumed the
+host-resident weights without a backend tensor upload.  Measured upload time
+fell to approximately 0.00004~ms, proving that the extra copy can be removed.
+Host-arena packing was measured separately and excluded from the candidate
+compute comparison; a production implementation would need decompression to
+land directly in those slots.
+
+The mechanism did not pass the speed gate.  In the hot screen, CPU median was
+0.70054~ms and zero-copy Metal median was 0.90877~ms, so Metal achieved only
+0.7709 times CPU throughput.  Under the actual 8~GiB protected-pool pressure,
+CPU median was 1.15854~ms and zero-copy Metal median was 1.85440~ms, or only
+0.6248 times CPU throughput.  Relative $L_2$ error remained 0.0058435 and
+argmax agreement remained true, but output was not bitwise identical.
+
+Decision: \texttt{STOP\_ZERO\_COPY\_METAL_ROUTE}.  Direct binding successfully
+eliminates route upload, but the M3 Pro Metal MXFP4 graph remains slower than
+the packed CPU kernel for this batch-one four-expert workload.  The result
+closes the current Metal branch: neither copying nor per-route allocation is
+the decisive cause of its loss.  A custom kernel would require new evidence and
+must first beat the packed CPU microgate before any full-runtime integration.
+The hot and pressure receipt hashes are
+\texttt{178dd3f85b777fa2af85cac369d422c71c9c48e1bf9bc0c70e87539578262842}
+and
+\texttt{55ac3ca806db84a6e2ae5e571626f43f723c508b0e885bf0ce5a9bf2fee17389}.
