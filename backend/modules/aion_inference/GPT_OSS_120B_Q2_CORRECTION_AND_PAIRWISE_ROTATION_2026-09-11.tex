@@ -120,3 +120,30 @@ prepare or fetch the next tools, but only one optimized workbench consumes the
 shared machine-memory supply at a time.  This is the already promoted exact
 I/O--compute overlap architecture, not a new tokens/s promotion.
 
+\subsection{Corrected residency gate and selective-layer question}
+
+A subsequent audit found that the initial isolated gate did not explicitly
+warm both implementations before its measured ABBA sequence.  Because the
+ordinary capture store returns fragmented Python-owned component buffers, its
+first calculation can include lazy page faults.  The gate was corrected to run
+one unmeasured serial and one unmeasured pairwise calculation for every route
+before timing.  On eight layer-12 routes the corrected fragmented-buffer gate
+remained exact and reported a median 5.3840-fold pairwise advantage.  This does
+not reverse the full-model decision: it identifies the condition under which
+rotation helps---unprepared or fragmented expert pages.
+
+The optimized generation runtime does not use that representation.  Its
+reusable route arena places expert components in bounded, prepared slots before
+the fused calculation.  Per-layer inspection of the persistent full-model BOS
+gate found that pairwise execution was faster on zero of 36 layers.  The best
+pairwise layer achieved only 0.7245 times serial speed; the median layer ratio
+was 0.02563.  Therefore a selective ``pairwise only on winning layers'' policy
+has no admissible layers in the real optimized path and was not integrated.
+
+This also defines the useful AtomSheet boundary.  Four-dimensional cells can
+represent layer, expert, token and residency state, and can coordinate SD read,
+decode, verification, arena placement and calculation.  They cannot create a
+new physical memory channel.  The existing reusable arena is the concrete
+memory-cell mechanism: it converts fragmented expert objects into prepared
+calculation slots.  Once those slots are ready, a single fused calculation is
+faster than concurrent expert calculations on this unified-memory host.

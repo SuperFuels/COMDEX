@@ -99,6 +99,13 @@ def main() -> int:
                      for projection in ("gate", "up", "down")
                      for kind in ("weight", "bias")]
             references, pointers = ctypes_component_pointer_array(blobs)
+            # Both implementations must enter the measured ABBA sequence with
+            # their graphs initialized and all selected weight pages touched.
+            # Otherwise the first serial observation pays lazy page faults and
+            # the following pairwise observations inherit artificially warm
+            # pages, which is not a resident-calculation comparison.
+            calculate(serial, ffn, router, pointers, gates)
+            calculate(pairwise, ffn, router, pointers, gates)
             timings = {"serial": [], "pairwise": []}
             reference = None
             all_equal = True
@@ -131,6 +138,7 @@ def main() -> int:
         "created_at": datetime.now(timezone.utc).isoformat(),
         "quality_track": False, "layer": args.layer, "threads": args.threads,
         "routes": len(observations), "observations": observations,
+        "unmeasured_dual_implementation_warmup_per_route": True,
         "all_outputs_bitwise_equal": all(
             item["all_outputs_bitwise_equal"] for item in observations),
         "median_speedup": statistics.median(speedups),
@@ -141,9 +149,11 @@ def main() -> int:
                            "bitwise_output_equivalence": True},
         "warehouse_manifest_sha256": digest(args.manifest),
         "claim_boundary": (
-            "Real resident layer-12 route microgate. Pairwise rotation calculates two "
-            "original experts concurrently and then the next pair. It excludes SD/L2 "
-            "delivery, attention and output projection, so it is not generated-token speed."
+            "Real resident route microgate. Both implementations and all selected weight "
+            "pages are warmed before the measured ABBA sequence. Pairwise rotation "
+            "calculates two original experts concurrently and then the next pair. It "
+            "excludes SD/L2 delivery, attention and output projection, so it is not "
+            "generated-token speed."
         ),
     }
     report["canonical_sha256"] = hashlib.sha256(json.dumps(
