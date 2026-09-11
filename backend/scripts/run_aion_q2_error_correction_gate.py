@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile a compact correction for top3-MXFP4 plus fourth-expert-Q2 error."""
+"""Compile a compact correction for a selectively compact fourth expert."""
 from __future__ import annotations
 
 import argparse
@@ -88,6 +88,8 @@ def main() -> int:
     parser.add_argument("--development-captures", type=Path, required=True)
     parser.add_argument("--layer", type=int, default=12)
     parser.add_argument("--threads", type=int, default=6)
+    parser.add_argument("--base-representation",
+                        choices=("q2_0", "q3_k_gate_up"), default="q2_0")
     parser.add_argument("--cartridge", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -114,18 +116,26 @@ def main() -> int:
         library_path = temporary_root / "moe.dylib"
         common = ["clang++", "-std=c++17", "-O3", "-I/opt/homebrew/include"]
         libraries = ["-L/opt/homebrew/lib", "-lggml", "-lggml-base", "-ldl"]
-        subprocess.run([*common, str(native / "gptoss_mxfp4_to_q2_0.cpp"),
+        converter_source = ("gptoss_mxfp4_to_q2_0.cpp"
+                            if args.base_representation == "q2_0"
+                            else "gptoss_mxfp4_to_padded_k.cpp")
+        subprocess.run([*common, str(native / converter_source),
                         *libraries, "-o", str(converter)], check=True)
         subprocess.run([*common, "-dynamiclib",
                         str(native / "gptoss_persistent_moe_library.cpp"),
                         *libraries, "-o", str(library_path)], check=True)
-        function = ctypes.CDLL(str(library_path)).aion_gptoss_moe_finish_top3_mxfp4_q2_0
-        function.argtypes = [
+        loaded_library = ctypes.CDLL(str(library_path))
+        function = (loaded_library.aion_gptoss_moe_finish_top3_mxfp4_q2_0
+                    if args.base_representation == "q2_0" else
+                    loaded_library.aion_gptoss_moe_finish_top3_mxfp4_q3_k)
+        signature = [
             ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
             ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_float),
             ctypes.POINTER(ctypes.c_float), ctypes.c_int,
             ctypes.POINTER(ctypes.c_double),
         ]
+        function.argtypes = (signature if args.base_representation == "q2_0"
+                             else signature[:4] + [ctypes.c_int] + signature[4:])
         function.restype = ctypes.c_int
         converted: dict[tuple[int, str], bytes] = {}
         for family_index, family_rows in enumerate(rows):
@@ -138,32 +148,46 @@ def main() -> int:
                         zip(row["route"], experts)):
                     for projection in ("gate", "up", "down"):
                         weight = expert[projection]["weight"]
-                        if route_position == 3:
+                        compact_projection = (route_position == 3 and
+                                              (args.base_representation == "q2_0"
+                                               or projection in ("gate", "up")))
+                        if compact_projection:
                             key = (int(expert_id), projection)
                             if key not in converted:
                                 source = temporary_root / f"e{key[0]}-{projection}-mxfp4.bin"
-                                destination = temporary_root / f"e{key[0]}-{projection}-q2.bin"
+                                suffix = ("q2" if args.base_representation == "q2_0"
+                                          else "q3k")
+                                destination = temporary_root / f"e{key[0]}-{projection}-{suffix}.bin"
                                 source.write_bytes(weight)
-                                subprocess.run([
+                                converter_arguments = ([
                                     str(converter), str(source), str(destination),
                                     str(WIDTH), str(args.threads),
-                                ], check=True, stdout=subprocess.DEVNULL)
+                                ] if args.base_representation == "q2_0" else [
+                                    str(converter), str(source), str(destination),
+                                    "q3_k", str(WIDTH), str(args.threads),
+                                ])
+                                subprocess.run(converter_arguments, check=True,
+                                               stdout=subprocess.DEVNULL)
                                 converted[key] = destination.read_bytes()
                             weight = converted[key]
-                        blobs.extend((weight, expert[projection]["bias"]))
+                        bias = expert[projection]["bias"]
+                        if compact_projection and args.base_representation == "q3_k_gate_up":
+                            bias = bytes(bias) + bytes((3072 - WIDTH) * 4)
+                        blobs.extend((weight, bias))
                 references, pointers = ctypes_component_pointer_array(blobs)
                 gates = np.asarray(row["gates"], dtype=np.float32)
                 elapsed = ctypes.c_double()
                 output = compact_outputs[family_index][row_index]
-                status = function(
-                    ffn[family_index][row_index].ctypes.data_as(
-                        ctypes.POINTER(ctypes.c_float)),
-                    routers[family_index][row_index].ctypes.data_as(
-                        ctypes.POINTER(ctypes.c_float)),
-                    pointers, gates.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-                    output.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-                    args.threads, ctypes.byref(elapsed),
-                )
+                prefix = [ffn[family_index][row_index].ctypes.data_as(
+                              ctypes.POINTER(ctypes.c_float)),
+                          routers[family_index][row_index].ctypes.data_as(
+                              ctypes.POINTER(ctypes.c_float)), pointers,
+                          gates.ctypes.data_as(ctypes.POINTER(ctypes.c_float))]
+                suffix = [output.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                          args.threads, ctypes.byref(elapsed)]
+                status = function(*prefix,
+                                  *([3] if args.base_representation == "q3_k_gate_up"
+                                    else []), *suffix)
                 if status:
                     raise RuntimeError(f"top3/Q2 native status {status}")
                 compact_ms.append(elapsed.value)
@@ -176,6 +200,8 @@ def main() -> int:
                 for router, compact, family_rows in zip(routers, compact_outputs, rows)]
     residuals = [target.astype(np.float64) - compact.astype(np.float64)
                  for target, compact in zip(targets, compact_outputs)]
+    baselines = [summarize(compact, target)
+                 for compact, target in zip(compact_outputs, targets)]
     configurations = [(4, 4, 1e-3), (8, 8, 1e-3), (16, 8, 1e-3),
                       (16, 16, 1e-3), (24, 16, 1e-2), (32, 24, 1e-2)]
     candidates = []
@@ -199,6 +225,10 @@ def main() -> int:
     development = summarize(
         compact_outputs[2] + development_prediction, targets[2],
     )
+    selection_improvement = (baselines[1]["output_relative_l2_p95"] /
+                             selected["output_relative_l2_p95"])
+    development_improvement = (baselines[2]["output_relative_l2_p95"] /
+                               development["output_relative_l2_p95"])
     timing = []
     for _ in range(200):
         started = time.perf_counter_ns()
@@ -214,16 +244,23 @@ def main() -> int:
             development["output_relative_l2_p95"] <= 0.02,
         "development_max_at_or_below_two_percent":
             development["output_relative_l2_max"] <= 0.02,
+        "selection_p95_improves_by_ten_percent": selection_improvement >= 1.10,
+        "development_p95_improves_by_ten_percent": development_improvement >= 1.10,
         "correction_under_point_four_ms": float(np.median(timing)) <= 0.4,
         "cartridge_under_four_mib": args.cartridge.stat().st_size <= 4 * 1024 * 1024,
     }
     report = {
-        "schema": "aion.gptoss-120b-q2-error-correction-gate.v1",
-        "status": "ADVANCE_Q2_ERROR_CORRECTION" if all(accepted.values())
-                  else "STOP_Q2_ERROR_CORRECTION",
+        "schema": "aion.gptoss-120b-compact-error-correction-gate.v2",
+        "status": "ADVANCE_COMPACT_ERROR_CORRECTION" if all(accepted.values())
+                  else "STOP_COMPACT_ERROR_CORRECTION",
         "created_at": datetime.now(timezone.utc).isoformat(), "quality_track": True,
         "layer": args.layer, "retained_original_experts": 3,
+        "base_representation": args.base_representation,
         "compact_experts": 1, "candidates": candidates, "selected": selected,
+        "baseline_summaries": {roots[index].name: baseline
+                               for index, baseline in enumerate(baselines)},
+        "selection_p95_improvement": selection_improvement,
+        "development_p95_improvement": development_improvement,
         "development": development, "acceptance": accepted,
         "compact_route_ms_p50": float(np.median(compact_ms)),
         "correction_ms_p50": float(np.median(timing)),
@@ -238,7 +275,8 @@ def main() -> int:
         "warehouse_manifest_sha256": digest(args.manifest),
         "claim_boundary": (
             "Layer-12 changed-weight quality microgate. Three experts remain original MXFP4; "
-            "the fourth is Q2_0 plus a compact correction trained on Q2 error. Extraction "
+            "the fourth uses the declared compact representation plus a correction trained "
+            "only on that representation's error. Extraction "
             "selects capacity and reasoning is unseen development. This is not full-model "
             "quality or generated-token speed evidence."
         ),

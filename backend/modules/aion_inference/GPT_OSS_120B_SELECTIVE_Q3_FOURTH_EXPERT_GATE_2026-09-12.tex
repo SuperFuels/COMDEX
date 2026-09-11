@@ -157,3 +157,44 @@ The full-transformer evidence canonical hashes are:
   \item unconditional 20-position arithmetic candidate: \texttt{7c96952e54d4c694b576b9955a59126bb6399d9b04cd4998727d45419cae64bd};
   \item confidence-gated 20-position candidate: \texttt{63473dd2ca7cf6f623338cd51601d5da54843dc2f8bd4a7f8b4e6bf841f8a6e9}.
 \end{itemize}
+
+\subsection{Compact error-correction audit and invalidation}
+
+A subsequent experiment attempted to correct the remaining layer-12 Q3\_K
+gate/up error with a compact learned residual.  Three selected experts remained
+in original MXFP4 form; only the fourth expert's gate and up projections used
+Q3\_K, its down projection remained original, and a 163,536-byte rank-4/rank-4
+correction cartridge was fitted on arithmetic captures.  Extraction selected
+the capacity and reasoning remained unseen development data.  The correction
+itself took 0.015417\,ms at median.
+
+The first report incorrectly returned an advance decision because its gate
+tested only the absolute two-percent relative-$L_2$ limit.  This was inadequate:
+the uncorrected Q3\_K representation already satisfied that limit on both
+held-out families.  The original report is preserved, never overwritten, and
+is bound to an \texttt{INVALID} sidecar.  Its stored-file SHA-256 is
+\texttt{3b8061e101814c701b491c075a4793238a01cf2b6263f023a9c184936109baea}
+and its canonical hash is
+\texttt{ca29eb904d34661a5be7d7c79bd2ecab2af3796a3be5dae09a7d4b60b9480786}.
+
+The repaired version-2 gate additionally requires at least a ten-percent p95
+improvement over the corresponding uncorrected compact representation on both
+selection and unseen-development families.  Under this corrected rule,
+extraction p95 changed from 0.0148845 to 0.0148418, only a
+$1.00288\times$ improvement.  Unseen reasoning p95 changed from 0.0143191 to
+0.0141196, only a $1.01413\times$ improvement, while its maximum error worsened
+from 0.0146089 to 0.0148673.  All absolute limits still passed, but both
+material-improvement gates failed.  The result is therefore
+\texttt{STOP\_COMPACT\_ERROR\_CORRECTION}; it supplies no full-model speed or
+quality promotion.
+
+This falsification narrows the next search: a small global correction of an
+already accurate Q3\_K fourth expert does not recover enough additional
+accuracy to justify its complexity.  Any successor must either condition the
+correction on expert identity and activation region or reduce physical expert
+work through a different representation, and must beat its uncorrected compact
+baseline rather than merely pass an absolute error threshold.  The corrected
+report canonical hash is
+\texttt{84efe6d3b69263f186c69820f94b100e3034c8c4014785215ee2d2f086f99a9f};
+its stored-file SHA-256 is
+\texttt{b0902664505b626b1031cc7c9d53a4e574cde75569bd818b26910f9fa985209f}.
