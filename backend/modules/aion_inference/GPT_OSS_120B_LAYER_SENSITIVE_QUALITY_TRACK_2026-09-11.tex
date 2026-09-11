@@ -331,3 +331,33 @@ and one-capture block-adaptive microgate are respectively
 \texttt{84e8e41e0ff71490e6cf98c649f3443d755cbb726e9aa9810fd6233299a6908b}
 and
 \texttt{8f00969cd6175b872eac81eefd2882c24f4b868a68a7b5224d62ea09df491355}.
+
+\subsection{Confidence-gated resident expert substitution: stopped}
+
+A different traffic-avoidance hypothesis retained four expert calculations but
+attempted to replace unavailable winners with the highest-logit experts already
+inside the 8~GiB request pool.  This differs from expert omission: all four
+rank positions remain populated, and the candidate can either preserve the
+original rank gates or renormalize the replacement route.  The decision signal
+was restricted to the router-logit gap, which is available before any expert
+weight is fetched.
+
+The real-activation gate reconstructed the complete 128-way router for sixteen
+frozen layer/position states and compared candidate outputs with the original
+four-expert output.  A narrow single-fourth-expert replacement had zero eligible
+states: whenever the fourth winner was absent, at least one of the top three was
+also absent.  The broader resident top-four route produced no acceptable
+confidence region.  A maximum rank gap of 0.20 admitted only one of sixteen
+states and already caused 0.0791 relative $L_2$ error.  At gap 0.50, five states
+were admitted but p95 error was 0.1192; at gap 1.00, eight states were admitted
+and p95 error was 0.1720.  Preserving original rank gates was not materially
+better.
+
+The decision is \texttt{STOP\_RESIDENT\_SUBSTITUTE}.  Router-score proximity
+does not imply interchangeable expert arithmetic, so this mechanism cannot
+safely turn cartridge misses into resident hits.  It was stopped at the
+microgate; no generated-token or semantic-speed claim is made.  Report
+canonical/file SHA-256 values are
+\texttt{58f6a534fda82179ce626a0449fb4af1fb3a9e3cdd4f190331f619bf350e3f62}
+and
+\texttt{e8afd979b853e5a470bbac7cf9e516931bebbc1dcafc0f1ade9cb09c260d782f}.
