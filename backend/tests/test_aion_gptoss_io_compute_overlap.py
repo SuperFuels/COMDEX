@@ -3,6 +3,9 @@ from backend.scripts.run_aion_gptoss_first_token_gate import (
     parse_layer_spec,
     should_overlap_layer,
 )
+from backend.modules.aion_inference.gptoss_expert_frame_store import (
+    GptOssPersistentL2ExpertFrameStore,
+)
 
 
 def test_balanced_pass_pattern_selects_only_candidate_passes():
@@ -26,3 +29,19 @@ def test_overlap_is_reserved_for_two_or_more_pending_experts():
 def test_adaptive_layer_ranges_are_explicit_and_bounded():
     assert parse_layer_spec("0-3,8,20-21") == {0, 1, 2, 3, 8, 20, 21}
     assert parse_layer_spec(None) == set(range(36))
+
+
+def test_two_touch_l2_admission_protects_cartridge_and_promotes_reuse():
+    store = object.__new__(GptOssPersistentL2ExpertFrameStore)
+    store._l2_two_touch_admission = True
+    store._l2_protected = {(0, 1)}
+    store._l2_probation = set()
+    store.l2_admission_bypasses = 0
+    store.l2_admission_promotions = 0
+
+    assert store._should_admit_l2((0, 1))
+    assert not store._should_admit_l2((0, 2))
+    assert store._should_admit_l2((0, 2))
+    assert store.l2_admission_bypasses == 1
+    assert store.l2_admission_promotions == 1
+    assert not store._l2_probation

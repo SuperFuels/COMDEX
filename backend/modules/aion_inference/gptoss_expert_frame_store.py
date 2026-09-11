@@ -254,6 +254,10 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
         self.sd_fallbacks = 0
         self._l2_bypass: set[tuple[int, int]] = set()
         self._l2_protected: set[tuple[int, int]] = set()
+        self._l2_two_touch_admission = False
+        self._l2_probation: set[tuple[int, int]] = set()
+        self.l2_admission_bypasses = 0
+        self.l2_admission_promotions = 0
         self._l2_lock = threading.Lock()
 
     def _l2_path(self, layer: int, expert: int) -> Path:
@@ -338,7 +342,11 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
         payload_size = self._HEADER.size + sum(map(len, components))
         with self._l2_lock:
             destination = self._l2_path(layer, expert)
-            if destination.exists() or not self._evict_l2_for(payload_size):
+            if destination.exists():
+                return
+            if not self._should_admit_l2((layer, expert)):
+                return
+            if not self._evict_l2_for(payload_size):
                 return
             temporary = destination.with_name(
                 destination.name + f".{os.getpid()}.{uuid.uuid4().hex}.tmp")
@@ -379,6 +387,31 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
             raise ValueError("an L2 expert cannot be both protected and bypassed")
         self._l2_protected = protected
 
+    def set_l2_two_touch_admission(self, enabled: bool = True) -> None:
+        """Admit non-cartridge exceptions only after a repeated demand.
+
+        A long sequential route can otherwise fill the small unprotected tail
+        of a family cartridge with one-use experts, evicting exceptions just
+        before their next reuse.  Protected entries remain immediately
+        admissible; exact first-touch exceptions are served transiently from
+        the authoritative SD warehouse.
+        """
+        self._l2_two_touch_admission = enabled
+        if not enabled:
+            self._l2_probation.clear()
+
+    def _should_admit_l2(self, cache_key: tuple[int, int]) -> bool:
+        if (not self._l2_two_touch_admission
+                or cache_key in self._l2_protected):
+            return True
+        if cache_key in self._l2_probation:
+            self._l2_probation.remove(cache_key)
+            self.l2_admission_promotions += 1
+            return True
+        self._l2_probation.add(cache_key)
+        self.l2_admission_bypasses += 1
+        return False
+
     def metrics(self) -> dict[str, int | float | str]:
         result = super().metrics()
         files = self._l2_files()
@@ -400,6 +433,10 @@ class GptOssPersistentL2ExpertFrameStore(GptOssExpertFrameStore):
             "l2_protected_entries": len(self._l2_protected),
             "l2_protected_resident_entries": sum(
                 self._l2_file_key(path) in self._l2_protected for path in files),
+            "l2_two_touch_admission": self._l2_two_touch_admission,
+            "l2_probation_entries": len(self._l2_probation),
+            "l2_admission_bypasses": self.l2_admission_bypasses,
+            "l2_admission_promotions": self.l2_admission_promotions,
         }
 
 

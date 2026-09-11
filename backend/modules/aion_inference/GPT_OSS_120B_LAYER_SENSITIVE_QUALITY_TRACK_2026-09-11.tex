@@ -99,3 +99,44 @@ the long-window scan behaviour with a bounded admission policy.  It must retain
 the exact extracted values and improve settled throughput; otherwise the branch
 is stopped.  Broader arithmetic, reasoning, and business hold-outs remain
 mandatory before any general quality claim.
+
+\subsection{Two-touch exception admission plus selective overlap}
+
+The long-window failure was traced to immediate admission of every non-core L2
+exception.  The 1,357 resident protected cartridge entries consumed almost the
+entire 20~GiB capacity, leaving a small unprotected tail in which one-use
+experts repeatedly displaced potentially reusable exceptions.  A bounded
+two-touch admission rule was added: protected cartridge entries remain
+immediately admissible, while an exact non-core exception is served transiently
+from the authoritative SD warehouse on first demand and may occupy L2 only
+after a second demand.  This is a cache-policy change only; it does not alter
+router eligibility, gates, weights, or expert arithmetic.
+
+The rule was composed with I/O/compute overlap on the 1,146 response layers
+that still used four experts.  Two- and three-expert adaptive layers retained
+the reduced native kernel.  The same 80-position prompt, 0.85 preserved-mass
+policy, 8~GiB request pool and 20~GiB cartridge were rerun twice.  Both runs
+again produced identical routes, hidden states, logits, and token sequences,
+and decoded to the same correct JSON containing \texttt{A-104} and
+\texttt{EUR 287.50}.
+
+Continuation rates were 0.5760 and 0.5310 tokens/s, giving a two-pass median of
+0.5535 tokens/s.  Against the immediately preceding identical neural policy
+without two-touch admission/overlap (0.4574 tokens/s median), this is a 21.0\%
+improvement.  Median SD fallbacks fell from 456.5 to 386 (15.4\%), median L2
+evictions fell from 456.5 to 162 (64.5\%), median p50 token latency fell from
+2.0233 to 1.7287 seconds (14.6\%), and median p95 latency fell from 4.2528 to
+3.5280 seconds (17.0\%).  The candidate therefore materially reduces cartridge
+churn and improves long-window performance without losing this frozen quality
+case.
+
+The decision is \texttt{ADVANCE\_CACHE\_STABILITY\_NOT\_SPEED\_FRONTIER}.
+The approximately 21\% gain is real but does not constitute the target
+orders-of-magnitude breakthrough, and the present two-run comparison does not
+separate the individual contributions of admission and overlap.  The canonical
+report SHA-256 is
+\texttt{97315d857063d48511c17ca1c9f171d6219a89b55a9210921cde58440b69b4cf}.
+The report/receipt file SHA-256 values are
+\texttt{360a18348b98b90be2dabf9e4b05e1d78f9c6f0471859ad13ad085ac468f5df2}
+and
+\texttt{56613356d1a39334b661c307afe7533cc183d51fad9367568ed270511997444c}.
