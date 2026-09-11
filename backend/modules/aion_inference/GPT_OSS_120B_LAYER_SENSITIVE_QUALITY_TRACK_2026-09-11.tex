@@ -361,3 +361,22 @@ canonical/file SHA-256 values are
 \texttt{58f6a534fda82179ce626a0449fb4af1fb3a9e3cdd4f190331f619bf350e3f62}
 and
 \texttt{e8afd979b853e5a470bbac7cf9e516931bebbc1dcafc0f1ade9cb09c260d782f}.
+
+\subsection{Temporal expert-contribution reuse: stopped}
+
+A second no-weight-fetch hypothesis cached the small 2,880-value output of an
+expert and, when the same expert appeared at the next token, reused that output
+with the new gate rather than fetching and recalculating its weights.  Eight
+real consecutive-position layer pairs contained five repeated expert uses.
+The router-input cosine similarities were only 0.106--0.402 on the layers with
+reuse, so no layer crossed even a 0.90 confidence threshold.  Unconditionally
+reusing the repeated outputs produced layer-output relative $L_2$ errors
+0.1882 and 0.2959 where two experts repeated, and 0.0648 and 0.0393 where one
+expert repeated.  Even the best reuse case therefore exceeded the 0.02 gate.
+
+Decision: \texttt{STOP\_TEMPORAL\_CONTRIBUTION\_REUSE}.  Expert identity does
+not make its nonlinear output reusable when the next-token activation changes.
+The microgate's canonical/file SHA-256 values are
+\texttt{8e0a509784c0f09c899e831fbeb635a316386ece8756812c0caa0097454ea12e}
+and
+\texttt{2209da9dd4c62d792d741cf8b0ce8c5f8b3320ed2259221d3d41e445000024a4}.
