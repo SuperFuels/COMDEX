@@ -1,0 +1,76 @@
+% Append-only technical-record section. Requires amsmath, booktabs and hyperref.
+\section{Expert Function Atlas: First Weight-Informed Gate}
+\label{sec:gptoss120b-expert-function-atlas-first-gate}
+
+\subsection{Architecture and relation to the other atlases}
+
+Three distinct AION atlases are now separated.  The Context Atlas selects the
+smallest relevant external-memory working set and primarily improves prefill,
+time to first token and completed-task throughput.  The Capability Atlas selects
+the model, harness, deterministic tools and fallback path.  Neither directly
+raises unrestricted decode tokens per second.  The Expert Function Atlas is the
+decode-path experiment: it attempts to replace physical delivery and execution
+of selected expert weights with a compact resident representation derived from
+the experts' real functions.
+
+For the first gate, all 128 original experts in transformer layer 12 were loaded
+from the verified SD warehouse, one expert at a time.  Each expert was evaluated
+against the exact live router activations captured from the frozen arithmetic
+training family.  A shared output basis and expert-specific activation-to-basis
+maps were compiled.  The separate extraction family was not used to fit the
+atlas and served as the first unseen-family numerical test.
+
+\subsection{One-family compilation result}
+
+The best one-family cartridge occupied 561,358 bytes on disk, compared with
+approximately 13.25~MiB for one complete original expert.  Its live correction
+calculation required 0.01558~ms median.  On unseen extraction activations, simply
+omitting the fourth expert produced layer-output relative-$L_2$ p95 of 0.13098;
+the atlas reduced this to 0.09516.  Thus it achieved a real 27.3\% error reduction
+while satisfying both the size and calculation-time gates.  It did not satisfy
+the declared 0.02 p95 accuracy gate and was labelled
+\texttt{STOP\_ATLAS\_LINEAR\_MAP}.  Canonical evidence hash:
+\texttt{f840a6c016d6bfa52d9edfbf6c0b490b50d3c60db769ce83fd51c422b84719f5}.
+
+\subsection{Two-family compilation and reasoning development gate}
+
+The predeclared reasoning development prompt was then executed through the
+complete exact 36-layer teacher twice, while recording only layer 12.  Twenty-one
+development states were captured.  Routes and final hidden state/logits repeated
+bit-for-bit; canonical evidence hash
+\texttt{2d1fdc2288804df662d0c765c88aa9de63617cf157dcd4fd239149ea9c0ac440}.
+Business and writing blind holdouts remained sealed.
+
+The atlas was recompiled from 55 arithmetic-plus-extraction training
+activations per expert and evaluated on the unseen reasoning activations.  The
+best cartridge used activation rank 32 and output rank 48.  It occupied
+2,367,529 bytes and executed in 0.03196~ms median including live activation
+projection.  The drop-fourth baseline p95 was 0.10369 and the atlas achieved
+0.07715, a 25.6\% reduction.  A local radial-basis atlas was also tested; its best
+p95 was 0.07931 and therefore did not improve on the quadratic map.  The combined
+result is labelled \texttt{STOP\_ATLAS\_LOCAL\_MAP}; canonical hash
+\texttt{5e242e4fc73a8cc5915409ea7405b12b15f5edaa5584285e1574d5b9b7ccf1ea}.
+
+\subsection{Interpretation and next compiler}
+
+This is the first compact correction that improved an omitted expert across
+unseen task families.  The improvement is not sufficient for integration: the
+two-percent accuracy gate remains unchanged, and no full-model quality or
+tokens-per-second claim is made.  Increasing shared output rank and replacing a
+global quadratic map with local interpolation both plateaued.  The unresolved
+error is therefore expert-specific information not captured by a single shared
+activation atlas.
+
+The next candidate is a multi-resolution, weight-derived atlas:
+\begin{enumerate}
+  \item retain a very small shared basis for global expert behaviour;
+  \item compile compact expert-specific block or factor corrections directly
+        from each original gate, up and down weight tensor;
+  \item certify only expert/activation regions that satisfy the numerical gate;
+  \item calculate two or three original experts when a lower-risk bridge is
+        required; and
+  \item invoke the unrestricted four-expert teacher whenever certification is
+        absent.
+\end{enumerate}
+This is a changed-arithmetic quality track under the recorded authorization.
+The exact teacher remains unmodified and authoritative.
