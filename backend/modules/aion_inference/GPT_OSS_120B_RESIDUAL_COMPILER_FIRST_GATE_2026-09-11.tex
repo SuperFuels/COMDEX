@@ -1,0 +1,118 @@
+% Append-only technical-record section. Requires amsmath, booktabs and hyperref.
+\section{Authorized Compact Residual Expert Compiler: First Gate}
+\label{sec:gptoss120b-residual-first-gate}
+
+\subsection{Authorization and claim boundary}
+
+The owner explicitly authorized training and injection of compact correction
+cartridges for the separately labelled quality track.  The authorization is
+recorded in
+\texttt{GPT\_OSS\_120B\_RESIDUAL\_TRAINING\_AUTHORIZATION\_2026-09-11.json}.
+It permits a resident original top-1 expert plus a learned correction for the
+three omitted expert contributions.  It does not permit modifying the source
+checkpoint, describing the candidate as bit-exact unrestricted GPT-OSS 120B,
+ingesting personal or customer data, publishing, or weakening the exact
+fallback.  The original four-expert path remains the teacher and authoritative
+fallback.
+
+\subsection{Target calculation}
+
+For layer input $x$, let the unrestricted router choose experts $e_1,\ldots,e_4$
+with gates $g_1,\ldots,g_4$.  The exact mixture contribution is
+\begin{equation}
+  y_{\mathrm{MoE}}(x)=\sum_{i=1}^{4}g_i E_{e_i}(x).
+\end{equation}
+The proposed fast calculation retains the original first expert and learns a
+compact correction $C_\theta$:
+\begin{equation}
+  \widehat y_{\mathrm{MoE}}(x)=g_1 E_{e_1}(x)+
+  C_\theta\!\left(x,\,g,\,e,\,\ell\right).
+\end{equation}
+The supervised target is therefore the measured omitted contribution
+\begin{equation}
+  r(x)=\sum_{i=2}^{4}g_i E_{e_i}(x).
+\end{equation}
+The candidate changes the model calculation and belongs solely to the
+quality-gated track.  A low-confidence decision must invoke the original
+four-expert calculation.
+
+\subsection{First diagonal cartridge}
+
+The first deliberately small probe used a coordinate-aligned ridge correction.
+Candidate features were selected only with grouped cross-validation over the
+training families.  They included the top-1 contribution, post-attention input,
+router input, omitted gate mass and gate entropy.  Calibration and holdout
+families were excluded from feature selection.  This cartridge was cheap enough
+to satisfy the intended runtime shape, but it failed the numerical gate.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Capture corpus & Cartridge bytes & Median correction time & Holdout output rel. $L_2$ p95 \\
+\midrule
+One trajectory, 192 rows & 2,004,480 & 0.060958 ms & 0.147765 \\
+Two trajectories, 288 rows & 1,244,160 & 0.040791 ms & 0.153659 \\
+\bottomrule
+\end{tabular}
+\caption{The diagonal correction was very small and fast, but inaccurate.}
+\end{table}
+
+The corresponding omitted-contribution relative-$L_2$ p95 values were
+$1.63379$ and $1.57732$.  Relative to retaining top-1 alone, the reported
+improvement factors were only $0.97987$ and $0.93808$; values below one mean
+that the learned correction made the result worse.  Both runs are consequently
+labelled \texttt{STOP\_DIAGONAL\_RESIDUAL}.  The canonical evidence hashes are,
+respectively,
+\texttt{1d84940f1179795fc96b9e82b47012d9651a3650af608185cbc1f8e4c5c3b0a1}
+and
+\texttt{9527c21358f4627743b8560fefc008a33045872474f61fc44dfa96db77b81c67}.
+
+\subsection{Full training-span oracle}
+
+Before increasing model complexity, an intentionally impossible upper-bound
+test was performed.  For every sampled layer, the oracle received the complete
+centred linear span of all same-layer training residuals and was allowed to
+choose the best coefficients separately for each holdout target.  A deployable
+predictor would have strictly less information and freedom.
+
+The oracle still produced holdout output relative-$L_2$ p95 of $0.120623$ and
+omitted-contribution relative-$L_2$ p95 of $0.898632$, far outside the declared
+two-percent output target.  The result is labelled
+\texttt{STOP\_CURRENT\_CAPTURE\_SPAN}; canonical hash
+\texttt{fc68d89b17f7fd2d1677446881a1fc747d63892e6a0047dfc314d34b309cad07}.
+This falsifies a whole class of more elaborate predictors trained only on the
+same synthetic/two-trajectory corpus.  It does not falsify compact residual
+correction itself: it proves that more representative teacher captures are
+required first.
+
+\subsection{Bound derived dataset and frozen real-prompt cohort}
+
+A reusable derived dataset of 288 rows was built from hash-verified captures.
+It contains the original top-1 contribution and exact four-expert-minus-top-1
+residual, but no prompt text or personal/customer data.  Its manifest status is
+\texttt{READY\_FOR\_AUTHORIZED\_RESIDUAL\_TRAINING}, canonical hash
+\texttt{63937d6642939fecb1c42884cf50a251f2b85bc6379e2a6cf9995bb6aa5a431a}.
+
+Before collecting additional data, the next cohort was frozen in
+\texttt{GPT\_OSS\_120B\_RESIDUAL\_COHORT\_2026-09-11.json} (file SHA-256
+\texttt{eeac9709b77319ab08e5e97491d8e6e52dbd411c5a6552233b9a5261d20243fe}).
+Arithmetic and extraction are training families; reasoning is development;
+business and writing are blind holdouts.  Twelve layers spanning the complete
+36-layer stack are sampled.  The writing prompt is synthetic and was tokenized
+with the model-declared chat template through the verified header-only GGUF
+shell.  Architecture and hyperparameters may see training; thresholds and
+stopping may see development; neither blind family may be opened until the
+candidate and acceptance rules are frozen.
+
+\subsection{Conclusion and next gate}
+
+The first authorized correction was not promoted.  Its failure is informative:
+the missing three-expert effect is neither coordinatewise nor contained in the
+variation of the current small capture corpus.  The next valid experiment is to
+capture unrestricted four-expert teacher states from diverse real continuations,
+fit a compact cross-coordinate residual model using only the frozen training
+families, freeze it on development, and finally open the two blind families.
+Promotion requires internal repeatability, semantic parity, bounded memory,
+measured traffic and speed improvement, and a working exact fallback.  No
+tokens-per-second claim is made for the residual compiler at this gate.
