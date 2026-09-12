@@ -448,3 +448,43 @@ a changed model and is outside the exact track.
 
 The eligibility receipt has internal canonical SHA-256
 \texttt{0509159f89a85ff7ede32ac47a17686a1faac154d98df6bd048f2317156a9ae3}.
+
+\subsection{Real continuation-route reuse bound for speculative blocks}
+
+The unchanged grouped-expert implementation was then evaluated against the
+22 genuine continuation positions of the exact invoice-extraction trace,
+rather than synthetic activation rows or prompt-only positions.  Blocks of
+four, six and ten positions covered all 36 layers.  For each layer and block,
+the analysis counted how many times each authoritative selected expert
+recurred.  Replicated runs were not counted as additional observations.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+\toprule
+Block & Mean uses/load & Singleton groups & Perfect-reuse upper bound \\
+\midrule
+4 & 1.37405 & 72.328\% & 1.37405$\times$ \\
+6 & 1.47022 & 70.675\% & 1.47022$\times$ \\
+10 & 1.62071 & 64.547\% & 1.62071$\times$ \\
+\bottomrule
+\end{tabular}
+\caption{Authoritative expert-route reuse across genuine continuation blocks.}
+\end{table}
+
+The upper bound is deliberately optimistic: every occurrence after the first
+is treated as free, while attention, router calculation, expert arithmetic,
+drafting, rejection, KV catch-up and scheduling are excluded.  Even at ten
+positions, almost two thirds of expert groups are singletons.  This explains
+why the existing real grouped eight-position layer regressed by 2.94\% and why
+the complete exact eight-position block improved only 3.827\% despite lower
+logical traffic.
+
+The decision is
+\texttt{STOP\_UNCHANGED\_EXPERT\_GROUPING\_AS\_DFLASH\_BREAKTHROUGH}.  A
+DFlash-compatible AION verifier must provide a physically different primitive:
+batched causal attention and heterogeneous-expert arithmetic without copied
+route slabs, or a certified reduction in the target's expert work.  Repeating
+the current group-by-identical-expert implementation cannot supply the desired
+multiplier.  The receipt's internal canonical SHA-256 is
+\texttt{86bc5285be7b39ba2da45cf3e15a15c9c25bbdacdb8e47c09ccbc22ad2fb90d2}.
