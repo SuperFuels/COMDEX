@@ -9,7 +9,7 @@ from backend.modules.aion_inference.trajectory_verification_ladder import (
 
 
 def test_repeated_phrase_escalates_before_completion() -> None:
-    tokens = [10, 11, 12, 13, 14, 15, 16, 10, 11, 12, 17, 18, 19, 20, 21, 10, 11, 12, 30]
+    tokens = [1, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 7, 8, 10, 11, 12, 13, 14, 30]
     failure = earliest_failure(tokens)
     assert failure is not None
     assert failure.kind == "repeated_ngram"
@@ -20,6 +20,13 @@ def test_repeated_single_token_escalates() -> None:
     failure = earliest_failure([1, 2, 3, 4, 5, 8, 8, 8, 8, 8, 9])
     assert failure is not None
     assert failure.kind == "repeated_token_run"
+
+
+def test_repeated_control_token_escalates_immediately() -> None:
+    failure = earliest_failure([200005, 200005, 35644, 200008])
+    assert failure is not None
+    assert failure.kind == "repeated_control_token"
+    assert failure.first_detected_token == 2
 
 
 def test_unseen_one_hop_entailment_is_derived_and_accepted() -> None:
@@ -54,4 +61,12 @@ def test_open_ended_clean_answer_requires_critic() -> None:
 
 def test_no_false_loop_on_ordinary_repetition() -> None:
     tokens = [1, 2, 3, 1, 2, 4, 5, 6, 7, 5, 6, 8, 9, 10, 11, 12, 13, 14]
+    assert earliest_failure(tokens) is None
+
+
+def test_question_restatement_does_not_trip_short_ngram_rule() -> None:
+    tokens = [
+        200005, 35644, 200008, 2167, 1309, 316, 13424, 36161, 2086, 326,
+        3609, 13, 51441, 8205, 483, 36161, 11733, 326, 3609, 13, 200007,
+    ]
     assert earliest_failure(tokens) is None

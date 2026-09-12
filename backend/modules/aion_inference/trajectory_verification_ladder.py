@@ -55,14 +55,27 @@ def first_repeated_run(tokens: Sequence[int], *, minimum_run: int = 5) -> Trajec
     return None
 
 
+def first_repeated_control_token(tokens: Sequence[int]) -> TrajectoryFailure | None:
+    """Reject duplicated channel/control markers that cannot form valid output."""
+    protected = {200005, 200006, 200007, 200008, 35644}
+    for index in range(1, len(tokens)):
+        if tokens[index] == tokens[index - 1] and tokens[index] in protected:
+            return TrajectoryFailure(
+                "repeated_control_token", index + 1,
+                f"control/channel token {tokens[index]} repeated consecutively",
+            )
+    return None
+
+
 def first_repeated_ngram(
-    tokens: Sequence[int], *, n: int = 3, minimum_generated_tokens: int = 16,
+    tokens: Sequence[int], *, n: int = 5, minimum_generated_tokens: int = 16,
+    maximum_start_gap: int = 16,
 ) -> TrajectoryFailure | None:
     """Detect the second occurrence of a repeated local phrase.
 
-    A single repeated trigram can be ordinary language.  The check therefore
-    activates only after a minimum trajectory length and requires the two
-    occurrences not to overlap.
+    Short repeated phrases are common in correct answers that restate a
+    question or emit structured fields.  The default therefore requires five
+    exact tokens, non-overlap, and recurrence within a short local span.
     """
     if n < 2:
         raise ValueError("n must be at least two")
@@ -70,7 +83,9 @@ def first_repeated_ngram(
     for end in range(n, len(tokens) + 1):
         gram = tuple(tokens[end - n:end])
         previous = seen.get(gram)
-        if previous is not None and previous + n <= end - n and end >= minimum_generated_tokens:
+        if (previous is not None and previous + n <= end - n
+                and end >= minimum_generated_tokens
+                and (end - n) - previous <= maximum_start_gap):
             return TrajectoryFailure(
                 "repeated_ngram", end,
                 f"{n}-token phrase repeated at generated offsets {previous} and {end - n}",
@@ -81,6 +96,7 @@ def first_repeated_ngram(
 
 def trajectory_failures(tokens: Sequence[int]) -> tuple[TrajectoryFailure, ...]:
     failures = [
+        first_repeated_control_token(tokens),
         first_repeated_ngram(tokens),
         first_repeated_run(tokens),
     ]
