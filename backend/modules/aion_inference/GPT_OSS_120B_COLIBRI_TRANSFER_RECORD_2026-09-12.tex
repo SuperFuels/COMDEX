@@ -806,3 +806,14 @@ internal canonical SHA-256 values are
 \texttt{f019d67937fc890068b1bba13ee61fdb53750ebd7d5139c190d288df6c1a3669}
 and
 \texttt{e3897305780e73449672de153155f5c8ead1a57eb5a77798e7ca3e9c582f1b7f}.
+
+The temporary arbitration mechanism was subsequently promoted into a guarded
+runtime primitive.  Before yielding a background service, it reads the held
+process-lock PID and verifies that the live command is the AION mastery
+curriculum.  It then starts an independent timeout watchdog before issuing the
+pause.  Normal completion resumes the learner immediately; abnormal process
+loss still leaves the watchdog able to resume it.  The released lease state,
+verified command, PID and timeout are bound into the inference evidence before
+its canonical hash is calculated.  A live stop/resume integration check and
+15/15 focused tests passed.  The implementation is isolated in commit
+\texttt{17ce5036}.
