@@ -70,6 +70,7 @@ def main()->None:
     p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--l2-two-touch-admission',action='store_true');p.add_argument('--l2-admission-touches',type=int,default=2);p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--cross-layer-router-lookahead',action='store_true');p.add_argument('--lookahead-pass-pattern');p.add_argument('--lookahead-k',type=int,default=4);p.add_argument('--lookahead-advice-only',action='store_true');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--pairwise-moe',action='store_true');p.add_argument('--pairwise-pass-pattern');p.add_argument('--pad-reduced-to-four',action='store_true');p.add_argument('--native-router',action='store_true');p.add_argument('--inprocess-embedding',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--metal-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--prompt-token-count',type=int);p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-layer-active-experts',type=int,choices=(1,2,3));p.add_argument('--continuation-fixed-expert-layers');p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-threshold-layers');p.add_argument('--continuation-min-active-experts',type=int,choices=(1,2),default=2);p.add_argument('--continuation-adaptive-layers');p.add_argument('--continuation-top1-threshold-plan',type=Path);p.add_argument('--continuation-top1-cycle');p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');p.add_argument('--capture-counterfactuals',action='store_true');p.add_argument('--capture-metadata-only',action='store_true');p.add_argument('--early-exit-diagnostic-layers');p.add_argument('--selective-fourth-q3-layers');p.add_argument('--selective-fourth-q3-max-gate',type=float);p.add_argument('--selective-fourth-q3-pass-pattern');p.add_argument('--selective-fourth-q3-sidecar-manifest',type=Path);p.add_argument('--yield-mastery-curriculum',action='store_true');p.add_argument('--inference-priority-timeout-seconds',type=int,default=1800);a=p.parse_args()
     serial_active_contributions=os.environ.get('AION_SERIAL_ACTIVE_CONTRIBUTIONS')=='1'
     trajectory_loop_guard=os.environ.get('AION_TRAJECTORY_LOOP_GUARD')=='1'
+    preserve_top1_gate_mass=os.environ.get('AION_PRESERVE_TOP1_GATE_MASS')=='1'
     if a.parallel_moe and not a.inprocess_finish: raise SystemExit('--parallel-moe requires --inprocess-finish')
     if a.pad_reduced_to_four and not a.inprocess_finish: raise SystemExit('--pad-reduced-to-four requires --inprocess-finish')
     if a.pad_reduced_to_four and a.parallel_moe: raise SystemExit('fixed-shape padding is incompatible with parallel MoE')
@@ -136,6 +137,7 @@ def main()->None:
     if a.continuation_gate_mass_threshold is not None and not (a.expert_pool and (a.constrain_after_prompt or a.exact_pool_escape_after_prompt)): raise SystemExit('adaptive continuation experts require a preloaded pool plus constrained routing or exact unrestricted escape')
     if a.continuation_adaptive_layers and a.continuation_gate_mass_threshold is None: raise SystemExit('adaptive layer selection requires a gate-mass threshold')
     if a.continuation_top1_threshold_plan and a.continuation_gate_mass_threshold is None: raise SystemExit('top1 threshold plan requires adaptive gate-mass fallback')
+    if preserve_top1_gate_mass and not (a.continuation_top1_threshold_plan or a.continuation_top1_cycle or a.continuation_layer_active_experts==1): raise SystemExit('top1-only gate-mass preservation requires a top1 policy')
     top1_cycle=None
     if a.continuation_top1_cycle:
         try: top1_cycle=tuple(int(value) for value in a.continuation_top1_cycle.split(':'))
@@ -506,10 +508,10 @@ def main()->None:
                 sel=logits[route].astype(np.float64);sel-=sel.max();gates=np.exp(sel);gates/=gates.sum()
                 if top1_cycle_here:
                     active_experts=1;route=route[:1];gates=gates[:1]
-                    if not a.preserve_dropped_gate_mass:gates/=gates.sum()
+                    if not (a.preserve_dropped_gate_mass or preserve_top1_gate_mass):gates/=gates.sum()
                 elif top1_threshold is not None and float(gates[0]-gates[1])>=top1_threshold:
                     active_experts=1;route=route[:1];gates=gates[:1]
-                    if not a.preserve_dropped_gate_mass:gates/=gates.sum()
+                    if not (a.preserve_dropped_gate_mass or preserve_top1_gate_mass):gates/=gates.sum()
                 elif adaptive_here:
                     threshold=(a.continuation_secondary_gate_mass_threshold
                                if layer in secondary_threshold_layers
@@ -521,7 +523,7 @@ def main()->None:
                     if not a.preserve_dropped_gate_mass:gates/=gates.sum()
                 elif active_experts < candidate_count:
                     route=route[:active_experts];gates=gates[:active_experts]
-                    if not a.preserve_dropped_gate_mass:gates/=gates.sum()
+                    if not (a.preserve_dropped_gate_mass or (preserve_top1_gate_mass and active_experts==1)):gates/=gates.sum()
                 selective_q3_here=(selective_q3_enabled and active_experts==4 and
                                    layer in selective_fourth_q3_layers and
                                    (a.selective_fourth_q3_max_gate is None or
@@ -854,6 +856,7 @@ def main()->None:
                 'claim_boundary':(('A token-conditioned sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. Declared prompt tokens were teacher-forced before greedy continuation. This is exact repeatability evidence for the custom packed path, not yet chat-template quality validation or steady-state generation speed.' if a.token_count>1 else 'A token-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is prompt-token execution evidence, not yet multi-token prompt quality validation or steady-state generation speed.') if forced_input_ids!=[BOS] else ('A BOS-conditioned greedy sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. This is exact repeatability evidence for the custom packed path, not yet text-quality validation or steady-state generation speed.' if a.token_count>1 else 'A BOS-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is first-token execution evidence, not yet text-quality validation or steady-state generation speed.'))}
         report['serial_active_contributions']=serial_active_contributions
         report['trajectory_loop_guard']=trajectory_loop_guard
+        report['preserve_top1_gate_mass']=preserve_top1_gate_mass
         report['trajectory_guard_runs']=trajectory_guard_runs
         report['executed_token_counts']=[len(run['tokens']) for run in runs]
         if a.exact_pool_escape_after_prompt and a.continuation_gate_mass_threshold is None:

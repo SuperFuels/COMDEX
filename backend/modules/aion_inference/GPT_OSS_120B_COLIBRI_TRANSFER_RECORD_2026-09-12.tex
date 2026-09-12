@@ -3,6 +3,97 @@
 \section{Colibri Prior-Art Audit and Cross-Layer Router Lookahead Gate}
 \label{sec:colibri-lookahead-2026-09-12}
 
+
+\subsection{Layer--activation top-one continuation frontier}
+\label{subsec:gptoss120b-layer-activation-top1-20260912}
+
+The correct public-reasoning quality-track control used exact unrestricted
+prefill, the six-position trajectory-protected 8~GiB workbench, and a
+cumulative gate-mass threshold of 0.80 during continuation.  Its previously
+recorded quiet-system rates were 7.002 and 5.492 tokens/s (6.247 tokens/s
+median), and it explicitly concluded that the red box is heavy.  The present
+experiments tested whether a layer-conditioned top-one branch could move this
+quality-passing control toward the 28.6174-token/s top-one physical ceiling.
+All candidates retained the original GPT-OSS weights and used the existing
+unrestricted four-expert prefill.  They are nevertheless changed-model
+quality-track candidates because some continuation layers calculated fewer
+than four selected experts.
+
+A top-one threshold map previously developed only from arithmetic and
+extraction counterfactuals was frozen before its first reasoning-family use.
+Combined with the 0.80 fallback, the broad map used one expert for 178 of
+1,548 continuation layer calls, two for 15, three for 959, and four for 396.
+It reached 8.910 and 9.727 tokens/s (9.319 median), remained internally
+bitwise repeatable, and did not trigger the structural loop guard.  However,
+the fixed 43-token response window restated the problem without reaching the
+answer.  An unchanged 59-token extension produced 4.571 and 9.204 tokens/s
+and developed a repeated ``ded ded'' fragment without completing the
+conclusion.  The branch is therefore
+\texttt{STOPPED\_SEMANTIC\_FAIL}; 9.319 tokens/s is retained as a mechanical
+speed observation, not a usable quality result.  The 64-token evidence has
+canonical SHA-256
+\texttt{f8871fdb0fdd5487fe165b67bd3ca0351888086aee339583857781f4c635e763}
+and file SHA-256
+\texttt{5b23da3774620461505c3f6f305d6134111e3e6426e42f3685987fa6bec74769}.
+
+Inspection exposed a mathematical mismatch: the broad top-one branch
+renormalized its single surviving gate to one, although the development map
+had been built around retained contribution mass.  The runtime therefore
+gained an independently recorded top-one-only mass-preservation mode.  It
+leaves the established 0.80 two/three/four-expert normalization unchanged but
+does not amplify an accepted top-one contribution.  The broad corrected map
+reached 5.504 and 9.541 tokens/s (7.522 median) over 43 continuation tokens,
+using 188 one-expert calls.  A 59-token extension reached 4.983 and 10.505
+tokens/s (7.744 median).  Both executions were internally bitwise repeatable,
+but both remained stuck restating the question and failed to print the
+conclusion.  The corrected broad branch is also
+\texttt{STOPPED\_SEMANTIC\_FAIL}.  Its 64-token evidence has canonical
+SHA-256
+\texttt{e0f08a07afa3cb0e6c8716c897a0045b9ea397b2e2c8abebd32f40db7ed3218a}
+and file SHA-256
+\texttt{efb9b1fa325fae8c1f6e9c07b56c01b0f616f349791ef07b477313f0c24cd8e2}.
+
+The final candidate reduced the admissible top-one set to layers 0 and 33,
+the only two layers previously retained by the cross-family safe-layer
+intersection, and required each live activation to clear that layer's frozen
+router-gap threshold.  All other layers used the quality-passing 0.80
+adaptive policy.  This made only 41 one-expert decisions out of 1,548 layer
+calls.  The two runs repeated routes, hidden states, logits, and token IDs
+bitwise.  The response remained coherent and explicitly contained the correct
+entailment, ``this box is heavy,'' before beginning its final answer channel.
+It first diverged from the correct control at overall position 52, or
+continuation position 31.  Thus the layer--activation formulation passes this
+narrow semantic gate.
+
+It did not pass the speed gate.  Continuation rates were 3.980 and 4.837
+tokens/s (4.409 median), with p50 token latencies of 0.2098 and 0.1557 seconds
+and p95 latencies of 0.4238 and 0.3972 seconds.  The selected expert work fell
+by only about 1.1\%, and its altered route locality did not repay that small
+reduction.  The decision is therefore
+\texttt{QUALITY\_PASS\_SPEED\_NOT\_PROMOTED}.  The runtime evidence canonical
+and file SHA-256 values are respectively
+\texttt{84acd68186dd29b5ff3a11f74357cd65f74e273b55dafb3b7a2ee98cee5c7e1f}
+and
+\texttt{8cffd3a17a1db2f44ae2e08ff4f38747865aba53d16c9ea7cc8abf1788c545d5}.
+The detokenized receipt canonical and file SHA-256 values are
+\texttt{34e72ef0717fc7f9bf27ec9eecc820ca38bc35d7bf34b07f3b7fdd3f57c9abe6}
+and
+\texttt{fd757d404290ee6b3fcccf6279bdb82abdfd42007bc9794bb692a8710e7f8db2}.
+The derived two-layer plan is provenance-bound to its development source; its
+canonical and file SHA-256 values are
+\texttt{142bf966459a0dc05630d94b24f49227ace3fc3d2169fdb75990f8b8d33e0246}
+and
+\texttt{fa112c7587eb87f96ca2cb49521774de4a12d5b04f5ef343f1f5e6baad3abba3}.
+
+These experiments establish a narrower frontier.  Broad top-one execution can
+produce 9-token/s-class mechanical throughput but damages reasoning.  A
+layer--activation gate can preserve this reasoning answer, but two admitted
+layers do not remove enough physical expert work to improve throughput.  The
+next justified controller must certify larger layer--activation regions from
+authentic held-out trajectories and select them in small frozen groups.  It
+must be evaluated with balanced same-process timing because the present cold
+and warm pass spread is large.  Neither a global threshold nor a fixed
+safe-layer list is promoted.
 \subsection{Purpose and claim boundary}
 
 On 12 September 2026, the official Colibri repository was inspected at commit
