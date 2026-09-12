@@ -35,9 +35,13 @@ def main() -> int:
     parser.add_argument("--representation", choices=("q2_0", "top1_mxfp4_q2_0",
                                                        "top3_mxfp4_q2_0",
                                                        "top3_mxfp4_q3_k",
+                                                       "mixed_mxfp4_q3_k",
+                                                       "mixed_mxfp4_q2_0",
                                                        "padded_q2_k", "padded_q3_k",
                                                        "padded_mixed_k"),
                         default="q2_0")
+    parser.add_argument("--compact-expert-mask", type=int, default=14,
+                        help="route-position mask for mixed_mxfp4_q3_k")
     parser.add_argument("--layer", type=int)
     parser.add_argument("--threads", type=int, default=8)
     parser.add_argument("--output", type=Path, required=True)
@@ -62,7 +66,8 @@ def main() -> int:
         common = ["clang++", "-std=c++17", "-O3", "-I/opt/homebrew/include"]
         libraries = ["-L/opt/homebrew/lib", "-lggml", "-lggml-base", "-ldl"]
         converter_source = ("gptoss_mxfp4_to_q2_0.cpp" if args.representation in
-                            ("q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0")
+                            ("q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0",
+                             "mixed_mxfp4_q2_0")
                             else "gptoss_mxfp4_to_padded_k.cpp")
         subprocess.run([*common, str(native / converter_source),
                         *libraries, "-o", str(converter)], check=True)
@@ -79,6 +84,10 @@ def main() -> int:
                               if args.representation == "top3_mxfp4_q2_0"
                               else library.aion_gptoss_moe_finish_top3_mxfp4_q3_k
                               if args.representation == "top3_mxfp4_q3_k"
+                              else library.aion_gptoss_moe_finish_mixed_mxfp4_q3_k
+                              if args.representation == "mixed_mxfp4_q3_k"
+                              else library.aion_gptoss_moe_finish_mixed_mxfp4_q2_0
+                              if args.representation == "mixed_mxfp4_q2_0"
                               else library.aion_gptoss_moe_finish_padded_k)
         signature = [ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
                      ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_float),
@@ -107,6 +116,8 @@ def main() -> int:
             if mask is not None:
                 if args.representation in ("q2_0", "top3_mxfp4_q3_k"):
                     candidate_arguments = [mask]
+                elif args.representation in ("mixed_mxfp4_q3_k", "mixed_mxfp4_q2_0"):
+                    candidate_arguments = [args.compact_expert_mask, mask]
                 else:
                     q2_mask = (7 if args.representation == "padded_q2_k" else 0
                                if args.representation == "padded_q3_k" else mask)
@@ -134,7 +145,8 @@ def main() -> int:
                     original_blobs.extend((weight, value[projection]["bias"]))
                     base_key = (capture["layer"], expert, projection)
                     formats = (("q2_0",) if args.representation in
-                               ("q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0") else
+                            ("q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0",
+                             "mixed_mxfp4_q2_0") else
                                ("q2_k", "q3_k") if args.representation == "padded_mixed_k" else
                                ("q2_k",) if args.representation == "padded_q2_k" else ("q3_k",))
                     for compact_format in formats:
@@ -148,7 +160,7 @@ def main() -> int:
                                                 str(WIDTH), str(args.threads)]
                                                if args.representation in
                                                ("q2_0", "top1_mxfp4_q2_0",
-                                                "top3_mxfp4_q2_0") else
+                                                "top3_mxfp4_q2_0", "mixed_mxfp4_q2_0") else
                                                [str(converter), str(source), str(target),
                                                 compact_format, str(WIDTH), str(args.threads)])
                         subprocess.run(converter_arguments, check=True,
@@ -157,11 +169,12 @@ def main() -> int:
                     original_bias = value[projection]["bias"]
                     bias = original_bias
                     if args.representation not in (
-                            "q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0"):
+                            "q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0",
+                            "mixed_mxfp4_q2_0"):
                         bias = bias + bytes((3072 - WIDTH) * 4)
                     q2_format = ("q2_0" if args.representation in
                                  ("q2_0", "top1_mxfp4_q2_0",
-                                  "top3_mxfp4_q2_0") else "q2_k")
+                                  "top3_mxfp4_q2_0", "mixed_mxfp4_q2_0") else "q2_k")
                     q2 = converted.get((*base_key, q2_format))
                     q3 = converted.get((*base_key, "q3_k"))
                     q2 = q2 if q2 is not None else q3
@@ -176,7 +189,9 @@ def main() -> int:
                 reference_function, ffn, router, original_blobs, gates)
             masks = ((None,) if args.representation in
                      ("top1_mxfp4_q2_0", "top3_mxfp4_q2_0") else
-                     range(1, 8) if args.representation == "top3_mxfp4_q3_k" else
+                     range(1, 8) if args.representation in
+                     ("top3_mxfp4_q3_k", "mixed_mxfp4_q3_k",
+                      "mixed_mxfp4_q2_0") else
                      range(1, 8) if args.representation == "q2_0" else
                      range(0, 8) if args.representation == "padded_mixed_k" else (7,))
             for mask in masks:
@@ -192,6 +207,12 @@ def main() -> int:
                     elif args.representation == "top3_mxfp4_q3_k":
                         selected = (original if index // 3 < 3 or not mask & projection_bit
                                     else q3)
+                    elif args.representation == "mixed_mxfp4_q3_k":
+                        selected = (q3 if (args.compact_expert_mask & (1 << (index // 3))
+                                           and mask & projection_bit) else original)
+                    elif args.representation == "mixed_mxfp4_q2_0":
+                        selected = (q2 if (args.compact_expert_mask & (1 << (index // 3))
+                                           and mask & projection_bit) else original)
                     elif args.representation == "q2_0":
                         selected = q2 if mask & projection_bit else original
                     elif args.representation == "padded_q2_k":
@@ -201,9 +222,13 @@ def main() -> int:
                     else:
                         selected = q2 if mask & projection_bit else q3
                     bias = (original_bias if args.representation in
-                            ("q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0")
+                            ("q2_0", "top1_mxfp4_q2_0", "top3_mxfp4_q2_0",
+                             "mixed_mxfp4_q2_0")
                             or (args.representation == "top3_mxfp4_q3_k"
                                 and (index // 3 < 3 or not mask & projection_bit))
+                            or (args.representation == "mixed_mxfp4_q3_k"
+                                and (not args.compact_expert_mask & (1 << (index // 3))
+                                     or not mask & projection_bit))
                             else padded_bias)
                     candidate_blobs.extend((selected, bias))
                     candidate_weight_bytes += len(selected)
@@ -229,13 +254,17 @@ def main() -> int:
     summaries = {}
     advancing_masks = []
     output_error_limit = (0.02 if args.representation in
-                          ("top3_mxfp4_q2_0", "top3_mxfp4_q3_k")
+                          ("top3_mxfp4_q2_0", "top3_mxfp4_q3_k",
+                           "mixed_mxfp4_q3_k", "mixed_mxfp4_q2_0")
                           else 0.05)
-    minimum_weight_reduction = (1.005 if args.representation == "top3_mxfp4_q3_k"
+    minimum_weight_reduction = (1.005 if args.representation in
+                                ("top3_mxfp4_q3_k", "mixed_mxfp4_q3_k",
+                                 "mixed_mxfp4_q2_0")
                                 else 1.15)
     masks = ((None,) if args.representation in
              ("top1_mxfp4_q2_0", "top3_mxfp4_q2_0") else
-             range(1, 8) if args.representation == "top3_mxfp4_q3_k" else
+             range(1, 8) if args.representation in
+             ("top3_mxfp4_q3_k", "mixed_mxfp4_q3_k", "mixed_mxfp4_q2_0") else
              range(1, 8) if args.representation == "q2_0" else
              range(0, 8) if args.representation == "padded_mixed_k" else (7,))
     for mask in masks:
@@ -264,6 +293,9 @@ def main() -> int:
         "created_at": datetime.now(timezone.utc).isoformat(),
         "model": "GPT-OSS 120B Q4_K_M/MXFP4", "quality_track": True,
         "candidate_representation": args.representation,
+        "compact_expert_mask": (args.compact_expert_mask
+                                if args.representation in
+                                ("mixed_mxfp4_q3_k", "mixed_mxfp4_q2_0") else None),
         "capture_paths": [str(path.resolve()) for path in captures],
         "capture_hashes": {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
                            for path in captures},

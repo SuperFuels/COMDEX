@@ -38,11 +38,15 @@ def signed_bins(values: np.ndarray, seed: int) -> np.ndarray:
     return (values * signs).reshape(len(values), BINS, WIDTH // BINS).sum(2) / np.sqrt(WIDTH // BINS)
 
 
-def features(arrays: dict, rows: list[dict]) -> np.ndarray:
-    projected = [
-        signed_bins(np.asarray(arrays[name], dtype=np.float32), seed)
-        for name, seed in (("ffn", 1103), ("router", 2203), ("top1", 3301))
-    ]
+def features(arrays: dict, rows: list[dict], feature_mode: str = "signed_bins") -> np.ndarray:
+    if feature_mode == "full":
+        projected = [np.asarray(arrays[name], dtype=np.float32)
+                     for name in ("ffn", "router", "top1")]
+    else:
+        projected = [
+            signed_bins(np.asarray(arrays[name], dtype=np.float32), seed)
+            for name, seed in (("ffn", 1103), ("router", 2203), ("top1", 3301))
+        ]
     route = np.zeros((len(rows), LAYERS * EXPERTS), dtype=np.float32)
     layer = np.zeros((len(rows), LAYERS), dtype=np.float32)
     gate_features = np.zeros((len(rows), 6), dtype=np.float32)
@@ -109,6 +113,8 @@ def main() -> int:
     parser.add_argument("--cartridge", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--epochs", type=int, default=250)
+    parser.add_argument("--feature-mode", choices=("signed_bins", "full"),
+                        default="signed_bins")
     args = parser.parse_args()
     if args.cartridge.exists() or args.output.exists():
         raise SystemExit("refusing to overwrite evidence")
@@ -123,7 +129,7 @@ def main() -> int:
         raise SystemExit("dataset hash mismatch")
     arrays = dict(np.load(dataset_path))
     rows = manifest["rows"]
-    x = features(arrays, rows)
+    x = features(arrays, rows, args.feature_mode)
     y = np.asarray(arrays["omitted"], dtype=np.float32)
     layer_output = (np.asarray(arrays["ffn"], dtype=np.float32) +
                     np.asarray(arrays["full"], dtype=np.float32))
@@ -131,7 +137,9 @@ def main() -> int:
     if len(families) < 2:
         raise SystemExit("family-held-out selection requires at least two training families")
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    candidates = [(64, 1e-4), (128, 1e-4), (128, 1e-3), (256, 1e-3)]
+    candidates = ([(128, 1e-4), (256, 1e-4), (256, 1e-3), (512, 1e-3)]
+                  if args.feature_mode == "full" else
+                  [(64, 1e-4), (128, 1e-4), (128, 1e-3), (256, 1e-3)])
     selection = []
     for hidden, decay in candidates:
         fold_errors = []
@@ -182,6 +190,7 @@ def main() -> int:
         "quality_track": True, "exact_fallback_required": True,
         "training_families": families, "family_held_out_selection": selection,
         "retained_experts": manifest.get("retained_experts", 1),
+        "feature_mode": args.feature_mode,
         "selected": selected, "evaluations": evaluations,
         "cartridge_path": str(args.cartridge.resolve()),
         "cartridge_bytes": len(payload), "cartridge_sha256": digest(args.cartridge),
@@ -189,12 +198,13 @@ def main() -> int:
         "calculation_ms_p95": float(np.percentile(timings[10:], 95)),
         "dataset_manifest_canonical_sha256": manifest["canonical_sha256"],
         "authorization_sha256": digest(args.authorization),
-        "blind_business_and_writing_families_opened": False,
+        "frozen_evaluation_splits_opened_after_selection": True,
         "claim_boundary": (
             "A compact nonlinear correction was selected by holding out whole training "
-            "families. Synthetic legacy splits are numerical probes only. The frozen real "
-            "reasoning development and business/writing blind families remain unopened. "
-            "This changed-arithmetic quality track makes no token-speed or model-quality claim."
+            "families. Synthetic legacy splits are numerical probes only. Calibration, "
+            "numerical-holdout and semantic-holdout families were evaluated only after "
+            "candidate selection. This changed-arithmetic quality track makes no token-speed "
+            "or model-quality claim."
         ),
     }
     report["canonical_sha256"] = canonical(report)

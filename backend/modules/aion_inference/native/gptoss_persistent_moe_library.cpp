@@ -481,6 +481,161 @@ extern "C" int aion_gptoss_moe_finish_top3_mxfp4_q3_k(
     return 0;
 }
 
+// Quality-track mixed representation: keep selected routed experts in their
+// original MXFP4 form and use padded Q3_K for selected projections of the
+// remaining routed experts.  expert_mask addresses route positions 0..3 and
+// projection_mask addresses gate/up/down as bits 0..2.  The caller supplies
+// each component in the representation selected by those masks.
+extern "C" int aion_gptoss_moe_finish_mixed_mxfp4_q3_k(
+        const float * ffn_input_values, const float * router_input_values,
+        const void * const * components, const float * gates,
+        int expert_mask, int projection_mask, float * output_values, int threads,
+        double * elapsed_ms) {
+    static void * plugin = dlopen(
+        "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
+        RTLD_NOW | RTLD_LOCAL);
+    static compute_function compute = plugin ? reinterpret_cast<compute_function>(
+        dlsym(plugin, "ggml_graph_compute_with_ctx")) : nullptr;
+    static std::vector<char> memory(384 * 1024 * 1024);
+    static ggml_context * context = ggml_init({memory.size(), memory.data(), false});
+    if (!compute) return 2;
+    if (!context) return 3;
+    if (expert_mask < 1 || expert_mask > 15) return 6;
+    if (projection_mask < 1 || projection_mask > 7) return 7;
+    ggml_reset(context);
+    constexpr int64_t width = 2880;
+    constexpr int64_t padded = 3072;
+    auto * ffn_input = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    auto * router_input = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    ffn_input->data = const_cast<float *>(ffn_input_values);
+    router_input->data = const_cast<float *>(router_input_values);
+    auto * padded_router = ggml_new_tensor_1d(context, GGML_TYPE_F32, padded);
+    std::memset(padded_router->data, 0, padded * sizeof(float));
+    std::memcpy(padded_router->data, router_input_values, width * sizeof(float));
+    ggml_tensor * combined = nullptr;
+    for (int position = 0; position < 4; ++position) {
+        const bool compact_expert = expert_mask & (1 << position);
+        const bool compact_gate = compact_expert && (projection_mask & 1);
+        const bool compact_up = compact_expert && (projection_mask & 2);
+        const bool compact_down = compact_expert && (projection_mask & 4);
+        auto * gate_w = ggml_new_tensor_2d(context,
+            compact_gate ? GGML_TYPE_Q3_K : GGML_TYPE_MXFP4,
+            compact_gate ? padded : width, compact_gate ? padded : width);
+        auto * gate_b = ggml_new_tensor_1d(context, GGML_TYPE_F32,
+            compact_gate ? padded : width);
+        auto * up_w = ggml_new_tensor_2d(context,
+            compact_up ? GGML_TYPE_Q3_K : GGML_TYPE_MXFP4,
+            compact_up ? padded : width, compact_up ? padded : width);
+        auto * up_b = ggml_new_tensor_1d(context, GGML_TYPE_F32,
+            compact_up ? padded : width);
+        auto * down_w = ggml_new_tensor_2d(context,
+            compact_down ? GGML_TYPE_Q3_K : GGML_TYPE_MXFP4,
+            compact_down ? padded : width, compact_down ? padded : width);
+        auto * down_b = ggml_new_tensor_1d(context, GGML_TYPE_F32,
+            compact_down ? padded : width);
+        ggml_tensor * tensors[] = {gate_w, gate_b, up_w, up_b, down_w, down_b};
+        for (int component = 0; component < 6; ++component)
+            tensors[component]->data = const_cast<void *>(
+                components[position * 6 + component]);
+        auto * gate = ggml_add(context, ggml_mul_mat(context, gate_w,
+            compact_gate ? padded_router : router_input), gate_b);
+        auto * up = ggml_add(context, ggml_mul_mat(context, up_w,
+            compact_up ? padded_router : router_input), up_b);
+        if (compact_gate) gate = ggml_view_1d(context, gate, width, 0);
+        if (compact_up) up = ggml_view_1d(context, up, width, 0);
+        auto * hidden = ggml_swiglu_oai(context, gate, up, 1.702f, 7.0f);
+        auto * down_input = compact_down
+            ? ggml_pad(context, hidden, padded - width, 0, 0, 0) : hidden;
+        auto * expert_full = ggml_add(context,
+            ggml_mul_mat(context, down_w, down_input), down_b);
+        auto * expert = compact_down
+            ? ggml_view_1d(context, expert_full, width, 0) : expert_full;
+        expert = ggml_scale(context, expert, gates[position]);
+        combined = combined ? ggml_add(context, combined, expert) : expert;
+    }
+    auto * output = ggml_add(context, ffn_input, combined);
+    auto * graph = ggml_new_graph_custom(context, GGML_DEFAULT_GRAPH_SIZE, false);
+    ggml_build_forward_expand(graph, output);
+    const auto begin = std::chrono::steady_clock::now();
+    const int status = compute(context, graph, threads);
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    if (status != GGML_STATUS_SUCCESS) return 4;
+    std::memcpy(output_values, output->data, width * sizeof(float));
+    for (int64_t index = 0; index < width; ++index)
+        if (!std::isfinite(output_values[index])) return 5;
+    return 0;
+}
+
+// Quality-track native-width mixed Q2_0 representation.  This is deliberately
+// projection- and route-rank-selective: unchanged components remain MXFP4, so
+// the accuracy cost of compacting lower-ranked expert matrices can be measured
+// independently instead of quantising a complete expert as earlier probes did.
+extern "C" int aion_gptoss_moe_finish_mixed_mxfp4_q2_0(
+        const float * ffn_input_values, const float * router_input_values,
+        const void * const * components, const float * gates,
+        int expert_mask, int projection_mask, float * output_values, int threads,
+        double * elapsed_ms) {
+    static void * plugin = dlopen(
+        "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
+        RTLD_NOW | RTLD_LOCAL);
+    static compute_function compute = plugin ? reinterpret_cast<compute_function>(
+        dlsym(plugin, "ggml_graph_compute_with_ctx")) : nullptr;
+    static std::vector<char> memory(320 * 1024 * 1024);
+    static ggml_context * context = ggml_init({memory.size(), memory.data(), false});
+    if (!compute) return 2;
+    if (!context) return 3;
+    if (expert_mask < 1 || expert_mask > 15) return 6;
+    if (projection_mask < 1 || projection_mask > 7) return 7;
+    ggml_reset(context);
+    constexpr int64_t width = 2880;
+    auto * ffn_input = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    auto * router_input = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+    ffn_input->data = const_cast<float *>(ffn_input_values);
+    router_input->data = const_cast<float *>(router_input_values);
+    ggml_tensor * combined = nullptr;
+    for (int position = 0; position < 4; ++position) {
+        const bool compact_expert = expert_mask & (1 << position);
+        const ggml_type gate_type = compact_expert && (projection_mask & 1)
+            ? GGML_TYPE_Q2_0 : GGML_TYPE_MXFP4;
+        const ggml_type up_type = compact_expert && (projection_mask & 2)
+            ? GGML_TYPE_Q2_0 : GGML_TYPE_MXFP4;
+        const ggml_type down_type = compact_expert && (projection_mask & 4)
+            ? GGML_TYPE_Q2_0 : GGML_TYPE_MXFP4;
+        auto * gate_w = ggml_new_tensor_2d(context, gate_type, width, width);
+        auto * gate_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+        auto * up_w = ggml_new_tensor_2d(context, up_type, width, width);
+        auto * up_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+        auto * down_w = ggml_new_tensor_2d(context, down_type, width, width);
+        auto * down_b = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+        ggml_tensor * tensors[] = {gate_w, gate_b, up_w, up_b, down_w, down_b};
+        for (int component = 0; component < 6; ++component)
+            tensors[component]->data = const_cast<void *>(
+                components[position * 6 + component]);
+        auto * gate = ggml_add(context,
+            ggml_mul_mat(context, gate_w, router_input), gate_b);
+        auto * up = ggml_add(context,
+            ggml_mul_mat(context, up_w, router_input), up_b);
+        auto * hidden = ggml_swiglu_oai(context, gate, up, 1.702f, 7.0f);
+        auto * expert = ggml_add(context,
+            ggml_mul_mat(context, down_w, hidden), down_b);
+        expert = ggml_scale(context, expert, gates[position]);
+        combined = combined ? ggml_add(context, combined, expert) : expert;
+    }
+    auto * output = ggml_add(context, ffn_input, combined);
+    auto * graph = ggml_new_graph_custom(context, GGML_DEFAULT_GRAPH_SIZE, false);
+    ggml_build_forward_expand(graph, output);
+    const auto begin = std::chrono::steady_clock::now();
+    const int status = compute(context, graph, threads);
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    if (status != GGML_STATUS_SUCCESS) return 4;
+    std::memcpy(output_values, output->data, width * sizeof(float));
+    for (int64_t index = 0; index < width; ++index)
+        if (!std::isfinite(output_values[index])) return 5;
+    return 0;
+}
+
 // Quality-track grouped quantisation on a zero-padded 3072-wide matrix.  The
 // public hidden state remains 2880 values; padding exists only inside this ABI.
 extern "C" int aion_gptoss_moe_finish_padded_k(
