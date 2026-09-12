@@ -42,6 +42,13 @@ def should_overlap_layer(enabled:bool,missing_experts:int)->bool:
     # hidden behind already-available expert arithmetic.
     return enabled and missing_experts>=2
 
+def local_c4_similarity(router:np.ndarray,ffn:np.ndarray,cartridge:dict)->float:
+    router_norm=max(float(np.linalg.norm(router)),1e-30)
+    ffn_norm=max(float(np.linalg.norm(ffn)),1e-30)
+    router_cosine=float(np.dot(router/np.float32(router_norm),cartridge['router_unit']))
+    ffn_cosine=float(np.dot(ffn/np.float32(ffn_norm),cartridge['ffn_unit']))
+    return (router_cosine+ffn_cosine)/2.0
+
 def parse_layer_spec(spec:str|None)->set[int]:
     if spec is None:
         return set(range(36))
@@ -71,11 +78,15 @@ def main()->None:
     serial_active_contributions=os.environ.get('AION_SERIAL_ACTIVE_CONTRIBUTIONS')=='1'
     trajectory_loop_guard=os.environ.get('AION_TRAJECTORY_LOOP_GUARD')=='1'
     preserve_top1_gate_mass=os.environ.get('AION_PRESERVE_TOP1_GATE_MASS')=='1'
+    local_c4_cartridge_path=os.environ.get('AION_LOCAL_C4_CARTRIDGE')
     if a.parallel_moe and not a.inprocess_finish: raise SystemExit('--parallel-moe requires --inprocess-finish')
     if a.pad_reduced_to_four and not a.inprocess_finish: raise SystemExit('--pad-reduced-to-four requires --inprocess-finish')
     if a.pad_reduced_to_four and a.parallel_moe: raise SystemExit('fixed-shape padding is incompatible with parallel MoE')
     if serial_active_contributions and not a.inprocess_finish: raise SystemExit('serial contributions require in-process finish')
     if serial_active_contributions and (a.parallel_moe or a.pad_reduced_to_four): raise SystemExit('serial contributions are mutually exclusive with parallel/padded MoE')
+    if local_c4_cartridge_path and not (a.inprocess_attention and a.inprocess_finish and a.inmemory_layer_flow): raise SystemExit('local C4 requires in-process attention/finish and in-memory layer flow')
+    if local_c4_cartridge_path and (a.parallel_moe or a.pairwise_moe or a.overlap_l2_read_compute or a.selective_fourth_q3_layers): raise SystemExit('local C4 is isolated from other expert execution probes')
+    if local_c4_cartridge_path and a.capture_counterfactuals: raise SystemExit('local C4 is isolated from counterfactual capture')
     if a.selective_fourth_q3_layers and not a.inprocess_finish: raise SystemExit('selective fourth-expert Q3 requires in-process finish')
     if a.selective_fourth_q3_layers and (a.parallel_moe or a.pairwise_moe or a.overlap_l2_read_compute): raise SystemExit('selective fourth-expert Q3 is incompatible with parallel/overlap probes')
     if a.selective_fourth_q3_max_gate is not None and not a.selective_fourth_q3_layers: raise SystemExit('selective fourth-expert Q3 gate requires selected layers')
@@ -196,6 +207,17 @@ def main()->None:
     if any(value<0 or value>=a.token_count for value in capture_positions): raise SystemExit('capture position is outside token-count')
     if any(value<0 or value>=36 for value in capture_layers): raise SystemExit('capture layer is outside 0..35')
     if a.activation_capture_dir: a.activation_capture_dir.mkdir(parents=True,exist_ok=False)
+    local_c4=None;local_c4_sha=None
+    if local_c4_cartridge_path:
+        local_c4_file=Path(local_c4_cartridge_path)
+        local_c4_values=np.load(local_c4_file,allow_pickle=False)
+        if str(local_c4_values['schema'].item())!='aion.gptoss-120b-local-c4-cartridge.v1': raise SystemExit('invalid local C4 cartridge schema')
+        local_c4={key:local_c4_values[key].copy() for key in local_c4_values.files}
+        if any(local_c4[name].shape!=(WIDTH,) for name in ('router_unit','ffn_unit','contribution')): raise SystemExit('invalid local C4 vector shape')
+        if not (0<=int(local_c4['layer'])<36 and 0<=int(local_c4['expert'])<EXPERTS): raise SystemExit('invalid local C4 address')
+        if not 0.0<float(local_c4['minimum_joint_cosine'])<=1.0: raise SystemExit('invalid local C4 similarity threshold')
+        if float(local_c4['training_gate'])<=0.0: raise SystemExit('invalid local C4 training gate')
+        local_c4_sha=sha(local_c4_file)
     manifest=json.loads(a.manifest.read_text()); sources=manifest['verified_sources']
     mixed_q3_sidecar=(GptOssMixedQ3Sidecar(a.selective_fourth_q3_sidecar_manifest,a.manifest)
                       if a.selective_fourth_q3_sidecar_manifest else None)
@@ -528,6 +550,14 @@ def main()->None:
                                    layer in selective_fourth_q3_layers and
                                    (a.selective_fourth_q3_max_gate is None or
                                     float(gates[3])<=a.selective_fourth_q3_max_gate))
+                local_c4_joint_cosine=None;local_c4_here=False
+                if (local_c4 is not None and active_experts==4
+                        and layer==int(local_c4['layer'])
+                        and route[3]==int(local_c4['expert'])):
+                    local_c4_joint_cosine=local_c4_similarity(
+                        router_result,ffn_result,local_c4)
+                    local_c4_here=(local_c4_joint_cosine>=
+                                   float(local_c4['minimum_joint_cosine']))
                 pilot_values={};pilot_wait_seconds=0.0;pilot_route_hits=0
                 pilot_ready_hits=0;pilot_wasted_reads=0
                 if lookahead_enabled and pilot_layer is not None:
@@ -644,7 +674,9 @@ def main()->None:
                         if any(value is None for value in values):
                             raise RuntimeError('lookahead/demand route remained incomplete')
                     else:
-                        if selective_q3_here and mixed_q3_sidecar is not None:
+                        if local_c4_here:
+                            values=store.get_layer_route_parallel(layer,route[:3],workers=3)
+                        elif selective_q3_here and mixed_q3_sidecar is not None:
                             values=store.get_layer_route_parallel(layer,route[:3],workers=3)
                             compact_value=mixed_q3_sidecar.get(layer,route[3])
                             if compact_value is None:
@@ -676,7 +708,12 @@ def main()->None:
                             blobs=[value[proj][kind] for value in values for proj in ('gate','up','down') for kind in ('weight','bias')]
                             references,pointers=ctypes_component_pointer_array(blobs)
                         else: blobs,references,pointers=prepared_components
-                        if active_experts == 4:
+                        if local_c4_here:
+                            status=reduced_moe_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,gate_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),3,out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
+                            if not status:
+                                correction_scale=np.float32(gate_values[3]/float(local_c4['training_gate']))
+                                out+=local_c4['contribution']*correction_scale
+                        elif active_experts == 4:
                             if selective_q3_here:
                                 selective_blobs=blobs[:18]+selective_q3_blobs(
                                     layer,route[3],values[3])
@@ -785,7 +822,7 @@ def main()->None:
                     early_exit={'argmax_token_id':int(diagnostic_top_two[0]),'max_logit':float(diagnostic_logits[diagnostic_top_two[0]]),'second_token_id':int(diagnostic_top_two[1]),'second_logit':float(diagnostic_logits[diagnostic_top_two[1]]),'margin':float(diagnostic_logits[diagnostic_top_two[0]]-diagnostic_logits[diagnostic_top_two[1]]),'compute_ms':diagnostic_elapsed.value}
                 layer_output_sha=(hashlib.sha256(current_values.tobytes()).hexdigest()
                                   if a.inmemory_layer_flow else sha(next_hidden))
-                layers.append({'layer':layer,'route':route,'gates':gates.tolist(),'route_pool_complete':route_pool_complete,'selective_fourth_q3_gate_up':bool(a.inprocess_finish and selective_q3_here),'layer_wall_seconds':time.perf_counter()-layer_started,'shared_load_seconds':shared_seconds,'router_process_seconds':router_seconds,'router_diagnostic':router_diagnostic,'expert_load_seconds':load_seconds,'overlap_applied':overlap_applied,'overlap_missing_experts':overlap_missing_experts,'overlapped_expert_read_compute_seconds':overlap_seconds,'lookahead_route_hits':pilot_route_hits,'lookahead_ready_hits':pilot_ready_hits,'lookahead_wait_seconds':pilot_wait_seconds,'lookahead_wasted_l2_reads':pilot_wasted_reads,'mapped_prefault_ms':prefault_ms,'mapped_prefault_checksum':prefault_checksum,'expert_file_stage_seconds':expert_stage_seconds,'attention_process_seconds':attention_seconds,'finish_process_seconds':finish_seconds,'attention':attn,'finish':finish,'output_sha256':layer_output_sha,'early_exit_diagnostic':early_exit})
+                layers.append({'layer':layer,'route':route,'gates':gates.tolist(),'route_pool_complete':route_pool_complete,'selective_fourth_q3_gate_up':bool(a.inprocess_finish and selective_q3_here),'local_c4_applied':local_c4_here,'local_c4_joint_cosine':local_c4_joint_cosine,'layer_wall_seconds':time.perf_counter()-layer_started,'shared_load_seconds':shared_seconds,'router_process_seconds':router_seconds,'router_diagnostic':router_diagnostic,'expert_load_seconds':load_seconds,'overlap_applied':overlap_applied,'overlap_missing_experts':overlap_missing_experts,'overlapped_expert_read_compute_seconds':overlap_seconds,'lookahead_route_hits':pilot_route_hits,'lookahead_ready_hits':pilot_ready_hits,'lookahead_wait_seconds':pilot_wait_seconds,'lookahead_wasted_l2_reads':pilot_wasted_reads,'mapped_prefault_ms':prefault_ms,'mapped_prefault_checksum':prefault_checksum,'expert_file_stage_seconds':expert_stage_seconds,'attention_process_seconds':attention_seconds,'finish_process_seconds':finish_seconds,'attention':attn,'finish':finish,'output_sha256':layer_output_sha,'early_exit_diagnostic':early_exit})
                 if not a.inmemory_layer_flow:
                     if current != initial_hidden: current.unlink(missing_ok=True)
                     Path(str(prefix)+'-ffn-input.bin').unlink(missing_ok=True);router_path.unlink(missing_ok=True);current=next_hidden
@@ -857,6 +894,15 @@ def main()->None:
         report['serial_active_contributions']=serial_active_contributions
         report['trajectory_loop_guard']=trajectory_loop_guard
         report['preserve_top1_gate_mass']=preserve_top1_gate_mass
+        report['local_c4_cartridge_path']=(str(Path(local_c4_cartridge_path).resolve())
+                                           if local_c4_cartridge_path else None)
+        report['local_c4_cartridge_sha256']=local_c4_sha
+        report['local_c4_applied_calls']=sum(
+            layer['local_c4_applied'] for run in runs for token in run['tokens']
+            for layer in token['layers'])
+        if local_c4 is not None:
+            report['quality_track']=True
+            report['claim_boundary'] += (' A hash-bound local C4 cartridge replaced the original fourth-expert contribution only when layer, expert identity and the frozen joint router/FFN cosine region matched. This changes the neural arithmetic and is a quality-track downstream-consequence experiment, not exact unrestricted inference.')
         report['trajectory_guard_runs']=trajectory_guard_runs
         report['executed_token_counts']=[len(run['tokens']) for run in runs]
         if a.exact_pool_escape_after_prompt and a.continuation_gate_mass_threshold is None:

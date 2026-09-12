@@ -1,11 +1,25 @@
 from __future__ import annotations
 
 import pytest
+import numpy as np
 
 from backend.scripts.run_aion_gptoss_first_token_gate import (
+    local_c4_similarity,
     parse_layer_spec,
     parse_optional_layer_spec,
 )
+
+
+def test_local_c4_similarity_averages_router_and_ffn_cosines() -> None:
+    cartridge = {
+        "router_unit": np.asarray([1.0, 0.0], dtype=np.float32),
+        "ffn_unit": np.asarray([0.0, 1.0], dtype=np.float32),
+    }
+    assert local_c4_similarity(
+        np.asarray([2.0, 0.0], dtype=np.float32),
+        np.asarray([0.0, 3.0], dtype=np.float32),
+        cartridge,
+    ) == pytest.approx(1.0)
 
 
 def test_adaptive_default_still_selects_every_layer() -> None:

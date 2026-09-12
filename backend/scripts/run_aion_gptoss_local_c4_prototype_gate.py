@@ -33,11 +33,11 @@ def canonical(value: dict) -> str:
     ).encode()).hexdigest()
 
 
-def load(stem: Path) -> tuple[dict, np.ndarray, np.ndarray]:
+def load(stem: Path) -> tuple[dict, np.ndarray, np.ndarray, np.ndarray]:
     metadata_path = Path(f"{stem}.json")
     metadata = json.loads(metadata_path.read_text())
     values = []
-    for name in ("router", "output"):
+    for name in ("router", "ffn", "output"):
         path = Path(f"{stem}-{name}.bin")
         if digest(path) != metadata[f"{name}_sha256"]:
             raise SystemExit(f"capture hash mismatch: {path}")
@@ -45,7 +45,7 @@ def load(stem: Path) -> tuple[dict, np.ndarray, np.ndarray]:
         if value.size != WIDTH:
             raise SystemExit(f"capture width mismatch: {path}")
         values.append(value)
-    return metadata, values[0], values[1]
+    return metadata, values[0], values[1], values[2]
 
 
 def main() -> int:
@@ -53,16 +53,17 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--training-stem", type=Path, required=True)
     parser.add_argument("--development-stem", type=Path, required=True)
+    parser.add_argument("--cartridge", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--threads", type=int, default=6)
     parser.add_argument("--maximum-relative-l2", type=float, default=0.02)
     parser.add_argument("--maximum-cost-fraction", type=float, default=0.25)
     args = parser.parse_args()
-    if args.output.exists():
+    if args.output.exists() or args.cartridge.exists():
         raise SystemExit("refusing to overwrite evidence")
 
-    training, training_x, _ = load(args.training_stem)
-    development, development_x, development_output = load(args.development_stem)
+    training, training_x, training_ffn, _ = load(args.training_stem)
+    development, development_x, _, development_output = load(args.development_stem)
     if training["layer"] != development["layer"]:
         raise SystemExit("captures have different layers")
     if len(training["route"]) != 4 or len(development["route"]) != 4:
@@ -136,6 +137,20 @@ def main() -> int:
     ) / denominator)
     prototype_bytes = int(contributions[0].nbytes)
     cost_fraction = prototype_bytes / ORIGINAL_EXPERT_BYTES
+    training_router_unit = training_x / max(np.linalg.norm(training_x), 1e-30)
+    training_ffn_unit = training_ffn / max(np.linalg.norm(training_ffn), 1e-30)
+    args.cartridge.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(
+        args.cartridge,
+        schema=np.asarray("aion.gptoss-120b-local-c4-cartridge.v1"),
+        layer=np.asarray(layer, dtype="<i4"),
+        expert=np.asarray(expert, dtype="<i4"),
+        training_gate=np.asarray(training["gates"][3], dtype="<f4"),
+        minimum_joint_cosine=np.asarray(0.80, dtype="<f4"),
+        router_unit=training_router_unit.astype("<f4"),
+        ffn_unit=training_ffn_unit.astype("<f4"),
+        contribution=contributions[0].astype("<f4"),
+    )
     acceptance = {
         "development_relative_l2_at_most_limit": (
             corrected_error <= args.maximum_relative_l2
@@ -163,6 +178,9 @@ def main() -> int:
         "prototype_bytes": prototype_bytes,
         "original_expert_declared_bytes": ORIGINAL_EXPERT_BYTES,
         "prototype_storage_fraction": cost_fraction,
+        "cartridge_path": str(args.cartridge.resolve()),
+        "cartridge_sha256": digest(args.cartridge),
+        "minimum_joint_cosine": 0.80,
         "maximum_relative_l2": args.maximum_relative_l2,
         "maximum_cost_fraction": args.maximum_cost_fraction,
         "acceptance": acceptance,

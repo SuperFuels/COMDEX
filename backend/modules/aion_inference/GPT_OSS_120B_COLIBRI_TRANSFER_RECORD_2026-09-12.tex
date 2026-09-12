@@ -1104,3 +1104,49 @@ substitute this correction at its authentic layer and position, roll the model
 forward, and compare subsequent routes and output logits with the original
 four-expert trajectory.  Additional prompt coverage is justified only if that
 downstream gate passes.
+
+\subsection{Single-region downstream roll-forward gate}
+
+The passing layer-12/expert-22 prototype was compiled into a hash-bound NPZ
+cartridge containing its layer and expert address, frozen 0.80 joint-cosine
+threshold, normalized router and FFN anchor vectors, original training gate and
+11,520-byte gated contribution.  The complete in-process runtime was extended
+with an isolated quality-track path.  It evaluates the cartridge only when the
+unrestricted router selects the addressed expert fourth and the joint activation
+similarity passes.  A match loads and calculates the first three original
+experts, adds the scaled F32 correction, and avoids loading the original fourth
+expert.  Every nonmatch retains the original four-expert path.
+
+The 44-position extraction trajectory was repeated twice.  The cartridge fired
+once per pass, at position 29 and layer 12, with joint cosine 0.970179.  The two
+candidate passes were internally bitwise repeatable.  Against the separately
+captured unrestricted teacher, all 44 generated token IDs and all 44 recorded
+second-choice token IDs remained identical.  Thus the local perturbation was
+token-stable throughout the measured window.
+
+The internal trajectory was not identical.  The first ordered-router change
+appeared at position 29, layer 31, where the same four-expert set placed experts
+4 and 85 in the opposite order.  The first different expert set appeared at
+position 30, layer 26.  Across the complete trace there were 53 ordered-route
+differences, 28 expert-set differences and five top-expert differences.  The
+maximum absolute chosen-logit drift was 0.19080 and its p95 was 0.12763; maximum
+margin drift was 0.25230.  The final token remained identical and its margin
+changed from 2.31447 to 2.33242.
+
+This result is classified as \texttt{TOKEN-STABLE-DOWNSTREAM-DRIFT}.  It
+proves that the first compact correction can survive the complete downstream
+model without changing any next-token choice in this 44-position extraction
+window, but it also proves that the 0.02 local-output gate does not guarantee
+router identity.  After the substitution, the candidate's recorded top-two
+logit perturbation divided by the teacher's top-one/top-two margin had median
+0.06298, p95 0.22704 and maximum 0.23778 at position 42.  The unchanged tokens
+therefore retained measurable margin, but the worst position consumed nearly
+one quarter of the teacher's decision separation.  The bound downstream
+analysis has canonical SHA-256
+\texttt{fcede9b07008bdc2220c6e208f70daa9b3c7f979fb48571e049bcccd5559a0b0}.
+
+No speed improvement is claimed: the cartridge covered only
+one of 1,584 layer calls per pass and the two complete runs include different
+cache histories and instrumentation.  Coverage expansion now requires either a
+more accurate local correction or a predeclared bounded downstream certificate,
+followed by untouched selection and holdout prompts.
