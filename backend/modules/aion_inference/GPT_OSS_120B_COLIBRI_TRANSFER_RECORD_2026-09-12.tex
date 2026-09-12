@@ -173,3 +173,13 @@ The extraction promoted-report file SHA-256 is
 \texttt{e0f66f7a82cc1b121c61536b2b8ad5ab27f30d5c1a23ecb3d848464bc7c90aa8};
 its internal canonical SHA-256 is
 \texttt{ca0785b7648551a52c8715adc1109a3d0d9faa36f4303a57cfa3985991479be8}.
+
+\subsection{Top-two advice falsification}
+
+After promotion, an otherwise identical arithmetic gate advised the top two
+predicted next-layer experts.  It remained bit-for-bit exact and improved its
+matched control by 3.8681\%, reaching 2.55794 tokens/s from a 2.46267-token/s
+control.  This did not clear the unchanged 5\% gate and was weaker in paired
+terms than top-one's 6.2516\% improvement.  The second hint therefore added
+storage pressure faster than useful latency hiding.  Top-two advice is stopped
+and top-one remains the promoted policy.
