@@ -22,3 +22,15 @@ Restart-time free space was approximately 4.8 GiB. The target remains up to
 focused queue and economics tests passed, including interruption on exhausted
 reserve and normal guarded completion. No model arithmetic, certificate gate,
 selection/holdout boundary, or validated token-rate claim is changed.
+
+\subsection{Second preserved interruption and fresh restart}
+The first retry subsequently crossed the same 3 GiB reserve and was stopped
+by the during-capture guard. It left 117 partial layer observations and no
+final teacher receipt or verified completion. These observations are not
+counted as completed evidence. After further space recovery, the Mac reported
+approximately 19 GiB free at the next restart. A new queue root with suffix
+\texttt{20260912\_retry02} was launched for up to 24 training-only captures;
+both earlier roots remain preserved. The initial arithmetic job declared
+1,332 expected layer-position observations. That count is a target, not an
+achieved result. Thirteen focused checks passed again before launch. All
+existing numerical, quality, integrity and memory gates remain unchanged.

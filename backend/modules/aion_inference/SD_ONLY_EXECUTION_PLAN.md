@@ -1,5 +1,13 @@
 # AION SD-Only Execution Plan
 
+Latest operational state (2026-09-12): C4 training collection restarted in
+`results/aion_gptoss_c4_full_layer_training_queue_20260912_retry02`, up to 24
+training-only prompts across all 36 layers. Both earlier roots are interrupted
+and preserved, not verified evidence. Restart free space approximately 19 GiB;
+3 GiB during-capture reserve remains mandatory. No additional L2 allocated.
+Queue/economics checks passed 13/13 again. No new certification or speed claim.
+Do not start competing full-model inference while this queue is running.
+
 Status: LOCKED for execution until faster storage or additional hardware is available.
 
 Baseline date: 6 September 2026  
