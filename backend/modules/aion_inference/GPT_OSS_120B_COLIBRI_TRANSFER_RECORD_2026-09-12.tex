@@ -106,3 +106,70 @@ Its internal canonical SHA-256 is
 the complete file SHA-256 is
 \texttt{c2bb33a9bea627e70c8b3f63ba4dcc741d86286b24d937abd536b49e6f208f81}.
 The focused lookahead and adjacent I/O/cache suite passed 10/10 tests.
+
+\subsection{Live rotating-pipeline experiments}
+
+Three implementations were tested in balanced five-pass order before a
+candidate was promoted.  All variants retained bit-for-bit routes, tokens,
+hidden states and step logits.
+
+First, a copied four-expert pilot loaded predicted L2 experts into a separate
+user-space buffer.  Although prediction remained accurate, the following
+layer frequently arrived before four sequential reads completed.  The
+candidate moved approximately 3.87~GB of additional data per pass and was
+40.6559\% slower than control.  It was stopped.  A copied top-one variant
+raised prediction precision to 97.38\% and sharply reduced waste, but remained
+6.3468\% slower because it split one item from the efficient four-way demand
+batch and retained a synchronization wait.  It was also stopped.
+
+Second, top-one lookahead was changed from a user-space read into macOS
+\texttt{F\_RDADVISE}: an asynchronous no-copy advisory request.  The kernel was
+told which contiguous L2 expert frame would probably be required, while the
+unchanged four-way demand loader remained responsible for acquiring and
+verifying the authoritative route.  The isolated hint improved median
+arithmetic continuation time by 3.5970\%.  This was positive but below the
+unchanged 5\% promotion gate, so it was not promoted independently.
+
+Finally, the no-copy cross-layer hint was composed with AION's already-promoted
+same-layer expert-read/compute overlap.  The mechanisms operate at different
+boundaries: lookahead starts kernel readahead during layer $L$, while the
+same-layer mechanism overlaps any remaining layer-$L+1$ demand reads with
+available layer-$L+1$ expert arithmetic.  Neither changes neural mathematics.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrr}
+\toprule
+Family & Control t/s & Candidate t/s & Gain & Candidate p50 & Candidate p95 \\
+\midrule
+Arithmetic & 2.16949 & 2.30511 & 6.2516\% & 410.69 ms & 575.59 ms \\
+Extraction & 1.98918 & 2.44821 & 23.0765\% & 393.43 ms & 542.47 ms \\
+\bottomrule
+\end{tabular}
+\caption{Exact nine-token continuation gates after real prompt prefixes.}
+\end{table}
+
+Arithmetic median continuation time fell from 4.148446 to 3.904362 seconds.
+Extraction median continuation time fell from 4.524481 to 3.676154 seconds.
+Every candidate and control pass executed the original unrestricted top-four
+experts.  Same-layer overlap activation counts were identical between modes;
+the candidate created no speculative user-space expert copy, introduced no
+lookahead wait, and performed no speculative SD fallback.
+
+Decision:
+\texttt{PROMOTE\_EXACT\_TOP1\_CROSS\_LAYER\_READAHEAD\_WITH\_SAME\_LAYER\_OVERLAP}
+on the two-family short-window gate.  This is a genuine exact runtime
+improvement, but it does not yet replace the established longer-window global
+frontier.  Replicated 64--256-token, broader-family and cold-SD tests remain
+mandatory.  The result demonstrates that the AtomSheet-style rotation is most
+effective as a control schedule over the existing physical batch, not as an
+additional copied expert workbench.
+
+The arithmetic promoted-report file SHA-256 is
+\texttt{5d5cb9161463999a594d62f5aae7f26f24fb013b65439c235e1a2d8645066fe4};
+its internal canonical SHA-256 is
+\texttt{c917c257e6f9ec04ac65a82204a142c6c21ff4478ba446f75be290c2b3082c46}.
+The extraction promoted-report file SHA-256 is
+\texttt{e0f66f7a82cc1b121c61536b2b8ad5ab27f30d5c1a23ecb3d848464bc7c90aa8};
+its internal canonical SHA-256 is
+\texttt{ca0785b7648551a52c8715adc1109a3d0d9faa36f4303a57cfa3985991479be8}.

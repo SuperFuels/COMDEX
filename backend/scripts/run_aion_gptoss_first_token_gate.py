@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Chain all 36 gpt-oss blocks and produce a first BOS-conditioned token."""
 from __future__ import annotations
-import argparse, ctypes, hashlib, json, os, subprocess, tempfile, time
+import argparse, ctypes, fcntl, hashlib, json, os, struct, subprocess, tempfile, time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
@@ -64,7 +64,7 @@ def parse_optional_layer_spec(spec:str|None)->set[int]:
     return parse_layer_spec(spec) if spec else set()
 
 def main()->None:
-    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--l2-two-touch-admission',action='store_true');p.add_argument('--l2-admission-touches',type=int,default=2);p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--pairwise-moe',action='store_true');p.add_argument('--pairwise-pass-pattern');p.add_argument('--pad-reduced-to-four',action='store_true');p.add_argument('--native-router',action='store_true');p.add_argument('--inprocess-embedding',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--metal-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--prompt-token-count',type=int);p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-layer-active-experts',type=int,choices=(1,2,3));p.add_argument('--continuation-fixed-expert-layers');p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-threshold-layers');p.add_argument('--continuation-min-active-experts',type=int,choices=(1,2),default=2);p.add_argument('--continuation-adaptive-layers');p.add_argument('--continuation-top1-threshold-plan',type=Path);p.add_argument('--continuation-top1-cycle');p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');p.add_argument('--capture-counterfactuals',action='store_true');p.add_argument('--capture-metadata-only',action='store_true');p.add_argument('--early-exit-diagnostic-layers');p.add_argument('--selective-fourth-q3-layers');p.add_argument('--selective-fourth-q3-max-gate',type=float);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--l2-two-touch-admission',action='store_true');p.add_argument('--l2-admission-touches',type=int,default=2);p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--cross-layer-router-lookahead',action='store_true');p.add_argument('--lookahead-pass-pattern');p.add_argument('--lookahead-k',type=int,default=4);p.add_argument('--lookahead-advice-only',action='store_true');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--pairwise-moe',action='store_true');p.add_argument('--pairwise-pass-pattern');p.add_argument('--pad-reduced-to-four',action='store_true');p.add_argument('--native-router',action='store_true');p.add_argument('--inprocess-embedding',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--metal-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--prompt-token-count',type=int);p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-layer-active-experts',type=int,choices=(1,2,3));p.add_argument('--continuation-fixed-expert-layers');p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-threshold-layers');p.add_argument('--continuation-min-active-experts',type=int,choices=(1,2),default=2);p.add_argument('--continuation-adaptive-layers');p.add_argument('--continuation-top1-threshold-plan',type=Path);p.add_argument('--continuation-top1-cycle');p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');p.add_argument('--capture-counterfactuals',action='store_true');p.add_argument('--capture-metadata-only',action='store_true');p.add_argument('--early-exit-diagnostic-layers');p.add_argument('--selective-fourth-q3-layers');p.add_argument('--selective-fourth-q3-max-gate',type=float);a=p.parse_args()
     serial_active_contributions=os.environ.get('AION_SERIAL_ACTIVE_CONTRIBUTIONS')=='1'
     if a.parallel_moe and not a.inprocess_finish: raise SystemExit('--parallel-moe requires --inprocess-finish')
     if a.pad_reduced_to_four and not a.inprocess_finish: raise SystemExit('--pad-reduced-to-four requires --inprocess-finish')
@@ -99,8 +99,14 @@ def main()->None:
     if a.route_arena_l1_hotset and not (a.reusable_arena_persistent_l2 and a.l2_cartridge_plan and a.preload_expert_pool): raise SystemExit('route-arena L1 hotset requires reusable arena, cartridge plan and preloaded pool')
     if a.overlap_l2_read_compute and not (a.reusable_arena_persistent_l2 and a.inprocess_finish): raise SystemExit('L2 read/compute overlap requires reusable arena and in-process finish')
     if a.overlap_l2_read_compute and (a.parallel_moe or a.mapped_l2_willneed or a.mapped_l2_parallel_prefault): raise SystemExit('L2 read/compute overlap is incompatible with other expert execution probes')
+    if a.cross_layer_router_lookahead and not (a.persistent_l2_root and a.inprocess_attention and a.inprocess_finish): raise SystemExit('cross-layer router lookahead requires persistent L2 and in-process attention/finish')
+    if a.cross_layer_router_lookahead and (a.parallel_moe or a.pairwise_moe or (a.overlap_l2_read_compute and not a.lookahead_advice_only)): raise SystemExit('buffered cross-layer lookahead is isolated from other expert overlap/parallel probes')
+    if a.lookahead_advice_only and not a.cross_layer_router_lookahead: raise SystemExit('lookahead advice requires cross-layer lookahead')
+    if not 1<=a.lookahead_k<=8: raise SystemExit('lookahead-k must be within 1..8')
+    if a.lookahead_k!=4 and not a.cross_layer_router_lookahead: raise SystemExit('custom lookahead-k requires cross-layer lookahead')
     if a.parallel_moe and a.pairwise_moe: raise SystemExit('select only one expert parallelism mode')
     if a.overlap_pass_pattern and (not a.overlap_l2_read_compute or len(a.overlap_pass_pattern)!=a.passes or set(a.overlap_pass_pattern)-set('01')): raise SystemExit('overlap pass pattern requires overlap mode and exactly one 0/1 character per pass')
+    if a.lookahead_pass_pattern and (not a.cross_layer_router_lookahead or len(a.lookahead_pass_pattern)!=a.passes or set(a.lookahead_pass_pattern)-set('01')): raise SystemExit('lookahead pass pattern requires lookahead mode and exactly one 0/1 character per pass')
     if a.pairwise_pass_pattern and (not a.pairwise_moe or len(a.pairwise_pass_pattern)!=a.passes or set(a.pairwise_pass_pattern)-set('01')): raise SystemExit('pairwise pass pattern requires pairwise mode and exactly one 0/1 character per pass')
     if a.persistent_l2_root and not a.resident_replay: raise SystemExit('persistent L2 requires resident replay')
     if a.persistent_l2_root and (a.compressed_cache or a.tiered_cache): raise SystemExit('persistent L2 cannot be combined with compressed or tiered cache modes')
@@ -371,11 +377,20 @@ def main()->None:
             pass_index=ord(label)-ord('a')
             overlap_enabled=overlap_enabled_for_pass(
                 a.overlap_l2_read_compute,a.overlap_pass_pattern,pass_index)
+            lookahead_enabled=overlap_enabled_for_pass(
+                a.cross_layer_router_lookahead,a.lookahead_pass_pattern,pass_index)
             pairwise_enabled=overlap_enabled_for_pass(
                 a.pairwise_moe,a.pairwise_pass_pattern,pass_index)
             pass_moe_function=(pairwise_moe_function if pairwise_enabled
                                else moe_function)
             store=persistent_store or GptOssExpertFrameStore(a.manifest,256*1024*1024);metrics_before=store.metrics();token_id=forced_input_ids[0]
+            lookahead_executor=(ThreadPoolExecutor(max_workers=1,thread_name_prefix='aion-next-router')
+                                if lookahead_enabled and not a.lookahead_advice_only else None)
+            lookahead_stats={'predictions':0,'route_hits':0,'ready_hits':0,
+                             'l2_reads':0,'l2_read_hits':0,'l2_read_misses':0,
+                             'wasted_l2_reads':0,'wait_seconds':0.0,
+                             'prediction_seconds':0.0,'advice_calls':0,
+                             'advice_bytes':0,'advice_misses':0}
             if a.inprocess_attention: attention_reset()
             token_results=[];started=time.perf_counter();transition_rehydrate_seconds=0.0;transition_rehydrate_delta=None
             for position in range(a.token_count):
@@ -393,6 +408,7 @@ def main()->None:
               input_token_id=(forced_input_ids[position] if position<len(forced_input_ids) else token_id)
               current,embedding,embedding_sha=(initial_hidden,embed_run,initial_row_sha) if position==0 else embed(input_token_id,f'{label}-token-{position}')
               current_values=np.fromfile(current,dtype='<f4') if a.inmemory_layer_flow else None
+              pilot_future=None;pilot_layer=None;pilot_prediction=[]
               layers=[];token_started=time.perf_counter()
               for layer in range(36):
                 layer_started=time.perf_counter()
@@ -478,6 +494,66 @@ def main()->None:
                 elif active_experts < candidate_count:
                     route=route[:active_experts];gates=gates[:active_experts]
                     if not a.preserve_dropped_gate_mass:gates/=gates.sum()
+                pilot_values={};pilot_wait_seconds=0.0;pilot_route_hits=0
+                pilot_ready_hits=0;pilot_wasted_reads=0
+                if lookahead_enabled and pilot_layer is not None:
+                    if pilot_layer != layer:
+                        raise RuntimeError('cross-layer lookahead arrived for the wrong layer')
+                    if pilot_future is not None:
+                        waited=time.perf_counter();pilot_values=pilot_future.result()
+                        pilot_wait_seconds=time.perf_counter()-waited
+                    pilot_route_hits=len(set(route)&set(pilot_prediction))
+                    pilot_ready_hits=sum(
+                        expert in pilot_values or (layer,expert) in store._cache
+                        for expert in route if expert in pilot_prediction)
+                    pilot_wasted_reads=sum(expert not in route for expert in pilot_values)
+                    lookahead_stats['route_hits']+=pilot_route_hits
+                    lookahead_stats['ready_hits']+=pilot_ready_hits
+                    lookahead_stats['wasted_l2_reads']+=pilot_wasted_reads
+                    lookahead_stats['wait_seconds']+=pilot_wait_seconds
+                pilot_future=None;pilot_layer=None;pilot_prediction=[]
+                if lookahead_enabled and layer+1<36:
+                    predicted_started=time.perf_counter()
+                    next_norm=np.frombuffer(attention_resident[layer+1][10],dtype='<f4')
+                    proxy=ffn_result*np.float32(
+                        1.0/np.sqrt(np.mean(ffn_result*ffn_result,dtype=np.float32)+np.float32(1.0e-5)))*next_norm
+                    next_w=np.frombuffer(router_resident[layer+1][0],dtype='<f4').reshape(EXPERTS,WIDTH)
+                    next_b=np.frombuffer(router_resident[layer+1][1],dtype='<f4')
+                    predicted_logits=next_w@proxy+next_b
+                    pilot_prediction=np.argsort(predicted_logits,kind='stable')[-a.lookahead_k:][::-1].astype(int).tolist()
+                    pilot_layer=layer+1
+                    lookahead_stats['predictions']+=len(pilot_prediction)
+                    lookahead_stats['prediction_seconds']+=time.perf_counter()-predicted_started
+                    def load_predicted_l2(target_layer=pilot_layer,
+                                          predictions=tuple(pilot_prediction)):
+                        prepared={}
+                        for expert in predictions:
+                            if (target_layer,expert) in store._cache:
+                                continue
+                            lookahead_stats['l2_reads']+=1
+                            value=GptOssPersistentL2ExpertFrameStore._read_l2(
+                                store,target_layer,expert)
+                            if value is None:
+                                lookahead_stats['l2_read_misses']+=1
+                            else:
+                                lookahead_stats['l2_read_hits']+=1
+                                prepared[expert]=value
+                        return prepared
+                    if a.lookahead_advice_only:
+                        for expert in pilot_prediction:
+                            if (pilot_layer,expert) in store._cache:
+                                continue
+                            path=store._l2_path(pilot_layer,expert)
+                            try:
+                                size=path.stat().st_size
+                                with path.open('rb',buffering=0) as handle:
+                                    fcntl.fcntl(handle.fileno(),44,struct.pack('@qi4x',0,size))
+                                lookahead_stats['advice_calls']+=1
+                                lookahead_stats['advice_bytes']+=size
+                            except FileNotFoundError:
+                                lookahead_stats['advice_misses']+=1
+                    else:
+                        pilot_future=lookahead_executor.submit(load_predicted_l2)
                 capture_stem=None
                 if (a.activation_capture_dir and label=='a'
                         and position in capture_positions and layer in capture_layers):
@@ -525,7 +601,16 @@ def main()->None:
                     else: next_hidden.write_bytes(out.tobytes())
                     finish={'schema':'aion.gptoss.overlapped-persistent-moe.v1','compute_ms':native_ms,'output_checksum':float(out.astype(np.float64).sum()),'finite':bool(np.isfinite(out).all())}
                 else:
-                    load_started=time.perf_counter();values=store.get_layer_route_parallel(layer,route,workers=4)
+                    load_started=time.perf_counter()
+                    if pilot_values:
+                        missing_route=[expert for expert in route if expert not in pilot_values]
+                        demand_values=store.get_layer_route_parallel(layer,missing_route,workers=4)
+                        demand_by_expert=dict(zip(missing_route,demand_values,strict=True))
+                        values=[pilot_values.get(expert,demand_by_expert.get(expert)) for expert in route]
+                        if any(value is None for value in values):
+                            raise RuntimeError('lookahead/demand route remained incomplete')
+                    else:
+                        values=store.get_layer_route_parallel(layer,route,workers=4)
                     if a.mapped_l2_willneed: store.advise_route_willneed(values)
                     if a.mapped_l2_parallel_prefault:
                         blobs=[value[proj][kind] for value in values for proj in ('gate','up','down') for kind in ('weight','bias')]
@@ -659,7 +744,7 @@ def main()->None:
                     early_exit={'argmax_token_id':int(diagnostic_top_two[0]),'max_logit':float(diagnostic_logits[diagnostic_top_two[0]]),'second_token_id':int(diagnostic_top_two[1]),'second_logit':float(diagnostic_logits[diagnostic_top_two[1]]),'margin':float(diagnostic_logits[diagnostic_top_two[0]]-diagnostic_logits[diagnostic_top_two[1]]),'compute_ms':diagnostic_elapsed.value}
                 layer_output_sha=(hashlib.sha256(current_values.tobytes()).hexdigest()
                                   if a.inmemory_layer_flow else sha(next_hidden))
-                layers.append({'layer':layer,'route':route,'gates':gates.tolist(),'route_pool_complete':route_pool_complete,'selective_fourth_q3_gate_up':bool(a.inprocess_finish and selective_q3_here),'layer_wall_seconds':time.perf_counter()-layer_started,'shared_load_seconds':shared_seconds,'router_process_seconds':router_seconds,'router_diagnostic':router_diagnostic,'expert_load_seconds':load_seconds,'overlap_applied':overlap_applied,'overlap_missing_experts':overlap_missing_experts,'overlapped_expert_read_compute_seconds':overlap_seconds,'mapped_prefault_ms':prefault_ms,'mapped_prefault_checksum':prefault_checksum,'expert_file_stage_seconds':expert_stage_seconds,'attention_process_seconds':attention_seconds,'finish_process_seconds':finish_seconds,'attention':attn,'finish':finish,'output_sha256':layer_output_sha,'early_exit_diagnostic':early_exit})
+                layers.append({'layer':layer,'route':route,'gates':gates.tolist(),'route_pool_complete':route_pool_complete,'selective_fourth_q3_gate_up':bool(a.inprocess_finish and selective_q3_here),'layer_wall_seconds':time.perf_counter()-layer_started,'shared_load_seconds':shared_seconds,'router_process_seconds':router_seconds,'router_diagnostic':router_diagnostic,'expert_load_seconds':load_seconds,'overlap_applied':overlap_applied,'overlap_missing_experts':overlap_missing_experts,'overlapped_expert_read_compute_seconds':overlap_seconds,'lookahead_route_hits':pilot_route_hits,'lookahead_ready_hits':pilot_ready_hits,'lookahead_wait_seconds':pilot_wait_seconds,'lookahead_wasted_l2_reads':pilot_wasted_reads,'mapped_prefault_ms':prefault_ms,'mapped_prefault_checksum':prefault_checksum,'expert_file_stage_seconds':expert_stage_seconds,'attention_process_seconds':attention_seconds,'finish_process_seconds':finish_seconds,'attention':attn,'finish':finish,'output_sha256':layer_output_sha,'early_exit_diagnostic':early_exit})
                 if not a.inmemory_layer_flow:
                     if current != initial_hidden: current.unlink(missing_ok=True)
                     Path(str(prefix)+'-ffn-input.bin').unlink(missing_ok=True);router_path.unlink(missing_ok=True);current=next_hidden
@@ -679,6 +764,8 @@ def main()->None:
               logits_sha=(hashlib.sha256(logit_values.tobytes()).hexdigest()
                            if a.inmemory_layer_flow else sha(logits_path))
               token_results.append({'position':position,'input_token_id':input_token_id,'input_was_forced':position<len(forced_input_ids),'input_was_forced_prompt':position<prompt_token_count,'generated_token_id':token_id,'wall_seconds':time.perf_counter()-token_started,'output_process_seconds':output_seconds,'layers':layers,'final_hidden_sha256':final_hidden_sha,'logits_sha256':logits_sha,'output':output,'embedding':embedding,'embedding_row_sha256':embedding_sha})
+            if lookahead_executor is not None:
+                lookahead_executor.shutdown(wait=True)
             metrics_after=store.metrics()
             metric_keys=(
                 'hits','faults','evictions','compressed_bytes_read','raw_bytes_materialized',
@@ -691,7 +778,7 @@ def main()->None:
             )
             delta={key:metrics_after[key]-metrics_before.get(key,0)
                    for key in metric_keys if key in metrics_after}
-            return {'label':label,'overlap_enabled':overlap_enabled,'pairwise_enabled':pairwise_enabled,'wall_seconds':time.perf_counter()-started,'tokens':token_results,'layers':token_results[-1]['layers'],'final_hidden_sha256':token_results[-1]['final_hidden_sha256'],'logits_sha256':token_results[-1]['logits_sha256'],'output':token_results[-1]['output'],'store_metrics':metrics_after,'store_metric_delta':delta,'prompt_to_continuation_rehydrate_seconds':transition_rehydrate_seconds,'prompt_to_continuation_rehydrate_metric_delta':transition_rehydrate_delta}
+            return {'label':label,'overlap_enabled':overlap_enabled,'lookahead_enabled':lookahead_enabled,'lookahead_metrics':lookahead_stats,'pairwise_enabled':pairwise_enabled,'wall_seconds':time.perf_counter()-started,'tokens':token_results,'layers':token_results[-1]['layers'],'final_hidden_sha256':token_results[-1]['final_hidden_sha256'],'logits_sha256':token_results[-1]['logits_sha256'],'output':token_results[-1]['output'],'store_metrics':metrics_after,'store_metric_delta':delta,'prompt_to_continuation_rehydrate_seconds':transition_rehydrate_seconds,'prompt_to_continuation_rehydrate_metric_delta':transition_rehydrate_delta}
         runs=[pass_once(chr(ord('a')+index)) for index in range(a.passes)]
         if output_shutdown: output_shutdown()
         run_a,run_b=runs[:2]
@@ -705,7 +792,7 @@ def main()->None:
                 'run_a':run_a,'run_b':run_b,'additional_runs':runs[2:],'passes':a.passes,'routes_repeatable':routes_equal,'final_hidden_and_logits_bitwise_repeatable':exact,
                 'embedding_row_bytes':row_bytes,'embedding_row_sha256':initial_row_sha,'embedding_run':embed_run,
                 'output_weight':{'bytes':output_weight.stat().st_size,'sha256':sha(output_weight),'one_time_stage_seconds':output_stage_seconds},'output_norm':output_norm_evidence,'continuation_active_experts':a.continuation_active_experts,'continuation_layer_active_experts':a.continuation_layer_active_experts,'continuation_fixed_expert_layers':sorted(fixed_expert_layers),'continuation_gate_mass_threshold':a.continuation_gate_mass_threshold,'continuation_secondary_gate_mass_threshold':a.continuation_secondary_gate_mass_threshold,'continuation_secondary_threshold_layers':sorted(secondary_threshold_layers),'continuation_min_active_experts':a.continuation_min_active_experts,'continuation_adaptive_layers':sorted(adaptive_layers) if a.continuation_gate_mass_threshold is not None else None,'continuation_top1_threshold_plan_path':str(a.continuation_top1_threshold_plan.resolve()) if a.continuation_top1_threshold_plan else None,'continuation_top1_threshold_plan_canonical_sha256':top1_plan_sha,'continuation_top1_cycle':list(top1_cycle) if top1_cycle else None,'preserve_dropped_gate_mass':a.preserve_dropped_gate_mass,'early_exit_diagnostic_layers':sorted(early_exit_layers),
-                'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'persistent_l2_root':str(a.persistent_l2_root.resolve()) if a.persistent_l2_root else None,'declared_persistent_l2_bytes':int(a.persistent_l2_gib*1024*1024*1024) if a.persistent_l2_gib else 0,'l2_cartridge_plan_path':str(a.l2_cartridge_plan.resolve()) if a.l2_cartridge_plan else None,'l2_cartridge_plan_canonical_sha256':cartridge_sha,'l2_cartridge_family':a.l2_cartridge_family,'l2_cartridge_protected_entries':sum(map(len,cartridge_layers.values())) if cartridge_layers else 0,'l2_cartridge_eager_prefetch':False,'l2_two_touch_admission':a.l2_two_touch_admission,'l2_admission_touches':a.l2_admission_touches,'route_arena_l1_hotset':a.route_arena_l1_hotset,'route_arena_l1_hotset_entries':sum(map(len,cartridge_hotset_layers.values())) if cartridge_hotset_layers else 0,'overlap_l2_read_compute':a.overlap_l2_read_compute,'overlap_pass_pattern':a.overlap_pass_pattern,'mapped_persistent_l2':a.mapped_persistent_l2,'pinned_verified_persistent_l2':a.pinned_verified_persistent_l2,'reusable_arena_persistent_l2':a.reusable_arena_persistent_l2,'mapped_l2_willneed':a.mapped_l2_willneed,'mapped_l2_parallel_prefault':a.mapped_l2_parallel_prefault,'inprocess_finish':a.inprocess_finish,'parallel_moe':a.parallel_moe,'pairwise_moe':a.pairwise_moe,'pairwise_pass_pattern':a.pairwise_pass_pattern,'threads':a.threads,'pad_reduced_to_four':a.pad_reduced_to_four,'native_router':a.native_router,'inprocess_embedding':a.inprocess_embedding,'inprocess_attention':a.inprocess_attention,'inprocess_output':a.inprocess_output,'metal_output':a.metal_output,'inmemory_layer_flow':a.inmemory_layer_flow,'activation_capture_dir':str(a.activation_capture_dir.resolve()) if a.activation_capture_dir else None,'capture_positions':sorted(capture_positions),'capture_layers':sorted(capture_layers),'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(expert_cache_bytes if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,'selective_fourth_q3_layers':sorted(selective_fourth_q3_layers),'selective_fourth_q3_projection_mask':3 if selective_fourth_q3_layers else None,'selective_fourth_q3_max_gate':a.selective_fourth_q3_max_gate,'selective_fourth_q3_conversion_seconds':selective_q3_conversion_seconds,'selective_fourth_q3_cached_projections':len(selective_q3_cache),'quality_track':bool(selective_fourth_q3_layers) or (expert_pool is not None and not a.exact_pool_escape_after_prompt) or a.continuation_active_experts != 4 or a.continuation_layer_active_experts is not None or a.continuation_gate_mass_threshold is not None or a.native_router or a.metal_output,'constrained_expert_pool_path':str(a.expert_pool.resolve()) if a.expert_pool else None,'constrained_expert_pool_canonical_sha256':expert_pool_sha,'constrained_expert_pool_preloaded':a.preload_expert_pool,'constrain_after_prompt':a.constrain_after_prompt,'exact_pool_escape_after_prompt':a.exact_pool_escape_after_prompt,'incremental_pool_admission':a.incremental_pool_admission,'constrained_expert_pool_preload_seconds':pool_preload_seconds,'constrained_expert_pool_preload_metrics':pool_preload_metrics,
+                'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'persistent_l2_root':str(a.persistent_l2_root.resolve()) if a.persistent_l2_root else None,'declared_persistent_l2_bytes':int(a.persistent_l2_gib*1024*1024*1024) if a.persistent_l2_gib else 0,'l2_cartridge_plan_path':str(a.l2_cartridge_plan.resolve()) if a.l2_cartridge_plan else None,'l2_cartridge_plan_canonical_sha256':cartridge_sha,'l2_cartridge_family':a.l2_cartridge_family,'l2_cartridge_protected_entries':sum(map(len,cartridge_layers.values())) if cartridge_layers else 0,'l2_cartridge_eager_prefetch':False,'l2_two_touch_admission':a.l2_two_touch_admission,'l2_admission_touches':a.l2_admission_touches,'route_arena_l1_hotset':a.route_arena_l1_hotset,'route_arena_l1_hotset_entries':sum(map(len,cartridge_hotset_layers.values())) if cartridge_hotset_layers else 0,'overlap_l2_read_compute':a.overlap_l2_read_compute,'overlap_pass_pattern':a.overlap_pass_pattern,'cross_layer_router_lookahead':a.cross_layer_router_lookahead,'lookahead_pass_pattern':a.lookahead_pass_pattern,'lookahead_k':a.lookahead_k,'lookahead_advice_only':a.lookahead_advice_only,'lookahead_sd_fallback':False,'lookahead_declared_additional_bytes':0 if a.lookahead_advice_only else a.lookahead_k*13900000,'mapped_persistent_l2':a.mapped_persistent_l2,'pinned_verified_persistent_l2':a.pinned_verified_persistent_l2,'reusable_arena_persistent_l2':a.reusable_arena_persistent_l2,'mapped_l2_willneed':a.mapped_l2_willneed,'mapped_l2_parallel_prefault':a.mapped_l2_parallel_prefault,'inprocess_finish':a.inprocess_finish,'parallel_moe':a.parallel_moe,'pairwise_moe':a.pairwise_moe,'pairwise_pass_pattern':a.pairwise_pass_pattern,'threads':a.threads,'pad_reduced_to_four':a.pad_reduced_to_four,'native_router':a.native_router,'inprocess_embedding':a.inprocess_embedding,'inprocess_attention':a.inprocess_attention,'inprocess_output':a.inprocess_output,'metal_output':a.metal_output,'inmemory_layer_flow':a.inmemory_layer_flow,'activation_capture_dir':str(a.activation_capture_dir.resolve()) if a.activation_capture_dir else None,'capture_positions':sorted(capture_positions),'capture_layers':sorted(capture_layers),'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(expert_cache_bytes if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,'selective_fourth_q3_layers':sorted(selective_fourth_q3_layers),'selective_fourth_q3_projection_mask':3 if selective_fourth_q3_layers else None,'selective_fourth_q3_max_gate':a.selective_fourth_q3_max_gate,'selective_fourth_q3_conversion_seconds':selective_q3_conversion_seconds,'selective_fourth_q3_cached_projections':len(selective_q3_cache),'quality_track':bool(selective_fourth_q3_layers) or (expert_pool is not None and not a.exact_pool_escape_after_prompt) or a.continuation_active_experts != 4 or a.continuation_layer_active_experts is not None or a.continuation_gate_mass_threshold is not None or a.native_router or a.metal_output,'constrained_expert_pool_path':str(a.expert_pool.resolve()) if a.expert_pool else None,'constrained_expert_pool_canonical_sha256':expert_pool_sha,'constrained_expert_pool_preloaded':a.preload_expert_pool,'constrain_after_prompt':a.constrain_after_prompt,'exact_pool_escape_after_prompt':a.exact_pool_escape_after_prompt,'incremental_pool_admission':a.incremental_pool_admission,'constrained_expert_pool_preload_seconds':pool_preload_seconds,'constrained_expert_pool_preload_metrics':pool_preload_metrics,
                 'claim_boundary':(('A token-conditioned sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. Declared prompt tokens were teacher-forced before greedy continuation. This is exact repeatability evidence for the custom packed path, not yet chat-template quality validation or steady-state generation speed.' if a.token_count>1 else 'A token-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is prompt-token execution evidence, not yet multi-token prompt quality validation or steady-state generation speed.') if forced_input_ids!=[BOS] else ('A BOS-conditioned greedy sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. This is exact repeatability evidence for the custom packed path, not yet text-quality validation or steady-state generation speed.' if a.token_count>1 else 'A BOS-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is first-token execution evidence, not yet text-quality validation or steady-state generation speed.'))}
         report['serial_active_contributions']=serial_active_contributions
         if a.exact_pool_escape_after_prompt and a.continuation_gate_mass_threshold is None:
@@ -722,6 +809,10 @@ def main()->None:
             report['claim_boundary'] += ' On the declared layers only, the unrestricted fourth selected expert retained its original down projection but used Q3_K gate and up matrices derived from the original MXFP4 weights. The other three selected experts, router, gates and reduction order were retained. This is a changed-weight quality track requiring comparison with a separately frozen unrestricted control.'
         if cartridge_layers is not None:
             report['claim_boundary'] += ' The signed family cartridge changes only L2 eviction priority: it performs no eager SD reads and never changes router eligibility, expert values, gates, or fallback correctness.'
+        if a.cross_layer_router_lookahead:
+            report['claim_boundary'] += ' Cross-layer lookahead applies the following layer original router to the current post-attention residual and reads predicted experts only from persistent L2 while current-layer work proceeds. The authoritative following-layer router, gates, weights and demand fallback remain unchanged; prediction misses cannot alter output.'
+            if a.lookahead_advice_only:
+                report['claim_boundary'] += ' This candidate issues macOS asynchronous no-copy F_RDADVISE hints and leaves the original four-way demand loader unchanged; it creates no user-space expert copy.'
         report['canonical_sha256']=hashlib.sha256(json.dumps(report,sort_keys=True,separators=(',',':')).encode()).hexdigest()
     a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
     print(json.dumps({k:report[k] for k in ('status','input_token_id','generated_token_id','routes_repeatable','final_hidden_and_logits_bitwise_repeatable','canonical_sha256')},sort_keys=True))
