@@ -215,6 +215,28 @@ The stricter report's file SHA-256 is
 its internal canonical SHA-256 is
 \texttt{27b02bc4f69e9bd06e181aab9f0377c395c81e97d4821fa3221540fa6959e7ac}.
 
+\subsection{Public business-family audit}
+
+A first five-pass public-business run appeared to improve median continuation
+throughput by 22.6318\%.  Audit showed that the first nominal settled control
+still incurred 46 authoritative SD fallbacks, whereas candidate passes
+incurred two and zero.  The apparent gain therefore mixed L2 warming with the
+candidate and was marked \texttt{INVALID} for promotion.
+
+A seven-pass retry used two complete warm-ups followed by the temporally paired
+pattern.  Every measured pass recorded zero SD fallback and retained exact
+routes, tokens, hidden states and step logits.  Candidate median throughput was
+3.19377 tokens/s versus 3.15229 for control, a 1.3158\% improvement.  The two
+adjacent-control comparisons were $-2.37$\% and $+2.98$\%.  Because the fixed
+5\% gate was not met, cross-layer advice was not promoted for this family.
+
+The initial file SHA-256 is
+\texttt{edfe779333bd2770897cf99a62ea8a86b477c070eb62d84741e1793a422d7cf8}.
+The warmed retry file SHA-256 is
+\texttt{244f153d7cf66ce1aa7930b19482ac04882cf0a696d04b877e225c0827faec66},
+with internal canonical SHA-256
+\texttt{85691ad5aad378c012237f3e70f951013ee0489205cb4abbf3e617cf0f51958f}.
+
 \subsection{Top-two advice falsification}
 
 After promotion, an otherwise identical arithmetic gate advised the top two

@@ -559,6 +559,7 @@ def main()->None:
                         and position in capture_positions and layer in capture_layers):
                     capture_stem=a.activation_capture_dir/f'position-{position}-layer-{layer}'
                 prepared_components=None;prefault_ms=0.0;prefault_checksum=None;overlap_seconds=0.0
+                selective_q3_here=False
                 next_hidden=root/f'{label}-token-{position}-layer-{layer}-output.bin'
                 overlap_missing_experts=(sum((layer,expert) not in store._cache for expert in route)
                                          if overlap_enabled else 0)
