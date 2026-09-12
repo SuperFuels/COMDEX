@@ -58,6 +58,8 @@ def main() -> int:
     parser.add_argument("--threads", type=int, default=6)
     parser.add_argument("--maximum-relative-l2", type=float, default=0.02)
     parser.add_argument("--maximum-cost-fraction", type=float, default=0.25)
+    parser.add_argument("--fit-development-secant", action="store_true",
+                        help="Fit a two-anchor affine refinement; development is then training, not validation")
     args = parser.parse_args()
     if args.output.exists() or args.cartridge.exists():
         raise SystemExit("refusing to overwrite evidence")
@@ -121,10 +123,29 @@ def main() -> int:
             exact_times.append(elapsed.value)
 
     scale = np.float32(development["gates"][3] / training["gates"][3])
+    secant_fields = {}
+    if args.fit_development_secant:
+        direction = development_x.astype(np.float64) - training_x.astype(np.float64)
+        squared_length = float(direction @ direction)
+        if squared_length <= 1e-30:
+            raise SystemExit("secant anchors must have distinct activations")
+        # Store a rank-one affine response to activation movement.  Both
+        # endpoints are fitting data; interpolation error is NOT holdout evidence.
+        secant_fields = {
+            "activation_anchor": training_x.astype("<f4"),
+            "secant_dual": (direction / squared_length).astype("<f4"),
+            "secant_response": (contributions[1] / scale - contributions[0]).astype("<f4"),
+        }
     timings = []
     for _ in range(10_000):
         started = time.perf_counter_ns()
         prediction = contributions[0] * scale
+        if secant_fields:
+            coordinate = np.float32(np.dot(
+                development_x - secant_fields["activation_anchor"],
+                secant_fields["secant_dual"],
+            ))
+            prediction = (contributions[0] + coordinate * secant_fields["secant_response"]) * scale
         timings.append((time.perf_counter_ns() - started) / 1e6)
     denominator = max(
         np.linalg.norm(development_output.astype(np.float64)), 1e-30,
@@ -135,14 +156,14 @@ def main() -> int:
     corrected_error = float(np.linalg.norm(
         prediction.astype(np.float64) - contributions[1].astype(np.float64)
     ) / denominator)
-    prototype_bytes = int(contributions[0].nbytes)
+    prototype_bytes = int(contributions[0].nbytes + sum(value.nbytes for value in secant_fields.values()))
     cost_fraction = prototype_bytes / ORIGINAL_EXPERT_BYTES
     training_router_unit = training_x / max(np.linalg.norm(training_x), 1e-30)
     training_ffn_unit = training_ffn / max(np.linalg.norm(training_ffn), 1e-30)
     args.cartridge.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         args.cartridge,
-        schema=np.asarray("aion.gptoss-120b-local-c4-cartridge.v1"),
+        schema=np.asarray("aion.gptoss-120b-local-c4-cartridge.v2" if secant_fields else "aion.gptoss-120b-local-c4-cartridge.v1"),
         layer=np.asarray(layer, dtype="<i4"),
         expert=np.asarray(expert, dtype="<i4"),
         training_gate=np.asarray(training["gates"][3], dtype="<f4"),
@@ -150,6 +171,7 @@ def main() -> int:
         router_unit=training_router_unit.astype("<f4"),
         ffn_unit=training_ffn_unit.astype("<f4"),
         contribution=contributions[0].astype("<f4"),
+        **secant_fields,
     )
     acceptance = {
         "development_relative_l2_at_most_limit": (
@@ -165,6 +187,7 @@ def main() -> int:
                    if all(acceptance.values()) else "STOP_LOCAL_C4_PROTOTYPE"),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "quality_track": True,
+        "development_used_for_fitting": args.fit_development_secant,
         "layer": layer,
         "expert": expert,
         "training_position": int(training["position"]),
@@ -196,6 +219,14 @@ def main() -> int:
             "coverage and full-generation speed are not established."
         ),
     }
+    if args.fit_development_secant:
+        report["status"] = "FROZEN_SECANT_REQUIRES_UNTOUCHED_VALIDATION"
+        report["claim_boundary"] = (
+            "A two-anchor rank-one affine correction fitted on the original training and "
+            "previous development activations. The reported local error is training reconstruction, "
+            "not accuracy evidence. No downstream certification or speed promotion. "
+            "Requires untouched local and downstream validation with true-E4 fallback."
+        )
     report["canonical_sha256"] = canonical(report)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")

@@ -161,10 +161,10 @@ extern "C" int aion_gptoss_moe_finish(
 // arithmetic and reduction order, but permits a caller to execute only the
 // strongest 1--4 routed experts.  The standard four-expert function above is
 // deliberately unchanged so the exact track keeps its frozen ABI and maths.
-extern "C" int aion_gptoss_moe_finish_active(
+static int moe_finish_active_impl(
         const float * ffn_input_values, const float * router_input_values,
         const void * const * components, const float * gates, int active_experts,
-        float * output_values, int threads, double * elapsed_ms) {
+        const float * correction_values, float * output_values, int threads, double * elapsed_ms) {
     static void * plugin = dlopen(
         "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
         RTLD_NOW | RTLD_LOCAL);
@@ -199,6 +199,11 @@ extern "C" int aion_gptoss_moe_finish_active(
         expert = ggml_scale(context, expert, gates[position]);
         combined = combined ? ggml_add(context, combined, expert) : expert;
     }
+    if (correction_values) {
+        auto * correction = ggml_new_tensor_1d(context, GGML_TYPE_F32, width);
+        correction->data = const_cast<float *>(correction_values);
+        combined = ggml_add(context, combined, correction);
+    }
     auto * output = ggml_add(context, ffn_input, combined);
     auto * graph = ggml_new_graph_custom(context, GGML_DEFAULT_GRAPH_SIZE, false);
     ggml_build_forward_expand(graph, output);
@@ -211,6 +216,26 @@ extern "C" int aion_gptoss_moe_finish_active(
     for (int64_t index = 0; index < width; ++index)
         if (!std::isfinite(output_values[index])) return 5;
     return 0;
+}
+
+extern "C" int aion_gptoss_moe_finish_active(
+        const float * ffn_input_values, const float * router_input_values,
+        const void * const * components, const float * gates, int active_experts,
+        float * output_values, int threads, double * elapsed_ms) {
+    return moe_finish_active_impl(ffn_input_values, router_input_values,
+        components, gates, active_experts, nullptr, output_values, threads, elapsed_ms);
+}
+
+// Experimental 3+C4 path: append the already-gated correction BEFORE the
+// residual, preserving the teacher's left-associated expert reduction order.
+extern "C" int aion_gptoss_moe_finish_top3_correction(
+        const float * ffn_input_values, const float * router_input_values,
+        const void * const * components, const float * gates,
+        const float * correction_values, float * output_values, int threads,
+        double * elapsed_ms) {
+    if (!correction_values) return 1;
+    return moe_finish_active_impl(ffn_input_values, router_input_values,
+        components, gates, 3, correction_values, output_values, threads, elapsed_ms);
 }
 
 // Quality-track entry point using directly executable Q2_0 expert matrices.

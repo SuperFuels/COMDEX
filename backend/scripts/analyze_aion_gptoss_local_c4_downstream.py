@@ -21,6 +21,28 @@ def canonical(value: dict) -> str:
     ).encode()).hexdigest()
 
 
+def router_score_consequence(reference: np.ndarray, changed: np.ndarray) -> dict:
+    if reference.shape != (128,) or changed.shape != (128,) or not np.isfinite(reference).all() or not np.isfinite(changed).all():
+        raise ValueError('router consequence requires 128 finite scores')
+    order = np.argsort(reference, kind='stable')[::-1]
+    margin = float(np.float64(reference[order[3]]) - np.float64(reference[order[4]]))
+    perturbation = float(np.max(np.abs(changed.astype(np.float64) - reference.astype(np.float64))))
+    return {'teacher_fourth_fifth_margin': margin,
+            'maximum_abs_router_score_delta': perturbation,
+            'twice_perturbation_over_admission_margin': 2 * perturbation / margin if margin > 0 else None,
+            'sufficient_top_four_set_stability_bound': bool(2 * perturbation < margin)}
+
+
+def verified_receipt(path: Path) -> dict:
+    receipt = json.loads(path.read_text())
+    body = dict(receipt)
+    if body.pop('canonical_sha256', None) != canonical(body):
+        raise SystemExit(f'receipt canonical hash mismatch: {path}')
+    if not receipt.get('final_hidden_and_logits_bitwise_repeatable') or not receipt.get('routes_repeatable'):
+        raise SystemExit(f'nonrepeatable trajectory: {path}')
+    return receipt
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--teacher", type=Path, required=True)
@@ -29,8 +51,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.output.exists():
         raise SystemExit("refusing to overwrite evidence")
-    teacher = json.loads(args.teacher.read_text())
-    candidate = json.loads(args.candidate.read_text())
+    teacher = verified_receipt(args.teacher)
+    candidate = verified_receipt(args.candidate)
     if teacher["token_count"] != candidate["token_count"]:
         raise SystemExit("teacher and candidate token counts differ")
     if not candidate.get("local_c4_cartridge_sha256"):
@@ -47,6 +69,7 @@ def main() -> int:
     second_logit_deltas = []
     margin_deltas = []
     normalized_dangers = []
+    router_score_diagnostics = []
     for position, (reference, changed) in enumerate(zip(
             teacher["run_a"]["tokens"], candidate["run_a"]["tokens"], strict=True)):
         if reference["generated_token_id"] != changed["generated_token_id"]:
@@ -81,6 +104,19 @@ def main() -> int:
                 top_experts.append(address)
             if original["output_sha256"] != altered["output_sha256"]:
                 layer_outputs.append(address)
+            if teacher.get('activation_capture_dir') and candidate.get('activation_capture_dir'):
+                stems = [Path(receipt['activation_capture_dir']) / f'position-{position}-layer-{layer}' for receipt in (teacher, candidate)]
+                paths = [Path(f'{stem}.json') for stem in stems]
+                if all(path.exists() for path in paths):
+                    metadata = [json.loads(path.read_text()) for path in paths]
+                    if all('router_logits_sha256' in row for row in metadata):
+                        scores = []
+                        for stem, row in zip(stems, metadata, strict=True):
+                            path = Path(f'{stem}-router_logits.bin')
+                            if digest(path) != row['router_logits_sha256']:
+                                raise SystemExit('router score artifact hash mismatch')
+                            scores.append(np.fromfile(path, dtype='<f4'))
+                        router_score_diagnostics.append({**address, **router_score_consequence(*scores)})
 
     token_stable = not token_differences and not second_token_differences
     trajectory_identical = not ordered_routes and not layer_outputs
@@ -109,6 +145,7 @@ def main() -> int:
         "route_set_differences": len(route_sets),
         "top_expert_differences": len(top_experts),
         "layer_output_hash_differences": len(layer_outputs),
+        "router_score_diagnostics": router_score_diagnostics,
         "first_ordered_route_difference": ordered_routes[:1],
         "first_route_set_difference": route_sets[:1],
         "maximum_abs_chosen_logit_delta": max(chosen_logit_deltas),

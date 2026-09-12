@@ -49,6 +49,31 @@ def local_c4_similarity(router:np.ndarray,ffn:np.ndarray,cartridge:dict)->float:
     ffn_cosine=float(np.dot(ffn/np.float32(ffn_norm),cartridge['ffn_unit']))
     return (router_cosine+ffn_cosine)/2.0
 
+def router_boundary_diagnostic(logits:np.ndarray)->dict:
+    """Diagnostic only: retain the unrestricted top-four admission boundary."""
+    values=np.asarray(logits,dtype=np.float32)
+    if values.shape!=(EXPERTS,) or not np.isfinite(values).all():
+        raise ValueError('router diagnostic requires 128 finite scores')
+    order=np.argsort(values,kind='stable')[::-1]
+    return {'unrestricted_top_five':order[:5].astype(int).tolist(),
+            'fourth_fifth_margin':float(np.float64(values[order[3]])-np.float64(values[order[4]])),
+            'top_two_margin':float(np.float64(values[order[0]])-np.float64(values[order[1]]))}
+
+def local_c4_prediction(router:np.ndarray,gate:float,cartridge:dict)->np.ndarray:
+    """Gated local response. V2 adds an explicitly fitted rank-one secant."""
+    response=cartridge['contribution']
+    if 'secant_response' in cartridge:
+        coordinate=np.float32(np.dot(router-cartridge['activation_anchor'],cartridge['secant_dual']))
+        response=response+coordinate*cartridge['secant_response']
+    return response*np.float32(gate/float(cartridge['training_gate']))
+
+def local_c4_region_supported(router:np.ndarray,cartridge:dict)->bool:
+    # V2 is an interpolation experiment, not permission to extrapolate.
+    if 'secant_response' not in cartridge:
+        return True
+    coordinate=float(np.dot(router-cartridge['activation_anchor'],cartridge['secant_dual']))
+    return np.isfinite(coordinate) and -1e-6<=coordinate<=1.0+1e-6
+
 def parse_layer_spec(spec:str|None)->set[int]:
     if spec is None:
         return set(range(36))
@@ -208,12 +233,24 @@ def main()->None:
     if any(value<0 or value>=36 for value in capture_layers): raise SystemExit('capture layer is outside 0..35')
     if a.activation_capture_dir: a.activation_capture_dir.mkdir(parents=True,exist_ok=False)
     local_c4=None;local_c4_sha=None
+    local_c4_position=(int(os.environ['AION_LOCAL_C4_POSITION'])
+                       if 'AION_LOCAL_C4_POSITION' in os.environ else None)
+    if local_c4_position is not None and (not local_c4_cartridge_path or not 0<=local_c4_position<a.token_count):
+        raise SystemExit('local C4 position requires a cartridge and a valid position')
     if local_c4_cartridge_path:
+        if (a.expert_pool or a.continuation_active_experts!=4 or
+                a.continuation_layer_active_experts is not None or
+                a.continuation_gate_mass_threshold is not None or a.native_router or a.metal_output):
+            raise SystemExit('local C4 certification is isolated from other changed-model policies')
         local_c4_file=Path(local_c4_cartridge_path)
         local_c4_values=np.load(local_c4_file,allow_pickle=False)
-        if str(local_c4_values['schema'].item())!='aion.gptoss-120b-local-c4-cartridge.v1': raise SystemExit('invalid local C4 cartridge schema')
+        local_c4_schema=str(local_c4_values['schema'].item())
+        if local_c4_schema not in ('aion.gptoss-120b-local-c4-cartridge.v1','aion.gptoss-120b-local-c4-cartridge.v2'): raise SystemExit('invalid local C4 cartridge schema')
         local_c4={key:local_c4_values[key].copy() for key in local_c4_values.files}
         if any(local_c4[name].shape!=(WIDTH,) for name in ('router_unit','ffn_unit','contribution')): raise SystemExit('invalid local C4 vector shape')
+        if local_c4_schema.endswith('.v2') and any(name not in local_c4 or local_c4[name].shape!=(WIDTH,) for name in ('activation_anchor','secant_dual','secant_response')): raise SystemExit('invalid local C4 secant vectors')
+        if any(not np.isfinite(local_c4[name]).all() for name in ('router_unit','ffn_unit','contribution','training_gate','minimum_joint_cosine')): raise SystemExit('nonfinite local C4 cartridge')
+        if local_c4_schema.endswith('.v2') and any(not np.isfinite(local_c4[name]).all() for name in ('activation_anchor','secant_dual','secant_response')): raise SystemExit('nonfinite local C4 secant vectors')
         if not (0<=int(local_c4['layer'])<36 and 0<=int(local_c4['expert'])<EXPERTS): raise SystemExit('invalid local C4 address')
         if not 0.0<float(local_c4['minimum_joint_cosine'])<=1.0: raise SystemExit('invalid local C4 similarity threshold')
         if float(local_c4['training_gate'])<=0.0: raise SystemExit('invalid local C4 training gate')
@@ -269,6 +306,7 @@ def main()->None:
             pairwise_moe_function=loaded.aion_gptoss_moe_finish_pairwise
             moe_function=loaded.aion_gptoss_moe_finish_parallel if a.parallel_moe else serial_moe_function
             reduced_moe_function=loaded.aion_gptoss_moe_finish_active
+            correction_moe_function=loaded.aion_gptoss_moe_finish_top3_correction
             prefault_function=loaded.aion_gptoss_prefault_components
             contribution_function=loaded.aion_gptoss_one_expert_contribution_batch
             contribution_reuse_function=loaded.aion_gptoss_one_expert_contribution_reuse_graph
@@ -286,6 +324,7 @@ def main()->None:
             for function in (moe_function,serial_moe_function,pairwise_moe_function):
                 function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];function.restype=ctypes.c_int
             reduced_moe_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];reduced_moe_function.restype=ctypes.c_int
+            correction_moe_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];correction_moe_function.restype=ctypes.c_int
             prefault_function.argtypes=[ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_size_t),ctypes.c_int,ctypes.c_int,ctypes.POINTER(ctypes.c_uint64),ctypes.POINTER(ctypes.c_double)];prefault_function.restype=ctypes.c_int
             contribution_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];contribution_function.restype=ctypes.c_int
             contribution_reuse_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.c_float,ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];contribution_reuse_function.restype=ctypes.c_int
@@ -552,12 +591,14 @@ def main()->None:
                                     float(gates[3])<=a.selective_fourth_q3_max_gate))
                 local_c4_joint_cosine=None;local_c4_here=False
                 if (local_c4 is not None and active_experts==4
+                        and (local_c4_position is None or position==local_c4_position)
                         and layer==int(local_c4['layer'])
                         and route[3]==int(local_c4['expert'])):
                     local_c4_joint_cosine=local_c4_similarity(
                         router_result,ffn_result,local_c4)
                     local_c4_here=(local_c4_joint_cosine>=
-                                   float(local_c4['minimum_joint_cosine']))
+                                   float(local_c4['minimum_joint_cosine']) and
+                                   local_c4_region_supported(router_result,local_c4))
                 pilot_values={};pilot_wait_seconds=0.0;pilot_route_hits=0
                 pilot_ready_hits=0;pilot_wasted_reads=0
                 if lookahead_enabled and pilot_layer is not None:
@@ -709,10 +750,8 @@ def main()->None:
                             references,pointers=ctypes_component_pointer_array(blobs)
                         else: blobs,references,pointers=prepared_components
                         if local_c4_here:
-                            status=reduced_moe_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,gate_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),3,out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
-                            if not status:
-                                correction_scale=np.float32(gate_values[3]/float(local_c4['training_gate']))
-                                out+=local_c4['contribution']*correction_scale
+                            correction_values=local_c4_prediction(router_values,gate_values[3],local_c4)
+                            status=correction_moe_function(ffn.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),router_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),pointers,gate_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),correction_values.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),out.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),a.threads,ctypes.byref(elapsed))
                         elif active_experts == 4:
                             if selective_q3_here:
                                 selective_blobs=blobs[:18]+selective_q3_blobs(
@@ -762,7 +801,8 @@ def main()->None:
                     # within the declared F32 subtraction/addition boundary.
                     residual_capture=np.asarray(output_capture-ffn_capture,dtype='<f4')
                     capture_blobs={'ffn':ffn_capture.tobytes(),'router':router_capture.tobytes(),
-                                   'output':output_capture.tobytes(),'residual':residual_capture.tobytes()}
+                                   'output':output_capture.tobytes(),'residual':residual_capture.tobytes(),
+                                   'router_logits':np.asarray(logits,dtype='<f4').tobytes()}
                     if not a.capture_metadata_only:
                         for name,value in capture_blobs.items():
                             Path(str(capture_stem)+f'-{name}.bin').write_bytes(value)
@@ -794,6 +834,7 @@ def main()->None:
                     metadata={
                         'schema':'aion.gptoss-120b-shadow-target-capture.v2',
                         'position':position,'layer':layer,'route':route,'gates':gates.tolist(),
+                        'router_boundary':router_boundary_diagnostic(logits),
                         **{f'{name}_sha256':hashlib.sha256(value).hexdigest()
                            for name,value in capture_blobs.items()},
                         'activation_features':{'ffn_rms':float(np.sqrt(np.mean(ffn_capture.astype(np.float64)**2))),'ffn_max_abs':float(np.max(np.abs(ffn_capture))),'router_rms':float(np.sqrt(np.mean(router_capture.astype(np.float64)**2))),'router_max_abs':float(np.max(np.abs(router_capture))),'gate_entropy':float(-np.sum(gate_values.astype(np.float64)*np.log(np.maximum(gate_values,1e-30)))),'top_gate_gap':float(gate_values[0]-gate_values[1]) if len(gate_values)>1 else float(gate_values[0])},
@@ -897,12 +938,16 @@ def main()->None:
         report['local_c4_cartridge_path']=(str(Path(local_c4_cartridge_path).resolve())
                                            if local_c4_cartridge_path else None)
         report['local_c4_cartridge_sha256']=local_c4_sha
+        report['local_c4_only_position']=local_c4_position
+        report['local_c4_reduction_order']='three-experts-plus-correction-before-residual' if local_c4 is not None else None
         report['local_c4_applied_calls']=sum(
             layer['local_c4_applied'] for run in runs for token in run['tokens']
             for layer in token['layers'])
         if local_c4 is not None:
             report['quality_track']=True
             report['claim_boundary'] += (' A hash-bound local C4 cartridge replaced the original fourth-expert contribution only when layer, expert identity and the frozen joint router/FFN cosine region matched. This changes the neural arithmetic and is a quality-track downstream-consequence experiment, not exact unrestricted inference.')
+            if 'secant_response' in local_c4:
+                report['claim_boundary'] += ' The rank-one secant additionally requires its interpolation coordinate to remain in [0,1], with a 1e-6 floating-point endpoint tolerance; extrapolation retains true E4.'
         report['trajectory_guard_runs']=trajectory_guard_runs
         report['executed_token_counts']=[len(run['tokens']) for run in runs]
         if a.exact_pool_escape_after_prompt and a.continuation_gate_mass_threshold is None:

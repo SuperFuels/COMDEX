@@ -1150,3 +1150,100 @@ one of 1,584 layer calls per pass and the two complete runs include different
 cache histories and instrumentation.  Coverage expansion now requires either a
 more accurate local correction or a predeclared bounded downstream certificate,
 followed by untouched selection and holdout prompts.
+
+\subsection{Addition-order isolation and frozen affine C4 refinement}
+
+The first local correction integration computed
+\(\operatorname{fl}(\operatorname{fl}(x+((E_1+E_2)+E_3))+\widehat C_4)\),
+whereas the original graph adds the left-associated expert sum to the residual
+only after all four contributions are combined.  These expressions are not
+generally identical in floating-point arithmetic.  A real layer-12 quartet
+audit therefore substituted the \emph{exact} original fourth contribution,
+isolating integration rounding from learned approximation error.
+
+The original integration differed in 838 of 2,880 output elements, with maximum
+absolute error \(1.220703125\times10^{-4}\).  A native three-expert graph that
+appends the already-gated correction before residual addition matched the
+original four-expert graph bit-for-bit in every element.  The active-four
+wrapper also matched the unchanged original kernel and the frozen capture.
+The audit passed with canonical SHA-256
+\texttt{404e5373b8ac4df4fd3af0f91b15fed86b5ea64eacdcf067136c67bf2c1f5a79}.
+This removes an integration defect; it does not establish how much of the
+previous downstream routing drift arose from that defect, and does not certify
+the approximate correction.
+
+A second arithmetic-anchor audit passed all three equivalence checks as well:
+the old order differed in 883 elements, maximum absolute error
+\(3.0517578125\times10^{-5}\), whereas the corrected reducer differed in zero.
+Its canonical SHA-256 is
+\texttt{c63f803e9f1408282a6c1c61d48bf82d4ed69c580eb6fda5cc29288ea67576e4}.
+
+An explicitly separate refinement fits a rank-one secant to the authentic
+arithmetic and previously inspected extraction anchors.  With training
+activation \(a\), second fitting activation \(b\), and gated contributions
+\(c_a,c_b\) at gates \(g_a,g_b\), define
+\[
+ d=b-a,\qquad q=d/(d^\top d),\qquad
+ \widehat C(x,g)=\frac{g}{g_a}
+ \left[c_a+q^\top(x-a)\left(\frac{g_a}{g_b}c_b-c_a\right)\right].
+\]
+The response and secant payload occupies 46,080 bytes, or 0.332\% of the
+declared 13.25 MiB expert.  Router and FFN similarity anchors and cartridge
+metadata require additional storage and are charged separately.  The measured
+fitting-path median was 0.004625 ms, versus 0.197709 ms for the original E4
+calculation in that narrow run.  Neither value is a full-runtime speed claim.
+The near-zero error at the second fitting anchor is training reconstruction,
+\emph{not} unseen accuracy.  The frozen fitting receipt is classified
+\texttt{FROZEN-SECANT-REQUIRES-UNTOUCHED-VALIDATION}, canonical SHA-256
+\texttt{2a8db8c0a2554b28ff98d6bb9a7785984f01d491c3310b32c9afb8de173a8574}.
+
+Admission retains the frozen joint cosine threshold 0.80 and additionally
+requires the secant coordinate to remain in \([0,1]\), with only a
+\(10^{-6}\) endpoint rounding tolerance.  Extrapolation falls back to real E4.
+The experiment is isolated from constrained pools, reduced-expert policies,
+changed routers and changed output kernels.  Diagnostic captures now retain
+hash-bound vectors of all 128 router scores, plus the fourth-versus-fifth
+admission margin, at explicitly selected layers and positions.  These scores
+support subsequent router-sensitive refinement; they are not a safety proof.
+
+No higher tokens-per-second claim or transferable correction certificate is
+made by this fitting and reducer audit.  Exact unrestricted and correct
+quality-track speed frontiers remain unchanged pending prospective local,
+downstream, sealed-holdout and balanced completed-answer gates.
+
+\paragraph{Prospective local transfer, without refitting.}
+The next predeclared training-split extraction trajectory was executed twice
+with unrestricted four-expert routing.  All 42 positions repeated exactly in
+routes, final hidden states and logits.  There were 117 captured observations
+at layers 12, 26 and 31, with 39 layer-12 E4 calls.  Its canonical receipt is
+\texttt{6dc1a69729a9a7a16fdd8fa1180b68759f23d252251c7d7ad764f6fe49c2c23e}.
+The frozen affine correction was not refitted on this trajectory.  Expert 22
+appeared three times; two calls failed the unchanged similarity/support mask
+and retained the original expert.  One call, position 27, was admitted with
+joint cosine 0.968899 and local relative output error 0.00774095, below the
+unchanged 0.02 gate.  Supported layer-12 traffic share was therefore only
+\(1/39=2.564\%\), not a general-model coverage claim.
+
+On that same admitted activation, the frozen constant correction had error
+0.0157721.  The affine refinement reduced error by 50.92\% without using the new
+activation for fitting.  The prospective affine evaluation has canonical hash
+\texttt{f164e348255a3ff0ae03e38d8877d9e86ff0163e664a14d2a28c0d4d18aa508a};
+the matched constant evaluation has canonical hash
+\texttt{5f624e4ccff36727e2356adc8117e951e10f4bb19a5209625fa86adb137e637f}.
+Loaded affine cartridge arrays occupy 69,288 bytes including anchors and
+metadata.  Single-call timings from this prospective check are not used as
+warm performance evidence.  This is a local transfer result on an unused
+training-split trajectory, not a sealed-holdout certificate.  A single-position
+downstream test is required before further expansion.
+
+An additional 1,000-sample paired warm microbenchmark alternated real-E4 and
+correction order, following five warmups.  The correction timing includes joint
+similarity, interpolation support checking and prediction.  Median charged
+correction time was 0.015625 ms, compared with 0.2021665 ms for real E4, a ratio
+of 0.07729.  Correction p95 was 0.0603191 ms and real-E4 p95 was 0.390129 ms.
+The local median compute-cost gate passed, but this run overlapped an active
+teacher/candidate diagnostic process and is not a quiet-system full-runtime
+performance gate.  The receipt is bound by canonical SHA-256
+\texttt{7f1265133278cb742da1d979183080278c3e2044cbf84b1b509073519c01ef4d}.
+Cartridge loading, calibration and whole-generation controller overhead remain
+separate charges.  No end-to-end speed promotion follows from this result.
