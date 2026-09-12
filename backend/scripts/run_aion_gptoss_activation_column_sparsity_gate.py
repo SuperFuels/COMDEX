@@ -31,11 +31,16 @@ def percentile(values: list[float], fraction: float) -> float:
     return sorted(values)[int(fraction * (len(values) - 1))]
 
 
-def retain_largest(values: np.ndarray, fraction: float) -> tuple[np.ndarray, float]:
-    retained = max(1, min(len(values), int(np.ceil(len(values) * fraction))))
-    chosen = np.argpartition(np.abs(values), -retained)[-retained:]
+def retain_largest(values: np.ndarray, fraction: float,
+                   block_size: int = 1) -> tuple[np.ndarray, float]:
+    if len(values) % block_size:
+        raise ValueError("activation width must be divisible by block size")
+    blocks = values.reshape(-1, block_size)
+    scores = np.square(blocks.astype(np.float64)).sum(axis=1)
+    retained = max(1, min(len(blocks), int(np.ceil(len(blocks) * fraction))))
+    chosen = np.argpartition(scores, -retained)[-retained:]
     masked = np.zeros_like(values)
-    masked[chosen] = values[chosen]
+    masked.reshape(-1, block_size)[chosen] = blocks[chosen]
     total = float(np.dot(values.astype(np.float64), values.astype(np.float64)))
     kept = float(np.dot(masked.astype(np.float64), masked.astype(np.float64)))
     return masked, kept / max(total, 1e-30)
@@ -60,6 +65,8 @@ def main() -> int:
                         help="optional down-input fractions; defaults to --fractions pairwise")
     parser.add_argument("--maximum-per-family", type=int, default=6)
     parser.add_argument("--minimum-traffic-reduction", type=float, default=2.0)
+    parser.add_argument("--selection-granularity", choices=("element", "block32"),
+                        default="element")
     parser.add_argument("--threads", type=int, default=8)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -75,6 +82,7 @@ def main() -> int:
                        if down_fractions is None else
                        [(router, down) for router in fractions for down in down_fractions])
     candidate_key = lambda router, down: f"router_{router:g}_down_{down:g}"
+    block_size = 32 if args.selection_granularity == "block32" else 1
     requested_layer = None if args.layer == "all" else int(args.layer)
     captures = []
     for root in args.activations:
@@ -150,7 +158,8 @@ def main() -> int:
             full_output = ffn.astype(np.float64) + full_contribution
 
             for router_fraction, down_fraction in candidate_specs:
-                masked_router, router_energy = retain_largest(router, router_fraction)
+                masked_router, router_energy = retain_largest(
+                    router, router_fraction, block_size)
                 candidates = []
                 hidden_energies = []
                 for gate, blobs in zip(capture["gates"], blob_sets, strict=True):
@@ -164,7 +173,8 @@ def main() -> int:
                     )
                     if status:
                         raise RuntimeError(f"gate/up status {status}")
-                    masked_hidden, hidden_energy = retain_largest(hidden, down_fraction)
+                    masked_hidden, hidden_energy = retain_largest(
+                        hidden, down_fraction, block_size)
                     hidden_energies.append(hidden_energy)
                     down_references, down_ptrs = pointers(blobs[4:])
                     contribution = np.empty(WIDTH, dtype=np.float32)
@@ -204,8 +214,11 @@ def main() -> int:
         summary = {
             "router_retained_column_fraction": router_fraction,
             "down_retained_column_fraction": down_fraction,
-            "projected_weight_traffic_reduction": 3.0 / (
-                2.0 * router_fraction + down_fraction),
+            # Each original MXFP4 block has one mandatory scale byte and 16
+            # code bytes.  A coordinate-plane warehouse can omit selected code
+            # nibbles but must still deliver all scales for touched rows.
+            "projected_weight_traffic_reduction": 51.0 / (
+                3.0 + 16.0 * (2.0 * router_fraction + down_fraction)),
             "samples": len(rows),
             "families": sorted({row["family"] for row in rows}),
             "router_energy_retained_p50": float(np.median([
@@ -237,6 +250,7 @@ def main() -> int:
         "layer": requested_layer if requested_layer is not None else "all",
         "fractions": fractions,
         "down_fractions": down_fractions,
+        "selection_granularity": args.selection_granularity,
         "capture_roots": [str(path.resolve()) for path in args.activations],
         "observations": observations,
         "summaries": summaries,

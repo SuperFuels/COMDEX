@@ -569,16 +569,32 @@ The 80\% candidate was then challenged across all 36 layers for the two
 complete all-layer public families, plus available layer-12 reasoning and
 writing captures: 74 observations in total.  It again passed, with p50 error
 0.01122, p95 0.01654, maximum 0.01804, contribution p95 0.08217, and unchanged
-argmax in every observation.  The decision is
-\texttt{ADVANCE\_COLUMN\_ADDRESSED\_WAREHOUSE} for a bounded physical kernel
-gate.
+argmax in every observation.  A packing audit subsequently invalidated the
+initial 1.25$\times$ physical-traffic figure: a coordinate-plane MXFP4 store
+must deliver every shared scale byte even when it omits selected code nibbles.
+The corrected projection is
+$51/(3+16(2\cdot0.8+0.8))=1.231884\times$.  The numerical observations remain
+valid, but the original physical-size claim is superseded by the corrected
+v2 receipt.  The decision is
+\texttt{ADVANCE\_COLUMN\_ADDRESSED\_WAREHOUSE} only to a bounded physical
+kernel and delivery gate.
 
 A more aggressive projection-specific candidate retained 77\% of gate/up
 columns and 75\% of down columns.  It passed the 24-case layer-12 development
-gate at a projected 1.31004$\times$ reduction, but failed the independently
+gate under the initial scale-free estimate, but failed the independently
 declared all-depth numerical boundary: p95 error was 0.02136 versus the 0.02
 limit.  It is stopped without relaxing the gate.  The 80/80 configuration is
 therefore the only advancing configuration.
+
+A direct whole-block control confirmed why a new split representation is
+necessary.  Selecting the strongest complete 32-coordinate MXFP4 blocks at
+80\% retention produced p95 output error 0.17090 on the same four-family
+layer-12 cohort; even 90\% block retention produced 0.10565.  The native block
+layout is therefore too coarse.  A physical candidate must losslessly split
+the shared scale stream from transposed, nibble-packed coordinate planes, read
+all required scales plus only selected code planes, and charge every gather,
+copy and kernel cost.  This is a new representation of the original values,
+not permission to ignore physical page or packing overhead.
 
 This is an accuracy and physical-work existence result, not yet a generated
 tokens-per-second result.  The measurement kernel still read every original
@@ -587,14 +603,21 @@ direct packed kernel that actually skips the omitted columns, bounded memory,
 full causal generation, coherent semantic parity and exact fallback whenever
 the quality policy does not certify use.
 
-The advancing all-depth receipt has internal canonical SHA-256
-\texttt{757fa962ad7f1a7dcf7463441ad34483084cc8ed1b3c59d281b209a762bcccec}
+The corrected advancing all-depth v2 receipt has internal canonical SHA-256
+\texttt{de76ff155050b65b89ef9e1cf09c2fdac87a0bf1ada1303397045c9ed2f2db73}
 and stored-file SHA-256
-\texttt{98c0a3cf922eae3936792ba7cbcf3a329be2620ea9f40ef25247e5cc7804f11c}.
+\texttt{0f5fdb8a07cb2ad7c3afe7626230be1d27539e89a3ceaba98ba1f626af9f2917}.
+The original physical-traffic receipt is retained with an
+\texttt{INVALID\_PHYSICAL\_TRAFFIC\_FORMULA} sidecar; its numerical observations
+are superseded only for the traffic calculation.
 The stopped 77/75 all-depth receipt has internal canonical SHA-256
 \texttt{7a19e13eff4f4171fe51bf4c0ef49ed5eaa1a00dbf60bcaf8375ed712d9ad36f}
 and stored-file SHA-256
 \texttt{7fe0cb238a68cc7db2e700f7d424aef247ce0131422900b8ca457d75df212979}.
+The physical-block control has internal canonical SHA-256
+\texttt{3e9a72ff3f6bed4c2b556e7ca679926dbfa991c3f4d46965b77a7b0c6ae4cd11}
+and stored-file SHA-256
+\texttt{600c636ce2d6547411707144a9ce0ad88ee5eceb25d732117cd6c4c591385041}.
 
 \subsection{Evidence-volume housekeeping boundary}
 

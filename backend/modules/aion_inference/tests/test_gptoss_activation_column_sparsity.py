@@ -16,3 +16,10 @@ def test_retain_largest_keeps_requested_magnitudes_and_reports_energy():
     masked, energy = MODULE.retain_largest(values, .5)
     np.testing.assert_array_equal(masked, [0.0, -4.0, 0.0, 3.0])
     assert energy == 25.0 / 30.0
+
+
+def test_retain_largest_can_select_physical_blocks():
+    values = np.asarray([1.0, 1.0, 4.0, 0.0], dtype=np.float32)
+    masked, energy = MODULE.retain_largest(values, .5, block_size=2)
+    np.testing.assert_array_equal(masked, [0.0, 0.0, 4.0, 0.0])
+    assert energy == 16.0 / 18.0
