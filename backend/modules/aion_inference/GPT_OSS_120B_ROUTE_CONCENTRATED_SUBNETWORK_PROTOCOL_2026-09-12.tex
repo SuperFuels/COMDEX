@@ -84,3 +84,43 @@ This protocol converts the remaining problem into a falsifiable question:
 whether a compact, resident, route-conditioned student can absorb the useful
 effect of three experts often enough to approach the measured top-one hardware
 ceiling without surrendering the teacher's behaviour.
+
+\subsection{First real-anchor local candidate and falsification}
+
+The first implementation increased both teacher coverage and model locality
+relative to the stopped Atlas candidates.  It used 33 real arithmetic anchors
+from layer 12, spanning 23 distinct fourth-expert identities.  Around every
+anchor, 32 perturbations were sampled in a 24-dimensional empirical activation
+subspace.  The original SD-backed expert recalculated every target, producing
+1,056 additional training rows.  Extraction alone selected rank and ridge
+regularization; the 21-position reasoning family remained unopened until the
+final gate.
+
+The selected candidate used a rank-16 expert-conditioned local linear map with
+ridge 0.1 and occupied 12,186,061 bytes.  It covered 9 of 22 extraction rows,
+but none met the two-percent error boundary; extraction p95 relative layer-
+output error was 0.10258.  On the unseen reasoning family, matching expert
+identities existed for 10 of 21 rows.  Again, none met the boundary.  Reasoning
+relative-$L_2$ was 0.06752 at p50 and 0.07433 at p95.  Exact fallback would
+therefore be required for every observed position.
+
+The result is \texttt{STOP\_ROUTE\_CONCENTRATED\_LOCAL}.  It is a useful
+falsification because it materially strengthened the prior calculator: targets
+were generated from the original weights around route-specific real anchors,
+the model was conditioned on the actual omitted expert, and whole families
+remained separated.  The failure shows that small local linear neighborhoods
+around arithmetic activations do not transfer the omitted expert function to
+extraction or reasoning.  Increasing the number of perturbations around the
+same anchors cannot repair this missing cross-family coverage.  A successor
+must learn a genuinely nonlinear layer student from substantially broader
+teacher trajectories, or directly alter/train the retained expert, rather than
+add another nearest-anchor or local-Jacobian calculator.
+
+The augmentation dataset contains no prompt text, personal data or customer
+data.  Its canonical report hash is
+\texttt{5c32cc730b58b075c73251da5118edb8db79cc97f0a435b7c4778926804165f2}
+and its dataset SHA-256 is
+\texttt{c4cb50a0704ee2cf435c6d45ad5885e675875ec743f749d57055afefc15d9286}.
+The final gate canonical hash is
+\texttt{88ed9bfa47c06414c1b53133ddc42c4b53b77da6fbdebe7592b9c90e572e70b5}.
+The focused integrity suite passed 26/26 tests.
