@@ -54,9 +54,12 @@ def main() -> int:
     exact_seconds = sum(row["teacher_seconds"] for row in rows)
     unsafe_exact_seconds = sum(row["teacher_seconds"] for row in unsafe)
     safe_candidate_seconds = sum(row["candidate_seconds"] for row in safe)
+    cost_aware_safe_seconds = sum(
+        min(row["candidate_seconds"], row["teacher_seconds"]) for row in safe
+    )
     threshold_exact_seconds = sum(row["teacher_seconds"] for row in margin_rejections)
     report = {
-        "schema": "aion.gptoss-120b-teacher-forced-fallback-bound.v1",
+        "schema": "aion.gptoss-120b-teacher-forced-fallback-bound.v2",
         "status": "STOP_CONFIDENCE_FALLBACK_AS_NORTH_STAR_PATH",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "model": "GPT-OSS 120B Q4_K_M/MXFP4",
@@ -69,7 +72,20 @@ def main() -> int:
             "path": str(args.candidate.resolve()),
             "file_sha256": digest(args.candidate),
             "canonical_sha256": candidate["canonical_sha256"],
-            "policy": "preserved-mass 0.75, minimum two experts",
+            "policy": {
+                "continuation_gate_mass_threshold": candidate.get(
+                    "continuation_gate_mass_threshold"
+                ),
+                "continuation_min_active_experts": candidate.get(
+                    "continuation_min_active_experts"
+                ),
+                "continuation_top1_threshold_plan_path": candidate.get(
+                    "continuation_top1_threshold_plan_path"
+                ),
+                "preserve_top1_gate_mass": candidate.get(
+                    "preserve_top1_gate_mass"
+                ),
+            },
             "internally_repeatable": candidate[
                 "final_hidden_and_logits_bitwise_repeatable"
             ],
@@ -84,6 +100,9 @@ def main() -> int:
             "teacher_forced_candidate": len(rows) / candidate_seconds,
             "perfect_preclassifier_upper_bound": len(rows) / (
                 safe_candidate_seconds + unsafe_exact_seconds
+            ),
+            "perfect_quality_and_cost_oracle_upper_bound": len(rows) / (
+                cost_aware_safe_seconds + unsafe_exact_seconds
             ),
             "perfect_postcandidate_verifier_upper_bound": len(rows) / (
                 candidate_seconds + unsafe_exact_seconds

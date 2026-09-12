@@ -1013,3 +1013,44 @@ answers still require a critic or stronger-model escalation, and the 40.909\%
 figure describes eliminated work on a known failed completion rather than raw
 model acceleration.  Blinded prompts and live accepted-answer latency remain
 the next required gates.
+
+\subsection{Teacher-forced downstream-consequence bound}
+
+The layer-conditioned reduction work was next evaluated against downstream
+token consequences rather than immediate layer error alone.  The broad
+cross-family top-one threshold plan was executed on the exact 43-position
+continuation history produced by the correct reasoning teacher.  Consequently,
+each position was an independent next-token counterfactual: a candidate error
+at one position could not contaminate the inputs used to label later positions.
+The candidate retained the global 0.80 preserved-mass adaptive rule with a
+minimum of two experts, added the broad top-one threshold plan, and did not
+preserve the dropped top-one gate mass.  Both passes were internally identical
+in routes, final hidden states, logits and token IDs.
+
+The candidate selected the same next token as the correct trajectory at 39 of
+43 positions, an agreement fraction of 90.698\%, and differed at four
+positions.  Agreement alone did not imply useful acceleration.  On this exact
+teacher history the candidate measured 2.7138 tokens/s while the correct
+trajectory measured 7.0019 tokens/s.  The changed expert routes disturbed the
+protected-pool locality sufficiently that moving and admitting the alternative
+experts cost more than the reduced arithmetic saved.
+
+Two optimistic bounds were calculated.  A perfect semantic preclassifier that
+used the candidate on every token-equal position and the teacher on every
+unsafe position would reach only 2.8734 tokens/s.  A stronger oracle that knew
+both correctness and the measured cost of both paths, and could therefore keep
+the teacher whenever the nominal shortcut was slower, would reach 7.3775
+tokens/s.  The latter is only 5.36\% above the measured teacher and remains far
+below the 10 tokens/s quality target.  These are oracle bounds, not deployable
+controllers or generated-quality results.
+
+This experiment stops confidence-gated switching between the present broad
+top-one candidate and the correct controller as a North-Star path.  It does not
+falsify layer--activation consequence mapping itself.  Instead it narrows the
+next compiler gate to a three-to-four-expert correction: retain three original
+experts, approximate only the gated fourth-expert contribution using a local
+layer--expert--activation-region cartridge, and certify candidates by later
+route, logit, token and semantic stability.  Storage locality may choose among
+already certified alternatives but may not certify an otherwise unsafe
+shortcut.  The corrected bound report's canonical SHA-256 is
+\texttt{0edfb1e926c27e118083f65fcf187294399eb93179b0217738cd1b82d7ea2a3d}.
