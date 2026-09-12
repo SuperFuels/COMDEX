@@ -58,6 +58,7 @@ def main() -> int:
     parser.add_argument("--development-family", default="reasoning_real_40")
     parser.add_argument("--epochs", type=int, default=160)
     parser.add_argument("--seed", type=int, default=12022026)
+    parser.add_argument("--expanded-fit", action="store_true")
     args = parser.parse_args()
     if args.cartridge.exists() or args.output.exists():
         raise SystemExit("refusing to overwrite evidence")
@@ -72,14 +73,16 @@ def main() -> int:
     augmented_path = Path(augmentation["dataset_path"])
     if digest(augmented_path) != augmentation["dataset_sha256"]:
         raise SystemExit("augmentation dataset hash mismatch")
-    if augmentation["training_families"] != [args.fit_family]:
+    fit_families = (augmentation["training_families"] if args.expanded_fit
+                    else [args.fit_family])
+    if augmentation["training_families"] != fit_families:
         raise SystemExit("augmentation does not match the declared fit family")
     arrays = dict(np.load(source_path))
     augmented = dict(np.load(augmented_path))
     rows = source["rows"]
     fit = np.asarray([i for i, row in enumerate(rows)
                       if int(row["layer"]) == args.layer
-                      and row["family_id"] == args.fit_family])
+                      and row["family_id"] in fit_families])
     selection = np.asarray([i for i, row in enumerate(rows)
                             if int(row["layer"]) == args.layer
                             and row["family_id"] == args.selection_family])
@@ -132,8 +135,10 @@ def main() -> int:
 
     candidates = []
     models = []
-    for candidate_index, (hidden, decay) in enumerate(
-            ((256, 1e-4), (512, 1e-4), (512, 1e-3))):
+    configurations = ((512, 1e-4),) if args.expanded_fit else (
+        (256, 1e-4), (512, 1e-4), (512, 1e-3),
+    )
+    for candidate_index, (hidden, decay) in enumerate(configurations):
         torch.manual_seed(args.seed + candidate_index)
         model = RouteStudent(hidden).to(device)
         optimizer = torch.optim.AdamW(model.parameters(), lr=8e-4,
@@ -144,13 +149,14 @@ def main() -> int:
             loss = torch.mean(torch.sum((prediction - y_tensor) ** 2, dim=1))
             loss.backward()
             optimizer.step()
-        result = evaluate(model, selection)
+        result = evaluate(model, development if args.expanded_fit else selection)
         errors = result["errors"]
         candidates.append({
             "hidden": hidden, "weight_decay": decay,
-            "selection_rows": len(selection),
+            "selection_rows": len(development) if args.expanded_fit else len(selection),
             "covered_rows": result["covered_rows"],
-            "coverage": result["covered_rows"] / len(selection),
+            "coverage": result["covered_rows"] /
+                        (len(development) if args.expanded_fit else len(selection)),
             "relative_l2_p50": float(np.median(errors)),
             "relative_l2_p95": float(np.percentile(errors, 95)),
             "safe_rows": int(np.sum(errors <= 0.02)),
@@ -191,7 +197,7 @@ def main() -> int:
                    else "STOP_ROUTE_CONCENTRATED_NONLINEAR"),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "quality_track": True, "exact_fallback_required": True,
-        "layer": args.layer, "fit_family": args.fit_family,
+        "layer": args.layer, "fit_families": fit_families,
         "selection_family": args.selection_family,
         "development_family": args.development_family,
         "training_rows": len(train_x), "candidates": candidates,
@@ -212,9 +218,11 @@ def main() -> int:
         "authorization_sha256": digest(args.authorization),
         "acceptance": accepted,
         "claim_boundary": (
-            "This layer-specific nonlinear student was trained only on arithmetic anchors "
-            "and teacher-generated perturbations. Extraction selected capacity; reasoning "
-            "was opened once for development. Unknown experts and uncertified positions "
+            "This layer-specific nonlinear student was trained only on the declared whole "
+            "families and teacher-generated perturbations. In expanded-fit mode its "
+            "architecture was frozen by the preceding arithmetic-to-extraction gate before "
+            "extraction joined training; reasoning was opened once for development. Unknown "
+            "experts and uncertified positions "
             "require the original fourth expert. Safe coverage is an oracle upper bound."
         ),
     }

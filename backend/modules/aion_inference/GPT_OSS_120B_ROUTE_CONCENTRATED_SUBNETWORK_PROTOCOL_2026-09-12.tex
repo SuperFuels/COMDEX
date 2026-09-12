@@ -151,3 +151,29 @@ correction networks trained around one prompt family's activation manifold.
 The next admissible student must first expand genuine teacher trajectories
 across prompt families and expert identities; simply adding parameters or more
 near-anchor perturbations is not a credible route to the missing speed factor.
+
+\subsection{Expanded genuine-family retraining}
+
+The nonlinear architecture was frozen before adding extraction to its training
+set.  A new teacher augmentation contained 55 real arithmetic and extraction
+anchors, 33 distinct omitted-expert identities, and 1,320 exact recalculations.
+The 512-unit architecture and $10^{-4}$ weight decay selected by the preceding
+gate were not retuned against reasoning.
+
+Broader genuine-family training increased reasoning identity coverage from
+10/21 to 12/21, but it did not create a safe operating region.  Zero of the 21
+reasoning positions met the two-percent boundary.  Among covered positions,
+relative layer-output error was 0.07193 at p50 and 0.08175 at p95.  The
+12,980,561-byte cartridge evaluated in approximately 0.9780\,ms median.  This
+is again \texttt{STOP\_ROUTE\_CONCENTRATED\_NONLINEAR}.
+
+The canonical report hash is
+\texttt{b933932701be63a9aea8ae3481379a826cbf23f2eb6bd2ff3d0c26f44b532d10}
+and the augmented dataset SHA-256 is
+\texttt{2e4a2c658771363b8ca84ba720079570910d077ed0414bd0f141605139ac4313}.
+The result closes the present stand-alone correction-network family: neither
+capacity, real-anchor teacher perturbations, nor combining two genuine prompt
+families yielded even oracle-certified reasoning coverage.  The next model
+change must train the retained expert/subnetwork itself, or use a substantially
+larger same-tokenizer student, with the original four-expert path retained as
+teacher and fallback.
