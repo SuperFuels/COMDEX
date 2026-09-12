@@ -74,6 +74,17 @@ def local_c4_region_supported(router:np.ndarray,cartridge:dict)->bool:
     coordinate=float(np.dot(router-cartridge['activation_anchor'],cartridge['secant_dual']))
     return np.isfinite(coordinate) and -1e-6<=coordinate<=1.0+1e-6
 
+def acquire_inference_lock(path:Path):
+    """Prevent independent full-model jobs from overcommitting this Mac."""
+    path.parent.mkdir(parents=True,exist_ok=True)
+    handle=path.open('a')
+    try:
+        fcntl.flock(handle.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+    except BlockingIOError:
+        handle.close()
+        raise SystemExit('another AION full-model inference job holds the runtime lock')
+    return handle
+
 def parse_layer_spec(spec:str|None)->set[int]:
     if spec is None:
         return set(range(36))
@@ -101,6 +112,7 @@ def parse_optional_layer_spec(spec:str|None)->set[int]:
 def main()->None:
     p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--l2-two-touch-admission',action='store_true');p.add_argument('--l2-admission-touches',type=int,default=2);p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--cross-layer-router-lookahead',action='store_true');p.add_argument('--lookahead-pass-pattern');p.add_argument('--lookahead-k',type=int,default=4);p.add_argument('--lookahead-advice-only',action='store_true');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--pairwise-moe',action='store_true');p.add_argument('--pairwise-pass-pattern');p.add_argument('--pad-reduced-to-four',action='store_true');p.add_argument('--native-router',action='store_true');p.add_argument('--inprocess-embedding',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--metal-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--prompt-token-count',type=int);p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-layer-active-experts',type=int,choices=(1,2,3));p.add_argument('--continuation-fixed-expert-layers');p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-threshold-layers');p.add_argument('--continuation-min-active-experts',type=int,choices=(1,2),default=2);p.add_argument('--continuation-adaptive-layers');p.add_argument('--continuation-top1-threshold-plan',type=Path);p.add_argument('--continuation-top1-cycle');p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');p.add_argument('--capture-counterfactuals',action='store_true');p.add_argument('--capture-metadata-only',action='store_true');p.add_argument('--early-exit-diagnostic-layers');p.add_argument('--selective-fourth-q3-layers');p.add_argument('--selective-fourth-q3-max-gate',type=float);p.add_argument('--selective-fourth-q3-pass-pattern');p.add_argument('--selective-fourth-q3-sidecar-manifest',type=Path);p.add_argument('--yield-mastery-curriculum',action='store_true');p.add_argument('--inference-priority-timeout-seconds',type=int,default=1800);a=p.parse_args()
     serial_active_contributions=os.environ.get('AION_SERIAL_ACTIVE_CONTRIBUTIONS')=='1'
+    inference_lock=acquire_inference_lock(Path(__file__).parents[2]/'.runtime/aion-gptoss-inference.lock')
     trajectory_loop_guard=os.environ.get('AION_TRAJECTORY_LOOP_GUARD')=='1'
     preserve_top1_gate_mass=os.environ.get('AION_PRESERVE_TOP1_GATE_MASS')=='1'
     local_c4_cartridge_path=os.environ.get('AION_LOCAL_C4_CARTRIDGE')
@@ -818,6 +830,10 @@ def main()->None:
                             if status: raise RuntimeError(f'counterfactual contribution failed: {status}')
                             expert_contributions.append(slot_output.astype(np.float64))
                             _=slot_references
+                        if active_experts==4:
+                            capture_blobs['fourth_contribution']=np.asarray(expert_contributions[3],dtype='<f4').tobytes()
+                            if not a.capture_metadata_only:
+                                Path(str(capture_stem)+'-fourth_contribution.bin').write_bytes(capture_blobs['fourth_contribution'])
                         full_contribution=output_capture.astype(np.float64)-ffn_capture.astype(np.float64)
                         reconstructed=ffn_capture.astype(np.float64)+sum(expert_contributions)
                         for retained in range(1,active_experts):
@@ -834,6 +850,7 @@ def main()->None:
                     metadata={
                         'schema':'aion.gptoss-120b-shadow-target-capture.v2',
                         'position':position,'layer':layer,'route':route,'gates':gates.tolist(),
+                        'native_gates_f32':gate_values.tolist(),
                         'router_boundary':router_boundary_diagnostic(logits),
                         **{f'{name}_sha256':hashlib.sha256(value).hexdigest()
                            for name,value in capture_blobs.items()},
@@ -882,6 +899,17 @@ def main()->None:
                                 if a.inmemory_layer_flow else sha(current))
               logits_sha=(hashlib.sha256(logit_values.tobytes()).hexdigest()
                            if a.inmemory_layer_flow else sha(logits_path))
+              if (a.activation_capture_dir and label=='a' and position in capture_positions
+                      and 35 in capture_layers):
+                  vocabulary_values=(logit_values if a.inmemory_layer_flow else np.fromfile(logits_path,dtype='<f4'))
+                  vocabulary_stem=a.activation_capture_dir/f'position-{position}-vocabulary'
+                  Path(str(vocabulary_stem)+'.bin').write_bytes(np.asarray(vocabulary_values,dtype='<f4').tobytes())
+                  Path(str(vocabulary_stem)+'.json').write_text(json.dumps({
+                      'schema':'aion.gptoss-120b-vocabulary-capture.v1',
+                      'position':position,'logits_sha256':logits_sha,
+                      'vocabulary_size':int(vocabulary_values.size),
+                      'generated_token_id':token_id,'contains_prompt_text':False,
+                  },indent=2,sort_keys=True)+'\n')
               token_results.append({'position':position,'input_token_id':input_token_id,'input_was_forced':position<len(forced_input_ids),'input_was_forced_prompt':position<prompt_token_count,'generated_token_id':token_id,'wall_seconds':time.perf_counter()-token_started,'output_process_seconds':output_seconds,'layers':layers,'final_hidden_sha256':final_hidden_sha,'logits_sha256':logits_sha,'output':output,'embedding':embedding,'embedding_row_sha256':embedding_sha})
               if position>=prompt_token_count-1:
                   generated_trajectory.append(token_id)

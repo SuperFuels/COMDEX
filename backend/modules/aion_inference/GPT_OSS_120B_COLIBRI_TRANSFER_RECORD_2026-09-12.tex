@@ -1247,3 +1247,66 @@ performance gate.  The receipt is bound by canonical SHA-256
 \texttt{7f1265133278cb742da1d979183080278c3e2044cbf84b1b509073519c01ef4d}.
 Cartridge loading, calibration and whole-generation controller overhead remain
 separate charges.  No end-to-end speed promotion follows from this result.
+
+\paragraph{Continuous, bounded training-coverage collection.}
+A family-balanced sequential queue now selects training rows only from the
+hash-frozen corpus and captures all 36 layers, never consuming selection or
+holdout trajectories.  Before accepting a job it verifies canonical teacher
+receipt integrity, exact repeatability, complete observation count and the
+router/FFN/output/residual/router-score binary hashes.  An append-only completion
+sidecar binds the entire capture file tree to the teacher receipt and corpus.
+Verified jobs may be resumed without overwrite; incomplete or invalid jobs stop
+the queue for inspection.  Full-model jobs share a nonblocking runtime lock so
+independent invocations cannot accidentally overcommit the Mac's memory.
+The bounded programme retains the existing six-thread, declared 8 GiB expert
+cache and watchdog-governed inference-priority arbitration.  Evidence remains
+in local repository results, not on the SD card.  Local disk space was only
+approximately 9 GiB, so no new 20 GiB cache allocation is authorized by this
+queue launch; a 3 GiB evidence reserve is checked before every job.  Planned
+observations and queued jobs are not counted as completed evidence or speed
+gains.
+
+Counterfactual teacher captures also retain the exact, already-computed gated
+fourth-expert contribution as a separate hash-bound F32 target.  This adds
+11,520 bytes per observation without another expert calculation and permits
+later correction fitting without refetching the original large E4 frame for
+each training observation.  The queue verifies these targets along with the
+other captured vectors before sealing a completion sidecar.
+
+When layer 35 is selected for diagnostic capture, the existing full vocabulary
+output is retained once per position: 201,088 F32 logits, or 804,352 bytes.
+The queue compares each binary hash directly with the teacher receipt's
+position-level logit hash.  This requires no additional vocabulary calculation
+and enables future all-competitor perturbation checks, rather than treating
+the previously recorded winning/runner-up scalar drift as a safety proof.
+
+\paragraph{Completed prospective single-position downstream test.}
+The frozen affine C4 was substituted only at position 27, layer 12, on the new
+42-position extraction trajectory.  Both candidate passes were internally
+bitwise repeatable.  All 42 next-token IDs and all 42 recorded second-choice
+IDs matched the unrestricted teacher; only 15 positions were at or after the
+substitution.  This is short downstream token stability, not completed-answer
+semantic breadth or long-horizon certification.  Candidate canonical SHA-256:
+\texttt{490d7c7feaa87676169205deed3fd56da310eee90b042eb98fd56c6d43acc825}.
+
+The internal trajectory still drifted: 28 ordered-route changes, 15 expert-set
+changes and one top-expert change.  The first ordered and set changes both
+occurred at position 27, layer 29.  Maximum chosen-logit delta was 0.526638 and
+p95 was 0.158275.  After substitution, the recorded winning/runner-up
+perturbation divided by the teacher's token margin had median 0.0321124, p95
+0.108036 and maximum 0.114143, the latter at position 28.  These are top-two
+diagnostics, not an all-vocabulary safety bound.  Of 45 captured router-score
+comparisons at layers 12, 26 and 31, 31 satisfied the sufficient set-stability
+condition \(2\|s_{\rm candidate}-s_{\rm teacher}\|_\infty <
+s_{\rm teacher,(4)}-s_{\rm teacher,(5)}\).  Failure of that sufficient condition
+does not itself prove a set change; uncaptured layers are not certified by it.
+
+The result remains \texttt{TOKEN-STABLE-DOWNSTREAM-DRIFT}, with downstream
+analysis canonical SHA-256
+\texttt{b5a2bd616c94d8ecae643f902e6aab756652ba8c8c6703a6d88c611cb3211def}.
+Counts and normalized margins differ from the older correction experiment,
+but the trajectories also differ: this is not a matched ablation proving that
+addition-order repair or affine fitting caused the downstream improvement.
+Only the same-activation local-error comparison establishes the 50.92\%
+reduction attributable to the affine refinement.  No correction certificate,
+general-model coverage or higher tokens-per-second result is promoted.
