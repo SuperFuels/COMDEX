@@ -31,3 +31,22 @@ The canonical evidence SHA-256 is
 This is an offline changed-arithmetic bound, not generated-token speed or
 semantic-quality evidence.  The unrestricted exact frontier remains
 approximately 1.72--1.83 tokens/s.
+
+\subsection{Impossible best-subset oracle}
+
+The gate was strengthened to remove a possible objection: perhaps the weakest
+expert by router order is not the least consequential expert for the actual
+activation.  For each of the 681 observations, an impossible oracle enumerated
+every one-, two- and three-expert subset and selected the subset having the
+smallest error against the already-known four-expert teacher output.  This
+oracle cannot be deployed because it sees the answer before choosing, but it
+is a strict existence bound for any future consequence predictor.
+
+Even this oracle retained all four experts for 585 observations.  It could use
+three experts for 92 observations, two for four observations, and one for
+none.  Total expert work fell by only $1.03811\times$.  This is far below the
+predeclared $1.50\times$ threshold for constructing a predictor and cannot
+plausibly compound toward the missing speed multiplier.  The stronger result
+therefore confirms \texttt{STOP\_LAYER\_CONDITIONED\_OMISSION} at layer 12.
+The oracle evidence canonical SHA-256 is
+\texttt{dbd6237a6f43ac6642df887c10233efd43ecc4cac9f64dd939d25c2919ab1869}.

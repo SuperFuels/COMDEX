@@ -12,6 +12,7 @@ import subprocess
 import tempfile
 from collections import defaultdict
 from datetime import datetime, timezone
+from itertools import combinations
 from pathlib import Path
 
 import numpy as np
@@ -85,9 +86,28 @@ def main() -> int:
                         np.linalg.norm(delta) / np.linalg.norm(full_contribution)),
                     "retained_gate_mass": float(sum(capture["gates"][:retained])),
                 }
+            oracle = {}
+            for retained in (1, 2, 3):
+                best = None
+                for chosen in combinations(range(4), retained):
+                    candidate_contribution = sum(
+                        (contributions[index] for index in chosen),
+                        np.zeros(WIDTH, dtype=np.float64))
+                    delta = candidate_contribution - full_contribution
+                    row = {
+                        "chosen_positions": list(chosen),
+                        "output_relative_l2": float(
+                            np.linalg.norm(delta) / np.linalg.norm(full)),
+                        "contribution_relative_l2": float(
+                            np.linalg.norm(delta) / np.linalg.norm(full_contribution)),
+                    }
+                    if best is None or row["output_relative_l2"] < best["output_relative_l2"]:
+                        best = row
+                oracle[str(retained)] = best
             observations.append({"family": family, "capture": capture_path.name,
                                  "position": capture["position"], "layer": capture["layer"],
-                                 "route": capture["route"], "candidates": candidates})
+                                 "route": capture["route"], "candidates": candidates,
+                                 "oracle_best_subsets": oracle})
 
     by_layer = defaultdict(list)
     for row in observations:
@@ -119,16 +139,32 @@ def main() -> int:
     baseline_expert_evaluations = 4 * len(layer_map)
     selected_expert_evaluations = sum(row["selected_experts"] for row in layer_map.values())
     reduction = baseline_expert_evaluations / selected_expert_evaluations
+    oracle_counts = {"1": 0, "2": 0, "3": 0, "4": 0}
+    for row in observations:
+        selected = 4
+        for retained in (1, 2, 3):
+            candidate = row["oracle_best_subsets"][str(retained)]
+            if (candidate["output_relative_l2"] <= .02
+                    and candidate["contribution_relative_l2"] <= .15):
+                selected = retained
+                break
+        oracle_counts[str(selected)] += 1
+    oracle_evaluations = sum(int(key) * value for key, value in oracle_counts.items())
+    oracle_reduction = 4 * len(observations) / oracle_evaluations
+    status = ("ADVANCE_LAYER_CONDITIONED_GENERATION_GATE" if reduction >= 1.15
+              else "ADVANCE_CONSEQUENCE_PREDICTOR" if oracle_reduction >= 1.50
+              else "STOP_LAYER_CONDITIONED_OMISSION")
     report = {
         "schema": "aion.gptoss-120b-layer-consequence-map.v1",
-        "status": "ADVANCE_LAYER_CONDITIONED_GENERATION_GATE" if reduction >= 1.15
-                  else "STOP_LAYER_CONDITIONED_OMISSION",
+        "status": status,
         "created_at": datetime.now(timezone.utc).isoformat(), "quality_track": True,
         "observations": observations, "layer_map": layer_map,
         "selected_layer_counts": selected_counts,
         "baseline_expert_evaluations_per_token": baseline_expert_evaluations,
         "selected_expert_evaluations_per_token": selected_expert_evaluations,
         "theoretical_expert_work_reduction": reduction,
+        "impossible_oracle_selected_counts": oracle_counts,
+        "impossible_oracle_expert_work_reduction": oracle_reduction,
         "promotion_gate": {"minimum_theoretical_expert_work_reduction": 1.15,
                            "maximum_layer_output_relative_l2_p95": .02,
                            "maximum_layer_output_relative_l2_max": .025,
@@ -139,13 +175,17 @@ def main() -> int:
         "claim_boundary": (
             "Offline cross-family layer-output consequence map using original selected experts, "
             "gates and weights. Omission is changed arithmetic. The work reduction is a theoretical "
-            "bound until the frozen layer plan survives full causal generation and semantic gates."),
+            "bound until the frozen layer plan survives full causal generation and semantic gates. "
+            "The best-subset result is an impossible oracle that uses the teacher output and only "
+            "bounds whether a future consequence predictor is worth building."),
     }
     body = json.dumps(report, sort_keys=True, separators=(",", ":"))
     report["canonical_sha256"] = hashlib.sha256(body.encode()).hexdigest()
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     print(json.dumps({"status": report["status"], "selected_layer_counts": selected_counts,
                       "theoretical_expert_work_reduction": reduction,
+                      "impossible_oracle_selected_counts": oracle_counts,
+                      "impossible_oracle_expert_work_reduction": oracle_reduction,
                       "canonical_sha256": report["canonical_sha256"]}, sort_keys=True))
     return 0
 
