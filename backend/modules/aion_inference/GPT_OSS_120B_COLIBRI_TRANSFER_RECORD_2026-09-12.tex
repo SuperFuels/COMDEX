@@ -275,3 +275,36 @@ control.  This did not clear the unchanged 5\% gate and was weaker in paired
 terms than top-one's 6.2516\% improvement.  The second hint therefore added
 storage pressure faster than useful latency hiding.  Top-two advice is stopped
 and top-one remains the promoted policy.
+
+\subsection{Stale-state expert arithmetic with compact delta correction}
+
+The Colibri transfer suggested a more ambitious use of early state: calculate
+the fourth selected expert from the preceding layer's already available
+post-attention state, then apply a very small learned correction once the true
+layer input becomes available.  This changed-model quality-track probe was
+restricted to layer 12 and route rank four.  Six public explanation positions
+formed the development set; six disjoint public business positions were held
+out.  The original expert identity, gate and MXFP4 weights remained in use.
+Only the input time and the compact correction differed, and every uncertified
+case retained an exact fallback requirement.
+
+The uncorrected early expert produced a held-out p95 layer-output-relative
+$L_2$ error of 0.0414661.  A 115,280-byte rank-four shared delta cartridge took
+0.00822 ms per held-out row, but worsened p95 error to 0.0443818 and certified
+only one of six rows under the fixed 0.02 ceiling.  Coverage was therefore
+16.67\%, below the predeclared 50\% requirement.  The branch is classified
+\texttt{STOP\_STALE\_DELTA}; it supplies no full-model quality or throughput
+claim.
+
+This falsification is physically informative.  The following layer's stale
+state is accurate enough to predict most expert identities, but is not accurate
+enough to evaluate even the lowest-ranked selected expert and repair its output
+with a single cross-expert linear delta map.  Router lookahead should therefore
+remain a storage-advice mechanism.  Any future early-arithmetic retry must add
+expert/activation-region conditioning or a weight-derived local correction and
+must beat the raw stale expert on a blinded family.
+
+The report's internal canonical SHA-256 is
+\texttt{de381ac3dd7135b8e2e78a41c9bc1a5033655c77b593e864a612b910650d5d58}.
+Its local and SD-backed stored-file SHA-256 is
+\texttt{5e187e72e9b6460ab9c4e8a20cac83c6ac1dd39636ae4a06bf6194478167c367}.
