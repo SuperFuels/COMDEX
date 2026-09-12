@@ -1,0 +1,33 @@
+% Append-only technical-record section. Requires amsmath.
+\section{Cross-Family Layer-Consequence Omission Gate}
+
+A second first-principles probe asked whether whole selected experts could be
+omitted at a layer only after measuring their actual contribution, rather than
+using a global router-mass threshold.  For every captured activation, each of
+the four original MXFP4 experts was evaluated separately with its original
+gate.  The full four-expert layer result was reconstructed in the original
+order, and top-1, top-2 and top-3 partial results were compared with it.
+
+The available frozen arithmetic, extraction and unseen-reasoning corpora
+provided 681 real observations at layer 12.  A retained count could be selected
+only if that layer met all three predeclared limits across the combined corpus:
+p95 output-relative $L_2\leq0.02$, maximum output-relative $L_2\leq0.025$, and
+p95 expert-contribution-relative $L_2\leq0.15$.  None of top-1, top-2 or top-3
+passed.  Layer 12 therefore retained all four experts, yielding no theoretical
+work reduction.  Decision: \texttt{STOP\_LAYER\_CONDITIONED\_OMISSION} for
+this measured layer.
+
+This result does not prove that every one of the 36 layers is equally
+sensitive, because the current cross-family teacher captures contain only
+layer 12.  It does show that the layer already used for residual and compact
+expert development cannot be safely reduced by a fixed expert count on the
+present broad corpus.  A future multi-layer consequence map must collect a
+separately frozen cross-family sample at every layer and must survive causal
+generation; this layer-12 result provides no justification to weaken the
+full-model gate.
+
+The canonical evidence SHA-256 is
+\texttt{ba32b0c70ed67298c114231c2feb6bc74e4c16b97221110a1fe1490691007f31}.
+This is an offline changed-arithmetic bound, not generated-token speed or
+semantic-quality evidence.  The unrestricted exact frontier remains
+approximately 1.72--1.83 tokens/s.
