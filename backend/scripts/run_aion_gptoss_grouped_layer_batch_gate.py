@@ -111,6 +111,14 @@ def main() -> int:
             ctypes.POINTER(ctypes.c_double),
         ]
         grouped.restype = ctypes.c_int
+        heterogeneous = moe_library.aion_gptoss_moe_finish_heterogeneous_batch
+        heterogeneous.argtypes = [
+            ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
+            ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_float),
+            ctypes.c_int, ctypes.POINTER(ctypes.c_float), ctypes.c_int,
+            ctypes.POINTER(ctypes.c_double),
+        ]
+        heterogeneous.restype = ctypes.c_int
         combine = moe_library.aion_gptoss_combine_four_contributions
         combine.argtypes = [
             ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
@@ -163,6 +171,17 @@ def main() -> int:
             full_pointers[position] = expert_pointers([bank[expert] for expert in route])
 
         ffn_matrix = np.ascontiguousarray(np.stack(ffn_inputs))
+        router_matrix = np.ascontiguousarray(np.stack(router_inputs))
+        gate_matrix = np.ascontiguousarray(np.stack(gates))
+        heterogeneous_blobs = [
+            bank[expert][projection][kind]
+            for route in routes for expert in route
+            for projection in ("gate", "up", "down") for kind in ("weight", "bias")
+        ]
+        heterogeneous_references = [ctypes.c_char_p(blob) for blob in heterogeneous_blobs]
+        heterogeneous_pointers = (ctypes.c_void_p * len(heterogeneous_references))(*[
+            ctypes.cast(reference, ctypes.c_void_p).value
+            for reference in heterogeneous_references])
         groups: dict[int, list[tuple[int, int]]] = defaultdict(list)
         for position, route in enumerate(routes):
             for slot, expert in enumerate(route):
@@ -218,22 +237,46 @@ def main() -> int:
                 raise RuntimeError(f"combine failed: {status}")
             return outputs, (time.perf_counter_ns() - started) / 1_000_000
 
-        timings = {"scalar": [], "grouped": []}
-        output_hashes = []
+        def run_heterogeneous() -> tuple[np.ndarray, float]:
+            outputs = np.empty((args.positions, WIDTH), dtype=np.float32)
+            elapsed = ctypes.c_double()
+            started = time.perf_counter_ns()
+            status = heterogeneous(
+                ffn_matrix.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                router_matrix.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                heterogeneous_pointers,
+                gate_matrix.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                args.positions,
+                outputs.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                args.threads, ctypes.byref(elapsed),
+            )
+            if status:
+                raise RuntimeError(f"heterogeneous batch failed: {status}")
+            return outputs, (time.perf_counter_ns() - started) / 1_000_000
+
+        timings = {"scalar": [], "grouped": [], "heterogeneous": []}
+        hashes = {mode: [] for mode in timings}
         for _ in range(args.rounds):
-            for mode in ("scalar", "grouped", "grouped", "scalar"):
-                outputs, elapsed = run_scalar() if mode == "scalar" else run_grouped()
+            for mode in ("scalar", "heterogeneous", "grouped", "grouped",
+                         "heterogeneous", "scalar"):
+                outputs, elapsed = {
+                    "scalar": run_scalar,
+                    "grouped": run_grouped,
+                    "heterogeneous": run_heterogeneous,
+                }[mode]()
                 timings[mode].append(elapsed)
-                output_hashes.append(hashlib.sha256(outputs.tobytes()).hexdigest())
-        _ = component_refs, libraries
+                hashes[mode].append(hashlib.sha256(outputs.tobytes()).hexdigest())
+        _ = component_refs, libraries, heterogeneous_references
 
     summaries = {name: {
         "samples": len(values),
         "wall_p50_ms": statistics.median(values),
         "wall_p95_ms": percentile(values, 0.95),
     } for name, values in timings.items()}
-    exact = len(set(output_hashes)) == 1
+    exact = len({digest for values in hashes.values() for digest in values}) == 1
     speedup = summaries["scalar"]["wall_p50_ms"] / summaries["grouped"]["wall_p50_ms"]
+    heterogeneous_speedup = (summaries["scalar"]["wall_p50_ms"] /
+                             summaries["heterogeneous"]["wall_p50_ms"])
     group_sizes = [len(occurrences) for occurrences in groups.values()]
     result = {
         "schema": "aion.gptoss-120b-exact-grouped-layer-batch-gate.v1",
@@ -251,15 +294,19 @@ def main() -> int:
                                  for size in sorted(set(group_sizes))},
         "summaries": summaries,
         "wall_speedup": speedup,
+        "heterogeneous_wall_speedup": heterogeneous_speedup,
         "all_outputs_bitwise_equal": exact,
-        "status": "ADVANCE_FULL_GROUPED_BLOCK" if exact and speedup >= 1.10
-                  else "NOT_PROMOTED",
+        "status": ("ADVANCE_HETEROGENEOUS_BLOCK_VERIFIER"
+                   if exact and heterogeneous_speedup >= 1.50
+                   else "NOT_PROMOTED"),
         "trace_path": str(args.trace.resolve()),
         "trace_file_sha256": sha256_file(args.trace),
         "warehouse_metrics": store.metrics(),
         "claim_boundary": (
             "One real causal layer and eight teacher positions were evaluated after loading "
-            "their exact expert union. This isolates grouped packed arithmetic; it is not a "
+            "their exact expert union. The heterogeneous candidate points one graph at "
+            "the existing verified expert frames without copying a route slab. This is "
+            "a packed-arithmetic gate; it is not a "
             "full transformer block, draft acceptance or generated-token measurement."
         ),
     }
@@ -269,7 +316,8 @@ def main() -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     print(json.dumps({key: result[key] for key in (
-        "status", "all_outputs_bitwise_equal", "wall_speedup", "mean_group_size",
+        "status", "all_outputs_bitwise_equal", "wall_speedup",
+        "heterogeneous_wall_speedup", "mean_group_size",
         "group_size_histogram", "summaries", "canonical_sha256",
     )}, sort_keys=True))
     return 0

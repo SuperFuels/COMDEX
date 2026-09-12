@@ -1193,6 +1193,85 @@ extern "C" int aion_gptoss_combine_four_contributions(
     return 0;
 }
 
+// Exact heterogeneous multi-row verifier probe. Every position may reference
+// a different ordered quartet. Weight leaves point directly at the caller's
+// verified expert frames: no contiguous route slab or weight copy is created.
+// One graph covers the complete block while retaining the scalar path's
+// per-position expert reduction order.
+extern "C" int aion_gptoss_moe_finish_heterogeneous_batch(
+        const float * ffn_input_values, const float * router_input_values,
+        const void * const * components, const float * gates, int batch,
+        float * output_values, int threads, double * elapsed_ms) {
+    static void * plugin = dlopen(
+        "/opt/homebrew/Cellar/ggml/0.23.0/libexec/libggml-cpu-apple_m2_m3.so",
+        RTLD_NOW | RTLD_LOCAL);
+    static compute_function compute = plugin ? reinterpret_cast<compute_function>(
+        dlsym(plugin, "ggml_graph_compute_with_ctx")) : nullptr;
+    static std::vector<char> metadata_memory(8 * 1024 * 1024);
+    static std::vector<char> compute_memory(128 * 1024 * 1024);
+    static ggml_context * metadata = ggml_init(
+        {metadata_memory.size(), metadata_memory.data(), true});
+    static ggml_context * context = ggml_init(
+        {compute_memory.size(), compute_memory.data(), false});
+    if (!compute) return 2;
+    if (!metadata || !context) return 3;
+    if (batch < 1 || batch > 16) return 6;
+    ggml_reset(metadata);
+    ggml_reset(context);
+    constexpr int64_t width = 2880;
+    auto * graph = ggml_new_graph_custom(context, 4096, false);
+    std::vector<ggml_tensor *> outputs;
+    outputs.reserve(batch);
+    for (int row = 0; row < batch; ++row) {
+        auto * ffn_input = ggml_new_tensor_1d(metadata, GGML_TYPE_F32, width);
+        auto * router_input = ggml_new_tensor_1d(metadata, GGML_TYPE_F32, width);
+        ffn_input->data = const_cast<float *>(ffn_input_values + row * width);
+        router_input->data = const_cast<float *>(router_input_values + row * width);
+        ggml_tensor * combined = nullptr;
+        for (int slot = 0; slot < 4; ++slot) {
+            const int base = (row * 4 + slot) * 6;
+            auto * gate_w = ggml_new_tensor_2d(
+                metadata, GGML_TYPE_MXFP4, width, width);
+            auto * gate_b = ggml_new_tensor_1d(metadata, GGML_TYPE_F32, width);
+            auto * up_w = ggml_new_tensor_2d(
+                metadata, GGML_TYPE_MXFP4, width, width);
+            auto * up_b = ggml_new_tensor_1d(metadata, GGML_TYPE_F32, width);
+            auto * down_w = ggml_new_tensor_2d(
+                metadata, GGML_TYPE_MXFP4, width, width);
+            auto * down_b = ggml_new_tensor_1d(metadata, GGML_TYPE_F32, width);
+            ggml_tensor * tensors[] = {
+                gate_w, gate_b, up_w, up_b, down_w, down_b};
+            for (int component = 0; component < 6; ++component)
+                tensors[component]->data = const_cast<void *>(
+                    components[base + component]);
+            auto * gate = ggml_add(context,
+                ggml_mul_mat(context, gate_w, router_input), gate_b);
+            auto * up = ggml_add(context,
+                ggml_mul_mat(context, up_w, router_input), up_b);
+            auto * hidden = ggml_swiglu_oai(
+                context, gate, up, 1.702f, 7.0f);
+            auto * expert = ggml_add(context,
+                ggml_mul_mat(context, down_w, hidden), down_b);
+            expert = ggml_scale(context, expert, gates[row * 4 + slot]);
+            combined = combined ? ggml_add(context, combined, expert) : expert;
+        }
+        auto * output = ggml_add(context, ffn_input, combined);
+        outputs.push_back(output);
+        ggml_build_forward_expand(graph, output);
+    }
+    const auto begin = std::chrono::steady_clock::now();
+    const int status = compute(context, graph, threads);
+    *elapsed_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - begin).count();
+    if (status != GGML_STATUS_SUCCESS) return 4;
+    for (int row = 0; row < batch; ++row)
+        std::memcpy(output_values + row * width, outputs[row]->data,
+                    width * sizeof(float));
+    for (int64_t index = 0; index < width * batch; ++index)
+        if (!std::isfinite(output_values[index])) return 5;
+    return 0;
+}
+
 // Quality-track reducer for separately evaluated routed experts. Keeping the
 // reduction native avoids Python temporaries and retains the active kernel's
 // left-associated expert order.

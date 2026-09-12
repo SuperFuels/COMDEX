@@ -488,3 +488,33 @@ route slabs, or a certified reduction in the target's expert work.  Repeating
 the current group-by-identical-expert implementation cannot supply the desired
 multiplier.  The receipt's internal canonical SHA-256 is
 \texttt{86bc5285be7b39ba2da45cf3e15a15c9c25bbdacdb8e47c09ccbc22ad2fb90d2}.
+
+\subsection{No-copy heterogeneous eight-position expert graph}
+
+A physically distinct verifier primitive was implemented after the route-reuse
+bound.  Unlike grouping only identical experts, it constructed one GGML graph
+covering all eight positions and their potentially different ordered expert
+quartets.  Every expert tensor pointed directly to its existing verified frame.
+No 52.9~MB route slab was assembled, and no weight payload was copied.  A
+separate no-allocation metadata arena prevented GGML from reserving duplicate
+backing storage for external packed weights; the bounded compute arena was
+128~MiB.
+
+The candidate was measured on the same real causal layer-zero, eight-position
+invoice trace in a balanced scalar/heterogeneous/grouped order over 24 samples
+per mode.  All outputs were bit-for-bit identical.  Scalar median time was
+6.212979~ms and the heterogeneous graph required 6.281063~ms, a
+0.989160$\times$ relative rate or 1.096\% regression.  Its p95 was
+9.809375~ms versus 10.118792~ms for scalar execution; this tail reduction did
+not compensate for the median regression.  The identical-expert grouped mode
+also regressed, requiring 6.525521~ms.
+
+The candidate is \texttt{NOT\_PROMOTED}.  Eliminating per-position graph
+dispatch and copied route preparation is insufficient because the same 32
+heterogeneous expert evaluations still traverse the same physical memory
+channel.  This closes the unchanged heterogeneous one-graph formulation as a
+route to the missing 1.5$\times$ verifier gate.  The local receipt's internal
+canonical SHA-256 is
+\texttt{2d6de13cc111028a2a62dc61c0ad3ee26301754256c29ab84c87fd882667ec8b}.
+The receipt could not be copied to SD because the evidence volume had only
+approximately 128~KiB free; no existing evidence was overwritten.
