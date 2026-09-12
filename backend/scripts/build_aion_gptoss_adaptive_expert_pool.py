@@ -82,8 +82,7 @@ def main() -> int:
     for path in source_paths:
         report = json.loads(path.read_text())
         routes = (extract_reduced_routes(report)
-                  if args.allow_reduced_routes and path.resolve() == args.required_prefix_report.resolve()
-                  else extract_routes(report))
+                  if args.allow_reduced_routes else extract_routes(report))
         used = (routes[args.required_prefix_offset:
                        args.required_prefix_offset + args.required_prefix_tokens]
                 if path.resolve() == args.required_prefix_report.resolve() else routes)
