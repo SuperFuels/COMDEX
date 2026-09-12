@@ -1054,3 +1054,53 @@ route, logit, token and semantic stability.  Storage locality may choose among
 already certified alternatives but may not certify an otherwise unsafe
 shortcut.  The corrected bound report's canonical SHA-256 is
 \texttt{0edfb1e926c27e118083f65fcf187294399eb93179b0217738cd1b82d7ea2a3d}.
+
+\subsection{Cross-family fourth-expert recurrence and first local correction}
+
+A correction-coverage corpus was frozen before further fitting.  It contains
+36 generic public prompts across arithmetic, extraction, reasoning, business,
+explanation and writing.  Twenty-four prompts are assigned to training, six to
+selection and six to an unopened holdout split.  With sixteen planned
+continuation positions and all 36 layers, the complete plan contains 44,064
+layer-position observations.  The emitted artifact stores prompt hashes and
+token IDs but no personal or customer data.  Its canonical SHA-256 is
+\texttt{f8d7d407aa548afddce383888ac81bf66abee6d7aaa0357e72c32972e61646a3}.
+
+The first gate remained deliberately narrow at layer 12.  Independent
+arithmetic and extraction training captures produced 37 and 41 authentic
+four-expert observations.  Both complete model runs were repeatable in routes,
+hidden states, logits and token IDs.  Their canonical SHA-256 values are
+\texttt{db8b1b2ef18883f4d5e2b39e90308e280e77a19c137c997caef8ffbb252bcfec}
+and
+\texttt{4f593ea64aab2cae1d6a1a4fa3ac0271ca39a7c6015d3062ce77e3f92a7104ab}.
+
+Repeated expert identity was common but repeated activation geometry was not.
+Eighteen of 41 extraction calls, or 43.902\%, selected a fourth-expert identity
+also observed in arithmetic.  At the predeclared joint router/FFN cosine
+threshold of 0.80, however, only one extraction call remained, a traffic share
+of 2.439\%.  This layer-12/expert-22 pair had joint cosine 0.970179.  Its
+unmodified three-expert counterfactual incurred 0.0412152 layer-output
+relative-$L_2$ error.  The recurrence report's canonical SHA-256 is
+\texttt{a63c473bbd53d3ecb43eab86423800b46da11d574f75888462376b98c1b80ede}.
+
+The single qualifying region was then subjected to a true cross-family local
+correction gate.  The arithmetic expert-22 contribution at position 25 was
+stored as an 11,520-byte prototype and scaled only by the extraction call's
+original fourth gate.  On the unseen extraction activation at position 29,
+the correction reduced relative-$L_2$ error from 0.0412152 to 0.0166035, a
+59.715\% reduction which clears the fixed 0.02 local numerical limit.  Median
+prototype calculation time was 0.000583~ms versus 0.1775~ms for the original
+expert contribution.  Its storage was 0.0829\% of the declared 13.25~MiB expert
+frame, well below the 25\% economics ceiling.  The formal gate therefore
+advanced this one region to downstream testing.  Its canonical SHA-256 is
+\texttt{3250630d5fce37c5d44b85f1b776223b563f7df1a8a25dc9afe0899e4775027c}.
+
+This is the first observed cross-family local $3+\widehat{C}_4$ correction to
+clear both declared accuracy and physical-cost gates.  It is not yet a runtime
+breakthrough: only one region passed, representing 2.439\% of the measured
+extraction traffic, and no downstream router, logit, token, semantic or
+full-generation speed result has yet been established.  The next gate must
+substitute this correction at its authentic layer and position, roll the model
+forward, and compare subsequent routes and output logits with the original
+four-expert trajectory.  Additional prompt coverage is justified only if that
+downstream gate passes.
