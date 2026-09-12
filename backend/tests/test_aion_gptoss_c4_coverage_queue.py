@@ -62,6 +62,19 @@ def test_queue_checks_full_grid_and_binary_integrity(tmp_path):
     receipt['run_a'] = {'tokens': [{}, {}, {}, {'logits_sha256': digest(vocabulary)}]}
     receipt['canonical_sha256'] = canonical(receipt)
     verify_capture(receipt, tmp_path, 36)
+    metadata_path=tmp_path / 'position-3-layer-0.json'
+    metadata=json.loads(metadata_path.read_text())
+    for name in ('second_contribution','third_contribution'):
+        target=tmp_path / f'position-3-layer-0-{name}.bin'
+        target.write_bytes(bytes(11520))
+        metadata[f'{name}_sha256']=digest(target)
+    metadata_path.write_text(json.dumps(metadata))
+    verify_capture(receipt,tmp_path,36)
+    third=tmp_path / 'position-3-layer-0-third_contribution.bin'
+    third.write_bytes(b'corrupt')
+    with pytest.raises(RuntimeError,match='ranked correction target'):
+        verify_capture(receipt,tmp_path,36)
+    third.write_bytes(bytes(11520))
     (tmp_path / 'position-3-layer-0-router.bin').write_bytes(b'corrupt')
     with pytest.raises(RuntimeError, match='binary failed verification'):
         verify_capture(receipt, tmp_path, 36)

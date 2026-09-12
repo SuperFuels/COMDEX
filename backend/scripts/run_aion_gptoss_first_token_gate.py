@@ -23,6 +23,19 @@ from backend.modules.aion_inference.trajectory_verification_ladder import earlie
 
 WIDTH=2880; EXPERTS=128; BOS=199998
 
+def ranked_correction_target_blobs(contributions:list)->dict[str,bytes]:
+    """Retain already-calculated gated targets without additional neural work."""
+    names={1:'second_contribution',2:'third_contribution',3:'fourth_contribution'}
+    targets={}
+    for slot,name in names.items():
+        if slot>=len(contributions):
+            continue
+        values=np.asarray(contributions[slot],dtype='<f4')
+        if values.shape!=(WIDTH,) or not np.isfinite(values).all():
+            raise ValueError('ranked correction target must have 2880 finite values')
+        targets[name]=values.tobytes()
+    return targets
+
 def sha(path:Path)->str:
     h=hashlib.sha256()
     with path.open('rb') as f:
@@ -830,10 +843,11 @@ def main()->None:
                             if status: raise RuntimeError(f'counterfactual contribution failed: {status}')
                             expert_contributions.append(slot_output.astype(np.float64))
                             _=slot_references
-                        if active_experts==4:
-                            capture_blobs['fourth_contribution']=np.asarray(expert_contributions[3],dtype='<f4').tobytes()
-                            if not a.capture_metadata_only:
-                                Path(str(capture_stem)+'-fourth_contribution.bin').write_bytes(capture_blobs['fourth_contribution'])
+                        ranked_targets=ranked_correction_target_blobs(expert_contributions)
+                        capture_blobs.update(ranked_targets)
+                        if not a.capture_metadata_only:
+                            for name,value in ranked_targets.items():
+                                Path(str(capture_stem)+f'-{name}.bin').write_bytes(value)
                         full_contribution=output_capture.astype(np.float64)-ffn_capture.astype(np.float64)
                         reconstructed=ffn_capture.astype(np.float64)+sum(expert_contributions)
                         for retained in range(1,active_experts):

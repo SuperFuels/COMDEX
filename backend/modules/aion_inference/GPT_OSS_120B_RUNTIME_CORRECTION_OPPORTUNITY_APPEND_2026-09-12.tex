@@ -43,3 +43,24 @@ e72d148f596f4ee6c61b5946e1d02f232\allowbreak
 6458a77ee39b14c6c32eac12d01c2d5
 \end{quote}
 No full-model speed promotion follows from this timing analysis.
+
+\subsection{Implementation of ranked contribution targets}
+The next compiler phase has begun with a capture extension: future teacher
+processes retain the already-calculated gated second- and third-expert vectors
+as well as the fourth. Each is a 2,880-element little-endian F32 vector
+(11,520 bytes), identified by original ordered route and actual native gate.
+This adds 23,040 bytes per four-expert observation, without another expert
+read or neural calculation beyond existing counterfactual capture. Values
+converted to F64 for diagnostics are converted back to their original F32
+representation for target storage. Hash-bound verification checks both new
+targets together whenever either is declared. Older captures with only E4
+remain supported and are not retroactively declared to contain E2/E3.
+
+The currently running arithmetic process loaded the earlier capture code:
+it continues unchanged and will not acquire these new targets mid-run.
+Subsequent teacher processes load the extension. Thus implementation is
+complete, but successful future E2/E3 capture is not yet measured evidence.
+Thirteen focused ranked-target, queue and opportunity tests passed.
+Teacher vectors alone do not certify adaptive-state reuse: gating,
+activation region, active count and reduction order require separately
+validated correction training and downstream tests before substitution.

@@ -8,6 +8,13 @@ and preserved, not verified evidence. Restart free space approximately 19 GiB;
 Queue/economics checks passed 13/13 again. No new certification or speed claim.
 Do not start competing full-model inference while this queue is running.
 
+Ranked correction compiler preparation: future counterfactual teacher jobs
+also save hash-bound gated E2/E3 targets without extra neural work. The first
+active retry02 arithmetic job loaded the older E4-only code; do not count it
+as E2/E3 coverage. Follow-up jobs load the extension. Corrections for the last
+selected contribution on 2/3-expert calls require their own gate/activation/
+reduction-order and downstream validation; no inference shortcut is enabled.
+
 Status: LOCKED for execution until faster storage or additional hardware is available.
 
 Baseline date: 6 September 2026  

@@ -72,6 +72,14 @@ def verify_capture(receipt: dict, capture_dir: Path, expected: int) -> None:
             expected_bytes = 512 if name == 'router_logits' else 11520
             if not binary.exists() or binary.stat().st_size != expected_bytes or digest(binary) != metadata.get(f'{name}_sha256'):
                 raise RuntimeError(f'capture binary failed verification: {binary}')
+        # Earlier sealed captures retain only E4. New captures retain E2/E3
+        # too; enforce hashes and the complete pair whenever either is declared.
+        optional_names=('second_contribution','third_contribution')
+        if any(f'{name}_sha256' in metadata for name in optional_names):
+            for name in optional_names:
+                binary=Path(f'{path.with_suffix("")}-{name}.bin')
+                if not binary.exists() or binary.stat().st_size!=11520 or digest(binary)!=metadata.get(f'{name}_sha256'):
+                    raise RuntimeError(f'ranked correction target failed verification: {binary}')
     if observed != expected_addresses:
         raise RuntimeError('capture grid is incomplete')
     for position in receipt['capture_positions']:
