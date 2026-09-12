@@ -2392,3 +2392,10 @@ charged correction-cost requirements, original-E4 fallback and downstream
 route/logit/token/semantic checks. The next promotion is a transferable region
 and eventually enough certified traffic to improve balanced completed-answer
 generation, not another isolated tiny calculator or a relaxed threshold.
+<!-- 2026-09-12 disk-guarded C4 restart: the initial queue was interrupted
+without completed evidence. Preserve it. Active retry root:
+results/aion_gptoss_c4_full_layer_training_queue_20260912_retry01.
+The queue polls a 3 GiB local free-space reserve during captures every 5 s.
+Up to 24 training-only captures, no extra L2 allocation; 13 focused tests
+passed. No new speed/certification claim. See
+GPT_OSS_120B_C4_CAPTURE_RESTART_APPEND_2026-09-12.tex. -->

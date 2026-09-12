@@ -6,8 +6,10 @@ import argparse
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from backend.scripts.run_aion_gptoss_local_c4_prototype_gate import canonical, digest
@@ -17,6 +19,33 @@ def training_order(rows: list[dict]) -> list[dict]:
     families = sorted({row['family'] for row in rows if row['split'] == 'training'})
     groups = {family: [row for row in rows if row['split'] == 'training' and row['family'] == family] for family in families}
     return [groups[family][index] for index in range(max(map(len, groups.values()), default=0)) for family in families if index < len(groups[family])]
+
+
+def run_guarded_capture(command: list[str], repository: Path, env: dict,
+                        evidence_root: Path, reserve_bytes: int = 3 * 1024**3,
+                        poll_seconds: float = 5.0) -> None:
+    """Check disk reserve during a capture, not just between captures."""
+    process = subprocess.Popen(command, cwd=repository, env=env)
+    try:
+        while process.poll() is None:
+            if shutil.disk_usage(evidence_root).free < reserve_bytes:
+                raise RuntimeError('local evidence reserve exhausted during capture; partial data preserved')
+            time.sleep(poll_seconds)
+        if process.returncode:
+            raise subprocess.CalledProcessError(process.returncode, command)
+    finally:
+        # Interrupt first so the inference-priority lease can unwind normally.
+        if process.poll() is None:
+            process.send_signal(signal.SIGINT)
+            try:
+                process.wait(timeout=30)
+            except subprocess.TimeoutExpired:
+                process.terminate()
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait()
 
 
 def verify_capture(receipt: dict, capture_dir: Path, expected: int) -> None:
@@ -135,7 +164,7 @@ def main() -> int:
                         '--persistent-l2-gib', str(args.persistent_l2_gib),
                         '--reusable-arena-persistent-l2', '--l2-admission-touches', '3']
         print(f"START_TRAINING_ONLY {row['capture_id']} expected_observations={expected}", flush=True)
-        subprocess.run(command, cwd=repository, env=env, check=True)
+        run_guarded_capture(command, repository, env, args.root)
         receipt = json.loads(receipt_path.read_text())
         verify_capture(receipt, capture_dir, expected)
         seal_completion(job, row, corpus, receipt, expected)
