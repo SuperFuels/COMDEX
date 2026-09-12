@@ -817,3 +817,60 @@ verified command, PID and timeout are bound into the inference evidence before
 its canonical hash is calculated.  A live stop/resume integration check and
 15/15 focused tests passed.  The implementation is isolated in commit
 \texttt{17ce5036}.
+
+\subsection{Live proposal verification and deterministic repair}
+
+The failed global 0.80 continuation was revisited as a proposal engine rather
+than being reclassified as a successful language model.  A conservative AION
+verification ladder was implemented with three possible decisions:
+\texttt{ACCEPT}, \texttt{ESCALATE}, and \texttt{REQUIRE\_CRITIC}.  Token-level
+checks detect repeated phrases and implausibly long single-token runs while a
+candidate is still being generated.  Deterministic acceptance is intentionally
+limited to an explicit one-hop ``every $A$ is $B$'' entailment grammar.  A
+clean-looking answer outside that grammar is never accepted automatically; it
+requires a critic or the authoritative inference path.
+
+The offline gate consumed the hash-verified authentic failed receipt and the
+hash-verified correct six-position-pool receipt.  It rejected the failed
+trajectory at generated token 16, when a three-token phrase occurred for the
+second time, while finding no structural failure in the correct trajectory.
+The failed completion contained 44 generated tokens, so interruption at token
+16 avoided 28 known-bad tokens.  Median complete verification cost over 1,000
+repetitions was 12.958~microseconds for the failed candidate and
+17.750~microseconds for the correct candidate.  The correct candidate also
+contained the independently derived conclusion ``this box is heavy'' and was
+therefore accepted by the narrow deterministic gate.  The offline receipt's
+canonical SHA-256 is
+\texttt{5d5c120659507078b2bae8f17a3509d9c6bdfe56c0c4094f008691f297b17e74}.
+
+The detector was then integrated into the real 36-layer generation loop and
+the original 64-position global-0.80 experiment was repeated twice.  Both live
+runs stopped after exactly 16 generated tokens, reported the same repeated
+three-token phrase at offsets 8 and 13, and remained identical in routes,
+token IDs, final hidden states and logits through the interruption boundary.
+Only 36 of the requested 64 total positions were executed in each pass.  The
+mastery curriculum yielded through the guarded inference-priority lease and
+was verified active again after completion.  The live report's canonical
+SHA-256 is
+\texttt{0e0bf56a7b19a0cbb066a310276262bab9440f31708a96d3bf332044a3885b17}.
+
+Finally, an AtomSheet-style proof step derived the answer directly from the
+premises after live rejection.  It returned ``This box is heavy.'' with a
+median repair cost of 2.875~microseconds and p95 of 3.125~microseconds.  All ten
+declared acceptance conditions passed, including live-prefix identity with the
+original failure, repeatable interruption, canonical evidence integrity, and
+the supported deterministic conclusion.  Relative to allowing that known-bad
+completion to finish, failed generation work fell by 63.636\%.  The bound
+repair receipt's canonical SHA-256 is
+\texttt{78f8802d3ca0dde8302c691dfef286a3e5e87ac6bec93ab7584b9a75b8c58e32}.
+
+This is a completed-task and control-path advance, not a new model-throughput
+claim.  It proves that AION can interrupt this authentic degraded 120B
+trajectory live and replace it with a deterministic verified result for a
+narrow supported task.  It does not establish general semantic verification,
+automatic repair of open-ended prose, unrestricted 120B equivalence, or a new
+end-to-end tokens-per-second rate.  Such requests remain on
+\texttt{REQUIRE\_CRITIC} or \texttt{ESCALATE}.  The next gate must freeze the
+detector on development examples, test false-positive and false-negative rates
+across blinded arithmetic, extraction, reasoning, business and writing tasks,
+and measure accepted-answer latency including rollback or critic cost.
