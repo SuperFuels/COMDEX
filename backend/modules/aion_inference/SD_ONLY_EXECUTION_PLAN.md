@@ -2329,3 +2329,66 @@ window.  All 96 compared outputs were exact.  Do not integrate this path into
 full generation.  Canonical/file SHA-256:
 `f10a46617ed6ef1129b4f3919837981836d34d040b34bcca6c3981447bc9559d` /
 `33fe30fe9bb7fb54f9ab29d503dad0d36b4a2772656a51053fba929de55e3c4b`.
+
+### Current C4 refinement and continuous coverage phase (2026-09-12)
+
+The target remains unrestricted GPT-OSS 120B and a separately labelled,
+quality-gated compact fourth-expert correction. Do not substitute a smaller
+resident model or claim that approximate continuation is exact unrestricted
+inference. Existing exact short-window frontiers remain 1.72455/1.82858 t/s;
+the correct reasoning quality controller remains approximately 7 t/s in its
+tested operating region. No new speed result has been promoted here.
+
+The initial C4 integration added its contribution after residual addition.
+Real exact-E4 audits exposed 838/883 differing elements. The corrected native
+three-expert-plus-correction reducer appends C4 before residual addition and
+matches all original quartet output elements exactly on both audits. This
+isolates addition-order error, not approximation error, and does not prove
+that all earlier downstream drift came from integration rounding.
+
+A frozen two-anchor affine secant for layer 12/expert 22 occupies 46,080 bytes
+of response/secant payload and 69,288 loaded cartridge-array bytes including
+anchors/metadata. The previous extraction development activation is now
+explicitly fitting data. On the next unused training-split extraction
+trajectory, one of 39 E4 calls passed the unchanged joint cosine 0.80 and
+interpolation-support mask. Local output error was 0.774095%, versus 1.577208%
+for the constant correction on the same activation. Two other identity
+matches were rejected. A paired warm narrow median-cost probe, including
+similarity/support/prediction, measured 7.73% of resident real-E4 cost under
+concurrent diagnostic load; this is not a full-runtime performance gate.
+
+The prospective single-position downstream test substituted only position
+27/layer 12, retaining true E4 everywhere else. Both passes were repeatable and
+all 42 next-token/second-choice IDs matched control, but only 15 positions were
+at or after substitution. There were 28 ordered-route changes, 15 expert-set
+changes and one top-expert change. Maximum chosen-logit drift was 0.526638;
+worst recorded top-two perturbation/teacher-margin ratio was 11.4143%.
+Classification: TOKEN_STABLE_DOWNSTREAM_DRIFT, not a certified correction.
+Differences from the older trajectory are not a matched causal ablation.
+Downstream analysis canonical SHA-256:
+`b5a2bd616c94d8ecae643f902e6aab756652ba8c8c6703a6d88c611cb3211def`.
+
+Continuous collection of all 24 frozen **training** prompts is now running at
+`results/aion_gptoss_c4_full_layer_training_queue_20260912`, balanced across
+six families and capturing all 36 layers. Do not launch a competing full-model
+job while this queue is active: the shared inference lock prevents accidental
+overcommit. Each capture uses six threads, a declared 8 GiB expert cache and
+the watchdog-bounded curriculum-yield lease. Selection and holdout trajectories
+remain unused. Evidence is local, not SD-backed; the mounted SD remains the
+verified model source. Approximately 9 GiB local free space precluded a new
+20 GiB disk cache. The queue checks a 3 GiB reserve before each job.
+
+Count only completed `COMPLETE_VERIFIED.json` sidecars. They bind the corpus,
+exact-repeatability receipt, complete position/layer grid and all capture file
+hashes. New targets include the exact gated native-F32 E4 contribution and
+full vocabulary logits (201,088 F32 values) without another neural evaluation.
+Interrupted or invalid jobs are preserved and stop the queue; partial files,
+planned observations and queued jobs are never successful evidence.
+
+Next: inspect completed training coverage by layer/expert/activation region;
+fit corrections only where authentic support warrants it; freeze before
+selection and sealed holdout evaluation. Preserve local <2% error and <25%
+charged correction-cost requirements, original-E4 fallback and downstream
+route/logit/token/semantic checks. The next promotion is a transferable region
+and eventually enough certified traffic to improve balanced completed-answer
+generation, not another isolated tiny calculator or a relaxed threshold.
