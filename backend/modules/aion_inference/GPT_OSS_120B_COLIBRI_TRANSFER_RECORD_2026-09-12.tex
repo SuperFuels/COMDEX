@@ -237,6 +237,35 @@ The warmed retry file SHA-256 is
 with internal canonical SHA-256
 \texttt{85691ad5aad378c012237f3e70f951013ee0489205cb4abbf3e617cf0f51958f}.
 
+\subsection{Reasoning and writing-family boundaries}
+
+Both remaining public families exhibited the same transition hazard: initial
+apparently large gains occurred while the persistent L2 was still replacing SD
+fallbacks.  Those transition runs were invalidated for performance promotion.
+Fresh zero-fallback runs were then performed.
+
+On reasoning, every pass was exact and made zero SD fallback.  Candidate
+median throughput was 3.16174 tokens/s versus 3.10025 for control, a 1.9835\%
+gain.  On writing, the corresponding values were 3.01077 and 3.00004 tokens/s,
+a 0.3575\% gain.  Neither cleared the unchanged 5\% median gate, and temporal
+pairs remained inconsistent.  Cross-layer advice is therefore stopped for
+both public families.
+
+The zero-fallback reasoning report has file SHA-256
+\texttt{173dfcebd49f46e14a8e7eb591d2b70e83ed87eeefddfad60c82396d2db7b301}
+and internal canonical SHA-256
+\texttt{4ea328e36ad6214e305a178f1bdd28dbf1da42b1b4811987ce0117e07545aac8}.
+The zero-fallback writing report has file SHA-256
+\texttt{7d1367076583bc0fa226563c46dc441b32241e4b244374ad9176f4fd52a021ab}
+and internal canonical SHA-256
+\texttt{2e8f3c6481b8e47ffabb0d5412753c295e5c3c9cd2a3ef2e151ba07ee52e9e07}.
+
+The resulting boundary is narrow but clear.  The original arithmetic and
+extraction short-window gains remain valid for their configured protected
+family pools.  Cross-layer advice is not a general 120B acceleration and shall
+not remain on globally.  Future use must be family/profile gated, with a
+verified resident state and an exact ordinary path as the default.
+
 \subsection{Top-two advice falsification}
 
 After promotion, an otherwise identical arithmetic gate advised the top two
