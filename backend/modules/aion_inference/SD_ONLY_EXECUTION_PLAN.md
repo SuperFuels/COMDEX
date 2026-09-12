@@ -15,6 +15,16 @@ as E2/E3 coverage. Follow-up jobs load the extension. Corrections for the last
 selected contribution on 2/3-expert calls require their own gate/activation/
 reduction-order and downstream validation; no inference shortcut is enabled.
 
+Incremental local gate worker is active (2026-09-12), watching retry02 verified
+completions and writing `results/aion_ranked_correction_incremental_local_gates_20260912`.
+It probes layer 12 using different completed TRAINING prompt families for
+fit/development, ranks 2/3/4 when targets exist. Fixed ridge .001, minimum four
+fit observations, max32, cosine .80, local error <=.02 and improvement over
+drop. These are exploratory training/development probes, never certificates.
+Selection/holdouts remain unused. At most one BLAS thread; no SD/model compute.
+No automatic neural injection or full-generation promotion. Inspect report
+support, error, payload and coverage before downstream integration.
+
 Status: LOCKED for execution until faster storage or additional hardware is available.
 
 Baseline date: 6 September 2026  

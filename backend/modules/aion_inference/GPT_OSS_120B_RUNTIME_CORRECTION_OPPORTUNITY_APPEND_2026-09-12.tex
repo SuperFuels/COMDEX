@@ -64,3 +64,27 @@ Thirteen focused ranked-target, queue and opportunity tests passed.
 Teacher vectors alone do not certify adaptive-state reuse: gating,
 activation region, active count and reduction order require separately
 validated correction training and downstream tests before substitution.
+
+\subsection{Incremental local fitting gate now launched}
+A bounded worker watches verified training completions and launches local
+layer-12 fitting/development probes across different prompt families. It
+does not wait for the full corpus and does not read partial captures or
+selection/holdout prompts. Rank-specific targets are included only where
+their hashed vectors exist. Models are fixed expert-specific affine kernel
+ridge maps of activation to ungated contribution, rescaled by the actual
+gate. Regularization is fixed at 0.001, fitting support at least four
+observations, and fitting size at most 32. A 0.80 nearest-fitting-activation
+cosine screen declines unsupported calls. This support screen is experimental,
+not a sufficient downstream certificate.
+
+Each model is saved and hashed before the different-family development calls
+are evaluated. Supported calls must stay at or below 2\% local error and
+improve over omission; stored arrays must fit the existing 25\% expert-size
+ceiling. All supported development calls must pass to flag a local candidate.
+Development evidence is not untouched final validation. Prediction timing
+during teacher load is diagnostic only and cannot pass a relative compute
+economics or generation-speed gate. Three focused fitting/support tests passed.
+The worker limits BLAS to one thread and performs no new SD weight reads or
+neural expert evaluations. Initial state is waiting for verified cross-family
+completions, not achieved corrections. Full-generation speed remains untested
+for this extension; no shortcut is injected automatically.
