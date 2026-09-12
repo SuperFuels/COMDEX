@@ -177,3 +177,27 @@ families yielded even oracle-certified reasoning coverage.  The next model
 change must train the retained expert/subnetwork itself, or use a substantially
 larger same-tokenizer student, with the original four-expert path retained as
 teacher and fallback.
+
+\subsection{Retained-expert low-rank adapter oracle}
+
+Before capturing and training an adapter on the top expert's internal SwiGLU
+features, an intentionally impossible output-space oracle tested whether such
+work could satisfy the gate with the present teacher cohort.  The oracle was
+given each unseen reasoning target itself and allowed to choose its optimal
+coefficients in the complete rank-54 span of the 55 arithmetic-and-extraction
+omitted-expert targets.  A deployable adapter would have less information.
+
+Even this upper bound admitted only one of 21 reasoning positions at the
+two-percent boundary, or 4.76\% coverage, below the predeclared 10\% minimum.
+Its p50, p95 and maximum relative layer-output errors were respectively
+0.05833, 0.07174 and 0.08183.  Lower ranks admitted no additional positions.
+The result is \texttt{STOP\_RETAINED\_EXPERT\_LOW\_RANK\_ADAPTER}.
+
+This saved a misleading implementation cycle: capturing the retained expert's
+internal feature can improve coefficient prediction, but it cannot create
+missing output directions when the adapter is restricted to the present
+learned low-rank target span.  The next admissible retained-subnetwork design
+must add broader genuine-family teacher targets or learn new full output
+directions through direct expert-weight training.  Its canonical report hash
+is
+\texttt{dee9800ef0d050989c8babd5113d6e3b8934fa058565ed9e80c6f2318295bf8d}.
