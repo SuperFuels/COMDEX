@@ -777,3 +777,32 @@ its stored-file SHA-256 is
 \texttt{837826b0345d64f27c0dbd8b0eb81056aae0925451870b2f0d85815d48635ef3}.
 The reduced supplemental-route compiler fix passed 9/9 focused tests and is
 isolated in commit \texttt{018f30c8}.
+
+\subsection{Blind explanation transfer and preserved-mass refinement}
+
+The six-position reasoning pool was frozen and challenged without retuning on
+the unrelated public prompt ``Explain in one sentence why rain falls from
+clouds.''  The background curriculum worker again yielded during inference.
+Both passes were bitwise repeatable and the completion remained coherent.  It
+correctly attributed rainfall to atmospheric water vapour condensing in
+clouds, but the 64-position window ended before the sentence completed.
+Aggregate continuation rates were 2.626 and 3.212 tokens/s.  The result is
+therefore \texttt{INCONCLUSIVE\_OUTPUT\_WINDOW}: it is positive cross-family
+semantic evidence, but neither a completed instruction-quality pass nor a
+speed promotion.  The gate and receipt internal canonical SHA-256 values are
+\texttt{e10d14e7e76cc28d0420c77b33fa7b7656f0697ed58245e631205954578e8841}
+and
+\texttt{1eda9a04ac5752e5bdbbd9d1e94fb324167d28649e4e66d68198d015fc2ab82a}.
+
+A final refinement lowered the cumulative gate threshold from 0.80 to 0.75
+and retained the original, unrenormalised mass of surviving experts.  The
+reasoning completion remained coherent but again ended before explicitly
+printing the final predicate.  Mean active experts fell from 3.293 to 2.957 per
+layer, yet aggregate rates were only 5.603 and 4.688 tokens/s, below the 0.80
+quiet-system control median of 6.247 tokens/s.  The branch is
+\texttt{NOT\_PROMOTED}: reducing arithmetic changed the route and memory-access
+pattern enough to erase the nominal expert-count saving.  The gate and receipt
+internal canonical SHA-256 values are
+\texttt{f019d67937fc890068b1bba13ee61fdb53750ebd7d5139c190d288df6c1a3669}
+and
+\texttt{e3897305780e73449672de153155f5c8ead1a57eb5a77798e7ca3e9c582f1b7f}.
