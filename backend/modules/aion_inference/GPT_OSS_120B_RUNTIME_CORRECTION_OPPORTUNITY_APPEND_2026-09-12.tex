@@ -139,3 +139,17 @@ gate, not approximation accuracy, semantic certification or speed evidence.
 It removes arithmetic-order contamination from future ranked correction tests;
 cross-family support, numerical accuracy, downstream stability and charged
 full-generation economics remain mandatory before any promotion.
+
+\subsection{Coverage accounting without favorable-example selection}
+Incremental local reports now use every development call of each rank as the
+traffic denominator, including identities lacking a fitted model. They record
+unmatched calls, activation-supported calls, individual numerical passes and
+calls belonging to regions that pass the complete local probe. A region with
+any supported numerical failure is not credited as a usable candidate region.
+Missing rank targets yield an unavailable share, not zero certified coverage.
+Certified traffic share remains explicitly unset: local training/development
+passes cannot certify downstream semantics or adaptive execution states.
+The focused suite including coverage-denominator and failed-region checks
+passed 22 of 22 tests. These are software tests, not approximation or speed
+promotion. Business teacher collection remains active; partial observations
+are excluded from fitting until the complete repeatability seal is verified.

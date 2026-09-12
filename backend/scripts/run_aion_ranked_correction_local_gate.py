@@ -12,6 +12,27 @@ from backend.scripts.run_aion_gptoss_c4_coverage_queue import verify_capture
 NAMES={2:'second_contribution',3:'third_contribution',4:'fourth_contribution'}
 
 
+def coverage_summary(development, results):
+    """Include unmatched identities in the denominator; local passes are not certificates."""
+    summary={}
+    for rank in NAMES:
+        calls=[r for r in development if r['rank']==rank]
+        fitted=[r for r in results if r['rank']==rank and 'observations' in r]
+        observations=[o for r in fitted for o in r['observations']]
+        supported=sum(bool(o['supported']) for o in observations)
+        passing=sum(bool(o.get('local_pass',False)) for o in observations)
+        usable=sum(sum(bool(o.get('local_pass',False)) for o in r['observations'])
+                   for r in fitted if r['status']=='LOCAL_CANDIDATE_REQUIRES_UNTOUCHED_VALIDATION')
+        summary[str(rank)]={
+            'all_development_calls':len(calls),
+            'calls_without_fitted_identity':len(calls)-len(observations),
+            'supported_calls':supported,'local_passing_calls':passing,
+            'candidate_region_passing_calls':usable,
+            'candidate_traffic_share':usable/len(calls) if calls else None,
+            'certified_traffic_share':None}
+    return summary
+
+
 def fit_local(x, y, gates):
     """Expert-specific affine kernel ridge, fixed regularization and F32 storage."""
     x=np.asarray(x,dtype=np.float64); y=np.asarray(y,dtype=np.float64)
@@ -165,7 +186,8 @@ def gate(training_job, development_job, corpus_path, destination, layer=12):
             'training_completion_sha256':ts['canonical_sha256'],'development_completion_sha256':ds['canonical_sha256'],
             'training_prompt':tr['capture_id'],'development_prompt':dr['capture_id'],
             'policy':{'minimum_fit_calls':4,'maximum_fit_calls':32,'regularization':.001,'minimum_cosine':.80,'maximum_local_error':.02},
-            'results':results,'claim_boundary':'Training/development probe only. No sealed holdout, adaptive-state certificate, compute-cost ratio, downstream token validation or speed gain. Single-call timing during active teacher load is diagnostic only. Rank-specific teacher targets cannot certify changed active-count execution.'}
+            'results':results,'coverage':coverage_summary(development,results),
+            'claim_boundary':'Training/development probe only. No sealed holdout, adaptive-state certificate, compute-cost ratio, downstream token validation or speed gain. Single-call timing during active teacher load is diagnostic only. Rank-specific teacher targets cannot certify changed active-count execution.'}
     report['canonical_sha256']=canonical(report)
     with (destination/'report.json').open('x') as handle:
         json.dump(report,handle,indent=2,sort_keys=True);handle.write('\n')
