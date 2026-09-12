@@ -151,12 +151,33 @@ p95 0.04552; gate and down were worse.  Although computation improved roughly
 canonical hash is
 \texttt{583ced0885c262689bd1505076b511d74}\allowbreak\texttt{6902a09a5498a0a904049332551941f}.
 
+\subsection{Weight-derived sparse correction bound}
+
+The next experiment tested whether the accuracy-passing Q3\_K up projection
+could be paired with a small exact weight-residual cartridge.  Eight real
+rank-four layer-12 experts selected by the untouched reasoning trace were
+dequantised from the SD warehouse.  Their Q3\_K matrices were dequantised in
+the same orientation, and the exact weight-space residual was measured by row
+and by $64\times64$ block.  This is an intentionally optimistic offline bound:
+if error energy is highly concentrated, a small set of exact blocks could
+correct most of it without restoring the complete MXFP4 matrix.
+
+The mechanism failed decisively.  The most energetic 10\% of residual blocks
+contained only 11.365\% of residual energy at the median, versus the
+predeclared 75\% minimum.  Q3 quantisation error is consequently spread almost
+uniformly through these expert matrices.  A sparse exact correction would have
+to retain nearly the whole residual and would forfeit the storage advantage.
+The branch is recorded as \texttt{STOP\_SPARSE\_Q3\_RESIDUAL}; its canonical
+hash is
+\texttt{4283f1e00aa29e381a3dd645b1d522bf}\allowbreak\texttt{658b8486b27ba88e7899dec92d828013}.
+
 \subsection{Current conclusion and next admissible move}
 
 No result in this section changes the validated generated-token rate.  The
 prepared-slab mechanism lacks sufficient route repetition; activation-only and
 generic route-conditioned students still lack the expert-specific nonlinear
-structure; selective Q2 is too inaccurate.  Selective Q3 is the only new
+structure; selective Q2 is too inaccurate; and Q3 weight error is not sparse.
+Selective Q3 is the only new
 accuracy-passing weight transformation, but its present padded kernel yields a
 small byte reduction and no material complete-model speed claim.
 
