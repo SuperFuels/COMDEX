@@ -1,0 +1,86 @@
+% Append-only preregistration for the AION GPT-OSS 120B technical record.
+% Requires: amsmath, booktabs, tabularx.
+\section{Route-Concentrated Subnetwork: Pre-registered Quality-Track Protocol}
+\label{sec:gptoss120b-route-concentrated-protocol}
+
+\subsection{Reason for the architectural change}
+
+The exact unrestricted runtime remains approximately 1.72--1.83 generated
+tokens per second, whereas a resident fixed top-one path demonstrated a
+28.62-token-per-second physical ceiling but failed semantic quality.  Exact
+consequence oracles subsequently showed that omitting selected experts can
+remove only approximately 3.8\% of four-expert work on the measured cohort.
+The remaining gap therefore cannot honestly be closed by another cache,
+lossless encoding, expert-omission rule, or route-copy optimization alone.
+
+The next candidate changes the learned calculation.  GPT-OSS 120B remains the
+authoritative teacher and exact fallback, while a resident route-concentrated
+subnetwork attempts to reproduce the combined four-expert layer output with
+one original expert plus a compact learned correction.  This is explicitly a
+quality-gated derived model; it is not bit-exact unrestricted GPT-OSS 120B.
+
+\subsection{Candidate structure}
+
+For layer $\ell$, activation $x$, selected expert identities $e_{1:4}$ and
+normalized router gates $g_{1:4}$, the candidate is
+\begin{equation}
+ \widehat{M}_{\ell}(x)=g_1 E_{\ell,e_1}(x)+
+ C_{\ell}\!\left(x,e_{1:4},g_{1:4}\right),
+\end{equation}
+where the first term uses one original packed expert and $C_{\ell}$ is a
+resident correction.  The correction must materially differ from the stopped
+global affine, RBF, low-rank, Taylor-Atlas and 2.08\,MB AtomSheet calculators.
+Its first admissible form is layer-specific and route-conditioned, with
+expert-identity embeddings, activation-region addressing, a shared nonlinear
+trunk, and a bounded low-rank output head.  Training targets are produced only
+by the locally installed unrestricted teacher under the existing signed
+authorization; captures contain no prompt text, personal data, or customer
+data.
+
+\subsection{Frozen data separation}
+
+Whole prompt families, not individual positions, are assigned to training,
+development and blind evaluation.  Model capacity, optimizer settings,
+confidence thresholds and fallback rules are selected without opening the
+blind reasoning, business and writing families.  Synthetic perturbations may
+be generated around training activations to improve local coverage, but every
+such target must be recalculated by the original selected experts and bound to
+the source activation, route, teacher-weight manifest and random seed.
+
+\subsection{Promotion ladder}
+
+The first gate is restricted to one real layer and then two non-adjacent
+layers.  A candidate advances only if all of the following hold:
+\begin{enumerate}
+  \item held-out layer-output relative-$L_2$ p95 is at most 0.02;
+  \item maximum relative-$L_2$ is at most 0.05;
+  \item the certified non-fallback coverage is at least 10\%;
+  \item the resident correction plus the retained original expert moves at
+        most half the bytes of the four-expert teacher on accepted positions;
+  \item accepted calculation latency is below the corresponding two-expert
+        packed path and the confidence decision costs less than 0.05\,ms;
+  \item no evaluation example, fallback, or failed route is silently omitted.
+\end{enumerate}
+
+Passing the numerical gate permits a bounded full-transformer substitution on
+unseen generated positions.  Promotion then additionally requires coherent
+answers, semantic-score parity with the unrestricted teacher on arithmetic,
+extraction, reasoning, business and writing families, internal repeatability,
+and a positive balanced same-process speed result.  Results are reported at
+successive rungs of 5, 8, 12, 15, 20 and 25 tokens per second; the target is
+not redefined when a rung fails.
+
+\subsection{Fallback and claim boundary}
+
+The confidence system may use only information available before calculating
+the omitted experts.  If the layer, route, activation region or uncertainty is
+uncertified, the runtime executes all four original experts.  Oracle coverage
+may be reported only as an upper bound and never as deployable coverage.
+Exact-track results remain separate and unchanged.  A fast candidate that
+fails quality is a physical-ceiling experiment, while a quality-passing
+candidate that fails speed is preserved as \texttt{NOT\_PROMOTED}.
+
+This protocol converts the remaining problem into a falsifiable question:
+whether a compact, resident, route-conditioned student can absorb the useful
+effect of three experts often enough to approach the measured top-one hardware
+ceiling without surrendering the teacher's behaviour.
