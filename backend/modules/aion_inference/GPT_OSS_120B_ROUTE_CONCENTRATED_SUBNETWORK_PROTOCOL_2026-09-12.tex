@@ -124,3 +124,30 @@ and its dataset SHA-256 is
 The final gate canonical hash is
 \texttt{88ed9bfa47c06414c1b53133ddc42c4b53b77da6fbdebe7592b9c90e572e70b5}.
 The focused integrity suite passed 26/26 tests.
+
+\subsection{Higher-capacity nonlinear student}
+
+A materially larger nonlinear successor was then trained on the same isolated
+arithmetic teacher data.  Unlike the stopped 64-unit global calculator, this
+model was specific to layer 12, consumed the full 2,880-dimensional activation,
+embedded the omitted expert identity, included the fourth gate value, and used
+two nonlinear hidden layers.  Three candidates up to 512 hidden units were
+selected using extraction only.  The chosen cartridge occupied 12,980,881
+bytes and contained approximately 1,089 training rows after combining anchors
+and exact teacher perturbations.
+
+This additional capacity did not solve transfer.  It covered 9 of 22 extraction
+rows with known expert identities, but zero were within the two-percent error
+boundary; p95 was 0.11362.  On the unopened reasoning development family it
+covered 10 of 21 rows, again with zero safe positions.  Reasoning relative
+$L_2$ was 0.07343 at p50 and 0.08319 at p95.  Median measured Python/PyTorch
+calculation time was approximately 1.0004\,ms.  The decision is therefore
+\texttt{STOP\_ROUTE\_CONCENTRATED\_NONLINEAR}.
+
+The canonical report hash is
+\texttt{17baac2033d589a49f28d8fad17976f4973916dfa76dac0c4d3ab848d82e072d}.
+Together with the real-anchor local failure, this result closes small supervised
+correction networks trained around one prompt family's activation manifold.
+The next admissible student must first expand genuine teacher trajectories
+across prompt families and expert identities; simply adding parameters or more
+near-anchor perturbations is not a credible route to the missing speed factor.
