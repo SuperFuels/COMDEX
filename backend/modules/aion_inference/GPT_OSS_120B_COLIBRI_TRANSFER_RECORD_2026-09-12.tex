@@ -653,3 +653,51 @@ its six-component structure reverified after cleanup.  Approximately 1.2~GiB
 became free.  Subsequent experimental receipts remain local because the owner
 manually maintains the append-only Overleaf record and requested that new
 evidence not consume the SD model volume.
+
+\subsection{Broad-family adaptive-expert continuation falsification}
+
+The first broad-family challenge of the global preserved-mass policy used an
+unseen public reasoning prompt: ``If every red box is heavy and this box is
+red, what follows?''  A prompt-bound 8~GiB resident pool was constructed from
+the required reasoning prefix and supplemental public explanation, business,
+reasoning and writing teacher traces.  The pool contained 648 distinct
+layer--expert entries, occupied 8,588,436,480 bytes, and preserved exact
+unrestricted prefill.  During continuation, the quality-track controller
+retained the smallest two, three or four experts whose cumulative original
+gate mass reached 0.80; the original selected weights and normalized retained
+gates were used, with no replacement model or cached answer.
+
+The 64-position two-pass gate was mechanically strong.  All 43 continuation
+token IDs repeated exactly, every route repeated, and final hidden-state and
+logit hashes were bitwise identical between passes.  The continuation used a
+mean 3.4470 experts per layer: 21 two-expert, 814 three-expert and 713
+four-expert layer calls per pass.  Measured continuation throughput was
+11.005 and 11.869 tokens/s by aggregate continuation wall time; median
+instantaneous rates were 13.317 and 13.380 tokens/s, while p95 token latency
+was 138.79 and 131.75~ms.  These rates are approximately six times the exact
+unrestricted frontier and therefore confirm that reducing expert work remains
+the correct physical lever.
+
+The semantic gate nevertheless failed decisively.  Instead of deriving that
+the box is heavy, the repeatable completion entered a malformed and repetitive
+analysis loop, ending in repeated ellipses.  Internal repeatability therefore
+did not imply correctness or coherence.  The global 0.80 policy is labelled
+\texttt{STOP\_GLOBAL\_ADAPTIVE\_080\_REASONING}; its 11--12 tokens/s must not
+be presented as usable GPT-OSS 120B performance.  The failed result also
+establishes a narrower next target: retain the fast adaptive path only in
+layers and activation regions certified insensitive on development data, and
+restore all four original experts at confidence-sensitive layers.  Exact
+unrestricted execution remains the authoritative fallback.
+
+The gate's internal canonical SHA-256 is
+\texttt{65842d87ee5aa46cea244c8e779e7fa4f0176ea0dcfc383fb1bb9ac47cd95227};
+its stored-file SHA-256 is
+\texttt{f8b240d734007b8cc71adef464a58bd508b7940be2850fb735b8ba326c8ebe49}.
+The decoded prompt receipt has internal canonical SHA-256
+\texttt{af60a1f293be5e8f45a943ffdc146acab802c2d1da87308f278eac492678df37}
+and stored-file SHA-256
+\texttt{875415feac1878b30155c172119561e80648c34578502916967a7841aded9006}.
+The resident-pool receipt has internal canonical SHA-256
+\texttt{53f38948f7a3a1ba54aa23704947706d6efde549a85c8625311a0afec3700c2a}
+and stored-file SHA-256
+\texttt{e3fb1767cf145ae926957270fe825e155e32eb40ac59edefd04092143feb4b8e}.
