@@ -701,3 +701,79 @@ The resident-pool receipt has internal canonical SHA-256
 \texttt{53f38948f7a3a1ba54aa23704947706d6efde549a85c8625311a0afec3700c2a}
 and stored-file SHA-256
 \texttt{e3fb1767cf145ae926957270fe825e155e32eb40ac59edefd04092143feb4b8e}.
+
+\subsection{Unrestricted escape diagnosis and trajectory-protected pool}
+
+The failed global 0.80 run contained an important storage confound: its
+continuation router was restricted to the generic 8~GiB pool.  A matched
+diagnostic removed that restriction and allowed every unrestricted router
+winner to escape to the verified SD warehouse while retaining the same
+adaptive two/three/four-expert arithmetic.  Coherent reasoning returned, but
+the two runs delivered 62,141,728,458 compressed bytes and materialised
+64,890,408,960 raw bytes each.  Aggregate continuation rates collapsed to
+0.08272 and 0.08086 tokens/s.  This demonstrates that the semantic failure was
+not attributable solely to expert count, while also proving that unrestricted
+per-token escape is not an operational solution on the present SD tier.
+
+A corrected pool compiler then admitted reduced-route supplemental traces from
+the authentic unrestricted-escape trajectory.  The first frequency-oriented
+trajectory pool improved the malformed output into coherent prose but still
+repeated the question before answering it.  Across four 80-position passes its
+settled aggregate median was 4.204 tokens/s.  It is stopped for semantic
+failure.  Direct coverage analysis explained the result: the 8~GiB pool held
+only 60.78\% of the 5,160 selected expert occurrences in the authentic
+continuation trace.
+
+The next pool changed the objective from global frequency to causal route
+protection.  It made the first six authentic continuation positions mandatory,
+reserving 461 of 648 layer--expert slots, then filled the remaining capacity by
+reuse frequency.  This delayed token divergence from the unrestricted-escape
+trajectory from continuation token six to token ten.  Both 64-position passes
+were bitwise repeatable and produced a coherent correct conclusion: the text
+explicitly stated that ``this box is heavy.''  Aggregate continuation rates
+were 4.219 and 3.162 tokens/s.  This is a single-prompt quality-track result,
+not general GPT-OSS 120B equivalence.
+
+Nine authentic continuation positions were the maximum that could fit in the
+same 8~GiB capacity; ten positions exceeded it.  The nine-position pool did
+not improve the causal path: divergence still occurred at token ten, the text
+became repetitive, and rates fell to 2.651 and 2.602 tokens/s.  It is stopped.
+This falsifies the simple assumption that protecting the longest possible
+teacher prefix is always best; the allocation must retain a useful exception
+halo as well as the initial route.
+
+\subsection{Inference-priority resource arbitration}
+
+System inspection identified an independent runtime confound: AION's mastery
+curriculum service continuously occupied one complete CPU core while the 120B
+kernel was running.  The successful six-position pool was therefore repeated
+unchanged while that learner alone was temporarily suspended.  A guarded
+finally-path resumed it immediately after the benchmark; post-run inspection
+confirmed the service active at approximately 99\% CPU.  Router paths, hidden
+states, logits, token IDs and decoded text remained identical.
+
+Under the isolated condition, aggregate continuation rates rose to 7.002 and
+5.492 tokens/s, a two-pass median of 6.247 tokens/s versus 3.690 tokens/s for
+the contended run: a measured 69.3\% improvement.  Median instantaneous rates
+were 12.415 and 7.848 tokens/s.  This is a genuine system-level result: AION
+must arbitrate background learning and latency-sensitive inference rather than
+allow both to fight for the same CPU and unified-memory bandwidth.  It does
+not alter the model arithmetic and does not raise the exact unrestricted
+frontier; it raises this one reasoning-quality candidate only.  Broader frozen
+families remain mandatory.
+
+The exact-escape gate and receipt have internal canonical SHA-256 values
+\texttt{267b07d25c100365401757337ba27e25bf38c9f810edf6248bfa41c601f0c588}
+and
+\texttt{ff01bf203063f216373bdff6144bcf90b45045947f88355207d3eee9c2f4895d}.
+The six-position gate and decoded receipt have internal canonical SHA-256
+values
+\texttt{e36f9cfee0bee9be34fbddec33b9262ae85a95fb6eefda38c84cd3ffcc48616e}
+and
+\texttt{106a33d9660572fd09705bcd68b7a61c674e06c550915967bf8405b307bdb453}.
+The isolated gate's internal canonical SHA-256 is
+\texttt{b6a6595000c1046e329671881db02179580232bfe91e0adc7e428d09ae4f88af};
+its stored-file SHA-256 is
+\texttt{837826b0345d64f27c0dbd8b0eb81056aae0925451870b2f0d85815d48635ef3}.
+The reduced supplemental-route compiler fix passed 9/9 focused tests and is
+isolated in commit \texttt{018f30c8}.
