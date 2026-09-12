@@ -225,3 +225,25 @@ The missing structure is not repaired by mixing more synthetic states into the
 same low-rank output span.  Further work must collect substantially broader
 genuine semantic trajectories and train new expert-weight directions, not
 repeat target-span projection.
+
+\subsection{SD-native tokenizer recovery}
+
+Collecting broader genuine semantic trajectories required a trustworthy local
+tokenizer without downloading another model or tokenizer package.  AION now
+reads the 201,088-token vocabulary and 446,189 BPE merges directly from the
+verified virtual GGUF header in the compressed SD warehouse.  It implements
+the GGUF-declared \texttt{gpt-4o} pre-tokenization rule, byte encoding, ranked
+BPE merges, special-token addressing and the GPT-OSS Harmony user wrapper.
+
+Against the frozen public prompt ``What is 17 multiplied by 23?'', the new
+tokenizer reproduced all 15 previously external token IDs exactly, including
+Harmony control tokens.  The canonical gate hash is
+\texttt{c2a2a3bd46a81573def806ccf91b07a66eb39c5c8508972d0331aaec8ef81f80}.
+The focused suite now passes 27/27 tests.
+
+This is not a token-per-second result.  It removes an experimental dependency:
+AION can now construct additional public/generic GPT-OSS prompt families from
+the same SD-resident model representation, capture genuine teacher
+trajectories, and keep the resulting student-data lineage bound to the
+warehouse itself.  The next gate uses this capability to widen semantic
+coverage before any new expert-weight training.
