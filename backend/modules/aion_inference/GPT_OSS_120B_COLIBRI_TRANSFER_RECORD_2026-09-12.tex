@@ -199,6 +199,22 @@ its internal canonical SHA-256 is
 Any retry must add full-length warm-up passes and use closer temporal pairing;
 the performance gate shall not be relaxed.
 
+That retry was completed with seven 64-token passes.  Two complete passes were
+used only for warm-up, followed by
+control/candidate/control/candidate/control.  Exactness again passed for every
+route, token, hidden state and step logit.  The settled median candidate rate
+was 1.94225 tokens/s versus 2.00969 tokens/s for control, a 3.3558\%
+regression.  Relative to the mean of adjacent controls, the first candidate
+regressed 12.69\% and the second improved 3.85\%; neither a stable paired win
+nor the unchanged 5\% gate was achieved.  Consequently, cross-layer advice is
+stopped for long changing-route generation on this host.  Its exact
+nine-token two-family promotion remains a bounded short-window optimization.
+
+The stricter report's file SHA-256 is
+\texttt{918e5878a2d32323e0216b1a22a3671cfbba663a5a29a6e1d1801080cb380b2c};
+its internal canonical SHA-256 is
+\texttt{27b02bc4f69e9bd06e181aab9f0377c395c81e97d4821fa3221540fa6959e7ac}.
+
 \subsection{Top-two advice falsification}
 
 After promotion, an otherwise identical arithmetic gate advised the top two
