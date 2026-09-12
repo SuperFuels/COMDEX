@@ -1,0 +1,45 @@
+% Append-only section. No new preamble required.
+\section{Measured Runtime Opportunity Before Correction Scaling}
+The proposed prepared-quartet route slab was checked against the existing
+record before implementation. That combination had already been falsified:
+the unrestricted 96-position extraction trace reused only one admitted ordered
+quartet (0.0289\% of routes), while the adaptive trace's reuse did not repay
+its multi-gigabyte slab storage. No new slab inference experiment was run.
+
+Instead, an offline runtime-opportunity analyzer was built and tested against
+canonical-hash-bound, completed, repeatable runtime receipts. It examines
+continuation positions only, validates the complete 36-layer grid, counts
+actual active experts, and ranks layers by aggregate finish and delivery
+time. It does not perform inference or consume unseen evaluation prompts.
+Four focused tests passed.
+
+On the quiet-system adaptive-0.80 reasoning control, observed continuation
+rates were 7.001898 and 5.491965 tokens/s. Only 22.8682\% of layer calls used
+four experts. Consequently a compiler that replaces only the fourth selected
+expert cannot act on approximately 77.13\% of calls in this existing control.
+
+For exploratory accounting only, route finish plus delivery time was divided
+by its active expert count, and the previous local resident correction ratio
+of 0.0773 was assumed. Full replacement coverage of eligible E4 calls then
+gave hypothetical multipliers of 1.04924 and 1.06370. Replacement of the last
+selected expert on every eligible two-, three- and four-expert call gave
+hypothetical multipliers of 1.25993 and 1.27733. These are not measured
+candidate speedups or rigorous physical ceilings: aggregate finish overhead,
+unequal expert delivery cost, instrumentation overlap, controller work,
+fallback frequency and changed locality are not isolated. The resident
+microbenchmark ratio does not measure the fault path.
+
+The practical conclusion is narrower than a speed breakthrough: E4-only
+correction coverage may be too small in the current adaptive control to
+justify a large controller investment. Correction of the last selected
+contribution on two- and three-expert calls is a distinct hypothesis requiring
+new authentic targets, fitting support and downstream quality validation.
+The existing E4 cartridge cannot be re-labelled as a C2 or C3 certificate.
+No validation gate is relaxed, and the current training queue continues.
+
+Quiet-control opportunity report canonical SHA-256:
+\begin{quote}\ttfamily\small
+e72d148f596f4ee6c61b5946e1d02f232\allowbreak
+6458a77ee39b14c6c32eac12d01c2d5
+\end{quote}
+No full-model speed promotion follows from this timing analysis.
