@@ -1,0 +1,108 @@
+% Append-only section for the AION GPT-OSS 120B technical record.
+% Requires: hyperref, booktabs.
+\section{Colibri Prior-Art Audit and Cross-Layer Router Lookahead Gate}
+\label{sec:colibri-lookahead-2026-09-12}
+
+\subsection{Purpose and claim boundary}
+
+On 12 September 2026, the official Colibri repository was inspected at commit
+\texttt{fd93c41aa6ae2c7d1cc1a1e2d6b79dbe6d341708}.  Colibri is relevant because
+it executes sparse mixture-of-experts models whose complete weights remain on
+storage.  The audit did \emph{not} treat model capacity as evidence of fast
+generation.  Colibri's own published figures distinguish approximately
+0.05--0.1 tokens/s on a 25~GB CPU-only development machine, approximately
+1.8 tokens/s warm on a 128~GB CPU-only system, and higher rates on multi-GPU
+resident configurations.  Consequently, the repository supports the
+feasibility of storage-streamed inference, but not a claim that a 744-billion
+parameter model provides fast laptop chat without a GPU.
+
+The most materially different exact-output mechanism was Colibri's
+cross-layer router pilot.  While layer $L$ performs its expert calculation,
+the original router for layer $L+1$ is applied early to layer $L$'s
+post-attention residual.  The prediction controls prefetch only.  The
+authoritative layer-$L+1$ router still selects the experts and exact demand
+loading remains available, so correct implementation changes latency but not
+the model function.
+
+Primary source: \url{https://github.com/JustVugg/colibri}; tuning description:
+\url{https://github.com/JustVugg/colibri/blob/main/docs/tuning.md}.
+
+\subsection{AION offline transfer gate}
+
+A new AION analyzer applied the same stale-state construction to authentic
+GPT-OSS 120B captures.  For every transition from layer $L$ to $L+1$, it:
+\begin{enumerate}
+  \item loaded layer $L$'s captured post-attention residual;
+  \item applied layer $L+1$'s original post-attention RMS-normalization weight;
+  \item applied layer $L+1$'s original $128\times2880$ router and bias; and
+  \item compared the predicted top-$k$ set with the authoritative top-four
+        experts captured after layer $L+1$'s real attention calculation.
+\end{enumerate}
+
+The gate covered 420 transitions: six token positions, 35 layer transitions,
+and two distinct public prompt families (explanation and business).  Before
+measuring lookahead, the extracted original router tensors reproduced the
+current-layer authoritative top-four routes on all 420 checks, with zero
+mismatches.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+Method & Required-expert recall & Precision & Useful/layer & Wasted/layer \\
+\midrule
+Repeat layer $L$'s four experts & 3.512\% & 3.512\% & 0.140 & 3.860 \\
+Next-router lookahead, $k=4$ & 81.726\% & 81.726\% & 3.269 & 0.731 \\
+Next-router lookahead, $k=6$ & 92.321\% & 61.548\% & 3.693 & 2.307 \\
+Next-router lookahead, $k=8$ & 96.250\% & 48.125\% & 3.850 & 4.150 \\
+\bottomrule
+\end{tabular}
+\caption{Offline GPT-OSS 120B cross-layer expert prediction results.}
+\end{table}
+
+For $k=4$, recall was 82.500\% on explanation and 80.952\% on business.  The
+agreement across the two families is evidence that the aggregate was not
+carried by one favourable prompt.  Layer variation remained material: the
+weakest source layer recovered 52.083\% at $k=4$, whereas the strongest
+recovered 95.833\%.  Runtime admission should therefore be layer-conditioned
+rather than globally enabled.
+
+\subsection{Interpretation and next gate}
+
+This is a genuine prediction breakthrough, but it is not yet a throughput
+breakthrough.  The offline analyzer issued no expert reads and therefore
+cannot establish that a predicted read completes before demand, that it avoids
+evicting a more valuable expert, or that it does not contend with current-layer
+calculation.  No tokens/s claim is made from this gate.
+
+The next controlled implementation shall begin with $k=4$, disable the weakest
+layers, use a bounded reservation that cannot displace protected entries, and
+cancel or discard work when the authoritative layer catches the pilot.  It
+shall retain the original router, gates, weights, reduction order and exact
+demand fallback.  Promotion requires bit-for-bit token and step-logit
+equivalence, lower demand-wait time, lower end-to-end p50 and p95 latency, no
+memory-ceiling violation, and a positive result under both cold-SD and warm-L2
+conditions.  If speculative traffic saturates storage or lowers throughput,
+the runtime branch shall be stopped even though the prediction result remains
+valid.
+
+Other Colibri mechanisms were classified as follows.  Contiguous one-read
+experts are already approximated by AION's persistent L2 expert files, but not
+by the capacity-constrained compressed SD layout.  Unbuffered I/O is
+drive-dependent and requires a separate narrow gate.  Persistent compressed
+KV state can improve restart and repeated-conversation latency but does not
+remove changing expert traffic.  Corpus and grammar drafting can improve
+verified workflow throughput but does not establish faster unrestricted novel
+generation.  Indiscriminate parallel reads, larger hot pools, ordinary memory
+mapping and additional CPU workers were not reopened because AION has already
+falsified those unchanged mechanisms under the present hardware pressure.
+
+\subsection{Evidence}
+
+The canonical JSON receipt is
+\texttt{results/aion\_gptoss\_120b\_colibri\_cross\_layer\_router\_lookahead\_gate\_20260912.json}.
+Its internal canonical SHA-256 is
+\texttt{72c9d62257c4c1e0a6fdd34fad13206e82ee9b4340298b3b90017b91726fb8e4};
+the complete file SHA-256 is
+\texttt{c2bb33a9bea627e70c8b3f63ba4dcc741d86286b24d937abd536b49e6f208f81}.
+The focused lookahead and adjacent I/O/cache suite passed 10/10 tests.
