@@ -874,3 +874,51 @@ end-to-end tokens-per-second rate.  Such requests remain on
 detector on development examples, test false-positive and false-negative rates
 across blinded arithmetic, extraction, reasoning, business and writing tasks,
 and measure accepted-answer latency including rollback or critic cost.
+
+\subsection{False-positive repair and frozen structural cohort}
+
+The first detector was not promoted unchanged.  A broader replay scan found
+that its repeated-three-token rule also interrupted healthy arithmetic,
+extraction and explanation trajectories when they legitimately restated part
+of the request.  This is an observed false-positive defect, not a hypothetical
+limitation.  The v1 live result remains preserved as evidence that intervention
+worked mechanically, but its 63.636\% avoided-work figure is not the production
+threshold.
+
+The rule was tightened before further use.  The revised detector requires an
+exact five-token phrase to recur non-overlapping within sixteen generated-token
+offsets.  It separately rejects duplicated channel/control markers and retains
+the five-identical-token run check.  On the original malformed reasoning
+receipt, the safer rule fires at generated token 26 rather than token 16.  It
+therefore trades some early saving for materially lower observed false-positive
+risk.
+
+The complete live 36-layer experiment was repeated twice with this frozen v2
+rule.  Both passes stopped at exactly token 26, matched the first 26 tokens of
+the original 44-token failure, and remained bitwise repeatable in routes,
+hidden states, logits and token IDs.  Eighteen known-bad generated positions
+were avoided per pass, a 40.909\% reduction in failed generation work.  The
+mastery learner was again resumed by the verified lease.  The live v2 report's
+canonical SHA-256 is
+\texttt{5700a9c9f980b620e5abd0a4ecbe3043bd9de50b0390ff0806a2622f40b1050e}.
+The bound AtomSheet repair again returned ``This box is heavy.''; its median
+and p95 proof costs were 2.875 and 2.958~microseconds.  The repair report's
+canonical SHA-256 is
+\texttt{2ac222c830555d9dd271d270d4143e91a075ae2e72505c30659068b2bc657cf0}.
+
+A hash-verified, manually classified structural cohort then froze six healthy
+and four malformed authentic 120B receipts.  The healthy set covered
+arithmetic, extraction, reasoning and explanation; none was interrupted.  The
+malformed set covered reasoning, arithmetic, extraction and the top-one
+physical-ceiling path; all four were escalated.  Thus the observed cohort had
+zero structural false positives and zero missed declared structural failures.
+The cohort's canonical SHA-256 is
+\texttt{834549ecd869bba2b6551a57e6ee22d82133c575fef12200a1110672528b8d09}.
+
+These results promote the v2 mechanism only as a bounded structural guard.  A
+\texttt{CONTINUE} decision means that no declared loop signature was observed;
+it does not mean that the answer is factually correct.  General open-ended
+answers still require a critic or stronger-model escalation, and the 40.909\%
+figure describes eliminated work on a known failed completion rather than raw
+model acceleration.  Blinded prompts and live accepted-answer latency remain
+the next required gates.
