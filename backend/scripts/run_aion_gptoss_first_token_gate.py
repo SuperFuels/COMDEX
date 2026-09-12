@@ -19,6 +19,7 @@ from backend.modules.aion_inference.gptoss_expert_frame_store import (
 )
 from backend.modules.aion_inference.gptoss_mixed_q3_sidecar import GptOssMixedQ3Sidecar
 from backend.modules.aion_inference.inference_resource_governor import InferencePriorityLease
+from backend.modules.aion_inference.trajectory_verification_ladder import earliest_failure
 
 WIDTH=2880; EXPERTS=128; BOS=199998
 
@@ -68,6 +69,7 @@ def parse_optional_layer_spec(spec:str|None)->set[int]:
 def main()->None:
     p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--l2-two-touch-admission',action='store_true');p.add_argument('--l2-admission-touches',type=int,default=2);p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--cross-layer-router-lookahead',action='store_true');p.add_argument('--lookahead-pass-pattern');p.add_argument('--lookahead-k',type=int,default=4);p.add_argument('--lookahead-advice-only',action='store_true');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--pairwise-moe',action='store_true');p.add_argument('--pairwise-pass-pattern');p.add_argument('--pad-reduced-to-four',action='store_true');p.add_argument('--native-router',action='store_true');p.add_argument('--inprocess-embedding',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--metal-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--prompt-token-count',type=int);p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-layer-active-experts',type=int,choices=(1,2,3));p.add_argument('--continuation-fixed-expert-layers');p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-threshold-layers');p.add_argument('--continuation-min-active-experts',type=int,choices=(1,2),default=2);p.add_argument('--continuation-adaptive-layers');p.add_argument('--continuation-top1-threshold-plan',type=Path);p.add_argument('--continuation-top1-cycle');p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');p.add_argument('--capture-counterfactuals',action='store_true');p.add_argument('--capture-metadata-only',action='store_true');p.add_argument('--early-exit-diagnostic-layers');p.add_argument('--selective-fourth-q3-layers');p.add_argument('--selective-fourth-q3-max-gate',type=float);p.add_argument('--selective-fourth-q3-pass-pattern');p.add_argument('--selective-fourth-q3-sidecar-manifest',type=Path);p.add_argument('--yield-mastery-curriculum',action='store_true');p.add_argument('--inference-priority-timeout-seconds',type=int,default=1800);a=p.parse_args()
     serial_active_contributions=os.environ.get('AION_SERIAL_ACTIVE_CONTRIBUTIONS')=='1'
+    trajectory_loop_guard=os.environ.get('AION_TRAJECTORY_LOOP_GUARD')=='1'
     if a.parallel_moe and not a.inprocess_finish: raise SystemExit('--parallel-moe requires --inprocess-finish')
     if a.pad_reduced_to_four and not a.inprocess_finish: raise SystemExit('--pad-reduced-to-four requires --inprocess-finish')
     if a.pad_reduced_to_four and a.parallel_moe: raise SystemExit('fixed-shape padding is incompatible with parallel MoE')
@@ -91,6 +93,7 @@ def main()->None:
     if len(forced_input_ids)>a.token_count: raise SystemExit('token-count must cover all forced input tokens')
     prompt_token_count=(a.prompt_token_count if a.prompt_token_count is not None else len(forced_input_ids))
     if not 1<=prompt_token_count<=len(forced_input_ids): raise SystemExit('prompt-token-count must be within the forced input sequence')
+    if trajectory_loop_guard and len(forced_input_ids)!=prompt_token_count: raise SystemExit('trajectory loop guard requires no forced continuation tokens')
     if a.inprocess_attention and not a.resident_replay: raise SystemExit('in-process attention currently requires resident replay')
     if a.inmemory_layer_flow and not (a.inprocess_attention and a.inprocess_finish and a.inprocess_output): raise SystemExit('--inmemory-layer-flow requires all in-process stages')
     if a.expert_cache_gib <= 0: raise SystemExit('expert-cache-gib must be positive')
@@ -394,6 +397,7 @@ def main()->None:
             if a.constrain_after_prompt or a.exact_pool_escape_after_prompt:
                 persistent_store.protect(expert_pool['layers'])
 
+        trajectory_guard_runs=[]
         def pass_once(label:str)->dict:
             pass_index=ord(label)-ord('a')
             overlap_enabled=overlap_enabled_for_pass(
@@ -416,6 +420,7 @@ def main()->None:
                              'advice_bytes':0,'advice_misses':0}
             if a.inprocess_attention: attention_reset()
             token_results=[];started=time.perf_counter();transition_rehydrate_seconds=0.0;transition_rehydrate_delta=None
+            generated_trajectory=[];trajectory_guard_failure=None
             for position in range(a.token_count):
               if (position==prompt_token_count and a.constrain_after_prompt
                       and (a.preload_expert_pool or a.incremental_pool_admission)):
@@ -798,6 +803,12 @@ def main()->None:
               logits_sha=(hashlib.sha256(logit_values.tobytes()).hexdigest()
                            if a.inmemory_layer_flow else sha(logits_path))
               token_results.append({'position':position,'input_token_id':input_token_id,'input_was_forced':position<len(forced_input_ids),'input_was_forced_prompt':position<prompt_token_count,'generated_token_id':token_id,'wall_seconds':time.perf_counter()-token_started,'output_process_seconds':output_seconds,'layers':layers,'final_hidden_sha256':final_hidden_sha,'logits_sha256':logits_sha,'output':output,'embedding':embedding,'embedding_row_sha256':embedding_sha})
+              if position>=prompt_token_count-1:
+                  generated_trajectory.append(token_id)
+                  if trajectory_loop_guard:
+                      trajectory_guard_failure=earliest_failure(generated_trajectory)
+                      if trajectory_guard_failure is not None:
+                          break
             if lookahead_executor is not None:
                 lookahead_executor.shutdown(wait=True)
             metrics_after=store.metrics()
@@ -816,6 +827,15 @@ def main()->None:
             sidecar_delta=({key:sidecar_after[key]-sidecar_before[key]
                             for key in ('hits','misses','bytes_read','integrity_failures')}
                            if mixed_q3_sidecar else None)
+            trajectory_guard_runs.append({
+                'label':label,'enabled':trajectory_loop_guard,
+                'decision':'ESCALATE' if trajectory_guard_failure is not None else 'CONTINUE',
+                'generated_tokens_observed':len(generated_trajectory),
+                'failure':({'kind':trajectory_guard_failure.kind,
+                            'first_detected_token':trajectory_guard_failure.first_detected_token,
+                            'detail':trajectory_guard_failure.detail}
+                           if trajectory_guard_failure is not None else None),
+            })
             return {'label':label,'overlap_enabled':overlap_enabled,'lookahead_enabled':lookahead_enabled,'lookahead_metrics':lookahead_stats,'pairwise_enabled':pairwise_enabled,'wall_seconds':time.perf_counter()-started,'tokens':token_results,'layers':token_results[-1]['layers'],'final_hidden_sha256':token_results[-1]['final_hidden_sha256'],'logits_sha256':token_results[-1]['logits_sha256'],'output':token_results[-1]['output'],'store_metrics':metrics_after,'store_metric_delta':delta,'mixed_q3_sidecar_metrics':sidecar_after,'mixed_q3_sidecar_metric_delta':sidecar_delta,'prompt_to_continuation_rehydrate_seconds':transition_rehydrate_seconds,'prompt_to_continuation_rehydrate_metric_delta':transition_rehydrate_delta}
         runs=[pass_once(chr(ord('a')+index)) for index in range(a.passes)]
         if output_shutdown: output_shutdown()
@@ -833,6 +853,9 @@ def main()->None:
                 'reader_metrics':{name:r.metrics() for name,r in readers.items()},'resident_replay':a.resident_replay,'compressed_expert_cache':a.compressed_cache,'scan_resistant_cache':a.scan_resistant_cache,'tiered_expert_cache':a.tiered_cache,'persistent_l2_root':str(a.persistent_l2_root.resolve()) if a.persistent_l2_root else None,'declared_persistent_l2_bytes':int(a.persistent_l2_gib*1024*1024*1024) if a.persistent_l2_gib else 0,'l2_cartridge_plan_path':str(a.l2_cartridge_plan.resolve()) if a.l2_cartridge_plan else None,'l2_cartridge_plan_canonical_sha256':cartridge_sha,'l2_cartridge_family':a.l2_cartridge_family,'l2_cartridge_protected_entries':sum(map(len,cartridge_layers.values())) if cartridge_layers else 0,'l2_cartridge_eager_prefetch':False,'l2_two_touch_admission':a.l2_two_touch_admission,'l2_admission_touches':a.l2_admission_touches,'route_arena_l1_hotset':a.route_arena_l1_hotset,'route_arena_l1_hotset_entries':sum(map(len,cartridge_hotset_layers.values())) if cartridge_hotset_layers else 0,'overlap_l2_read_compute':a.overlap_l2_read_compute,'overlap_pass_pattern':a.overlap_pass_pattern,'cross_layer_router_lookahead':a.cross_layer_router_lookahead,'lookahead_pass_pattern':a.lookahead_pass_pattern,'lookahead_k':a.lookahead_k,'lookahead_advice_only':a.lookahead_advice_only,'lookahead_sd_fallback':False,'lookahead_declared_additional_bytes':0 if a.lookahead_advice_only else a.lookahead_k*13900000,'mapped_persistent_l2':a.mapped_persistent_l2,'pinned_verified_persistent_l2':a.pinned_verified_persistent_l2,'reusable_arena_persistent_l2':a.reusable_arena_persistent_l2,'mapped_l2_willneed':a.mapped_l2_willneed,'mapped_l2_parallel_prefault':a.mapped_l2_parallel_prefault,'inprocess_finish':a.inprocess_finish,'parallel_moe':a.parallel_moe,'pairwise_moe':a.pairwise_moe,'pairwise_pass_pattern':a.pairwise_pass_pattern,'threads':a.threads,'pad_reduced_to_four':a.pad_reduced_to_four,'native_router':a.native_router,'inprocess_embedding':a.inprocess_embedding,'inprocess_attention':a.inprocess_attention,'inprocess_output':a.inprocess_output,'metal_output':a.metal_output,'inmemory_layer_flow':a.inmemory_layer_flow,'activation_capture_dir':str(a.activation_capture_dir.resolve()) if a.activation_capture_dir else None,'capture_positions':sorted(capture_positions),'capture_layers':sorted(capture_layers),'shared_one_time_stage_seconds':shared_stage_seconds,'declared_streaming_cache_bytes':(expert_cache_bytes if a.resident_replay else 256*1024*1024),'declared_largest_native_arena_bytes':768*1024*1024,'selective_fourth_q3_layers':sorted(selective_fourth_q3_layers),'selective_fourth_q3_projection_mask':3 if selective_fourth_q3_layers else None,'selective_fourth_q3_max_gate':a.selective_fourth_q3_max_gate,'selective_fourth_q3_pass_pattern':a.selective_fourth_q3_pass_pattern,'selective_fourth_q3_conversion_seconds':selective_q3_conversion_seconds,'selective_fourth_q3_cached_projections':len(selective_q3_cache),'quality_track':bool(selective_fourth_q3_layers) or (expert_pool is not None and not a.exact_pool_escape_after_prompt) or a.continuation_active_experts != 4 or a.continuation_layer_active_experts is not None or a.continuation_gate_mass_threshold is not None or a.native_router or a.metal_output,'constrained_expert_pool_path':str(a.expert_pool.resolve()) if a.expert_pool else None,'constrained_expert_pool_canonical_sha256':expert_pool_sha,'constrained_expert_pool_preloaded':a.preload_expert_pool,'constrain_after_prompt':a.constrain_after_prompt,'exact_pool_escape_after_prompt':a.exact_pool_escape_after_prompt,'incremental_pool_admission':a.incremental_pool_admission,'constrained_expert_pool_preload_seconds':pool_preload_seconds,'constrained_expert_pool_preload_metrics':pool_preload_metrics,
                 'claim_boundary':(('A token-conditioned sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. Declared prompt tokens were teacher-forced before greedy continuation. This is exact repeatability evidence for the custom packed path, not yet chat-template quality validation or steady-state generation speed.' if a.token_count>1 else 'A token-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is prompt-token execution evidence, not yet multi-token prompt quality validation or steady-state generation speed.') if forced_input_ids!=[BOS] else ('A BOS-conditioned greedy sequence used per-layer rotated K/V history and traversed all 36 attention/MoE blocks for each token. This is exact repeatability evidence for the custom packed path, not yet text-quality validation or steady-state generation speed.' if a.token_count>1 else 'A BOS-conditioned position-zero sequence traversed embedding, all 36 attention/MoE blocks, final norm and vocabulary head to produce a finite repeatable argmax token. This is first-token execution evidence, not yet text-quality validation or steady-state generation speed.'))}
         report['serial_active_contributions']=serial_active_contributions
+        report['trajectory_loop_guard']=trajectory_loop_guard
+        report['trajectory_guard_runs']=trajectory_guard_runs
+        report['executed_token_counts']=[len(run['tokens']) for run in runs]
         if a.exact_pool_escape_after_prompt and a.continuation_gate_mass_threshold is None:
             report['claim_boundary']=('The complete GPT-OSS 120B attention/residual backbone, unrestricted 128-expert router and original selected expert weights were executed at every position. A hash-bound protected pool served resident hits; any unrestricted winning expert outside the pool was fetched exactly from the verified SD warehouse. Such exceptions remain transient when the declared cache is full, or occupy only unprotected LRU capacity when an exception halo is declared; they can never evict the protected core. No router eligibility or neural mathematics was changed. Repeatability is measured against a second run; equivalence to a separately frozen unrestricted control requires explicit token, hidden-state and logit comparison.')
         elif expert_pool:
@@ -859,6 +882,8 @@ def main()->None:
             report['claim_boundary'] += ' Cross-layer lookahead applies the following layer original router to the current post-attention residual and reads predicted experts only from persistent L2 while current-layer work proceeds. The authoritative following-layer router, gates, weights and demand fallback remain unchanged; prediction misses cannot alter output.'
             if a.lookahead_advice_only:
                 report['claim_boundary'] += ' This candidate issues macOS asynchronous no-copy F_RDADVISE hints and leaves the original four-way demand loader unchanged; it creates no user-space expert copy.'
+        if trajectory_loop_guard:
+            report['claim_boundary'] += ' A deterministic token-trajectory guard interrupted generation after a declared repeated-token or repeated-phrase failure. The interrupted output is rejected and requires repair or escalation; it is not a successful completion or a new quality-passing tokens-per-second result.'
         if inference_priority_lease is not None:
             report['inference_priority_lease']=inference_priority_lease.release()
             atexit.unregister(inference_priority_lease.release)
