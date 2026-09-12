@@ -308,3 +308,50 @@ The report's internal canonical SHA-256 is
 \texttt{de381ac3dd7135b8e2e78a41c9bc1a5033655c77b593e864a612b910650d5d58}.
 Its local and SD-backed stored-file SHA-256 is
 \texttt{5e187e72e9b6460ab9c4e8a20cac83c6ac1dd39636ae4a06bf6194478167c367}.
+
+\subsection{Tail-aware mixed-Q3 all-layer admission breakthrough}
+
+The failed stale-arithmetic branch returned the search to a weight-derived
+representation whose layer-12 numerical gate had previously succeeded but was
+too narrow to reduce whole-model traffic.  A new screen retained the router,
+all four expert identities, all gates, the first three experts, all biases and
+the fourth expert's down projection.  Only the gate and up matrices of the
+lowest-gate fourth expert were converted directly from their original MXFP4
+weights to padded Q3\_K.  Exact fallback was modelled whenever the fourth gate
+exceeded a declared threshold.
+
+A seven-layer pilot passed on 84 observations from disjoint public explanation
+and business captures.  The screen was therefore expanded, without changing
+the rule, to all 36 layers and all 432 available layer-position observations.
+At the 0.20 fourth-gate threshold, 243 of 432 calls (56.25\%) were admitted.
+Their p50 and p95 layer-output-relative $L_2$ errors were respectively
+0.0057072 and 0.0114821; the maximum was 0.0177109.  Every admitted layer-output
+argmax matched the original.  This clears the fixed 0.02 p95 gate across the
+complete transformer depth and is classified
+\texttt{ADVANCE\_TAIL\_AWARE\_Q3}.
+
+Removing the threshold and compacting all 432 fourth experts remained close
+but did not pass the stronger boundary: p95 was 0.0125253, maximum error was
+0.0213580, and at least one argmax differed.  The 0.20 fallback rule is
+therefore substantive rather than decorative.
+
+An initial six-pass full-transformer arithmetic integration retained all five
+frozen teacher continuation tokens in every control and candidate pass.  It
+also exposed two implementation costs: on-demand conversion occupied
+158.955 seconds and retained 870 converted projections, while the underlying
+L2 traffic continued warming from 5.329 GB in the first pass to 0.482 GB in
+the last.  Timing from that run is consequently marked
+\texttt{PERFORMANCE\_INVALID}; it proves a narrow token-agreement result but no
+speed improvement.
+
+The next runtime gate must change the physical path, not merely the arithmetic:
+construct a hash-bound split sidecar containing Q3\_K gate/up plus the original
+down projection, then demand-load that sidecar instead of first fetching the
+complete original fourth-expert frame.  Converted matrices must not accumulate
+unboundedly in Python memory.  Only after persistent preconversion, bounded
+residency and zero-fallback warm balancing may full-model throughput be judged.
+
+The all-layer screen's internal canonical SHA-256 is
+\texttt{9d0746556893e82b0d211d7f049518e13038143862adeef8f3e15b46cb6dd681};
+its stored-file SHA-256 is
+\texttt{18fbbcfb5ddad327b4d2fd9d3cd7ad05efb082415dfc2e07085e9de3dc3e8d3f}.
