@@ -40,7 +40,7 @@ def predict(model, activation, gate):
     return (weights@model['coefficients'])*np.float32(gate),similarity
 
 
-def load_job(job, corpus, layer):
+def load_job(job, corpus, layer, include_prefill=False):
     row=next((r for r in corpus['rows'] if r['capture_id']==job.name and r['split']=='training'),None)
     if row is None:
         raise RuntimeError('only declared training prompts may be used')
@@ -58,7 +58,7 @@ def load_job(job, corpus, layer):
     rows=[]
     for path in sorted((job/'captures').glob(f'position-*-layer-{layer}.json')):
         m=json.loads(path.read_text())
-        if m['position']<row['prompt_token_count']:
+        if not include_prefill and m['position']<row['prompt_token_count']:
             continue
         stem=path.with_suffix('')
         x=np.fromfile(f'{stem}-router.bin',dtype='<f4')
@@ -71,6 +71,51 @@ def load_job(job, corpus, layer):
                          'x':x,'target':target,'gate':m['native_gates_f32'][rank-1],
                          'output_norm':max(float(np.linalg.norm(output.astype(np.float64))),1e-30)})
     return row,seal,rows
+
+
+def chronological_sanity(job,corpus_path,destination,layer):
+    """Cheap real-data smoke: prefill fit vs continuation, same prompt.
+
+    Temporal positions are separate, but this is NOT independent-prompt transfer.
+    No certificate, development selection or runtime substitution is permitted.
+    """
+    corpus=json.loads(corpus_path.read_text());body=dict(corpus)
+    if body.pop('canonical_sha256',None)!=canonical(body):
+        raise RuntimeError('corpus hash mismatch')
+    row,seal,data=load_job(job,corpus,layer,include_prefill=True)
+    groups=defaultdict(list)
+    for item in data:
+        groups[(item['rank'],item['expert'])].append(item)
+    destination.mkdir(parents=True,exist_ok=False)
+    results=[]
+    for key,items in sorted(groups.items()):
+        fitting=[r for r in items if r['position']<row['prompt_token_count']]
+        testing=[r for r in items if r['position']>=row['prompt_token_count']]
+        if len(fitting)<4 or not testing:
+            continue
+        model=fit_local([r['x'] for r in fitting],[r['target'] for r in fitting],[r['gate'] for r in fitting])
+        cartridge=destination/f'rank-{key[0]}-expert-{key[1]}.npz'
+        with cartridge.open('xb') as handle:
+            np.savez(handle,**model)
+        observations=[]
+        for test in testing:
+            prediction,similarity=predict(model,test['x'],test['gate'])
+            obs={'position':test['position'],'supported':prediction is not None,'similarity':similarity}
+            if prediction is not None:
+                error=float(np.linalg.norm(prediction.astype(np.float64)-test['target'])/test['output_norm'])
+                drop=float(np.linalg.norm(test['target'].astype(np.float64))/test['output_norm'])
+                obs.update(relative_l2=error,drop_relative_l2=drop,local_pass=error<=.02 and error<drop)
+            observations.append(obs)
+        results.append({'rank':key[0],'expert':key[1],'fitting_positions':[r['position'] for r in fitting],
+                        'cartridge_sha256':digest(cartridge),'resident_bytes':sum(v.nbytes for v in model.values()),
+                        'observations':observations})
+    report={'schema':'aion.ranked-correction-chronological-sanity.v1','status':'SANITY_ONLY_NOT_CERTIFIED',
+            'layer':layer,'completion_sha256':seal['canonical_sha256'],'results':results,
+            'claim_boundary':'Same-prompt prefill-to-continuation sanity only; temporally dependent data, not cross-family or untouched validation. No accuracy certificate, cost ratio or speed promotion.'}
+    report['canonical_sha256']=canonical(report)
+    with (destination/'report.json').open('x') as handle:
+        json.dump(report,handle,indent=2,sort_keys=True);handle.write('\n')
+    return report
 
 
 def gate(training_job, development_job, corpus_path, destination, layer=12):

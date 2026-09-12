@@ -25,6 +25,15 @@ Selection/holdouts remain unused. At most one BLAS thread; no SD/model compute.
 No automatic neural injection or full-generation promotion. Inspect report
 support, error, payload and coverage before downstream integration.
 
+First retry02 arithmetic teacher is COMPLETE_VERIFIED: 1332 observations,
+teacher canonical 2c685a371d367016291d20f366bafe98d98ae592b28c44366f73a35bb77940a7,
+completion f6ff83bd0c5e2b97c6215f7b68b3151ca9e5dfb22b7a9c856764923345f32a25.
+Continuation E4 calls 576, not certified traffic. A prefill-to-continuation
+same-prompt sanity probe at layers2/13/18 rejected all6 test positions at the
+frozen .80 support screen (max cosine .5985). This is a coverage miss, not an
+accuracy failure or speed gain. Independent family business capture active;
+incremental continuation-to-continuation probes remain the next gate.
+
 Status: LOCKED for execution until faster storage or additional hardware is available.
 
 Baseline date: 6 September 2026  

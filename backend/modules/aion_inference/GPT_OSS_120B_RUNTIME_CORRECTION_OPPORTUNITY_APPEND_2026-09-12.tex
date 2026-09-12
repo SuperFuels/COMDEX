@@ -88,3 +88,31 @@ The worker limits BLAS to one thread and performs no new SD weight reads or
 neural expert evaluations. Initial state is waiting for verified cross-family
 completions, not achieved corrections. Full-generation speed remains untested
 for this extension; no shortcut is injected automatically.
+
+\subsection{First verified trajectory and real-data sanity result}
+The first arithmetic trajectory completed verification: 1,332 observations
+across all 36 layers, with repeatable routes, hidden state and logits. Its
+16 continuation positions supply 576 real E4 calls. Coverage report canonical
+SHA-256 is
+\begin{quote}\ttfamily\small
+af091d04798a6b1ee802e3afc61d16d4\allowbreak
+75fbb3334f863ba28e3008f6432165f5
+\end{quote}
+No cross-family identity support or certified coverage is inferred from one
+family. The business-family capture then started with the extended E2/E3
+target writer.
+
+While independent continuation data was collected, a same-prompt chronological
+sanity probe fitted only on prefill and evaluated continuation. The three
+layer/expert pairs with at least four prefill targets and later demand were
+layer 2/expert 0, layer 13/expert 0, and layer 18/expert 53. This choice used
+training support counts, not test error. Stored models were 184,324, 149,764
+and 149,764 bytes respectively. Their two, one and three continuation calls
+were all rejected at the frozen 0.80 cosine boundary; observed similarities
+were 0.1581--0.5985. Thus supported coverage was zero out of six calls.
+No numerical error claim is made for rejected calls, and no speed or certificate
+was promoted. This temporally dependent same-prompt smoke is not independent
+validation. Its useful conclusion is that prefill activations cannot be assumed
+to provide continuation support merely because the expert identity repeats.
+The proper cross-family continuation probe remains running automatically as
+verified completion data becomes available.
