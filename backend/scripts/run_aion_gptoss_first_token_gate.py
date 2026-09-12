@@ -17,6 +17,7 @@ from backend.modules.aion_inference.gptoss_expert_frame_store import (
     GptOssReusableArenaPersistentL2ExpertFrameStore,
     GptOssTieredExpertFrameStore,
 )
+from backend.modules.aion_inference.gptoss_mixed_q3_sidecar import GptOssMixedQ3Sidecar
 
 WIDTH=2880; EXPERTS=128; BOS=199998
 
@@ -64,7 +65,7 @@ def parse_optional_layer_spec(spec:str|None)->set[int]:
     return parse_layer_spec(spec) if spec else set()
 
 def main()->None:
-    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--l2-two-touch-admission',action='store_true');p.add_argument('--l2-admission-touches',type=int,default=2);p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--cross-layer-router-lookahead',action='store_true');p.add_argument('--lookahead-pass-pattern');p.add_argument('--lookahead-k',type=int,default=4);p.add_argument('--lookahead-advice-only',action='store_true');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--pairwise-moe',action='store_true');p.add_argument('--pairwise-pass-pattern');p.add_argument('--pad-reduced-to-four',action='store_true');p.add_argument('--native-router',action='store_true');p.add_argument('--inprocess-embedding',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--metal-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--prompt-token-count',type=int);p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-layer-active-experts',type=int,choices=(1,2,3));p.add_argument('--continuation-fixed-expert-layers');p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-threshold-layers');p.add_argument('--continuation-min-active-experts',type=int,choices=(1,2),default=2);p.add_argument('--continuation-adaptive-layers');p.add_argument('--continuation-top1-threshold-plan',type=Path);p.add_argument('--continuation-top1-cycle');p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');p.add_argument('--capture-counterfactuals',action='store_true');p.add_argument('--capture-metadata-only',action='store_true');p.add_argument('--early-exit-diagnostic-layers');p.add_argument('--selective-fourth-q3-layers');p.add_argument('--selective-fourth-q3-max-gate',type=float);p.add_argument('--selective-fourth-q3-pass-pattern');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--threads',type=int,default=8);p.add_argument('--resident-replay',action='store_true');p.add_argument('--compressed-cache',action='store_true');p.add_argument('--scan-resistant-cache',action='store_true');p.add_argument('--tiered-cache',action='store_true');p.add_argument('--persistent-l2-root',type=Path);p.add_argument('--persistent-l2-gib',type=float);p.add_argument('--l2-cartridge-plan',type=Path);p.add_argument('--l2-cartridge-family');p.add_argument('--l2-two-touch-admission',action='store_true');p.add_argument('--l2-admission-touches',type=int,default=2);p.add_argument('--route-arena-l1-hotset',action='store_true');p.add_argument('--overlap-l2-read-compute',action='store_true');p.add_argument('--overlap-pass-pattern');p.add_argument('--cross-layer-router-lookahead',action='store_true');p.add_argument('--lookahead-pass-pattern');p.add_argument('--lookahead-k',type=int,default=4);p.add_argument('--lookahead-advice-only',action='store_true');p.add_argument('--mapped-persistent-l2',action='store_true');p.add_argument('--pinned-verified-persistent-l2',action='store_true');p.add_argument('--reusable-arena-persistent-l2',action='store_true');p.add_argument('--mapped-l2-willneed',action='store_true');p.add_argument('--mapped-l2-parallel-prefault',action='store_true');p.add_argument('--inprocess-finish',action='store_true');p.add_argument('--parallel-moe',action='store_true');p.add_argument('--pairwise-moe',action='store_true');p.add_argument('--pairwise-pass-pattern');p.add_argument('--pad-reduced-to-four',action='store_true');p.add_argument('--native-router',action='store_true');p.add_argument('--inprocess-embedding',action='store_true');p.add_argument('--inprocess-attention',action='store_true');p.add_argument('--inprocess-output',action='store_true');p.add_argument('--metal-output',action='store_true');p.add_argument('--inmemory-layer-flow',action='store_true');p.add_argument('--token-count',type=int,default=1);p.add_argument('--passes',type=int,default=2);p.add_argument('--input-token-id',type=int,default=BOS);p.add_argument('--input-token-ids');p.add_argument('--prompt-token-count',type=int);p.add_argument('--expert-pool',type=Path);p.add_argument('--constrain-after-prompt',action='store_true');p.add_argument('--exact-pool-escape-after-prompt',action='store_true');p.add_argument('--incremental-pool-admission',action='store_true');p.add_argument('--expert-cache-gib',type=float,default=3.0);p.add_argument('--preload-expert-pool',action='store_true');p.add_argument('--continuation-active-experts',type=int,default=4);p.add_argument('--continuation-layer-active-experts',type=int,choices=(1,2,3));p.add_argument('--continuation-fixed-expert-layers');p.add_argument('--continuation-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-gate-mass-threshold',type=float);p.add_argument('--continuation-secondary-threshold-layers');p.add_argument('--continuation-min-active-experts',type=int,choices=(1,2),default=2);p.add_argument('--continuation-adaptive-layers');p.add_argument('--continuation-top1-threshold-plan',type=Path);p.add_argument('--continuation-top1-cycle');p.add_argument('--preserve-dropped-gate-mass',action='store_true');p.add_argument('--activation-capture-dir',type=Path);p.add_argument('--capture-positions');p.add_argument('--capture-layers');p.add_argument('--capture-counterfactuals',action='store_true');p.add_argument('--capture-metadata-only',action='store_true');p.add_argument('--early-exit-diagnostic-layers');p.add_argument('--selective-fourth-q3-layers');p.add_argument('--selective-fourth-q3-max-gate',type=float);p.add_argument('--selective-fourth-q3-pass-pattern');p.add_argument('--selective-fourth-q3-sidecar-manifest',type=Path);a=p.parse_args()
     serial_active_contributions=os.environ.get('AION_SERIAL_ACTIVE_CONTRIBUTIONS')=='1'
     if a.parallel_moe and not a.inprocess_finish: raise SystemExit('--parallel-moe requires --inprocess-finish')
     if a.pad_reduced_to_four and not a.inprocess_finish: raise SystemExit('--pad-reduced-to-four requires --inprocess-finish')
@@ -76,6 +77,8 @@ def main()->None:
     if a.selective_fourth_q3_max_gate is not None and not a.selective_fourth_q3_layers: raise SystemExit('selective fourth-expert Q3 gate requires selected layers')
     if a.selective_fourth_q3_max_gate is not None and not 0<a.selective_fourth_q3_max_gate<0.25: raise SystemExit('selective fourth-expert Q3 gate must be between zero and 0.25')
     if a.selective_fourth_q3_pass_pattern and (not a.selective_fourth_q3_layers or len(a.selective_fourth_q3_pass_pattern)!=a.passes or set(a.selective_fourth_q3_pass_pattern)-set('01')): raise SystemExit('selective Q3 pass pattern requires selected layers and exactly one 0/1 character per pass')
+    if a.selective_fourth_q3_sidecar_manifest and not a.selective_fourth_q3_layers: raise SystemExit('mixed-Q3 sidecar requires selected layers')
+    if a.selective_fourth_q3_sidecar_manifest and a.cross_layer_router_lookahead: raise SystemExit('mixed-Q3 sidecar is isolated from cross-layer lookahead')
     if a.native_router and not a.inprocess_finish: raise SystemExit('--native-router requires --inprocess-finish')
     if a.inprocess_embedding and not a.inprocess_finish: raise SystemExit('--inprocess-embedding requires --inprocess-finish')
     if a.metal_output and not a.inprocess_output: raise SystemExit('--metal-output requires --inprocess-output')
@@ -178,6 +181,8 @@ def main()->None:
     if any(value<0 or value>=36 for value in capture_layers): raise SystemExit('capture layer is outside 0..35')
     if a.activation_capture_dir: a.activation_capture_dir.mkdir(parents=True,exist_ok=False)
     manifest=json.loads(a.manifest.read_text()); sources=manifest['verified_sources']
+    mixed_q3_sidecar=(GptOssMixedQ3Sidecar(a.selective_fourth_q3_sidecar_manifest,a.manifest)
+                      if a.selective_fourth_q3_sidecar_manifest else None)
     cartridge=None;cartridge_sha=None;cartridge_layers=None;cartridge_hotset_layers=None
     if a.l2_cartridge_plan:
         cartridge=json.loads(a.l2_cartridge_plan.read_text());cartridge_sha=cartridge.get('canonical_sha256');cartridge_body=dict(cartridge);cartridge_body.pop('canonical_sha256',None)
@@ -237,8 +242,9 @@ def main()->None:
                 selective_q3_function=loaded.aion_gptoss_moe_finish_top3_mxfp4_q3_k
                 selective_q3_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)]
                 selective_q3_function.restype=ctypes.c_int
-                selective_q3_converter=root/'mxfp4-to-padded-k'
-                compile_gate(native/'gptoss_mxfp4_to_padded_k.cpp',selective_q3_converter)
+                if mixed_q3_sidecar is None:
+                    selective_q3_converter=root/'mxfp4-to-padded-k'
+                    compile_gate(native/'gptoss_mxfp4_to_padded_k.cpp',selective_q3_converter)
             for function in (moe_function,serial_moe_function,pairwise_moe_function):
                 function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];function.restype=ctypes.c_int
             reduced_moe_function.argtypes=[ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_float),ctypes.POINTER(ctypes.c_void_p),ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_float),ctypes.c_int,ctypes.POINTER(ctypes.c_double)];reduced_moe_function.restype=ctypes.c_int
@@ -252,6 +258,9 @@ def main()->None:
 
         def selective_q3_blobs(layer:int,expert:int,value:dict)->list[bytes]:
             nonlocal selective_q3_conversion_seconds
+            if mixed_q3_sidecar is not None:
+                return [value[projection][kind] for projection in ('gate','up','down')
+                        for kind in ('weight','bias')]
             result=[]
             for projection in ('gate','up'):
                 key=(layer,expert,projection)
@@ -386,7 +395,7 @@ def main()->None:
                 bool(selective_fourth_q3_layers),a.selective_fourth_q3_pass_pattern,pass_index)
             pass_moe_function=(pairwise_moe_function if pairwise_enabled
                                else moe_function)
-            store=persistent_store or GptOssExpertFrameStore(a.manifest,256*1024*1024);metrics_before=store.metrics();token_id=forced_input_ids[0]
+            store=persistent_store or GptOssExpertFrameStore(a.manifest,256*1024*1024);metrics_before=store.metrics();sidecar_before=(mixed_q3_sidecar.metrics() if mixed_q3_sidecar else None);token_id=forced_input_ids[0]
             lookahead_executor=(ThreadPoolExecutor(max_workers=1,thread_name_prefix='aion-next-router')
                                 if lookahead_enabled and not a.lookahead_advice_only else None)
             lookahead_stats={'predictions':0,'route_hits':0,'ready_hits':0,
@@ -497,6 +506,10 @@ def main()->None:
                 elif active_experts < candidate_count:
                     route=route[:active_experts];gates=gates[:active_experts]
                     if not a.preserve_dropped_gate_mass:gates/=gates.sum()
+                selective_q3_here=(selective_q3_enabled and active_experts==4 and
+                                   layer in selective_fourth_q3_layers and
+                                   (a.selective_fourth_q3_max_gate is None or
+                                    float(gates[3])<=a.selective_fourth_q3_max_gate))
                 pilot_values={};pilot_wait_seconds=0.0;pilot_route_hits=0
                 pilot_ready_hits=0;pilot_wasted_reads=0
                 if lookahead_enabled and pilot_layer is not None:
@@ -562,7 +575,6 @@ def main()->None:
                         and position in capture_positions and layer in capture_layers):
                     capture_stem=a.activation_capture_dir/f'position-{position}-layer-{layer}'
                 prepared_components=None;prefault_ms=0.0;prefault_checksum=None;overlap_seconds=0.0
-                selective_q3_here=False
                 next_hidden=root/f'{label}-token-{position}-layer-{layer}-output.bin'
                 overlap_missing_experts=(sum((layer,expert) not in store._cache for expert in route)
                                          if overlap_enabled else 0)
@@ -614,7 +626,17 @@ def main()->None:
                         if any(value is None for value in values):
                             raise RuntimeError('lookahead/demand route remained incomplete')
                     else:
-                        values=store.get_layer_route_parallel(layer,route,workers=4)
+                        if selective_q3_here and mixed_q3_sidecar is not None:
+                            values=store.get_layer_route_parallel(layer,route[:3],workers=3)
+                            compact_value=mixed_q3_sidecar.get(layer,route[3])
+                            if compact_value is None:
+                                selective_q3_here=False
+                                values.extend(store.get_layer_route_parallel(
+                                    layer,[route[3]],workers=1))
+                            else:
+                                values.append(compact_value)
+                        else:
+                            values=store.get_layer_route_parallel(layer,route,workers=4)
                     if a.mapped_l2_willneed: store.advise_route_willneed(values)
                     if a.mapped_l2_parallel_prefault:
                         blobs=[value[proj][kind] for value in values for proj in ('gate','up','down') for kind in ('weight','bias')]
@@ -632,9 +654,6 @@ def main()->None:
                     finish_started=time.perf_counter()
                     if a.inprocess_finish:
                         ffn=ffn_result if a.inmemory_layer_flow else np.fromfile(ffn_path,dtype='<f4');router_values=router_result if a.inmemory_layer_flow else np.fromfile(router_path,dtype='<f4');gate_values=np.asarray([float(f'{x:.9g}') for x in gates],dtype=np.float32);out=np.empty(WIDTH,dtype=np.float32);elapsed=ctypes.c_double()
-                        selective_q3_here=(selective_q3_enabled and layer in selective_fourth_q3_layers and
-                                           (a.selective_fourth_q3_max_gate is None or
-                                            float(gate_values[3])<=a.selective_fourth_q3_max_gate))
                         if prepared_components is None:
                             blobs=[value[proj][kind] for value in values for proj in ('gate','up','down') for kind in ('weight','bias')]
                             references,pointers=ctypes_component_pointer_array(blobs)
@@ -782,7 +801,11 @@ def main()->None:
             )
             delta={key:metrics_after[key]-metrics_before.get(key,0)
                    for key in metric_keys if key in metrics_after}
-            return {'label':label,'overlap_enabled':overlap_enabled,'lookahead_enabled':lookahead_enabled,'lookahead_metrics':lookahead_stats,'pairwise_enabled':pairwise_enabled,'wall_seconds':time.perf_counter()-started,'tokens':token_results,'layers':token_results[-1]['layers'],'final_hidden_sha256':token_results[-1]['final_hidden_sha256'],'logits_sha256':token_results[-1]['logits_sha256'],'output':token_results[-1]['output'],'store_metrics':metrics_after,'store_metric_delta':delta,'prompt_to_continuation_rehydrate_seconds':transition_rehydrate_seconds,'prompt_to_continuation_rehydrate_metric_delta':transition_rehydrate_delta}
+            sidecar_after=(mixed_q3_sidecar.metrics() if mixed_q3_sidecar else None)
+            sidecar_delta=({key:sidecar_after[key]-sidecar_before[key]
+                            for key in ('hits','misses','bytes_read','integrity_failures')}
+                           if mixed_q3_sidecar else None)
+            return {'label':label,'overlap_enabled':overlap_enabled,'lookahead_enabled':lookahead_enabled,'lookahead_metrics':lookahead_stats,'pairwise_enabled':pairwise_enabled,'wall_seconds':time.perf_counter()-started,'tokens':token_results,'layers':token_results[-1]['layers'],'final_hidden_sha256':token_results[-1]['final_hidden_sha256'],'logits_sha256':token_results[-1]['logits_sha256'],'output':token_results[-1]['output'],'store_metrics':metrics_after,'store_metric_delta':delta,'mixed_q3_sidecar_metrics':sidecar_after,'mixed_q3_sidecar_metric_delta':sidecar_delta,'prompt_to_continuation_rehydrate_seconds':transition_rehydrate_seconds,'prompt_to_continuation_rehydrate_metric_delta':transition_rehydrate_delta}
         runs=[pass_once(chr(ord('a')+index)) for index in range(a.passes)]
         if output_shutdown: output_shutdown()
         run_a,run_b=runs[:2]
@@ -811,6 +834,14 @@ def main()->None:
             report['claim_boundary'] += ' The immutable Q8_0 vocabulary matrix was uploaded once into a persistent Metal allocation; each output evaluation uploaded only the hidden vector and read back the logits. Metal arithmetic can differ numerically from the CPU reference, so this is a changed-kernel quality track requiring explicit token, logit and semantic comparison.'
         if selective_fourth_q3_layers:
             report['claim_boundary'] += ' On the declared layers only, the unrestricted fourth selected expert retained its original down projection but used Q3_K gate and up matrices derived from the original MXFP4 weights. The other three selected experts, router, gates and reduction order were retained. This is a changed-weight quality track requiring comparison with a separately frozen unrestricted control.'
+            report['selective_fourth_q3_sidecar_manifest_path']=(
+                str(a.selective_fourth_q3_sidecar_manifest.resolve())
+                if a.selective_fourth_q3_sidecar_manifest else None)
+            report['selective_fourth_q3_sidecar_manifest_sha256']=(
+                sha(a.selective_fourth_q3_sidecar_manifest)
+                if a.selective_fourth_q3_sidecar_manifest else None)
+            if mixed_q3_sidecar is not None:
+                report['claim_boundary'] += ' A hash-bound split sidecar supplied compact gate/up and the original down component directly, so an admitted fourth expert did not first load its complete original frame. Missing or corrupt sidecars fell back to the exact original expert.'
         if cartridge_layers is not None:
             report['claim_boundary'] += ' The signed family cartridge changes only L2 eviction priority: it performs no eager SD reads and never changes router eligibility, expert values, gates, or fallback correctness.'
         if a.cross_layer_router_lookahead:

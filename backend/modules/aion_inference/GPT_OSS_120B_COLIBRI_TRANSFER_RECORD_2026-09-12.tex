@@ -355,3 +355,96 @@ The all-layer screen's internal canonical SHA-256 is
 \texttt{9d0746556893e82b0d211d7f049518e13038143862adeef8f3e15b46cb6dd681};
 its stored-file SHA-256 is
 \texttt{18fbbcfb5ddad327b4d2fd9d3cd7ad05efb082415dfc2e07085e9de3dc3e8d3f}.
+
+\subsection{Verified mixed-Q3 split-sidecar runtime gate}
+
+The proposed physical implementation was completed rather than inferred from
+the all-layer numerical screen.  A hash-bound sidecar was built for 435 real
+layer/expert pairs observed in the frozen arithmetic trajectory.  Each entry
+contained padded Q3\_K gate and up projections, original MXFP4 down projection,
+and the corresponding biases.  The sidecar occupied 5,460,394,920 bytes.  Its
+manifest bound the complete file and each component independently; a missing
+or corrupt entry caused exact fallback to the original fourth expert.  The
+runtime did not compile weights on demand and retained no unbounded converted
+projection cache.
+
+A six-pass \texttt{010110} experiment treated the first candidate pass as
+warm-up and compared the two settled candidates with the two following
+controls.  Every pass generated the same five continuation token identifiers.
+The candidates recorded zero sidecar misses, zero integrity failures, zero
+on-demand conversion seconds and zero retained converted projections.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrr}
+\toprule
+Measurement & Mixed-Q3 candidate & Original control \\
+\midrule
+Median continuation rate & 1.23866 tokens/s & 2.61425 tokens/s \\
+Median delivered bytes & 37.7631 GB & 38.1180 GB \\
+Relative rate & 0.473811$\times$ & 1.000000$\times$ \\
+Delivery reduction & 0.930972\% & --- \\
+\bottomrule
+\end{tabular}
+\caption{Balanced short-window arithmetic sidecar gate.}
+\end{table}
+
+The branch is therefore classified \texttt{STOP\_MIXED\_Q3\_SIDECAR}.  Q3\_K's
+block padding and the retained full down projection reduced complete-route
+delivery by less than one percent, while the Q3 computation path more than
+erased that saving.  The numerical screen remains valid evidence that selected
+tail projections can be compacted accurately, but this particular split
+representation is not a useful runtime optimization on the M3 Pro.  No
+throughput promotion is claimed.
+
+The compact runtime summary has internal canonical SHA-256
+\texttt{07ff99515fa456308df01c4bee4e77af70790d8c75e68f0e18b972af5500cca9}.
+The sidecar manifest has internal canonical SHA-256
+\texttt{39657bb53e4d568d229858636e68fc1f8f1532bb834d96e172cbf7ece7409f14}.
+
+\subsection{DFlash speculative-decoding eligibility boundary}
+
+DFlash was audited as a distinct mechanism rather than equated with expert
+prefetch.  It uses a separate lightweight block-diffusion model to draft
+multiple tokens and asks the target model to verify the block.  The public
+GPT-OSS 120B drafter contains approximately 0.8 billion parameters, was trained
+for the original GPT-OSS 120B target, and is a separate checkpoint.  Its model
+card reports GPT-OSS measurements with SGLang on one H200 GPU.  The general
+DFlash paper reports large lossless acceleration on its tested accelerator
+stacks, but those results cannot be transferred directly to AION's custom
+18~GB M3 Pro and SD-backed verifier.  Primary sources are the DFlash project,
+the GPT-OSS 120B DFlash model card, and Chen et al., arXiv:2602.06036.
+
+No compatible drafter checkpoint was present locally, and the locked programme
+forbids downloading another model.  More importantly, the expensive target
+verification prerequisite was tested from existing exact AION evidence:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+\toprule
+Positions & Logical traffic reduction & Wall speedup & Exact outputs \\
+\midrule
+2 & 1.17539$\times$ & 1.01506$\times$ & yes \\
+4 & 1.36833$\times$ & 1.03623$\times$ & yes \\
+8 & 1.86170$\times$ & 1.03827$\times$ & yes \\
+\bottomrule
+\end{tabular}
+\caption{Existing full-model causal block-verification evidence.}
+\end{table}
+
+Even an oracle supplying known correct positions could improve the present
+eight-position verifier by only 3.827\% at median.  A drafter cannot turn that
+verifier into the published multi-fold gain; it adds drafting and rejection
+cost on top.  The decision is
+\texttt{DEFER\_DFLASH\_UNTIL\_BATCHED\_VERIFIER}, not permanent rejection.
+The correct next gate is a genuinely multi-row packed MXFP4 expert and causal
+attention verifier that achieves at least 1.5$\times$ measured full-model block
+speedup under the same bounded Mac/SD path.  Only after that physical gate
+passes should an installed compatible drafter or an AION n-gram drafter be
+evaluated for acceptance length and end-to-end throughput.  Retrofitting
+n-gram embeddings into the authoritative GPT-OSS model would instead constitute
+a changed model and is outside the exact track.
+
+The eligibility receipt has internal canonical SHA-256
+\texttt{0509159f89a85ff7ede32ac47a17686a1faac154d98df6bd048f2317156a9ae3}.
