@@ -33,6 +33,7 @@ def main() -> int:
     parser.add_argument("--batched-cpu", action="store_true")
     parser.add_argument("--batched-cpu-mmap", action="store_true")
     parser.add_argument("--batched-cpu-repack", action="store_true")
+    parser.add_argument("--batched-cpu-indirect", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
@@ -106,6 +107,8 @@ def main() -> int:
                 batched_env["AION_MMAP_COMPONENTS"] = "1"
             if args.batched_cpu_repack:
                 batched_env["AION_REPACK_COMPONENTS"] = "1"
+            if args.batched_cpu_indirect:
+                batched_env["AION_MUL_MAT_ID"] = "1"
             batched = json.loads(subprocess.check_output([
                 str(batched_executable), str(root), gate_text, "10", str(args.threads),
             ], env=batched_env, text=True))
@@ -121,6 +124,18 @@ def main() -> int:
     )
     speedup = cpu["p50_ms"] / metal_charged_ms
     promoted = speedup >= 1.15 and relative_l2 <= 0.01
+    batched_relative_l2 = (
+        float(np.linalg.norm(reference - batched_candidate) / np.linalg.norm(reference))
+        if batched_candidate is not None else None)
+    batched_argmax_equal = (
+        int(reference.argmax()) == int(batched_candidate.argmax())
+        if batched_candidate is not None else None)
+    batched_speedup = (cpu["p50_ms"] / batched["p50_ms"]
+                       if batched is not None else None)
+    batched_advanced = bool(
+        batched is not None and args.batched_cpu_indirect and args.batched_cpu_mmap
+        and batched_speedup >= 1.15 and batched_relative_l2 <= 1e-6
+        and batched_argmax_equal)
     result = {
         "schema": "aion.gptoss-120b-fused-four-expert-metal-gate.v1",
         "status": "ADVANCE_FUSED_METAL_ROUTE" if promoted else "NOT_PROMOTED",
@@ -146,15 +161,19 @@ def main() -> int:
         "max_abs_error": max_abs,
         "argmax_equal": int(reference.argmax()) == int(candidate.argmax()),
         "outputs_bitwise_equal": bool(np.array_equal(reference, candidate)),
-        "batched_cpu_speedup": (cpu["p50_ms"] / batched["p50_ms"]
-                                if batched is not None else None),
-        "batched_cpu_relative_l2_error": (
-            float(np.linalg.norm(reference - batched_candidate) / np.linalg.norm(reference))
-            if batched_candidate is not None else None),
+        "batched_cpu_status": ("ADVANCE_MAPPED_INDIRECT_ROUTE" if batched_advanced
+                               else "NOT_PROMOTED" if batched is not None else None),
+        "batched_cpu_speedup": batched_speedup,
+        "batched_cpu_relative_l2_error": batched_relative_l2,
+        "batched_cpu_argmax_equal": batched_argmax_equal,
         "batched_cpu_outputs_bitwise_equal": (
             bool(np.array_equal(reference, batched_candidate))
             if batched_candidate is not None else None),
-        "promotion_gates": {"speedup_at_least": 1.15, "relative_l2_at_most": 0.01},
+        "promotion_gates": {"metal_speedup_at_least": 1.15,
+                            "metal_relative_l2_at_most": 0.01,
+                            "mapped_indirect_speedup_at_least": 1.15,
+                            "mapped_indirect_relative_l2_at_most": 1e-6,
+                            "mapped_indirect_argmax_equal": True},
         "claim_boundary": (
             "One real four-expert layer route from a frozen GPT-OSS 120B trace was "
             "calculated as one Metal graph under the recorded parent-process resident-pool pressure. "
@@ -168,6 +187,13 @@ def main() -> int:
                 "its separately recorded host packing time is excluded from the compute comparison. "
                 if args.zero_copy_host else ""
             )
+            + (
+                "The mapped indirect CPU candidate virtually concatenates the four independently "
+                "stored expert projections and uses GGML indirect matrix multiplication without "
+                "copying their 52.9 MB route into a charged arena. It changes floating-point "
+                "reduction order and therefore belongs to the quality track unless bitwise equality "
+                "is separately recovered. " if args.batched_cpu_indirect else ""
+            )
             + "This is a changed-arithmetic microgate, not a full token, semantic-quality result, "
             "or generated tokens-per-second claim."
         ),
@@ -179,7 +205,8 @@ def main() -> int:
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     print(json.dumps({key: result[key] for key in (
         "status", "metal_speedup", "relative_l2_error", "max_abs_error",
-        "argmax_equal", "outputs_bitwise_equal", "canonical_sha256",
+        "argmax_equal", "outputs_bitwise_equal", "batched_cpu_status",
+        "batched_cpu_speedup", "batched_cpu_relative_l2_error", "canonical_sha256",
     )}, sort_keys=True))
     return 0
 

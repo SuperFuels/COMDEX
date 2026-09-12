@@ -47,15 +47,22 @@ int main(int argc, char ** argv) {
     if (!compute) return 5;
     constexpr int64_t width = 2880;
     constexpr int64_t experts = 4;
+    const bool indirect = std::getenv("AION_MUL_MAT_ID") != nullptr;
     std::vector<char> memory(320 * 1024 * 1024);
     auto * context = ggml_init({memory.size(), memory.data(), false});
     if (!context) return 6;
     auto * gate_w = ggml_new_tensor_3d(context, GGML_TYPE_MXFP4, width, width, experts);
-    auto * gate_b = ggml_new_tensor_3d(context, GGML_TYPE_F32, width, 1, experts);
+    auto * gate_b = indirect
+        ? ggml_new_tensor_3d(context, GGML_TYPE_F32, width, experts, 1)
+        : ggml_new_tensor_3d(context, GGML_TYPE_F32, width, 1, experts);
     auto * up_w = ggml_new_tensor_3d(context, GGML_TYPE_MXFP4, width, width, experts);
-    auto * up_b = ggml_new_tensor_3d(context, GGML_TYPE_F32, width, 1, experts);
+    auto * up_b = indirect
+        ? ggml_new_tensor_3d(context, GGML_TYPE_F32, width, experts, 1)
+        : ggml_new_tensor_3d(context, GGML_TYPE_F32, width, 1, experts);
     auto * down_w = ggml_new_tensor_3d(context, GGML_TYPE_MXFP4, width, width, experts);
-    auto * down_b = ggml_new_tensor_3d(context, GGML_TYPE_F32, width, 1, experts);
+    auto * down_b = indirect
+        ? ggml_new_tensor_3d(context, GGML_TYPE_F32, width, experts, 1)
+        : ggml_new_tensor_3d(context, GGML_TYPE_F32, width, 1, experts);
     ggml_tensor * tensors[] = {gate_w, gate_b, up_w, up_b, down_w, down_b};
     const char * names[] = {"gate-weight", "gate-bias", "up-weight", "up-bias",
                             "down-weight", "down-bias"};
@@ -75,7 +82,10 @@ int main(int argc, char ** argv) {
             if (target == MAP_FAILED) return 12;
             mappings.emplace_back(target, stride * experts);
             tensors[component]->data = target;
-            tensors[component]->nb[2] = stride;
+            if (indirect && (component == 1 || component == 3 || component == 5))
+                tensors[component]->nb[1] = stride;
+            else
+                tensors[component]->nb[2] = stride;
         }
         for (int expert = 0; expert < experts; ++expert) {
             const std::string path = std::string(argv[1]) + "/" + std::to_string(expert)
@@ -101,25 +111,41 @@ int main(int argc, char ** argv) {
     }
     const double mapping_ms = std::chrono::duration<double, std::milli>(
         std::chrono::steady_clock::now() - mapping_started).count();
-    auto * input = ggml_new_tensor_3d(context, GGML_TYPE_F32, width, 1, experts);
+    auto * input = indirect
+        ? ggml_new_tensor_2d(context, GGML_TYPE_F32, width, 1)
+        : ggml_new_tensor_3d(context, GGML_TYPE_F32, width, 1, experts);
+    auto * ids = indirect
+        ? ggml_new_tensor_2d(context, GGML_TYPE_I32, experts, 1) : nullptr;
     std::vector<float> one_input(width);
     if (const char * input_path = std::getenv("AION_INPUT_PATH")) {
         if (!read_exact(input_path, one_input.data(), width * sizeof(float))) return 8;
     } else {
         for (int64_t i = 0; i < width; ++i) one_input[i] = std::sin(float(i) * 0.00390625f);
     }
-    for (int64_t expert = 0; expert < experts; ++expert) {
-        std::copy(one_input.begin(), one_input.end(),
-                  static_cast<float *>(input->data) + expert * width);
+    if (indirect) {
+        std::copy(one_input.begin(), one_input.end(), static_cast<float *>(input->data));
+        for (int32_t expert = 0; expert < experts; ++expert)
+            static_cast<int32_t *>(ids->data)[expert] = expert;
+    } else {
+        for (int64_t expert = 0; expert < experts; ++expert)
+            std::copy(one_input.begin(), one_input.end(),
+                      static_cast<float *>(input->data) + expert * width);
     }
-    auto * gate = ggml_add(context, ggml_mul_mat(context, gate_w, input), gate_b);
-    auto * up = ggml_add(context, ggml_mul_mat(context, up_w, input), up_b);
+    auto * gate_product = indirect ? ggml_mul_mat_id(context, gate_w, input, ids)
+                                   : ggml_mul_mat(context, gate_w, input);
+    auto * up_product = indirect ? ggml_mul_mat_id(context, up_w, input, ids)
+                                 : ggml_mul_mat(context, up_w, input);
+    auto * gate = ggml_add(context, gate_product, gate_b);
+    auto * up = ggml_add(context, up_product, up_b);
     auto * hidden = ggml_swiglu_oai(context, gate, up, 1.702f, 7.0f);
-    auto * outputs = ggml_add(context, ggml_mul_mat(context, down_w, hidden), down_b);
+    auto * down_product = indirect ? ggml_mul_mat_id(context, down_w, hidden, ids)
+                                   : ggml_mul_mat(context, down_w, hidden);
+    auto * outputs = ggml_add(context, down_product, down_b);
+    const size_t expert_stride = indirect ? outputs->nb[1] : outputs->nb[2];
     auto * slice0 = ggml_view_1d(context, outputs, width, 0);
-    auto * slice1 = ggml_view_1d(context, outputs, width, outputs->nb[2]);
-    auto * slice2 = ggml_view_1d(context, outputs, width, 2 * outputs->nb[2]);
-    auto * slice3 = ggml_view_1d(context, outputs, width, 3 * outputs->nb[2]);
+    auto * slice1 = ggml_view_1d(context, outputs, width, expert_stride);
+    auto * slice2 = ggml_view_1d(context, outputs, width, 2 * expert_stride);
+    auto * slice3 = ggml_view_1d(context, outputs, width, 3 * expert_stride);
     auto * combined = ggml_add(context,
         ggml_add(context, ggml_scale(context, slice0, route_gates[0]),
                           ggml_scale(context, slice1, route_gates[1])),
@@ -161,6 +187,7 @@ int main(int argc, char ** argv) {
     }
     std::cout << "{\"schema\":\"aion.gptoss.batched-route-cpu.v1\",\"mmap_components\":"
               << (mmap_components ? "true" : "false") << ",\"mapping_ms\":" << mapping_ms
+              << ",\"mul_mat_id\":" << (indirect ? "true" : "false")
               << ",\"repack_components\":" << (repack_components ? "true" : "false")
               << ",\"repack_p50_ms\":"
               << (ordered_repack.empty() ? 0.0 : ordered_repack[ordered_repack.size()/2])
