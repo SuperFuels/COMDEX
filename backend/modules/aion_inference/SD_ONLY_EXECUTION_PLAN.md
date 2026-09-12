@@ -36,6 +36,19 @@ incremental continuation-to-continuation probes remain the next gate.
 
 Status: LOCKED for execution until faster storage or additional hardware is available.
 
+Subsequent operational update: business01 COMPLETE_VERIFIED, 1188 observations
+and 1188 hash-bound targets of each rank E2/E3/E4; teacher canonical
+a9a6faf2c267279d5bedec8532bfa804ba4e9a4b10d9587b3c6db3332ef23047,
+seal 790ed2d994de3aed6b482e83fea7430cdbb064f595e01ab56d1bda07ae044d8a.
+Arithmetic-to-business layer12 E64 probe: four fit calls, one supported dev
+call, cosine .8910833, omission error .06939687, correction error .03246070,
+149764 resident bytes. Fixed .02 gate fails; NOT_CERTIFIED. No supported
+local passing calls among 16 development E4 calls. E2/E3 fitting unavailable
+in older arithmetic job. Explanation01 teacher now active, enabling subsequent
+new-target cross-family probes. Two verified prompts supply 1152 continuation
+E4 calls; none meet >=8-call/two-family identity support yet. Certified share
+remains unavailable and no speed result changes.
+
 Ranked correction reduction audit (2026-09-12): native 1+C2, 2+C3 and
 3+C4 integrations matched the corresponding diagnostic 2/3/4-expert outputs
 bit-for-bit when supplied the real gated final contribution. Zero differing
