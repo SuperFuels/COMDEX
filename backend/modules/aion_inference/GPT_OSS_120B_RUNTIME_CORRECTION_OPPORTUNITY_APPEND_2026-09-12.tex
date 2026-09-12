@@ -116,3 +116,26 @@ validation. Its useful conclusion is that prefill activations cannot be assumed
 to provide continuation support merely because the expert identity repeats.
 The proper cross-family continuation probe remains running automatically as
 verified completion data becomes available.
+
+\subsection{Ranked correction integration: exact-contribution control}
+An independent native audit extended the corrected reduction mechanism to
+the last selected contribution on two-, three- and four-expert diagnostic
+calls. The comparisons were one real expert plus the real gated second
+contribution, two plus the real gated third, and three plus the real gated
+fourth. All three outputs were bit-for-bit identical to their respective
+original active-expert controls, with zero differing output elements.
+The original left-associated addition order and residual boundary were
+preserved. Existing exact and three-plus-C4 entry points were unchanged.
+
+This audit used one CPU thread and already-existing local L2 frames, checked
+read-only against all six source component hashes. It performed zero SD expert
+reads, no cache admission and no cache deletion. Its canonical evidence hash is
+\begin{quote}\ttfamily\small
+0d21ecacfd752304361670515b0470c733\allowbreak
+fee5089aaff8765608e0ed46655f72
+\end{quote}
+No learned correction was used. Therefore this is an integration correctness
+gate, not approximation accuracy, semantic certification or speed evidence.
+It removes arithmetic-order contamination from future ranked correction tests;
+cross-family support, numerical accuracy, downstream stability and charged
+full-generation economics remain mandatory before any promotion.

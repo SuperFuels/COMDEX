@@ -36,6 +36,16 @@ incremental continuation-to-continuation probes remain the next gate.
 
 Status: LOCKED for execution until faster storage or additional hardware is available.
 
+Ranked correction reduction audit (2026-09-12): native 1+C2, 2+C3 and
+3+C4 integrations matched the corresponding diagnostic 2/3/4-expert outputs
+bit-for-bit when supplied the real gated final contribution. Zero differing
+elements in all three cases, one CPU thread, existing read-only verified local
+L2 components, zero SD expert reads. Evidence canonical
+0d21ecacfd752304361670515b0470c733fee5089aaff8765608e0ed46655f72.
+This validates addition order only: no learned accuracy, quality certificate,
+timing improvement or full-model substitution is inferred. Existing exact ABI
+and existing top3+C4 path remain unchanged.
+
 Baseline date: 6 September 2026  
 Baseline implementation: `0138c2bf`  
 Evidence root: `/Volumes/Install macOS Sonoma/AION-Inference`

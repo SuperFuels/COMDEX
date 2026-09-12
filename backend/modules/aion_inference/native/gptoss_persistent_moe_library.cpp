@@ -238,6 +238,22 @@ extern "C" int aion_gptoss_moe_finish_top3_correction(
         components, gates, 3, correction_values, output_values, threads, elapsed_ms);
 }
 
+// General ranked correction probe. Preserve the original left-associated
+// reduction for one/two/three retained experts plus a gated last contribution.
+// Existing exact and 3+C4 entry points remain unchanged.
+extern "C" int aion_gptoss_moe_finish_ranked_correction(
+        const float * ffn_input_values, const float * router_input_values,
+        const void * const * components, const float * gates, int retained_experts,
+        const float * correction_values, float * output_values, int threads,
+        double * elapsed_ms) {
+    if (retained_experts < 1 || retained_experts > 3) return 6;
+    if (!ffn_input_values || !router_input_values || !components || !gates ||
+            !correction_values || !output_values || !elapsed_ms) return 1;
+    return moe_finish_active_impl(ffn_input_values, router_input_values,
+        components, gates, retained_experts, correction_values, output_values,
+        threads, elapsed_ms);
+}
+
 // Quality-track entry point using directly executable Q2_0 expert matrices.
 // Router choice, gates, biases, non-linearity, reduction order and residual
 // addition are unchanged; only the three selected weight representations differ.
