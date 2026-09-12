@@ -201,3 +201,27 @@ must add broader genuine-family teacher targets or learn new full output
 directions through direct expert-weight training.  Its canonical report hash
 is
 \texttt{dee9800ef0d050989c8babd5113d6e3b8934fa058565ed9e80c6f2318295bf8d}.
+
+\subsection{Expanded-trajectory oracle}
+
+To test whether the adapter bound was merely a consequence of too few teacher
+directions, AION composed 12 previously verified families containing 957
+layer-position records.  Training combined the genuine arithmetic and
+extraction trajectories with BOS, four independent synthetic tokens and two
+independent eight-position KV-linked trajectories.  Reasoning remained the
+untouched semantic development family.  Rebuilding the top-three-expert
+dataset produced 78 layer-12 fit targets, rather than 55.
+
+The complete rank-77 teacher-target span still admitted only one of 21 unseen
+reasoning positions, or 4.76\%.  Relative layer-output error improved only
+slightly to 0.05744 p50 and 0.07101 p95, with a maximum of 0.07955.  The result
+remains \texttt{STOP\_RETAINED\_EXPERT\_LOW\_RANK\_ADAPTER}.  Its canonical
+hash is
+\texttt{c2d6cffbe982f886a24d3b4b329a03d23a59235d67ca798801aa0bf3ac4183d6}.
+
+This is a stronger boundary than the 55-row gate: adding existing independent
+token and trajectory directions did not increase safe reasoning coverage.
+The missing structure is not repaired by mixing more synthetic states into the
+same low-rank output span.  Further work must collect substantially broader
+genuine semantic trajectories and train new expert-weight directions, not
+repeat target-span projection.
