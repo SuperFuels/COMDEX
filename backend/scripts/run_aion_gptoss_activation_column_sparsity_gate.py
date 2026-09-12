@@ -12,6 +12,7 @@ import argparse
 import ctypes
 import hashlib
 import json
+import math
 import subprocess
 import tempfile
 from datetime import datetime, timezone
@@ -32,7 +33,7 @@ def percentile(values: list[float], fraction: float) -> float:
 
 
 def retain_largest(values: np.ndarray, fraction: float,
-                   block_size: int = 1) -> tuple[np.ndarray, float]:
+                   block_size: int = 1) -> tuple[np.ndarray, float, np.ndarray]:
     if len(values) % block_size:
         raise ValueError("activation width must be divisible by block size")
     blocks = values.reshape(-1, block_size)
@@ -43,7 +44,23 @@ def retain_largest(values: np.ndarray, fraction: float,
     masked.reshape(-1, block_size)[chosen] = blocks[chosen]
     total = float(np.dot(values.astype(np.float64), values.astype(np.float64)))
     kept = float(np.dot(masked.astype(np.float64), masked.astype(np.float64)))
-    return masked, kept / max(total, 1e-30)
+    coordinates = np.concatenate([
+        np.arange(index * block_size, (index + 1) * block_size) for index in chosen
+    ])
+    return masked, kept / max(total, 1e-30), coordinates
+
+
+def coordinate_plane_pages(coordinates: np.ndarray, width: int = WIDTH,
+                           page_size: int = 4096) -> tuple[int, int]:
+    """Pages touched when each input coordinate is a packed output-row plane."""
+    plane_bytes = (width + 1) // 2  # one four-bit code per output row
+    touched = set()
+    for coordinate in coordinates:
+        begin = int(coordinate) * plane_bytes
+        end = begin + plane_bytes - 1
+        touched.update(range(begin // page_size, end // page_size + 1))
+    total = math.ceil(width * plane_bytes / page_size)
+    return len(touched), total
 
 
 def pointers(blobs: list[bytes]) -> tuple[list[ctypes.c_char_p], ctypes.Array]:
@@ -65,6 +82,7 @@ def main() -> int:
                         help="optional down-input fractions; defaults to --fractions pairwise")
     parser.add_argument("--maximum-per-family", type=int, default=6)
     parser.add_argument("--minimum-traffic-reduction", type=float, default=2.0)
+    parser.add_argument("--minimum-page-traffic-reduction", type=float, default=1.05)
     parser.add_argument("--selection-granularity", choices=("element", "block32"),
                         default="element")
     parser.add_argument("--threads", type=int, default=8)
@@ -158,10 +176,12 @@ def main() -> int:
             full_output = ffn.astype(np.float64) + full_contribution
 
             for router_fraction, down_fraction in candidate_specs:
-                masked_router, router_energy = retain_largest(
+                masked_router, router_energy, router_coordinates = retain_largest(
                     router, router_fraction, block_size)
+                router_pages, total_value_pages = coordinate_plane_pages(router_coordinates)
                 candidates = []
                 hidden_energies = []
+                hidden_page_counts = []
                 for gate, blobs in zip(capture["gates"], blob_sets, strict=True):
                     gate_references, gate_ptrs = pointers(blobs[:4])
                     hidden = np.empty(WIDTH, dtype=np.float32)
@@ -173,9 +193,11 @@ def main() -> int:
                     )
                     if status:
                         raise RuntimeError(f"gate/up status {status}")
-                    masked_hidden, hidden_energy = retain_largest(
+                    masked_hidden, hidden_energy, hidden_coordinates = retain_largest(
                         hidden, down_fraction, block_size)
                     hidden_energies.append(hidden_energy)
+                    hidden_pages, _ = coordinate_plane_pages(hidden_coordinates)
+                    hidden_page_counts.append(hidden_pages)
                     down_references, down_ptrs = pointers(blobs[4:])
                     contribution = np.empty(WIDTH, dtype=np.float32)
                     status = down_fn(
@@ -196,6 +218,17 @@ def main() -> int:
                     "capture": capture_path.name,
                     "router_energy_retained": router_energy,
                     "hidden_energy_retained_mean": float(np.mean(hidden_energies)),
+                    "router_value_page_fraction": router_pages / total_value_pages,
+                    "hidden_value_page_fraction_mean": float(
+                        np.mean(hidden_page_counts) / total_value_pages),
+                    "projected_page_traffic_reduction": float(
+                        (4 * 3 * (math.ceil((WIDTH * (WIDTH // 32) * 17) / 4096)
+                                  + math.ceil(WIDTH * 4 / 4096))) /
+                        (4 * (2 * (router_pages + math.ceil(WIDTH * (WIDTH // 32) / 4096)
+                                   + math.ceil(WIDTH * 4 / 4096))
+                              + np.mean(hidden_page_counts)
+                              + math.ceil(WIDTH * (WIDTH // 32) / 4096)
+                              + math.ceil(WIDTH * 4 / 4096)))),
                     "output_relative_l2": float(
                         np.linalg.norm(delta) / max(np.linalg.norm(full_output), 1e-30)),
                     "contribution_relative_l2": float(
@@ -225,6 +258,14 @@ def main() -> int:
                 row["router_energy_retained"] for row in rows])),
             "hidden_energy_retained_p50": float(np.median([
                 row["hidden_energy_retained_mean"] for row in rows])),
+            "router_value_page_fraction_p50": float(np.median([
+                row["router_value_page_fraction"] for row in rows])),
+            "hidden_value_page_fraction_p50": float(np.median([
+                row["hidden_value_page_fraction_mean"] for row in rows])),
+            "projected_page_traffic_reduction_p50": float(np.median([
+                row["projected_page_traffic_reduction"] for row in rows])),
+            "projected_page_traffic_reduction_min": min(
+                row["projected_page_traffic_reduction"] for row in rows),
             "output_relative_l2_p50": float(np.median(output_errors)),
             "output_relative_l2_p95": percentile(output_errors, .95),
             "output_relative_l2_max": max(output_errors),
@@ -233,6 +274,8 @@ def main() -> int:
         }
         summaries[key] = summary
         if (summary["projected_weight_traffic_reduction"] >= args.minimum_traffic_reduction
+                and summary["projected_page_traffic_reduction_min"] >=
+                    args.minimum_page_traffic_reduction
                 and summary["output_relative_l2_p95"] <= .02
                 and summary["output_relative_l2_max"] <= .025
                 and summary["contribution_relative_l2_p95"] <= .15
@@ -258,6 +301,8 @@ def main() -> int:
         "warehouse_metrics": store.metrics(),
         "promotion_gate": {
             "minimum_projected_weight_traffic_reduction": args.minimum_traffic_reduction,
+            "minimum_projected_page_traffic_reduction":
+                args.minimum_page_traffic_reduction,
             "maximum_output_relative_l2_p95": .02,
             "maximum_output_relative_l2_max": .025,
             "maximum_contribution_relative_l2_p95": .15,
