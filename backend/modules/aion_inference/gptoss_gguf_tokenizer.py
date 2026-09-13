@@ -98,3 +98,29 @@ class GptOssGGUFTokenizer:
             self.special["<|end|>"], self.special["<|start|>"],
             self.vocabulary["assistant"],
         ]
+
+    def decode(self, token_ids: list[int], include_special: bool = True) -> str:
+        """Decode byte-BPE across token boundaries, preserving Harmony markers."""
+        inverse = {character: value for value, character in self.byte_encoder.items()}
+        pending = bytearray()
+        parts = []
+
+        def flush() -> None:
+            if pending:
+                parts.append(pending.decode('utf-8', errors='replace'))
+                pending.clear()
+
+        for token_id in token_ids:
+            if not isinstance(token_id, int) or isinstance(token_id, bool):
+                raise ValueError('token ID must be an integer')
+            if token_id < 0 or token_id >= len(self.tokens):
+                raise ValueError('token ID outside vocabulary')
+            token = self.tokens[token_id]
+            if token in self.special:
+                flush()
+                if include_special:
+                    parts.append(token)
+            else:
+                pending.extend(inverse[character] for character in token)
+        flush()
+        return ''.join(parts)
