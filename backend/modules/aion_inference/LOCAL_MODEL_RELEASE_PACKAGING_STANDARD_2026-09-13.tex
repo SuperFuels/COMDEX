@@ -239,3 +239,77 @@ no local tier clears the memory, speed or quality gates.  AION receives the
 selected profile as part of the model identity, allowing the router to choose
 between local and frontier capability without requiring the business to
 understand hardware, quantisation or GPU terminology.
+
+\subsection{Initial curated model catalogue and provider plan}
+
+The first Tessaris catalogue must be deliberately small.  It is a tested
+library of useful roles, not a mirror of every model release.  A model enters
+the catalogue only after its licence, source integrity, device variants,
+normal-use speed, task quality and packaging receipt have passed the standard
+release gate in this document.
+
+\begin{center}
+\begin{tabular}{p{0.18\linewidth}p{0.30\linewidth}p{0.42\linewidth}}
+\textbf{Publisher} & \textbf{Candidate} & \textbf{Proposed Tessaris role} \\
+\hline
+OpenAI & GPT--OSS--20B & Private reasoning and tool use on compatible
+16--18~GB-class devices.  GPT--OSS--120B is retained as a specialist-hardware
+package, not a standard laptop product. \\
+Meta & Muse Glimmer & Local agent, coding and workflow-automation candidate. \\
+Google & Gemma family & Lightweight offline assistant for broadly compatible
+hardware.  Gemma is the local open-model family; Gemini remains a frontier API
+provider. \\
+Mistral & Mistral Small~4 or Ministral~3 8B & Generalist, coding and
+multilingual local candidate.  The 8B tier is especially appropriate for
+ordinary laptops. \\
+DeepSeek & DeepSeek--R1--Distill--Qwen--14B & Private reasoning candidate. \\
+Qwen & Qwen3.8 27B & Local Pro business model candidate. \\
+\end{tabular}
+\end{center}
+
+The initial supported Local Library is therefore organised by role rather than
+by publisher:
+\begin{enumerate}
+  \item \textbf{Fast Local.}  Granite~3B, Gemma, or Ministral~3 8B for quick,
+  routine offline work on a wide range of compatible devices.
+  \item \textbf{Business Pro.}  Qwen3.8 27B, subject to a signed device
+  variant and measured business-quality and normal-speed receipts.
+  \item \textbf{Private Reasoning.}  GPT--OSS--20B or
+  DeepSeek--R1--Distill--Qwen--14B, selected only when the device profile
+  clears their memory and latency requirements.
+  \item \textbf{Local Agent and Coding.}  Muse Glimmer, subject to the same
+  compatibility and agent-safety acceptance process.
+\end{enumerate}
+
+Claude, Gemini, Grok, Kimi and the full DeepSeek frontier models are not
+downloadable local packages in this initial library.  They belong in the
+\textbf{Frontier API tier}.  AION may use an approved connected provider when
+the task requires its capability, the customer allows external processing, and
+the local device or local quality tier is unsuitable.  The receipt must name
+the provider and model used.
+
+The catalogue also needs media and voice capability, each represented as an
+independently selected provider profile rather than as an assumed extension of
+the text model:
+\begin{enumerate}
+  \item \textbf{Images.}  Maintain one or more approved image-generation and
+  image-understanding providers.  A local image package may be offered only on
+  devices with a validated accelerator and memory profile; otherwise AION uses
+  an approved image API with a clear cost and privacy receipt.
+  \item \textbf{Video.}  Begin with an approved video API, including MiniMax
+  where its commercial terms and product integration are accepted.  Local video
+  releases are workstation products and require their own GPU, licence, speed,
+  reliability and output-quality acceptance evidence.  They must never be
+  presented as ordinary laptop or SD-card packages merely because the weights
+  can be stored externally.
+  \item \textbf{Voice.}  Provide separate speech-to-text and text-to-speech
+  choices.  A compact, validated local voice package can serve privacy-sensitive
+  or offline use; a higher-quality or multilingual API profile can be selected
+  when the customer permits it.
+\end{enumerate}
+
+This creates a complete business intelligence stack: a small set of local
+packages for private and economical routine work, specialist role harnesses,
+and connected frontier, image, video and voice services when they are the
+better fit.  Vault presents the safe installed choices while AION performs the
+routing decision from the task, policy, capability and device profile.
