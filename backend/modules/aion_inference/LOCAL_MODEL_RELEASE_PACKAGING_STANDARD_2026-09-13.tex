@@ -155,3 +155,61 @@ After a signed package is placed in managed Tessaris storage, the internal Q4
 control may be moved from the Mac to that storage if internal disk space is
 needed.  It must remain recoverable for audit and rebuild; it is not discarded
 merely because customers do not download it.
+
+\subsection{Boardroom intelligence stack and role harnesses}
+
+The SD-card library solves a storage and portability problem, not a working
+memory problem.  It allows a customer to keep several approved local-model
+packages without filling the computer's internal drive.  When AION activates a
+model, the selected representation must still fit the device's available
+unified memory or RAM/VRAM, including operating-system headroom and the chosen
+context window.  Models that do not fit must not be loaded by swapping weights
+through slow storage or by presenting a simulated response.
+
+Consequently, an SD card is a portable library rather than an inherent source
+of token-speed improvement.  An internal NVMe SSD is normally preferable for
+initial loading on a desktop or Windows workstation.  Once the selected model
+is resident in working memory, normal generation speed is primarily determined
+by the model representation, memory bandwidth, execution runtime and hardware.
+The SD package provides portability, easy installation, release integrity and
+the ability to change the available local library without consuming internal
+storage.
+
+A complete Boardroom installation may combine the following layers:
+\begin{enumerate}
+  \item \textbf{Local LLM library.}  Two or three compatible packages stored
+  on SD card or approved local storage: a light everyday worker, a stronger
+  private general-work model, and, where useful, a reasoning or domain
+  specialist.  Only the model selected for the current task needs working
+  memory; the others remain stored in the library.
+  \item \textbf{Frontier API tier.}  One or more connected providers such as
+  OpenAI, Claude, Gemini, Kimi or DeepSeek for tasks beyond local hardware or
+  local quality gates.  These models are not stored on the SD card.  Vault
+  stores the connection configuration securely and AION records which provider
+  served each request.
+  \item \textbf{Image, video and voice capabilities.}  Approved local or API
+  providers may supply visual creation, speech-to-text and text-to-speech.  The
+  provider is selected by the same compatibility, privacy, quality, speed and
+  cost rules as an LLM.
+  \item \textbf{AION router.}  AION inspects the task and selects a compatible
+  local model, a specialised harness, or an API provider.  It must account for
+  the device profile, available memory, storage location, privacy requirement,
+  expected latency, cost and required capability.  It may retain a model warm
+  for related tasks or release it before activating another one.
+\end{enumerate}
+
+Each local package may also contain versioned \emph{role harnesses}.  A harness
+is the reusable work layer around a model: role instructions, approved tools,
+templates, task schemas, routing rules and evaluation checks.  It gives a
+model a defined business function rather than exposing only a blank chat
+window.  Examples include coding harnesses with repository, testing and review
+workflows; business harnesses with document, spreadsheet and reporting
+workflows; finance harnesses with structured extraction, reconciliation and
+calculation checks; and sales, marketing or operations harnesses with their
+respective templates and knowledge sources.
+
+Harnesses are separately versioned from model weights.  Their package card
+must state compatible model releases, required tools, data-access boundaries,
+evaluation evidence and fallback behaviour.  This permits a business to keep a
+small, legible intelligence stack while AION delegates individual tasks to the
+appropriate local specialist or frontier provider.
