@@ -20,6 +20,7 @@ def main():
     p.add_argument('--matched-dot-input', action='store_true')
     p.add_argument('--timing', action='store_true')
     p.add_argument('--integer-dot', action='store_true')
+    p.add_argument('--tiled-dot', action='store_true')
     args = p.parse_args()
     if shutil.disk_usage('.').free < 3 * 1024**3:
         raise SystemExit('3 GiB disk reserve')
@@ -50,6 +51,8 @@ def main():
             extra.append('--timing')
         if args.integer_dot:
             extra.append('--integer-dot')
+        if args.tiled_dot:
+            extra.append('--tiled-dot')
         result = subprocess.run([str(args.binary.resolve()), *paths, *extra],
                                 capture_output=True, text=True, timeout=120)
         with (args.output_root / 'stdout.txt').open('x') as handle:

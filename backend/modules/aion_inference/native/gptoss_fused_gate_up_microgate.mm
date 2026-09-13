@@ -18,9 +18,9 @@ static std::vector<char> read(const char * path,size_t bytes) {
     if(!f)throw std::runtime_error("input read failed");return v;
 }
 int main(int argc,char ** argv) { @autoreleasepool {
-    if(argc<6 || argc>9){std::cerr<<"INPUT GATE UP GATE_BIAS UP_BIAS [--matched-dot-input] [--timing] [--integer-dot]\n";return 2;}
-    bool matched=false,timing=false,integer_dot=false;
-    for(int arg=6;arg<argc;arg++){if(std::strcmp(argv[arg],"--matched-dot-input")==0)matched=true;else if(std::strcmp(argv[arg],"--timing")==0)timing=true;else if(std::strcmp(argv[arg],"--integer-dot")==0)integer_dot=true;else return 2;}
+    if(argc<6 || argc>9){std::cerr<<"INPUT GATE UP GATE_BIAS UP_BIAS [--matched-dot-input] [--timing] [--integer-dot|--tiled-dot]\n";return 2;}
+    bool matched=false,timing=false,integer_dot=false,tiled_dot=false;
+    for(int arg=6;arg<argc;arg++){if(std::strcmp(argv[arg],"--matched-dot-input")==0)matched=true;else if(std::strcmp(argv[arg],"--timing")==0)timing=true;else if(std::strcmp(argv[arg],"--integer-dot")==0)integer_dot=true;else if(std::strcmp(argv[arg],"--tiled-dot")==0){integer_dot=true;tiled_dot=true;}else return 2;}
     if(integer_dot && !matched)return 2;
     constexpr int W=2880,B=90;constexpr size_t M=size_t(W)*B*17;
     auto input=read(argv[1],W*4),gate=read(argv[2],M),up=read(argv[3],M),gb=read(argv[4],W*4),ub=read(argv[5],W*4);
@@ -105,12 +105,37 @@ kernel void fused_integer(device const uchar * x [[buffer(0)]],device const ucha
     float g=simd_sum(sg)+gb[group],u=simd_sum(su)+ub[group];
     if(lane==0){out[group]=g;out[2880+group]=u;float swish=min(g,7.f),linear=clamp(u,-7.f,7.f);out[5760+group]=(swish/(1.f+exp(-1.702f*swish)))*(linear+1.f);}
 }
+int4 unpack4(uint4 code) {
+    int4 magnitude=int4(code&7);
+    int4 large=(2+(magnitude&1))<<max((magnitude>>1)-1,0);
+    int4 value=select(large,magnitude,magnitude<4);
+    return select(value,-value,(code&8)!=0);
+}
+uchar4 load4(device const uchar * ptr) { return uchar4(ptr[0],ptr[1],ptr[2],ptr[3]); }
+int sum4(int4 x) { return x.x+x.y+x.z+x.w; }
+kernel void fused_tiled(device const uchar * x [[buffer(0)]],device const uchar * gw [[buffer(1)]],device const uchar * uw [[buffer(2)]],device const float * gb [[buffer(3)]],device const float * ub [[buffer(4)]],device float * out [[buffer(5)]],uint group [[threadgroup_position_in_grid]],uint lane [[thread_index_in_simdgroup]]) {
+    float sg=0.f,su=0.f;
+    uint k=(lane%4)*4;
+    for(uint block=lane/4;block<90;block+=8) {
+        uint offset=(group*90+block)*17;
+        uint4 gc=uint4(load4(gw+offset+1+k)),uc=uint4(load4(uw+offset+1+k));
+        int4 low=int4(as_type<char4>(load4(x+block*34+2+k)));
+        int4 high=int4(as_type<char4>(load4(x+block*34+18+k)));
+        int dg=sum4(low*unpack4(gc&15)+high*unpack4(gc>>4));
+        int du=sum4(low*unpack4(uc&15)+high*unpack4(uc>>4));
+        float xs=float(as_type<half>(*reinterpret_cast<device const ushort *>(x+block*34)))*.5f;
+        sg+=float(dg)*(ldexp(1.f,int(gw[offset])-127)*xs);
+        su+=float(du)*(ldexp(1.f,int(uw[offset])-127)*xs);
+    }
+    float g=simd_sum(sg)+gb[group],u=simd_sum(su)+ub[group];
+    if(lane==0){out[group]=g;out[2880+group]=u;float swish=min(g,7.f),linear=clamp(u,-7.f,7.f);out[5760+group]=(swish/(1.f+exp(-1.702f*swish)))*(linear+1.f);}
+}
 )METAL";
     id<MTLDevice> device=MTLCreateSystemDefaultDevice();if(!device)return 5;
     NSError * error=nil;MTLCompileOptions * options=[MTLCompileOptions new];options.fastMathEnabled=NO;
     id<MTLLibrary> lib=[device newLibraryWithSource:source options:options error:&error];
     if(!lib){std::cerr<<error.description.UTF8String;return 6;}
-    auto pipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:integer_dot?@"fused_integer":@"fused"] error:&error];if(!pipeline)return 7;
+    auto pipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:tiled_dot?@"fused_tiled":integer_dot?@"fused_integer":@"fused"] error:&error];if(!pipeline)return 7;
     auto * device_input=integer_dot?&packed_input:&gpu_input;
     id<MTLBuffer> buffers[6];int i=0;for(auto * data:{device_input,&gate,&up,&gb,&ub})buffers[i++]=[device newBufferWithBytes:data->data() length:data->size() options:MTLResourceStorageModeShared];
     buffers[5]=[device newBufferWithLength:W*12 options:MTLResourceStorageModeShared];
@@ -163,7 +188,7 @@ kernel void fused_integer(device const uchar * x [[buffer(0)]],device const ucha
         for(auto * samples:{&gpu_device_samples,&conversion_samples,&host_encode_samples,&submit_wait_samples})std::sort(samples->begin(),samples->end());
     }
     auto * actual=static_cast<float *>(buffers[5].contents);
-    std::cout<<"{\"integer_dot\":"<<(integer_dot?"true":"false")<<",\"gpu_input_bytes\":"<<device_input->size()<<",\"gpu_bitwise_repeatable\":"<<(repeat_equal?"true":"false")<<",\"matched_dot_input\":"<<(matched?"true":"false")<<",\"dot_input_type\":"<<dot_type<<",\"scale_zero_blocks\":"<<scale_histogram[0]<<",\"scale_one_blocks\":"<<scale_histogram[1]<<",\"total_blocks\":"<<2*W*B<<",\"stages\":[";
+    std::cout<<"{\"tiled_dot\":"<<(tiled_dot?"true":"false")<<",\"integer_dot\":"<<(integer_dot?"true":"false")<<",\"gpu_input_bytes\":"<<device_input->size()<<",\"gpu_bitwise_repeatable\":"<<(repeat_equal?"true":"false")<<",\"matched_dot_input\":"<<(matched?"true":"false")<<",\"dot_input_type\":"<<dot_type<<",\"scale_zero_blocks\":"<<scale_histogram[0]<<",\"scale_one_blocks\":"<<scale_histogram[1]<<",\"total_blocks\":"<<2*W*B<<",\"stages\":[";
     int stage=0;for(auto * t:{g,u,h}) {
         auto * expected=static_cast<float *>(t->data);double err=0,norm=0,maxerr=0;int different=0;
         for(i=0;i<W;i++){double delta=double(actual[stage*W+i])-expected[i];err+=delta*delta;norm+=double(expected[i])*expected[i];maxerr=std::max(maxerr,std::abs(delta));different+=memcmp(actual+stage*W+i,expected+i,4)!=0;}
