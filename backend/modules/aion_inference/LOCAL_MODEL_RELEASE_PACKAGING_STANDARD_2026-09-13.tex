@@ -1,0 +1,157 @@
+\section{Local Model Release Packaging Standard}
+\label{sec:local-model-release-standard}
+
+\subsection{Product contract}
+
+Tessaris is not a general model repository.  It provides a curated local-model
+library: every listed model has a defined task role, a supported device profile,
+an installed runtime, an integrity record, and measured quality and speed
+evidence.  A customer must be able to insert an SD card, select a model in
+Vault, choose \emph{Download to SD card}, and use the model in Boardroom without
+manually arranging weights, choosing a quantisation, or configuring an
+inference engine.
+
+The customer package is deliberately different from the internal master
+archive.  Customers receive only the payload required for their selected device
+and release.  Tessaris retains the source checkpoint or exact input quantisation,
+the reference/control representation, build recipes, test corpus and release
+evidence needed to reproduce and audit that package later.
+
+\subsection{Standard release unit}
+
+Every new model, including a model released after this document, must be
+represented by a versioned Tessaris release unit with the following contents.
+
+\begin{enumerate}
+  \item \textbf{Identity and provenance.}  Record the upstream publisher,
+  upstream revision or download URL, licence, model identifier, byte count and
+  SHA--256 for every retained input artifact.  Community conversions must name
+  their converter and revision; an unofficial or ``uncensored'' derivative is
+  never silently substituted for an official model.
+  \item \textbf{Selected customer payload.}  Include the chosen weight
+  representation, tokenizer, configuration, template and any required vision
+  files.  Include AION-generated expert banks, shards or caches only when they
+  are necessary for the selected runtime.  Do not include internal controls,
+  abandoned variants, teacher captures or other experimental material in a
+  customer download.
+  \item \textbf{Runtime profile.}  Specify the engine and exact build,
+  required native kernels, thread and memory limits, cache policy, minimum
+  internal free space, SD-card reserve, supported architectures and minimum
+  unified memory.  The profile must fail closed on an unsupported device rather
+  than silently choose a weaker configuration.
+  \item \textbf{Integrity card.}  Supply \texttt{model-package.v1.json} with
+  hashes, relative paths, runtime profile, compatibility limits, licence notice
+  and release status.  A production card must also carry a Tessaris release
+  signature.  The present JSON card format and catalogue are implemented in
+  \texttt{backend/modules/aion\_inference/model\_packages/}; development cards
+  are not a substitute for a signed public release.
+  \item \textbf{Acceptance evidence.}  Preserve a device-clean installation
+  receipt, completed-answer quality suite, speed suite spanning ordinary
+  business prompts, failure/fallback behaviour and reproducible command or
+  runner version.  A best-case speed measurement is never the public speed
+  claim.  The published claim is a range measured from the approved normal-use
+  suite on the named hardware class.
+\end{enumerate}
+
+The installed card layout should be stable across all models:
+
+\begin{verbatim}
+TessarisModels/<model-id>/<release-version>/
+  model-package.v1.json
+  payload/                 # customer-selected weights and required assets
+  runtime/                 # profile, compatible engine and native components
+  receipts/                # install and acceptance receipts, not hidden claims
+  LICENSES/                # upstream and Tessaris notices
+\end{verbatim}
+
+Vault reads the release catalogue before displaying a selectable model.  A
+catalogue entry may be visible while it is being prepared, but it must remain
+non-selectable until the package card, payload verification, hardware check and
+acceptance result all pass.  Vault currently uses
+\texttt{catalogue.v1.json} and \texttt{LocalModelVault} for this discovery
+step.  The future ``Download to SD card'' operation must write the standard
+layout atomically: download to a temporary folder, verify all hashes, write the
+card and receipt, then make the release visible to Vault.
+
+\subsection{Release procedure for every model}
+
+\begin{enumerate}
+  \item Acquire the official model and record provenance and hashes before
+  optimisation.
+  \item Produce one or more candidate representations.  Retain the exact
+  source, control/reference representation and all deterministic build recipes.
+  Optimisation changes must be separately identifiable; no candidate inherits a
+  performance or quality claim merely because its source model passed one.
+  \item Run correctness, task-quality and normal-use throughput acceptance on
+  the intended hardware classes.  Preserve failed experiments as internal
+  evidence, but do not ship them.
+  \item Build the minimal customer payload and generate the package card,
+  complete hash inventory, licence bundle and runtime profile.
+  \item Perform a clean SD-card install using only that package.  Verify that
+  Vault discovers it, Boardroom can start it, and removal of the card makes the
+  model unavailable rather than simulated.
+  \item Sign the release, publish the package to managed Tessaris storage, add
+  the approved entry to the Vault catalogue, and publish only the speed and
+  hardware range established by the clean acceptance receipt.
+\end{enumerate}
+
+This procedure makes future models routine: select a model for a defined role,
+optimise it, certify it, package it in the same layout, publish it, and let
+Vault install and recognise it.  Larger frontier models that do not pass the
+local hardware and speed gates remain API-routed providers rather than being
+forced into the SD catalogue.
+
+\subsection{Current retained material and release state}
+
+On 13 September 2026, the small-model master archive was created at
+\begin{verbatim}
+/Users/kevinrobinson/AION-Artifact-Archive/2026-09-13-small-model-master
+\end{verbatim}
+It is approximately 33~GiB.  It is an internal recovery archive, not a
+customer package.  Its file \texttt{SHA256\_VERIFICATION.txt} records matching
+source-card and archive SHA--256 values for the following material:
+\begin{itemize}
+  \item Qwen3--30B--A3B Q2 expert candidate:
+  \texttt{7b1165eef9a868954a3fc9bdc31e3f454a04ebd86b14040945074c99edce5bac};
+  \item Qwen3--30B--A3B Q4\_K\_M reference:
+  \texttt{0d003f6662faee786ed5da3e31b29c978de5ae5d275c8794c606a7f3c01aa8f5};
+  \item both Granite 3.1 3B A800M checkpoint tensors, together with its
+  tokenizer and configuration files.
+\end{itemize}
+
+The original complete Granite BF16 expert-layer pack set is retained separately
+at
+\begin{verbatim}
+/Users/kevinrobinson/AION-Artifact-Archive/
+  2026-09-09-granite-layer-packs/granite-3.1-3b-a800m-v1
+\end{verbatim}
+The source code, native kernels, build recipes, technical records and Vault
+integration live in
+\begin{verbatim}
+/Users/kevinrobinson/dev/COMDEX
+\end{verbatim}
+and the committed history was pushed to the \texttt{origin/main} Tessaris
+repository on 13 September 2026.  Model binaries are intentionally not placed
+in Git; they belong in the master archive and, once signed, managed release
+storage.
+
+The Qwen Q2 candidate has a recorded 50+ tokens/s result on its specialised
+resident path, but it has not completed broad normal-business acceptance and is
+therefore not a public speed claim or selectable Vault release.  Granite is
+present and recoverable, but likewise requires a package card and full
+acceptance.  GPT--OSS 120B remains a separate, acceptance-pending exact package;
+its original SD card must be independently archived before that card is reused.
+
+\subsection{Storage rule}
+
+An SD card may be repurposed only after two independent conditions hold:
+\begin{enumerate}
+  \item every irreplaceable source and reference artifact has an independently
+  stored, hash-verified master copy; and
+  \item the release code, recipes, manifests, evidence and package definitions
+  have been committed and pushed.
+\end{enumerate}
+After a signed package is placed in managed Tessaris storage, the internal Q4
+control may be moved from the Mac to that storage if internal disk space is
+needed.  It must remain recoverable for audit and rebuild; it is not discarded
+merely because customers do not download it.
