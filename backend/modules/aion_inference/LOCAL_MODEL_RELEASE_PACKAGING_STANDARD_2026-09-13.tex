@@ -213,3 +213,29 @@ must state compatible model releases, required tools, data-access boundaries,
 evaluation evidence and fallback behaviour.  This permits a business to keep a
 small, legible intelligence stack while AION delegates individual tasks to the
 appropriate local specialist or frontier provider.
+
+\subsection{Device capability negotiation}
+
+Tessaris must not assume that a customer uses an 18~GB Mac.  The 18~GB profile
+is a reference acceptance target, not a universal release.  On first scan and
+before every local-model installation, Vault records a non-sensitive device
+capability snapshot: operating system, CPU architecture, available unified
+memory or RAM, supported GPU runtime and VRAM, internal free storage, connected
+SD or external storage, and supported acceleration backends.  No model is
+offered merely because its files fit on an SD card.
+
+Each model family may have several signed, separately tested variants.  For
+example, a dense 27B model may provide a compact 18~GB-Mac profile, a higher
+quality 36~GB-Mac profile, one or more Windows/NVIDIA GPU profiles, and an
+API fallback.  Every variant has its own payload hashes, memory floor, context
+limit, runtime flags, measured normal-use speed range and quality receipt.
+They are different releases for compatibility and claims, even when they share
+the same upstream model family.
+
+Vault compares the device snapshot with these profiles and presents only the
+safe choices.  It may recommend the best local tier, offer an SD-card download
+to the selected storage location, or route the request to an approved API when
+no local tier clears the memory, speed or quality gates.  AION receives the
+selected profile as part of the model identity, allowing the router to choose
+between local and frontier capability without requiring the business to
+understand hardware, quantisation or GPU terminology.
