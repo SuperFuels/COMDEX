@@ -30,6 +30,13 @@
       "release_status": "benchmark_preparation",
       "selection_status": "visible_not_selectable",
       "reason": "Official Qwen3.8-27B is the next Local Pro candidate. Tessaris will evaluate an 18 GB-safe GGUF representation, vision support, normal business quality, and normal-use throughput before packaging or publishing a claim."
+    },
+    {
+      "model_id": "minimax-h3-local-video",
+      "version": "1",
+      "release_status": "licence_and_hardware_review",
+      "selection_status": "visible_not_selectable",
+      "reason": "MiniMax H3 is an open-weights video candidate for compatible GPU workstations. Its custom community licence, commercial distribution terms, complete payload size, and device requirements must be approved before Tessaris offers any local package. It is not an 18 GB Mac SD-card release candidate."
     }
   ]
 }
