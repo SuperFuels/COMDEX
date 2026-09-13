@@ -24,10 +24,13 @@ def main():
         fcntl.flock(lease, fcntl.LOCK_EX | fcntl.LOCK_NB)
         tokenizer = GptOssGGUFTokenizer.from_warehouse(args.manifest)
     reports = []
+    prompt_count = receipt.get('prompt_token_count', len(receipt.get('input_token_ids', [])))
+    if not isinstance(prompt_count, int) or prompt_count < 1:
+        raise SystemExit('receipt lacks a valid prompt-token count')
     for label in ('run_a', 'run_b'):
         # Last prefill evaluation predicts the FIRST response token.
         rows = [row for row in receipt[label]['tokens']
-                if row['position'] >= receipt['prompt_token_count'] - 1]
+                if row['position'] >= prompt_count - 1]
         ids = [row['generated_token_id'] for row in rows]
         # GPT-OSS Harmony uses end/return markers; older FIM-only logic would
         # silently miss a finished assistant turn.
@@ -38,7 +41,7 @@ def main():
                    if value in ids]
         first_end, marker_name = min(located) if located else (None, None)
         bounded = ids if first_end is None else ids[:first_end+1]
-        reports.append(dict(pass_label=label, response_start_evaluation_position=receipt['prompt_token_count']-1,
+        reports.append(dict(pass_label=label, response_start_evaluation_position=prompt_count-1,
             generated_ids_including_after_end=ids, first_turn_marker=marker_name,
             first_assistant_turn_end_index=first_end,
             response_text_through_first_turn_end=tokenizer.decode(bounded),
