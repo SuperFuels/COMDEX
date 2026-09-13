@@ -18,6 +18,7 @@ def main():
     p.add_argument('--binary', type=Path, required=True)
     p.add_argument('--output-root', type=Path, required=True)
     p.add_argument('--matched-dot-input', action='store_true')
+    p.add_argument('--timing', action='store_true')
     args = p.parse_args()
     if shutil.disk_usage('.').free < 3 * 1024**3:
         raise SystemExit('3 GiB disk reserve')
@@ -44,6 +45,8 @@ def main():
             hashes[name] = hashlib.sha256(data).hexdigest()
             paths.append(str(path.resolve()))
         extra = ['--matched-dot-input'] if args.matched_dot_input else []
+        if args.timing:
+            extra.append('--timing')
         result = subprocess.run([str(args.binary.resolve()), *paths, *extra],
                                 capture_output=True, text=True, timeout=120)
         with (args.output_root / 'stdout.txt').open('x') as handle:
@@ -64,8 +67,8 @@ def main():
                         s['bitwise_mismatches'] == 0 for s in numerical['stages'])
                         else 'CHANGED_ARITHMETIC_NOT_PROMOTED'),
                     claim_boundary='One authentic activation and original expert, '
-                    'gate/up+bias+SwiGLU numerical comparison only. No performance '
-                    'measurement, teacher token comparison or kernel injection.')
+                    'gate/up+bias+SwiGLU comparison. Optional charged kernel timing '
+                    'is not generation speed; no teacher token comparison or injection.')
         body['canonical_sha256'] = canonical(body)
         with (args.output_root / 'numerical_gate.json').open('x') as handle:
             json.dump(body, handle, indent=2, sort_keys=True)

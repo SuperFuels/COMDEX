@@ -18,8 +18,9 @@ static std::vector<char> read(const char * path,size_t bytes) {
     if(!f)throw std::runtime_error("input read failed");return v;
 }
 int main(int argc,char ** argv) { @autoreleasepool {
-    if(argc!=6 && argc!=7){std::cerr<<"INPUT GATE UP GATE_BIAS UP_BIAS [--matched-dot-input]\n";return 2;}
-    bool matched=argc==7 && std::strcmp(argv[6],"--matched-dot-input")==0;
+    if(argc<6 || argc>8){std::cerr<<"INPUT GATE UP GATE_BIAS UP_BIAS [--matched-dot-input] [--timing]\n";return 2;}
+    bool matched=false,timing=false;
+    for(int arg=6;arg<argc;arg++){if(std::strcmp(argv[arg],"--matched-dot-input")==0)matched=true;else if(std::strcmp(argv[arg],"--timing")==0)timing=true;else return 2;}
     constexpr int W=2880,B=90;constexpr size_t M=size_t(W)*B*17;
     auto input=read(argv[1],W*4),gate=read(argv[2],M),up=read(argv[3],M),gb=read(argv[4],W*4),ub=read(argv[5],W*4);
     size_t scale_histogram[256]={};for(auto * p:{&gate,&up})for(size_t i=0;i<M;i+=17)scale_histogram[uint8_t((*p)[i])]++;
@@ -84,13 +85,48 @@ kernel void fused(device const float * x [[buffer(0)]],device const uchar * gw [
     [encoder setComputePipelineState:pipeline];for(i=0;i<6;i++)[encoder setBuffer:buffers[i] offset:0 atIndex:i];
     [encoder dispatchThreadgroups:MTLSizeMake(W,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
     [encoder endEncoding];[command commit];[command waitUntilCompleted];if(command.status!=MTLCommandBufferStatusCompleted)return 8;
+    std::vector<char> first_output(W*12);std::memcpy(first_output.data(),buffers[5].contents,W*12);
+    auto repeat_command=[queue commandBuffer];auto repeat_encoder=[repeat_command computeCommandEncoder];
+    [repeat_encoder setComputePipelineState:pipeline];for(i=0;i<6;i++)[repeat_encoder setBuffer:buffers[i] offset:0 atIndex:i];
+    [repeat_encoder dispatchThreadgroups:MTLSizeMake(W,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+    [repeat_encoder endEncoding];[repeat_command commit];[repeat_command waitUntilCompleted];if(repeat_command.status!=MTLCommandBufferStatusCompleted)return 8;
+    bool repeat_equal=std::memcmp(first_output.data(),buffers[5].contents,W*12)==0;
+    std::vector<double> cpu_samples,gpu_samples;
+    if(timing) {
+        if(!matched)return 10;
+        using Traits=const ggml_type_traits_cpu * (*)(ggml_type);
+        auto traits_fn=reinterpret_cast<Traits>(dlsym(plugin,"ggml_get_type_traits_cpu"));
+        auto * dot_traits=traits_fn(ggml_type(dot_type));
+        std::vector<char> quantized(ggml_row_size(ggml_type(dot_type),W)),readback(W*12);
+        for(int round=0;round<28;round++)for(int mode:{0,1,1,0}) {
+            auto begin=std::chrono::steady_clock::now();
+            if(mode==0) {
+                if(compute(ctx,graph,6)!=GGML_STATUS_SUCCESS)return 4;
+                std::memcpy(readback.data(),g->data,W*4);std::memcpy(readback.data()+W*4,u->data,W*4);std::memcpy(readback.data()+W*8,h->data,W*4);
+            } else {
+                dot_traits->from_float(reinterpret_cast<float *>(input.data()),quantized.data(),W);
+                ggml_get_type_traits(ggml_type(dot_type))->to_float(quantized.data(),static_cast<float *>(buffers[0].contents),W);
+                auto cmd=[queue commandBuffer];auto enc=[cmd computeCommandEncoder];
+                [enc setComputePipelineState:pipeline];for(int k=0;k<6;k++)[enc setBuffer:buffers[k] offset:0 atIndex:k];
+                [enc dispatchThreadgroups:MTLSizeMake(W,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+                [enc endEncoding];[cmd commit];[cmd waitUntilCompleted];if(cmd.status!=MTLCommandBufferStatusCompleted)return 8;
+                std::memcpy(readback.data(),buffers[5].contents,W*12);
+                repeat_equal &= std::memcmp(readback.data(),first_output.data(),W*12)==0;
+            }
+            double ms=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
+            if(round>=4)(mode==0?cpu_samples:gpu_samples).push_back(ms);
+        }
+        std::sort(cpu_samples.begin(),cpu_samples.end());std::sort(gpu_samples.begin(),gpu_samples.end());
+    }
     auto * actual=static_cast<float *>(buffers[5].contents);
-    std::cout<<"{\"matched_dot_input\":"<<(matched?"true":"false")<<",\"dot_input_type\":"<<dot_type<<",\"scale_zero_blocks\":"<<scale_histogram[0]<<",\"scale_one_blocks\":"<<scale_histogram[1]<<",\"total_blocks\":"<<2*W*B<<",\"stages\":[";
+    std::cout<<"{\"gpu_bitwise_repeatable\":"<<(repeat_equal?"true":"false")<<",\"matched_dot_input\":"<<(matched?"true":"false")<<",\"dot_input_type\":"<<dot_type<<",\"scale_zero_blocks\":"<<scale_histogram[0]<<",\"scale_one_blocks\":"<<scale_histogram[1]<<",\"total_blocks\":"<<2*W*B<<",\"stages\":[";
     int stage=0;for(auto * t:{g,u,h}) {
         auto * expected=static_cast<float *>(t->data);double err=0,norm=0,maxerr=0;int different=0;
         for(i=0;i<W;i++){double delta=double(actual[stage*W+i])-expected[i];err+=delta*delta;norm+=double(expected[i])*expected[i];maxerr=std::max(maxerr,std::abs(delta));different+=memcmp(actual+stage*W+i,expected+i,4)!=0;}
         if(stage)std::cout<<",";std::cout<<"{\"bitwise_mismatches\":"<<different<<",\"relative_l2\":"<<sqrt(err/norm)<<",\"max_abs\":"<<maxerr<<"}";stage++;
     }
-    std::cout<<"],\"claim_boundary\":\"Single original expert gate/up fusion numerical gate only; no timing or model substitution\"}\n";
+    std::cout<<"]";
+    if(timing)std::cout<<",\"timing\":{\"samples_per_mode\":48,\"cpu_p50_ms\":"<<(cpu_samples[23]+cpu_samples[24])*.5<<",\"gpu_charged_p50_ms\":"<<(gpu_samples[23]+gpu_samples[24])*.5<<",\"cpu_p95_ms\":"<<cpu_samples[44]<<",\"gpu_charged_p95_ms\":"<<gpu_samples[44]<<",\"all_gpu_samples_bitwise_repeatable\":"<<(repeat_equal?"true":"false")<<",\"gpu_buffer_bytes\":"<<2*M+W*24<<",\"cpu_context_arena_bytes\":"<<arena.size()<<"}";
+    std::cout<<",\"claim_boundary\":\"Single original expert gate/up fusion only; CPU reference uses installed with-ctx worker dispatch; no model substitution or generation speed claim\"}\n";
     ggml_free(ctx);return 0;
 }}
