@@ -1,0 +1,33 @@
+{
+  "schema_version": "aion.local-model-package.v1",
+  "model_id": "openai-gpt-oss-120b-q4-k-m-aion-sd",
+  "version": "1",
+  "display_name": "GPT-OSS 120B (SD card, full exact)",
+  "storage": {
+    "warehouse_manifest_relative_path": "AION-Warehouse/v1/expert-bank/gpt-oss-120b-q4km-expert-frames.v1/manifest.v1.json",
+    "warehouse_manifest_sha256": "dfc85d22c833d3c25a6caf3575a40cb3964656b336c98b5873b94faa3dacc2c3",
+    "source_shards": [
+      {"name": "openai_gpt-oss-120b-Q4_K_M-00001-of-00002.gguf", "bytes": 39954683808, "sha256": "48b6bea561b52aaa3c10ca7681f35a923196cc348098e55ffc6ee3d184eb0949"},
+      {"name": "openai_gpt-oss-120b-Q4_K_M-00002-of-00002.gguf", "bytes": 22887029536, "sha256": "06ab40ac3a9e2d7a77b6491b4cf76af152bee88ce493331a1f5147a0207abcad"}
+    ]
+  },
+  "runtime_profile": {
+    "mode": "full_exact",
+    "engine": "aion_gptoss_expert_frames",
+    "threads": 6,
+    "transient_cache_bytes": 8589934592,
+    "persistent_cache_bytes": 42949672960,
+    "minimum_internal_free_bytes": 53687091200,
+    "disk_reserve_bytes": 3221225472,
+    "adaptive_expert_reduction": false
+  },
+  "compatibility": {
+    "architectures": ["arm64"],
+    "minimum_memory_bytes": 18000000000
+  },
+  "speed_claim": {
+    "status": "not_publicly_approved",
+    "reason": "Clean-card and completed-answer acceptance runs are still required. Do not present experimental adaptive figures as normal usage.",
+    "measured_same_machine_full_exact_tokens_per_second": {"first_run_median": 0.84513, "warm_run_median": 2.54349}
+  }
+}

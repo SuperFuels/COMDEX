@@ -233,6 +233,14 @@ def list_ai_providers() -> Dict[str, Any]:
     }
 
 
+@router.get("/local-models")
+def list_local_models() -> Dict[str, Any]:
+    """Inventory local model cards without reading or exposing model weights."""
+    from backend.modules.aion_inference.local_model_vault import LocalModelVault
+
+    return LocalModelVault().snapshot()
+
+
 @router.post("/ai-providers/{provider_id}")
 def save_ai_provider_key(provider_id: str, payload: AiProviderKeySaveRequest) -> Dict[str, Any]:
     from backend.modules.vault.ai_provider_key_store import set_ai_provider_key

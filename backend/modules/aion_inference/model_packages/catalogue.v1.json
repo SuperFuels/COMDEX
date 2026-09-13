@@ -1,0 +1,28 @@
+{
+  "schema_version": "aion.local-model-release-catalogue.v1",
+  "purpose": "The Model Vault reads this catalogue before it offers a local-model package for selection.",
+  "models": [
+    {
+      "model_id": "openai-gpt-oss-120b-q4-k-m-aion-sd",
+      "version": "1",
+      "package": "gpt-oss-120b-q4km-sd-v1.json",
+      "release_status": "acceptance_pending",
+      "selection_status": "visible_not_selectable",
+      "reason": "The verified 60.1 GB warehouse and exact runtime profile are present. A clean-card run and completed-answer suite must still establish the public claim range."
+    },
+    {
+      "model_id": "ibm-granite-3.1-3b-a800m-aion-sd",
+      "version": "1",
+      "release_status": "rebuild_required",
+      "selection_status": "visible_not_selectable",
+      "reason": "The original 32-layer expert packs and recipes remain, but the complete checkpoint, tokenizer, shared backbone and customer-card acceptance result are not currently available as one package."
+    },
+    {
+      "model_id": "qwen3-30b-a3b-aion-resident-q2",
+      "version": "1",
+      "release_status": "rebuild_required",
+      "selection_status": "visible_not_selectable",
+      "reason": "The 50+ tokens/s resident Q2 candidate has a preserved technical record, but its model file was not retained in the mounted archive. Its small quality cohort also requires broader acceptance testing before release."
+    }
+  ]
+}
