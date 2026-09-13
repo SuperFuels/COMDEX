@@ -23,6 +23,13 @@
       "release_status": "rebuild_required",
       "selection_status": "visible_not_selectable",
       "reason": "The 50+ tokens/s resident Q2 candidate has a preserved technical record, but its model file was not retained in the mounted archive. Its small quality cohort also requires broader acceptance testing before release."
+    },
+    {
+      "model_id": "qwen3-8-27b-local-pro",
+      "version": "1",
+      "release_status": "benchmark_preparation",
+      "selection_status": "visible_not_selectable",
+      "reason": "Official Qwen3.8-27B is the next Local Pro candidate. Tessaris will evaluate an 18 GB-safe GGUF representation, vision support, normal business quality, and normal-use throughput before packaging or publishing a claim."
     }
   ]
 }
