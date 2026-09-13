@@ -1,6 +1,7 @@
 """Frozen 128-position adaptive ABBA extension; no broad semantic promotion."""
 import json
 import os
+import argparse
 from pathlib import Path
 import subprocess
 import sys
@@ -24,8 +25,15 @@ def signatures(run):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--token-count', type=int, default=128)
+    parser.add_argument('--output-root', type=Path,
+                        default=Path('results/aion_template_128_generation_gate_20260913'))
+    args = parser.parse_args()
+    if args.token_count < 64 or args.token_count > 256:
+        raise SystemExit('token count outside predeclared 64--256 safety range')
     repo = Path.cwd()
-    out = repo / 'results/aion_template_128_generation_gate_20260913'
+    out = repo / args.output_root
     out.mkdir(exist_ok=False)
     source_path = repo / 'results/aion_gptoss_120b_public_reasoning_adaptive080_continuation6_pool_quietcpu_64token_gate_20260912.json'
     source = json.loads(source_path.read_text())
@@ -34,7 +42,7 @@ def main():
     library = repo / 'results/aion_joined_template_projection_gate_20260913/joined.dylib'
     pool = Path(source['constrained_expert_pool_path'])
     save(out / 'fixed_plan.json', dict(order=['original', 'joined', 'joined', 'original'],
-         total_positions=128, passes=2, threads=6, expert_cache_gib=8,
+         total_positions=args.token_count, passes=2, threads=6, expert_cache_gib=8,
          gate_mass=.8, min_experts=2, source_sha256=digest(source_path),
          pool_sha256=digest(pool), library_sha256=digest(library),
          advancement=dict(bitwise_source_prefix=True, all_128_positions_repeatable=True,
@@ -55,7 +63,7 @@ def main():
                 '--manifest', '/Volumes/AION_120B/AION-Warehouse/v1/expert-bank/gpt-oss-120b-q4km-expert-frames.v1/manifest.v1.json',
                 '--output', str(output), '--threads', '6', '--resident-replay', '--expert-cache-gib', '8',
                 '--inprocess-finish', '--inprocess-embedding', '--inprocess-attention', '--inprocess-output',
-                '--inmemory-layer-flow', '--passes', '2', '--token-count', '128',
+                '--inmemory-layer-flow', '--passes', '2', '--token-count', str(args.token_count),
                 '--prompt-token-count', str(source['prompt_token_count']),
                 '--input-token-ids', ','.join(map(str, source['input_token_ids'])),
                 '--expert-pool', str(pool), '--preload-expert-pool', '--constrain-after-prompt',
@@ -74,7 +82,7 @@ def main():
             assert actual['routes_repeatable'] and actual['final_hidden_and_logits_bitwise_repeatable']
             for label in ('run_a', 'run_b'):
                 sig = signatures(actual[label])
-                assert len(sig) == 128
+                assert len(sig) == args.token_count
                 assert sig[:64] == signatures(source[label])
                 if reference is None:
                     reference = sig
@@ -88,7 +96,7 @@ def main():
         ratio = medians['joined']/medians['original']
         save(out / 'summary.json', dict(status='MECHANICAL_TIMING_GATE_PASS' if ratio >= 1.10 else 'NOT_PROMOTED',
              results=results, warm_median_tps=medians, candidate_over_control_ratio=ratio,
-             claim_boundary='One adaptive 128-position extension, all measured paths bitwise matched. '
+             claim_boundary=f'One adaptive {args.token_count}-position extension, all measured paths bitwise matched. '
              'Completed-answer semantic review remains separate; no unrestricted or general quality promotion.'))
     except Exception as exc:
         save(out / 'STOPPED.json', dict(status='STOPPED_PRESERVE_PARTIAL_ATTEMPTS',
