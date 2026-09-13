@@ -29,11 +29,18 @@ def main():
         rows = [row for row in receipt[label]['tokens']
                 if row['position'] >= receipt['prompt_token_count'] - 1]
         ids = [row['generated_token_id'] for row in rows]
-        end = tokenizer.special.get('<|fim_suffix|>')
-        first_end = ids.index(end) if end is not None and end in ids else None
+        # GPT-OSS Harmony uses end/return markers; older FIM-only logic would
+        # silently miss a finished assistant turn.
+        markers = {name: tokenizer.special[name] for name in
+                   ('<|end|>', '<|return|>', '<|endoftext|>')
+                   if name in tokenizer.special}
+        located = [(ids.index(value), name) for name, value in markers.items()
+                   if value in ids]
+        first_end, marker_name = min(located) if located else (None, None)
         bounded = ids if first_end is None else ids[:first_end+1]
         reports.append(dict(pass_label=label, response_start_evaluation_position=receipt['prompt_token_count']-1,
-            generated_ids_including_after_end=ids, first_assistant_turn_end_index=first_end,
+            generated_ids_including_after_end=ids, first_turn_marker=marker_name,
+            first_assistant_turn_end_index=first_end,
             response_text_through_first_turn_end=tokenizer.decode(bounded),
             tokens_after_first_turn_end=0 if first_end is None else len(ids)-first_end-1,
             completed_turn_marker_observed=first_end is not None))
