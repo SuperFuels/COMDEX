@@ -1,0 +1,144 @@
+{
+  "schema_version": "pilot.unified.v1",
+  "generated_for": "shared contract fixture",
+  "person": {
+    "person_id": "person/demo-owner",
+    "persona_id": "persona_demo_owner",
+    "display_name": "Demo Owner",
+    "role": "adult",
+    "status": "active"
+  },
+  "device": {
+    "device_id": "phone_demo_owner",
+    "persona_id": "persona_demo_owner",
+    "label": "Demo phone",
+    "status": "trusted",
+    "possession_verified": true
+  },
+  "connection": {
+    "state": "connected",
+    "mother_display_name": "Home Pilot",
+    "route": "direct_at_home",
+    "trust_words": ["silver", "falcon", "quiet", "pine"],
+    "last_verified_at": "2026-09-03T00:00:00+00:00"
+  },
+  "spaces": [
+    {
+      "space_id": "personal/persona_demo_owner",
+      "kind": "personal",
+      "display_name": "Personal",
+      "owner_ref": "persona_demo_owner",
+      "policy_ref": "pilot.personal.default.v1",
+      "status": "active"
+    },
+    {
+      "space_id": "workspace/client-alpha",
+      "kind": "workspace",
+      "display_name": "Client Alpha · Marketing",
+      "owner_ref": "organisation_client_alpha",
+      "policy_ref": "client-alpha.marketing.v1",
+      "status": "active"
+    },
+    {
+      "space_id": "boardroom/demo-company",
+      "kind": "boardroom",
+      "display_name": "Demo Company",
+      "owner_ref": "organisation_demo_company",
+      "policy_ref": "demo-company.boardroom.v1",
+      "status": "active"
+    }
+  ],
+  "memberships": [
+    {
+      "membership_id": "membership_personal_owner",
+      "persona_id": "persona_demo_owner",
+      "space_id": "personal/persona_demo_owner",
+      "role_id": "role_personal_owner",
+      "scopes": ["message.send", "task.create", "tv.control", "communication.read", "communication.draft", "communication.approve", "communication.execute"],
+      "status": "active",
+      "issued_at": "2026-09-03T00:00:00+00:00",
+      "expires_at": "2030-09-03T00:00:00+00:00",
+      "revision": 1
+    },
+    {
+      "membership_id": "membership_alpha_marketing",
+      "persona_id": "persona_demo_owner",
+      "space_id": "workspace/client-alpha",
+      "role_id": "role_marketing_contributor",
+      "scopes": ["message.send", "briefing.read", "marketing.propose"],
+      "status": "active",
+      "issued_at": "2026-09-03T00:00:00+00:00",
+      "expires_at": "2030-09-03T00:00:00+00:00",
+      "revision": 1
+    },
+    {
+      "membership_id": "membership_demo_board",
+      "persona_id": "persona_demo_owner",
+      "space_id": "boardroom/demo-company",
+      "role_id": "role_board_owner",
+      "scopes": ["message.send", "boardroom.read", "decision.approve"],
+      "status": "active",
+      "issued_at": "2026-09-03T00:00:00+00:00",
+      "expires_at": "2030-09-03T00:00:00+00:00",
+      "revision": 1
+    }
+  ],
+  "leases": [
+    {
+      "lease_id": "lease_personal_owner",
+      "persona_id": "persona_demo_owner",
+      "device_id": "phone_demo_owner",
+      "space_id": "personal/persona_demo_owner",
+      "membership_id": "membership_personal_owner",
+      "scopes": ["message.send", "task.create", "tv.control", "communication.read", "communication.draft", "communication.approve", "communication.execute"],
+      "issued_at": "2026-09-03T00:00:00+00:00",
+      "expires_at": "2030-09-03T00:00:00+00:00",
+      "nonce": "nonce_personal_owner",
+      "issuer_id": "mother_demo"
+    },
+    {
+      "lease_id": "lease_alpha_marketing",
+      "persona_id": "persona_demo_owner",
+      "device_id": "phone_demo_owner",
+      "space_id": "workspace/client-alpha",
+      "membership_id": "membership_alpha_marketing",
+      "scopes": ["message.send", "briefing.read", "marketing.propose"],
+      "issued_at": "2026-09-03T00:00:00+00:00",
+      "expires_at": "2030-09-03T00:00:00+00:00",
+      "nonce": "nonce_alpha_marketing",
+      "issuer_id": "mother_client_alpha"
+    },
+    {
+      "lease_id": "lease_demo_board",
+      "persona_id": "persona_demo_owner",
+      "device_id": "phone_demo_owner",
+      "space_id": "boardroom/demo-company",
+      "membership_id": "membership_demo_board",
+      "scopes": ["message.send", "boardroom.read", "decision.approve"],
+      "issued_at": "2026-09-03T00:00:00+00:00",
+      "expires_at": "2030-09-03T00:00:00+00:00",
+      "nonce": "nonce_demo_board",
+      "issuer_id": "mother_demo_company"
+    }
+  ],
+  "surface_manifests": [
+    {
+      "mode": "personal",
+      "space_id": "personal/persona_demo_owner",
+      "shortcuts": ["Calendar", "Tasks", "Contacts", "Messages", "Memory", "Guardian", "Devices", "TV", "Games", "Learning", "Entertainment", "Shopping", "Files"],
+      "cards": ["task", "reminder", "message", "receipt"]
+    },
+    {
+      "mode": "workspace",
+      "space_id": "workspace/client-alpha",
+      "shortcuts": ["Briefing", "Marketing", "Tasks", "Files", "Pilot"],
+      "cards": ["message", "task", "review", "receipt"]
+    },
+    {
+      "mode": "boardroom",
+      "space_id": "boardroom/demo-company",
+      "shortcuts": ["Board", "Sales", "Marketing", "Finance", "Operations", "Support", "People", "Products", "Files"],
+      "cards": ["briefing", "decision", "delegation", "approval", "receipt"]
+    }
+  ]
+}
