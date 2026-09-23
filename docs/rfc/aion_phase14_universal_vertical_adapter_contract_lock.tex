@@ -1,0 +1,210 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Phase 14B --- Universal Vertical Adapter Contract v0}
+\author{Tessaris AI}
+\date{May 2026}
+
+\begin{document}
+\maketitle
+
+\section{Phase 14B --- Universal Vertical Adapter Contract v0}
+\label{sec:phase14b-universal-vertical-adapter-contract-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- universal vertical adapter contract tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 14B locks the first universal vertical adapter contract for the AION Gateway.
+
+The purpose is to prove that AION is not a trade-only or Home Fixed-only gateway. Home Fixed remains the active live/test vertical, but the machine gateway MUST remain universal across future verticals.
+
+The adapter maps vertical-specific business language into a stable universal shape that can later feed AgentMap, A2A discovery, public gateway previews, quote previews, proof routes, trust summaries, and human-review handoff.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/universal_vertical_adapter.py
+\end{verbatim}
+
+The module exposes:
+
+\begin{itemize}
+  \item \texttt{UNIVERSAL\_VERTICAL\_ADAPTER\_VERSION}
+  \item \texttt{FUTURE\_VERTICAL\_KEYS}
+  \item \texttt{UNIVERSAL\_FIELD\_KEYS}
+  \item \texttt{build\_universal\_vertical\_adapter\_contract}
+  \item \texttt{build\_home\_fixed\_universal\_vertical\_adapter}
+  \item \texttt{build\_universal\_vertical\_adapter\_summary}
+\end{itemize}
+
+The locked version is:
+
+\begin{verbatim}
+aion.universal_vertical_adapter.v0.1
+\end{verbatim}
+
+\subsection{Universal Contract}
+
+The adapter contract defines a universal field vocabulary:
+
+\begin{itemize}
+  \item business
+  \item customer
+  \item intent
+  \item service
+  \item quote
+  \item availability
+  \item booking preview
+  \item evidence
+  \item proof
+  \item trust
+  \item human review
+  \item handoff
+\end{itemize}
+
+These fields are intentionally cross-industry. They are not Home Fixed-specific and not trade-only.
+
+\subsection{Home Fixed Mapping}
+
+The Home Fixed adapter maps home repair language into universal fields:
+
+\begin{itemize}
+  \item jobs map to service
+  \item quotes map to quote
+  \item availability maps to availability
+  \item evidence maps to evidence
+  \item proof receipts map to proof
+  \item trust summaries map to trust
+  \item human review handoff maps to human review
+\end{itemize}
+
+This proves the concrete Home Fixed testbed can use the universal adapter without forcing the gateway to become a trade-only system.
+
+\subsection{Future Vertical Vocabulary}
+
+The adapter contract reserves vocabulary for future verticals:
+
+\begin{itemize}
+  \item home repair
+  \item legal
+  \item ecommerce
+  \item hospitality
+  \item clinic
+  \item property
+  \item B2B supplier
+\end{itemize}
+
+These future verticals are vocabulary placeholders only in this phase. They MUST NOT create live routes or execution paths.
+
+\subsection{Deterministic Hashes}
+
+The adapter emits deterministic hashes:
+
+\begin{itemize}
+  \item \texttt{adapter\_hash}
+  \item \texttt{summary\_hash}
+\end{itemize}
+
+The hash contract MUST be canonical, deterministic, and independent of runtime randomness, wall-clock timestamps, live provider state, payment state, booking state, external message state, mutable UI state, or chain-write state.
+
+\subsection{Safety Boundary}
+
+The universal vertical adapter is preview-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item dispatch a job,
+  \item write live chain data,
+  \item mount a public route.
+\end{itemize}
+
+The locked safety state includes:
+
+\begin{verbatim}
+preview_only = true
+human_review_required = true
+would_create_booking = false
+would_create_live_job = false
+would_execute_goal_engine = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_send_external_messages = false
+would_dispatch_job = false
+would_write_live_chain = false
+public_route_mounted = false
+\end{verbatim}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_universal_vertical_adapter_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase14_universal_vertical_adapter_contract_lock_doc.py
+\end{verbatim}
+
+Focused suite validation:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+
+
+\subsection{Raw Contract Field Names}
+
+For documentation lock tests and machine-readable contract clarity, the raw deterministic field names are:
+
+\begin{verbatim}
+adapter_hash
+summary_hash
+\end{verbatim}
+
+These fields are deterministic replay and audit anchors only. They MUST NOT grant permissions, create bookings, create jobs, move money, create payments, create escrow, release funds, dispatch work, send external messages, or write live chain data.
+
+\subsection{Lock Footer}
+
+\bigskip
+\noindent\textbf{Lock ID:} AION-PHASE14B-UNIVERSAL-VERTICAL-ADAPTER-CONTRACT-v0.1\\
+\textbf{Status:} LOCKED\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson
+
+\end{document}

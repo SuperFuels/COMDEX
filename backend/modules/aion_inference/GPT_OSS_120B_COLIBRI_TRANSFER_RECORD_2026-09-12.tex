@@ -1,0 +1,1312 @@
+% Append-only section for the AION GPT-OSS 120B technical record.
+% Requires: hyperref, booktabs.
+\section{Colibri Prior-Art Audit and Cross-Layer Router Lookahead Gate}
+\label{sec:colibri-lookahead-2026-09-12}
+
+
+\subsection{Layer--activation top-one continuation frontier}
+\label{subsec:gptoss120b-layer-activation-top1-20260912}
+
+The correct public-reasoning quality-track control used exact unrestricted
+prefill, the six-position trajectory-protected 8~GiB workbench, and a
+cumulative gate-mass threshold of 0.80 during continuation.  Its previously
+recorded quiet-system rates were 7.002 and 5.492 tokens/s (6.247 tokens/s
+median), and it explicitly concluded that the red box is heavy.  The present
+experiments tested whether a layer-conditioned top-one branch could move this
+quality-passing control toward the 28.6174-token/s top-one physical ceiling.
+All candidates retained the original GPT-OSS weights and used the existing
+unrestricted four-expert prefill.  They are nevertheless changed-model
+quality-track candidates because some continuation layers calculated fewer
+than four selected experts.
+
+A top-one threshold map previously developed only from arithmetic and
+extraction counterfactuals was frozen before its first reasoning-family use.
+Combined with the 0.80 fallback, the broad map used one expert for 178 of
+1,548 continuation layer calls, two for 15, three for 959, and four for 396.
+It reached 8.910 and 9.727 tokens/s (9.319 median), remained internally
+bitwise repeatable, and did not trigger the structural loop guard.  However,
+the fixed 43-token response window restated the problem without reaching the
+answer.  An unchanged 59-token extension produced 4.571 and 9.204 tokens/s
+and developed a repeated ``ded ded'' fragment without completing the
+conclusion.  The branch is therefore
+\texttt{STOPPED\_SEMANTIC\_FAIL}; 9.319 tokens/s is retained as a mechanical
+speed observation, not a usable quality result.  The 64-token evidence has
+canonical SHA-256
+\texttt{f8871fdb0fdd5487fe165b67bd3ca0351888086aee339583857781f4c635e763}
+and file SHA-256
+\texttt{5b23da3774620461505c3f6f305d6134111e3e6426e42f3685987fa6bec74769}.
+
+Inspection exposed a mathematical mismatch: the broad top-one branch
+renormalized its single surviving gate to one, although the development map
+had been built around retained contribution mass.  The runtime therefore
+gained an independently recorded top-one-only mass-preservation mode.  It
+leaves the established 0.80 two/three/four-expert normalization unchanged but
+does not amplify an accepted top-one contribution.  The broad corrected map
+reached 5.504 and 9.541 tokens/s (7.522 median) over 43 continuation tokens,
+using 188 one-expert calls.  A 59-token extension reached 4.983 and 10.505
+tokens/s (7.744 median).  Both executions were internally bitwise repeatable,
+but both remained stuck restating the question and failed to print the
+conclusion.  The corrected broad branch is also
+\texttt{STOPPED\_SEMANTIC\_FAIL}.  Its 64-token evidence has canonical
+SHA-256
+\texttt{e0f08a07afa3cb0e6c8716c897a0045b9ea397b2e2c8abebd32f40db7ed3218a}
+and file SHA-256
+\texttt{efb9b1fa325fae8c1f6e9c07b56c01b0f616f349791ef07b477313f0c24cd8e2}.
+
+The final candidate reduced the admissible top-one set to layers 0 and 33,
+the only two layers previously retained by the cross-family safe-layer
+intersection, and required each live activation to clear that layer's frozen
+router-gap threshold.  All other layers used the quality-passing 0.80
+adaptive policy.  This made only 41 one-expert decisions out of 1,548 layer
+calls.  The two runs repeated routes, hidden states, logits, and token IDs
+bitwise.  The response remained coherent and explicitly contained the correct
+entailment, ``this box is heavy,'' before beginning its final answer channel.
+It first diverged from the correct control at overall position 52, or
+continuation position 31.  Thus the layer--activation formulation passes this
+narrow semantic gate.
+
+It did not pass the speed gate.  Continuation rates were 3.980 and 4.837
+tokens/s (4.409 median), with p50 token latencies of 0.2098 and 0.1557 seconds
+and p95 latencies of 0.4238 and 0.3972 seconds.  The selected expert work fell
+by only about 1.1\%, and its altered route locality did not repay that small
+reduction.  The decision is therefore
+\texttt{QUALITY\_PASS\_SPEED\_NOT\_PROMOTED}.  The runtime evidence canonical
+and file SHA-256 values are respectively
+\texttt{84acd68186dd29b5ff3a11f74357cd65f74e273b55dafb3b7a2ee98cee5c7e1f}
+and
+\texttt{8cffd3a17a1db2f44ae2e08ff4f38747865aba53d16c9ea7cc8abf1788c545d5}.
+The detokenized receipt canonical and file SHA-256 values are
+\texttt{34e72ef0717fc7f9bf27ec9eecc820ca38bc35d7bf34b07f3b7fdd3f57c9abe6}
+and
+\texttt{fd757d404290ee6b3fcccf6279bdb82abdfd42007bc9794bb692a8710e7f8db2}.
+The derived two-layer plan is provenance-bound to its development source; its
+canonical and file SHA-256 values are
+\texttt{142bf966459a0dc05630d94b24f49227ace3fc3d2169fdb75990f8b8d33e0246}
+and
+\texttt{fa112c7587eb87f96ca2cb49521774de4a12d5b04f5ef343f1f5e6baad3abba3}.
+
+These experiments establish a narrower frontier.  Broad top-one execution can
+produce 9-token/s-class mechanical throughput but damages reasoning.  A
+layer--activation gate can preserve this reasoning answer, but two admitted
+layers do not remove enough physical expert work to improve throughput.  The
+next justified controller must certify larger layer--activation regions from
+authentic held-out trajectories and select them in small frozen groups.  It
+must be evaluated with balanced same-process timing because the present cold
+and warm pass spread is large.  Neither a global threshold nor a fixed
+safe-layer list is promoted.
+\subsection{Purpose and claim boundary}
+
+On 12 September 2026, the official Colibri repository was inspected at commit
+\texttt{fd93c41aa6ae2c7d1cc1a1e2d6b79dbe6d341708}.  Colibri is relevant because
+it executes sparse mixture-of-experts models whose complete weights remain on
+storage.  The audit did \emph{not} treat model capacity as evidence of fast
+generation.  Colibri's own published figures distinguish approximately
+0.05--0.1 tokens/s on a 25~GB CPU-only development machine, approximately
+1.8 tokens/s warm on a 128~GB CPU-only system, and higher rates on multi-GPU
+resident configurations.  Consequently, the repository supports the
+feasibility of storage-streamed inference, but not a claim that a 744-billion
+parameter model provides fast laptop chat without a GPU.
+
+The most materially different exact-output mechanism was Colibri's
+cross-layer router pilot.  While layer $L$ performs its expert calculation,
+the original router for layer $L+1$ is applied early to layer $L$'s
+post-attention residual.  The prediction controls prefetch only.  The
+authoritative layer-$L+1$ router still selects the experts and exact demand
+loading remains available, so correct implementation changes latency but not
+the model function.
+
+Primary source: \url{https://github.com/JustVugg/colibri}; tuning description:
+\url{https://github.com/JustVugg/colibri/blob/main/docs/tuning.md}.
+
+\subsection{AION offline transfer gate}
+
+A new AION analyzer applied the same stale-state construction to authentic
+GPT-OSS 120B captures.  For every transition from layer $L$ to $L+1$, it:
+\begin{enumerate}
+  \item loaded layer $L$'s captured post-attention residual;
+  \item applied layer $L+1$'s original post-attention RMS-normalization weight;
+  \item applied layer $L+1$'s original $128\times2880$ router and bias; and
+  \item compared the predicted top-$k$ set with the authoritative top-four
+        experts captured after layer $L+1$'s real attention calculation.
+\end{enumerate}
+
+The gate covered 420 transitions: six token positions, 35 layer transitions,
+and two distinct public prompt families (explanation and business).  Before
+measuring lookahead, the extracted original router tensors reproduced the
+current-layer authoritative top-four routes on all 420 checks, with zero
+mismatches.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+Method & Required-expert recall & Precision & Useful/layer & Wasted/layer \\
+\midrule
+Repeat layer $L$'s four experts & 3.512\% & 3.512\% & 0.140 & 3.860 \\
+Next-router lookahead, $k=4$ & 81.726\% & 81.726\% & 3.269 & 0.731 \\
+Next-router lookahead, $k=6$ & 92.321\% & 61.548\% & 3.693 & 2.307 \\
+Next-router lookahead, $k=8$ & 96.250\% & 48.125\% & 3.850 & 4.150 \\
+\bottomrule
+\end{tabular}
+\caption{Offline GPT-OSS 120B cross-layer expert prediction results.}
+\end{table}
+
+For $k=4$, recall was 82.500\% on explanation and 80.952\% on business.  The
+agreement across the two families is evidence that the aggregate was not
+carried by one favourable prompt.  Layer variation remained material: the
+weakest source layer recovered 52.083\% at $k=4$, whereas the strongest
+recovered 95.833\%.  Runtime admission should therefore be layer-conditioned
+rather than globally enabled.
+
+\subsection{Interpretation and next gate}
+
+This is a genuine prediction breakthrough, but it is not yet a throughput
+breakthrough.  The offline analyzer issued no expert reads and therefore
+cannot establish that a predicted read completes before demand, that it avoids
+evicting a more valuable expert, or that it does not contend with current-layer
+calculation.  No tokens/s claim is made from this gate.
+
+The next controlled implementation shall begin with $k=4$, disable the weakest
+layers, use a bounded reservation that cannot displace protected entries, and
+cancel or discard work when the authoritative layer catches the pilot.  It
+shall retain the original router, gates, weights, reduction order and exact
+demand fallback.  Promotion requires bit-for-bit token and step-logit
+equivalence, lower demand-wait time, lower end-to-end p50 and p95 latency, no
+memory-ceiling violation, and a positive result under both cold-SD and warm-L2
+conditions.  If speculative traffic saturates storage or lowers throughput,
+the runtime branch shall be stopped even though the prediction result remains
+valid.
+
+Other Colibri mechanisms were classified as follows.  Contiguous one-read
+experts are already approximated by AION's persistent L2 expert files, but not
+by the capacity-constrained compressed SD layout.  Unbuffered I/O is
+drive-dependent and requires a separate narrow gate.  Persistent compressed
+KV state can improve restart and repeated-conversation latency but does not
+remove changing expert traffic.  Corpus and grammar drafting can improve
+verified workflow throughput but does not establish faster unrestricted novel
+generation.  Indiscriminate parallel reads, larger hot pools, ordinary memory
+mapping and additional CPU workers were not reopened because AION has already
+falsified those unchanged mechanisms under the present hardware pressure.
+
+\subsection{Evidence}
+
+The canonical JSON receipt is
+\texttt{results/aion\_gptoss\_120b\_colibri\_cross\_layer\_router\_lookahead\_gate\_20260912.json}.
+Its internal canonical SHA-256 is
+\texttt{72c9d62257c4c1e0a6fdd34fad13206e82ee9b4340298b3b90017b91726fb8e4};
+the complete file SHA-256 is
+\texttt{c2bb33a9bea627e70c8b3f63ba4dcc741d86286b24d937abd536b49e6f208f81}.
+The focused lookahead and adjacent I/O/cache suite passed 10/10 tests.
+
+\subsection{Live rotating-pipeline experiments}
+
+Three implementations were tested in balanced five-pass order before a
+candidate was promoted.  All variants retained bit-for-bit routes, tokens,
+hidden states and step logits.
+
+First, a copied four-expert pilot loaded predicted L2 experts into a separate
+user-space buffer.  Although prediction remained accurate, the following
+layer frequently arrived before four sequential reads completed.  The
+candidate moved approximately 3.87~GB of additional data per pass and was
+40.6559\% slower than control.  It was stopped.  A copied top-one variant
+raised prediction precision to 97.38\% and sharply reduced waste, but remained
+6.3468\% slower because it split one item from the efficient four-way demand
+batch and retained a synchronization wait.  It was also stopped.
+
+Second, top-one lookahead was changed from a user-space read into macOS
+\texttt{F\_RDADVISE}: an asynchronous no-copy advisory request.  The kernel was
+told which contiguous L2 expert frame would probably be required, while the
+unchanged four-way demand loader remained responsible for acquiring and
+verifying the authoritative route.  The isolated hint improved median
+arithmetic continuation time by 3.5970\%.  This was positive but below the
+unchanged 5\% promotion gate, so it was not promoted independently.
+
+Finally, the no-copy cross-layer hint was composed with AION's already-promoted
+same-layer expert-read/compute overlap.  The mechanisms operate at different
+boundaries: lookahead starts kernel readahead during layer $L$, while the
+same-layer mechanism overlaps any remaining layer-$L+1$ demand reads with
+available layer-$L+1$ expert arithmetic.  Neither changes neural mathematics.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrr}
+\toprule
+Family & Control t/s & Candidate t/s & Gain & Candidate p50 & Candidate p95 \\
+\midrule
+Arithmetic & 2.16949 & 2.30511 & 6.2516\% & 410.69 ms & 575.59 ms \\
+Extraction & 1.98918 & 2.44821 & 23.0765\% & 393.43 ms & 542.47 ms \\
+\bottomrule
+\end{tabular}
+\caption{Exact nine-token continuation gates after real prompt prefixes.}
+\end{table}
+
+Arithmetic median continuation time fell from 4.148446 to 3.904362 seconds.
+Extraction median continuation time fell from 4.524481 to 3.676154 seconds.
+Every candidate and control pass executed the original unrestricted top-four
+experts.  Same-layer overlap activation counts were identical between modes;
+the candidate created no speculative user-space expert copy, introduced no
+lookahead wait, and performed no speculative SD fallback.
+
+Decision:
+\texttt{PROMOTE\_EXACT\_TOP1\_CROSS\_LAYER\_READAHEAD\_WITH\_SAME\_LAYER\_OVERLAP}
+on the two-family short-window gate.  This is a genuine exact runtime
+improvement, but it does not yet replace the established longer-window global
+frontier.  Replicated 64--256-token, broader-family and cold-SD tests remain
+mandatory.  The result demonstrates that the AtomSheet-style rotation is most
+effective as a control schedule over the existing physical batch, not as an
+additional copied expert workbench.
+
+The arithmetic promoted-report file SHA-256 is
+\texttt{5d5cb9161463999a594d62f5aae7f26f24fb013b65439c235e1a2d8645066fe4};
+its internal canonical SHA-256 is
+\texttt{c917c257e6f9ec04ac65a82204a142c6c21ff4478ba446f75be290c2b3082c46}.
+The extraction promoted-report file SHA-256 is
+\texttt{e0f66f7a82cc1b121c61536b2b8ad5ab27f30d5c1a23ecb3d848464bc7c90aa8};
+its internal canonical SHA-256 is
+\texttt{ca0785b7648551a52c8715adc1109a3d0d9faa36f4303a57cfa3985991479be8}.
+
+\subsection{Top-two and 64-token boundaries}
+
+A top-two no-copy advisory variant remained exact but improved its matched
+arithmetic control by only 3.8681\%, below both the unchanged 5\% gate and the
+promoted top-one candidate's 6.2516\% paired gain.  Top-two was stopped because
+the second advisory increased readahead pressure faster than it hid useful
+latency.
+
+The promoted top-one compound path was then extended from 24 to 64 total
+positions, comprising 15 prompt positions and 49 genuine continuation
+positions.  Exact routes, tokens, hidden states and step logits passed across
+all five runs.  However, the settled median candidate rate was 1.34246 tokens/s
+versus 1.35885 tokens/s for control, a 1.2066\% regression.  The long run also
+exhibited large monotonic warm-state drift: candidate passes measured 1.0393
+and 1.8955 tokens/s, while the surrounding controls measured 0.9895 and 2.1681
+tokens/s.  Therefore the 64-token run is \texttt{NOT\_PROMOTED}; the short
+two-family result is not generalized to longer changing-route generation.
+
+The complete 64-token report's file SHA-256 is
+\texttt{77b4274f4ca641425b4a4dfbde6d60cf8b8dbd568c705030bcbc81012f54baa6};
+its internal canonical SHA-256 is
+\texttt{d64a554000cf47f8d567a176121b70233d3e9f1e3882c7a2a3f76b333d5fdd9e}.
+Any retry must add full-length warm-up passes and use closer temporal pairing;
+the performance gate shall not be relaxed.
+
+That retry was completed with seven 64-token passes.  Two complete passes were
+used only for warm-up, followed by
+control/candidate/control/candidate/control.  Exactness again passed for every
+route, token, hidden state and step logit.  The settled median candidate rate
+was 1.94225 tokens/s versus 2.00969 tokens/s for control, a 3.3558\%
+regression.  Relative to the mean of adjacent controls, the first candidate
+regressed 12.69\% and the second improved 3.85\%; neither a stable paired win
+nor the unchanged 5\% gate was achieved.  Consequently, cross-layer advice is
+stopped for long changing-route generation on this host.  Its exact
+nine-token two-family promotion remains a bounded short-window optimization.
+
+The stricter report's file SHA-256 is
+\texttt{918e5878a2d32323e0216b1a22a3671cfbba663a5a29a6e1d1801080cb380b2c};
+its internal canonical SHA-256 is
+\texttt{27b02bc4f69e9bd06e181aab9f0377c395c81e97d4821fa3221540fa6959e7ac}.
+
+\subsection{Public business-family audit}
+
+A first five-pass public-business run appeared to improve median continuation
+throughput by 22.6318\%.  Audit showed that the first nominal settled control
+still incurred 46 authoritative SD fallbacks, whereas candidate passes
+incurred two and zero.  The apparent gain therefore mixed L2 warming with the
+candidate and was marked \texttt{INVALID} for promotion.
+
+A seven-pass retry used two complete warm-ups followed by the temporally paired
+pattern.  Every measured pass recorded zero SD fallback and retained exact
+routes, tokens, hidden states and step logits.  Candidate median throughput was
+3.19377 tokens/s versus 3.15229 for control, a 1.3158\% improvement.  The two
+adjacent-control comparisons were $-2.37$\% and $+2.98$\%.  Because the fixed
+5\% gate was not met, cross-layer advice was not promoted for this family.
+
+The initial file SHA-256 is
+\texttt{edfe779333bd2770897cf99a62ea8a86b477c070eb62d84741e1793a422d7cf8}.
+The warmed retry file SHA-256 is
+\texttt{244f153d7cf66ce1aa7930b19482ac04882cf0a696d04b877e225c0827faec66},
+with internal canonical SHA-256
+\texttt{85691ad5aad378c012237f3e70f951013ee0489205cb4abbf3e617cf0f51958f}.
+
+\subsection{Reasoning and writing-family boundaries}
+
+Both remaining public families exhibited the same transition hazard: initial
+apparently large gains occurred while the persistent L2 was still replacing SD
+fallbacks.  Those transition runs were invalidated for performance promotion.
+Fresh zero-fallback runs were then performed.
+
+On reasoning, every pass was exact and made zero SD fallback.  Candidate
+median throughput was 3.16174 tokens/s versus 3.10025 for control, a 1.9835\%
+gain.  On writing, the corresponding values were 3.01077 and 3.00004 tokens/s,
+a 0.3575\% gain.  Neither cleared the unchanged 5\% median gate, and temporal
+pairs remained inconsistent.  Cross-layer advice is therefore stopped for
+both public families.
+
+The zero-fallback reasoning report has file SHA-256
+\texttt{173dfcebd49f46e14a8e7eb591d2b70e83ed87eeefddfad60c82396d2db7b301}
+and internal canonical SHA-256
+\texttt{4ea328e36ad6214e305a178f1bdd28dbf1da42b1b4811987ce0117e07545aac8}.
+The zero-fallback writing report has file SHA-256
+\texttt{7d1367076583bc0fa226563c46dc441b32241e4b244374ad9176f4fd52a021ab}
+and internal canonical SHA-256
+\texttt{2e8f3c6481b8e47ffabb0d5412753c295e5c3c9cd2a3ef2e151ba07ee52e9e07}.
+
+The resulting boundary is narrow but clear.  The original arithmetic and
+extraction short-window gains remain valid for their configured protected
+family pools.  Cross-layer advice is not a general 120B acceleration and shall
+not remain on globally.  Future use must be family/profile gated, with a
+verified resident state and an exact ordinary path as the default.
+
+\subsection{Top-two advice falsification}
+
+After promotion, an otherwise identical arithmetic gate advised the top two
+predicted next-layer experts.  It remained bit-for-bit exact and improved its
+matched control by 3.8681\%, reaching 2.55794 tokens/s from a 2.46267-token/s
+control.  This did not clear the unchanged 5\% gate and was weaker in paired
+terms than top-one's 6.2516\% improvement.  The second hint therefore added
+storage pressure faster than useful latency hiding.  Top-two advice is stopped
+and top-one remains the promoted policy.
+
+\subsection{Stale-state expert arithmetic with compact delta correction}
+
+The Colibri transfer suggested a more ambitious use of early state: calculate
+the fourth selected expert from the preceding layer's already available
+post-attention state, then apply a very small learned correction once the true
+layer input becomes available.  This changed-model quality-track probe was
+restricted to layer 12 and route rank four.  Six public explanation positions
+formed the development set; six disjoint public business positions were held
+out.  The original expert identity, gate and MXFP4 weights remained in use.
+Only the input time and the compact correction differed, and every uncertified
+case retained an exact fallback requirement.
+
+The uncorrected early expert produced a held-out p95 layer-output-relative
+$L_2$ error of 0.0414661.  A 115,280-byte rank-four shared delta cartridge took
+0.00822 ms per held-out row, but worsened p95 error to 0.0443818 and certified
+only one of six rows under the fixed 0.02 ceiling.  Coverage was therefore
+16.67\%, below the predeclared 50\% requirement.  The branch is classified
+\texttt{STOP\_STALE\_DELTA}; it supplies no full-model quality or throughput
+claim.
+
+This falsification is physically informative.  The following layer's stale
+state is accurate enough to predict most expert identities, but is not accurate
+enough to evaluate even the lowest-ranked selected expert and repair its output
+with a single cross-expert linear delta map.  Router lookahead should therefore
+remain a storage-advice mechanism.  Any future early-arithmetic retry must add
+expert/activation-region conditioning or a weight-derived local correction and
+must beat the raw stale expert on a blinded family.
+
+The report's internal canonical SHA-256 is
+\texttt{de381ac3dd7135b8e2e78a41c9bc1a5033655c77b593e864a612b910650d5d58}.
+Its local and SD-backed stored-file SHA-256 is
+\texttt{5e187e72e9b6460ab9c4e8a20cac83c6ac1dd39636ae4a06bf6194478167c367}.
+
+\subsection{Tail-aware mixed-Q3 all-layer admission breakthrough}
+
+The failed stale-arithmetic branch returned the search to a weight-derived
+representation whose layer-12 numerical gate had previously succeeded but was
+too narrow to reduce whole-model traffic.  A new screen retained the router,
+all four expert identities, all gates, the first three experts, all biases and
+the fourth expert's down projection.  Only the gate and up matrices of the
+lowest-gate fourth expert were converted directly from their original MXFP4
+weights to padded Q3\_K.  Exact fallback was modelled whenever the fourth gate
+exceeded a declared threshold.
+
+A seven-layer pilot passed on 84 observations from disjoint public explanation
+and business captures.  The screen was therefore expanded, without changing
+the rule, to all 36 layers and all 432 available layer-position observations.
+At the 0.20 fourth-gate threshold, 243 of 432 calls (56.25\%) were admitted.
+Their p50 and p95 layer-output-relative $L_2$ errors were respectively
+0.0057072 and 0.0114821; the maximum was 0.0177109.  Every admitted layer-output
+argmax matched the original.  This clears the fixed 0.02 p95 gate across the
+complete transformer depth and is classified
+\texttt{ADVANCE\_TAIL\_AWARE\_Q3}.
+
+Removing the threshold and compacting all 432 fourth experts remained close
+but did not pass the stronger boundary: p95 was 0.0125253, maximum error was
+0.0213580, and at least one argmax differed.  The 0.20 fallback rule is
+therefore substantive rather than decorative.
+
+An initial six-pass full-transformer arithmetic integration retained all five
+frozen teacher continuation tokens in every control and candidate pass.  It
+also exposed two implementation costs: on-demand conversion occupied
+158.955 seconds and retained 870 converted projections, while the underlying
+L2 traffic continued warming from 5.329 GB in the first pass to 0.482 GB in
+the last.  Timing from that run is consequently marked
+\texttt{PERFORMANCE\_INVALID}; it proves a narrow token-agreement result but no
+speed improvement.
+
+The next runtime gate must change the physical path, not merely the arithmetic:
+construct a hash-bound split sidecar containing Q3\_K gate/up plus the original
+down projection, then demand-load that sidecar instead of first fetching the
+complete original fourth-expert frame.  Converted matrices must not accumulate
+unboundedly in Python memory.  Only after persistent preconversion, bounded
+residency and zero-fallback warm balancing may full-model throughput be judged.
+
+The all-layer screen's internal canonical SHA-256 is
+\texttt{9d0746556893e82b0d211d7f049518e13038143862adeef8f3e15b46cb6dd681};
+its stored-file SHA-256 is
+\texttt{18fbbcfb5ddad327b4d2fd9d3cd7ad05efb082415dfc2e07085e9de3dc3e8d3f}.
+
+\subsection{Verified mixed-Q3 split-sidecar runtime gate}
+
+The proposed physical implementation was completed rather than inferred from
+the all-layer numerical screen.  A hash-bound sidecar was built for 435 real
+layer/expert pairs observed in the frozen arithmetic trajectory.  Each entry
+contained padded Q3\_K gate and up projections, original MXFP4 down projection,
+and the corresponding biases.  The sidecar occupied 5,460,394,920 bytes.  Its
+manifest bound the complete file and each component independently; a missing
+or corrupt entry caused exact fallback to the original fourth expert.  The
+runtime did not compile weights on demand and retained no unbounded converted
+projection cache.
+
+A six-pass \texttt{010110} experiment treated the first candidate pass as
+warm-up and compared the two settled candidates with the two following
+controls.  Every pass generated the same five continuation token identifiers.
+The candidates recorded zero sidecar misses, zero integrity failures, zero
+on-demand conversion seconds and zero retained converted projections.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrr}
+\toprule
+Measurement & Mixed-Q3 candidate & Original control \\
+\midrule
+Median continuation rate & 1.23866 tokens/s & 2.61425 tokens/s \\
+Median delivered bytes & 37.7631 GB & 38.1180 GB \\
+Relative rate & 0.473811$\times$ & 1.000000$\times$ \\
+Delivery reduction & 0.930972\% & --- \\
+\bottomrule
+\end{tabular}
+\caption{Balanced short-window arithmetic sidecar gate.}
+\end{table}
+
+The branch is therefore classified \texttt{STOP\_MIXED\_Q3\_SIDECAR}.  Q3\_K's
+block padding and the retained full down projection reduced complete-route
+delivery by less than one percent, while the Q3 computation path more than
+erased that saving.  The numerical screen remains valid evidence that selected
+tail projections can be compacted accurately, but this particular split
+representation is not a useful runtime optimization on the M3 Pro.  No
+throughput promotion is claimed.
+
+The compact runtime summary has internal canonical SHA-256
+\texttt{07ff99515fa456308df01c4bee4e77af70790d8c75e68f0e18b972af5500cca9}.
+The sidecar manifest has internal canonical SHA-256
+\texttt{39657bb53e4d568d229858636e68fc1f8f1532bb834d96e172cbf7ece7409f14}.
+
+\subsection{DFlash speculative-decoding eligibility boundary}
+
+DFlash was audited as a distinct mechanism rather than equated with expert
+prefetch.  It uses a separate lightweight block-diffusion model to draft
+multiple tokens and asks the target model to verify the block.  The public
+GPT-OSS 120B drafter contains approximately 0.8 billion parameters, was trained
+for the original GPT-OSS 120B target, and is a separate checkpoint.  Its model
+card reports GPT-OSS measurements with SGLang on one H200 GPU.  The general
+DFlash paper reports large lossless acceleration on its tested accelerator
+stacks, but those results cannot be transferred directly to AION's custom
+18~GB M3 Pro and SD-backed verifier.  Primary sources are the DFlash project,
+the GPT-OSS 120B DFlash model card, and Chen et al., arXiv:2602.06036.
+
+No compatible drafter checkpoint was present locally, and the locked programme
+forbids downloading another model.  More importantly, the expensive target
+verification prerequisite was tested from existing exact AION evidence:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+\toprule
+Positions & Logical traffic reduction & Wall speedup & Exact outputs \\
+\midrule
+2 & 1.17539$\times$ & 1.01506$\times$ & yes \\
+4 & 1.36833$\times$ & 1.03623$\times$ & yes \\
+8 & 1.86170$\times$ & 1.03827$\times$ & yes \\
+\bottomrule
+\end{tabular}
+\caption{Existing full-model causal block-verification evidence.}
+\end{table}
+
+Even an oracle supplying known correct positions could improve the present
+eight-position verifier by only 3.827\% at median.  A drafter cannot turn that
+verifier into the published multi-fold gain; it adds drafting and rejection
+cost on top.  The decision is
+\texttt{DEFER\_DFLASH\_UNTIL\_BATCHED\_VERIFIER}, not permanent rejection.
+The correct next gate is a genuinely multi-row packed MXFP4 expert and causal
+attention verifier that achieves at least 1.5$\times$ measured full-model block
+speedup under the same bounded Mac/SD path.  Only after that physical gate
+passes should an installed compatible drafter or an AION n-gram drafter be
+evaluated for acceptance length and end-to-end throughput.  Retrofitting
+n-gram embeddings into the authoritative GPT-OSS model would instead constitute
+a changed model and is outside the exact track.
+
+The eligibility receipt has internal canonical SHA-256
+\texttt{0509159f89a85ff7ede32ac47a17686a1faac154d98df6bd048f2317156a9ae3}.
+
+\subsection{Real continuation-route reuse bound for speculative blocks}
+
+The unchanged grouped-expert implementation was then evaluated against the
+22 genuine continuation positions of the exact invoice-extraction trace,
+rather than synthetic activation rows or prompt-only positions.  Blocks of
+four, six and ten positions covered all 36 layers.  For each layer and block,
+the analysis counted how many times each authoritative selected expert
+recurred.  Replicated runs were not counted as additional observations.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+\toprule
+Block & Mean uses/load & Singleton groups & Perfect-reuse upper bound \\
+\midrule
+4 & 1.37405 & 72.328\% & 1.37405$\times$ \\
+6 & 1.47022 & 70.675\% & 1.47022$\times$ \\
+10 & 1.62071 & 64.547\% & 1.62071$\times$ \\
+\bottomrule
+\end{tabular}
+\caption{Authoritative expert-route reuse across genuine continuation blocks.}
+\end{table}
+
+The upper bound is deliberately optimistic: every occurrence after the first
+is treated as free, while attention, router calculation, expert arithmetic,
+drafting, rejection, KV catch-up and scheduling are excluded.  Even at ten
+positions, almost two thirds of expert groups are singletons.  This explains
+why the existing real grouped eight-position layer regressed by 2.94\% and why
+the complete exact eight-position block improved only 3.827\% despite lower
+logical traffic.
+
+The decision is
+\texttt{STOP\_UNCHANGED\_EXPERT\_GROUPING\_AS\_DFLASH\_BREAKTHROUGH}.  A
+DFlash-compatible AION verifier must provide a physically different primitive:
+batched causal attention and heterogeneous-expert arithmetic without copied
+route slabs, or a certified reduction in the target's expert work.  Repeating
+the current group-by-identical-expert implementation cannot supply the desired
+multiplier.  The receipt's internal canonical SHA-256 is
+\texttt{86bc5285be7b39ba2da45cf3e15a15c9c25bbdacdb8e47c09ccbc22ad2fb90d2}.
+
+\subsection{No-copy heterogeneous eight-position expert graph}
+
+A physically distinct verifier primitive was implemented after the route-reuse
+bound.  Unlike grouping only identical experts, it constructed one GGML graph
+covering all eight positions and their potentially different ordered expert
+quartets.  Every expert tensor pointed directly to its existing verified frame.
+No 52.9~MB route slab was assembled, and no weight payload was copied.  A
+separate no-allocation metadata arena prevented GGML from reserving duplicate
+backing storage for external packed weights; the bounded compute arena was
+128~MiB.
+
+The candidate was measured on the same real causal layer-zero, eight-position
+invoice trace in a balanced scalar/heterogeneous/grouped order over 24 samples
+per mode.  All outputs were bit-for-bit identical.  Scalar median time was
+6.212979~ms and the heterogeneous graph required 6.281063~ms, a
+0.989160$\times$ relative rate or 1.096\% regression.  Its p95 was
+9.809375~ms versus 10.118792~ms for scalar execution; this tail reduction did
+not compensate for the median regression.  The identical-expert grouped mode
+also regressed, requiring 6.525521~ms.
+
+The candidate is \texttt{NOT\_PROMOTED}.  Eliminating per-position graph
+dispatch and copied route preparation is insufficient because the same 32
+heterogeneous expert evaluations still traverse the same physical memory
+channel.  This closes the unchanged heterogeneous one-graph formulation as a
+route to the missing 1.5$\times$ verifier gate.  The local receipt's internal
+canonical SHA-256 is
+\texttt{2d6de13cc111028a2a62dc61c0ad3ee26301754256c29ab84c87fd882667ec8b}.
+The receipt could not be copied to SD because the evidence volume had only
+approximately 128~KiB free; no existing evidence was overwritten.
+
+\subsection{Attention-batching ceiling and stop decision}
+
+Before implementing another causal-attention batching path, its most optimistic
+end-to-end ceiling was calculated from the existing bitwise-exact eight-position
+full-model experiment.  The sequential pass required 91.657657 seconds, of
+which only 0.217300 seconds was measured attention.  The union pass required
+88.279052 seconds, of which 0.209245 seconds was measured attention.  Even the
+physically impossible assumption that all measured attention became free would
+improve the two runs by only 0.2376\% and 0.2376\%, respectively.  Making both
+attention and measured MoE arithmetic free would still leave expert delivery
+dominant.
+
+The decision is
+\texttt{STOP\_BATCHED\_ATTENTION\_AS\_MATERIAL\_SPEED\_STRATEGY}.  Attention
+batching may remain a future compound optimization after expert traffic has
+been reduced, but it cannot supply the declared 1.5$\times$ material gain in
+the present runtime.  The analysis is deliberately optimistic because it
+subtracts component time from wall time even when instrumentation may overlap.
+It is a ceiling calculation, not a measured candidate throughput.
+
+The receipt's internal canonical SHA-256 is
+\texttt{925fead4196b841ca1b854742859b4d41dae9dae02107f75b837b11d2a71b0c6};
+its stored-file SHA-256 is
+\texttt{6671cba781f5e18685c0f2a850d76ebbc549447efd48ede526806f864560832b}.
+
+\subsection{Activation-addressed expert-column discovery}
+
+A changed-arithmetic oracle then tested a physically different representation.
+For each real selected expert, AION retained only the input coordinates with
+the largest live activation magnitude for the gate and up projections.  After
+the original SwiGLU operation, the same rule was applied independently to the
+down-projection input.  This differs from the earlier activation-sparse test,
+which left the complete down projection dense.  A deployable implementation
+would store MXFP4 weights in column-addressable slabs so omitted columns are
+neither delivered nor multiplied.
+
+The first layer-12 gate used 24 cases spanning public explanation, business,
+reasoning and writing families.  Retaining 50\% of all three projections
+projected a 2$\times$ traffic reduction but failed accuracy, with p95
+layer-output-relative $L_2$ error 0.09802.  Retaining 75\% reduced the error to
+0.02206, narrowly missing the fixed 0.02 threshold while preserving every
+tested argmax.  A predeclared refinement at 80\% retained columns passed:
+p50 error was 0.01264, p95 was 0.01508, maximum was 0.01654, contribution p95
+was 0.04041, and every argmax remained unchanged.  The projected expert-weight
+and multiplication reduction was 1.25$\times$.
+
+The 80\% candidate was then challenged across all 36 layers for the two
+complete all-layer public families, plus available layer-12 reasoning and
+writing captures: 74 observations in total.  It again passed, with p50 error
+0.01122, p95 0.01654, maximum 0.01804, contribution p95 0.08217, and unchanged
+argmax in every observation.  A packing audit subsequently invalidated the
+initial 1.25$\times$ physical-traffic figure: a coordinate-plane MXFP4 store
+must deliver every shared scale byte even when it omits selected code nibbles.
+The corrected projection is
+$51/(3+16(2\cdot0.8+0.8))=1.231884\times$.  The numerical observations remain
+valid, but the original physical-size claim is superseded by the corrected
+v2 receipt.  The decision is
+\texttt{ADVANCE\_COLUMN\_ADDRESSED\_WAREHOUSE} only to a bounded physical
+kernel and delivery gate.
+
+A more aggressive projection-specific candidate retained 77\% of gate/up
+columns and 75\% of down columns.  It passed the 24-case layer-12 development
+gate under the initial scale-free estimate, but failed the independently
+declared all-depth numerical boundary: p95 error was 0.02136 versus the 0.02
+limit.  It is stopped without relaxing the gate.  The 80/80 configuration is
+therefore the only advancing configuration.
+
+A direct whole-block control confirmed why a new split representation is
+necessary.  Selecting the strongest complete 32-coordinate MXFP4 blocks at
+80\% retention produced p95 output error 0.17090 on the same four-family
+layer-12 cohort; even 90\% block retention produced 0.10565.  The native block
+layout is therefore too coarse.  A physical candidate must losslessly split
+the shared scale stream from transposed, nibble-packed coordinate planes, read
+all required scales plus only selected code planes, and charge every gather,
+copy and kernel cost.  This is a new representation of the original values,
+not permission to ignore physical page or packing overhead.
+
+This is an accuracy and physical-work existence result, not yet a generated
+tokens-per-second result.  The measurement kernel still read every original
+weight.  Promotion requires a hash-bound columnar MXFP4 representation, a
+direct packed kernel that actually skips the omitted columns, bounded memory,
+full causal generation, coherent semantic parity and exact fallback whenever
+the quality policy does not certify use.
+
+The corrected advancing all-depth v2 receipt has internal canonical SHA-256
+\texttt{de76ff155050b65b89ef9e1cf09c2fdac87a0bf1ada1303397045c9ed2f2db73}
+and stored-file SHA-256
+\texttt{0f5fdb8a07cb2ad7c3afe7626230be1d27539e89a3ceaba98ba1f626af9f2917}.
+The original physical-traffic receipt is retained with an
+\texttt{INVALID\_PHYSICAL\_TRAFFIC\_FORMULA} sidecar; its numerical observations
+are superseded only for the traffic calculation.
+The stopped 77/75 all-depth receipt has internal canonical SHA-256
+\texttt{7a19e13eff4f4171fe51bf4c0ef49ed5eaa1a00dbf60bcaf8375ed712d9ad36f}
+and stored-file SHA-256
+\texttt{7fe0cb238a68cc7db2e700f7d424aef247ce0131422900b8ca457d75df212979}.
+The physical-block control has internal canonical SHA-256
+\texttt{3e9a72ff3f6bed4c2b556e7ca679926dbfa991c3f4d46965b77a7b0c6ae4cd11}
+and stored-file SHA-256
+\texttt{600c636ce2d6547411707144a9ce0ad88ee5eceb25d732117cd6c4c591385041}.
+
+The required physical-page audit then stopped the coordinate-plane branch
+before a costly kernel was built.  Each transposed coordinate plane contains
+1,440 packed bytes and therefore overlaps one or two 4~KiB pages.  Because the
+80\% strongest coordinates are distributed across nearly the complete input
+width, the median router selection touched 99.753\% of value-stream pages and
+the median down selection touched 99.729\%.  After mandatory scale and bias
+pages were included, the median optimistic page-traffic reduction was only
+1.00151$\times$; the worst case was 0.999923$\times$.  The apparent 1.231884
+logical-byte reduction therefore does not survive the host's physical page
+granularity without thousands of sub-page gathers, whose copying and dispatch
+cost would reintroduce the work already falsified by route-slab experiments.
+
+The final decision is
+\texttt{STOP\_ACTIVATION\_COLUMN\_SPARSITY} as a primary speed strategy on the
+present Mac/warehouse.  Its numerical observation remains scientifically
+valid, but it supplies no physical delivery or tokens-per-second gain.  The
+page-bound receipt has internal canonical SHA-256
+\texttt{d9086e29f6f2771f44266dd87de927a406c31e4dd83b510278708d0e2e14c105}
+and stored-file SHA-256
+\texttt{69284341de4ba22d483dc04d7ffa71f5e834107f7faffedee917c0a968dc7e8c}.
+
+\subsection{Evidence-volume housekeeping boundary}
+
+After explicit authorization, AION performed a hash-verified cleanup confined
+to the SD evidence directory.  It removed 2,383 non-essential files totalling
+1,007,860,951 bytes: 269 byte-identical duplicates of locally retained result
+files, 2,113 AppleDouble metadata sidecars, and one obsolete stopped derived
+routepack.  No model shard, expert frame, manifest, index, proof receipt or
+unique teacher trace was removed.  The SD model warehouse remained
+\texttt{COMPLETE\_VERIFIED}; a real 13,253,760-byte expert frame was read and
+its six-component structure reverified after cleanup.  Approximately 1.2~GiB
+became free.  Subsequent experimental receipts remain local because the owner
+manually maintains the append-only Overleaf record and requested that new
+evidence not consume the SD model volume.
+
+\subsection{Broad-family adaptive-expert continuation falsification}
+
+The first broad-family challenge of the global preserved-mass policy used an
+unseen public reasoning prompt: ``If every red box is heavy and this box is
+red, what follows?''  A prompt-bound 8~GiB resident pool was constructed from
+the required reasoning prefix and supplemental public explanation, business,
+reasoning and writing teacher traces.  The pool contained 648 distinct
+layer--expert entries, occupied 8,588,436,480 bytes, and preserved exact
+unrestricted prefill.  During continuation, the quality-track controller
+retained the smallest two, three or four experts whose cumulative original
+gate mass reached 0.80; the original selected weights and normalized retained
+gates were used, with no replacement model or cached answer.
+
+The 64-position two-pass gate was mechanically strong.  All 43 continuation
+token IDs repeated exactly, every route repeated, and final hidden-state and
+logit hashes were bitwise identical between passes.  The continuation used a
+mean 3.4470 experts per layer: 21 two-expert, 814 three-expert and 713
+four-expert layer calls per pass.  Measured continuation throughput was
+11.005 and 11.869 tokens/s by aggregate continuation wall time; median
+instantaneous rates were 13.317 and 13.380 tokens/s, while p95 token latency
+was 138.79 and 131.75~ms.  These rates are approximately six times the exact
+unrestricted frontier and therefore confirm that reducing expert work remains
+the correct physical lever.
+
+The semantic gate nevertheless failed decisively.  Instead of deriving that
+the box is heavy, the repeatable completion entered a malformed and repetitive
+analysis loop, ending in repeated ellipses.  Internal repeatability therefore
+did not imply correctness or coherence.  The global 0.80 policy is labelled
+\texttt{STOP\_GLOBAL\_ADAPTIVE\_080\_REASONING}; its 11--12 tokens/s must not
+be presented as usable GPT-OSS 120B performance.  The failed result also
+establishes a narrower next target: retain the fast adaptive path only in
+layers and activation regions certified insensitive on development data, and
+restore all four original experts at confidence-sensitive layers.  Exact
+unrestricted execution remains the authoritative fallback.
+
+The gate's internal canonical SHA-256 is
+\texttt{65842d87ee5aa46cea244c8e779e7fa4f0176ea0dcfc383fb1bb9ac47cd95227};
+its stored-file SHA-256 is
+\texttt{f8b240d734007b8cc71adef464a58bd508b7940be2850fb735b8ba326c8ebe49}.
+The decoded prompt receipt has internal canonical SHA-256
+\texttt{af60a1f293be5e8f45a943ffdc146acab802c2d1da87308f278eac492678df37}
+and stored-file SHA-256
+\texttt{875415feac1878b30155c172119561e80648c34578502916967a7841aded9006}.
+The resident-pool receipt has internal canonical SHA-256
+\texttt{53f38948f7a3a1ba54aa23704947706d6efde549a85c8625311a0afec3700c2a}
+and stored-file SHA-256
+\texttt{e3fb1767cf145ae926957270fe825e155e32eb40ac59edefd04092143feb4b8e}.
+
+\subsection{Unrestricted escape diagnosis and trajectory-protected pool}
+
+The failed global 0.80 run contained an important storage confound: its
+continuation router was restricted to the generic 8~GiB pool.  A matched
+diagnostic removed that restriction and allowed every unrestricted router
+winner to escape to the verified SD warehouse while retaining the same
+adaptive two/three/four-expert arithmetic.  Coherent reasoning returned, but
+the two runs delivered 62,141,728,458 compressed bytes and materialised
+64,890,408,960 raw bytes each.  Aggregate continuation rates collapsed to
+0.08272 and 0.08086 tokens/s.  This demonstrates that the semantic failure was
+not attributable solely to expert count, while also proving that unrestricted
+per-token escape is not an operational solution on the present SD tier.
+
+A corrected pool compiler then admitted reduced-route supplemental traces from
+the authentic unrestricted-escape trajectory.  The first frequency-oriented
+trajectory pool improved the malformed output into coherent prose but still
+repeated the question before answering it.  Across four 80-position passes its
+settled aggregate median was 4.204 tokens/s.  It is stopped for semantic
+failure.  Direct coverage analysis explained the result: the 8~GiB pool held
+only 60.78\% of the 5,160 selected expert occurrences in the authentic
+continuation trace.
+
+The next pool changed the objective from global frequency to causal route
+protection.  It made the first six authentic continuation positions mandatory,
+reserving 461 of 648 layer--expert slots, then filled the remaining capacity by
+reuse frequency.  This delayed token divergence from the unrestricted-escape
+trajectory from continuation token six to token ten.  Both 64-position passes
+were bitwise repeatable and produced a coherent correct conclusion: the text
+explicitly stated that ``this box is heavy.''  Aggregate continuation rates
+were 4.219 and 3.162 tokens/s.  This is a single-prompt quality-track result,
+not general GPT-OSS 120B equivalence.
+
+Nine authentic continuation positions were the maximum that could fit in the
+same 8~GiB capacity; ten positions exceeded it.  The nine-position pool did
+not improve the causal path: divergence still occurred at token ten, the text
+became repetitive, and rates fell to 2.651 and 2.602 tokens/s.  It is stopped.
+This falsifies the simple assumption that protecting the longest possible
+teacher prefix is always best; the allocation must retain a useful exception
+halo as well as the initial route.
+
+\subsection{Inference-priority resource arbitration}
+
+System inspection identified an independent runtime confound: AION's mastery
+curriculum service continuously occupied one complete CPU core while the 120B
+kernel was running.  The successful six-position pool was therefore repeated
+unchanged while that learner alone was temporarily suspended.  A guarded
+finally-path resumed it immediately after the benchmark; post-run inspection
+confirmed the service active at approximately 99\% CPU.  Router paths, hidden
+states, logits, token IDs and decoded text remained identical.
+
+Under the isolated condition, aggregate continuation rates rose to 7.002 and
+5.492 tokens/s, a two-pass median of 6.247 tokens/s versus 3.690 tokens/s for
+the contended run: a measured 69.3\% improvement.  Median instantaneous rates
+were 12.415 and 7.848 tokens/s.  This is a genuine system-level result: AION
+must arbitrate background learning and latency-sensitive inference rather than
+allow both to fight for the same CPU and unified-memory bandwidth.  It does
+not alter the model arithmetic and does not raise the exact unrestricted
+frontier; it raises this one reasoning-quality candidate only.  Broader frozen
+families remain mandatory.
+
+The exact-escape gate and receipt have internal canonical SHA-256 values
+\texttt{267b07d25c100365401757337ba27e25bf38c9f810edf6248bfa41c601f0c588}
+and
+\texttt{ff01bf203063f216373bdff6144bcf90b45045947f88355207d3eee9c2f4895d}.
+The six-position gate and decoded receipt have internal canonical SHA-256
+values
+\texttt{e36f9cfee0bee9be34fbddec33b9262ae85a95fb6eefda38c84cd3ffcc48616e}
+and
+\texttt{106a33d9660572fd09705bcd68b7a61c674e06c550915967bf8405b307bdb453}.
+The isolated gate's internal canonical SHA-256 is
+\texttt{b6a6595000c1046e329671881db02179580232bfe91e0adc7e428d09ae4f88af};
+its stored-file SHA-256 is
+\texttt{837826b0345d64f27c0dbd8b0eb81056aae0925451870b2f0d85815d48635ef3}.
+The reduced supplemental-route compiler fix passed 9/9 focused tests and is
+isolated in commit \texttt{018f30c8}.
+
+\subsection{Blind explanation transfer and preserved-mass refinement}
+
+The six-position reasoning pool was frozen and challenged without retuning on
+the unrelated public prompt ``Explain in one sentence why rain falls from
+clouds.''  The background curriculum worker again yielded during inference.
+Both passes were bitwise repeatable and the completion remained coherent.  It
+correctly attributed rainfall to atmospheric water vapour condensing in
+clouds, but the 64-position window ended before the sentence completed.
+Aggregate continuation rates were 2.626 and 3.212 tokens/s.  The result is
+therefore \texttt{INCONCLUSIVE\_OUTPUT\_WINDOW}: it is positive cross-family
+semantic evidence, but neither a completed instruction-quality pass nor a
+speed promotion.  The gate and receipt internal canonical SHA-256 values are
+\texttt{e10d14e7e76cc28d0420c77b33fa7b7656f0697ed58245e631205954578e8841}
+and
+\texttt{1eda9a04ac5752e5bdbbd9d1e94fb324167d28649e4e66d68198d015fc2ab82a}.
+
+A final refinement lowered the cumulative gate threshold from 0.80 to 0.75
+and retained the original, unrenormalised mass of surviving experts.  The
+reasoning completion remained coherent but again ended before explicitly
+printing the final predicate.  Mean active experts fell from 3.293 to 2.957 per
+layer, yet aggregate rates were only 5.603 and 4.688 tokens/s, below the 0.80
+quiet-system control median of 6.247 tokens/s.  The branch is
+\texttt{NOT\_PROMOTED}: reducing arithmetic changed the route and memory-access
+pattern enough to erase the nominal expert-count saving.  The gate and receipt
+internal canonical SHA-256 values are
+\texttt{f019d67937fc890068b1bba13ee61fdb53750ebd7d5139c190d288df6c1a3669}
+and
+\texttt{e3897305780e73449672de153155f5c8ead1a57eb5a77798e7ca3e9c582f1b7f}.
+
+The temporary arbitration mechanism was subsequently promoted into a guarded
+runtime primitive.  Before yielding a background service, it reads the held
+process-lock PID and verifies that the live command is the AION mastery
+curriculum.  It then starts an independent timeout watchdog before issuing the
+pause.  Normal completion resumes the learner immediately; abnormal process
+loss still leaves the watchdog able to resume it.  The released lease state,
+verified command, PID and timeout are bound into the inference evidence before
+its canonical hash is calculated.  A live stop/resume integration check and
+15/15 focused tests passed.  The implementation is isolated in commit
+\texttt{17ce5036}.
+
+\subsection{Live proposal verification and deterministic repair}
+
+The failed global 0.80 continuation was revisited as a proposal engine rather
+than being reclassified as a successful language model.  A conservative AION
+verification ladder was implemented with three possible decisions:
+\texttt{ACCEPT}, \texttt{ESCALATE}, and \texttt{REQUIRE\_CRITIC}.  Token-level
+checks detect repeated phrases and implausibly long single-token runs while a
+candidate is still being generated.  Deterministic acceptance is intentionally
+limited to an explicit one-hop ``every $A$ is $B$'' entailment grammar.  A
+clean-looking answer outside that grammar is never accepted automatically; it
+requires a critic or the authoritative inference path.
+
+The offline gate consumed the hash-verified authentic failed receipt and the
+hash-verified correct six-position-pool receipt.  It rejected the failed
+trajectory at generated token 16, when a three-token phrase occurred for the
+second time, while finding no structural failure in the correct trajectory.
+The failed completion contained 44 generated tokens, so interruption at token
+16 avoided 28 known-bad tokens.  Median complete verification cost over 1,000
+repetitions was 12.958~microseconds for the failed candidate and
+17.750~microseconds for the correct candidate.  The correct candidate also
+contained the independently derived conclusion ``this box is heavy'' and was
+therefore accepted by the narrow deterministic gate.  The offline receipt's
+canonical SHA-256 is
+\texttt{5d5c120659507078b2bae8f17a3509d9c6bdfe56c0c4094f008691f297b17e74}.
+
+The detector was then integrated into the real 36-layer generation loop and
+the original 64-position global-0.80 experiment was repeated twice.  Both live
+runs stopped after exactly 16 generated tokens, reported the same repeated
+three-token phrase at offsets 8 and 13, and remained identical in routes,
+token IDs, final hidden states and logits through the interruption boundary.
+Only 36 of the requested 64 total positions were executed in each pass.  The
+mastery curriculum yielded through the guarded inference-priority lease and
+was verified active again after completion.  The live report's canonical
+SHA-256 is
+\texttt{0e0bf56a7b19a0cbb066a310276262bab9440f31708a96d3bf332044a3885b17}.
+
+Finally, an AtomSheet-style proof step derived the answer directly from the
+premises after live rejection.  It returned ``This box is heavy.'' with a
+median repair cost of 2.875~microseconds and p95 of 3.125~microseconds.  All ten
+declared acceptance conditions passed, including live-prefix identity with the
+original failure, repeatable interruption, canonical evidence integrity, and
+the supported deterministic conclusion.  Relative to allowing that known-bad
+completion to finish, failed generation work fell by 63.636\%.  The bound
+repair receipt's canonical SHA-256 is
+\texttt{78f8802d3ca0dde8302c691dfef286a3e5e87ac6bec93ab7584b9a75b8c58e32}.
+
+This is a completed-task and control-path advance, not a new model-throughput
+claim.  It proves that AION can interrupt this authentic degraded 120B
+trajectory live and replace it with a deterministic verified result for a
+narrow supported task.  It does not establish general semantic verification,
+automatic repair of open-ended prose, unrestricted 120B equivalence, or a new
+end-to-end tokens-per-second rate.  Such requests remain on
+\texttt{REQUIRE\_CRITIC} or \texttt{ESCALATE}.  The next gate must freeze the
+detector on development examples, test false-positive and false-negative rates
+across blinded arithmetic, extraction, reasoning, business and writing tasks,
+and measure accepted-answer latency including rollback or critic cost.
+
+\subsection{False-positive repair and frozen structural cohort}
+
+The first detector was not promoted unchanged.  A broader replay scan found
+that its repeated-three-token rule also interrupted healthy arithmetic,
+extraction and explanation trajectories when they legitimately restated part
+of the request.  This is an observed false-positive defect, not a hypothetical
+limitation.  The v1 live result remains preserved as evidence that intervention
+worked mechanically, but its 63.636\% avoided-work figure is not the production
+threshold.
+
+The rule was tightened before further use.  The revised detector requires an
+exact five-token phrase to recur non-overlapping within sixteen generated-token
+offsets.  It separately rejects duplicated channel/control markers and retains
+the five-identical-token run check.  On the original malformed reasoning
+receipt, the safer rule fires at generated token 26 rather than token 16.  It
+therefore trades some early saving for materially lower observed false-positive
+risk.
+
+The complete live 36-layer experiment was repeated twice with this frozen v2
+rule.  Both passes stopped at exactly token 26, matched the first 26 tokens of
+the original 44-token failure, and remained bitwise repeatable in routes,
+hidden states, logits and token IDs.  Eighteen known-bad generated positions
+were avoided per pass, a 40.909\% reduction in failed generation work.  The
+mastery learner was again resumed by the verified lease.  The live v2 report's
+canonical SHA-256 is
+\texttt{5700a9c9f980b620e5abd0a4ecbe3043bd9de50b0390ff0806a2622f40b1050e}.
+The bound AtomSheet repair again returned ``This box is heavy.''; its median
+and p95 proof costs were 2.875 and 2.958~microseconds.  The repair report's
+canonical SHA-256 is
+\texttt{2ac222c830555d9dd271d270d4143e91a075ae2e72505c30659068b2bc657cf0}.
+
+A hash-verified, manually classified structural cohort then froze six healthy
+and four malformed authentic 120B receipts.  The healthy set covered
+arithmetic, extraction, reasoning and explanation; none was interrupted.  The
+malformed set covered reasoning, arithmetic, extraction and the top-one
+physical-ceiling path; all four were escalated.  Thus the observed cohort had
+zero structural false positives and zero missed declared structural failures.
+The cohort's canonical SHA-256 is
+\texttt{834549ecd869bba2b6551a57e6ee22d82133c575fef12200a1110672528b8d09}.
+
+These results promote the v2 mechanism only as a bounded structural guard.  A
+\texttt{CONTINUE} decision means that no declared loop signature was observed;
+it does not mean that the answer is factually correct.  General open-ended
+answers still require a critic or stronger-model escalation, and the 40.909\%
+figure describes eliminated work on a known failed completion rather than raw
+model acceleration.  Blinded prompts and live accepted-answer latency remain
+the next required gates.
+
+\subsection{Teacher-forced downstream-consequence bound}
+
+The layer-conditioned reduction work was next evaluated against downstream
+token consequences rather than immediate layer error alone.  The broad
+cross-family top-one threshold plan was executed on the exact 43-position
+continuation history produced by the correct reasoning teacher.  Consequently,
+each position was an independent next-token counterfactual: a candidate error
+at one position could not contaminate the inputs used to label later positions.
+The candidate retained the global 0.80 preserved-mass adaptive rule with a
+minimum of two experts, added the broad top-one threshold plan, and did not
+preserve the dropped top-one gate mass.  Both passes were internally identical
+in routes, final hidden states, logits and token IDs.
+
+The candidate selected the same next token as the correct trajectory at 39 of
+43 positions, an agreement fraction of 90.698\%, and differed at four
+positions.  Agreement alone did not imply useful acceleration.  On this exact
+teacher history the candidate measured 2.7138 tokens/s while the correct
+trajectory measured 7.0019 tokens/s.  The changed expert routes disturbed the
+protected-pool locality sufficiently that moving and admitting the alternative
+experts cost more than the reduced arithmetic saved.
+
+Two optimistic bounds were calculated.  A perfect semantic preclassifier that
+used the candidate on every token-equal position and the teacher on every
+unsafe position would reach only 2.8734 tokens/s.  A stronger oracle that knew
+both correctness and the measured cost of both paths, and could therefore keep
+the teacher whenever the nominal shortcut was slower, would reach 7.3775
+tokens/s.  The latter is only 5.36\% above the measured teacher and remains far
+below the 10 tokens/s quality target.  These are oracle bounds, not deployable
+controllers or generated-quality results.
+
+This experiment stops confidence-gated switching between the present broad
+top-one candidate and the correct controller as a North-Star path.  It does not
+falsify layer--activation consequence mapping itself.  Instead it narrows the
+next compiler gate to a three-to-four-expert correction: retain three original
+experts, approximate only the gated fourth-expert contribution using a local
+layer--expert--activation-region cartridge, and certify candidates by later
+route, logit, token and semantic stability.  Storage locality may choose among
+already certified alternatives but may not certify an otherwise unsafe
+shortcut.  The corrected bound report's canonical SHA-256 is
+\texttt{0edfb1e926c27e118083f65fcf187294399eb93179b0217738cd1b82d7ea2a3d}.
+
+\subsection{Cross-family fourth-expert recurrence and first local correction}
+
+A correction-coverage corpus was frozen before further fitting.  It contains
+36 generic public prompts across arithmetic, extraction, reasoning, business,
+explanation and writing.  Twenty-four prompts are assigned to training, six to
+selection and six to an unopened holdout split.  With sixteen planned
+continuation positions and all 36 layers, the complete plan contains 44,064
+layer-position observations.  The emitted artifact stores prompt hashes and
+token IDs but no personal or customer data.  Its canonical SHA-256 is
+\texttt{f8d7d407aa548afddce383888ac81bf66abee6d7aaa0357e72c32972e61646a3}.
+
+The first gate remained deliberately narrow at layer 12.  Independent
+arithmetic and extraction training captures produced 37 and 41 authentic
+four-expert observations.  Both complete model runs were repeatable in routes,
+hidden states, logits and token IDs.  Their canonical SHA-256 values are
+\texttt{db8b1b2ef18883f4d5e2b39e90308e280e77a19c137c997caef8ffbb252bcfec}
+and
+\texttt{4f593ea64aab2cae1d6a1a4fa3ac0271ca39a7c6015d3062ce77e3f92a7104ab}.
+
+Repeated expert identity was common but repeated activation geometry was not.
+Eighteen of 41 extraction calls, or 43.902\%, selected a fourth-expert identity
+also observed in arithmetic.  At the predeclared joint router/FFN cosine
+threshold of 0.80, however, only one extraction call remained, a traffic share
+of 2.439\%.  This layer-12/expert-22 pair had joint cosine 0.970179.  Its
+unmodified three-expert counterfactual incurred 0.0412152 layer-output
+relative-$L_2$ error.  The recurrence report's canonical SHA-256 is
+\texttt{a63c473bbd53d3ecb43eab86423800b46da11d574f75888462376b98c1b80ede}.
+
+The single qualifying region was then subjected to a true cross-family local
+correction gate.  The arithmetic expert-22 contribution at position 25 was
+stored as an 11,520-byte prototype and scaled only by the extraction call's
+original fourth gate.  On the unseen extraction activation at position 29,
+the correction reduced relative-$L_2$ error from 0.0412152 to 0.0166035, a
+59.715\% reduction which clears the fixed 0.02 local numerical limit.  Median
+prototype calculation time was 0.000583~ms versus 0.1775~ms for the original
+expert contribution.  Its storage was 0.0829\% of the declared 13.25~MiB expert
+frame, well below the 25\% economics ceiling.  The formal gate therefore
+advanced this one region to downstream testing.  Its canonical SHA-256 is
+\texttt{3250630d5fce37c5d44b85f1b776223b563f7df1a8a25dc9afe0899e4775027c}.
+
+This is the first observed cross-family local $3+\widehat{C}_4$ correction to
+clear both declared accuracy and physical-cost gates.  It is not yet a runtime
+breakthrough: only one region passed, representing 2.439\% of the measured
+extraction traffic, and no downstream router, logit, token, semantic or
+full-generation speed result has yet been established.  The next gate must
+substitute this correction at its authentic layer and position, roll the model
+forward, and compare subsequent routes and output logits with the original
+four-expert trajectory.  Additional prompt coverage is justified only if that
+downstream gate passes.
+
+\subsection{Single-region downstream roll-forward gate}
+
+The passing layer-12/expert-22 prototype was compiled into a hash-bound NPZ
+cartridge containing its layer and expert address, frozen 0.80 joint-cosine
+threshold, normalized router and FFN anchor vectors, original training gate and
+11,520-byte gated contribution.  The complete in-process runtime was extended
+with an isolated quality-track path.  It evaluates the cartridge only when the
+unrestricted router selects the addressed expert fourth and the joint activation
+similarity passes.  A match loads and calculates the first three original
+experts, adds the scaled F32 correction, and avoids loading the original fourth
+expert.  Every nonmatch retains the original four-expert path.
+
+The 44-position extraction trajectory was repeated twice.  The cartridge fired
+once per pass, at position 29 and layer 12, with joint cosine 0.970179.  The two
+candidate passes were internally bitwise repeatable.  Against the separately
+captured unrestricted teacher, all 44 generated token IDs and all 44 recorded
+second-choice token IDs remained identical.  Thus the local perturbation was
+token-stable throughout the measured window.
+
+The internal trajectory was not identical.  The first ordered-router change
+appeared at position 29, layer 31, where the same four-expert set placed experts
+4 and 85 in the opposite order.  The first different expert set appeared at
+position 30, layer 26.  Across the complete trace there were 53 ordered-route
+differences, 28 expert-set differences and five top-expert differences.  The
+maximum absolute chosen-logit drift was 0.19080 and its p95 was 0.12763; maximum
+margin drift was 0.25230.  The final token remained identical and its margin
+changed from 2.31447 to 2.33242.
+
+This result is classified as \texttt{TOKEN-STABLE-DOWNSTREAM-DRIFT}.  It
+proves that the first compact correction can survive the complete downstream
+model without changing any next-token choice in this 44-position extraction
+window, but it also proves that the 0.02 local-output gate does not guarantee
+router identity.  After the substitution, the candidate's recorded top-two
+logit perturbation divided by the teacher's top-one/top-two margin had median
+0.06298, p95 0.22704 and maximum 0.23778 at position 42.  The unchanged tokens
+therefore retained measurable margin, but the worst position consumed nearly
+one quarter of the teacher's decision separation.  The bound downstream
+analysis has canonical SHA-256
+\texttt{fcede9b07008bdc2220c6e208f70daa9b3c7f979fb48571e049bcccd5559a0b0}.
+
+No speed improvement is claimed: the cartridge covered only
+one of 1,584 layer calls per pass and the two complete runs include different
+cache histories and instrumentation.  Coverage expansion now requires either a
+more accurate local correction or a predeclared bounded downstream certificate,
+followed by untouched selection and holdout prompts.
+
+\subsection{Addition-order isolation and frozen affine C4 refinement}
+
+The first local correction integration computed
+\(\operatorname{fl}(\operatorname{fl}(x+((E_1+E_2)+E_3))+\widehat C_4)\),
+whereas the original graph adds the left-associated expert sum to the residual
+only after all four contributions are combined.  These expressions are not
+generally identical in floating-point arithmetic.  A real layer-12 quartet
+audit therefore substituted the \emph{exact} original fourth contribution,
+isolating integration rounding from learned approximation error.
+
+The original integration differed in 838 of 2,880 output elements, with maximum
+absolute error \(1.220703125\times10^{-4}\).  A native three-expert graph that
+appends the already-gated correction before residual addition matched the
+original four-expert graph bit-for-bit in every element.  The active-four
+wrapper also matched the unchanged original kernel and the frozen capture.
+The audit passed with canonical SHA-256
+\texttt{404e5373b8ac4df4fd3af0f91b15fed86b5ea64eacdcf067136c67bf2c1f5a79}.
+This removes an integration defect; it does not establish how much of the
+previous downstream routing drift arose from that defect, and does not certify
+the approximate correction.
+
+A second arithmetic-anchor audit passed all three equivalence checks as well:
+the old order differed in 883 elements, maximum absolute error
+\(3.0517578125\times10^{-5}\), whereas the corrected reducer differed in zero.
+Its canonical SHA-256 is
+\texttt{c63f803e9f1408282a6c1c61d48bf82d4ed69c580eb6fda5cc29288ea67576e4}.
+
+An explicitly separate refinement fits a rank-one secant to the authentic
+arithmetic and previously inspected extraction anchors.  With training
+activation \(a\), second fitting activation \(b\), and gated contributions
+\(c_a,c_b\) at gates \(g_a,g_b\), define
+\[
+ d=b-a,\qquad q=d/(d^\top d),\qquad
+ \widehat C(x,g)=\frac{g}{g_a}
+ \left[c_a+q^\top(x-a)\left(\frac{g_a}{g_b}c_b-c_a\right)\right].
+\]
+The response and secant payload occupies 46,080 bytes, or 0.332\% of the
+declared 13.25 MiB expert.  Router and FFN similarity anchors and cartridge
+metadata require additional storage and are charged separately.  The measured
+fitting-path median was 0.004625 ms, versus 0.197709 ms for the original E4
+calculation in that narrow run.  Neither value is a full-runtime speed claim.
+The near-zero error at the second fitting anchor is training reconstruction,
+\emph{not} unseen accuracy.  The frozen fitting receipt is classified
+\texttt{FROZEN-SECANT-REQUIRES-UNTOUCHED-VALIDATION}, canonical SHA-256
+\texttt{2a8db8c0a2554b28ff98d6bb9a7785984f01d491c3310b32c9afb8de173a8574}.
+
+Admission retains the frozen joint cosine threshold 0.80 and additionally
+requires the secant coordinate to remain in \([0,1]\), with only a
+\(10^{-6}\) endpoint rounding tolerance.  Extrapolation falls back to real E4.
+The experiment is isolated from constrained pools, reduced-expert policies,
+changed routers and changed output kernels.  Diagnostic captures now retain
+hash-bound vectors of all 128 router scores, plus the fourth-versus-fifth
+admission margin, at explicitly selected layers and positions.  These scores
+support subsequent router-sensitive refinement; they are not a safety proof.
+
+No higher tokens-per-second claim or transferable correction certificate is
+made by this fitting and reducer audit.  Exact unrestricted and correct
+quality-track speed frontiers remain unchanged pending prospective local,
+downstream, sealed-holdout and balanced completed-answer gates.
+
+\paragraph{Prospective local transfer, without refitting.}
+The next predeclared training-split extraction trajectory was executed twice
+with unrestricted four-expert routing.  All 42 positions repeated exactly in
+routes, final hidden states and logits.  There were 117 captured observations
+at layers 12, 26 and 31, with 39 layer-12 E4 calls.  Its canonical receipt is
+\texttt{6dc1a69729a9a7a16fdd8fa1180b68759f23d252251c7d7ad764f6fe49c2c23e}.
+The frozen affine correction was not refitted on this trajectory.  Expert 22
+appeared three times; two calls failed the unchanged similarity/support mask
+and retained the original expert.  One call, position 27, was admitted with
+joint cosine 0.968899 and local relative output error 0.00774095, below the
+unchanged 0.02 gate.  Supported layer-12 traffic share was therefore only
+\(1/39=2.564\%\), not a general-model coverage claim.
+
+On that same admitted activation, the frozen constant correction had error
+0.0157721.  The affine refinement reduced error by 50.92\% without using the new
+activation for fitting.  The prospective affine evaluation has canonical hash
+\texttt{f164e348255a3ff0ae03e38d8877d9e86ff0163e664a14d2a28c0d4d18aa508a};
+the matched constant evaluation has canonical hash
+\texttt{5f624e4ccff36727e2356adc8117e951e10f4bb19a5209625fa86adb137e637f}.
+Loaded affine cartridge arrays occupy 69,288 bytes including anchors and
+metadata.  Single-call timings from this prospective check are not used as
+warm performance evidence.  This is a local transfer result on an unused
+training-split trajectory, not a sealed-holdout certificate.  A single-position
+downstream test is required before further expansion.
+
+An additional 1,000-sample paired warm microbenchmark alternated real-E4 and
+correction order, following five warmups.  The correction timing includes joint
+similarity, interpolation support checking and prediction.  Median charged
+correction time was 0.015625 ms, compared with 0.2021665 ms for real E4, a ratio
+of 0.07729.  Correction p95 was 0.0603191 ms and real-E4 p95 was 0.390129 ms.
+The local median compute-cost gate passed, but this run overlapped an active
+teacher/candidate diagnostic process and is not a quiet-system full-runtime
+performance gate.  The receipt is bound by canonical SHA-256
+\texttt{7f1265133278cb742da1d979183080278c3e2044cbf84b1b509073519c01ef4d}.
+Cartridge loading, calibration and whole-generation controller overhead remain
+separate charges.  No end-to-end speed promotion follows from this result.
+
+\paragraph{Continuous, bounded training-coverage collection.}
+A family-balanced sequential queue now selects training rows only from the
+hash-frozen corpus and captures all 36 layers, never consuming selection or
+holdout trajectories.  Before accepting a job it verifies canonical teacher
+receipt integrity, exact repeatability, complete observation count and the
+router/FFN/output/residual/router-score binary hashes.  An append-only completion
+sidecar binds the entire capture file tree to the teacher receipt and corpus.
+Verified jobs may be resumed without overwrite; incomplete or invalid jobs stop
+the queue for inspection.  Full-model jobs share a nonblocking runtime lock so
+independent invocations cannot accidentally overcommit the Mac's memory.
+The bounded programme retains the existing six-thread, declared 8 GiB expert
+cache and watchdog-governed inference-priority arbitration.  Evidence remains
+in local repository results, not on the SD card.  Local disk space was only
+approximately 9 GiB, so no new 20 GiB cache allocation is authorized by this
+queue launch; a 3 GiB evidence reserve is checked before every job.  Planned
+observations and queued jobs are not counted as completed evidence or speed
+gains.
+
+Counterfactual teacher captures also retain the exact, already-computed gated
+fourth-expert contribution as a separate hash-bound F32 target.  This adds
+11,520 bytes per observation without another expert calculation and permits
+later correction fitting without refetching the original large E4 frame for
+each training observation.  The queue verifies these targets along with the
+other captured vectors before sealing a completion sidecar.
+
+When layer 35 is selected for diagnostic capture, the existing full vocabulary
+output is retained once per position: 201,088 F32 logits, or 804,352 bytes.
+The queue compares each binary hash directly with the teacher receipt's
+position-level logit hash.  This requires no additional vocabulary calculation
+and enables future all-competitor perturbation checks, rather than treating
+the previously recorded winning/runner-up scalar drift as a safety proof.
+
+\paragraph{Completed prospective single-position downstream test.}
+The frozen affine C4 was substituted only at position 27, layer 12, on the new
+42-position extraction trajectory.  Both candidate passes were internally
+bitwise repeatable.  All 42 next-token IDs and all 42 recorded second-choice
+IDs matched the unrestricted teacher; only 15 positions were at or after the
+substitution.  This is short downstream token stability, not completed-answer
+semantic breadth or long-horizon certification.  Candidate canonical SHA-256:
+\texttt{490d7c7feaa87676169205deed3fd56da310eee90b042eb98fd56c6d43acc825}.
+
+The internal trajectory still drifted: 28 ordered-route changes, 15 expert-set
+changes and one top-expert change.  The first ordered and set changes both
+occurred at position 27, layer 29.  Maximum chosen-logit delta was 0.526638 and
+p95 was 0.158275.  After substitution, the recorded winning/runner-up
+perturbation divided by the teacher's token margin had median 0.0321124, p95
+0.108036 and maximum 0.114143, the latter at position 28.  These are top-two
+diagnostics, not an all-vocabulary safety bound.  Of 45 captured router-score
+comparisons at layers 12, 26 and 31, 31 satisfied the sufficient set-stability
+condition \(2\|s_{\rm candidate}-s_{\rm teacher}\|_\infty <
+s_{\rm teacher,(4)}-s_{\rm teacher,(5)}\).  Failure of that sufficient condition
+does not itself prove a set change; uncaptured layers are not certified by it.
+
+The result remains \texttt{TOKEN-STABLE-DOWNSTREAM-DRIFT}, with downstream
+analysis canonical SHA-256
+\texttt{b5a2bd616c94d8ecae643f902e6aab756652ba8c8c6703a6d88c611cb3211def}.
+Counts and normalized margins differ from the older correction experiment,
+but the trajectories also differ: this is not a matched ablation proving that
+addition-order repair or affine fitting caused the downstream improvement.
+Only the same-activation local-error comparison establishes the 50.92\%
+reduction attributable to the affine refinement.  No correction certificate,
+general-model coverage or higher tokens-per-second result is promoted.

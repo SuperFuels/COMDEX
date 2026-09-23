@@ -144,7 +144,7 @@ class MemoryEngine:
         self.memory = []
         self.embeddings = []
 
-        from sentence_transformers import SentenceTransformer
+        from backend.utils.sentence_transformer_runtime import get_sentence_transformer
 
         # Canonical model name and search paths
         model_name = "all-MiniLM-L6-v2"
@@ -161,7 +161,7 @@ class MemoryEngine:
             resolved = Path(p).resolve()
             if resolved.exists():
                 try:
-                    self.model = SentenceTransformer(str(resolved), local_files_only=True)
+                    self.model = get_sentence_transformer(str(resolved), local_files_only=True)
                     print(f"✅ Using MiniLM model from {resolved}")
                     break
                 except Exception as e:

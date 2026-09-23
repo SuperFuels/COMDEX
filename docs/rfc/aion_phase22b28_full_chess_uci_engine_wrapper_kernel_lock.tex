@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.28: Full Chess UCI Engine Wrapper Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.28 defines the AION Full Chess UCI Engine Wrapper Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can expose a minimal UCI-compatible chess engine wrapper.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.28 creates the protocol bridge needed before lichess-bot or any other UCI engine host can drive AION.
+
+\section{UCI Wrapper Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{engine\_name};
+  \item \texttt{engine\_author};
+  \item \texttt{uci\_command\_count};
+  \item \texttt{accepted\_command\_count};
+  \item \texttt{emitted\_uciok};
+  \item \texttt{emitted\_readyok};
+  \item \texttt{accepted\_position\_fen};
+  \item \texttt{accepted\_go\_command};
+  \item \texttt{selected\_bestmove};
+  \item \texttt{emitted\_bestmove};
+  \item \texttt{uci\_transcript};
+  \item \texttt{uci\_stdout\_lines};
+  \item \texttt{uci\_wrapper\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates a deterministic UCI engine wrapper for the AION chess scaffold. It does not yet implement full lichess-bot integration, online bot play, engine-strength evaluation, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B28-FULL-CHESS-UCI-ENGINE-WRAPPER-KERNEL-LOCK\\
+Status: LOCKED --- full chess UCI engine wrapper kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

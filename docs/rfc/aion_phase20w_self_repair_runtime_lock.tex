@@ -1,0 +1,254 @@
+\section{AION Phase 20W --- Fault Tolerance and Self-Repair Runtime}
+\label{sec:aion-phase20w-self-repair-runtime}
+
+\subsection{Status}
+
+Phase 20W introduces bounded self-repair for safe internal AION Pilot runtime failures.
+
+\begin{quote}
+\textbf{Status: LOCKED --- self-repair is limited to safe internal lanes with a maximum of two attempts.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot may encounter safe internal failures during preview-only work, such as malformed draft payloads, missing optional fields, schema shape errors, or internal preview generation mismatches.
+
+Phase 20W allows deterministic self-repair for those low-risk internal failures without escalating to live actions or unsafe tool use.
+
+\begin{quote}
+\textbf{Self-repair is not autonomy expansion. It is bounded schema recovery for safe internal preview work.}
+\end{quote}
+
+\subsection{Allowed Repair Lanes}
+
+Self-repair is permitted only for:
+
+\begin{itemize}
+  \item \texttt{research}
+  \item \texttt{creation}
+  \item \texttt{internal\_ops}
+\end{itemize}
+
+\subsection{Forbidden Repair Lanes}
+
+Self-repair MUST NOT operate on:
+
+\begin{itemize}
+  \item \texttt{external\_action}
+  \item \texttt{financial\_action}
+  \item \texttt{legal\_action}
+  \item \texttt{deployment\_action}
+  \item \texttt{memory\_mutation}
+\end{itemize}
+
+\subsection{Forbidden Repair Actions}
+
+Self-repair MUST NOT execute or transform into actions such as:
+
+\begin{itemize}
+  \item sending email or WhatsApp;
+  \item publishing adverts or social posts;
+  \item spending money;
+  \item taking payment;
+  \item creating bookings;
+  \item creating or releasing escrow;
+  \item dispatching workers;
+  \item deploying live pages;
+  \item executing raw terminal commands;
+  \item mutating business memory;
+  \item writing live reputation.
+\end{itemize}
+
+\subsection{Attempt Limit}
+
+Self-repair is limited to:
+
+\begin{verbatim}
+max_repair_attempts: 2
+\end{verbatim}
+
+If a third repair would be required, the runtime MUST transition to:
+
+\begin{verbatim}
+waiting_human_review
+\end{verbatim}
+
+\subsection{Repair Behaviour}
+
+A repair attempt may perform deterministic schema-only corrections, such as:
+
+\begin{itemize}
+  \item replacing \texttt{null} draft fields with empty strings;
+  \item copying \texttt{content} into a required \texttt{draft} field;
+  \item adding repair metadata;
+  \item preserving live side-effect disabled flags.
+\end{itemize}
+
+Repair MUST NOT introduce live execution.
+
+\subsection{Repair Result Hash}
+
+Every repair result MUST include:
+
+\begin{verbatim}
+repair_hash: sha256:<digest>
+\end{verbatim}
+
+The repair hash binds:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item step ID;
+  \item action type;
+  \item lane;
+  \item attempt index;
+  \item repair decision;
+  \item repaired payload;
+  \item runtime state.
+\end{itemize}
+
+\subsection{Failure Result}
+
+If repair fails after the bounded attempts, the final result MUST include:
+
+\begin{itemize}
+  \item attempt count;
+  \item attempt hashes;
+  \item failure hash;
+  \item runtime state \texttt{waiting\_human\_review};
+  \item live side effects disabled.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20W-FAULT-TOLERANCE-SELF-REPAIR-RUNTIME
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
+
+\subsection{Phase 20W.1 --- Repair Pedigree Immutability and Chained Repair Hashes}
+\label{subsec:aion-phase20w1-repair-pedigree-chained-hash}
+
+\subsubsection{Status}
+
+Phase 20W.1 hardens the self-repair runtime against lane escalation and repair-chain tampering.
+
+\begin{quote}
+\textbf{Status: LOCKED --- repair attempts MUST preserve lane and action pedigree and MUST chain repair hashes across sequential attempts.}
+\end{quote}
+
+\subsubsection{Repair Loop Escape Threat Model}
+
+A repair loop receives failure context, error payloads, and partially malformed step data.
+
+If that data is trusted uncritically, a repaired payload could attempt to mutate the original step's privilege boundary by changing:
+
+\begin{itemize}
+  \item \texttt{lane}
+  \item \texttt{action\_type}
+  \item downstream tool target
+  \item classification metadata
+\end{itemize}
+
+This is a repair loop escape.
+
+The self-repair engine MUST reject any repair that attempts to elevate a safe internal step into an external, financial, legal, deployment, memory, or live action.
+
+\subsubsection{Repair Pedigree Immutability Invariant}
+
+The lane and action type assigned before repair are immutable.
+
+Before a repaired payload may resume execution, the runtime MUST evaluate:
+
+\begin{equation}
+\mathrm{Lane}(Payload_{\mathrm{repaired}})
+\equiv
+\mathrm{Lane}(Payload_{\mathrm{failed}})
+\end{equation}
+
+\begin{equation}
+\mathrm{ActionType}(Payload_{\mathrm{repaired}})
+\equiv
+\mathrm{ActionType}(Payload_{\mathrm{failed}})
+\end{equation}
+
+If the repaired payload modifies its lane, strips its classification, changes its action type, or targets a different tool handle, the repair MUST be rejected.
+
+The runtime MUST then:
+
+\begin{itemize}
+  \item set \texttt{repair\_succeeded = false};
+  \item set \texttt{runtime\_state = waiting\_human\_review};
+  \item preserve live side effects disabled;
+  \item emit \texttt{repair\_lane\_escalation\_intercepted} or \texttt{repair\_action\_mutation\_intercepted};
+  \item produce a deterministic repair hash for the rejected transition.
+\end{itemize}
+
+\subsubsection{Chained Repair Hash Cascading}
+
+When multiple repair attempts are executed sequentially up to the maximum limit, each repair hash MUST bind the previous repair attempt.
+
+The chained repair hash is:
+
+\begin{equation}
+\mathcal{H}_{\mathrm{repair},n}
+=
+\mathrm{SHA256}
+(
+\mathcal{H}_{\mathrm{repair},n-1}
+\parallel
+\texttt{StepID}
+\parallel
+\texttt{AttemptIndex}
+\parallel
+Payload_{\mathrm{repaired}}
+)
+\end{equation}
+
+This creates an audit chain from the original failure through each repair attempt.
+
+\subsubsection{Validation Coverage}
+
+Phase 20W.1 tests prove:
+
+\begin{itemize}
+  \item omitted lane and action fields are accepted only as unchanged pedigree;
+  \item lane escalation inside a repaired payload is intercepted;
+  \item action mutation inside a repaired payload is intercepted;
+  \item repair attempts include chained repair hashes;
+  \item second repair attempts bind the first repair hash;
+  \item chained repair hashes are deterministic.
+\end{itemize}
+
+\subsubsection{Security Invariant}
+
+\begin{quote}
+\textbf{A repair attempt may fix safe payload shape, but it may never change what the step is, what lane it belongs to, or what authority boundary it carries.}
+\end{quote}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20W1-REPAIR-PEDIGREE-IMMUTABILITY-CHAINED-HASH
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

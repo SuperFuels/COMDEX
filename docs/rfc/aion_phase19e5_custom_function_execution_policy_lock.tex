@@ -1,0 +1,64 @@
+\section{Phase 19E.5 --- Custom Function Execution Policy Lock}
+
+\subsection{Status}
+
+Phase 19E.5 locks the custom function node as a saved sandbox contract and dry-run preview surface.
+
+The node accepts language, code, sample input, input schema, output schema, and safety mode. However, the code is not executed by the frontend or backend runtime in this phase.
+
+\subsection{Execution Policy}
+
+Custom function nodes MUST remain configuration-only until a separate backend sandbox runner is explicitly implemented, audited, tested, and enabled behind policy gates.
+
+The current runtime MAY preview the saved contract deterministically. It MUST NOT evaluate user code.
+
+\subsection{Safety Requirements}
+
+The custom function editor and dry-run path MUST preserve:
+
+\begin{itemize}
+  \item no frontend code execution,
+  \item no backend code execution,
+  \item no \texttt{eval},
+  \item no \texttt{new Function},
+  \item no network access,
+  \item no filesystem access,
+  \item no secrets access,
+  \item no live external writes,
+  \item no payment, booking, email send, escrow, or chain write,
+  \item dry-run only output,
+  \item human approval required before any future live runner.
+\end{itemize}
+
+\subsection{User-Facing Wording}
+
+The custom function UI MUST describe the node as:
+
+\begin{quote}
+Saved sandbox contract. Dry-run preview only. Code is stored but not executed yet.
+\end{quote}
+
+This prevents the user from confusing the current preview result with real custom-code execution.
+
+\subsection{Future Upgrade Path}
+
+A later phase MAY add real backend execution only if the runner is:
+
+\begin{itemize}
+  \item isolated from the frontend,
+  \item timeout guarded,
+  \item memory limited,
+  \item network disabled by default,
+  \item filesystem disabled by default,
+  \item secrets disabled by default,
+  \item fully audited in trace output,
+  \item covered by regression tests,
+  \item blocked from live writes unless policy explicitly permits it.
+\end{itemize}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PHASE19E5-CUSTOM-FUNCTION-EXECUTION-POLICY-LOCK \\
+Status: LOCKED \\
+Maintainer: Tessaris AI \\
+Author: Kevin Robinson

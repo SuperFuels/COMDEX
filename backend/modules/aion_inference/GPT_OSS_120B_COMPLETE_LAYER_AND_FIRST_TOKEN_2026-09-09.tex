@@ -1,0 +1,428 @@
+% Append-only section. Requires amsmath, booktabs, hyperref.
+\section{GPT-OSS 120B: Complete Layer and First Generated Token}
+\label{sec:gptoss120b-first-token}
+
+\subsection{Scope and integrity boundary}
+This stage advances the verified 64~GB SD-card warehouse from isolated expert
+arithmetic to a complete transformer block and then to a complete 36-layer,
+position-zero evaluation.  The selected representation remains GPT-OSS 120B
+Q4\_K\_M with MXFP4 experts.  No model was downloaded and no integrity gate was
+weakened.  Exactness in this section means repeatability of the selected routes,
+hidden-state bytes, and final logit bytes between two AION executions of the
+same representation; it does not mean equality to an unquantised model.
+
+\subsection{Complete layer-0 gate}
+The native bounded gate implemented the model's RMS-normalised Q/K/V attention,
+64 query heads, eight key/value heads, attention sinks, output projection,
+residual connection, post-attention RMS normalisation, 128-way router, top-four
+softmax weighting, four real packed expert networks, and final residual.
+Position zero makes RoPE the identity.  For the deterministic hidden state the
+router selected experts
+\[
+  (18,96,49,9)
+\]
+with gates $(0.260516,0.257260,0.245158,0.237066)$.  Two executions produced the
+same 2,880-element block output with SHA-256
+\texttt{809457099a254d8799e91be40466968fc98d9c5ad1edfb55e63565d00aa3e758}.
+The four-expert cold fault took 0.5506~s.  The shared attention/router path
+materialised 33,891,232 raw bytes from 23,481,377 compressed bytes; the expert
+path materialised 53,015,040 raw bytes from 50,172,758 compressed bytes.  Each
+native stage declared a 256~MiB arena.  The canonical report SHA-256 is
+\texttt{d5d6f3b76ffec3b390f6eaf843904f5c9b46e5c06a68cf4811de9cd9061c1344}.
+
+\subsection{First complete 36-layer token gate}
+The next gate used GGUF token~199998, the model-declared beginning-of-sequence
+token.  Its packed embedding row was reconstructed from the SD warehouse and
+dequantised.  The hidden state then traversed all 36 real transformer layers.
+At every layer, AION loaded the layer's shared tensors, computed attention and
+the residual state, evaluated the real router, faulted exactly four selected
+experts in parallel, computed their weighted MXFP4 outputs, and advanced the
+residual state.  Final RMS normalisation and the 201,088-way vocabulary head
+produced argmax token ID~2167.
+
+Two independent passes selected identical routes in all 36 layers (144 routed
+expert selections), produced identical final hidden-state bytes, and produced
+bit-for-bit identical logits.  Their final hidden SHA-256 was
+\texttt{f2e99f840dc4ff1880b1b5f40b3e39ac883e08ab9fce3b83de9a105f4f9a4e64};
+their logit SHA-256 was
+\texttt{aa5c9b4ed7725bb2626401f4e4470271cb34e4e76e401b264c0bedadd5bd50fa}.
+The first and second layer-chain/vocabulary evaluations took 36.675~s and
+34.388~s respectively after one-time vocabulary-head staging.  That exact
+615,329,280-byte vocabulary matrix required 9.469~s to stage and its SHA-256 was
+\texttt{049b19820999b23070d21c7d623bb31a697d8bf5f7492f175b5701084aa98692}.
+Per pass, expert retrieval consumed approximately 20.14--20.17~s and
+shared-layer retrieval approximately 9.05--9.23~s.  The 256~MiB expert cache faulted 144 experts and
+evicted 124, materialising 1,908,541,440 raw expert bytes from 1,826,871,414
+compressed bytes.  The largest native arena was 768~MiB for the vocabulary
+projection; all layer stages remained 256~MiB.
+
+\subsection{Interpretation and limitations}
+This is the first evidence in this programme that an 18~GB M3 Pro can execute
+the complete neural path of a 120B-class model whose approximately 63~GB logical
+representation resides in an addressable compressed 64~GB SD-card warehouse.
+It is a feasibility breakthrough, not a performance promotion.  The measured
+approximately 35.5~s median evaluation corresponds to roughly 0.028 token/s
+after vocabulary staging.  Including that 9.469~s one-time stage, the first
+cold-path result was approximately 46.1~s, or 0.022 token/s.  The input
+was a single BOS token, so the result does not establish prompt quality,
+multi-token KV-cache correctness, or steady-state generation speed.  The
+canonical report SHA-256 is
+\texttt{9c286d588d9976a6436204f43ffe02f873cc7070bde322219172ce8f3079b954}.
+The immediate
+optimisation target is physical weight traffic: about 30~s of each pass was
+measured in expert and shared-weight retrieval, while the already resident
+packed expert arithmetic is comparatively small.
+
+\subsection{Bounded resident working-set replay}
+A follow-on gate staged the invariant shared layer tensors once and enlarged the
+verified raw expert LRU to the declared 3~GiB ceiling.  Shared-layer staging
+required 9.315~s and vocabulary-head staging 13.177~s.  The first execution
+remained a cold expert pass: it faulted all 144 addressed experts, read
+1,826,871,414 compressed bytes, materialised 1,908,541,440 raw bytes, and took
+28.328~s.  The second exact execution obtained 144/144 expert-cache hits, read
+zero additional expert bytes from SD, and took 11.864~s.  Relative to the
+34.388~s non-resident replay, this is a 65.50\% reduction in evaluation time.
+Routes, final hidden bytes, vocabulary logits, and token ID~2167 remained exact.
+The canonical report SHA-256 is
+\texttt{7d840512519f85f87bc3451c15c84d39e0d9dff598c31a4747720e0e20fa8814}.
+
+This result proves that a bounded resident warehouse working set can remove the
+dominant repeated SD traffic.  It is deliberately labelled exact replay: it
+does not establish the hit rate for a different next token.  The next gate must
+carry real per-layer K/V history into token two and measure overlap, faults and
+latency without assuming that the expert route repeats.
+
+\subsection{First genuine two-token K/V generation}
+The multi-token gate added NeoX-ordered YaRN rotary position handling and a
+separate causal K/V history for every layer.  An initial diagnostic run used
+the wrong consecutive-pair rotary ordering and was marked \texttt{INVALID}; no
+claim uses its timings.  The corrected architecture run generated the sequence
+\[
+  199998 \longrightarrow 2167 \longrightarrow 679.
+\]
+Two independent complete runs reproduced every per-layer route, both final
+hidden states, both 201,088-way logit arrays, and both generated token IDs.
+Token two reused 30 of the 144 layer-addressed experts selected for token one,
+a genuine route overlap of 20.83\%.  On the opening run, expert retrieval fell
+from 20.108~s for token one to 16.292~s for token two, while total token latency
+fell from 28.723~s to 24.829~s (13.56\%).  Token-two throughput was therefore
+approximately 0.0403 token/s.  The 3~GiB cache recorded 30 hits, 258 faults and
+15 evictions across the two-token opening sequence.  The corrected report's
+canonical SHA-256 is
+\texttt{30b8a1a4a643d01b805e85cd60fb5270e377b27d38e5e94e1764fe651903102a}.
+
+This establishes sequential K/V-backed execution but also falsifies a stronger
+cache-only hypothesis: 79.17\% of token-two expert addresses were new.  A 3~GiB
+working set reduces demand but cannot by itself turn this route pattern into
+interactive generation.  Subsequent optimisation must overlap new expert
+retrieval with preceding-layer computation and avoid repeated shared-weight
+materialisation; gains must be evaluated on longer generated sequences.
+
+\subsection{Four-token cache-strategy falsification}
+Four-token exact generation produced token IDs
+$2167,679,261,4792$ in both repetitions.  A scan-resistant compressed cache
+increased consecutive-route overlap from 30 experts at token two to 56 and 62
+at tokens three and four.  It reduced repeat physical SD traffic from 5.581~GB
+to 2.371~GB and delivered 389/576 repeat hits, but aggregate time remained
+essentially unchanged: 108.163~s opening and 108.282~s repeat.  This candidate
+is \texttt{NOT\_PROMOTED}; decompression, verification and materialisation
+consumed the saved I/O benefit.  Report SHA-256:
+\texttt{76fde04c87cca31eb6c0d225b8aac2a3f62a280e29ca71445d95b40a6790a9cc}.
+
+A second candidate reserved a raw calculation-ready route for every layer and
+used the remaining 3~GiB ceiling for compressed history.  It accumulated 323
+raw-route hits and reduced the fourth repeat token from 25.443~s to 21.941~s.
+Nevertheless, aggregate repeat time regressed 3.57\% to 112.152~s and opening
+time regressed to 132.056~s.  It is also \texttt{NOT\_PROMOTED}.  Report
+SHA-256:
+\texttt{e352a3ce69fe59c1badbf316e33f66c48ce65b173ae171ab78a6f28ffdb87ed3}.
+Together these failures localise the next target: remove intermediate files,
+per-layer process creation, repeated arena allocation and decode-to-file-to-
+native rematerialisation through a persistent in-process native arena.
+
+\subsection{Persistent single-copy native arenas}
+\label{subsec:gptoss120b-persistent-arenas}
+A boundary profile separated expert retrieval, expert-file staging, attention
+processes, MoE-finish processes, and vocabulary projection.  On an exact
+resident replay, 144/144 expert addresses hit the 3~GiB raw cache and no new
+expert bytes were read from SD, yet the pass still took 12.975~s.  Writing the
+already resident experts to temporary files consumed 7.363~s, attention
+boundaries consumed 2.149~s, and MoE-finish boundaries consumed 2.785~s.
+Thus the largest warm-path cost was redundant rematerialisation rather than
+neural arithmetic.  The profile report has canonical SHA-256
+\texttt{cd4b2b3a7471b60bbed1355a029de35758672fc4fa89a78fcfe36a8af593066f}.
+
+A native C ABI was then introduced for the four-expert MoE calculation.  The
+first trial passed internal repeatability but used unrounded Python gate values
+and therefore did not match the established control hashes; it is preserved
+with an \texttt{INVALID} sidecar and is excluded from every performance claim.
+Rounding gates to the existing nine-significant-digit boundary restored the
+control hidden and logit hashes.  A further profile showed that merely keeping
+the backing vector alive was insufficient because repeated contexts and copies
+still incurred lifecycle cost.
+
+The promoted implementation keeps one native ggml context alive, resets its
+graph allocator between layers, and points read-only graph leaves directly at
+the verified resident expert buffers.  It therefore avoids restaging
+1,908,541,440 raw expert bytes on each complete layer chain.  The same design
+was applied to position-zero attention and router weights.  A single resident
+copy supplies the native graphs; duplicate temporary shared-weight files are
+not created.
+
+The final comparison used six complete 36-layer passes per variant: one
+expert-cache-cold pass followed by five warm passes.  Every pass selected the
+same 144 layer-addressed experts, generated token~2167, and reproduced the
+control final-hidden SHA-256
+\texttt{7b351da4d5b31a660e882ed18f7e0b37e8f0234205b295621cd5d42ec572f697}
+and logit SHA-256
+\texttt{d3d15da87e276fcc808de4c605a510899bd30c3afaa8f42121f5d6fb4379e006}.
+All warm passes recorded 144/144 expert hits and zero additional expert SD
+reads.  Results are summarised in Table~\ref{tab:gptoss120b-persistent}.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Variant & Warm median (s) & Warm p95 (s) & Median change \\
+\midrule
+Persistent zero-copy MoE; process attention & 4.204 & 4.380 & baseline \\
+Single-copy persistent attention and MoE & 2.436 & 3.345 & $-42.05\%$ \\
+\bottomrule
+\end{tabular}
+\caption{Five warm position-zero 120B layer-chain replays after one opening
+pass.  Percentages use wall time and preserve exact model arithmetic.}
+\label{tab:gptoss120b-persistent}
+\end{table}
+
+Relative to the earlier 12.975~s profiled resident path, the final warm median
+is 81.22\% lower.  Relative to the original 11.864~s resident-replay milestone,
+it is 79.47\% lower.  The best observed warm pass was 1.970~s; it is reported
+as an observation, not as the promoted central estimate.  The final
+single-copy report's canonical SHA-256 is
+\texttt{a0efa41e27578e4ebb4e5c7d91d18d876afbb83778f48dbadbac02ffc4627368};
+the replicated MoE-only control SHA-256 is
+\texttt{7e537637be613fb78b2c33ce4134c948771ee1acaa914dedf43ea3ae2f7b0350}.
+
+This is a substantial execution-boundary result, but it is not a
+steady-state text-generation throughput claim.  The measurement repeats a
+single BOS-conditioned position-zero route whose complete expert working set
+fits under the declared 3~GiB cache.  The equivalent median rate for this
+bounded replay is approximately 0.411 layer-chain evaluations per second.
+Real later tokens can select different experts, require K/V history, and cause
+SD faults.  The next gate must extend the persistent attention arena to
+multi-token K/V state and compare exact generated sequences under genuine route
+turnover.  No claim of 30 or 50 generated tokens/s is made for GPT-OSS 120B.
+
+\subsection{Persistent arenas under genuine route turnover}
+The attention ABI was next extended from position zero to persistent,
+per-layer K/V histories with the same NeoX-ordered YaRN rotation as the
+validated file-backed control.  Two complete two-token executions generated
+the exact sequence
+\[
+  199998 \longrightarrow 2167 \longrightarrow 679.
+\]
+Both executions reproduced all 72 layer routes, both hidden-state arrays, both
+201,088-way logit arrays, and both token IDs.  Token two again reused only
+30/144 routed experts, confirming that the test exercised genuine working-set
+turnover rather than replaying token one's route.
+
+On the opening execution, token-one latency fell from the earlier 28.723~s to
+22.907~s (20.25\%).  Token-two latency fell from 24.829~s to 19.433~s
+(21.73\%), increasing the fully validated later-token rate from approximately
+0.0403 to 0.0515 token/s.  Token two spent 16.405~s in expert retrieval,
+0.633~s in persistent attention, 0.720~s in the persistent MoE boundary, and
+1.482~s in vocabulary projection.  The opening two-token run faulted 258
+experts, hit 30, read 3,273,322,779 compressed bytes, and materialised
+3,419,470,080 raw bytes.  The report canonical SHA-256 is
+\texttt{38f8e1f62b7d38c8c789735f3c21f97c9b4a67284b98854201dc98bab1611e97}.
+
+This promotes the persistent arena as an exact multi-token optimisation, but
+it also establishes the new bound.  Expert retrieval occupies 84.42\% of
+token-two latency.  With 114 newly addressed experts on that token, removing
+all remaining attention, MoE-boundary and vocabulary time could not by itself
+approach interactive throughput.  The next strategy must reduce physical
+expert traffic or hide it behind useful work.  Any reduced-expert,
+lower-precision, pruning or surrogate-route approach remains a separately
+labelled quality-gated track.
+
+\subsection{Eight-token working-set boundary}
+The exact persistent path was extended to eight generated tokens.  Both full
+executions produced the identical sequence
+\[
+  2167,679,261,4792,25,392,11437,290
+\]
+with identical routes, hidden states and logits at every step.  This longer
+run falsified the hypothesis that the route would rapidly settle inside the
+3~GiB raw cache.  The cumulative working set grew from 144 layer/expert pairs
+after token one to 258, 343, 409, 499, 557, 594 and finally 661 pairs,
+equivalent to approximately 8.76~GB of raw expert components.  New cumulative
+addresses per later token were respectively 114, 85, 66, 90, 58, 37 and 67.
+
+The opening eight-token sequence took 248.576~s (0.0322 token/s average) and
+read 10,198,329,749 compressed expert bytes.  Although tokens two through four
+initially reached 0.0508--0.0529 token/s, subsequent SD and memory pressure
+removed that gain.  The result is therefore retained as exact route evidence
+with a \texttt{LIMITATION} sidecar, not promoted as a sustained cache
+strategy.  Canonical SHA-256:
+\texttt{d99a00851fc1fa332a3e1e9537932efd1970aa297acf51d9a24dabdd8ac20884}.
+
+\subsection{Direct MXFP4 Metal probe}
+Because the Granite programme benefited strongly from Metal execution, a
+separate quality-gated microbenchmark tested one real 120B MXFP4 expert on the
+installed Apple M3 Pro Metal backend.  All required operations were supported.
+The 13.22~MB of packed weights uploaded in 1.948~ms, and warm Metal calculation
+had a 0.514~ms median.  The matched eight-thread CPU reference required
+0.223~ms, making Metal 2.31 times slower for this narrow matrix--vector
+workload.  Metal was also not bitwise equal: relative $L_2$ error was
+0.006230, mean absolute error 0.006847, and maximum absolute error 0.097462,
+although the output argmax agreed.
+
+The predeclared speed gate failed and the candidate is
+\texttt{NOT\_PROMOTED}.  This does not rule out Metal for a fused layer or
+multi-token batch, where launch cost and parallelism differ; it does rule out
+blindly moving individual one-token experts to Metal.  Report canonical
+SHA-256:
+\texttt{9db1e300d30d571fcea9e5915fc2b81e2084465b637f0859108ba068cc75674f}.
+
+\subsection{Batched packed-Metal crossover}
+The Metal probe was expanded to reuse one resident real expert over batches of
+1, 2, 4, 8, 16 and 32 activation rows.  CPU and Metal used identical packed
+weights and inputs.  Metal remained slower through batch eight, approximately
+matched CPU at batch four, and crossed decisively at larger batches.  At batch
+16, Metal processed 16,180 expert activations/s versus 8,728/s on CPU, a
+1.85-fold speedup.  At batch 32, Metal processed 27,993 expert activations/s
+versus 9,144/s on CPU, a 3.06-fold speedup.  Relative $L_2$ error remained
+approximately 0.00623 and the compared argmax remained equal at every batch.
+The predeclared decision is \texttt{ADVANCE\_BATCHED\_METAL}.  Canonical
+report SHA-256:
+\texttt{53fc40a6a12c8eb7fb4a80f2a6f45874fbf8c68770832fca9ba5d8d92c5314dc}.
+
+This is a mechanism breakthrough, not model throughput.  Repeating one expert
+across every row is more favourable than an unconstrained MoE route.  The next
+gate must group a real batch by its actual layer/expert addresses, report the
+number of unique experts and activations per expert, include SD bytes, and
+measure speculative-token acceptance.  A draft/verify architecture is only
+useful if weight reuse and accepted tokens compensate for the additional draft
+work.  Until that full gate passes, no 120B generated-token rate is inferred
+from the expert-activation rates.
+
+\subsection{Real-route batching and dictionary feasibility}
+The eight-token exact route trace was used to test whether the favourable
+repeated-expert Metal batch exists naturally.  Its 1,152 routed activations
+were distributed across 661 distinct layer/expert pairs: only 1.743
+activations per loaded expert on average.  The maximum observed group was
+eight and no group reached the measured batch-16 Metal crossover.  Even a
+perfect layer-wise grouping schedule would reduce compressed expert bytes by
+42.64\%, materially useful but far below the reduction required for
+30--50 generated tokens/s from this SD device.
+
+A temporal dictionary check trained on the first four route tokens and measured
+the final four without changing their routes.  Four resident experts per layer
+required 1.909~GB and covered 26.74\% of held-out selections.  Six per layer
+required 2.863~GB, remained inside 3~GiB, and covered 30.90\%.  Eight per
+layer exceeded the ceiling at 3.804~GB while covering only 35.94\%.
+Sixteen per layer required 5.421~GB and still covered only 48.78\%.
+
+The decision is \texttt{STOP\_UNCONSTRAINED\_BATCHED\_METAL}; a naive
+fixed dictionary is also not promoted.  The calculation is bound to exact
+captured routes and exact warehouse frame sizes, but is not an executed
+batched transformer.  Canonical SHA-256:
+\texttt{7b365998ba18e978346692254cd09351e858db0147ced625fad9cfe5d555c766}.
+Further work must use a separately quality-gated architecture that changes
+physical expert demand---for example a learned route-concentrated subnetwork
+or shared expert basis---and compare it against frozen unrestricted 120B
+outputs.  Merely rescheduling the present diverse routes cannot meet the
+target.
+
+\subsection{Cross-expert functional-basis falsification}
+The remaining no-training compression hypothesis was tested on all 128 real
+packed experts in layer zero. Each expert evaluated 24 deterministic training
+activations and 12 disjoint held-out activations. An optimistic expert-space
+principal basis was derived only from the training responses and then applied
+to the held-out response matrix. Promotion required both at least a tenfold
+representation reduction and held-out relative $L_2$ error no greater than
+0.05.
+
+Rank 12 provided a nominal 10.67-fold reduction, but explained only 39.06\% of
+training variance and produced 0.5890 held-out relative $L_2$ error. Even rank
+64 reduced representation by only twofold while retaining 0.4001 held-out
+relative $L_2$ error. The decision is
+\texttt{STOP\_SHARED\_EXPERT\_BASIS}; no basis compilation or training is
+justified by these results. Canonical SHA-256:
+\texttt{57f565c6b77228ee642f7e0980321949e4ccb9bcd0338489290aabbb8061ae43}.
+
+The report's 622.97-second retrieval total is excluded from storage-throughput
+claims because the long scan experienced external system interference. A
+fresh diagnostic read of eight previously untouched layer-one experts
+retrieved 101,561,864 compressed bytes in 1.346 seconds. Neither timing alters
+the failed functional-error gate or the measured model generation rate.
+
+Together, the exact cache, route grouping, fixed dictionary, single-token
+Metal and shared-basis experiments establish a physical boundary for the
+present unrestricted 120B model: scheduling and lossless representation alone
+cannot credibly produce 30--50 token/s from one SD card on this 18~GB Mac. The
+practical AION path is therefore heterogeneous: use the promoted resident
+small-model path for interactive work and invoke unrestricted 120B selectively
+for depth, verification or offline work. Any learned compression, distillation
+or route-concentrated subnetwork remains a separately authorised,
+quality-gated programme with frozen semantic evaluation.
+
+\subsection{Sparse vocabulary shell and real prompt bridge}
+The prior complete transformer evidence began from the GGUF-declared beginning
+token. A new bridge now exposes each original shard's header through a
+temporary sparse file while leaving the tensor region as an unallocated hole.
+The standard installed llama.cpp vocabulary loader therefore sees the original
+two-shard metadata and its 201,088-token vocabulary without reconstructing or
+loading the 62,841,713,344 logical model bytes. The two sparse shells occupied
+13,025,280 physical bytes, a 99.9793\% reduction relative to their logical
+length, and were deleted after tokenisation and detokenisation.
+
+The real tokenizer mapped the raw prompt \texttt{Hello from AION} to token IDs
+\texttt{[13225, 591, 355, 2044]}. These four externally supplied tokens were
+teacher-forced through all 36 custom attention/MoE blocks with per-layer KV
+history. Two complete passes selected identical expert routes and produced
+bitwise-identical hidden arrays and logits. The first continuation token was
+ID 5913, which the same vocabulary metadata decoded as \texttt{etwork}.
+
+The first pass took 79.819~s and read 5,723,436,121 compressed expert bytes;
+the second took 88.744~s and read 5,330,588,521 bytes. This is therefore a
+functional breakthrough, not a throughput breakthrough: it proves that the
+bounded SD-backed engine accepts real text tokens rather than only its BOS
+token, while confirming that diverse prompt routes remain storage-bound. The
+raw continuation is not a chat-quality result because the GPT-OSS Harmony chat
+template was deliberately not yet applied. Status:
+\texttt{PROMOTE\_PROMPT\_BRIDGE}. Receipt canonical SHA-256:
+\texttt{ec16405dd2641eb352798baaac2c5aa82723d2e6e30928730a21c7c1f8e3bc99};
+complete transformer evidence canonical SHA-256:
+\texttt{673fae7e8d81ad2ff6858f4079b74c9a2fb8614f6f1c4e6ae34147d0697e3fcb}.
+
+The next functional gate is a correctly templated minimal user message and a
+short decoded response, with exact repeated routes and logits retained. Only
+after that gate passes may the 120B tier participate in the heterogeneous
+completed-task experiment.
+
+That next functional gate has now passed for the minimal user message
+\texttt{Hi}. The model-declared Harmony template produced seven input tokens:
+\texttt{[200006, 1428, 200008, 12194, 200007, 200006, 173781]}.
+After those tokens were teacher-forced, the model autonomously generated
+\texttt{[200005, 35644, 200008]}, decoded by its own vocabulary as
+\texttt{<|channel|>analysis<|message|>}. This is the correct structural opening
+of a Harmony assistant reasoning response.
+
+Both nine-position passes used complete 36-layer attention/MoE evaluation and
+produced identical response tokens, routes, hidden arrays and logits. The first
+pass took 241.381~s and read 9,604,782,675 compressed bytes; the second took
+412.017~s and read 9,160,755,501 bytes. One second-pass position suffered a
+232.228~s system/storage-pressure outlier, so these timings are retained as
+observed and are not promoted as steady-state throughput. The response header,
+however, is exact and repeatable. Status:
+\texttt{PROMOTE\_HARMONY\_RESPONSE\_HEADER}. Receipt canonical SHA-256:
+\texttt{f2a39370083fa15a91fbab48f238b73eee27618605fb533b7fa844540760cc9e};
+complete transformer evidence canonical SHA-256:
+\texttt{9cea326fe691bddd58f4312a3d9225826b00d332181e3c276aec764036a151db}.
+
+The remaining functional milestone is the first ordinary-language token after
+the Harmony header, then a short terminated response. The latency result also
+strengthens the heterogeneous-routing requirement: unrestricted 120B should be
+reserved for work whose added depth justifies minutes of prompt-prefill time on
+this particular SD card.

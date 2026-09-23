@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.7 --- Consequence Simulation and Risk Forecasting}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.7 introduces deterministic consequence simulation and risk forecasting for the AION chess stack.
+
+This phase consumes the Phase 22E.6 long-term multi-stage plan and produces a risk forecast for each plan stage before execution.
+
+\section{Forecast Contract}
+
+For each long-term plan stage, the kernel emits:
+
+\begin{itemize}[leftmargin=*]
+  \item stage goal;
+  \item risk before;
+  \item expected risk after;
+  \item risk delta;
+  \item failure probability;
+  \item fallback requirement;
+  \item fallback goal;
+  \item forecast trace hash.
+\end{itemize}
+
+\section{Risk Model}
+
+The risk forecast is deterministic and local.
+
+It uses AION positional feature telemetry, including:
+
+\begin{itemize}[leftmargin=*]
+  \item king safety;
+  \item promotion danger;
+  \item invasion risk;
+  \item development score;
+  \item centre control;
+  \item piece activity;
+  \item positional score trend.
+\end{itemize}
+
+\section{Technical Position}
+
+This phase does not prove open-ended strategic understanding.
+
+It creates a deterministic risk-forecasting layer over planned stages so AION can evaluate likely consequence pressure before committing to a plan.
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+It is deterministic local consequence simulation over AION chess telemetry.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e7_full_chess_consequence_simulation_risk_forecasting_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e7_full_chess_consequence_simulation_risk_forecasting_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E7-FULL-CHESS-CONSEQUENCE-SIMULATION-RISK-FORECASTING\\
+Status: LOCKED --- deterministic consequence simulation and risk forecasting implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -1,0 +1,284 @@
+% Append-only section for the AION GPT-OSS 120B technical record.
+% Requires: amsmath, booktabs, tabularx.
+% This is a section fragment: do not add \documentclass or \begin{document}.
+
+\section{Overnight 120B Student and SD-Native Tokenizer Programme}
+\label{sec:gptoss120b-overnight-route-student-20260912}
+
+\subsection{Scope and inherited performance boundary}
+
+This section records work performed during the overnight programme ending
+12 September 2026.  Its purpose was to determine whether a compact resident
+calculation could reproduce the contribution of omitted GPT-OSS 120B experts
+accurately enough to approach the previously measured resident top-one
+execution ceiling.
+
+No new generated-token speed result was promoted during this work.  The
+inherited exact unrestricted frontier therefore remains 1.72455 tokens per
+second on the frozen arithmetic family and 1.82858 tokens per second on the
+frozen extraction family.  The previously measured fixed top-one path remains
+28.6174 tokens per second, but it is a physical execution ceiling only: its
+repetitive and incoherent output fails the semantic-quality contract.
+
+The overnight programme did not alter the exact router, the authoritative
+four-expert teacher, the source MXFP4 weights, or the exact fallback.  Every
+compact candidate described below belongs to a separately labelled
+quality-gated research track.
+
+\subsection{Pre-registered route-concentrated hypothesis}
+
+The central hypothesis was that one original expert could remain as a fast
+resident path while a substantially smaller learned correction reproduced the
+combined contribution of the other selected experts.  For layer $\ell$,
+activation $x$, selected expert identities $e_{1:4}$ and normalized gates
+$g_{1:4}$, the proposed form was
+\begin{equation}
+ \widehat{M}_{\ell}(x)
+ = g_1E_{\ell,e_1}(x)
+ + C_{\ell}\!\left(x,e_{1:4},g_{1:4}\right),
+\end{equation}
+where $C_{\ell}$ is a compact resident route-conditioned correction.
+
+The layer-level numerical promotion gate was fixed before testing:
+\begin{enumerate}
+  \item held-out relative-$L_2$ p95 no greater than 0.02;
+  \item maximum relative-$L_2$ no greater than 0.05;
+  \item certified non-fallback coverage of at least 10\%;
+  \item at most half the teacher's expert bytes on accepted positions;
+  \item lower accepted-path latency than the corresponding original packed
+        expert path; and
+  \item preservation of every failure and fallback in the evidence record.
+\end{enumerate}
+Whole prompt families, rather than individual positions, were separated for
+training, selection and unseen evaluation.  Oracle coverage was treated only
+as an upper bound and never as deployable coverage.
+
+\subsection{Real-anchor local correction}
+
+The first candidate used 33 genuine arithmetic anchors from layer 12,
+covering 23 distinct omitted-expert identities.  For each anchor, 32
+perturbations were sampled in a 24-dimensional empirical activation subspace.
+The original SD-backed expert recalculated every target, yielding 1,056 exact
+teacher perturbations.  Extraction data selected rank and regularization; the
+21-position reasoning family remained unseen until the final gate.
+
+The selected rank-16 expert-conditioned local linear cartridge occupied
+12,186,061 bytes.  Its measured calculation latency was 0.02025\,ms at p50 and
+0.02129\,ms at p95.  Speed and size were therefore excellent, but transfer
+accuracy failed decisively.  On extraction, zero selected rows met the
+two-percent error boundary and p95 relative-$L_2$ was 0.10258.  On unseen
+reasoning, matching expert identities existed for 10 of 21 rows, but zero rows
+were safe; relative-$L_2$ was 0.06752 at p50 and 0.07433 at p95.
+
+The result was recorded as
+\texttt{STOP\_ROUTE\_CONCENTRATED\_LOCAL}.  It showed that local linear
+neighbourhoods around arithmetic activations do not reproduce the omitted
+expert function across semantic families, even when every perturbation target
+is recalculated from the original weights.
+
+\subsection{Higher-capacity nonlinear correction}
+
+A materially larger layer-12 student was then evaluated.  It consumed the
+complete 2,880 dimensional activation, embedded the omitted expert identity,
+included the omitted expert's gate value, and used two nonlinear hidden
+layers.  Candidate capacity increased as far as 512 hidden units.  Model
+selection used extraction; reasoning remained unopened until the development
+gate.
+
+The selected cartridge occupied 12,980,881 bytes and evaluated in
+approximately 1.0004\,ms median.  It recognized omitted-expert identities for
+9 of 22 extraction positions and 10 of 21 unseen reasoning positions, but
+zero positions satisfied the two-percent safety boundary.  Extraction p95
+relative-$L_2$ was 0.11362.  Reasoning error was 0.07343 at p50 and 0.08319 at
+p95.  The result was
+\texttt{STOP\_ROUTE\_CONCENTRATED\_NONLINEAR}.
+
+This falsified the proposition that additional network capacity alone could
+repair the missing cross-family structure in the arithmetic-centred training
+manifold.
+
+\subsection{Expanded genuine-family retraining}
+
+The nonlinear architecture was frozen before genuine extraction trajectories
+were added to training.  The expanded dataset contained 55 real arithmetic
+and extraction anchors, 33 omitted-expert identities and 1,320 exact teacher
+recalculations.  The preceding 512-unit architecture and regularization were
+not retuned against reasoning.
+
+Broader genuine-family training increased reasoning identity coverage from
+10/21 to 12/21, but certified safe coverage remained zero.  On those covered
+reasoning positions, relative-$L_2$ was 0.07193 at p50 and 0.08175 at p95.
+The 12,980,561-byte cartridge evaluated in 0.9780\,ms median.  It was again
+recorded as \texttt{STOP\_ROUTE\_CONCENTRATED\_NONLINEAR}.
+
+The important negative result is that neither greater capacity, exact local
+teacher perturbations, nor the addition of a second genuine semantic family
+created a certifiable operating region.  Repeating the same architecture with
+additional near-anchor samples was therefore stopped.
+
+\subsection{Retained-expert low-rank oracle bounds}
+
+Before implementing a more expensive adapter inside the retained expert, an
+intentionally impossible oracle tested whether the available output directions
+could satisfy the declared gate.  The oracle observed each held-out target and
+selected its optimal coefficients in the complete span of the training
+targets.  A deployable predictor would possess less information, so failure of
+this oracle is a strong stop condition.
+
+With the original 55-target fit corpus, the complete rank-54 span made only
+1 of 21 unseen reasoning positions safe: 4.76\% coverage, below the declared
+10\% minimum.  Relative-$L_2$ was 0.05833 at p50 and 0.07174 at p95.
+
+To test whether the limit was simply caused by insufficient directions, AION
+then composed 12 previously verified families containing 957 layer-position
+records.  These included genuine arithmetic and extraction trajectories, BOS,
+four independent synthetic tokens and two independent eight-position
+KV-linked trajectories.  Rebuilding the layer-12 top-three residual dataset
+increased the fit set from 55 to 78 targets.  Even the complete rank-77 span
+still admitted only 1 of 21 reasoning positions, again 4.76\%.  Error improved
+only slightly to 0.05744 at p50 and 0.07101 at p95.
+
+Both oracle experiments were recorded as
+\texttt{STOP\_RETAINED\_EXPERT\_LOW\_RANK\_ADAPTER}.  This avoided an
+unjustified adapter-training cycle: better coefficient prediction cannot
+create output directions that do not exist in the fitted span.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Overnight layer-12 candidate results.  ``Safe'' means relative-$L_2$
+no greater than 0.02 on the unseen reasoning gate.}
+\label{tab:gptoss120b-overnight-candidates}
+\begin{tabularx}{\textwidth}{@{}Xrrrr@{}}
+\toprule
+Candidate & Covered & Safe & Reasoning p95 & Decision \\
+\midrule
+Real-anchor local linear & 10/21 & 0/21 & 0.07433 & Stop \\
+Nonlinear, arithmetic fit & 10/21 & 0/21 & 0.08319 & Stop \\
+Nonlinear, expanded fit & 12/21 & 0/21 & 0.08175 & Stop \\
+Rank-54 impossible oracle & 21/21 & 1/21 & 0.07174 & Stop \\
+Rank-77 expanded oracle & 21/21 & 1/21 & 0.07101 & Stop \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{SD-native GPT-OSS tokenizer recovery}
+
+The failed students exposed a separate experimental dependency: broader
+genuine semantic trajectories could not be collected cleanly without a trusted
+local GPT-OSS tokenizer.  AION therefore reconstructed the tokenizer directly
+from the verified virtual GGUF header in the compressed SD warehouse.
+
+The implementation reads a 201,088-token vocabulary and 446,189 BPE merges
+from the SD-resident model representation.  It implements the GGUF-declared
+\texttt{gpt-4o} pre-tokenization rule, byte encoding, ranked BPE merging,
+special-token addressing and the GPT-OSS Harmony user wrapper.  It neither
+downloaded another model nor depended upon an externally installed GPT-OSS
+tokenizer.
+
+Against the frozen public prompt ``What is 17 multiplied by 23?'', the
+SD-native implementation reproduced all 15 reference token identifiers
+exactly, including Harmony control tokens.  The tokenizer gate status is
+\texttt{PASSED}, and the focused integrity suite passed 27/27 tests.
+
+This is a genuine enabling result, but it is not an inference-speed or model-
+quality result.  It makes the compressed SD warehouse self-describing for
+prompt construction and permits new teacher trajectories to remain
+cryptographically bound to the same model representation.
+
+\subsection{New public-family corpus and first teacher capture}
+
+Using the SD-native tokenizer, four generic public prompt families were frozen
+without storing prompt text in the emitted corpus:
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Family & Harmony token count \\
+\midrule
+Public explanation: rain & 16 \\
+Public business: waste reduction & 17 \\
+Public reasoning: box implication & 21 \\
+Public writing: invoice reminder & 18 \\
+\bottomrule
+\end{tabular}
+\end{center}
+The corpus contains only family identifiers, public-prompt hashes, token IDs,
+capture positions and the requested layer.  It contains no personal data or
+customer data.  Its status is ``ready for teacher capture.''
+
+The explanation family subsequently completed a real GPT-OSS 120B capture.
+Both passes traversed all 36 attention/MoE blocks for each of the 16
+teacher-forced tokens.  Layer-12 evidence was captured at ten positions.
+Routes were repeatable, and the final hidden state and logits were bitwise
+repeatable.  The result status is \texttt{PASSED}.  Because the run was a
+teacher-trajectory capture rather than a balanced continuation benchmark, no
+tokens-per-second claim is derived from it.
+
+The next business-family capture was interrupted before a final evidence
+artifact was written.  It is therefore excluded from all counts and claims.
+It must be rerun from the frozen token corpus; the incomplete execution is not
+treated as either a pass or a failure.
+
+\subsection{Evidence bindings}
+
+The principal canonical SHA-256 bindings are:
+\begin{footnotesize}
+\begin{verbatim}
+Local correction gate:
+88ed9bfa47c06414c1b53133ddc42c4b53b77da6fbdebe7592b9c90e572e70b5
+
+Nonlinear arithmetic-fit gate:
+17baac2033d589a49f28d8fad17976f4973916dfa76dac0c4d3ab848d82e072d
+
+Nonlinear expanded-fit gate:
+b933932701be63a9aea8ae3481379a826cbf23f2eb6bd2ff3d0c26f44b532d10
+
+Rank-54 retained-expert oracle:
+dee9800ef0d050989c8babd5113d6e3b8934fa058565ed9e80c6f2318295bf8d
+
+Rank-77 expanded oracle:
+c2d6cffbe982f886a24d3b4b329a03d23a59235d67ca798801aa0bf3ac4183d6
+
+SD-native tokenizer gate:
+c2a2a3bd46a81573def806ccf91b07a66eb39c5c8508972d0331aaec8ef81f80
+
+Public prompt token corpus:
+86e73f538caae10a7c7620eb3420496ef39b7cae53877191417c367fba9b90d2
+
+Public explanation teacher capture:
+5a0b9de8132e2e10bfe7bf40487eabe4273cf32680c10b20f28c477ef4dd87ce
+\end{verbatim}
+\end{footnotesize}
+
+The corresponding isolated implementation commits are listed below.
+\begin{center}
+\small\ttfamily
+f748ea1e \quad 6d270f94 \quad 56c0d34b \quad fba8ba13 \\
+8498d426 \quad 5dd80bea \quad 5f665bcb
+\end{center}
+
+\subsection{Conclusions and next gate}
+
+The overnight programme produced an enabling infrastructure breakthrough, not
+a generated-token speed breakthrough.  It established that several attractive
+small corrections are fast enough but lack the expert-specific, route-specific
+and semantic structure required for safe substitution.  The impossible-oracle
+results further show that this deficiency cannot be repaired merely by a
+better selector over the current low-rank target span.
+
+At the same time, the SD-native tokenizer removes the dependency that had
+prevented broad, controlled teacher capture.  The next admissible experiment
+is therefore to finish the four frozen public-family captures, keep one whole
+family blind, and train a route-concentrated student from genuinely broader
+semantic trajectories.  It may advance to bounded multi-layer substitution
+only if it passes the existing numerical boundary on the blind family.
+
+Until that happens, the scientifically valid statement is:
+\begin{quote}
+The exact unrestricted GPT-OSS 120B runtime remains approximately
+1.72--1.83 tokens per second.  A 28.6174-token-per-second top-one execution
+ceiling has been measured but fails quality.  Overnight compact correction
+candidates did not close that gap; however, AION can now tokenize new GPT-OSS
+prompts directly from its compressed SD warehouse and has completed the first
+repeatable new-family teacher capture needed for the next student design.
+\end{quote}

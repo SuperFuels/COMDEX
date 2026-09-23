@@ -1,0 +1,420 @@
+\section{HexCore Phases 45--47: Grounded Evidence, Continual Learning, and a Replaceable Language Substrate}
+\label{sec:hexcore-phases-45-47-grounding-continual-substrate}
+
+\subsection{Programme objective}
+
+Phases 45--47 connect three previously separate requirements of the AION
+cognitive architecture:
+\begin{enumerate}
+    \item grounding decisions in provenance-bearing evidence from several
+    modalities;
+    \item accumulating verified procedural experience without forgetting
+    earlier capabilities; and
+    \item using a substantially stronger pretrained language model for rapid
+    semantic proposals without transferring truth or promotion authority to
+    that model.
+\end{enumerate}
+
+The combined architecture follows the invariant
+\[
+\begin{aligned}
+\text{neural or perceptual proposal}
+&\rightarrow \text{HexCore compatibility check}\\
+&\rightarrow \text{executable verification}\\
+&\rightarrow \text{accept, abstain, or fall back}\\
+&\rightarrow \text{outcome memory}
+\rightarrow \text{CAU}.
+\end{aligned}
+\]
+Here, Cognitive Authority Unification (CAU) remains the final promotion
+authority.  Language models, modality parsers, learned routers, and retrieved
+procedures remain proposal mechanisms.
+
+\subsection{Phase 45: multimodal world grounding with GlyphChain proofs}
+\label{subsec:phase45-multimodal-glyphchain}
+
+\subsubsection{Research question}
+
+Phase 45 tested whether AION could ground a decision in several distinct
+evidence modalities, preserve exact provenance, detect contradictions and
+bind the resulting evidence set into a tamper-detecting commitment.
+GlyphChain was used as a \emph{proof rail}, not as a payment rail.
+
+\subsubsection{Evidence architecture}
+
+Each evaluation world contained four actual artifacts:
+\begin{enumerate}
+    \item a natural-language policy document containing a limit, revision and
+    reported observation;
+    \item a CSV table containing the primary measured value;
+    \item a PGM pixel image containing a visually encoded gauge reading; and
+    \item a JSON software-state record containing the active state and current
+    policy revision.
+\end{enumerate}
+
+Every modality-specific parser produced an
+\texttt{aion.multimodal.evidence\_capsule.v1} capsule containing:
+\begin{itemize}
+    \item a stable evidence identifier and modality;
+    \item source URI and exact evidence location;
+    \item a content hash and observation time;
+    \item the extracted value and extraction confidence; and
+    \item whether the value was directly parsed or merely reported.
+\end{itemize}
+
+The governed decision policy accepted a case only when the image and table
+readings agreed, the reported reading agreed with the table, the policy
+revision matched the live software revision, the software control state was
+active, and the verified reading did not exceed the policy limit.  A verified
+reading above the limit produced a rejection.  Any unresolved cross-modal
+conflict produced abstention rather than a guessed decision.
+
+\subsubsection{GlyphChain evidence commitment}
+
+The final decision, contradiction set and canonical evidence-capsule hashes
+were inserted into an \texttt{AION\_EVIDENCE\_PROOF\_V1} envelope.  The
+GlyphChain canonical codec generated the commitment hash.  Verification
+recomputed both the payload hash and the commitment hash:
+\[
+C_{\mathrm{evidence}}
+=
+H\!\left(
+  \operatorname{canon}
+  \left[
+    D,\,
+    \mathcal{C},\,
+    H(E_1),\ldots,H(E_n)
+  \right]
+\right),
+\]
+where \(D\) is the governed decision, \(\mathcal{C}\) is the contradiction
+set, and \(E_i\) is a provenance-bearing evidence capsule.  Each evaluation
+also mutated the committed decision after hashing; every mutated envelope was
+required to fail verification.
+
+This adapter generated and verified deterministic internal commitments.  It
+did not submit a live GlyphChain transaction, move PHO, access a wallet, or
+create a payment or escrow obligation.
+
+\subsubsection{Phase 45 sealed results}
+
+The official evaluation contained 140 worlds: 100 sealed worlds and 40
+external-namespace worlds distributed across five contradiction families.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Measure} & \textbf{Result}\\
+\hline
+Multimodal decision accuracy & 100\%\\
+Weakest-family accuracy & 100\%\\
+External accuracy & 100\%\\
+Text-only control accuracy & 40\%\\
+Accuracy improvement over text-only control & +60 points\\
+Provenance-complete evidence sets & 100\%\\
+Verified GlyphChain commitments & 100\%\\
+Tampered commitments accepted & 0\\
+Unsafe false acceptances & 0\\
+Restart retention & 100\%\\
+Live chain transactions & 0\\
+Payment side effects & 0\\
+\hline
+\end{tabular}
+\caption{Phase 45 multimodal grounding and proof results.}
+\label{tab:phase45-multimodal-results}
+\end{table}
+
+The promoted procedure was
+\texttt{procedure\_multimodal\_grounding\_9bc5141c1e09}.
+The dedicated GlyphChain proof suite passed \(9/9\) tests, and the complete
+HexCore history passed \(55/55\) tests at the time of promotion.
+
+\subsubsection{Phase 45 boundary}
+
+The image modality was a controlled scalar pixel gauge and each parser was
+engineered.  The result therefore establishes bounded cross-modal grounding,
+provenance and tamper detection; it does not establish general computer
+vision, arbitrary diagram interpretation, audio/video cognition, live sensor
+deployment or artificial general intelligence.
+
+\subsection{Phase 46: large continual-learning arena}
+\label{subsec:phase46-continual-arena}
+
+\subsubsection{Research question and arena}
+
+Phase 46 tested whether AION could accumulate verified experience across
+different reasoning families, use retained experience to select better
+procedures, preserve earlier competence while learning new skills, abstain on
+unknown operators and retain all improvements after restart.
+
+The official arena contained 2,040 tasks:
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Cohort} & \textbf{Tasks}\\
+\hline
+Development & 1,200\\
+Sealed & 480\\
+External-source phrasing & 240\\
+Unknown-operator OOD & 120\\
+\hline
+Total & 2,040\\
+\hline
+\end{tabular}
+\caption{Phase 46 arena composition.}
+\label{tab:phase46-arena-composition}
+\end{table}
+
+Twelve executable procedure families covered mathematics, formal logic,
+evidence support and contradiction, causal state transitions, sequential and
+branching planning, and numeric and Photon tool routing.  A learned router
+could propose a procedure, but could not approve it.  Every accepted answer
+was checked by an executable authority.  Rejected or low-confidence proposals
+fell back to governed exhaustive search.
+
+\subsubsection{Continual challenger protocol}
+
+Training proceeded through three private challenger generations:
+\begin{itemize}
+    \item Generation 1 learned mathematics and logic.
+    \item Generation 2 learned evidence and causal reasoning while replaying
+    Generation 1.
+    \item Generation 3 learned planning and tool routing while replaying all
+    preceding families.
+\end{itemize}
+
+Promotion required unchanged mean and weakest-family accuracy, fewer real
+procedure attempts, at least 95\% first-choice transfer, at least 98\%
+backward retention, zero unsafe accepted proposals, source-disjoint sealed
+evaluation and CAU authorization.  Unknown operators had no compatible
+executable contract and were therefore required to abstain irrespective of
+router confidence.
+
+\subsubsection{Compounding efficiency}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{llrr}
+\hline
+\textbf{Generation} & \textbf{New capability family}
+& \textbf{Cumulative tasks} & \textbf{Attempt reduction}\\
+\hline
+1 & Mathematics and logic & 400 & 17.72\%\\
+2 & Evidence and causal reasoning & 800 & 51.42\%\\
+3 & Planning and tool routing & 1,200 & 84.46\%\\
+\hline
+\end{tabular}
+\caption{Phase 46 cumulative continual-learning efficiency.}
+\label{tab:phase46-generations}
+\end{table}
+
+All generations retained 100\% mean and weakest-family outcome accuracy.  A
+control trained only on the latest generation achieved a 17.49\% attempt
+reduction, whereas the cumulative learner achieved 84.46\%.  The resulting
+continual-memory advantage was therefore
+\[
+84.46 - 17.49 = 66.97\ \text{percentage points}.
+\]
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Final measure} & \textbf{Result}\\
+\hline
+Outcome accuracy & 100\%\\
+Weakest-family accuracy & 100\%\\
+First-choice procedure accuracy & 100\%\\
+Reasoning-attempt reduction & 84.46\%\\
+Maximum measured forgetting & 0\%\\
+OOD safe abstention & 100\%\\
+OOD unsafe acceptances & 0\\
+Restart retention & 100\%\\
+\hline
+\end{tabular}
+\caption{Phase 46 final governed results.}
+\label{tab:phase46-final-results}
+\end{table}
+
+The final promoted procedure was
+\texttt{procedure\_continual\_arena\_g3\_ed42d407dc17}.  At completion,
+the complete HexCore history passed \(56/56\) tests.
+
+\subsubsection{Phase 46 interpretation and boundary}
+
+The experiment establishes bounded continual procedural learning: earlier
+verified outcomes materially changed which reasoning method AION tried first,
+later learning did not erase earlier tested competence, unfamiliar operations
+triggered safe fallback, and the learned state survived restart.  The arena
+was procedurally generated rather than a collection of 2,040 independently
+human-authored problems.  It therefore does not establish unrestricted
+domain-general reasoning, broad social or creative intelligence, or AGI.
+
+\subsection{Phase 47: stronger replaceable cognitive substrate}
+\label{subsec:phase47-gemma-substrate}
+
+\subsubsection{Objective and substrate contract}
+
+Phase 47 tested whether a substantially stronger pretrained language
+substrate could improve natural-language transfer without acquiring authority
+over truth, memory, execution or promotion.
+
+The local frozen substrate had the following recorded configuration:
+\begin{table}[htbp]
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Property} & \textbf{Value}\\
+\hline
+Runtime model & \texttt{gemma4:e2b}\\
+Parameters & 5.1 billion\\
+Quantization & Q4\_K\_M\\
+Context window & 131,072 tokens\\
+Representation width & 1,536\\
+Local artifact size & approximately 7.2 GB\\
+Advertised capabilities & completion, vision, audio, tools, thinking\\
+\hline
+\end{tabular}
+\caption{Phase 47 local substrate configuration.}
+\label{tab:phase47-substrate}
+\end{table}
+
+The recorded model digest was:
+\begin{center}
+\small\ttfamily
+7fbdbf8f5e45a75bb122155ed546e765\\
+b4d9c53a1285f62fd9f506baa1c5a47e
+\end{center}
+The installed Ollama package did not expose this model through its embedding
+endpoint.  The implementation therefore used deterministic constrained
+generation with a strict procedure-label schema and a small output budget.
+Responses were cached by model and instruction hash, allowing interrupted
+evaluation to resume safely.
+
+\subsubsection{Authority-preserving architecture}
+
+\[
+\begin{aligned}
+\text{natural instruction}
+&\rightarrow \text{frozen Gemma proposal}\\
+&\rightarrow \text{strict label parser}\\
+&\rightarrow \text{HexCore capability-contract check}\\
+&\rightarrow \text{executable verification}\\
+&\rightarrow \text{accept or governed fallback}\\
+&\rightarrow \text{outcome memory and CAU}.
+\end{aligned}
+\]
+
+The substrate was explicitly prohibited from accepting its own proposal,
+creating an executable compatibility contract, writing HexCore knowledge,
+bypassing fallback, approving promotion, modifying the protected 150M
+foundation, or becoming necessary for correct governed operation.
+
+\subsubsection{Evaluation contract}
+
+The evaluation contained 96 sealed natural-paraphrase tasks, 48
+external-source paraphrase tasks and 48 subjective, ambiguous or unknown OOD
+requests.  Twelve procedure classes covered mathematics, logic, evidence,
+causal reasoning, planning and tool routing.  A lexical control learned only
+from the procedural language of Phase 46.  Gemma received the same allowed
+procedure schema but source-disjoint natural instructions.
+
+\subsubsection{Phase 47 results}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Measure} & \textbf{Result}\\
+\hline
+Lexical-control proposal accuracy & 8.33\%\\
+Gemma proposal accuracy & 90.97\%\\
+Natural-language transfer gain & +82.64 points\\
+Weakest-family proposal accuracy & 66.67\%\\
+Governed outcome accuracy & 100\%\\
+Reasoning-attempt reduction & 73.66\%\\
+Mean recorded local proposal latency & 321 ms\\
+Raw Gemma OOD abstention & 50\%\\
+Governed OOD abstention & 100\%\\
+Provider-disabled governed accuracy & 100\%\\
+Unsafe accepted proposals & 0\\
+Restart retention & 100\%\\
+\hline
+\end{tabular}
+\caption{Phase 47 replaceable-substrate results.}
+\label{tab:phase47-results}
+\end{table}
+
+The promoted procedure was
+\texttt{procedure\_stronger\_substrate\_3ddbe4956a12}.  The complete HexCore
+history passed \(57/57\) tests after integration.
+
+\subsubsection{Decisive negative result}
+
+Raw Gemma abstained correctly on only 50\% of unsupported OOD requests.  This
+was retained as an explicit substrate limitation rather than hidden by the
+governed score.  The initial evaluation correctly rejected any design that
+treated raw model abstention as the safety authority.
+
+The final architecture instead enforced the pre-declared compatibility rule:
+a proposal cannot be accepted without a valid executable capability contract.
+Every OOD request lacked such a contract and was routed to abstention or
+fallback.  Consequently, governed OOD abstention reached 100\%, provider-off
+accuracy remained 100\%, and no unsafe proposal was accepted.
+
+This result demonstrates the intended dual-process separation:
+\[
+\underbrace{\text{pretrained neural substrate}}_{\text{semantic intuition}}
+\quad+\quad
+\underbrace{\text{HexCore and executable authorities}}_{\text{verification,
+memory, and control}}.
+\]
+The neural model improves semantic proposal quality; it does not determine
+what AION is permitted to accept as knowledge or action.
+
+\subsection{Combined architectural achievement}
+
+Together, Phases 45--47 establish the following bounded cognitive chain:
+\[
+\begin{aligned}
+\text{multimodal artifacts}
+&\rightarrow \text{provenance-bearing evidence capsules}\\
+&\rightarrow \text{contradiction-aware grounded decision}\\
+&\rightarrow \text{GlyphChain tamper-evident commitment}\\
+&\rightarrow \text{verified outcome memory}\\
+&\rightarrow \text{continually improved procedure selection}\\
+&\rightarrow \text{stronger natural-language proposals}\\
+&\rightarrow \text{HexCore verification and CAU}.
+\end{aligned}
+\]
+
+The central advance is architectural rather than a claim of frontier
+intelligence.  AION can combine grounded evidence, persistent experience and
+a strong local semantic model while remaining operational when that model is
+removed.  Its accepted decisions retain evidence, execution and governance
+links instead of depending solely on an opaque language-model output.
+
+\subsection{Recorded limitations and next evaluation}
+
+The experiments remain bounded:
+\begin{itemize}
+    \item multimodal images were controlled gauges rather than unrestricted
+    natural scenes;
+    \item the continual arena used engineered procedural tasks and authorities;
+    \item the language benchmark used constrained internal procedure
+    classification rather than broad discourse or generation;
+    \item the local Gemma substrate was not fine-tuned and did not become an
+    AION-native language generator;
+    \item no result establishes frontier competitiveness, unrestricted
+    autonomous learning or AGI.
+\end{itemize}
+
+The next numbered stage is Phase 48: frozen, contamination-controlled external
+evaluation.  It must use independently sourced human-authored tasks, fixed
+protocols, source and training isolation, public baselines, appropriate
+executable or human authorities, and third-party reproducibility.  Phase 47
+V2 should separately test the frozen substrate on natural-document reading,
+open-schema extraction, multimodal proposal generation and grounded language
+generation while preserving the same authority boundary.

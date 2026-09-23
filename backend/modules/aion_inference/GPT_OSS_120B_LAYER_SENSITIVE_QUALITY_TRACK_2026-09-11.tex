@@ -1,0 +1,382 @@
+% Append-only section for the AION GPT-OSS 120B technical record.
+% Requires only the packages already used by the parent record.
+\section{Layer-Sensitive Adaptive Continuation and Long-Window Cache Boundary}
+\label{sec:gptoss120b-layer-sensitive-quality-20260911}
+
+This section records a deliberately separate changed-model quality track.  The
+prompt/prefill path remained the unrestricted four-expert GPT-OSS 120B path.
+During greedy continuation, the runtime first selected the unrestricted top
+four experts from all 128 experts in each layer.  On explicitly selected layers
+only, it retained the smallest prefix of two, three, or four experts whose
+cumulative unrestricted gate mass exceeded a declared threshold.  The original
+surviving gate values were preserved rather than renormalized.  This changes
+the neural calculation whenever fewer than four experts are retained; it is
+therefore not bit-exact unrestricted GPT-OSS 120B inference.
+
+The runtime gained an explicit, bounded layer-range parser and records the
+selected layer set in every evidence report.  A second execution mode combines
+the same adaptive rule with exact pool escape: expert eligibility remains
+unrestricted and any winning expert absent from the resident request pool is
+retrieved through the verified warehouse/L2 path.  This removed the confound in
+the earlier experiment, where even nominally four-expert layers were forced to
+choose from the static resident pool.  The exact I/O/compute overlap primitive
+was also made composable: unchanged four-expert layers may overlap L2 delivery
+with useful expert arithmetic, whereas reduced two/three-expert layers use the
+existing reduced native kernel.
+
+\subsection{Static-pool layer restriction: stopped}
+
+The first candidate applied a preserved-mass threshold of 0.80 only to layers
+24--35 but continued to constrain all continuation routes to the static
+request pool.  Over the 38-position response it made 6 two-expert, 201
+three-expert, and 1,161 four-expert layer decisions and reached 4.2875 response
+tokens/s on its settled pass.  The two runs were internally bitwise repeatable,
+but the decoded text truncated the source amount to ``EUR 287\ldots'' and did
+not produce a valid extraction.  The branch is therefore
+\texttt{STOPPED\_QUALITY\_FAIL}; its speed is not promoted.  The canonical
+report SHA-256 is
+\texttt{c7325bed1064504e57836eb272b3ab6df71f53f4aa84134e6f3641062fa26fed}.
+The report/receipt file SHA-256 values are
+\texttt{1ad04c161a5a82359753e8cc2fbc8de2ea0697eef6ae58788f418a1fb593d0a8}
+and
+\texttt{0f540dc5707fa0c62c659c7154d8d0365fc7d5425cdcf48e1947ee869fa04ba0}.
+
+\subsection{Unrestricted routing on layers 24--35: coherent but truncated}
+
+The next candidate retained unrestricted router winners and exact pool escape,
+while applying the same 0.80 threshold only to layers 24--35.  Its settled
+38-position continuation reached 1.9083 tokens/s with only three SD fallbacks.
+It made 4 two-expert, 225 three-expert, and 1,139 four-expert layer decisions.
+Routes, final hidden states, step logits, and tokens repeated bitwise across the
+two executions.  The decoded trace correctly identified invoice
+\texttt{A-104} and remained coherent, but the fixed 64-position experimental
+window ended immediately before printing the requested amount.  This result is
+neither a quality failure nor a quality promotion; it is retained as
+\texttt{INCONCLUSIVE\_OUTPUT\_WINDOW}.  The canonical report SHA-256 is
+\texttt{82337728942312494dcca37952c6e60694e26412897d0ef07ffcffe4c7c85fea}.
+The report/receipt file SHA-256 values are
+\texttt{f35433f5339e63fe5ec81309f1973ac6dc3af7f65f3e248094f2ac8db281e809}
+and
+\texttt{1cb7a7a2f719729b8017bbe73757ce484da5c9973137503dc894570516328ab4}.
+
+\subsection{Unrestricted 0.85 adaptive policy: quality pass, speed failure}
+
+To remove the output-window ambiguity, an 80-position paired run applied the
+more conservative 0.85 preserved-mass threshold across layers 0--35.  Across
+the 54-position response, the settled pass made 9 two-expert, 474 three-expert,
+and 1,461 four-expert layer decisions.  Both executions produced the same
+routes, final hidden states, logits, and token sequence.  The decoded answer was
+coherent structured JSON containing both required values exactly:
+\texttt{A-104} and \texttt{EUR 287.50}.  This is the first clean extraction
+quality pass for the unrestricted-route adaptive formulation.
+
+It was not a speed promotion.  The longer generation exceeded the useful
+working set of the 20~GiB demand-admitted L2 cartridge.  The two passes incurred
+462 and 451 SD fallbacks and approximately 68.10 and 68.24 decimal GB of L2
+delivery.  Continuation rates were only 0.4476 and 0.4672 tokens/s; settled p50
+and p95 token latencies were 1.9489 and 4.1650 seconds.  Thus the neural policy
+passed this frozen quality case, while the long-window cache policy thrashed and
+failed the operational speed gate.  The decision is
+\texttt{QUALITY\_PASS\_STORAGE\_NOT\_PROMOTED}.
+
+The canonical report SHA-256 is
+\texttt{688d31963eae5142a2c38e88d06cfce452ac9227b373dd916b79c54435a6aaab}.
+The report/receipt file SHA-256 values are
+\texttt{5326cea2e24c4c172633e60213b445623cf39a77b2f67e156986fc52ba870fe6}
+and
+\texttt{860889c6727cfd9c152391d9bec508e071c0356bae086546afbc75a7ffd36a56}.
+
+\subsection{Interpretation and next gate}
+
+The experiments separate two previously entangled failure modes.  Static pool
+restriction can damage output even when only late layers reduce their expert
+count.  Unrestricted winner selection with exact escape and a conservative
+gate-mass rule can preserve this extraction result, but a 20~GiB scan-prone L2
+cartridge cannot sustain the longer response.  Therefore lowering the mass
+threshold is not the next justified action.  The next gate composes adaptive
+selection with I/O/compute overlap on unchanged four-expert layers and replaces
+the long-window scan behaviour with a bounded admission policy.  It must retain
+the exact extracted values and improve settled throughput; otherwise the branch
+is stopped.  Broader arithmetic, reasoning, and business hold-outs remain
+mandatory before any general quality claim.
+
+\subsection{Two-touch exception admission plus selective overlap}
+
+The long-window failure was traced to immediate admission of every non-core L2
+exception.  The 1,357 resident protected cartridge entries consumed almost the
+entire 20~GiB capacity, leaving a small unprotected tail in which one-use
+experts repeatedly displaced potentially reusable exceptions.  A bounded
+two-touch admission rule was added: protected cartridge entries remain
+immediately admissible, while an exact non-core exception is served transiently
+from the authoritative SD warehouse on first demand and may occupy L2 only
+after a second demand.  This is a cache-policy change only; it does not alter
+router eligibility, gates, weights, or expert arithmetic.
+
+The rule was composed with I/O/compute overlap on the 1,146 response layers
+that still used four experts.  Two- and three-expert adaptive layers retained
+the reduced native kernel.  The same 80-position prompt, 0.85 preserved-mass
+policy, 8~GiB request pool and 20~GiB cartridge were rerun twice.  Both runs
+again produced identical routes, hidden states, logits, and token sequences,
+and decoded to the same correct JSON containing \texttt{A-104} and
+\texttt{EUR 287.50}.
+
+Continuation rates were 0.5760 and 0.5310 tokens/s, giving a two-pass median of
+0.5535 tokens/s.  Against the immediately preceding identical neural policy
+without two-touch admission/overlap (0.4574 tokens/s median), this is a 21.0\%
+improvement.  Median SD fallbacks fell from 456.5 to 386 (15.4\%), median L2
+evictions fell from 456.5 to 162 (64.5\%), median p50 token latency fell from
+2.0233 to 1.7287 seconds (14.6\%), and median p95 latency fell from 4.2528 to
+3.5280 seconds (17.0\%).  The candidate therefore materially reduces cartridge
+churn and improves long-window performance without losing this frozen quality
+case.
+
+The decision is \texttt{ADVANCE\_CACHE\_STABILITY\_NOT\_SPEED\_FRONTIER}.
+The approximately 21\% gain is real but does not constitute the target
+orders-of-magnitude breakthrough, and the present two-run comparison does not
+separate the individual contributions of admission and overlap.  The canonical
+report SHA-256 is
+\texttt{97315d857063d48511c17ca1c9f171d6219a89b55a9210921cde58440b69b4cf}.
+The report/receipt file SHA-256 values are
+\texttt{360a18348b98b90be2dabf9e4b05e1d78f9c6f0471859ad13ad085ac468f5df2}
+and
+\texttt{56613356d1a39334b661c307afe7533cc183d51fad9367568ed270511997444c}.
+
+\subsection{Frequency-gated exception admission}
+
+An offline reuse audit of the same unrestricted-route trace found 444 unique
+non-cartridge exceptions.  Of these, 249 appeared only once in one 80-position
+pass, 97 appeared twice, and only 98 appeared at least three times.  The
+two-touch rule therefore still admitted many low-frequency entries when the
+paired execution repeated the request.  The admission mechanism was generalized
+without inspecting prompt text: the number of observed demands required before
+L2 admission is now explicit, bounded, and written into the evidence report.
+
+A three-touch candidate was run with every other neural and storage setting
+unchanged.  It produced exactly the same token array as the two-touch candidate
+(token-array SHA-256
+\texttt{1981c74470815ed080ccb8af3c654ba068dbb3726b46fe44b962bca35c75b4dd}),
+remained internally bitwise repeatable, and decoded to the same correct JSON.
+Continuation rates were 0.6522 and 0.7907 tokens/s, a median of 0.7215 tokens/s.
+This is 30.4\% faster than the two-touch composite and 57.7\% faster than the
+immediate-admission 0.4574-token/s control for the identical neural policy.
+
+Median SD fallbacks fell to 289, 25.1\% below two-touch and 36.7\% below the
+immediate-admission control.  Median L2 evictions fell to 56, 65.4\% below
+two-touch and 87.7\% below immediate admission.  Median p50 token latency fell
+to 1.3194 seconds and median p95 fell to 2.9790 seconds, improvements of 34.8\%
+and 30.0\% respectively against immediate admission.
+
+The decision is \texttt{PROMOTE\_THREE\_TOUCH\_EXCEPTION\_ADMISSION} for this
+80-position extraction quality track.  This is a material cache-policy
+breakthrough, but it remains a single-family, two-pass changed-model result and
+still does not reach the exact short-window frontier or the 30--50-token/s
+programme target.  The canonical report SHA-256 is
+\texttt{8bb4ff5b8e97d6e7d1fbae65a5bff7d9df4d0ace8763ffce0b11f47549119259}.
+The report/receipt file SHA-256 values are
+\texttt{10c82534b8b26f40c0c69bffba4b30fc14643adce7bf59001ff1bc33085915b8}
+and
+\texttt{6811c48f2a35214f53cd58e6b61623f55212788e0d7fd284d95fa1a8bd386bd8}.
+
+\subsection{Held-out arithmetic transfer}
+
+The promoted three-touch policy was frozen and transferred without threshold or
+cache-policy adjustment to the separate arithmetic family, using the prompt
+``What is 17 multiplied by 23?''.  The first 64-position run was internally
+bitwise repeatable and contained the tentative value 391, but ended while the
+model was still writing its calculation; it is retained as an inconclusive
+output-window check.  A predeclared extension to 72 positions completed the
+reasoning: $20\times23=460$, $3\times23=69$, and $460-69=391$, explicitly
+confirming 391 as the answer.
+
+The two 72-position executions again repeated routes, final hidden states,
+logits, and tokens bitwise.  Their continuation rates were 0.8825 and 1.1113
+tokens/s (0.9969 median), with 204 and 170 SD fallbacks and only 8 and 19 L2
+evictions.  The result is \texttt{PASS\_HELDOUT\_ARITHMETIC\_QUALITY}; it
+demonstrates transfer of the frozen policy across a second task family, not an
+apples-to-apples speed promotion against the shorter exact control.  Reasoning
+and business hold-outs remain outstanding.
+
+The 72-position canonical report SHA-256 is
+\texttt{f2cc0131d86b1d4af4675d3a113642746a5cf63acc4c644cd55eb29f7ea57581}.
+The report/receipt file SHA-256 values are
+\texttt{ccb2609ad8be56b8af6f37c72ed08517c88111ac88dde30e34c412227a6edad9}
+and
+\texttt{0d047e710aeab7915ee6e47e84df27df64151d64bb7fb4cdf5e93f76fe14dec6}.
+
+\subsection{Parallel authoritative SD fallback: stopped}
+
+Inspection found that the overlap path issued missing L2 reads concurrently but
+resolved multiple authoritative SD fallbacks serially.  A candidate moved the
+complete verified SD read/decompression operation into the existing per-route
+workers while resident expert arithmetic continued.  The unchanged 72-position
+arithmetic gate again produced the correct 391 reasoning trace and repeated
+routes, hidden states, logits, and tokens bitwise.
+
+The candidate rates were 0.9719 and 0.9754 tokens/s, or 0.9737 median, versus
+0.9969 median for the preceding serial-fallback run.  This is a 2.3\%
+regression.  Although the warmed cartridge happened to show 153 fallbacks and
+zero evictions in each candidate pass, that different starting cache state
+cannot be attributed to concurrent SD service and does not rescue the wall-time
+failure.  The parallel fallback code was removed.  Decision:
+\texttt{STOP\_PARALLEL\_SD\_FALLBACK}.  The SD/card-controller path does not
+provide useful request-level parallelism under this workload.
+
+The canonical report SHA-256 is
+\texttt{ee6e955d98c350cbbae5cffc5cbb2da9a759e01d3349f8dc78f9a201c5d8446f}.
+The report/receipt file SHA-256 values are
+\texttt{8bf054b1c721ef2b54b57fda83cc3426a6040d7e6cadca833821b12c222842fd}
+and
+\texttt{6f797b16d80275ca6c37ec8f0dc0c6c00755fec1b9f2a72baf4ebae1064e850c}.
+
+\subsection{Direct compressed-SD-to-native arena: stopped}
+
+A zero-allocation fallback prototype read each compressed component into a
+persistent encoded arena and decompressed it directly into the native route
+arena, retaining both compressed and raw manifest-hash verification.  A warm
+balanced single-expert microbenchmark improved median materialisation from
+22.42 to 20.06~ms (1.118$\times$).  This result did not survive the physical
+storage boundary: across twelve distinct cold SD experts, balanced medians were
+163.26 and 161.73~ms, only a 1.0095$\times$ improvement.  The projected
+end-to-end gain is below 1\%, so the candidate was removed without a costly
+full-model run.  Decision: \texttt{STOP\_DIRECT\_SD\_ARENA}.  Cold transfer
+time, rather than temporary allocation, dominates authoritative fallback.
+
+\subsection{Four-touch admission: promoted on held-out arithmetic}
+
+The exception-frequency boundary was advanced by one demand without changing
+the frozen neural policy: exact unrestricted prefill, preserved-mass 0.85
+adaptive continuation, the original selected weights, the 8~GiB request pool,
+the protected 20~GiB cartridge, and selective read/compute overlap were held
+constant.  Only non-cartridge exceptions now required four observed exact
+demands before L2 admission.  Protected cartridge entries remained immediately
+admissible and every miss retained authoritative SD fallback.
+
+On the unchanged 72-position arithmetic case, both executions reproduced all
+routes, final hidden states, step logits and token identifiers bitwise.  The
+detokenized response again completed the correct calculation
+$20\times23=460$, $3\times23=69$, and $460-69=391$.  Continuation rates were
+1.0816 and 1.1043 tokens/s, for a median of 1.0929 tokens/s.  This is 9.64\%
+above the preceding frozen three-touch median of 0.9969 tokens/s.  The two
+candidate passes each incurred 153 authoritative SD fallbacks, zero L2
+evictions and 68.535 decimal GB of decoded L2 delivery.  Their p50 token
+latencies were 0.7361 and 0.6637 seconds; p95 values were 1.9857 and 2.0636
+seconds.
+
+The provisional arithmetic decision is
+\texttt{ADVANCE\_FOUR\_TOUCH\_ARITHMETIC\_ONLY}; it is the faster observation
+for this frozen long arithmetic track, but the persistent cartridge already
+contained state from preceding experiments and therefore prevents attributing
+the complete timing difference to the admission threshold alone.  It does not
+supersede the 1.7246/1.8286-token/s exact 48-position arithmetic/extraction
+frontier, does not prove transfer to extraction, reasoning or business tasks,
+and is not an unrestricted four-expert model claim because continuation retains
+the separately labelled adaptive expert-count policy.  The canonical
+transformer and receipt SHA-256 values are respectively
+\texttt{cd71833f47b4fc1ec8478a65cd81d9775bd5529b1f3399feb6da78c445975f7f}
+and
+\texttt{7e436a310f3245b767a09c68efdf139cbfa617d772126a785569efbb96ea91e1}.
+The corresponding file SHA-256 values are
+\texttt{922c3d8dd64c762ff2aa9fa2f684f4de697b389b4e03f3fc07a98cc4b9de142e}
+and
+\texttt{719b4d123d02f084887ff59c48a9f295b6ce75faff6b05193ec189a8ae8fa2b9}.
+
+The unchanged four-touch mechanism was then transferred to the frozen
+80-position extraction case.  Neural correctness again passed: both runs were
+bitwise repeatable, their token arrays were identical to the preceding
+three-touch candidate, and the decoded JSON contained the exact required
+values \texttt{A-104} and \texttt{EUR 287.50}.  Performance failed sharply.
+The two continuation rates were 0.3049 and 0.5085 tokens/s, a 0.4067 median,
+43.63\% below the three-touch extraction median of 0.7215 tokens/s.  The first
+pass incurred 1,182 SD fallbacks and 490 L2 evictions; even the second incurred
+461 fallbacks and 139 evictions, versus three-touch medians of 289 and 56.
+The family change also exposed the importance of cartridge starting state,
+because the same physical L2 had most recently served arithmetic.
+
+The cross-family decision is therefore
+\texttt{STOP\_FOUR\_TOUCH\_AS\_GENERAL\_POLICY}.  Three-touch remains the
+promoted cross-family admission control; four-touch may only be reconsidered as
+an explicitly family-specific policy under a balanced cache-state protocol.
+The extraction transformer and receipt canonical SHA-256 values are
+\texttt{baa8cdd1fb2a54f5a4c8b87269bb9f6f9b54be87c57a64f216fa48e4c4a2060a}
+and
+\texttt{d7d6e6ccf4f74cc9958731d58213cac86ee19580655eeddae852d7c4bc9efd5e};
+their file SHA-256 values are
+\texttt{8f55e6ccb50853233b0a8c23e46119123f64a0f54bb45d818f8652d97f978ee9}
+and
+\texttt{4533d655caba65cb6390f443e20cad973559bd34022b7f98c3080c7e5d518d62}.
+
+\subsection{Lower-bit MXFP4 codebook branch: stopped}
+
+A separate changed-weight simulation tested whether the existing MXFP4 expert
+bank could be reduced below four bits per code without first constructing a
+new warehouse.  The probe retained each E8M0 block scale and restricted the
+32 within-block codes to symmetric codebooks representable in three or two
+bits.  It evaluated the best global codebooks on sixteen frozen real routed
+activations.  A second microgate allowed each block to select its best codebook
+and explicitly charged the selector metadata in projected storage.
+
+No candidate crossed the numerical gate.  The best global three-bit candidate
+projected a 1.3077$\times$ weight reduction but produced p95 layer-output
+relative $L_2$ error 0.1238 and contribution error 0.3535.  The best global
+two-bit candidate projected 1.8889$\times$ but reached errors 0.2475 and
+0.7932.  Per-block adaptation improved a one-capture three-bit microgate to
+0.0688 output error and 0.2302 contribution error, while metadata reduced the
+projected storage gain to 1.2364$\times$; it still missed the declared
+0.02/0.15 gates by large margins.  The two-bit per-block form remained worse.
+
+The decision is \texttt{STOP\_LOWBIT\_CODEBOOKS}.  Neither a compact warehouse
+nor a lower-bit kernel is justified from these results, and no generated-token
+speed is claimed.  Canonical SHA-256 values for the sixteen-capture global gate
+and one-capture block-adaptive microgate are respectively
+\texttt{84e8e41e0ff71490e6cf98c649f3443d755cbb726e9aa9810fd6233299a6908b}
+and
+\texttt{8f00969cd6175b872eac81eefd2882c24f4b868a68a7b5224d62ea09df491355}.
+
+\subsection{Confidence-gated resident expert substitution: stopped}
+
+A different traffic-avoidance hypothesis retained four expert calculations but
+attempted to replace unavailable winners with the highest-logit experts already
+inside the 8~GiB request pool.  This differs from expert omission: all four
+rank positions remain populated, and the candidate can either preserve the
+original rank gates or renormalize the replacement route.  The decision signal
+was restricted to the router-logit gap, which is available before any expert
+weight is fetched.
+
+The real-activation gate reconstructed the complete 128-way router for sixteen
+frozen layer/position states and compared candidate outputs with the original
+four-expert output.  A narrow single-fourth-expert replacement had zero eligible
+states: whenever the fourth winner was absent, at least one of the top three was
+also absent.  The broader resident top-four route produced no acceptable
+confidence region.  A maximum rank gap of 0.20 admitted only one of sixteen
+states and already caused 0.0791 relative $L_2$ error.  At gap 0.50, five states
+were admitted but p95 error was 0.1192; at gap 1.00, eight states were admitted
+and p95 error was 0.1720.  Preserving original rank gates was not materially
+better.
+
+The decision is \texttt{STOP\_RESIDENT\_SUBSTITUTE}.  Router-score proximity
+does not imply interchangeable expert arithmetic, so this mechanism cannot
+safely turn cartridge misses into resident hits.  It was stopped at the
+microgate; no generated-token or semantic-speed claim is made.  Report
+canonical/file SHA-256 values are
+\texttt{58f6a534fda82179ce626a0449fb4af1fb3a9e3cdd4f190331f619bf350e3f62}
+and
+\texttt{e8afd979b853e5a470bbac7cf9e516931bebbc1dcafc0f1ade9cb09c260d782f}.
+
+\subsection{Temporal expert-contribution reuse: stopped}
+
+A second no-weight-fetch hypothesis cached the small 2,880-value output of an
+expert and, when the same expert appeared at the next token, reused that output
+with the new gate rather than fetching and recalculating its weights.  Eight
+real consecutive-position layer pairs contained five repeated expert uses.
+The router-input cosine similarities were only 0.106--0.402 on the layers with
+reuse, so no layer crossed even a 0.90 confidence threshold.  Unconditionally
+reusing the repeated outputs produced layer-output relative $L_2$ errors
+0.1882 and 0.2959 where two experts repeated, and 0.0648 and 0.0393 where one
+expert repeated.  Even the best reuse case therefore exceeded the 0.02 gate.
+
+Decision: \texttt{STOP\_TEMPORAL\_CONTRIBUTION\_REUSE}.  Expert identity does
+not make its nonlinear output reusable when the next-token activation changes.
+The microgate's canonical/file SHA-256 values are
+\texttt{8e0a509784c0f09c899e831fbeb635a316386ece8756812c0caa0097454ea12e}
+and
+\texttt{2209da9dd4c62d792d741cf8b0ce8c5f8b3320ed2259221d3d41e445000024a4}.

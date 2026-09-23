@@ -1,0 +1,933 @@
+% Append-only section for the AION technical record.
+% Requires amsmath, booktabs, hyperref, and xurl (or equivalent URL wrapping).
+\section{GPT-OSS 120B Adaptive Working-Set and Persistent-Output Breakthrough}
+\label{sec:gptoss120b-adaptive-pool-20260910}
+
+\subsection{Scope and claim boundary}
+
+This section records a substantial performance result on the existing 18~GB
+Apple M3 Pro and the 64~GB SD-backed AION warehouse.  It does not report a
+smaller fallback model.  All transformer evaluations used the GPT-OSS 120B
+Q4\_K\_M/MXFP4 checkpoint, its original attention and backbone tensors, and
+original expert weights retrieved losslessly from the verified warehouse.
+
+The first accelerated configuration below is a \emph{changed-model quality
+track}: each layer's router may select only from a bounded resident pool of
+original experts.  It is therefore not bit-exact unrestricted GPT-OSS 120B and
+must not be described as such.  A later protected-core/exception-halo variant
+restores unrestricted routing and is explicitly compared bit-for-bit with the
+exact reference.  Neither track has reached 30--50 tokens/s.
+
+\subsection{Exact route-cartridge falsification}
+
+An exact 6--10~GiB route cartridge was first tested using held-out route demand.
+The predeclared minimum was 90\% coverage for every family.  Same-family
+coverage ranged from 30.2083\% to 66.1111\%, while cross-family minimum
+coverage stayed below 47\%.  Increasing capacity did not add unobserved future
+experts.  The exact cartridge was therefore stopped rather than integrated.
+Its canonical SHA-256 is
+\texttt{295232993424e95c44cac975933210dd5bbc3883dbc39cee30099ec21711df4c}.
+
+Uniform pools of 16 and 20 experts per layer were then tested in the separately
+labelled quality track.  Both removed continuation-time SD faults, but both
+damaged the Harmony response structure.  These variants were retained as
+non-promoted failures.  This motivated a variable-width pool that protects all
+experts required by the complete seven-token prompt prefix before allocating
+the remaining capacity by observed frequency per byte.
+
+\subsection{Adaptive 10~GiB working set}
+
+The resulting pool contains 810 layer/expert addresses and
+10,735,545,600 resident raw bytes.  Individual layers retain between 15 and 46
+experts.  It includes all 499 distinct layer/expert addresses observed in the
+seven-token Harmony prefix.  Activation required approximately 114 seconds of
+one-time SD retrieval and verification.  Once resident, every measured
+continuation pass recorded zero expert faults, zero evictions, and zero
+compressed SD bytes read.  This 10~GiB quality-track pool is intentionally
+separate from the 1--3~GiB exact streaming-cache ceiling.
+
+The 24-position test comprised seven teacher-forced prompt positions followed
+by 17 genuinely autoregressive positions with KV history, changing hidden
+state, and changing routes.  The initial persistent-output candidate achieved
+2.8363 and 4.3807 tokens/s, compared with 0.07679 and 0.07754 tokens/s for the
+matched unrestricted control.  The corresponding paired speedups were
+36.934$\times$ and 56.496$\times$.
+
+\subsection{Persistent vocabulary output}
+
+Profiling showed that every position recreated a process and reread a roughly
+615~MB vocabulary projection.  A bounded persistent native output arena was
+therefore added.  It holds a read-only memory mapping of the original Q8 output
+weight and reuses a 768~MiB GGML arena.  On an unrestricted BOS gate it
+preserved the final hidden state, all logits, and token 2167 bit-for-bit.  Warm
+output processing fell to approximately 6.7~ms from roughly 1.1--1.5 seconds.
+
+Within the adaptive candidate, the persistent implementation reproduced every
+token ID and every step-logit hash from the earlier subprocess implementation.
+It improved the two 17-position continuation passes by 3.14$\times$ and
+6.32$\times$.  The resulting speedup is thus an execution improvement, not a
+change introduced by the vocabulary calculation.
+
+\subsection{Thread allocation and replicated result}
+
+A real four-expert route sweep found that six native CPU threads provided the
+best stable tail latency.  A four-pass, 24-position validation was then run
+with the same adaptive pool.  Routes, final hidden arrays, logits, and token IDs
+were identical in all four passes.  The first pass retained cold/warm-up
+effects; the three post-warm-up continuation results were:
+
+\begin{center}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Pass & Continuation tokens/s & Median token latency & p95 token latency \\
+\midrule
+2 & 4.9671 & 0.1703~s & 0.3115~s \\
+3 & 5.1954 & 0.1703~s & 0.2713~s \\
+4 & 5.3528 & 0.1834~s & 0.2293~s \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The post-warm-up median is 5.1954 tokens/s.  Relative to the matched
+unrestricted 0.07754-token/s pass, this is approximately a 67$\times$ rate
+increase.  This comparison is an architectural quality-track comparison, not
+an exact-model acceleration claim.
+
+\subsection{Parallel-expert falsification}
+
+Calculating the four active experts concurrently produced an attractive
+isolated BOS result: the exact warm evaluation fell from 0.448 to 0.244 seconds
+while preserving the unrestricted final state and logits.  It did not transfer
+to sustained generation.  The two 17-position passes fell to 1.7735 and 2.2655
+tokens/s despite remaining bit-exact to the serial candidate.  CPU and memory-
+bandwidth contention dominated, so sustained parallel-expert execution is
+\texttt{STOPPED}.  The isolated micro-result is not used as generation evidence.
+
+\subsection{Quality limitation and next gates}
+
+The adaptive and unrestricted paths shared the first six response-side tokens,
+including ``We need to'', then diverged as expected for different router
+eligibility.  The minimal prompt ``Hi'' is not a meaningful semantic benchmark;
+both resulting short continuations were unsuitable as broad quality evidence.
+Consequently the result is \texttt{ADVANCE\_BROADER\_QUALITY\_GATE}, not
+\texttt{PROMOTED}.
+
+The next required experiment is a frozen, blinded set of representative
+reasoning, extraction, writing, arithmetic, and business prompts.  It must
+compare task correctness and response quality against the unrestricted 120B
+reference while reporting TTFT, cold activation, warm tokens/s, p50/p95, memory,
+and SD traffic.  Only after that gate passes may the pool be called usable.  The
+largest remaining warm cost is the native 36-layer MoE calculation, followed by
+attention.  Future performance work should test fused packed kernels or a
+measured CPU/Metal division under the same frozen quality boundary; it must not
+weaken that boundary merely to approach the 30--50 tokens/s research target.
+
+\subsection{Evidence binding}
+
+The compact comparison report has canonical SHA-256
+\texttt{4b9cce1d391c1bf09b415202cf390a2f13c9ba68b43b7675dbb6614cc514de09}
+and stored-file SHA-256
+\texttt{5f7da76b3cdd33fd04fdc82f7e747fcc8e6b32cf43ffe6ad01fe1006d5947004}.
+An identical copy is retained on the mounted SD evidence volume.  The four-pass
+runtime report has canonical SHA-256
+\texttt{731120e59eb5c2ade5aabfcf34f4b1c614bbd779eca5156f3694db068df5ecf9}.
+
+\subsection{Exact semantic prefill with rehydrated bounded generation}
+
+The first held-out arithmetic prompt exposed the limitation of constraining the
+entire sequence.  The all-constrained candidate changed ``23'' to ``2?'' in its
+analysis and did not reach the correct result within 33 response positions.
+This failure was retained.  Exact unrestricted profiling also showed why a
+single 10~GiB pool cannot simply preserve the complete prompt route: the
+15-position prompt touched 1,005 distinct layer/expert addresses representing
+12.405~GiB of original raw expert data.
+
+The runtime boundary was therefore changed, not the acceptance criterion.  All
+prompt positions use the unrestricted router and exact selected experts.  At
+the prompt/response boundary, AION rehydrates a request-derived 10~GiB pool;
+only subsequent autoregressive routing is constrained.  The arithmetic pool
+was frozen from the first nine exact prompt positions before its candidate run.
+
+For ``What is 17 multiplied by 23?'', both candidate prompt passes matched the
+unrestricted reference token IDs, final hidden arrays, and logits bit-for-bit
+across all 15 positions.  Both candidate continuations were internally
+bit-for-bit repeatable and produced the correct statement
+``17*23 = 391''.  The two 33-position continuations achieved 3.0707 and 2.7253
+tokens/s, compared with 0.07213 and 0.07207 tokens/s in the matched unrestricted
+reference.  The paired speedups were 42.571$\times$ and 37.813$\times$.
+After rehydration, total expert lookup/load time across each 33-position
+continuation was only 12.6~ms and 19.1~ms.
+
+This result carries a substantial latency cost.  Initial pool activation took
+113.6 seconds and the post-prompt rehydration took 61.6 seconds per pass,
+including 5.58~GB of compressed SD reads.  It is therefore a sustained-response
+and narrow-quality breakthrough, not an interactive TTFT result.  The correct
+next systems experiment is to construct or restore the response working set
+incrementally while exact prefill is executing, overlapping its SD work with
+neural computation and never allowing it to compete with demand reads.
+
+The narrow arithmetic gate status is
+\texttt{PASSED\_NARROW\_ARITHMETIC}; its canonical SHA-256 is
+\texttt{ca807decf327196d3fd1ece56012fc5fc3fc3c1a26701b4c5dd94885084cccdc}
+and its identical local/SD stored-file SHA-256 is
+\texttt{799e66834c4a724ac26f9ab49bf706cbda2dd7d25c27133c1ef14012793329e6}.
+The claim remains narrow until the frozen explanation, extraction, and business
+diagnosis families pass.
+
+\subsection{Protected workbench and elimination of boundary repair}
+
+The 61.6-second repair was not a necessary property of the model.  It was caused
+by ordinary LRU admission: exact prompt misses displaced experts that had
+already been loaded for response generation.  A protected-pool store was added.
+Pool members are pinned; exact experts outside the pool are still retrieved,
+verified and calculated, but remain transient and cannot evict the workbench.
+
+The protected 10~GiB rerun preserved every token, hidden-state hash and logit
+hash from the previously correct candidate.  Boundary repair fell to 0.575 and
+0.315~ms, with zero repair faults, reads, or evictions.  The two continuation
+rates increased to 3.8144 and 3.1990 tokens/s.  The key result is architectural:
+exact prompt execution and a stable response working set can coexist inside the
+same bounded process without destructive cache interference.
+
+An incremental-admission variant attempted to eliminate the separate initial
+activation by retaining useful pool experts as exact prefill requested them.
+It was exact and correct, and the first boundary needed only 26 remaining
+experts (330~MB compressed, 4.16 seconds).  Cold first-response readiness,
+however, remained 161.6 seconds, essentially equal to the protected-preload
+condition, because the same unique SD bytes still had to be delivered.  It is
+retained as a useful warm-request mechanism, not promoted as a cold-TTFT win.
+
+\subsection{Memory-capacity frontier}
+
+The unexpectedly large difference between an isolated 0.6~ms four-expert CPU
+route and 5--6~ms route calculation inside the 10~GiB pool indicated unified-
+memory pressure.  Request-derived pools of 6, 7, 8 and 10~GiB were therefore
+tested under identical exact-prefill and protected-continuation rules.  The
+unchanged quality requirement was that the 33-position response contain 391.
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Pool & Response tokens/s (passes A/B) & First-response readiness & Quality \\
+\midrule
+6~GiB & 7.3975 / 7.7451 & 187.9 / 186.4~s & failed \\
+7~GiB & 6.4707 / 7.8199 & 181.1 / 179.3~s & failed \\
+8~GiB & 5.7792 / 7.5425 & 166.1 / 164.8~s & passed \\
+10~GiB & 3.8144 / 3.1990 & 162.0 / 157.9~s & passed \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The 6 and 7~GiB candidates remained grammatical but repeated partial arithmetic
+and did not emit 391 in the frozen window.  A longer 6~GiB diagnostic also
+failed to recover and is not a promotion.  The 8~GiB candidate stated
+``17*23 = 391'' and is the fastest passing configuration, reaching 80.12$\times$
+and 104.65$\times$ the paired unrestricted response rates.  It is therefore
+promoted only as the \emph{narrow arithmetic capacity frontier}.  The result
+does not establish that 8~GiB is sufficient for other prompt families.
+
+The capacity-frontier report has canonical SHA-256
+\texttt{51bfd50c3a419aff439831b51964404d6a71d1e5efd3ec5d8107aeef82bcc4d8}
+and identical local/SD stored-file SHA-256
+\texttt{e79acafb405462858bb842caa5b2adb5ef807b84cafbd418bf4234a3e904f059}.
+
+\subsection{Extraction-family falsification and exact exception halo}
+
+Transfer to a frozen precision-extraction prompt exposed an important boundary.
+The prompt was ``Extract the invoice number and total from: Invoice A-104,
+total EUR 287.50.''  Its unrestricted 48-position control repeated bit-for-bit
+across two passes.  Independently built 8 and 10~GiB constrained pools also
+repeated exactly within their respective candidates and ran rapidly, but both
+corrupted the decimal amount and entered repetition.  The 8~GiB continuation
+reached 5.7062 and 7.9151 tokens/s; the 10~GiB continuation reached 3.0925 and
+3.2640 tokens/s.  Neither emitted the frozen required pair A-104 and 287.50,
+so both are \texttt{NOT\_PROMOTED}.  Determinism is not semantic correctness,
+and the arithmetic-specific 8~GiB result must not be generalised.
+
+This failure motivated an exact design.  The full 128-expert router now remains
+unrestricted.  A hash-bound core is protected in memory, while every winning
+expert outside that core is retrieved exactly from the verified SD warehouse.
+With no room outside an 8~GiB core, misses were transient.  This matched the
+unrestricted control at every token, route, hidden-state hash and logit hash,
+but only 45 of 792 response layer-routes were wholly inside the core and speed
+was only 0.07980 and 0.08027 tokens/s.
+
+A separate ordinary LRU \emph{exception halo} was then placed around the
+protected core.  The halo may retain recurring unrestricted winners but cannot
+evict the core.  No routing eligibility, gates, weights, or neural arithmetic
+are changed.
+
+\begin{center}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Configuration & Response tokens/s A/B & Faults A/B & Hits A/B & Exact control match \\
+\midrule
+Unrestricted control & 0.07106 / 0.07103 & 4718 / 4716 & 2194 / 2196 & reference \\
+8~GiB core, transient & 0.07980 / 0.08027 & 3209 / 3209 & 3703 / 3703 & yes \\
+8~GiB core + 2~GiB halo & 0.10064 / 0.10090 & 2506 / 2465 & 4406 / 4447 & yes \\
+6~GiB core + 4~GiB halo & 0.10282 / 0.10345 & 2584 / 2508 & 4328 / 4404 & yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The 8+2~GiB design improved paired response speed by 41.63\% and 42.05\%.
+The 6+4~GiB design improved it by 44.70\% and 45.64\%.  Both candidates were
+bit-for-bit identical to the separately frozen unrestricted run across all 48
+positions and both repeats.  The larger halo was only about 2.3\% faster than
+8+2 during response and incurred slightly more faults, so it is a marginal
+frontier rather than a second major breakthrough.
+
+The promoted result is the \emph{exact protected-core plus adaptive-exception-
+halo mechanism}.  It proves that a bounded portion of ordinary Mac memory can
+serve as a reusable loading dock around the SD warehouse while preserving the
+unrestricted 120B computation.  It does not establish 30 tokens/s, broad prompt
+quality, or full model residency.  At approximately 0.103 tokens/s, expert
+movement remains the dominant gap; the next justified work is per-layer halo
+allocation and fused four-expert MXFP4 execution.
+
+The bound summary has canonical SHA-256
+\texttt{f8dd3ed93e6132fe8159d5422007aeda170d30771ee445154832cd2cf0026d7e}
+and identical local/SD file SHA-256
+\texttt{193af2360b9d36c51e20610267a0cae2106adaf88f5567d484dab0189fae42e3}.
+Two immutable halo runtime receipts inherited an earlier transient-only claim
+sentence.  A correction sidecar clarifies that outside-core experts occupied
+unprotected LRU capacity when the halo existed; measured arrays and timings
+were unaffected.  Its identical local/SD SHA-256 is
+\texttt{ac2b804b3496c45681964059258ebef8d5d5c4faee74616a0cfd256551c34fe9}.
+
+An offline same-trace per-layer allocation bound was then computed for the
+6+4~GiB configuration.  A uniform 324-slot per-layer partition predicted 2,555
+faults and 32.423~GB compressed traffic; a trace-optimized allocation predicted
+2,468 faults and 31.317~GB.  The theoretical reduction is only 3.4\% in bytes
+and 87 faults on this trace.  Because the allocation is fitted to the same
+route sequence and the attainable gain is modest, a full long runtime sweep is
+not yet justified.  Per-layer quota work is deprioritized behind fused packed
+expert execution.  The analysis has canonical SHA-256
+\texttt{61b38d7c794ae7ee05fa191193ed37ac4a9a591039ae02fb1cb5262b70743bd3}
+and identical local/SD file SHA-256
+\texttt{e9ad17df819676f81b36cf1339e1dc477045e52f354aade43cfd61de2faca75f}.
+
+\subsection{Native route and in-memory host-flow gates}
+
+Three narrow experiments separated resident neural arithmetic from host
+orchestration.  First, one real four-expert route was calculated as a single
+GGML Metal graph.  The CPU reference required 0.6928~ms at p50, whereas the
+warm fused Metal graph required 1.9372~ms.  Metal was therefore 2.80$\times$
+slower.  Its relative $L_2$ error was 0.00749 and its output was not bitwise
+equal to CPU.  The candidate is \texttt{NOT\_PROMOTED}.  This falsifies the
+available single-token fused Metal path; it does not falsify a future native
+MXFP4 Metal kernel with a materially different implementation.
+
+Second, the exact CPU GGML graph was retained and its leaf pointers were
+updated between calls.  Output remained bit-for-bit identical, but median wall
+time improved only from 0.7116 to 0.6996~ms, or 1.71\%, below the declared
+10\% promotion gate.  Graph construction is therefore not a material resident
+bottleneck and this mechanism is also \texttt{NOT\_PROMOTED}.
+
+Third, the existing exact native attention, router, MoE and vocabulary stages
+were connected through in-memory arrays rather than writing and rereading a
+hidden-state file at every layer.  A paired resident BOS position-zero control
+fell from 0.40756~s to 0.06531~s on the warm pass, a 6.240$\times$ speedup.
+All 36 expert routes, the final hidden-state hash, the complete logit hash and
+token 2167 matched exactly.  The mechanism is therefore promoted as
+\texttt{PROMOTE\_EXACT\_RESIDENT\_FLOW}.
+
+The 0.06531~s measurement is not a sustained-generation claim.  A genuine
+two-token test used changing hidden state, per-layer KV history and changing
+routes.  It repeated bit-for-bit across two passes and produced tokens 2167
+and 679, but the warm second token still required 16.080~s with the declared
+3~GiB cache.  Thus the host-file bottleneck is now removed when weights are
+resident, while unrestricted SD misses remain dominant when they are not.
+
+The bound summary has canonical SHA-256
+\texttt{25768d87a531e5c803a6869a52f7be6c626af498fa4a00d42f513e4d7cdd0e3}
+and identical local/SD file SHA-256
+\texttt{62b33c5b82114372c1e9d289e41761a3af38ac8bd61e550f0236c22de7c1552e}.
+The next justified scale test is the same exact in-memory flow combined with
+the promoted 6+4~GiB protected-core/exception-halo policy.  It must preserve
+every token and step-logit hash and must not relabel position-zero resident
+execution as generated tokens per second.
+
+That scale test has now completed.  Across the same 26-position extraction
+prompt and 22 generated positions, the in-memory 6+4~GiB candidate produced
+0.10313 and 0.10181 token/s.  The earlier file-flow candidate produced 0.10282
+and 0.10345 token/s.  The paired changes were therefore +0.30\% and -1.59\%:
+no replicated speed improvement.  Every route, token, final hidden-state hash
+and step-logit hash nevertheless matched both the file-flow candidate and the
+separately frozen unrestricted control on all 48 positions of both passes.
+
+The scale decision is
+\texttt{NOT\_PROMOTED\_FOR\_SD\_BOUND\_GENERATION}.  The in-memory flow remains
+valuable for resident execution, but it does not reduce the 2,508--2,584
+expert faults or 31.8--32.8~GB of compressed traffic observed per complete
+pass.  The scale summary has canonical SHA-256
+\texttt{2ae716234c238aca912dd6bbba766975bcf008521968959c35a54c4c5cb4b78e}
+and identical local/SD file SHA-256
+\texttt{371f6ac87cc8de68653a4c003e1e6d2eb386e9b859246fd7dd53728511f2b653}.
+
+\subsection{Route-local SD layout falsification}
+
+A bounded physical-layout experiment tested whether the six discontiguous
+component reads per expert were responsible for the remaining delay.  A
+402,624,694-byte layer-0 micropack copied the existing verified compressed
+frames without changing a single encoded or decoded byte and placed each
+selected expert's six components next to one another.  The frozen top-32 set
+contained 15 complete four-expert routes.  macOS uncached I/O was requested and
+the ABBA order was balanced across the routes.
+
+The layout reduced physical read calls from 24 to four per route, but did not
+improve time.  Scattered p50/p95 latency was 106.530/113.041~ms, compared with
+109.198/115.183~ms for the expert-local pack, a median speedup of only
+0.976$\times$.  Every decoded raw component remained hash-exact.  The decision
+is \texttt{NOT\_PROMOTED}: seek count at this granularity is not the dominant
+cost on the present SD card, and a full duplicate expert-local warehouse must
+not be built.
+
+The gate has canonical SHA-256
+\texttt{6536c8a70c6d5b20a8ba11bb4b9c10faf15755c6b26849eaae73b68e076c71ba}
+and identical local/SD file SHA-256
+\texttt{80728464f191e288ddffdf023e40656fb14c5bb5d5261ac332af1dc66b30ccef}.
+The next narrow experiment must separate the remaining compressed read,
+integrity-hash, zstd decode, allocation and Python-copy costs and test direct
+decompression into reusable aligned buffers before any full-runtime change.
+
+The reusable-buffer follow-up remained exact but missed its declared gate.  On
+one real six-component expert, the existing copied decode path required
+22.871~ms p50.  Removing the encoded-source copy reduced this to 21.761~ms,
+and reusing all six decode targets reduced it to 20.996~ms.  The maximum median
+gain was 8.93\%, below the predeclared 10\% threshold.  All decoded component
+hashes remained exact.  The decision is \texttt{NOT\_PROMOTED}; the additional
+buffer ownership and lifetime complexity is not justified while physical SD
+traffic dominates.  Canonical SHA-256 is
+\texttt{3c2fa7ecf29f4cd902efbce220d7bd67f3bffab78e2ff8f18a84d2f03ef69000},
+with identical local/SD file SHA-256
+\texttt{1f5c7746846f076880df60ed486661f469e947b565b02dffcdcfbd52303dc86e}.
+
+\subsection{Real-activation expert-omission falsification}
+
+The reduced-traffic quality track next captured 16 genuine activation and
+route pairs from two KV-linked token positions at layers 0, 5, 10, 15, 20, 25,
+30 and 35.  The source execution repeated every route, hidden state and logit
+hash.  Each four-expert route was recalculated while retaining its leading
+three, two or one experts, with both unchanged and renormalized gate weights.
+
+No candidate met the predeclared numerical gate.  With original gates, top-3
+execution offered only a 1.33$\times$ theoretical expert-byte reduction but
+produced p95 relative $L_2$ errors of 0.0847 on the full layer output and
+0.3757 on the expert contribution.  Top-2 offered 2$\times$ fewer expert bytes
+but raised those errors to 0.1606 and 0.5771.  Top-1 offered 4$\times$ fewer
+bytes but errors reached 0.2573 and 0.7881.  Renormalization did not repair the
+error distribution.
+
+The decision is \texttt{STOP\_TOPK\_EXPERT\_OMISSION}.  On these real states,
+all four routed experts make material contributions; expert rank alone is not
+a safe confidence signal.  The report has canonical SHA-256
+\texttt{7ec161947c242517d44c9da5323f39ef8031862627f276fbd441b1d88a9f9488}
+and identical local/SD file SHA-256
+\texttt{f72ca17418f852a7222598fbe2c38141bc54c91c7026a401ff7eded1cfd53423}.
+
+The finer activation-block hypothesis also failed.  Retaining the highest-
+energy 75\% of individual activation values retained 99.30\% median activation
+energy, but offered only a 1.20$\times$ theoretical total expert-weight
+reduction and still produced p95 layer-output relative $L_2$ error 0.0225.
+The required 2$\times$ traffic candidate retained 25\% of values and produced
+p95 output/contribution errors of 0.1963/0.6565.  Storage-addressable 32-value
+blocks were materially worse, reaching errors of 0.4085/1.3675 at the same
+2$\times$ target.  The decision is
+\texttt{STOP\_ACTIVATION\_BLOCK\_OMISSION}; no full block-addressable warehouse
+is justified.  Canonical SHA-256 is
+\texttt{e8b7b8250ddc550d36dd7676ce0044a184bf76860fe35eee2c65428a28635eec},
+with identical local/SD file SHA-256
+\texttt{bfc58e4e5e06d02ba9e8a54c59ef85c78269001c70472e389da5462837c4bfaf}.
+
+An intrinsic packed-weight audit then tested whether exact sparsity or repeated
+MXFP4 blocks could provide the missing reduction.  Sixteen routed layer/expert
+addresses were sampled across all three expert matrices.  Median signed-zero
+code content was only 12.19\%, no sampled 32-value block was entirely zero,
+and every sampled 17-byte block was unique.  Packed-value entropy was a median
+3.864 of the available 4 bits.  The decision is
+\texttt{STOP\_EXACT\_MXFP4\_SPARSIFICATION}: these real weights are dense,
+high-entropy and non-repetitive, so lossless sparse or dictionary storage cannot
+deliver a multiple-times reduction.  Canonical SHA-256 is
+\texttt{cc90b6456b0ff5549691331d3cd383418b50e80297f125ebad11f2cc2459a692},
+with identical local/SD file SHA-256
+\texttt{da3819abf1925cfb112bb77f320d728d73d4c8df513b8e59638b5e3bd9bab061}.
+
+\subsection{Exact drafting bound and Shadow Expert readiness}
+
+Before implementing speculative decoding, an intentionally optimistic bound
+combined the measured eight-token route grouping with the best exact core/halo
+rate.  Perfect grouping could remove at most 42.64\% of expert bytes.  Even
+assuming 100\% draft acceptance, zero draft and scheduling cost, perfect
+grouping and no non-I/O work, the resulting upper bound is only 0.18034
+token/s.  The decision is
+\texttt{STOP\_EXACT\_DRAFT\_AS\_BREAKTHROUGH\_PATH}.  Canonical SHA-256 is
+\texttt{778585165210d14bbc92f20118f3f054e028c8b6872054b0ad1006bc3c5d7c34},
+with identical local/SD file SHA-256
+\texttt{0cdd982fcec9141aeacc03682b5c4de7fe9e8b34cf037db6186e5d4be3825e84}.
+
+A governed AION Glyph Shadow Expert protocol now defines the only remaining
+order-of-magnitude model-traffic experiment.  It predicts the combined
+four-expert residual from already-resident activation, unrestricted route and
+gates, rejects low-confidence predictions, and retains exact SD fallback.  It
+is explicitly changed arithmetic.  Its dataset builder verified the existing
+16 numerical captures but returned
+\texttt{INSUFFICIENT\_FAMILY\_COVERAGE}: one family cannot populate disjoint
+train, calibration, numerical-holdout and semantic-holdout splits.  No training
+or injection has occurred.  Dataset-manifest canonical SHA-256 is
+\texttt{d9896a4188b9a8d4ca1ff1af84cbd7904a5775acb562f26fdc5520d35f2768a8},
+with identical local/SD file SHA-256
+\texttt{51332ef74510ebe10873bbf6df0398a210f191d5d60cb48eeb021b9f112a4fa2}.
+
+\subsection{Shadow target capture and fallback-evaluator readiness}
+
+The governed 120B runner now supports a v2 numerical capture row containing
+the post-attention FFN input, router input, unrestricted route and gates,
+complete layer output, and the observable F32 combined four-expert residual.
+Every blob is SHA-256 bound to metadata that also identifies the warehouse
+manifest, both verified model shards, implementation and arithmetic precision.
+No prompt text or personal/customer data is stored.
+
+The dataset builder now refuses readiness unless every row has a verified
+residual target and at least four family-disjoint splits exist.  A separate
+frozen evaluator verifies target, prediction and confidence-receipt hashes,
+measures held-out relative $L_2$ error, applies a declared rejection threshold,
+and simulates fallback to the unchanged exact SD path.  Its focused oracle test
+passed: two exact holdout predictions still imply only a conservative
+2$\times$ demonstrated traffic bound and therefore correctly fail the locked
+10$\times$ mechanism gate.  The historical 16-row v1 corpus remains
+\texttt{INSUFFICIENT\_FAMILY\_COVERAGE} and contains zero target-bearing rows.
+The re-audit has canonical SHA-256
+\texttt{423eeb80778e8762e7db8d0c9543bc23154f29c14d034a54d5116efd7e115403}
+and local result file SHA-256
+\texttt{a8cd38dda08cb49aa5f3ebd83e71fb661f4bef6b948e0919a7468fdda0109a2e}.
+No derived weights were trained or injected.
+
+The v2 path was then exercised on a genuine 120B pass.  A BOS family traversed
+all 36 layers in two executions with identical routes, final hidden state and
+logits.  Layers 0, 12, 24 and 35 produced 4/4 verified residual-target rows.
+The capture report has canonical SHA-256
+\texttt{cf3aebf7fc00f6cd3e6b6e724923802e676f8ea04191c0390db00f17eeb1205a}
+and identical local/SD file SHA-256
+\texttt{5f1f8e097d522c04cf77b6f8e71286e3a606a450a8e29ee559f1caadd9282789}.
+The target-manifest canonical SHA-256 is
+\texttt{da0cfd31c517b1269f5f15487c6cfa0f7e01fadd6ca69052bc3522bd76285a54},
+with identical local/SD file SHA-256
+\texttt{bc7ccb7700370cbcf6babcabc3aea0582d5eec139ce778271938f9b1458fccfe}.
+It remains \texttt{INSUFFICIENT\_FAMILY\_COVERAGE}; real target collection is
+working, but one family cannot support a learning or generalization claim.
+
+Three independent synthetic token families were then captured through the
+same complete 36-layer, two-pass path.  Every route, final hidden state and
+logit repeated bitwise.  The combined frozen manifest contains four disjoint
+families, 16/16 verified targets and no cross-family activation-hash collision.
+It is \texttt{READY\_FOR\_AUTHORIZED\_TRAINING}, while its explicit
+\texttt{training\_authorized} field remains false.  Manifest canonical SHA-256
+is
+\texttt{6564bc3fef79e40528046a7c05af104791eb24a0663b14e0349d9785d49b9b27};
+identical local/SD file SHA-256 is
+\texttt{fd0279e8f3eb9887470205e266183a8531bd116f1c89f2a5f21054606010394b}.
+
+Two non-trained controls tested the frozen evaluator.  The oracle produced
+zero residual error but still failed promotion because eight holdout rows can
+demonstrate only an 8$\times$ conservative traffic bound, below the locked
+10$\times$ gate.  A false-high-confidence zero predictor produced relative
+$L_2$ error 1.0, eight violations and zero violation capture.  Their canonical
+SHA-256 values are respectively
+\texttt{a4216d7064eed72f5c8a6ef057645adc62bc3a0ec2dc429794851a142da57aa6}
+and
+\texttt{1521922cf33b7988583eab72df605f03a202ef54b67edc0e1f22707387920b7b}.
+This verifies the refusal boundary; it does not establish that a compact
+predictor exists, and no training occurred.
+
+\subsection{Evidence-volume gate closure}
+
+Without training, all four frozen families were recaptured at 12 distributed
+layers.  The result is 48/48 hash-verified targets and 24 holdout observations.
+All eight complete 120B passes repeated their routes, final hidden states and
+logits bitwise, and no cross-family activation-hash collision was detected.
+The expanded manifest has canonical SHA-256
+\texttt{f91d9c8c1e9f4db2ffae76e2dcecf2b2500e6668ec8ecd38d79f75d0d35b37e3}
+and identical local/SD file SHA-256
+\texttt{688192f92c0c18d9a19070d38976c48e3f58b6c31364cd11cb74d2173fabc07f}.
+
+The evaluator now requires ten or more holdout rows, emits explicit failure
+reasons, and labels deterministic controls separately.  Across 24 rows, the
+oracle control produced zero error and passed only
+\texttt{CONTROL\_GATE\_PASSED}, with a conservative 24$\times$ traffic bound.
+The false-high-confidence zero control failed with relative $L_2=1.0$ at
+p50, p95 and maximum, 24 violations, and zero violation capture.  Their
+canonical SHA-256 values are respectively
+\texttt{896bbb66c468505498b4d89e119c3be67345370aa87f60cec9dc70c7335e1c02}
+and
+\texttt{9a91c59077fe705fe32cf2e9339b14c9ff050d7230e2da6bc9e2c5b805468999}.
+Readiness is now sufficient to test a trained candidate, but this work did not
+train or inject one; that boundary still requires explicit authorization.
+
+\subsection{Authorized staged Shadow Expert search}
+
+The user subsequently authorized local training from the frozen numerical
+corpus under the existing exclusion and fallback boundaries.  The 10$\times$
+traffic target remains the breakthrough rung, while genuine intermediate
+reductions may advance as explicitly experimental rungs above 1.10$\times$ and
+2$\times$.  Accuracy, confidence calibration and exact fallback requirements
+were not weakened.
+
+The first candidate was a 2,860-byte per-layer affine/polynomial cartridge.  It
+calculated in 0.0182~ms p50 and 0.0186~ms p95, so its arithmetic and storage
+cost were negligible.  It nevertheless failed decisively: calibration accepted
+zero layers, numerical and semantic holdout p95 relative $L_2$ errors were
+20.02 and 21.41, and projected expert-traffic reduction remained 1.0$\times$.
+The decision is \texttt{STOP\_AFFINE\_BASELINE}.  Report canonical SHA-256 is
+\texttt{c7ff59cb0b96bdb3ae3eeea67d5536f5c08f251113a9c81b8dbf5aaee0c1ee32},
+with identical local/SD file SHA-256
+\texttt{e443ba15b37dbfd273c0801ccb43b3314339de7e161dcf5f4659e51a6423aea5}.
+This closes simple elementwise shortcuts but leaves a nonlinear low-rank model,
+trained on substantially more trajectories, as the next serious test.
+
+\subsection{Nonlinear trajectory and route-aware results}
+
+Four additional first-token families and two eight-token KV-linked trajectories
+were added only to training, while calibration and both holdout families stayed
+frozen.  Each long trajectory repeated routes, hidden states and logits bitwise.
+The explicit manifest contains 288 verified targets and 21 training states per
+captured layer.  Its canonical/file SHA-256 values are
+\texttt{a2dfe446585f12466dba6decd210e195974759872410516e48f2240c960d5f3a}
+and
+\texttt{03b9384eafebd632bb7bb784454db2444918af8d28e1864d97b4736923e1a1e8}.
+
+Nonlinear kernel candidates reduced the worst holdout p95 error from 21.41 to
+0.918, but no layer passed.  An impossible oracle projection into the complete
+training-residual span still produced numerical/semantic holdout p95 errors
+0.663/0.808, so global residual dictionaries were stopped.  Layers 6 and 9
+were narrow exceptions, with individual oracle errors near 0.015--0.017.
+Oracle canonical SHA-256 is
+\texttt{f997d884eb821774e63004735b761734dd2a49df3f63cdd000f18507e7a53b28}.
+
+Adding unrestricted expert IDs and gates as a route Glyph improved layer 6 to
+0.0192 calibration error and 0.0282/0.0312 on the two frozen holdouts.  Its
+calculation cost was only 0.0850~ms p50 and 0.1070~ms p95.  Nevertheless,
+held-out p95 exceeded 0.02 and one of 12 measured layers projects only a
+1.0909$\times$ traffic reduction, below the $>1.10\times$ experimental rung.
+The decision remains \texttt{STOP\_KERNEL\_BASELINE}; this is a near-signal,
+not a promoted speed result.  Canonical/file SHA-256 values are
+\texttt{9f1b12cf4ca4660d9031abd51b2f1124c2b362a16ac7cbc142f0293ac9d153fb}
+and
+\texttt{ef31a56cfac110d2fefabbdf1a8fe7e137e47cff26b8fa0a123e3238b37dcfa8}.
+
+The formal coverage audit found median closest-route overlap of only two of
+four experts; one holdout row had zero overlap and only eight of 24 had all
+four experts represented anywhere in training.  Route-aware collection for
+layers 6 and 9 is therefore the next justified experiment; undirected corpus
+growth is stopped.
+
+\subsection{GHX route-crystal experiment}
+
+The previous holdouts were made development-only after they suggested a compact
+GHX route-memory hypothesis.  The layer-6 configuration was frozen, and two
+new unrestricted token families, 85001 and 95001, were captured for validation.
+Both complete 120B executions repeated routes, final hidden states and logits
+bitwise.  The candidate combined a normalized router activation with the four
+gated expert identities.  It calculated in 0.0190~ms p50, demonstrating that
+the matching machinery itself is negligible.
+
+The numerical substitution nevertheless failed.  Fresh relative $L_2$ errors
+were 0.0560 and 0.0736, above the 0.02 p95 and 0.05 maximum gates.  Substituting
+one of the 12 measured layers would project only 1.0909$\times$ traffic
+reduction, also below the $>1.10\times$ experimental rung.  The decision is
+\texttt{STOP\_GHX\_ROUTE\_CRYSTAL}.  Report canonical SHA-256 is
+\texttt{562ed9cad0fb2c9a3f6fd6bbc0a7531c6a4a4d9e01efca532dc19c8a8ac43b87};
+file SHA-256 is
+\texttt{207cdb9f1059ed517798a2fc4f0245ba2bdb2411f0d952dc24e2d07df303ea0b}.
+The SD evidence inventory SHA-256 is
+\texttt{f6c3ad2c2e83f195a27b78a0d7a1007f0cff5050c1c81012cff1ca509b31062c}.
+
+The inaccurate output path is not eligible for inference.  The fast primitive
+is retained only as a governed route selector: it ranks prototype calculators,
+reports coverage and margin, and leaves authorization to an independently
+validated confidence gate with exact SD fallback.  A 1,000-query selector
+check measured 0.0239~ms p50 and 0.0289~ms p95.  GHX therefore contributes a
+cheap control mechanism, not weight compression or a demonstrated expert
+replacement.  Targeted route coverage and structured per-expert low-rank
+modelling at layers 6 and 9 remain the next numerical strategy.
+
+\subsection{Structured per-expert low-rank closure}
+
+A subsequent candidate represented each of the 128 experts with a separate
+gate-weighted affine feature block and represented the combined residual in a
+learned low-rank basis.  Hyperparameters were chosen using grouped
+training-family cross-validation only.  The calculation remained negligible at
+0.0305~ms p50 and 0.0343~ms p95.  Accuracy did not survive: calibration relative
+$L_2$ was 0.1922 at layer 6 and 0.3463 at layer 9.  Consequently no layer was
+accepted and projected traffic reduction remained 1.0$\times$.
+
+The decision is \texttt{STOP\_PER\_EXPERT\_LOW\_RANK}.  Report canonical
+SHA-256 is
+\texttt{4c61233adde48fd804371073e798c818f40f46805200aa0e7a8c05088445a262};
+file SHA-256 is
+\texttt{246c18e1e558b70d9f5c4f8d725fb72d3428a8b5abb01650b527d0e521a4a2e6}.
+The SD evidence inventory SHA-256 is
+\texttt{99acf071b3df6ea44977622b0b0f6e062f352a04feb7ab6ca18f93c0052aee68}.
+This closes small-data additive expert factorization.  The next exact-track
+opportunity is multi-token block verification, in which a resident draft model
+proposes several positions and the 120B teacher processes them layer-major so
+one exact expert load may serve several positions.
+
+\subsection{Exact multi-token block execution breakthrough}
+
+Two bitwise-repeatable eight-position traces first established an analytical
+all-layer expert-load bound of 1.8611$\times$ and 1.9136$\times$.  A real
+SD-backed layer-12 implementation then loaded the union of required experts
+once and reused each expert across all applicable positions.  The two cases
+reduced 32 sequential expert faults to 13 and 16.  Compressed traffic fell from
+approximately 406.7~MB to 165.2~MB and 203.3~MB, corresponding to
+2.4616$\times$ and 2.0001$\times$ reductions.  Wall-time speedups were
+2.4784$\times$ and 2.2137$\times$, or 2.3461$\times$ at the median.
+
+All 16 layer outputs were bitwise identical to the captured exact outputs.
+Peak live expert storage was 212,060,160 bytes, below the declared 512~MiB gate.
+The decision is \texttt{ADVANCE\_EXACT\_BLOCK\_RUNTIME}.  Runtime report
+canonical/file SHA-256 values are
+\texttt{e22f692a633aa269a4d0280e4db004d95f6466fbc4fb2c26c8f7351558e963f1}
+and
+\texttt{af978a55c128973beb5253f507fa2a7f1b615b37aaafb62389515ad891cb2f3e}.
+The SD inventory SHA-256 is
+\texttt{a3182fe9c40c19e3594c13ff12b546b7986e2890dcb98508498e7161aaa92b2a}.
+
+This is a genuine exact layer-level speed result, not yet an end-to-end token
+rate.  It excludes draft generation, rejection, batched causal attention and
+the remaining 35 layers.  The next gate is a complete layer-major token block
+whose teacher logits drive exact speculative acceptance.
+
+\section{Full Causal Block Closure and Adaptive Active Experts}
+
+The exact layer-major mechanism was extended through all 36 causal attention
+and MoE layers and the complete 201,088-logit output projection.  Frozen teacher
+traces supplied two, four and eight positions.  Every run retained unrestricted
+routing and original GPT-OSS weights, and every final hidden-state and logit
+hash matched bit-for-bit.
+
+The full-model timing falsified block scheduling as the primary speed strategy.
+At two positions, compressed traffic fell by 1.1754$\times$ but median wall time
+improved only 1.0265$\times$.  At four positions the respective results were
+1.3683$\times$ and 1.0222$\times$.  The exploratory eight-position run reached
+1.8617$\times$ logical traffic reduction but only 1.0383$\times$ wall speedup.
+The operating-system page cache had already removed much of the repeated
+physical SD access, so explicit union scheduling mostly removed logical reads
+rather than new physical waiting.  The decision is
+\texttt{STOP\_EXACT\_BLOCK\_AS\_PRIMARY\_SPEED\_STRATEGY}.  The earlier
+2.3461$\times$ layer microgate remains valid but must not be represented as a
+full-model token-rate gain.
+
+A separate quality track retained exact unrestricted prefill and the protected
+8~GiB request workbench while reducing only continuation experts.  Fixed top
+two reached 10.8786 and 5.9082 tokens/s but failed to emit 391 inside the frozen
+window.  Fixed top three emitted 391 but degenerated into repetition.  A
+gate-mass-adaptive policy then preserved the original four-expert gate values
+when omitting weak experts, rather than renormalizing the survivors.  With a
+0.75 cumulative-mass threshold it made 1,087 three-expert and 101 two-expert
+layer decisions per 33-position response.  The response remained coherent,
+contained 391, and repeated routes, hidden states, logits and tokens bitwise.
+
+Four continuation passes reached 5.2649, 5.7622, 3.2772 and 8.3831 tokens/s.
+The post-warmup median was 5.7622 tokens/s.  This is not faster than the promoted
+narrow four-expert 8~GiB control median of 6.6608 tokens/s; it is retained for
+broader frozen quality testing but is not a speed promotion.  A 7.5~GiB pool was
+structurally impossible because the required route prefix alone occupies
+7.8505~GiB.  A valid 7.9~GiB/640-entry pool still found 391 but slowed to 4.8776
+and 3.5381 tokens/s.  The 8~GiB four-expert workbench therefore remains the
+narrow arithmetic frontier.
+
+The compact report canonical SHA-256 is
+\texttt{74f4d7ec92b946939a941334ca99a7997a4c17a7dbbd21d10c60569fadb2d806}.
+The identical local/SD stored-file SHA-256 is
+\texttt{ce6bde87c72a71020d0e015d583547ffae5b117795cf35ecbfb44d0225288644}.
+The adaptive experiments are changed-model quality tracks using original 120B
+weights; they are not bit-exact unrestricted GPT-OSS 120B inference, and one
+arithmetic prompt is not evidence of broad model quality.
+
+The immediate frozen extraction test confirmed that boundary.  For the prompt
+containing invoice number A-104 and total EUR 287.50, the adaptive candidate was
+internally bitwise repeatable and ran at 5.1222 and 5.3437 tokens/s.  It retained
+the invoice identifier but corrupted the amount into an incomplete ``EUR
+287\ldots''.  The decision is
+\texttt{STOP\_ADAPTIVE\_075\_FOR\_EXTRACTION}.  Runtime and receipt files were
+copied without overwrite to the SD evidence volume; their identical local/SD
+SHA-256 values are
+\texttt{a55965c9b935f7d24b30e62018beb3b23ea6106857803d1a9f63dab56eaa7b21}
+and
+\texttt{363655c525cf7c327ba82df9db2e93eaf81af97e6d6113c7cd81f782c4aac550}.
+
+Only 45 of 792 unrestricted response layer-routes were wholly inside the static
+extraction pool, and median missing unrestricted gate mass was 0.595.  An exact
+confidence escape would consequently reinstate most SD faults.  The next
+credible orders-of-magnitude work is resident packed-kernel acceleration and a
+broader learned/request-family working set, not a lower fixed top-$k$ threshold.
+
+\subsection{Resident CPU Thread Frontier}
+
+The exact resident four-expert MXFP4 route was swept at 1, 2, 4, 6, 8 and
+10 CPU threads.  All outputs remained bitwise identical.  Ten threads gave the
+best isolated hot-route median, 0.7176~ms, but its p95 widened to 2.3816~ms.
+The setting was therefore tested in the complete 48-position arithmetic path
+with exact unrestricted prefill, the unchanged 8~GiB workbench and all four
+continuation experts.
+
+The two exact and repeatable candidate continuations reached 7.9533 and
+5.8810 tokens/s, a median of 6.9172 tokens/s.  The paired six-thread control
+reached 6.2574 and 8.2591 tokens/s, a median of 7.2582 tokens/s.  Ten threads
+therefore regressed the paired median by 4.70\%.  Token arrays matched the
+control and candidate hidden states and logits repeated bitwise, so this is a
+performance falsification rather than a numerical failure.  The decision is
+\texttt{STOP\_THREAD\_COUNT\_AS\_PRIMARY\_SPEED\_LEVER}: a small hot-cache
+microbenchmark win did not survive full 8~GiB workbench pressure.  The compact
+evidence file is
+\texttt{aion\_gptoss\_120b\_resident\_thread\_frontier\_20260910.json}.
+
+\subsection{Disjoint Two-Family Workbench Holdout}
+
+Before spending another full generation run, three 8~GiB static workbenches
+were trained solely from exact numerical routes for the ``hello'' and arithmetic
+families, then evaluated offline on the disjoint invoice-extraction response
+trace.  No extraction route was used to select the experts.  Each candidate
+held 648 original layer-experts.  The policies were equal 18-per-layer,
+global frequency-per-byte with a per-layer floor, and global accumulated
+gate-mass-per-byte with a per-layer floor.
+
+The equal allocation was best on complete-route coverage, but contained all
+four unrestricted holdout experts on only 81 of 792 layer-routes (10.23\%).
+Frequency allocation covered 74 routes (9.34\%), and gate-mass allocation
+covered 79 (9.97\%).  Their median retained unrestricted gate masses were
+0.4684, 0.4722 and 0.4743 respectively.  In every candidate, more than 53.9\%
+of layer-routes lost at least half of the unrestricted gate mass.
+
+The decision is \texttt{STOP\_STATIC\_TWO\_FAMILY\_POOL}.  These candidates
+were rejected before changed-model generation because their blinded numerical
+coverage cannot justify either an exact escape speed claim or a credible
+quality claim.  This does not invalidate the narrow request-specific workbench;
+it proves that merely redistributing the same 648 original experts does not
+generalize across these families.  General 120B acceleration now requires a
+more compact resident expert representation or dynamic exchange that increases
+effective coverage.  The compact report is
+\texttt{aion\_gptoss\_120b\_two\_family\_pool\_holdout\_summary\_20260910.json}.
+
+\subsection{Exact Batched Resident-Expert Near-Signal}
+
+A new exact CPU primitive evaluated one original packed MXFP4 expert over
+multiple independent activation rows while reusing the resident matrix.  Every
+batched output matched the corresponding scalar output bit-for-bit for batches
+1, 2, 4, 8, 16 and 32.  Relative to repeated scalar calls, wall speedups were
+1.1282$\times$, 1.2308$\times$, 1.4128$\times$, 1.4707$\times$ and
+1.4960$\times$ for batches 2 through 32 respectively.
+
+The predeclared 1.5$\times$ arithmetic gate was missed narrowly and was not
+relaxed after measurement, so the result is \texttt{NOT\_PROMOTED}.  More
+importantly, the exact eight-position teacher trace has a mean reuse group of
+only 1.667 activations per expert: 435 groups occur once and 132 occur twice.
+Consequently the large-batch headline cannot be extrapolated to ordinary
+autoregressive generation.  The primitive is retained as supporting machinery
+for a future genuinely accepted multi-position teacher block, not as a new
+token-rate claim.  Its report canonical SHA-256 is
+\texttt{265c0790e2e4eba40a917fd0e26abf106c89d4ea9d3e34f8320edce08aa6d68b}.
+
+The primitive was then integrated into a real eight-position layer-0 gate.
+The exact teacher routes contained 32 expert occurrences but 26 distinct
+experts: twenty groups had size one and only six had size two.  The grouped
+outputs remained bit-for-bit identical to the scalar layer outputs.  However,
+the grouped median was 6.4235~ms versus 6.2350~ms for scalar execution, a
+0.9706$\times$ ratio or 2.94\% regression.  The unchanged 1.10$\times$ real
+layer gate therefore failed.  The decision is
+\texttt{STOP\_GROUPED\_EXPERT\_BATCHING\_AS\_PRIMARY}: large synthetic batch
+speedups cannot repay grouping and dispatch overhead when real route reuse is
+sparse.  The canonical evidence SHA-256 is
+\texttt{ff5f5f4ede1f7406be83d3357cf6f0e9fcaa970029b18e22fd0a6c363ad70196}.
+
+\subsection{Exact Persistent Internal-L2 Working-Set Breakthrough}
+
+An exact three-tier expert path was implemented: an 8~GiB bounded RAM expert
+pool, a manifest-bound persistent cache on the Mac's ordinary internal storage,
+and the authoritative compressed model warehouse on the 64~GB SD card.  The
+internal tier stores complete raw six-component expert frames, writes them
+atomically, binds its namespace to the warehouse manifest hash, verifies every
+component against the authoritative manifest SHA-256 on read, and repairs a
+corrupt disposable entry from the SD source.  It does not alter router logits,
+expert selection, expert weights, gates, attention, or output arithmetic.
+
+A four-expert cross-process microgate first measured the physical opportunity.
+Initial SD reconstruction required 563.959~ms and 50,659,400 compressed bytes.
+Four fresh processes then retrieved the same verified experts from the
+persistent tier at an 11.3616~ms median and 12.2684~ms p95, with zero SD
+fallbacks.  This is a 49.6372$\times$ retrieval improvement.  Because macOS may
+retain newly written pages in its page cache, this microgate is cross-process
+warm-L2 evidence, not reboot-cold NVMe evidence.  Its canonical report SHA-256
+is
+\texttt{303b99f80a56f50ae0b2b2c33355895a7b6e2087e0f6eb69d75a66e1aecf72f8}.
+
+The first complete integration used a 2~GiB persistent tier.  It remained
+bitwise exact but retained only 705 and 747 of 3,209 out-of-pool accesses per
+pass, because the cache continually evicted entries.  Continuation reached
+0.1001 and 0.09835 tokens/s.  This was a useful positive control, but it merely
+matched the earlier 2~GiB RAM halo and was not promoted as the final design.
+
+Route measurement then identified 1,315 distinct out-of-pool layer-experts in
+the frozen 48-position invoice-extraction trace, occupying approximately
+16.23~GiB.  The persistent tier was therefore increased to a measured-bound
+17~GiB capacity and the identical unrestricted sequence was rerun.  On the
+second pass, all 3,209 out-of-RAM expert demands hit the persistent tier, with
+zero misses, zero SD fallbacks and zero compressed SD bytes read.  The 22-token
+continuation completed in 17.7469~s, or 1.23965 tokens/s.  Median token latency
+was 0.78714~s and p95 was 0.88607~s.
+
+The paired unrestricted SD-streamed control required 309.7243~s for the same
+continuation, or 0.0710309 tokens/s.  The new exact path is therefore
+17.4523$\times$ faster and reduces continuation time by 94.2701\%.  It is also
+approximately 12.02$\times$ faster than the prior best exact extraction result
+of 0.103133 tokens/s.
+
+Independent comparison against the original unrestricted control confirmed
+equality of every generated token ID, every one of the 48-by-36 layer routes,
+every step's final-hidden SHA-256 and every step-logit SHA-256 for both
+candidate passes.  This is consequently an exact unrestricted execution
+promotion, not an adaptive/reduced-expert quality track.  The full candidate
+report canonical SHA-256 is
+\texttt{8d08104ad3036aafb4d9e1eb1085d319ff98eadffafd5082be5d3773a5fd91b9};
+its stored-file SHA-256 is
+\texttt{18541b52c9883006253465b812470ca344ec286762782dce66607dd4b4993dae}.
+
+The claim remains deliberately bounded.  This proves one exact, unrestricted,
+cross-pass warm 120B extraction trace on the 18~GB M3 Pro, with the complete
+model remaining on the SD warehouse and a 16.23~GiB request working set
+promoted to internal storage.  It does not yet establish reboot-cold behavior,
+multi-prompt generalization, or 30--50 tokens/s.  The next gate is blinded
+multi-family validation followed by compact/direct computation from the
+persistent representation so that the 42.53~GB of warm per-pass raw expert
+reads can be reduced rather than merely moved to a faster tier.
+
+\subsubsection{Independent arithmetic-family replication}
+
+The same 17~GiB persistent tier was next presented with the unrelated frozen
+$17\times23$ arithmetic family.  Its bounded LRU contents initially represented
+the extraction request, so this test required the tier to replace entries and
+learn a different exact working set.  The RAM pool was 7.9~GiB; all experts
+outside it remained eligible through exact fallback.
+
+On the second pass, all 3,405 out-of-RAM expert demands hit the persistent tier.
+There were zero L2 misses, zero SD fallbacks and zero compressed SD bytes read.
+The complete 33-token continuation ran in 30.8556~s, or 1.06950 tokens/s, with
+0.94006~s median and 1.12305~s p95 token latency.
+
+The separately frozen unrestricted control contains a directly comparable
+17-token continuation window.  That control required 235.8738~s, or
+0.0720724 tokens/s; the persistent-tier candidate required 14.8253~s, or
+1.14668 tokens/s.  This is a 15.9102$\times$ exact speedup and a 93.7147\%
+time reduction.  Across that complete shared window, both candidate passes
+matched the unrestricted control's token IDs, all layer routes, step-hidden
+hashes and step-logit hashes exactly.
+
+The second-family report canonical SHA-256 is
+\texttt{40b6070f6260910b3819ff6925cced3954371186e15f28e8049fe674d3f3cda3};
+its stored-file SHA-256 is
+\texttt{20e71d66a9228c8aaab58befa0c9e28cde9845ba7ad0ba2eefe55cab8666e7d7}.
+Together with the extraction result, this reproduces the order-of-magnitude
+exact improvement across two prompt families.  It still does not establish
+reboot-cold behavior or the final 30--50 tokens/s objective.

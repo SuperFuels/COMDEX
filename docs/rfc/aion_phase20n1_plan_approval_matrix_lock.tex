@@ -1,0 +1,175 @@
+\section{AION Phase 20N.1 --- Mission Plan Approval Matrix}
+\label{sec:aion-phase20n1-mission-plan-approval-matrix}
+
+\subsection{Status}
+
+Phase 20N.1 locks the Mission Plan Approval Matrix.
+
+\begin{quote}
+\textbf{Status: LOCKED --- broad goals become reviewable, user-steered, plan-gated mission contracts before execution.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot MUST NOT blindly execute a broad user goal.
+
+A broad goal such as:
+
+\begin{quote}
+\textit{Build my roofing business in Surrey. I have no clients, no website, but I am ready to do work. Set me up.}
+\end{quote}
+
+MUST first become a reviewable mission plan.
+
+The user must be able to configure where autonomy ends before execution begins.
+
+\subsection{Control Modes}
+
+Each plan step MUST resolve to one of:
+
+\begin{itemize}
+  \item \texttt{autonomous}
+  \item \texttt{human\_approval\_required}
+  \item \texttt{human\_task\_required}
+  \item \texttt{blocked}
+\end{itemize}
+
+\subsection{Plan-Level Approval}
+
+Plan-level approval approves the mission shape only.
+
+It does not approve exact live execution payloads.
+
+For example, the user may approve that a mission is allowed to reach a domain purchase checkpoint, but the later domain purchase still requires exact payload approval.
+
+\subsection{Payload-Level Approval Remains Required}
+
+Risky live actions still require exact payload approval.
+
+Examples include:
+
+\begin{itemize}
+  \item domain purchase;
+  \item production deployment;
+  \item DNS connection;
+  \item public post publishing;
+  \item ad spend;
+  \item external messaging;
+  \item payment;
+  \item booking.
+\end{itemize}
+
+\subsection{User Override Safety}
+
+The user may make a step stricter.
+
+The user MUST NOT make a system-controlled step looser.
+
+The control lattice is:
+
+\begin{equation}
+\mathtt{autonomous}
+\prec
+\mathtt{human\_approval\_required}
+\prec
+\mathtt{human\_task\_required}
+\prec
+\mathtt{blocked}
+\end{equation}
+
+The effective decision is:
+
+\begin{equation}
+\mathcal{D}_{\mathrm{effective}}
+=
+\sup
+(
+\mathcal{D}_{\mathrm{system}},
+\mathcal{D}_{\mathrm{user}}
+)
+\end{equation}
+
+If the user attempts to downgrade a system decision, AION MUST reject the downgrade and emit a policy override violation.
+
+\subsection{Mission Plan Approval Matrix Hash}
+
+Every matrix MUST emit:
+
+\begin{verbatim}
+plan_approval_matrix_hash: sha256:<digest>
+\end{verbatim}
+
+The hash binds:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item plan ID;
+  \item plan version;
+  \item user goal;
+  \item steps;
+  \item default decisions;
+  \item user overrides;
+  \item effective decisions;
+  \item approval gates;
+  \item human tasks;
+  \item blocked steps.
+\end{itemize}
+
+Any plan or override change MUST create a new matrix hash and require re-review.
+
+\subsection{Example Roofing Business Plan}
+
+AION Pilot may generate steps such as:
+
+\begin{itemize}
+  \item define roofing business positioning;
+  \item create brand identity direction;
+  \item check domain availability;
+  \item buy selected domain;
+  \item build website locally;
+  \item deploy website to production;
+  \item create Facebook business page;
+  \item draft launch posts;
+  \item publish first post;
+  \item launch first paid advert.
+\end{itemize}
+
+Safe creative work may run autonomously.
+
+Domain purchase, production deployment, publishing, and ad spend require approval.
+
+Facebook page creation may become a human task.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20N1-MISSION-PLAN-APPROVAL-MATRIX
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

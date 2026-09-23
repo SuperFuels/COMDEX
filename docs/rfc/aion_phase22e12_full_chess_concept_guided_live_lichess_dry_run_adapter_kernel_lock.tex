@@ -1,0 +1,72 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.12 --- Concept-Guided Live Lichess Dry-Run Adapter}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.12 introduces a live-Lichess-shaped dry-run adapter for concept-guided move selection.
+
+This phase consumes the Phase 22E.10 concept-guided move re-ranking output and the Phase 22E.11 local concept-guided game loop preview.
+
+\section{Adapter Contract}
+
+The adapter emits:
+
+\begin{itemize}[leftmargin=*]
+  \item dry-run game identifier;
+  \item input FEN;
+  \item side to evaluate;
+  \item selected move preview;
+  \item original strategic selected move;
+  \item selected move changed by re-rank flag;
+  \item selected move legal flag;
+  \item applied concept count;
+  \item concept bias score total;
+  \item local loop preview trace hash;
+  \item dry-run preview trace hash;
+  \item adapter trace hash.
+\end{itemize}
+
+\section{Technical Position}
+
+This phase prepares the live adapter boundary without enabling live sending.
+
+It is dry-run only. It performs no move POST and no live Lichess move send.
+
+This is a no live Lichess phase.
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, human move scoring, or live Lichess move sending.
+
+It is deterministic local concept-guided live-adapter preview only.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e12_full_chess_concept_guided_live_lichess_dry_run_adapter_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e12_full_chess_concept_guided_live_lichess_dry_run_adapter_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E12-FULL-CHESS-CONCEPT-GUIDED-LIVE-LICHESS-DRY-RUN-ADAPTER\\
+Status: LOCKED --- concept-guided live Lichess dry-run adapter implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

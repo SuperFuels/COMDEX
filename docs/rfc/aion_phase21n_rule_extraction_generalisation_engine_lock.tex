@@ -1,0 +1,76 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21N: Rule Extraction and Generalisation Engine Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21N defines the AION Rule Extraction and Generalisation Engine.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can extract rules from prediction memory and transfer them into a structurally similar task.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 21M taught AION to predict before action. Phase 21N turns prediction memory into explicit rules and tests those rules in a new labelled environment.
+
+\section{Core Transition}
+
+The locked transition is:
+
+\[
+remembered\_outcome \rightarrow extracted\_rule \rightarrow transferred\_decision.
+\]
+
+This moves AION from direct memory toward generalisation.
+
+\section{Rule Types}
+
+The first locked rule types are:
+
+\begin{itemize}
+  \item \texttt{prefer\_reward\_action};
+  \item \texttt{avoid\_penalty\_action};
+  \item \texttt{neutral\_action}.
+\end{itemize}
+
+\section{Required Outputs}
+
+The engine MUST emit:
+
+\begin{itemize}
+  \item \texttt{rules};
+  \item \texttt{generalisation\_trials};
+  \item \texttt{extracted\_rule\_count};
+  \item \texttt{generalisation\_score};
+  \item \texttt{prediction\_memory\_loaded};
+  \item \texttt{uses\_rule\_extraction};
+  \item \texttt{uses\_transfer\_generalisation};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational rule extraction and transfer generalisation from prediction memory. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21N-RULE-EXTRACTION-GENERALISATION-ENGINE-LOCK\\
+Status: LOCKED --- rule extraction and generalisation engine implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

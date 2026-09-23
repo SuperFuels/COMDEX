@@ -168,11 +168,26 @@ def inject_sqi_scores_into_container(container: Dict[str, Any]) -> Dict[str, Any
         Updated container dict.
     """
     scored = score_all_electrons(container)
-    score_map = {s["id"]: s["score"] for s in scored}
+    if scored is None:
+        scored = []
+    score_map = {
+        s["id"]: s["score"]
+        for s in scored
+        if isinstance(s, dict) and "id" in s and "score" in s
+    }
 
+    normalized_glyphs = []
     for glyph in container.get("glyphs", []):
+        if isinstance(glyph, str):
+            glyph = {"id": glyph, "symbol": glyph}
+        if not isinstance(glyph, dict):
+            continue
+
         gid = glyph.get("id")
         if gid in score_map:
             glyph["sqi_score"] = score_map[gid]
+        normalized_glyphs.append(glyph)
+
+    container["glyphs"] = normalized_glyphs
 
     return container

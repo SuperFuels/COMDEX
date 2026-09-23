@@ -1,0 +1,144 @@
+\section{AION Machine Cart and Quote Handshake v0.1 Lock}
+\label{sec:aion-machine-cart-quote-handshake-lock}
+
+\subsection{Status}
+
+The AION Gateway now defines the first internal machine-cart quote preview for the Home Fixed Parallel Business Twin.
+
+\begin{quote}
+\textbf{Status: LOCKED --- internal quote preview only. No booking, no payment, no escrow, no public route, and no live Goal Engine execution.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Machine Cart is the agent-readable checkout surface for the Parallel Business Twin.
+
+It is not a human shopping cart. It has no conversion UI, no visual checkout flow, and no payment movement. It is a deterministic validation container used by agents to request a service, declare constraints, validate evidence requirements, and receive a structured quote preview.
+
+\subsection{Implementation Files}
+
+\begin{itemize}
+  \item \texttt{backend/modules/aion\_gateway/machine\_cart.py}
+  \item \texttt{backend/tests/workflow\_capsules/test\_aion\_machine\_cart\_quote\_handshake\_lock.py}
+  \item \texttt{docs/rfc/aion\_machine\_cart\_quote\_handshake\_lock.tex}
+\end{itemize}
+
+\subsection{Core Protocol}
+
+The machine cart protocol version is:
+
+\begin{verbatim}
+aion.machine_cart.v0.1
+\end{verbatim}
+
+The locked request fields include:
+
+\begin{itemize}
+  \item \texttt{business\_id}
+  \item \texttt{line\_items}
+  \item \texttt{service\_key}
+  \item \texttt{constraints}
+  \item \texttt{location\_town}
+  \item \texttt{requested\_window}
+  \item \texttt{max\_fiat\_price\_minor}
+  \item \texttt{currency}
+  \item \texttt{required\_evidence}
+  \item \texttt{consumer\_agent\_id}
+  \item \texttt{cart\_hash}
+\end{itemize}
+
+\subsection{Quote Preview Output}
+
+The quote handshake returns:
+
+\begin{itemize}
+  \item \texttt{quote\_preview}
+  \item \texttt{quote\_hash}
+  \item \texttt{quote\_lines}
+  \item \texttt{evidence\_required}
+  \item \texttt{missing\_evidence}
+  \item \texttt{fulfilment\_job\_preview\_link}
+  \item \texttt{settlement\_readiness\_preview}
+  \item \texttt{proof\_commitment\_preview}
+  \item \texttt{blocked\_reasons}
+  \item \texttt{warnings}
+\end{itemize}
+
+\subsection{Home Fixed Testbed}
+
+The first supported testbed is:
+
+\begin{quote}
+\textbf{Home Fixed} --- \texttt{business\_id = home\_fixed}
+\end{quote}
+
+The cart validates against the Home Fixed Parallel Business Catalog locked in Section~\ref{sec:aion-parallel-business-catalog-lock}.
+
+\subsection{Validation Rules}
+
+The cart preview MUST:
+
+\begin{itemize}
+  \item validate that \texttt{business\_id} matches the catalog,
+  \item validate that each \texttt{service\_key} exists,
+  \item validate that \texttt{location\_town} is supported,
+  \item return required evidence for the requested service,
+  \item warn when required evidence is missing,
+  \item return a \texttt{QuoteContract}-style preview without live execution.
+\end{itemize}
+
+\subsection{Hashing Rule}
+
+The cart and quote hashes are computed from deterministic JSON:
+
+\begin{verbatim}
+json.dumps(payload, sort_keys=True, separators=(",", ":"))
+hashlib.sha256(...)
+\end{verbatim}
+
+The \texttt{cart\_hash} MUST be stable for the same request payload.
+
+Changing the requested service MUST change the \texttt{quote\_hash}.
+
+\subsection{Safety Boundary}
+
+This lock is internal and preview-only.
+
+The Machine Cart MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item create a payment,
+  \item create escrow,
+  \item execute the Goal Engine,
+  \item expose a public route,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item autonomously create a FulfilmentJob.
+\end{itemize}
+
+Human review remains required by default.
+
+\subsection{Strategic Role}
+
+This module is the first concrete version of the agent-readable shopping cart for AION's Parallel Business Infrastructure.
+
+Human customers can still use normal websites and forms. Consumer agents will eventually use this cart handshake to request services from the machine-readable business twin.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_machine_cart_quote_handshake_lock.py
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-MACHINE-CART-QUOTE-HANDSHAKE-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

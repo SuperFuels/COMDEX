@@ -1,0 +1,142 @@
+\section{Phase 20I --- LRM Closeout / End-to-End Decision Loop v0}
+\label{sec:phase20i-lrm-end-to-end-decision-loop-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION-LRM end-to-end decision loop implemented and targeted tests passing.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20I closes the first AION-LRM sprint by proving a deterministic end-to-end reasoning and review loop.
+
+The loop proves:
+
+\begin{verbatim}
+governed reasoning packet
+  -> reasoning memory snapshot
+  -> reasoning replay trace
+  -> boardroom visibility
+  -> recommendation card
+  -> human review decision
+  -> evidence gap
+  -> evidence satisfaction
+  -> return_to_human_review
+\end{verbatim}
+
+This is the first complete governed AION-LRM decision spine.
+
+\subsection{Implemented Module}
+
+\begin{verbatim}
+backend/modules/aion_lrm/lrm_end_to_end_decision_loop.py
+\end{verbatim}
+
+The module exposes:
+
+\begin{verbatim}
+LRM_END_TO_END_DECISION_LOOP_VERSION
+build_lrm_end_to_end_decision_loop
+build_default_home_fixed_lrm_end_to_end_decision_loop
+\end{verbatim}
+
+\subsection{Loop Contract}
+
+The loop records:
+
+\begin{itemize}
+  \item governed reasoning packet;
+  \item reasoning memory snapshot;
+  \item reasoning replay trace;
+  \item Boardroom replay visibility panel;
+  \item recommendation card;
+  \item human review decision envelope;
+  \item evidence gap envelope;
+  \item evidence satisfaction envelope;
+  \item ordered loop steps;
+  \item final review state;
+  \item deterministic loop hash;
+  \item deterministic summary hash.
+\end{itemize}
+
+\subsection{Final State}
+
+If all required evidence has been received, the final state is:
+
+\begin{verbatim}
+return_to_human_review
+\end{verbatim}
+
+If evidence remains missing, the final state is:
+
+\begin{verbatim}
+request_more_evidence
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+Phase 20I is preview-only.
+
+The end-to-end loop MUST NOT:
+
+\begin{itemize}
+  \item create a booking;
+  \item create a payment;
+  \item create escrow;
+  \item send an external message;
+  \item write live chain data;
+  \item execute a workflow;
+  \item grant live permission;
+  \item bypass human review.
+\end{itemize}
+
+\subsection{Private Reasoning Boundary}
+
+The loop MUST NOT expose private chain-of-thought, hidden reasoning, credentials, access tokens, API keys, passwords, or secrets.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20i_lrm_end_to_end_decision_loop_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20i_lrm_end_to_end_decision_loop_lock_doc.py
+
+python -m compileall backend/modules/aion_lrm
+\end{verbatim}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+Phase 20I
+LRM Closeout
+End-to-End Decision Loop
+governed reasoning packet
+reasoning memory snapshot
+reasoning replay trace
+boardroom visibility
+recommendation card
+human review decision
+evidence gap
+evidence satisfaction
+return_to_human_review
+preview-only
+human review
+private chain-of-thought
+no booking
+no payment
+no escrow
+no external message
+no live chain
+Tessaris AI
+Kevin Robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20I-LRM-END-TO-END-DECISION-LOOP-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

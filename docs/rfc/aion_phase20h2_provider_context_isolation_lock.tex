@@ -1,0 +1,99 @@
+\section{AION Phase 20H.2 --- Provider Context Isolation and Credential Vault Scoping}
+\label{sec:aion-phase20h2-provider-context-isolation-credential-vault-scoping}
+
+\subsection{Status}
+
+Phase 20H.2 locks provider context isolation and credential vault scoping.
+
+\begin{quote}
+\textbf{Status: LOCKED --- provider contexts are mission-scoped, provider-scoped, and credential material is never exposed to the model context.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot may interact with external providers only through isolated execution contexts.
+
+A provider context MUST be bound to:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item provider;
+  \item tool name;
+  \item credential scope;
+  \item allowed actions;
+  \item context hash.
+\end{itemize}
+
+\subsection{Credential Vault Rule}
+
+Credentials MUST be represented as vault references only.
+
+Plaintext credentials, API keys, access tokens, refresh tokens, cookies, authorization headers, payment tokens, card numbers, or passwords MUST NOT appear inside model-visible context.
+
+\subsection{Context Mount Rule}
+
+Before a provider context can mount, AION MUST verify:
+
+\begin{itemize}
+  \item mission ID matches;
+  \item mission run ID matches;
+  \item provider matches;
+  \item requested action is inside allowed actions;
+  \item no secret material is exposed.
+\end{itemize}
+
+\subsection{Cross-Boundary Blocking}
+
+AION MUST block:
+
+\begin{itemize}
+  \item cross-mission context reuse;
+  \item cross-run context reuse;
+  \item cross-provider context reuse;
+  \item action use outside context scope;
+  \item raw secret-shaped fields inside context claims;
+  \item model-visible secret exposure.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n5_delegation_profiles_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n6_autonomy_budget_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n7_matrix_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h1_external_tool_gateway_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h2_provider_context_isolation_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20H2-PROVIDER-CONTEXT-ISOLATION-CREDENTIAL-VAULT-SCOPING
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

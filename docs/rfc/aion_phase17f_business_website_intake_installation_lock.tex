@@ -1,0 +1,76 @@
+\section{Phase 17F --- Business Website Intake Installation}
+\label{sec:aion-phase17f-business-website-intake-installation}
+
+\subsection{Status}
+
+Phase 17F defines the simple business-facing installation layer for website intake.
+
+\begin{quote}
+\textbf{Status: LOCKED --- business website intake installation panel added.}
+\end{quote}
+
+\subsection{Purpose}
+
+This phase changes the integration story from a developer-only script idea into three practical onboarding paths for real small businesses.
+
+The supported installation paths are:
+
+\begin{enumerate}
+  \item \textbf{Email Forwarding Setup} --- the default route for non-technical business owners.
+  \item \textbf{Existing Form Webhook} --- the preferred route when a web designer can add one POST request.
+  \item \textbf{AION Generated Form / Embed} --- the route used when AION provides the enquiry form or floating request button.
+\end{enumerate}
+
+\subsection{Small Business Default}
+
+For a plumber, builder, roofer, electrician, or other non-technical owner, AION SHOULD support email forwarding as the first onboarding path.
+
+The expected flow is:
+
+\begin{verbatim}
+Website form -> business email -> AION intake mailbox -> AION ticket
+\end{verbatim}
+
+For Home Fixed, the preview mailbox is:
+
+\begin{verbatim}
+homefixed@intake.aion.local
+\end{verbatim}
+
+\subsection{Web Designer Integration}
+
+When a web designer is available, the existing form SHOULD remain unchanged and SHOULD continue to send the original customer email or CRM entry.
+
+AION receives a copy via:
+
+\begin{verbatim}
+POST /api/aion/public-intake/home_fixed
+\end{verbatim}
+
+The endpoint returns a ticket preview ID.
+
+\subsection{Generated Form Integration}
+
+When AION owns the website integration, the system MAY provide a generated form or embed snippet.
+
+The preview snippet is:
+
+\begin{verbatim}
+<div id="aion-business-intake"></div>
+<script src="/aion-intake.js"
+        data-business-id="home_fixed"
+        data-mode="enquiry-form"></script>
+\end{verbatim}
+
+\subsection{Safety Contract}
+
+All intake modes MUST default to \texttt{guarded\_preview}. Intake MUST NOT create a booking, payment, escrow, external message, or chain write.
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE17F-BUSINESS-WEBSITE-INTAKE-INSTALLATION-LOCK
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

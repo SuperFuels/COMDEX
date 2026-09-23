@@ -1,0 +1,90 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22D.9 --- Live Loop Failure-Patched SQI Selector Adapter Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22D.9 wires the live-loop SQI selector adapter into the Phase 22D.8 failure-patched SQI selector.
+
+Before this phase, the live adapter still routed directly to the older Phase 22D.2 SQI-guided selector.
+
+After this phase, the live-loop adapter routes through:
+
+\begin{verbatim}
+phase22d8_sqi_failure_patch_selector
+\end{verbatim}
+
+\section{Locked Behaviour}
+
+The adapter now calls:
+
+\begin{verbatim}
+run_full_chess_sqi_failure_patch_selector_kernel(...)
+\end{verbatim}
+
+instead of directly calling:
+
+\begin{verbatim}
+run_full_chess_sqi_guided_move_selection_kernel(...)
+\end{verbatim}
+
+The Phase 22D.8 selector still wraps the older SQI-guided selector internally, but now the live path receives the failure-patched score and patched selection reason.
+
+\section{Evidence}
+
+The live adapter emits:
+
+\begin{verbatim}
+live_loop_move_source: phase22d8_sqi_failure_patch_selector
+selected_sqi_reason: patched_sqi_failure_guard_selection
+failure_patched_sqi_selector_used_when_aion_turn: true
+old_sqi_guided_selector_wrapped_by_failure_patch: true
+\end{verbatim}
+
+\section{Safety Boundary}
+
+This phase does not send a live Lichess move.
+
+The adapter remains dry-run by default.
+
+The phase does not use:
+
+\begin{itemize}[leftmargin=*]
+  \item Stockfish;
+  \item cloud engines;
+  \item Lichess analysis;
+  \item LLM move judgement;
+  \item human move scoring.
+\end{itemize}
+
+Network call execution remains guarded and disabled unless explicitly enabled by the live sender boundary.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22d9_live_loop_failure_patched_sqi_selector_adapter_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22d9_live_loop_failure_patched_sqi_selector_adapter_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22D9-LIVE-LOOP-FAILURE-PATCHED-SQI-SELECTOR-ADAPTER\\
+Status: LOCKED --- live loop now routes through Phase 22D.8 failure-patched SQI selector\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

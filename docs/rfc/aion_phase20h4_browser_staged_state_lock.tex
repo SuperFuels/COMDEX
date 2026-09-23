@@ -1,0 +1,175 @@
+\section{AION Phase 20H.4 --- Browser Staged State Contract}
+\label{sec:aion-phase20h4-browser-staged-state-contract}
+
+\subsection{Status}
+
+Phase 20H.4 locks the Browser Staged State Contract.
+
+\begin{quote}
+\textbf{Status: LOCKED --- browser staged states are hash-bound, expiry-bound, approval-bound, and commit-once only.}
+\end{quote}
+
+\subsection{Purpose}
+
+Browser workers may prepare external actions, but preparation is not execution.
+
+A staged browser state records the exact provider page, target URL, action type, payload hash, expiry timestamp, and approval requirement before the system may request user approval or commit the action.
+
+\subsection{Staged State Lifecycle}
+
+A browser staged state MUST use one of the following lifecycle states:
+
+\begin{verbatim}
+none
+preparing
+staged
+waiting_approval
+expired
+committed
+abandoned
+\end{verbatim}
+
+Only \texttt{staged} and \texttt{waiting\_approval} states MAY be considered committable.
+
+\subsection{Staged State Contract}
+
+Every staged browser state MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item provider;
+  \item browser worker ID;
+  \item provider context hash;
+  \item browser session hash;
+  \item action type;
+  \item target URL;
+  \item staged payload hash;
+  \item approval requirement;
+  \item staged state;
+  \item creation timestamp;
+  \item expiry timestamp;
+  \item commit count;
+  \item restaging requirement;
+  \item browser session staged state hash.
+\end{itemize}
+
+\subsection{Commit Assertion}
+
+Before commit, AION MUST assert:
+
+\begin{itemize}
+  \item staged state is committable;
+  \item staged state is unexpired;
+  \item restaging is not required;
+  \item commit count is zero;
+  \item current payload hash matches staged payload hash;
+  \item approval hash exists when required;
+  \item approved payload hash matches staged payload hash when required.
+\end{itemize}
+
+\subsection{Expiry Rule}
+
+If:
+
+\begin{equation}
+T_{\mathrm{now}} > T_{\mathrm{staged\_state\_expires}}
+\end{equation}
+
+the staged state MUST NOT commit.
+
+The runtime MUST set or preserve \texttt{requires\_restaging} and request a new staged state before execution can continue.
+
+\subsection{Payload Mutation Rule}
+
+If:
+
+\begin{equation}
+H_{\mathrm{current\_payload}} \neq H_{\mathrm{staged\_payload}}
+\end{equation}
+
+the staged state MUST NOT commit.
+
+\subsection{Approval Binding Rule}
+
+If approval is required, the approval MUST bind the exact staged payload hash.
+
+If:
+
+\begin{equation}
+H_{\mathrm{approved\_payload}} \neq H_{\mathrm{staged\_payload}}
+\end{equation}
+
+the staged state MUST NOT commit.
+
+\subsection{Commit-Once Rule}
+
+A staged browser state MUST commit at most once.
+
+After commit, the state MUST transition to \texttt{committed} and increment \texttt{commit\_count}.
+
+Any attempt to reuse the committed staged state MUST fail closed.
+
+\subsection{Receipt}
+
+A committed staged browser state MAY emit a staged state receipt.
+
+The receipt MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item provider;
+  \item browser worker ID;
+  \item action type;
+  \item target URL;
+  \item staged payload hash;
+  \item commit assertion hash;
+  \item provider response hash;
+  \item committed state hash;
+  \item receipt hash.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n5_delegation_profiles_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n6_autonomy_budget_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n7_matrix_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h1_external_tool_gateway_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h2_provider_context_isolation_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h3_browser_worker_sandbox_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h4_browser_staged_state_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20H4-BROWSER-STAGED-STATE-CONTRACT
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

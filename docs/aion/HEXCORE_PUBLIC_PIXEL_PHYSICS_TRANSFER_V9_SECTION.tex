@@ -1,0 +1,54 @@
+\section{Arena v9: Public Pixel-Physics Transfer}
+\label{sec:arena-v9-public-physics}
+
+Arena v9 transfers AION's physical learning loop into transition and reward
+authority implemented by the third-party Farama Gymnasium project. Gymnasium
+1.2.3 owns MountainCar-v0 and CartPole-v1 dynamics, termination and reward.
+The AION path discards numerical simulator observations and derives control
+only from rendered RGB frames.
+
+\subsection{Outcome-selected visual feedback}
+
+MountainCar perception recovers wheel position and estimates motion by frame
+difference. Four bounded feedback programs competed on three development
+seeds; outcomes selected a momentum program. CartPole perception grounds the
+axle and pole in pixels. Four candidate controllers competed, selecting
+\begin{equation}
+ u_t=\mathbf{1}\!\left[\theta_t+2(\theta_t-\theta_{t-1})>0\right].
+\end{equation}
+Both programs were frozen before evaluation on six new seeds per environment.
+A matched zero-experience control received identical pixels, actions and
+budgets but used the first unevaluated program. Every action was SHA--256
+committed before the simulator returned its consequence.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}lr@{}}
+\hline
+Measure & Result \\
+\hline
+Public simulator authority & Farama Gymnasium 1.2.3 \\
+Public physics families & 2 \\
+Development / sealed seeds & $6/12$ \\
+Learned pixel-policy success & $100\%$ \\
+Weakest-family success & $100\%$ \\
+Zero-experience success & $0\%$ \\
+Success lift & $+100$ points \\
+Pre-action commitments & 3,706 \\
+Numerical observations used & 0 \\
+Unknown Acrobot actions executed & 0 \\
+Unknown-schema abstention & passed \\
+Unsafe actions / live writes & $0/0$ \\
+Restart relearning & 0 \\
+\hline
+\end{tabular}
+\caption{Arena v9 public pixel-physics transfer result.}
+\end{table}
+
+CAU promoted
+\path{procedure_public_pixel_physics_transfer_v9_627e18f70a39}.
+This is public third-party simulated physics, but development selected the
+environments, candidate grammar, seeds and gates. It is stronger public
+evidence, not independent administration, robotic competence or AGI.
+

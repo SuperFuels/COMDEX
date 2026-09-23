@@ -1,0 +1,151 @@
+\section{AION Phase 20K --- LLM Planner Adapter v0}
+\label{sec:aion-phase20k-llm-planner-adapter}
+
+\subsection{Status}
+
+Phase 20K locks the LLM Planner Adapter v0.
+
+\begin{quote}
+\textbf{Status: LOCKED --- model planning is constrained to structured plan proposal only. The model cannot execute tools, mutate runtime state, bypass lanes, bypass checkpoints, or create live external side effects.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot may use local or frontier language models to propose mission plans.
+
+The model output is advisory only. It is not executable authority.
+
+The model MAY propose:
+
+\begin{itemize}
+  \item plan title;
+  \item step list;
+  \item step descriptions;
+  \item suggested action types;
+  \item suggested lanes;
+  \item suggested risks;
+  \item estimated costs;
+  \item provider hints.
+\end{itemize}
+
+The model MUST NOT:
+
+\begin{itemize}
+  \item execute a tool;
+  \item call a raw browser worker;
+  \item send messages;
+  \item publish content;
+  \item deploy systems;
+  \item trigger payments;
+  \item create bookings;
+  \item mutate business memory;
+  \item mutate live reputation;
+  \item bypass plan approval matrix review;
+  \item bypass the approval lattice;
+  \item bypass the external tool gateway.
+\end{itemize}
+
+\subsection{Planner Providers}
+
+The first locked provider identifiers are:
+
+\begin{verbatim}
+gemma_local
+openai_frontier
+mock_planner
+\end{verbatim}
+
+Unsupported provider identifiers MUST be rejected.
+
+\subsection{Structured Plan Proposal Only}
+
+The planner output MUST compile into:
+
+\begin{verbatim}
+structured_plan_proposal_only
+\end{verbatim}
+
+The proposal MUST set:
+
+\begin{verbatim}
+model_may_execute: false
+model_may_call_raw_tools: false
+model_may_mutate_runtime: false
+requires_aion_compilation: true
+planner_labels_advisory_only: true
+\end{verbatim}
+
+\subsection{Forbidden Planner Keys}
+
+The planner output MUST be recursively scanned for forbidden direct-execution fields.
+
+Forbidden fields include:
+
+\begin{verbatim}
+execute_now
+raw_tool_call
+tool_call
+browser_submit
+payment_submit
+deploy_now
+publish_now
+send_now
+create_booking_now
+mutate_memory_now
+write_reputation_now
+\end{verbatim}
+
+If any forbidden field is present, compilation MUST fail closed.
+
+\subsection{AION Compilation Boundary}
+
+AION MUST compile the model proposal into a deterministic mission contract.
+
+The compiled contract MUST require:
+
+\begin{itemize}
+  \item Mission Plan Approval Matrix review;
+  \item Approval Lattice resolution;
+  \item Autonomy Budget evaluation;
+  \item Expiry and stale matrix revocation checks;
+  \item External Tool Gateway validation.
+\end{itemize}
+
+Live external side effects MUST remain disabled at contract compilation time.
+
+\subsection{Planner Label Advisory Invariant}
+
+Planner labels are hints only.
+
+If the model labels a dangerous step as safe, AION MUST override the model label during compilation.
+
+Examples:
+
+\begin{itemize}
+  \item \texttt{buy\_domain} MUST become \texttt{human\_approval\_required};
+  \item \texttt{deploy\_to\_production} MUST become \texttt{human\_approval\_required};
+  \item \texttt{publish\_facebook\_post} MUST become \texttt{human\_approval\_required};
+  \item \texttt{create\_real\_facebook\_account} MUST become \texttt{human\_task\_required}.
+\end{itemize}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{The language model may propose a mission. It does not own the mission. AION compiles, classifies, checkpoints, hashes, gates and executes only through deterministic runtime contracts.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20k_llm_planner_adapter_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20K-LLM-PLANNER-ADAPTER-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

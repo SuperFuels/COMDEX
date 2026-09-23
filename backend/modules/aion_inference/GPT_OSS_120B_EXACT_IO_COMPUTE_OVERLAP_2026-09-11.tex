@@ -1,0 +1,144 @@
+% Append-only LaTeX section for the AION GPT-OSS 120B technical record.
+% Required packages in the parent document: booktabs, amsmath.
+
+\section{Exact Adaptive Expert-I/O and Compute Overlap}
+\label{sec:gptoss120b-exact-io-compute-overlap}
+
+\subsection{Objective and claim boundary}
+
+The promoted demand-admitted family cartridge stabilised the internal-disk
+expert tier but still delivered approximately 45.13~GB of decoded expert data
+during each settled 48-position arithmetic pass.  This experiment tested
+whether some of that delivery latency could be hidden behind useful neural
+arithmetic without increasing the resident expert footprint.  It did not
+reduce expert count, constrain the router, alter gate values, change weights,
+or weaken exactness requirements.
+
+The candidate starts independent reads for the four unrestricted experts of a
+layer.  As each expert becomes available, the original packed MXFP4 expert
+calculation produces its gated contribution.  The four contributions are then
+combined with the post-attention residual in the original left-associated
+order.  This ordering is required: an algebraically equivalent reassociation
+would not satisfy the bitwise exact track.
+
+Splitting a fused four-expert call has a fixed orchestration cost.  The runtime
+therefore applies overlap only when at least two of the four selected experts
+are absent from the RAM workbench.  Layers with zero or one pending expert use
+the unchanged fused calculation.  No speculative expert is read: every fetch
+is caused by the current unrestricted 120B route.
+
+\subsection{Narrow real-layer gate and invalidated observations}
+
+Sixteen real SD-backed routes, drawn from two positions across eight layers,
+were first evaluated.  The initial isolated six-thread candidate was exact but
+improved median route time by only 4.03\%, below the fixed 5\% narrow gate, and
+was not promoted.  Exploratory four- and eight-thread gates were accidentally
+executed concurrently; their timing results were explicitly invalidated and
+retained with \texttt{INVALID} sidecars.
+
+The uncontended eight-thread rerun was exact on all 16 routes.  Median route
+time fell from 5.1670 to 4.8970~ms, a 5.51\% improvement.  All 16 route medians
+improved; per-route speedups ranged from 1.0298 to 1.0861, with median 1.0562.
+This passed the narrow gate and authorised complete-model integration.
+
+\subsection{Balanced full-model protocol}
+
+The integration gate used the original GPT-OSS 120B Q4\_K\_M/MXFP4 warehouse
+on the 64~GB SD card, the 18~GB M3 Pro host, the 7.9~GiB arithmetic RAM pool,
+the 20~GiB demand-admitted family cartridge, the four-slot reusable route
+arena, and all 36 attention/MoE layers.  Each pass comprised 15 teacher-forced
+prompt positions followed by 33 genuine greedy continuation positions.
+
+To control background load, cache state and temperature within one process,
+five passes used the fixed pattern \texttt{00110}: pass A was a non-overlap
+warm-up; passes B and E were controls; passes C and D enabled adaptive overlap.
+The comparison was therefore control/candidate/candidate/control after warm-up.
+All settled passes delivered exactly 45,129,243,480 decoded L2 bytes, recorded
+zero SD fallbacks, and followed identical expert routes.
+
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+Pass & Mode & 33-token time (s) & Throughput (t/s) & p50 latency (ms) \\
+\midrule
+A & warm-up control & 23.7923 & 1.3870 & 713.77 \\
+B & control & 20.0449 & 1.6463 & 595.37 \\
+C & adaptive overlap & 18.2113 & 1.8121 & 563.07 \\
+D & adaptive overlap & 20.0597 & 1.6451 & 536.74 \\
+E & control & 21.4433 & 1.5389 & 642.45 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The median control continuation time was 20.744085~s; the median candidate time
+was 19.135475~s.  Thus the balanced end-to-end speedup was 1.08406, or 8.4064\%.
+The corresponding median throughputs were 1.59081 and 1.72455~tokens/s.
+Adaptive overlap was applied to 937 of 1,188 continuation-layer evaluations
+(78.87\%); the remaining 251 used the ordinary fused path.
+
+Every pass produced identical unrestricted routes, generated token IDs, final
+hidden-state hashes and step-logit hashes.  The improvement therefore belongs
+to the exact track.  It is caused by hiding a portion of required L2 delivery
+behind required expert arithmetic, not by reducing model work or expert bytes.
+
+\subsection{Decision and limitations}
+
+Decision: \texttt{PROMOTE\_EXACT\_ADAPTIVE\_L2\_READ\_COMPUTE\_OVERLAP} for
+the frozen arithmetic-family gate.  The result clears the unchanged 5\%
+complete-loop threshold while retaining the lower-memory cartridge control.
+
+This is an incremental exact breakthrough, not the 30--50~tokens/s endpoint.
+The promoted measured rate is 1.72455~tokens/s on this gate.  The evidence does
+not yet establish the gain on extraction, reasoning, unseen prompt families,
+or longer 128--256-token generation.  It also does not reduce the 45.13~GB of
+logical L2 delivery.  The next gate is a blinded second-family replication,
+followed by longer generation only if exactness and at least a 5\% paired gain
+survive.  A larger RAM hotset remains stopped because it previously reduced
+traffic while regressing total speed under memory pressure.
+
+\subsection{Independent extraction-family replication}
+
+The identical five-pass \texttt{00110} protocol was then applied to the frozen
+invoice-extraction family.  This prompt contains 26 teacher-forced positions
+and 22 genuine continuation positions.  Its warm-up incurred 354 SD fallbacks
+while changing from the arithmetic-shaped cartridge state; all four settled
+comparison passes then recorded zero SD fallbacks and identical L2 delivery of
+42,531,495,544 bytes per pass.
+
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+Pass & Mode & 22-token time (s) & Throughput (t/s) & p50 latency (ms) \\
+\midrule
+A & switch/warm-up control & 67.3321 & 0.3267 & 2434.85 \\
+B & control & 14.2713 & 1.5416 & 636.66 \\
+C & adaptive overlap & 11.3956 & 1.9306 & 511.32 \\
+D & adaptive overlap & 12.6668 & 1.7368 & 547.55 \\
+E & control & 14.6411 & 1.5026 & 618.13 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Median settled control time was 14.456209~s and candidate time was 12.031206~s,
+an end-to-end improvement of 20.1559\%.  Median throughput rose from 1.52184 to
+1.82858~tokens/s.  Adaptive overlap was selected for 616 of 792 continuation
+layer evaluations (77.78\%).  All five runs retained identical unrestricted
+routes, generated tokens, final hidden states and step logits.  This second
+family therefore promotes the mechanism from an arithmetic-only observation to
+an exact two-family result.  It remains unproven on unseen families and longer
+generation.
+
+\subsection{Evidence identifiers}
+
+The isolated eight-thread gate's canonical SHA-256 is
+\texttt{474613a116d22c5efde08e2dc9de24c8b81bed37cc168bac6c7f3010f484797d},
+with stored-file SHA-256
+\texttt{18feef3efe1e910c266a502e627f525dfb53388c266b7aa42cb500bd53a20882}.
+The balanced complete-model report's canonical SHA-256 is
+\texttt{c000c889c84025a510552e31341831bfb12c7b8878b60f008ea06961a95faa52},
+with stored-file SHA-256
+\texttt{392b30f3b60749d10488ddd7ce2e3bd053b5ede615d102c843dfb6575f87afe8}.
+The extraction replication's canonical SHA-256 is
+\texttt{180d4ec6595450dd4da79ee6c6ec3ad6381e54b1e380d6242f9fac42032dddc6},
+with stored-file SHA-256
+\texttt{2ca647e49f037a91a9ca1dec7b0d440b992c03670d92651d302aa2c05afb779f}.

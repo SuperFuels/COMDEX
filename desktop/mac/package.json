@@ -1,0 +1,50 @@
+{
+  "name": "tessaris-desktop",
+  "productName": "Tessaris",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tessaris local desktop shell",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --mac",
+    "pack": "electron-builder --dir --mac",
+    "pack:local": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir --mac"
+  },
+  "devDependencies": {
+    "electron": "^43.1.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "ai.tessaris.desktop",
+    "productName": "Tessaris",
+    "directories": {
+      "buildResources": "assets"
+    },
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "assets/**/*",
+      "package.json",
+      "!src/*.bak*",
+      "!src/**/*.bak*",
+      "!**/*.bak-*",
+      "!**/*.bak_*",
+      "!**/*.backup",
+      "!**/*.orig",
+      "!**/.DS_Store",
+      "src/assets/**/*",
+      "public/**/*"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "mac": {
+      "category": "public.app-category.business",
+      "target": [
+        "dmg"
+      ],
+      "icon": "assets/icon.icns"
+    }
+  }
+}

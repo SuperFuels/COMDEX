@@ -1,0 +1,279 @@
+% Paste before \end{document} in the existing Overleaf technical record.
+% Uses only standard LaTeX; no additional packages or preamble required.
+% Consolidated recent work: overlaps the earlier correction-opportunity appendix.
+\section{GPT-OSS 120B: Correction Integration, Teacher Coverage and Ranked Expert Compilation}
+\label{sec:gptoss-ranked-correction-20260912}
+
+\subsection{Scope and claim boundary}
+This section consolidates recent correction experiments and runtime preparation
+on the existing M3 Pro Mac with 18 GB unified memory and the compressed
+GPT-OSS 120B SD warehouse. The model has 36 transformer layers, 128 experts
+per layer and four selected experts per unrestricted layer call. No new
+full-generation speed result is promoted by the work described here.
+
+The frozen exact short-window results remain 1.72455 tokens/s for arithmetic
+and 1.82858 tokens/s for extraction. The adaptive quality track has produced
+a correct tested reasoning path near 7 tokens/s, but this is not a general
+quality guarantee. Its quiet paired observations were 7.001898 and 5.491965
+tokens/s. The earlier 28.6174 tokens/s top-one result remains an unusable
+quality-failing physical execution measurement, not a usable 120B result.
+Exact execution and approximate quality-gated execution remain separate.
+
+\subsection{The correction hypothesis}
+For an ordered route with $n$ selected experts, let $c_i=g_iE_i(x)$ denote
+the actual gated expert contribution at activation $x$. The proposed
+candidate retains $n-1$ real contributions and computes a compact estimate
+$\widehat c_n$ of the last contribution:
+\[
+ y_{\mathrm{candidate}}=r+
+ \bigl(((c_1+c_2)+\cdots+c_{n-1})+\widehat c_n\bigr).
+\]
+Here $r$ is the feed-forward residual input. Parentheses represent the
+original floating-point reduction order, not merely algebraic equivalence.
+The target is less physical expert delivery and computation, with true-expert
+fallback outside validated support. A local approximation is not an exact
+replacement and cannot be promoted without downstream testing.
+
+\subsection{Earlier local feasibility and the addition-order defect}
+The initial layer-12/expert-22 local correction reduced the recorded
+fourth-expert omission error from 4.12\% to 1.66\%, below the fixed 2\%
+local gate. Its 11,520-byte payload was extremely small. This established
+local feasibility, not broad coverage: only one of 41 extraction calls
+entered the declared joint region.
+
+An integration audit subsequently exposed a confound: even substituting
+the real exact fourth contribution through the old integration changed
+838 output elements in one audit and 883 in another. The cause was a changed
+floating-point addition order. The repaired reducer produced zero differing
+elements with the real contribution. Earlier drift therefore could not be
+attributed solely to approximation error.
+
+A richer secant correction used 46,080 bytes of fitted payload, with a
+reported loaded footprint of 69,288 bytes. On the recorded prospective
+training-family activation, its local error was approximately 0.774\%, versus
+1.577\% for the constant correction on that same activation. This is a
+same-activation comparison, not the earlier 4.12\%-to-1.66\% comparison.
+Its region covered one of 39 calls. A local charged resident-compute ratio
+of 0.0773 was recorded; this is not the SD fault-path cost.
+
+The downstream test retained token IDs over 42 total positions, but only
+15 positions were at or after the substitution. It still produced 28 ordered
+route changes, 15 expert-set changes and one top-expert change; maximum
+chosen-logit drift was 0.5266 and the recorded maximum token-margin danger
+was 11.41\%. The appropriate status remains
+\texttt{TOKEN\_STABLE\_DOWNSTREAM\_DRIFT}, not trajectory-exact certification
+or long-horizon safety. No speed gain follows from this result.
+
+\subsection{Measured opportunity: why fourth-expert-only coverage is insufficient}
+An offline analyzer examined completed canonical-hash-bound receipts,
+continuation positions and complete 36-layer observation grids. In the quiet
+adaptive-0.80 reasoning control, only 22.8682\% of layer calls used four
+experts; approximately 77.13\% already used two or three. A fourth-expert-only
+compiler cannot operate on those other calls.
+
+For exploratory accounting, aggregate route-finish plus delivery time was
+divided by active expert count and the local correction ratio 0.0773 was
+assumed. Complete eligible E4 coverage yielded hypothetical multipliers
+1.04924 and 1.06370. Replacing the last selected contribution on eligible
+two-, three- and four-expert calls yielded hypothetical multipliers 1.25993
+and 1.27733. These are estimates, not measured speedups or rigorous ceilings:
+non-removable overhead, unequal expert costs, changed locality, instrumentation
+overlap, controller expense and fallback frequency were not isolated.
+
+The resulting implementation direction is rank-specific C2/C3/C4 compilation,
+not relabelling an E4 correction as universally valid. The prepared ordered
+quartet-slab proposal was also checked against existing evidence rather than
+blindly repeated: the unrestricted 96-position extraction trace had only one
+post-admission quartet reuse, 0.0289\% of routes. The recorded adaptive slab
+reuse did not repay multi-gigabyte storage. No new slab speed claim was made.
+
+\subsection{Teacher corpus, disk protection and first completed trajectory}
+The declared corpus contains 36 prompts across six families, split into
+24 training, six selection and six untouched holdout prompts. Its planned
+44,064 layer-position observations are a programme total, not completed data.
+Earlier collection roots were interrupted under local disk pressure and are
+preserved as partial data, not verified evidence. The second restart writes
+local results, retains a 3 GiB free-space reserve, checks that reserve during
+capture and between jobs, and interrupts safely if it is exhausted.
+The protected expert workbench is 8 GiB; no additional L2 allocation was made.
+Competing full-model inference is excluded during teacher capture.
+
+The first restart-two arithmetic trajectory reached
+\texttt{COMPLETE\_VERIFIED}: 1,332 observations, 37 captured positions across
+all 36 layers, with routes, hidden state and logits repeatable. Its 16
+continuation positions provide 576 real E4 calls. It used the previously
+declared arithmetic prompt and is not an untouched new prompt.
+One family alone establishes neither cross-family support nor certification.
+At this reporting snapshot the following business capture is still active;
+its partial observations are excluded from fitting and measured completion
+counts until the final verification seal exists.
+
+\subsection{Ranked contribution targets and verification}
+Future teacher jobs save gated second and third contributions in addition to
+the fourth. Each target is a 2,880-element little-endian F32 vector containing
+11,520 bytes. Original ordered expert identities and actual native F32 gates
+are retained. Adding C2/C3 targets costs 23,040 bytes per four-expert
+observation without another expert read or calculation beyond the existing
+counterfactual capture. Diagnostic F64 representations are returned to their
+original F32 target representation.
+
+The first arithmetic process loaded older E4-only code. It is not counted as
+C2/C3 coverage. Follow-up business capture uses the new writer, but its
+completion remains unverified at this snapshot. Verification checks both new
+targets together whenever either is declared, binary sizes and hashes,
+complete layer-position grids, full-vocabulary hashes, teacher repeatability
+and the completion's hash-bound file inventory. Selection and holdouts remain
+unused. Unrestricted teacher targets do not automatically certify altered
+adaptive activations or gates.
+
+\subsection{Incremental local compiler and frozen support rules}
+A bounded one-BLAS-thread worker watches verified training completions and
+fits layer-12 probes using different training prompt families for fitting
+and development. It performs no new SD expert reads or neural evaluations.
+It never consumes partial files or sealed selection/holdout prompts, and does
+not inject corrections automatically.
+
+The model is an expert-specific affine kernel-ridge map. Activations are
+centered and scaled; the affine kernel is an activation inner product plus
+one. Regularization is fixed at 0.001. Gated targets are divided by their
+positive native gate during fitting and predictions rescaled by the gate.
+At least four fitting calls are required, with at most 32 retained. A nearest
+fitting-activation cosine below 0.80 rejects the call. The fitted arrays are
+saved and hashed before different-family development evaluation.
+
+For a supported call, local error is the norm of correction-target difference
+divided by the original full layer-output norm. It must be at most 0.02 and
+improve over omission. Every supported development call in a region must pass;
+resident arrays must occupy less than 25\% of the nominal 13.25 MiB expert
+frame. This storage check is not a charged compute-cost gate. Single-call
+timing under active teacher load is diagnostic, not performance evidence.
+Passing status is only a local candidate requiring untouched validation.
+
+\subsection{Negative real-data result: identity recurrence is not activation support}
+A same-prompt chronological sanity test fitted on prefill and evaluated later
+continuation, without claiming independent transfer. Support-count selection
+identified layer 2/expert 0, layer 13/expert 0 and layer 18/expert 53. Their
+stored array sizes were 184,324, 149,764 and 149,764 bytes respectively.
+The two, one and three continuation calls all failed the frozen 0.80 support
+screen: observed cosine values ranged from 0.1581 to 0.5985. Supported coverage
+was zero of six. This is a coverage miss, not numerical accuracy failure,
+and does not disprove correction feasibility. It shows that repeated expert
+identity alone cannot justify prefill-to-continuation substitution.
+
+\subsection{Native integration breakthrough: exact ranked-contribution audit}
+The native repaired reduction was generalized to one, two or three retained
+experts plus an already-gated final contribution. Existing exact and original
+three-plus-C4 entry points remain unchanged. On a real cached layer-12 route,
+the audit compared diagnostic two-, three- and four-expert controls against
+one plus real C2, two plus real C3, and three plus real C4 respectively.
+
+All three comparisons were bit-for-bit identical with zero differing output
+elements. One CPU thread was used. All six components per retrieved expert
+were read from existing local L2 and checked against source-manifest lengths
+and hashes. The audit performed zero SD expert reads, no admission and no
+deletion. This is a genuine integration correctness result, not learned
+approximation accuracy, semantic certification or speed evidence.
+
+\subsection{Coverage accounting and software validation}
+Reports now include every development call of each rank in their denominator,
+including unmatched expert identities. They separately count unsupported
+identities, activation-supported calls, numerical passes and calls in regions
+that pass the complete local probe. A region with any supported numerical
+failure is not credited as usable candidate traffic. Missing rank targets
+produce unavailable shares. Certified traffic share remains explicitly unset.
+
+The latest focused suite passed 22 of 22 tests, covering fitting/support,
+ranked target integrity, queue verification and disk protection, runtime
+opportunity accounting, read-only cache integrity and full-denominator
+coverage. These software passes do not prove model quality or tokens/s.
+Isolated commits include \texttt{81dea819} for the native reduction audit and
+\texttt{396187e2} for coverage accounting.
+
+\subsection{Evidence identifiers}
+The following are canonical SHA-256 values unless otherwise stated.
+Line breaks are only for typesetting.
+\paragraph{Corpus.}
+\begin{quote}\ttfamily\small
+f8d7d407aa548afddce383888ac81bf66\allowbreak
+abee6d7aaa0357e72c32972e61646a3
+\end{quote}
+\paragraph{Quiet-control opportunity report.}
+\begin{quote}\ttfamily\small
+e72d148f596f4ee6c61b5946e1d02f232\allowbreak
+6458a77ee39b14c6c32eac12d01c2d5
+\end{quote}
+\paragraph{First arithmetic teacher receipt.}
+\begin{quote}\ttfamily\small
+2c685a371d367016291d20f366bafe98d\allowbreak
+98ae592b28c44366f73a35bb77940a7
+\end{quote}
+\paragraph{First arithmetic completion seal.}
+\begin{quote}\ttfamily\small
+f6ff83bd0c5e2b97c6215f7b68b3151ca\allowbreak
+9e5dfb22b7a9c856764923345f32a25
+\end{quote}
+\paragraph{First completed coverage-economics report.}
+\begin{quote}\ttfamily\small
+af091d04798a6b1ee802e3afc61d16d4\allowbreak
+75fbb3334f863ba28e3008f6432165f5
+\end{quote}
+\paragraph{Native ranked reduction audit.}
+\begin{quote}\ttfamily\small
+0d21ecacfd752304361670515b0470c733\allowbreak
+fee5089aaff8765608e0ed46655f72
+\end{quote}
+
+\subsection{Remaining promotion contract}
+The next advancement requires sufficient authentic cross-family support,
+frozen local corrections, untouched numerical and downstream route/logit/token
+tests, measured fallback frequency and charged correction cost below the
+declared 25\% ceiling. Only then may balanced same-process completed-answer
+control/candidate generation establish a new throughput result. Local passes,
+microsecond calculations, hypothetical multipliers and incomplete captures
+must not be presented as a raw-speed breakthrough.
+
+\subsection{Subsequent completion: first cross-family numerical result}
+After the snapshot above, business01 completed exact verification with 1,188
+layer-position observations. It contains 1,188 second-, third- and fourth-
+contribution targets each, with repeatable routes, hidden state and logits.
+The explanation01 teacher then started automatically. Thus the new ranked
+target writer now has completed measured evidence, not merely implementation.
+
+The first arithmetic-to-business layer-12 probe fitted expert 64 from four
+arithmetic continuation calls. One business call at position 20 met the frozen
+support screen (cosine 0.8910833). Its omitted-contribution error was
+6.939687\%; the correction reduced this to 3.246070\%, approximately a 53.2\%
+relative reduction. The fitted arrays occupy 149,764 bytes and pass the
+storage-size check, but accuracy fails the unchanged 2\% gate. The result is
+\texttt{NOT\_CERTIFIED}, with zero locally passing calls out of all 16
+development E4 calls. Fifteen calls lacked a fitted identity. The older
+arithmetic fitting job has no E2/E3 targets, so those ranks have no fitted
+models; this is not an E2/E3 approximation failure. Timing under active teacher
+load is not performance evidence. No correction was injected.
+
+The two completed teachers now supply 1,152 continuation E4 calls across all
+36 layers. None yet meet the exploratory eight-call, two-family identity
+support criterion. This criterion measures identity recurrence only, not
+certification. Certified traffic share remains unset. Gates were not relaxed
+after this result and no raw-speed frontier changed.
+
+Business teacher canonical SHA-256:
+\begin{quote}\ttfamily\small
+a9a6faf2c267279d5bedec8532bfa804\allowbreak
+ba4e9a4b10d9587b3c6db3332ef23047
+\end{quote}
+Business completion canonical SHA-256:
+\begin{quote}\ttfamily\small
+790ed2d994de3aed6b482e83fea7430c\allowbreak
+dbb064f595e01ab56d1bda07ae044d8a
+\end{quote}
+First cross-family local report canonical SHA-256:
+\begin{quote}\ttfamily\small
+4592c8e862fddfdf4820c1f80c4bd0a3\allowbreak
+fc482ecebcfabf2593cb9c9f8b8e5dae
+\end{quote}
+Two-teacher coverage report canonical SHA-256:
+\begin{quote}\ttfamily\small
+3ca4db91d9f9fcc14b25c41b99ea2a02\allowbreak
+4027579b8e59ea1bf349cd746b2a94fa
+\end{quote}

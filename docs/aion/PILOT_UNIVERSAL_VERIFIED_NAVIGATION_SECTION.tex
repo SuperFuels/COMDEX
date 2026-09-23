@@ -1,0 +1,205 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{microtype}
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,urlcolor=blue!65!black}
+\setlist{nosep,leftmargin=*}
+
+\title{Pilot Fabric 0.38\\Universal Reliable Television Operation}
+\author{Tessaris}
+\date{30 August 2026}
+
+\begin{document}
+\maketitle
+
+\section{Objective}
+
+Pilot Fabric 0.38 completes the reusable transaction and qualification framework around restricted-device
+control.  The transaction implements the sequence
+
+\begin{center}
+\textbf{observe $\rightarrow$ act $\rightarrow$ observe $\rightarrow$ verify}
+\end{center}
+
+instead of equating command delivery with success.  The first live integration
+wraps private-phone navigation, media, pointer and application operations on the
+paired LG gateway.  The same contract is device-neutral and can be applied to
+Samsung, Android/Google TV, set-top boxes and installed AION nodes as their
+adapters become available.
+
+\section{Transaction contract}
+
+Each \nolinkurl{pilot.verified-navigation.transaction.v1} record binds:
+
+\begin{itemize}
+  \item the device node and current surface belief;
+  \item a normalized user goal and explicit success criterion;
+  \item an ordered set of bounded routes and the selected route index;
+  \item pre-action device belief and optional image evidence hash;
+  \item each action receipt, attempt number and transport result;
+  \item structured post-action evidence; and
+  \item final state, completion time and canonical transaction hash.
+\end{itemize}
+
+Accepted verification criteria are expected surface, forbidden view, changed
+screen, OCR text containment, a receipt with governed read-after-write evidence,
+and an exact/present device-state field.  This
+keeps success logic outside the language model.
+
+\section{State machine}
+
+\begin{longtable}{p{0.27\linewidth}p{0.65\linewidth}}
+\toprule
+\textbf{State} & \textbf{Meaning} \\
+\midrule
+\endhead
+\nolinkurl{ready_to_act} & A route is selected but no device action receipt has
+been accepted. \\
+\nolinkurl{awaiting_after_observation} & Transport was delivered, but the
+visible or semantic result still needs evidence. \\
+\nolinkurl{recovery_ready} & The previous result failed and a predeclared
+alternative route remains within the attempt limit. \\
+\nolinkurl{verified} & The explicit criterion matched permitted structured
+device state or an after-observation. \\
+\nolinkurl{not_verified} & Evidence did not establish the goal and no bounded
+route remains. \\
+\nolinkurl{superseded_not_verified} & A newer user operation replaced an
+unfinished operation; the earlier transaction remains evidence rather than
+disappearing. \\
+\bottomrule
+\end{longtable}
+
+The engine accepts at most three device attempts.  It never invents a route
+after failure, loops indefinitely, or permits a language model to redefine the
+success criterion during execution.
+
+\section{Evidence hierarchy}
+
+Device-state criteria are preferred when the gateway exposes a relevant field.
+For example, launching Netflix can be verified against the foreground
+application identifier without capturing protected programme pixels.  A remote
+directional or profile-selection operation is different: the pointer/button
+receipt proves delivery only, so the transaction waits for a structured phone
+observation.
+
+Manual capture and explicit Observer Mode process images locally.  The verifier
+receives surface, view, observation identifier and hashes, but the source frame
+is deleted.  Profile selection normally verifies when the surface remains Netflix
+and the profile-chooser view is absent. If OCR cannot identify the changed surface,
+an explicit owner visual confirmation may close the transaction only when Pilot
+already holds a verified transport receipt and a distinct after-image hash.
+Consent dismissal verifies when the consent
+view is absent.  Generic focus movement requires distinct before and after image
+hashes; a missing before hash cannot be converted into a success.
+
+An in-application Netflix search is verified only when OCR from the subsequent
+owner-authorized observation contains the requested title.  Application launch
+uses the foreground application identifier.  Play, pause and other third-party
+operations require a changed structured screen or signed provider playback
+telemetry; an LG transport acknowledgement alone is excluded.
+
+\section{Idempotency and duplicate suppression}
+
+Every private-controller request carries a browser-generated request identifier.
+The mother checks the active transaction, last transaction and bounded history
+before dispatch.  A repeated identifier returns the original transaction with
+\nolinkurl{duplicate_suppressed=true}; it cannot emit a second television action.
+This local proof is independently eligible for the duplicate-suppression
+qualification area and contains no provider credential or private screen frame.
+
+\section{Recovery and route learning}
+
+Routes are predeclared bounded commands.  When visual verification fails, the
+engine may expose the next route as \texttt{recovery\_ready}.  The phone shows a
+\emph{Try verified recovery route} button.  Executing it remains inside the same
+transaction and again requires post-action evidence.  This prevents a retry from
+silently resetting the goal, history or attempt count.
+
+The mother brain stores route statistics under a canonical key derived from
+device, surface, goal and route identifier.  Successful and failed counts,
+last result and update time are retained.  On a later transaction, routes with
+established successes rank ahead of routes with failures.  The memory never
+contains a television password, provider credential or source camera frame.
+
+\section{Private-phone interface}
+
+The controller displays the active or most recent goal, transaction state,
+attempt count, expected criterion and the number of remembered routes.  When an
+after-observation is required it instructs the user to start the explicit
+Observer Mode or take a picture.  A recovery button appears only when the engine
+has a bounded alternative.  This makes a previously hidden technical distinction
+visible in simple language: command delivered does not mean screen verified.
+The controller includes governed Back and Home keys, a Netflix title field,
+named household profiles and a qualification panel.  The user-facing control is
+labelled emph{Switch profile}. Pilot learns the visible profile labels from an
+owner-authorized chooser observation, maps each label to its observed position,
+and retains no Netflix credential. The field flow is:
+
+\begin{center}
+\textbf{capture before $\rightarrow$ act once $\rightarrow$ capture after
+$\rightarrow$ inspect the terminal result}
+\end{center}
+
+The same procedure qualifies directional movement, focus/pointer actions,
+Back/Home/Exit and playback without allowing the interface to self-certify.
+
+\section{Field qualification contract}
+
+Section 3 is closed per television adapter, not globally.  Closure requires at
+least twenty eligible field cases, a verified-or-bounded-recovery rate of at
+least 95\%, and successful evidence in all eleven areas: connection recovery,
+state observation, reversible audio, application launch, directional navigation,
+Back/Home/Exit, focus/pointer, in-application search, profile selection, playback
+control and duplicate suppression.
+
+Eligible evidence is limited to device read-after-write, structured local screen
+observation, bounded owner visual confirmation, signed provider telemetry and
+local idempotency proof. Owner confirmation additionally requires machine evidence
+of transport delivery and a changed observer hash. Simulated
+contracts and transport-only receipts are retained for engineering diagnostics
+but excluded from the denominator and from coverage.  The paired LG adapter
+completed 24 eligible field cases with 24 verified outcomes, a 100\% success-or-
+recovery rate and successful coverage of all eleven required areas. Section 3 is
+therefore closed for this adapter.
+
+\section{Auditability and safety}
+
+Action audits record transaction identifier, television node, goal, state and
+transaction hash.  Observation audits record the resulting state and that the
+source frame was not retained.  The existing signed capability capsule remains
+mandatory for every underlying operation.  Navigation does not broaden power,
+purchase, account, legal-consent or communication authority.
+
+\section{Verification}
+
+All 291 Fabric tests pass in release 0.38.  Automated tests establish that
+transport delivery waits for observation, a
+semantic after-state can verify the goal, failure selects a declared alternative,
+unchanged or missing image evidence cannot prove a screen change, device fields
+can close pixel-free operations, OCR must contain the requested search title,
+duplicate request identifiers suppress redispatch, qualification excludes
+simulation and transport-only evidence, owner confirmation cannot bypass missing
+machine evidence, profile labels are extracted only from the chooser region, and
+learned successful routes are ranked first.
+The complete Fabric suite additionally covers webOS controls, the phone security
+boundary, observer tokens, local perception, audit integrity and all earlier
+capability layers.
+
+\section{Platform scope and remaining field work}
+
+The implemented adapter and current field evidence apply to the paired LG webOS
+television.  Samsung, Sony/Google TV and other vendors require their own signed
+capability adapters and must pass the same qualification contract.  Unit tests
+and protocol simulators can validate parsing, state machines, replay protection
+and failure handling, but cannot substitute for eventual real-device evidence.
+The LG result closes only this adapter. The next platform work is to implement and
+qualify other vendor adapters and to expand bounded recovery routes only when new
+field failures provide concrete evidence for them.
+
+\end{document}

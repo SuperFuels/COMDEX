@@ -1,0 +1,224 @@
+\section{Phase 11G --- A2A Trust Summary Endpoint Preview v0}
+\label{sec:aion-a2a-trust-summary-endpoint-preview-v0}
+
+\subsection{Status}
+
+Phase 11G locks the guarded A2A trust summary endpoint preview layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- A2A trust summary endpoint preview tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 11G exposes the Phase 10 trust and reputation summary through the guarded A2A preview layer.
+
+The purpose is to allow a future authenticated external agent to inspect trust state in a deterministic, schema-versioned, non-public, non-ranking preview format.
+
+This phase does not expose a public route, create public rankings, execute workflows, create bookings, move money, or bypass human review.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/a2a_trust_summary.py
+\end{verbatim}
+
+The module exports:
+
+\begin{itemize}
+  \item \texttt{A2A\_TRUST\_SUMMARY\_CONTRACT\_VERSION}
+  \item \texttt{build\_a2a\_trust\_summary\_endpoint\_preview}
+  \item \texttt{build\_a2a\_trust\_summary\_endpoint\_summary}
+\end{itemize}
+
+The contract version is:
+
+\begin{verbatim}
+aion.a2a_trust_summary_endpoint.v0.1
+\end{verbatim}
+
+\subsection{Endpoint Preview}
+
+The reserved endpoint preview is:
+
+\begin{verbatim}
+GET /api/aion/a2a/home_fixed/trust_summary
+\end{verbatim}
+
+The endpoint key is:
+
+\begin{verbatim}
+trust_summary
+\end{verbatim}
+
+The preview remains guarded:
+
+\begin{verbatim}
+preview_only = true
+guarded = true
+requires_auth = true
+auth_mode = api_key_or_signed_agent_preview
+public_route_exposed = false
+\end{verbatim}
+
+\subsection{Default Business Context}
+
+The default business context remains aligned with the Home Fixed vertical testbed:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+industry_key = trades
+\end{verbatim}
+
+This keeps the A2A trust endpoint aligned with the Phase 8 Home Fixed vertical, Phase 9 Boardroom Parallel Twin, and Phase 10 Trust Summary layers.
+
+\subsection{Trust Metrics}
+
+The preview exposes the following trust summary metrics:
+
+\begin{itemize}
+  \item verified completed jobs,
+  \item disputed jobs,
+  \item cancelled jobs,
+  \item failed jobs,
+  \item average response time,
+  \item average completion time,
+  \item evidence-backed completion rate,
+  \item proof commitment rate,
+  \item proof verification success rate,
+  \item quote reliability rate,
+  \item recovery success rate,
+  \item trust score preview,
+  \item trust tier preview,
+  \item explainability notes,
+  \item human review status.
+\end{itemize}
+
+The trust score remains explainable and preview-only.
+
+\subsection{No Public Ranking Boundary}
+
+Phase 11G explicitly does not expose public ranking.
+
+The locked boundary is:
+
+\begin{verbatim}
+public_ranking_exposed = false
+no_public_ranking = true
+\end{verbatim}
+
+The trust summary may be inspected internally and by future authenticated agents only after guarded access is implemented.
+
+It MUST NOT be used as a public marketplace ranking surface in this phase.
+
+\subsection{Hash Contract}
+
+The preview locks the deterministic hash vocabulary:
+
+\begin{itemize}
+  \item \texttt{trust\_summary\_hash}
+  \item \texttt{response\_hash}
+  \item \texttt{bundle\_hash}
+  \item \texttt{summary\_hash}
+\end{itemize}
+
+The \texttt{trust\_summary\_hash} changes when trust metrics change.
+
+The \texttt{response\_hash} and \texttt{bundle\_hash} bind the endpoint preview to the specific business, vertical, endpoint, and trust summary state.
+
+\subsection{Safety Boundary}
+
+The A2A trust summary endpoint preview MUST NOT:
+
+\begin{itemize}
+  \item expose a public route,
+  \item expose a public ranking,
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item confirm final completion,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item enable live status polling.
+\end{itemize}
+
+The locked safety fields are:
+
+\begin{verbatim}
+preview_only = true
+human_review_required = true
+public_route_exposed = false
+public_ranking_exposed = false
+no_public_ranking = true
+would_execute_workflow = false
+would_create_booking = false
+would_create_live_job = false
+would_confirm_final_completion = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_send_external_message = false
+live_status_polling_enabled = false
+\end{verbatim}
+
+\subsection{Relationship to Previous Locks}
+
+Phase 11G depends on:
+
+\begin{itemize}
+  \item Phase 10A --- Trust and Reputation Summary v0,
+  \item Phase 10B --- Boardroom Trust Summary Visibility v0,
+  \item Phase 11A --- Guarded A2A API Namespace v0,
+  \item Phase 11B --- A2A Capabilities and Catalog Preview v0,
+  \item Phase 11C --- A2A Availability and Quote Preview v0,
+  \item Phase 11D --- A2A Job Request and Trace Preview v0,
+  \item Phase 11E --- A2A Job Evidence and Settlement Readiness Preview v0,
+  \item Phase 11F --- A2A Proof Commitment and Proof Receipt Preview v0.
+\end{itemize}
+
+Together these locks complete the guarded A2A preview endpoint family from discovery through trust inspection.
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_a2a_trust_summary_endpoint_lock.py \
+  backend/tests/workflow_capsules/test_aion_a2a_trust_summary_endpoint_lock_doc.py
+\end{verbatim}
+
+Focused suite validation:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-A2A-TRUST-SUMMARY-ENDPOINT-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

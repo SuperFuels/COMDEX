@@ -61,6 +61,7 @@ from backend.modules.codex.codex_virtual_qpu import CodexVirtualQPU
 from backend.symatics.symatics_dispatcher import evaluate_symatics_expr, is_symatics_operator
 from backend.modules.photon.photon_to_codex import photon_capsule_to_glyphs, render_photon_scroll
 from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
+from backend.photon_algebra.magnetism_bridge import PhotonMagnetismBridge
 from backend.modules.spe.spe_bridge import recombine_from_beams, repair_from_drift, maybe_autofuse
 from backend.modules.codex.codex_trace import log_codex_trace as record_trace
 
@@ -318,6 +319,56 @@ def _safe_op_trigger(context: Dict[str, Any], target: str = "default_trigger") -
         # Older keyword-style signature
         return _raw_op_trigger(context=context, target=target)
 
+def _maybe_run_photon_magnetism_bridge(
+    expr: Any,
+    *,
+    fallback_symbol_id: str = "S1",
+    amplitude: float = 1.0,
+    frequency: float = 1.0,
+) -> Optional[Dict[str, Any]]:
+    """
+    Lazy bridge hook:
+    Photon expr -> magnetic intent -> compiled Symatics field program.
+
+    Returns:
+        {
+            "intent": <PhotonFieldIntent as dict>,
+            "program": <FieldEmissionProgram as dict>,
+        }
+    or None if expr is not a Photon-style AST / bridge unavailable.
+    """
+    try:
+        if not isinstance(expr, dict):
+            return None
+
+        op = expr.get("op")
+        if op not in {"⊕", "⊗", "↔", "⊖", "¬", "★", "∅", "≈", "⊂"}:
+            return None
+
+        from backend.core.registry_bridge import registry_bridge
+
+        intent = registry_bridge.resolve_and_execute(
+            "photon:magnetic_intent",
+            expr=expr,
+        )
+
+        compiled = registry_bridge.resolve_and_execute(
+            "photon:compile_field_program",
+            expr=expr,
+            fallback_symbol_id=fallback_symbol_id,
+            amplitude=amplitude,
+            frequency=frequency,
+        )
+
+        return {
+            "intent": intent,
+            "program": compiled,
+        }
+
+    except Exception as e:
+        logger.warning(f"[CodexExecutor] Photon magnetism bridge skipped: {e}")
+        return None
+
 # Self-rewrite
 from backend.modules.aion.rewrite_engine import RewriteEngine
 
@@ -523,6 +574,64 @@ class CodexExecutor:
             # 🌀 Render scroll
             scroll = render_photon_scroll(glyphs)
 
+            # 🔗 Optional Photon -> magnetic intent / field-program bridge
+            magnetic_bridge_result = None
+            try:
+                photon_expr = None
+
+                # Prefer explicit AST if already present on the capsule
+                if isinstance(capsule_dict, dict):
+                    photon_expr = capsule_dict.get("expr") or capsule_dict.get("ast")
+
+                # Fallback: single glyph/operator -> simple Photon AST
+                if photon_expr is None and len(glyphs) == 1:
+                    g0 = glyphs[0]
+                    op0 = getattr(g0, "operator", None)
+                    args0 = getattr(g0, "args", None)
+
+                    if op0 in {"⊕", "⊗", "↔", "⊖", "≈", "⊂"}:
+                        photon_expr = {"op": op0, "states": list(args0 or [])}
+                    elif op0 in {"¬", "★"}:
+                        photon_expr = {"op": op0, "state": (list(args0 or [None])[0])}
+
+                if photon_expr is not None:
+                    bridge = PhotonMagnetismBridge(
+                        "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_symbol_catalog.json"
+                    )
+
+                    intent = bridge.compile_expr(photon_expr)
+
+                    compiled_payload = {
+                        "intent": intent.to_dict(),
+                    }
+
+                    if context.get("compile_field_program", False):
+                        fallback_symbol_id = context.get("fallback_symbol_id", "S1")
+                        amplitude = float(context.get("field_amplitude", 1.0))
+                        frequency = float(context.get("field_frequency", 1.0))
+
+                        intent2, program = bridge.compile_to_symatics_program(
+                            photon_expr,
+                            fallback_symbol_id=fallback_symbol_id,
+                            amplitude=amplitude,
+                            frequency=frequency,
+                        )
+                        compiled_payload["intent"] = intent2.to_dict()
+                        compiled_payload["program"] = program.to_dict()
+
+                    magnetic_bridge_result = compiled_payload
+                    context["magnetic_bridge"] = magnetic_bridge_result
+
+                    logger.info(
+                        "[Photon->Magnetism] semantic=%s mode=%s symbol_hint=%s",
+                        compiled_payload["intent"]["semantic_label"],
+                        compiled_payload["intent"]["magnetic_intent"]["mode"],
+                        compiled_payload["intent"].get("symbol_hint"),
+                    )
+
+            except Exception as magnetic_err:
+                logger.warning(f"[Photon->Magnetism] bridge skipped: {magnetic_err}")
+
             # 🛡 Validation after glyph parsing
             try:
                 container_stub = {"symbolic_logic": [g.to_dict() for g in glyphs if hasattr(g, "to_dict")]}
@@ -553,6 +662,7 @@ class CodexExecutor:
                         "glyphs": [g.to_dict() for g in glyphs if hasattr(g, "to_dict")],
                         "scroll": scroll,
                         "execution": execution_result,
+                        "magnetic_bridge": magnetic_bridge_result,
                     }
                 except Exception as e:
                     logger.error(f"[Photon] Symatics evaluation failed: {e}")
@@ -570,8 +680,16 @@ class CodexExecutor:
                 if not instruction_tree or not isinstance(instruction_tree, dict):
                     raise ValueError("Invalid instruction tree from Photon scroll")
 
+                bridge_context = dict(context or {})
+                if isinstance(capsule_dict, dict):
+                    bridge_context.setdefault("photon_expr", capsule_dict.get("expr"))
+                    bridge_context.setdefault("fallback_symbol_id", capsule_dict.get("fallback_symbol_id", "S1"))
+                    bridge_context.setdefault("field_amplitude", capsule_dict.get("field_amplitude", 1.0))
+                    bridge_context.setdefault("field_frequency", capsule_dict.get("field_frequency", 1.0))
+
                 execution_result = self.execute_instruction_tree(
-                    instruction_tree, context=context
+                    instruction_tree,
+                    context=bridge_context,
                 )
 
                 # ✅ Trace execution for Photon bridge + monitoring
@@ -581,7 +699,7 @@ class CodexExecutor:
                     _global_trace.trace_execution(
                         codex_str=glyph_label,
                         result=str(execution_result),
-                        context=context,
+                        context=bridge_context,
                         source="codex_executor",
                     )
                 except Exception as trace_err:
@@ -594,6 +712,7 @@ class CodexExecutor:
                     "glyphs": [g.to_dict() for g in glyphs if hasattr(g, "to_dict")],
                     "scroll": scroll,
                     "execution": execution_result,
+                    "magnetic_bridge": magnetic_bridge_result,
                 }
             except Exception as e:
                 logger.error(f"[Photon] CodexLang execution failed: {e}")
@@ -643,6 +762,7 @@ class CodexExecutor:
 
         # Ensure 'source' always exists
         source = context.get("source", "codex")
+        magnetic_bridge_payload = None
 
         # ✅ Canonicalize & Rewrite before anything else
         try:
@@ -830,9 +950,11 @@ class CodexExecutor:
                 cost = self.metrics.estimate_cost(instruction_tree)
 
                 # ✅ Photon -> QWave bridge (after cost estimation, before Tessaris interpret)
+                # ✅ Photon -> QWave bridge + optional magnetism bridge
                 if source == "photon":
                     try:
                         from backend.modules.qwave.photon_qwave_bridge import to_qglyph, to_wave_program
+
                         qglyph = to_qglyph(instruction_tree)
                         wave_program = to_wave_program(qglyph)
 
@@ -847,10 +969,41 @@ class CodexExecutor:
                                 "pulse": 0.5,
                                 "program": wave_program,
                             },
-                            context=context
+                            context=context,
                         )
                     except Exception as e:
                         logger.error(f"[CodexExecutor] Photon->QWave bridge failed: {e}", exc_info=True)
+
+                    try:
+                        photon_expr = context.get("photon_expr")
+
+                        if not isinstance(photon_expr, dict) and isinstance(instruction_tree, dict):
+                            maybe_op = instruction_tree.get("op")
+                            if maybe_op in {"⊕", "⊗", "↔", "⊖", "¬", "★", "∅", "≈", "⊂"}:
+                                photon_expr = instruction_tree
+
+                        magnetic_bridge_payload = _maybe_run_photon_magnetism_bridge(
+                            photon_expr,
+                            fallback_symbol_id=context.get("fallback_symbol_id", "S1"),
+                            amplitude=float(context.get("field_amplitude", 1.0)),
+                            frequency=float(context.get("field_frequency", 1.0)),
+                        )
+
+                        if magnetic_bridge_payload:
+                            context["magnetic_intent"] = magnetic_bridge_payload.get("intent")
+                            context["compiled_field_program"] = magnetic_bridge_payload.get("program")
+
+                            self.trace.log_event(
+                                "photon_magnetism_bridge",
+                                {
+                                    "source": "codex_executor",
+                                    "container_id": context.get("container_id"),
+                                    "intent": magnetic_bridge_payload.get("intent"),
+                                    "program": magnetic_bridge_payload.get("program"),
+                                },
+                            )
+                    except Exception as e:
+                        logger.warning(f"[CodexExecutor] Photon magnetism compile failed: {e}")
 
                 # ✅ High-entropy SQI spike emission
                 if cost > 0.85:
@@ -1244,7 +1397,16 @@ class CodexExecutor:
             except Exception as hst_err:
                 logger.warning(f"[CodexExecutor] ⚠️ HST injection failed: {hst_err}")
 
-            return {"status": "success", "result": result, "cost": cost, "elapsed": elapsed}
+            response = {
+                "status": "success",
+                "result": result,
+                "cost": cost,
+                "elapsed": elapsed,
+            }
+            if magnetic_bridge_payload:
+                response["magnetic_intent"] = magnetic_bridge_payload.get("intent")
+                response["compiled_field_program"] = magnetic_bridge_payload.get("program")
+            return response
 
         except Exception as e:
             logger.error(f"💥 Codex execution failed: {str(e)}", exc_info=True)

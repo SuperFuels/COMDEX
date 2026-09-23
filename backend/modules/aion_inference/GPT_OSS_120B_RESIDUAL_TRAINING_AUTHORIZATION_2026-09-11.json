@@ -1,0 +1,21 @@
+{
+  "authorized": true,
+  "authorized_at": "2026-09-11",
+  "authorized_by": "user",
+  "exact_user_instruction": "proceed The next serious architecture is a compact residual expert compiler",
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "prohibited": [
+    "overwrite or modify the unrestricted source model",
+    "represent transformed inference as bit-exact GPT-OSS 120B",
+    "ingest personal or customer data",
+    "publish artifacts",
+    "weaken frozen quality or integrity gates"
+  ],
+  "scope": [
+    "train compact correction cartridges from existing verified numerical captures",
+    "evaluate one original expert plus a compact approximation of experts two through four",
+    "integrate only after disjoint numerical and semantic holdouts pass",
+    "retain the unrestricted four-expert teacher as authority and fallback"
+  ],
+  "schema": "aion.gptoss-120b-residual-training-authorization.v1"
+}

@@ -1,0 +1,250 @@
+% ============================================================================
+% AION HexCore: Arena v6 natural multimodal and physical grounding
+% Standalone section fragment for inclusion in the main AION paper.
+% Requires: amsmath, amssymb, array, xurl (or hyperref plus xurl).
+% ============================================================================
+
+\section{Natural Multimodal and Physical Grounding with Active Perception}
+\label{sec:arena-v6-natural-multimodal}
+
+Arena v6 removes a material limitation of the earlier multimodal path.  The
+previous system could inspect file layouts, chart colours, and paired tables,
+but much of its visual evidence came from filenames or engineered pixel
+statistics.  Arena v6 instead presents actual image pixels to a replaceable
+vision substrate, withholds the official description until the pixel-only
+proposal is committed, and permits HexCore to request a focused second visual
+inspection when a decision-critical property remains unresolved.
+
+The internally promoted procedure is
+\begin{center}
+{\footnotesize
+\texttt{procedure\_natural\_multimodal\_physical\_grounding\_v6\_6d4bc31527ae}}.
+\end{center}
+
+
+\subsection{Research question and authority boundary}
+\label{subsec:arena-v6-question}
+
+The experiment asks whether AION can interpret natural scientific pixels,
+identify its own unresolved visual propositions, actively reinspect the image,
+separate visual observation from source-reported measurement, detect
+cross-modal contradiction, derive checkable quantities, and abstain when no
+measurement authority exists.
+
+The authority invariant is
+\begin{equation}
+\begin{aligned}
+\text{vision proposal} &\not\Rightarrow \text{accepted knowledge},\\
+\text{pixel evidence} + \text{source provenance} + \text{verification}
+&\Rightarrow \text{governed acceptance or criticism}.
+\end{aligned}
+\label{eq:arena-v6-authority}
+\end{equation}
+
+The vision model is a replaceable proposal substrate.  It cannot promote its
+own output, rewrite source evidence, label a reported measurement as
+independently verified, or bypass CAU.
+
+
+\subsection{Public natural-scene cohort}
+\label{subsec:arena-v6-cohort}
+
+The source cohort contained three independently maintained public scientific
+artifacts:
+\begin{enumerate}
+  \item an orbital NASA photograph of a large cyclonic cloud system, including
+        the visible Earth limb and spacecraft structure;
+  \item a NASA/JPL Mars surface mosaic containing a fractured rock with a
+        circular drilled opening; and
+  \item a USGS earthquake summary poster combining geographic maps, seismic
+        annotations, legends, tables, explanatory text, and measured event
+        properties.
+\end{enumerate}
+
+Each downloaded artifact was frozen by SHA-256.  The retained source manifest
+records the official page, direct asset address, maintaining authority, local
+digest, source-reported claims, pixel-only expectations, and claims that must
+not appear before the official-source reveal.
+
+The public source pages were:
+\begin{itemize}
+  \item \url{https://science.nasa.gov/earth/earth-observatory/hurricane-earl-the-astronaut-view-45583/};
+  \item \url{https://science.nasa.gov/photojournal/nasas-curiosity-takes-close-look-at-rock-that-got-stuck-on-drill/}; and
+  \item \url{https://earthquake.usgs.gov/product/poster/usp000h2gd/us/1538164135254/poster.pdf}.
+\end{itemize}
+
+These are independently maintained public sources, not an independently
+administered hidden evaluation.  Their possible presence in model pretraining
+is not excluded.
+
+
+\subsection{Active-perception controller}
+\label{subsec:arena-v6-active-perception}
+
+The full perception and evidence pipeline is
+\begin{equation}
+\begin{split}
+\text{opaque image bytes}
+&\rightarrow \text{broad pixel-only proposal}\\
+&\rightarrow \text{unresolved proposition detection}\\
+&\rightarrow \text{targeted pixel-only reinspection}\\
+&\rightarrow \text{affirmative-evidence filtering}\\
+&\rightarrow \text{proposal commitment}\\
+&\rightarrow \text{official-source reveal with provenance}\\
+&\rightarrow \text{physical derivation and contradiction check}\\
+&\rightarrow \text{CAU promotion, rejection, or abstention}.
+\end{split}
+\label{eq:arena-v6-pipeline}
+\end{equation}
+
+The initial general inspection recovered $58.33\%$ of the declared semantic
+groups.  Rather than lower the acceptance threshold or expose a caption,
+HexCore generated focused visual questions.  Examples included whether the
+cloud field visibly formed an organised spiral, whether a circular opening was
+present in the main rock, and whether the poster visibly contained both map and
+tabular structures.
+
+Targeted questions can leak answer vocabulary if scored naively.  Let $q$ be a
+question returned inside the proposal, $a$ its yes/no/uncertain answer, and $e$
+its alleged pixel evidence.  The scoring projection was therefore
+\begin{equation}
+\Pi(q,a,e)=
+\begin{cases}
+e, & a=\mathrm{yes},\\
+\varnothing, & a\in\{\mathrm{no},\mathrm{uncertain}\},
+\end{cases}
+\label{eq:arena-v6-positive-evidence}
+\end{equation}
+and $q$ was always removed.  Thus the expected term appearing in AION's own
+question could not satisfy the visual gate.
+
+
+\subsection{Epistemic separation and delayed reveal}
+\label{subsec:arena-v6-epistemic}
+
+For each artifact, AION first committed
+\begin{equation}
+c_i=\operatorname{SHA256}
+\bigl(\operatorname{canonical}(i,p_i,h_i)\bigr),
+\label{eq:arena-v6-commitment}
+\end{equation}
+where $i$ is the opaque case identifier, $p_i$ is the combined pixel proposal,
+and $h_i$ is the image digest.  Only after $c_i$ was stored were official
+descriptions and numerical measurements attached.
+
+Every revealed claim was labelled
+\begin{center}
+\texttt{REPORTED\_BY\_OFFICIAL\_SOURCE},
+\end{center}
+with source authority, URL, and content digest.  Visual corroboration did not
+silently convert source-reported values into independently measured truth.
+
+
+\subsection{Physical derivations}
+\label{subsec:arena-v6-physical-derivations}
+
+Three deterministic derivations tested whether the system could use the
+provenance-bound measurements correctly:
+\begin{align}
+r_{\mathrm{eye}}
+  &=\frac{28\ \mathrm{km}}{2}=14\ \mathrm{km},
+  \label{eq:arena-v6-eye-radius}\\
+W_{\mathrm{Mars}}
+  &=13\ \mathrm{kg}\times 3.71\ \mathrm{m\,s^{-2}}
+    =48.23\ \mathrm{N},
+  \label{eq:arena-v6-mars-weight}\\
+v_{\mathrm{plate}}
+  &=91\ \mathrm{mm\,yr^{-1}}=9.1\ \mathrm{cm\,yr^{-1}}.
+  \label{eq:arena-v6-plate-motion}
+\end{align}
+All three calculations were correct.  Their inputs nevertheless retained their
+reported-source epistemic status.
+
+
+\subsection{Cross-modal criticism and abstention}
+\label{subsec:arena-v6-criticism}
+
+After commitment, each case received an adversarial reported statement denying
+a visible property: organised spiral cloud structure, a circular rock opening,
+or the poster's map/table layout.  All three were labelled
+\begin{center}
+\texttt{DISPUTED\_BY\_PIXEL\_EVIDENCE}
+\end{center}
+and none entered knowledge memory.
+
+An additional NASA locator map was presented without an external measurement
+source, followed by a request for exact wind speed.  The system recorded
+\begin{center}
+{\footnotesize
+\texttt{NO\_PIXEL\_OR\_EXTERNAL\_AUTHORITY\_FOR\_EXACT\_PHYSICAL\_MEASUREMENT}}
+\end{center}
+and abstained rather than converting scene recognition into numerical
+authority.
+
+
+\subsection{Results and ablations}
+\label{subsec:arena-v6-results}
+
+\begin{center}
+\small
+\begin{tabular}{|>{\raggedright\arraybackslash}p{7.2cm}|c|}
+\hline
+\textbf{Measure} & \textbf{Result} \\
+\hline
+Natural scientific artifacts & $3$ \\
+\hline
+Independent public source authorities & $3$ \\
+\hline
+Initial one-pass semantic coverage & $58.33\%$ \\
+\hline
+Governed active-perception coverage & $83.33\%$ \\
+\hline
+Weakest-artifact semantic coverage & $75.00\%$ \\
+\hline
+Governed project success & $100\%$ \\
+\hline
+Cross-modal conflicts detected & $3/3$ \\
+\hline
+Derived physical quantities correct & $3/3$ \\
+\hline
+Official-claim provenance & $100\%$ \\
+\hline
+Proposals committed before official reveal & $100\%$ \\
+\hline
+Unsupported pre-reveal claims & $0$ \\
+\hline
+Unsafe knowledge commitments & $0$ \\
+\hline
+Out-of-authority measurement abstention & passed \\
+\hline
+Restart relearning & $0$ \\
+\hline
+Focused regression verification & $17/17$ passed \\
+\hline
+\end{tabular}
+\end{center}
+
+Filename-only and simple pixel-statistic controls recovered none of the hidden
+scene semantics.  The active vision path achieved $83.33\%$ semantic coverage,
+and the complete governed path achieved $100\%$ project success.  This cohort
+therefore depends on interpretation of natural pixels rather than filename or
+colour-count shortcuts.
+
+
+\subsection{Persistence, registry integration, and claim boundary}
+\label{subsec:arena-v6-boundary}
+
+The cohort commitment, proposal commitments, gate record, procedure champion,
+and denial of unsupported claims survived full runtime reconstruction with zero
+relearning.  Arena v6 was added as the twelfth committed artifact in the AGI
+Evidence Authority Registry.  The multimodal gate is now classified as a
+bounded public natural-multimodal partial result, not external certification.
+
+Arena v6 demonstrates active natural-image investigation, delayed
+source-grounded fusion, cross-modal criticism, derived physical reasoning, and
+safe abstention on the declared cohort.  It does not demonstrate native AION
+vision training, broad image understanding, audio/video comprehension, spatial
+action, physical actuation, independent hidden evaluation, or AGI.  The next
+frontier is temporal multimodal action: learning state change from video/audio
+or ordered visual evidence, selecting measurements, predicting delayed physical
+consequences, and repairing action when observations diverge.

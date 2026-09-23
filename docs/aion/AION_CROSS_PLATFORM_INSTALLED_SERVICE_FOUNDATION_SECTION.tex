@@ -1,0 +1,40 @@
+\section{Cross-Platform Installed Services}
+
+The downloadable brain now has explicit native-service foundations for macOS, Windows and Linux
+rather than relying solely on a terminal launcher. All three use the same provider-free,
+loopback-only installed-health service and the same customer-owned brain semantics. An optional
+the dedicated Pilot brain-root setting lets a service manager select the correct protected
+state location without moving the logical brain into application files.
+
+\subsection{Windows developer installer}
+
+The Windows x64 developer archive contains the sealed bootstrap payload, locked Windows
+requirements, an administrator installer and a pywin32 Service Control Manager adapter. The
+installer places immutable application material under Program Files, places customer state under
+ProgramData and registers the \texttt{Tessaris Pilot Brain} service for automatic start. The service exposes
+only the local read-only status interface. It cannot be installed accidentally without an
+administrator boundary.
+
+This is an unsigned developer installer, not a consumer release. It still requires Windows-native
+execution tests, an equivalent sealed offline runtime/model bundle, Authenticode signing and clean-
+machine installation, upgrade, rollback and removal evidence.
+
+\subsection{Linux developer package}
+
+The Linux x64 developer archive contains the bootstrap payload, root installer and a systemd unit.
+Installation creates a non-login \texttt{tessaris} service account and a mode-0700 customer brain
+directory. The unit enables \texttt{NoNewPrivileges}, strict system protection, protected home
+directories, a private temporary directory and exactly one declared writable brain path. Failure
+restarts are bounded by systemd rather than an uncontrolled shell loop.
+
+The archive is not yet a signed native DEB/RPM package and was not executed under a representative
+Linux systemd host. Publisher signing, supported-distribution matrices, dependency
+sealing and native clean-machine qualification therefore remain explicit release gates.
+
+\subsection{Evidence}
+
+Seven focused tests cover the native macOS app/LaunchAgent declaration, read-only loopback service,
+Windows package contents and honest status, Linux archive contents, shell syntax and systemd
+hardening. Generated platform manifests explicitly state that publisher signature and clean-machine
+validation are false. This prevents developer artefacts from being mistaken for production
+installers.

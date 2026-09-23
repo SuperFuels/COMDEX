@@ -1,0 +1,79 @@
+\section{Phase 17C --- Public Intake Endpoint}
+\label{sec:aion-phase17c-public-intake-endpoint}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 17C defines the guarded public website intake endpoint contract.
+
+\subsection{Purpose}
+
+The endpoint is the first real website integration boundary.
+
+It receives a website form submission, maps it through the business adapter, creates a canonical \texttt{website\_intake.trigger.created} payload, and returns a ticket preview identifier for the Boardroom/workflow bridge.
+
+\subsection{Input}
+
+The endpoint accepts a public website form payload.
+
+For Home Fixed, supported fields include:
+
+\begin{itemize}
+  \item name;
+  \item phone;
+  \item email;
+  \item message;
+  \item service;
+  \item location;
+  \item urgency;
+  \item source;
+  \item channel.
+\end{itemize}
+
+\subsection{Output}
+
+The endpoint returns:
+
+\begin{itemize}
+  \item \texttt{ok};
+  \item \texttt{status\_code};
+  \item \texttt{ticket\_preview\_id};
+  \item \texttt{business\_id};
+  \item \texttt{trigger};
+  \item \texttt{guards};
+  \item \texttt{next}.
+\end{itemize}
+
+\subsection{Safety}
+
+The public endpoint MUST remain guarded by default.
+
+It MUST NOT create:
+
+\begin{itemize}
+  \item a booking;
+  \item a payment;
+  \item escrow;
+  \item an external message;
+  \item a live chain write;
+  \item live execution.
+\end{itemize}
+
+It MUST return only a ticket preview and a guarded workflow preview pointer.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase17c_public_intake_endpoint_lock.py
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE17C-PUBLIC-INTAKE-ENDPOINT
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

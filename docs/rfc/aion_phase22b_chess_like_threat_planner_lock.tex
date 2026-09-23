@@ -1,0 +1,54 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B: Chess-Like Threat Planner Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B defines the AION Chess-Like Threat Planner.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can reject immediate material gain when future tactical or mate-style threat outweighs it.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B transfers the survival-planning stack into chess-like game logic.
+
+\section{Threat Contract}
+
+The planner MUST detect:
+
+\begin{itemize}
+  \item \texttt{knight\_fork};
+  \item \texttt{bait\_reward};
+  \item \texttt{mate\_in\_six};
+  \item \texttt{king\_safety};
+  \item \texttt{long\_horizon\_risk};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational chess-like threat planning. It does not prove full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B-CHESS-LIKE-THREAT-PLANNER-LOCK\\
+Status: LOCKED --- chess-like threat planner implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

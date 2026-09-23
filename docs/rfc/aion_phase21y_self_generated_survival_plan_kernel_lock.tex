@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21Y: Self-Generated Survival Plan Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21Y defines the AION Self-Generated Survival Plan Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can generate a labelled survival plan, include fallback routing, revise the plan when the world changes, and execute to goal.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 21Y moves from lookahead and uncertainty into explicit plan generation.
+
+\section{Loop Contract}
+
+The locked loop is:
+
+\[
+goal
+\rightarrow plan\_steps
+\rightarrow hazard\_labels
+\rightarrow uncertainty\_labels
+\rightarrow fallback\_route
+\rightarrow execution
+\rightarrow revision.
+\]
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{plan\_generated};
+  \item \texttt{plan\_goal};
+  \item \texttt{plan\_steps};
+  \item \texttt{plan\_labels};
+  \item \texttt{fallback\_route\_present};
+  \item \texttt{uncertainty\_label\_present};
+  \item \texttt{hazard\_label\_present};
+  \item \texttt{plan\_revision\_count};
+  \item \texttt{execution\_trace};
+  \item \texttt{goal\_reached};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational self-generated survival planning. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21Y-SELF-GENERATED-SURVIVAL-PLAN-KERNEL-LOCK\\
+Status: LOCKED --- self-generated survival plan kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -1,0 +1,117 @@
+\section{Phase 44: Typed DSL Program Synthesis}
+\label{sec:hexcore-phase44}
+
+\subsection{Objective}
+
+Phase 44 replaces the four named Phase 43 theory families with a typed
+domain-specific language (DSL). AION must compose executable expression trees,
+extract role-abstracted subprograms from verified outcomes, transfer those
+subprograms into unfamiliar domains, and abstain when the DSL is inadequate.
+
+The promoted procedure is
+\texttt{procedure\_typed\_dsl\_synthesis\_0a203e5df940}.
+
+\subsection{Typed Expression Language}
+
+For ternary variables $x_i\in\{0,1,2\}$, the numeric grammar is
+\begin{equation}
+  e ::= x_i
+  \mid e_1+e_2
+  \mid |e_1-e_2|
+  \mid \max(e_1,e_2),
+\end{equation}
+and the Boolean grammar is
+\begin{equation}
+  b ::= [e\geq\tau]
+  \mid b_1\land b_2
+  \mid \mathrm{if}\;b_g\;\mathrm{then}\;b_t\;\mathrm{else}\;b_f.
+\end{equation}
+
+Programs therefore include single comparisons, multi-clause conjunctions, and
+conditional trees. Candidate trees are executed across the finite state space,
+and semantically equivalent trees are collapsed to a minimum-complexity
+representative.
+
+\subsection{Verified Subprogram Library}
+
+AION first solved 18 development worlds without prior motifs. Only exact,
+audit-verified programs entered the reusable library. Concrete variable
+identities were replaced with abstract roles, producing 17 verified motifs
+that could be instantiated over unfamiliar symbols.
+
+Motifs modify only the reversible program-search prior. They cannot accept a
+program, bypass execution, suppress abstention, modify authority, or promote
+themselves. The sealed control used the identical synthesizer with the motif
+library disabled.
+
+\subsection{Active Search, Confirmation, and Audit}
+
+The posterior over semantically distinct trees is updated under a declared
+$1.5\%$ observation-noise model. Interventions maximise expected information
+gain. When finite interventions are exhausted while alternatives remain,
+an eight-intervention confirmation block targets maximum posterior
+disagreement. A separate eight-intervention audit is not used for selection.
+
+Operational acceptance requires $99\%$ posterior confidence and at least
+$87.5\%$ audit agreement; otherwise the result is
+\texttt{DSL\_INADEQUATE}.
+
+\subsection{Sealed Evaluation}
+
+The contract contained 36 sealed worlds, 12 external worlds executed through
+an independently implemented interpreter, and eight parity worlds deliberately
+outside the DSL. The transfer and cold learners shared the DSL, likelihood,
+active-selection algorithm, stopping rule, confirmation, audit, and budget.
+Only verified accumulated motifs differed.
+
+\begin{center}
+  \begin{minipage}{0.78\textwidth}
+  \centering
+  \textbf{Table 1: Phase 44 typed-program synthesis results.}\\[0.35em]
+  \begin{tabular}{lr}
+    \hline
+    Measure & Result \\
+    \hline
+    Development exact synthesis & \textbf{100.00\%} \\
+    Sealed exact synthesis & \textbf{97.92\%} \\
+    Weakest tree family & \textbf{93.75\%} \\
+    Full-state predictive accuracy & \textbf{100.00\%} \\
+    Independent external interpreter & \textbf{91.67\%} \\
+    Safe out-of-language abstention & \textbf{100.00\%} \\
+    Unsafe forced programs & \textbf{0} \\
+    Verified transferable motifs & \textbf{17} \\
+    Mean transfer observations & \textbf{27.146} \\
+    Mean cold observations & 31.646 \\
+    Environmental observation reduction & \textbf{14.22\%} \\
+    Provenance completeness & \textbf{100.00\%} \\
+    Restart relearning & \textbf{0 worlds} \\
+    \hline
+  \end{tabular}
+  \end{minipage}
+\end{center}
+
+All pre-declared gates passed. The non-exact cases remain in the sealed record.
+CAU authorised promotion, and the program library, motifs, evidence, and
+champion survived restart.
+
+\subsection{Interpretation and Boundary}
+
+Phase 44 demonstrates that AION can construct small executable explanations,
+retain recurring subprogram structure independently of domain symbols, use
+that verified experience to reduce future environmental interventions, and
+reject problems outside its current representational language.
+
+This remains bounded synthesis. The primitives, tree-depth limits, ternary
+domain, simulator, and audit oracle are engineered. It is not unrestricted
+code invention, universal synthesis, real-world scientific discovery, or AGI.
+
+\subsection{Next Frontier}
+
+Phase 45 should test primitive invention and library compression. When no
+composition fits, AION should propose a new typed operator from execution
+traces and promote it only if it compresses multiple verified programs and
+improves prediction and search on source-disjoint external simulators.
+Mixed continuous and discrete state, delayed effects, recursive multi-step
+programs, execution timeouts, and minimum-description-length penalties should
+be introduced under the existing provenance, restart, weakest-family,
+abstention, and CAU gates.

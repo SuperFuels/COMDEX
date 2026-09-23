@@ -69,13 +69,32 @@ def mutate_beam(original_beam: WaveState, max_variants: int = 3) -> WaveState:
     mutated_beam.phase += random.uniform(-0.1, 0.1)
     mutated_beam.amplitude *= random.uniform(0.9, 1.1)
     mutated_beam.coherence *= random.uniform(0.95, 1.05)
+    if not hasattr(mutated_beam, "origin_trace") or mutated_beam.origin_trace is None:
+        mutated_beam.origin_trace = []
+    elif isinstance(mutated_beam.origin_trace, str):
+        mutated_beam.origin_trace = [mutated_beam.origin_trace]
+    elif not isinstance(mutated_beam.origin_trace, list):
+        mutated_beam.origin_trace = [str(mutated_beam.origin_trace)]
+
     mutated_beam.origin_trace.append("mutation")
     mutated_beam.status = "mutated"
     mutated_beam.id = getattr(mutated_beam, "id", str(uuid.uuid4()))
 
     # Re-score SQI and recompute entropy
     sqi_engine = SQIReasoningEngine()
-    raw_score = sqi_engine.score_node(mutated_beam.logic_tree)
+    try:
+        raw_score = sqi_engine.score_node(mutated_beam.logic_tree)
+    except Exception as exc:
+        # Optional semantic scorers may require packages such as nltk.
+        # Beam mutation must remain deterministic/test-safe if optional NLP is unavailable.
+        raw_score = getattr(mutated_beam, "sqi_score", None)
+        if raw_score is None:
+            raw_score = getattr(mutated_beam, "coherence", 0.0)
+        try:
+            raw_score = float(raw_score or 0.0)
+        except Exception:
+            raw_score = 0.0
+        setattr(mutated_beam, "sqi_score_fallback_reason", str(exc)[:160])
 
     # Attach mutation tracking fields to the beam if it's derived from a GlyphCell (optional)
     try:

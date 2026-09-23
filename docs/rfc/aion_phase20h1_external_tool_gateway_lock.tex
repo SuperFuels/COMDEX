@@ -1,0 +1,97 @@
+\section{AION Phase 20H.1 --- External Tool Gateway}
+\label{sec:aion-phase20h1-external-tool-gateway}
+
+\subsection{Status}
+
+Phase 20H.1 locks the External Tool Gateway.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION Pilot may access external capabilities only through a governed gateway contract.}
+\end{quote}
+
+\subsection{Purpose}
+
+The External Tool Gateway is the safe bridge between AION Pilot and external capabilities.
+
+It enables OpenClaw-style tool power while preventing raw, uncontrolled tool usage.
+
+\subsection{Core Rule}
+
+AION Pilot MAY use tools.
+
+The model MUST NOT call raw tools directly.
+
+All external tool calls MUST pass through:
+
+\begin{itemize}
+  \item capability registry;
+  \item tool mode classification;
+  \item provider boundary;
+  \item payload approval checks for live tools;
+  \item gateway evaluation;
+  \item deterministic tool call hash;
+  \item receipt generation where execution occurs.
+\end{itemize}
+
+\subsection{Tool Modes}
+
+The gateway defines:
+
+\begin{itemize}
+  \item \texttt{safe\_internal};
+  \item \texttt{read\_only\_external};
+  \item \texttt{staged\_external};
+  \item \texttt{approved\_live\_external}.
+\end{itemize}
+
+\subsection{Live External Action Rule}
+
+Any \texttt{approved\_live\_external} tool MUST require:
+
+\begin{itemize}
+  \item approved payload hash;
+  \item approval hash;
+  \item approval expiry;
+  \item exact payload match;
+  \item unexpired approval.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n5_delegation_profiles_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n6_autonomy_budget_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n7_matrix_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h1_external_tool_gateway_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20H1-EXTERNAL-TOOL-GATEWAY
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

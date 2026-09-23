@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self' data: blob: file: http://127.0.0.1:8080 http://localhost:8080 http://127.0.0.1:3000 http://localhost:3000; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file: http://127.0.0.1:8080 http://localhost:8080; font-src 'self' data: file:; media-src 'self' data: blob: file: http://127.0.0.1:8080 http://localhost:8080; connect-src 'self' http://127.0.0.1:8080 http://localhost:8080 ws://127.0.0.1:8080 ws://localhost:8080; frame-src http://127.0.0.1:3000 http://localhost:3000;"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tessaris</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./pilot_operating_team.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <!--
+      Load the renderer circuit-breaker before any feature bundle.  Tessaris has
+      accumulated a large number of legacy DOM maintenance patches; without a
+      shared scheduler they can amplify one another during a full render.
+    -->
+    <script src="./renderer-stability.js"></script>
+    <script src="./lib/desktop-state-contracts.js"></script>
+    <script src="./lib/desktop-cache.js"></script>
+    <script src="./lib/desktop-store.js"></script>
+
+    <script src="./runtime_shared.js"></script>
+    <script src="./live_agents_runtime.js"></script>
+    <script src="./boardroom_runtime.js"></script>
+    <script src="./desktop-runtime-adapter.js"></script>
+
+    <script src="./vendor/three.min.js"></script>
+    
+    <script type="module" src="./vendor/three-gltf-loader-bridge.js"></script>
+    <script src="./lib/desktop-boardroom-renderer.js"></script>
+    <script src="./lib/boardroom-seat-conversation.js"></script>
+    <script src="./lib/desktop-operations-renderer.js"></script>
+
+    <script src="./workflow/nodeEditor/configs/intelligenceConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/textParserConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/toolsConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/logicConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/routerConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/mergeConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/index.js"></script>
+    <script src="./workflow/nodeEditor/nodeEditor.js"></script>
+    <script src="./aion_business_foundation_voice_controller.js"></script>
+    <script src="./aion_business_foundation_website_scan.js"></script>
+    <script src="./aion_development_business_session.js"></script>
+    <script src="./aion_business_container_client.js"></script>
+    <script src="./aion_operating_model_workspace.js"></script>
+    <script src="./aion_finance_discovery_schema.js"></script>
+    <script src="./aion_commerce_source_schema.js"></script>
+    <script src="./aion_finance_model_builder.js"></script>
+    <script src="./aion_finance_pilot.js"></script>
+    <script src="./aion_department_pilot_runtime.js"></script>
+    <script src="./aion_department_pilot_backend.js"></script>
+    <script src="./aion_business_twin_orchestrator.js"></script>
+    <script src="./app.js"></script>
+    <script src="./aion_finance_light_theme.js"></script>
+    <script src="./aion_boardroom_department_pilot_producer.js"></script>
+    <script src="./aion_hr_people_workspace.js"></script>
+    <script src="./aion_finance_inbox_workspace.js"></script>
+    <script src="./aion_finance_sales_workspace.js"></script>
+    <script src="./aion_sales_revenue_workspace.js"></script>
+    <script src="./aion_telephony_vault.js"></script>
+    <script src="./aion_support_case_workspace.js"></script>
+    <script src="./pilot_operating_team_ui.js"></script>
+  </body>
+</html>

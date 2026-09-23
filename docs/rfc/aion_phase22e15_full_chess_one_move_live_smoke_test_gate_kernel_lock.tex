@@ -1,0 +1,78 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.15 --- One-Move Live Smoke Test Gate}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.15 introduces the one-move live smoke test gate.
+
+This phase consumes the Phase 22E.14 live Level-2 preflight checklist and the Phase 22E.13 guarded sender gate.
+
+\section{Gate Contract}
+
+The gate emits:
+
+\begin{itemize}[leftmargin=*]
+  \item game identifier;
+  \item input FEN;
+  \item target Level 2 opponent;
+  \item selected move preview;
+  \item selected move legal flag;
+  \item preflight consumed flag;
+  \item preflight passed flag;
+  \item guarded gate consumed flag;
+  \item token present flag;
+  \item explicit live send authorized flag;
+  \item human operator confirmed flag;
+  \item live game stream confirmed flag;
+  \item one move limit flag;
+  \item one move gate enabled flag;
+  \item one move gate passed flag;
+  \item live Lichess send enabled flag;
+  \item Lichess move POST attempted flag;
+  \item smoke gate trace hash.
+\end{itemize}
+
+\section{Technical Position}
+
+This phase prepares the one move smoke-test shape, but it still performs no live send.
+
+Even when the test supplies token, human confirmation, live stream confirmation, and explicit live authorization flags, Phase 22E.15 keeps sending disabled by contract.
+
+This is a no live send and no move POST phase.
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, human move scoring, live move sending, or move POST.
+
+It is deterministic local one-move smoke gate validation only.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e15_full_chess_one_move_live_smoke_test_gate_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e15_full_chess_one_move_live_smoke_test_gate_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E15-FULL-CHESS-ONE-MOVE-LIVE-SMOKE-TEST-GATE\\
+Status: LOCKED --- one-move live smoke test gate implemented with send blocked\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

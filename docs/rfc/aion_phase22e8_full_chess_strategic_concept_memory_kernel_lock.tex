@@ -1,0 +1,107 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.8 --- Strategic Concept Memory}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.8 introduces deterministic strategic concept memory for the AION chess stack.
+
+This phase consumes Phase 22E.7 consequence and risk forecasts, then converts recurring plan and risk patterns into reusable named strategic concepts.
+
+\section{Concept Contract}
+
+Each strategic concept contains:
+
+\begin{itemize}[leftmargin=*]
+  \item concept identifier;
+  \item concept name;
+  \item source stage goal;
+  \item source trigger feature;
+  \item trigger features;
+  \item primary goal;
+  \item preferred actions;
+  \item success rate;
+  \item usage count;
+  \item average risk reduction;
+  \item policy weight;
+  \item fallback concepts;
+  \item concept reason;
+  \item use condition;
+  \item preferred response;
+  \item fallback response;
+  \item reinforcement score;
+  \item observed count;
+  \item concept trace hash.
+\end{itemize}
+
+\section{Canonical Concepts}
+
+The initial concept memory supports:
+
+\begin{itemize}[leftmargin=*]
+  \item king safety recovery;
+  \item invasion pressure reduction;
+  \item promotion defence protocol;
+  \item development before attack;
+  \item centre control before conversion;
+  \item piece activity recovery;
+  \item safe endgame conversion.
+\end{itemize}
+
+
+\section{Concept Application Contract}
+
+The concept memory also emits application telemetry for future integration into search and planning layers:
+
+\begin{itemize}[leftmargin=*]
+  \item applied concepts for the current run;
+  \item strongest concept;
+  \item plan alignment with concepts;
+  \item policy weight per concept;
+  \item concept success rate;
+  \item average risk reduction per concept.
+\end{itemize}
+
+Phase 22E.8 does not yet wire concepts into live move execution. That integration is reserved for Phase 22E.9.
+
+\section{Technical Position}
+
+This phase does not prove open-ended chess understanding.
+
+It creates deterministic reusable concept memory from recurring AION plan and risk telemetry.
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+It is deterministic local strategic concept memory over AION chess telemetry.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e8_full_chess_strategic_concept_memory_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e8_full_chess_strategic_concept_memory_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E8-FULL-CHESS-STRATEGIC-CONCEPT-MEMORY\\
+Status: LOCKED --- deterministic strategic concept memory implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

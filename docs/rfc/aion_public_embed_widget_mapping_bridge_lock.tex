@@ -1,0 +1,206 @@
+\section{Phase 12D --- Public Embed Widget Mapping Bridge v0}
+\label{sec:aion-public-embed-widget-mapping-bridge-v0}
+
+\subsection{Status}
+
+Phase 12D locks the frontend-visible bridge between the public embed widget shell and the public widget request mapping preview.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Public embed widget mapping bridge UI and documentation tests passing with focused suite membership and manual frontend smoke confirmation.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 12B introduced the frontend-visible public embed widget shell.
+
+Phase 12C introduced backend request mapping for website form, website button, and embedded chat widget requests.
+
+Phase 12D adds a frontend-visible mapping bridge that renders the preview result of a public widget request as both a \texttt{NormalizedInboundIntent} preview and a \texttt{MachineCartRequest} preview.
+
+This phase affects frontend-visible widget behaviour and therefore requires a manual frontend smoke test.
+
+\subsection{Implemented Surface}
+
+The implementation is appended to:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+The locked frontend functions are:
+
+\begin{verbatim}
+buildPublicWidgetMappingPreviewV0
+renderAionPublicEmbedWidgetMappingBridgeV0
+\end{verbatim}
+
+The browser exports are:
+
+\begin{verbatim}
+window.buildPublicWidgetMappingPreviewV0
+window.renderAionPublicEmbedWidgetMappingBridgeV0
+\end{verbatim}
+
+The rendered lock marker is:
+
+\begin{verbatim}
+data-aion-lock="public-embed-widget-mapping-bridge-v0"
+\end{verbatim}
+
+\subsection{Widget Sources}
+
+The bridge supports the public website widget request sources:
+
+\begin{itemize}
+  \item \texttt{website\_form\_widget},
+  \item \texttt{website\_button\_widget},
+  \item \texttt{embedded\_chat\_widget}.
+\end{itemize}
+
+Unsupported widget sources are mapped to:
+
+\begin{verbatim}
+unsupported_widget_source
+\end{verbatim}
+
+\subsection{Rendered Preview Sections}
+
+The visible bridge renders:
+
+\begin{itemize}
+  \item business identity,
+  \item widget source,
+  \item preview status,
+  \item \texttt{NormalizedInboundIntent} preview,
+  \item \texttt{MachineCartRequest} preview,
+  \item safety boundary.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The bridge is preview-only.
+
+The locked safety values are:
+
+\begin{verbatim}
+preview_only = true
+human_review_required = true
+would_create_booking = false
+would_create_live_job = false
+would_execute_goal_engine = false
+would_bypass_human_review = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_send_external_messages = false
+unauthenticated_public_write_route_exposed = false
+\end{verbatim}
+
+The bridge MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item expose an unauthenticated public write route.
+\end{itemize}
+
+\subsection{No Live Action Control}
+
+The bridge MUST NOT expose a live action button.
+
+The UI MUST NOT expose controls labelled:
+
+\begin{itemize}
+  \item \texttt{Execute Now},
+  \item \texttt{Run Live},
+  \item \texttt{Create Booking},
+  \item \texttt{Take Payment},
+  \item \texttt{Create Escrow},
+  \item \texttt{Send Message},
+  \item \texttt{Release Funds},
+  \item \texttt{Create Live Job}.
+\end{itemize}
+
+\subsection{Frontend Smoke Test Required}
+
+Because Phase 12D creates a frontend-visible bridge, a manual frontend smoke test is required.
+
+Open the AION desktop app or browser console and run:
+
+\begin{verbatim}
+typeof window.renderAionPublicEmbedWidgetMappingBridgeV0
+
+document.body.insertAdjacentHTML(
+  "afterbegin",
+  window.renderAionPublicEmbedWidgetMappingBridgeV0({
+    business_id: "home_fixed",
+    business_name: "Home Fixed",
+    vertical_key: "home_repair",
+    widget_source: "website_form_widget",
+    customer_message: "I need a quote for a leaking roof in Albox",
+    requested_outcome: "request_quote",
+    service_key: "roof_repair",
+    location: "Albox",
+    currency: "EUR"
+  })
+)
+
+document.querySelector(
+  '[data-aion-lock="public-embed-widget-mapping-bridge-v0"]'
+) !== null
+\end{verbatim}
+
+Expected result:
+
+\begin{verbatim}
+"function"
+true
+\end{verbatim}
+
+Visually confirm that the panel shows:
+
+\begin{itemize}
+  \item \texttt{AION Embed Widget Mapping Bridge},
+  \item \texttt{NormalizedInboundIntent preview},
+  \item \texttt{MachineCartRequest preview},
+  \item \texttt{Safety boundary},
+  \item no live action button is visible.
+\end{itemize}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_public_embed_widget_mapping_bridge_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_public_embed_widget_mapping_bridge_lock_doc.py
+\end{verbatim}
+
+Desktop JavaScript syntax validation:
+
+\begin{verbatim}
+node -c desktop/mac/src/app.js
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PUBLIC-EMBED-WIDGET-MAPPING-BRIDGE-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

@@ -1,0 +1,152 @@
+\section{Phase 20C --- AION Reasoning Replay Trace v0}
+\label{sec:phase20c-aion-reasoning-replay-trace-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION Reasoning Replay Trace v0 implemented and targeted tests passing.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20C introduces the AION Reasoning Replay Trace.
+
+The purpose is to prove that AION can replay why it reached a recommendation using only governed artifacts:
+
+\begin{itemize}
+  \item governed reasoning packet,
+  \item reasoning memory snapshot,
+  \item evidence context,
+  \item proof context,
+  \item AgentMap context,
+  \item Boardroom context,
+  \item ETS context,
+  \item deterministic hashes.
+\end{itemize}
+
+The replay trace MUST NOT expose private chain-of-thought.
+
+It MUST NOT create side effects.
+
+\subsection{Implemented Module}
+
+\begin{verbatim}
+backend/modules/aion_lrm/reasoning_replay_trace.py
+\end{verbatim}
+
+The module exports:
+
+\begin{verbatim}
+REASONING_REPLAY_TRACE_VERSION
+build_reasoning_replay_trace
+build_default_home_fixed_reasoning_replay_trace
+\end{verbatim}
+
+\subsection{Replay Contract}
+
+The reasoning replay trace records:
+
+\begin{itemize}
+  \item trace version,
+  \item trace type,
+  \item runtime,
+  \item preview-only state,
+  \item governed reasoning packet context,
+  \item reasoning memory snapshot context,
+  \item evidence context,
+  \item replay steps,
+  \item operational explanation,
+  \item safety state,
+  \item deterministic replay trace hash,
+  \item deterministic summary hash.
+\end{itemize}
+
+\subsection{Evidence and Proof Context}
+
+The replay trace includes an \texttt{evidence\_context} block containing replay anchors such as:
+
+\begin{verbatim}
+source_reasoning_packet_hash
+reasoning_memory_snapshot_hash
+agentmap_hash
+proof_hash
+proof_receipt_id
+ets_preview_only
+\end{verbatim}
+
+These hashes are replay and audit anchors only.
+
+They MUST NOT grant permission or trigger execution.
+
+\subsection{Private Reasoning Boundary}
+
+The replay trace MUST NOT expose private chain-of-thought, hidden reasoning, scratchpads, credentials, access tokens, API keys, passwords, or secrets.
+
+The locked rule is:
+
+\begin{quote}
+AION may replay a safe operational explanation, but it MUST NOT reveal private chain-of-thought.
+\end{quote}
+
+\subsection{Safety Boundary}
+
+The Phase 20C trace is preview-only.
+
+It MUST preserve:
+
+\begin{verbatim}
+preview_only = true
+human_review_required = true
+private_reasoning_exposed = false
+credentials_retained = false
+would_create_booking = false
+would_create_payment = false
+would_create_escrow = false
+would_send_external_message = false
+would_write_live_chain = false
+would_execute_workflow = false
+live_side_effects_enabled = false
+\end{verbatim}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+AION Reasoning Replay Trace
+governed reasoning packet
+reasoning memory snapshot
+evidence_context
+proof_context
+agentmap_hash
+proof_hash
+replay_trace_hash
+summary_hash
+private chain-of-thought
+preview-only
+human review
+no booking
+no payment
+no escrow
+no external message
+no live chain
+Tessaris AI
+Kevin Robinson
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20c_reasoning_replay_trace_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_reasoning_replay_trace_lock_doc.py
+
+python -m compileall backend/modules/aion_lrm
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20C-REASONING-REPLAY-TRACE-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

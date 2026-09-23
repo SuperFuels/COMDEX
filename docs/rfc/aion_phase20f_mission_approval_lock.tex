@@ -1,0 +1,131 @@
+\section{AION Phase 20F --- Mission Approval and Checkpoint Approval Split}
+\label{sec:aion-phase20f-approval-split}
+
+\subsection{Status}
+
+Phase 20F locks the approval model for AION Mission Mode.
+
+\begin{quote}
+\textbf{Status: LOCKED --- mission approval and checkpoint approval are separate approval primitives.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Mission Mode requires two different approval types:
+
+\begin{itemize}
+  \item Mission Approval: approves the mission envelope and operating boundaries.
+  \item Checkpoint Approval: approves one exact immutable payload hash at a specific checkpoint.
+\end{itemize}
+
+\begin{quote}
+\textbf{Mission approval does not approve future external actions. Checkpoint approval applies only to the exact payload hash shown to the human.}
+\end{quote}
+
+\subsection{Mission Approval Scope}
+
+Mission Approval approves:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item contract hash;
+  \item allowed lanes;
+  \item hard-blocked lanes;
+  \item runtime limit;
+  \item tool-call limit;
+  \item cost limit.
+\end{itemize}
+
+Mission Approval MUST NOT include a payload hash and MUST NOT enable live side effects.
+
+\subsection{Checkpoint Approval Scope}
+
+Checkpoint Approval approves:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item checkpoint ID;
+  \item step ID;
+  \item action type;
+  \item risk level;
+  \item exact payload hash;
+  \item optional expiry timestamp.
+\end{itemize}
+
+A checkpoint approval is valid only for:
+
+\begin{verbatim}
+approval_scope: exact_payload_only
+\end{verbatim}
+
+\subsection{Canonical Payload Hash}
+
+Checkpoint payloads MUST be hashed using canonical JSON:
+
+\begin{verbatim}
+json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+\end{verbatim}
+
+The emitted hash MUST use:
+
+\begin{verbatim}
+sha256:<digest>
+\end{verbatim}
+
+\subsection{Broad Approval Rejection}
+
+Broad checkpoint approvals MUST be rejected.
+
+Invalid examples include:
+
+\begin{itemize}
+  \item missing payload hash;
+  \item wildcard payload hash;
+  \item \texttt{payload\_hash = any};
+  \item \texttt{payload\_hash = all};
+  \item mission-boundary approval reused as checkpoint approval.
+\end{itemize}
+
+\subsection{Edited Payload Invalidation}
+
+If a payload changes after approval, the prior checkpoint approval is invalid.
+
+The runtime MUST recalculate the current payload hash immediately before execution and compare it to the approved payload hash.
+
+If the values differ, execution MUST stop and a fresh approval MUST be required.
+
+\subsection{Approval Expiry}
+
+Checkpoint approvals MAY include expiry timestamps.
+
+If the approval has expired, the action MUST NOT execute.
+
+The runtime MUST emit an expiry event and require fresh approval.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20F-MISSION-CHECKPOINT-APPROVAL-SPLIT
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

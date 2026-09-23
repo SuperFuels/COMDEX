@@ -1,0 +1,191 @@
+% Append-only section for the AION GPT-OSS 120B technical record.
+% Requires: amsmath, booktabs, tabularx, xcolor.
+\section{Balanced Route-Conditioned Student and Prepared-Slab Reassessment}
+\label{sec:gptoss-balanced-student-slab-20260912}
+\begingroup
+\setlength{\emergencystretch}{3em}
+
+\subsection{Scope and invariant boundaries}
+
+This section records a fresh iteration of two previously promising mechanisms:
+(i) a route-conditioned AtomSheet residual student intended to replace only a
+certified omitted-expert contribution, and (ii) demand-admitted prepared route
+slabs intended to amortise a previously measured batched four-expert kernel.
+The authoritative unrestricted track was not changed.  Its promoted short-window
+frontier remains approximately 1.72--1.83 tokens/s, while the fixed top--1
+28.6174 tokens/s result remains a physical ceiling with failed semantic quality.
+All learned and compact-weight candidates in this section are quality-track
+experiments with mandatory unrestricted fallback.
+
+\subsection{SD-native public teacher corpus}
+
+The previously recovered SD-native GPT-OSS tokenizer was used to prepare four
+public, non-personal prompt families: explanation, business, reasoning, and
+writing.  No model or tokenizer was downloaded.  Each initial teacher capture
+was executed twice through the existing compressed SD warehouse.  Every family
+reproduced its router selections and achieved bit-for-bit identical final hidden
+state and logits on the two passes.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\linewidth}{lrrl}
+\toprule
+Family & Prompt tokens & Captured layer & Canonical SHA-256 prefix \\
+\midrule
+Explanation & 16 & 12 & \texttt{5a0b9de8132e} \\
+Business & 17 & 12 & \texttt{77d88cda965a} \\
+Reasoning & 21 & 12 & \texttt{97f63494744f} \\
+Writing & 18 & 12 & \texttt{7a2ba9bc7781} \\
+\bottomrule
+\end{tabularx}
+\caption{First exact public-family teacher captures.}
+\end{table}
+
+The training-side explanation and business families were then recaptured at six
+positions across all 36 transformer layers.  Both two-pass captures again passed
+route and bitwise final-state repeatability.  They contributed 216 verified
+records per family.  The resulting family-disjoint corpus contains 16 families
+and 1,416 records.  Explanation and business are training families; public
+reasoning is calibration; public writing and the older real reasoning family
+remain semantic hold-outs.  The all-layer explanation and business canonical
+hashes are respectively
+\texttt{0afbfcd51c0222b3bcc09cf882ac8147f}\allowbreak
+\texttt{46fbc5b0ba77ff7d663ba8eef505cc6}
+and
+\texttt{2d7f98fe7720cd7a65d9348f4342edf}\allowbreak
+\texttt{f975767feb2856d55955748e7e8f43b60}.
+The balanced manifest canonical hash is
+\texttt{92b656bb0fe0021ebafe9161e61b4b1c}\allowbreak
+\texttt{a24aac8f32fb53ef47b6a216b9773933}.
+
+\subsection{Route-conditioned residual students}
+
+For every record, three original routed experts were calculated from the
+compressed warehouse.  Their exact gated contribution was subtracted from the
+unrestricted four-expert contribution, making the fourth expert's combined
+effect the supervised target.  The resulting 1,416-row dataset is 74,991,988
+bytes and has canonical hash
+\texttt{078aed556b0cc275500d3697d3b52616}\allowbreak
+\texttt{00c90b11391e3d06c2b58f50d5540619}.
+
+Two student representations were selected by holding out complete training
+families.  The compact version used 96 signed bins for each activation vector;
+the full version retained all 2,880 coordinates of the FFN input, router input,
+and retained-expert contribution.  Both also received the four expert identities,
+gates, layer identity, omitted gate mass, and gate entropy.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\linewidth}{Xrrrr}
+\toprule
+Candidate & Cartridge & Calc. p50 & Semantic p95 & Decision \\
+\midrule
+One retained expert, compact features & 4.13 MB & 0.042 ms & 0.29976 & Stop \\
+Three retained experts, compact features & 8.33 MB & 0.063 ms & 0.08573 & Stop \\
+Three retained experts, balanced compact features & 8.33 MB & 0.051 ms & 0.08416 & Stop \\
+Three retained experts, full features & 34.33 MB & 0.315 ms & 0.08288 & Stop \\
+\bottomrule
+\end{tabularx}
+\caption{Route-conditioned residual-student results.  The fixed p95 ceiling was 0.02.}
+\end{table}
+
+The broader all-layer corpus and full-resolution features produced only a modest
+accuracy improvement.  This falsifies the proposition that semantic diversity
+or projection loss alone explained the earlier failure.  A generic student is
+still being asked to reproduce many distinct omitted expert functions from too
+few observations per expert.  These versions are preserved but not promoted.
+Their canonical report hashes include
+\texttt{c78a740c7d2b2e8a21570e9f9a19be7}\allowbreak\texttt{7fdbf6cca026dee4d1c1ac87f771dc1dd},
+\texttt{f188349ede1bc18fdaa9ab5797e8a6fe}\allowbreak\texttt{6d11c4380b33febcb9b9621a97936065},
+\texttt{9f4393b3735ca8e2f67b08df816cd9f}\allowbreak\texttt{759b8576e3b6c16cdd31069b3e4b1ae2e},
+and
+\texttt{c3c368fd5aafb1eb8683bbbd765a8af8}\allowbreak\texttt{91e1490ca7378c2975a8a0f5b7773dc7}.
+
+\subsection{Prepared route-slab reuse bound}
+
+The earlier batched four-expert kernel avoided repeated orchestration and was
+approximately 1.63-fold faster after preparation, but copying 52.9 MB into a
+contiguous slab erased the gain.  The new test admitted a prepared slab only
+after observing the same layer-qualified ordered route three times.
+
+On the unrestricted 96-token extraction trace there were 3,456 layer routes and
+3,345 unique ordered quartets.  Only one quartet was admitted and only one later
+call reused it, a 0.0289\% reuse rate.  The exact-quartet mechanism is therefore
+stopped.  Under the adaptive-0.75 trace, 84 slabs required approximately 4.45 GB
+but covered only 200 post-admission calls (5.787\%), which is also uneconomic.
+Ordered pairs improved nominal reuse, but three-touch admission still required
+92 slabs (approximately 2.44 GB) for 172 reuses (4.977\%).  Two-touch admission
+required approximately 5.91 GB for 395 reuses.  These storage costs cannot be
+repaid by the sub-millisecond per-call arithmetic saving.
+
+The unrestricted quartet and adaptive quartet canonical hashes are
+\texttt{22b9ffcded876c34b51588abe5e1bde1}\allowbreak\texttt{6fabbcd4d1bbac4726e42b2ebd37cc41}
+and
+\texttt{46da48e164de603913ea2192cfa4b4c6}\allowbreak\texttt{faa0689f2841bd1479e73d09ea864f1a}.
+The exact ordered-pair three-touch hash is
+\texttt{1bfde14305ddf9ef4559665c08f603ec}\allowbreak\texttt{e6b06a861f2f81a30b75604318a3c7b4}.
+
+\subsection{Rank- and projection-selective compact weights}
+
+A new native mixed-representation kernel allowed Q3\_K or Q2\_0 to be applied
+independently by route rank and projection.  This revisited the earlier successful
+fourth-expert Q3 result without quantising an entire expert.
+
+On 21 unseen reasoning positions at layer 12, Q3\_K on the \emph{up} projection
+of routed experts two through four achieved output-relative $L_2$ p95 0.01779,
+preserved all 21 argmax values, and reduced route weight by 2.03\%.  Restricting
+Q3\_K to the bottom two experts improved p95 to 0.01341 with 1.35\% weight
+reduction.  Applying both gate and up to the bottom two narrowly failed at
+0.02128.  The corresponding canonical hashes are
+\texttt{e039fc57f9d4b6e9609c0c59571f2aa7}\allowbreak\texttt{2aa4127e4f1df8c8a5fbf2fc114c0e43}
+and
+\texttt{f7167e408f3c4d0e942721769c353dfb}\allowbreak\texttt{209736ef5606c06bcc41c385c8add86c}.
+
+Selective native-width Q2\_0 was also tested as a larger compression step.
+Even when applied only to the fourth expert, its best single projection produced
+p95 0.04552; gate and down were worse.  Although computation improved roughly
+1.12--1.14-fold and a single compact projection reduced total route weight by
+4.08\%, no mask passed the 0.02 accuracy gate.  The Q2 branch is stopped.  Its
+canonical hash is
+\texttt{583ced0885c262689bd1505076b511d74}\allowbreak\texttt{6902a09a5498a0a904049332551941f}.
+
+\subsection{Weight-derived sparse correction bound}
+
+The next experiment tested whether the accuracy-passing Q3\_K up projection
+could be paired with a small exact weight-residual cartridge.  Eight real
+rank-four layer-12 experts selected by the untouched reasoning trace were
+dequantised from the SD warehouse.  Their Q3\_K matrices were dequantised in
+the same orientation, and the exact weight-space residual was measured by row
+and by $64\times64$ block.  This is an intentionally optimistic offline bound:
+if error energy is highly concentrated, a small set of exact blocks could
+correct most of it without restoring the complete MXFP4 matrix.
+
+The mechanism failed decisively.  The most energetic 10\% of residual blocks
+contained only 11.365\% of residual energy at the median, versus the
+predeclared 75\% minimum.  Q3 quantisation error is consequently spread almost
+uniformly through these expert matrices.  A sparse exact correction would have
+to retain nearly the whole residual and would forfeit the storage advantage.
+The branch is recorded as \texttt{STOP\_SPARSE\_Q3\_RESIDUAL}; its canonical
+hash is
+\texttt{4283f1e00aa29e381a3dd645b1d522bf}\allowbreak\texttt{658b8486b27ba88e7899dec92d828013}.
+
+\subsection{Current conclusion and next admissible move}
+
+No result in this section changes the validated generated-token rate.  The
+prepared-slab mechanism lacks sufficient route repetition; activation-only and
+generic route-conditioned students still lack the expert-specific nonlinear
+structure; selective Q2 is too inaccurate; and Q3 weight error is not sparse.
+Selective Q3 is the only new
+accuracy-passing weight transformation, but its present padded kernel yields a
+small byte reduction and no material complete-model speed claim.
+
+The next admissible student must therefore be expert-function-conditioned rather
+than merely route-conditioned: a shared global basis plus small per-layer,
+per-expert factors derived from original weights, trained only on authorised
+public captures, with certification by expert and activation region.  A route
+may use the calculator only when its exact held-out certificate passes; otherwise
+it escalates to two, three, or four original experts.  Any speed claim requires
+unseen generated-token and semantic validation against the unrestricted teacher.
+\endgroup

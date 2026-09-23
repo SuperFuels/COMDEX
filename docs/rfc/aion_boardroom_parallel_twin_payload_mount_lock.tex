@@ -1,0 +1,93 @@
+\section{Phase 9C --- Boardroom Parallel Twin UI Payload Mount v0}
+\label{sec:aion-boardroom-parallel-twin-payload-mount-v0}
+
+\subsection{Status}
+
+Phase 9C locks the first frontend mount for rendering the Boardroom Parallel Twin live payload.
+
+\begin{quote}
+\textbf{Status: LOCKED --- pending focused suite validation and commit.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 9B created the backend \texttt{boardroom\_parallel\_twin\_payload} contract.
+
+Phase 9C adds a safe Boardroom UI renderer that can consume that payload and display the Home Fixed Parallel Twin state without creating side effects.
+
+The mount is read-only and visibility-only.
+
+\subsection{Implemented Surface}
+
+The UI mount is installed in:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+The renderer is:
+
+\begin{verbatim}
+renderBoardroomParallelTwinPayloadMountV0
+\end{verbatim}
+
+The browser export is:
+
+\begin{verbatim}
+window.renderBoardroomParallelTwinPayloadMountV0
+\end{verbatim}
+
+\subsection{Rendered Sections}
+
+The UI mount renders:
+
+\begin{itemize}
+  \item \texttt{machine\_catalog}
+  \item \texttt{machine\_cart}
+  \item \texttt{quote\_preview}
+  \item \texttt{fulfilment\_job\_preview}
+  \item \texttt{settlement\_readiness}
+  \item \texttt{proof\_receipt}
+  \item \texttt{exception\_recovery}
+  \item \texttt{machine\_trace\_preview}
+  \item \texttt{payload\_hash}
+  \item \texttt{safety}
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The mount MUST remain read-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages,
+  \item expose a public A2A route.
+\end{itemize}
+
+The mount MUST NOT expose a live execute button.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_payload_mount_ui_lock.py
+node -c desktop/mac/src/app.js
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-BOARDROOM-PARALLEL-TWIN-PAYLOAD-MOUNT-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

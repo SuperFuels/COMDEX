@@ -1,0 +1,68 @@
+% Append-only technical-record section. Requires amsmath and booktabs.
+\section{Direct-I/O SD Cold-Load Breakthrough}
+\label{sec:qwen30b-dio-cold-load}
+
+\subsection{Question and gate}
+
+Resident generation had already exceeded 50 tokens/s, but loading the
+9.79~GiB selective-Q2 Qwen3-30B-A3B model from the SD warehouse still required
+minutes.  A runtime-only experiment therefore tested llama.cpp's direct-I/O
+load mode against its normal automatic memory-mapped mode.  Model bytes,
+Metal placement, context, service slots, prompt, seed, temperature, and
+generation settings were unchanged.
+
+Before execution, the plan fixed a 15\% minimum reduction in cache-displaced
+time to service readiness, identical deterministic token text and top-10
+log-probability payload, at least 50 resident tokens/s, successful health, and
+no Metal out-of-memory error.  The plan SHA-256 is
+\texttt{fc17589cbd0e47b1636a4cbeadee0b1db3fffd352261d49adabf56b30f8e0569}.
+
+\subsection{Cache-displacement procedure}
+
+Immediately before the direct-I/O start, the preserved 18,556,685,824-byte Q4
+control was read sequentially from the SD card to \texttt{/dev/null}.  The read
+required 194.096~s, or 95.61~MB/s decimal.  This was a read-only operation and
+strongly displaced the Q2 file's cached pages.  It is an operationally
+cache-displaced condition, not a claim of a kernel-certified complete cache
+flush.
+
+\subsection{Measured result}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrr}
+\toprule
+Condition & Ready time (s) & Relative result \\
+\midrule
+Automatic mmap control & 213.088 & control \\
+Direct I/O candidate & 116.219 & 45.459\% lower \\
+\bottomrule
+\end{tabular}
+\caption{Cache-displaced time from process start to healthy service readiness.}
+\end{table}
+
+Direct I/O saved 96.869~s and made the measured start 1.8335 times as fast.
+The identical 32-token integrity probe produced the same text, the same token
+sequence, and a bit-identical top-10 log-probability payload.  Both canonical
+log-probability objects have SHA-256
+\texttt{1fe300c9fb23f5314920617a1a61980a8d27934aa4bc860752f3300ff445919b}.
+The resident probe measured 60.010 tokens/s under direct I/O versus 59.491
+tokens/s for the automatic-mode control.  All 48 layers remained on Metal, the
+health endpoint became ready, and no Metal out-of-memory error occurred.
+
+\subsection{Decision and boundary}
+
+The direct-I/O configuration passed every predeclared narrow gate and is
+promoted for persistent-service use on this machine.  The broader cold-start
+claim remains provisional until a balanced repeated auto/direct-I/O experiment
+reports p50 and p95 and rules out order and thermal effects.
+
+This result changes startup, not the neural mathematics and not per-token SD
+streaming.  The SD card remains the durable cold warehouse; after loading, the
+compact model remains in unified memory and generates there.  The 60-token/s
+probe must not be described as SD streaming throughput.
+
+The canonical result is
+\texttt{qwen3-30b-a3b-dio-load-result-v1.json}, SHA-256
+\texttt{d226029a29310ca438f6796e9789f1a1599de81732841fa5f22a5289ce1bb543}.
+

@@ -1,0 +1,59 @@
+CREATE OVERALL BOARD PACK / ALL FIGURES FOR A BUSINESS TO EVALUATE
+
+RUN THE SCRIPT TO GENERATE THE PACK>>  	•	backend/scripts/export_company_ai_pack.py
+
+cd "$HOME/dev/COMDEX"
+source .venv/bin/activate
+
+PYTHONPATH=. python -m backend.scripts.export_company_ai_pack \
+  --base-dir "$HOME/dev/COMDEX/.runtime/equities" \
+  --company-ref "company/PAGE.L" \
+  --last 10 \
+  --out "$HOME/dev/COMDEX/_inputs/ai_exports/company_PAGE.L_last10.json"
+
+
+
+
+
+cd "$HOME/dev/COMDEX"
+source .venv/bin/activate
+
+PYTHONPATH=. python -m backend.scripts.export_company_ai_pack \
+  --base-dir "$HOME/dev/COMDEX/.runtime/equities" \
+  --company-ref "company/PAGE.L" \
+  --last 10 \
+  --out "$HOME/dev/COMDEX/_inputs/ai_exports/company_PAGE.L_last10.json"
+
+
+
+
+  Yes — same workflow for any new company (copy/paste commands)
+
+0) Set variables once per company/period
+
+REPO="$HOME/dev/COMDEX"
+BASE="$REPO/.runtime/equities"
+TICKER="XYZ.L"                 # change
+COMPANY_REF="company/$TICKER"
+PERIOD="2025-Q3"               # change
+PDF="$REPO/_inputs/boardpacks/<FILE>.pdf"   # change
+SOURCE_TYPE="trading_update"   # or board_pack
+
+
+
+
+1) Ingest the PDF
+
+cd "$REPO"
+source .venv/bin/activate
+
+PYTHONPATH=. python -m backend.scripts.run_board_pack_intake \
+  --pdf "$PDF" \
+  --company-ref "$COMPANY_REF" \
+  --fiscal-period "$PERIOD" \
+  --source-type "$SOURCE_TYPE" \
+  --base-dir "$BASE"
+
+
+
+

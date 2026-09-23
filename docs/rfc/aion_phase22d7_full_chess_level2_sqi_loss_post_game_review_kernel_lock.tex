@@ -1,0 +1,75 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22D.7: Level 2 SQI Loss Post-Game Review Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- level 2 SQI loss reviewed and policy updates generated.}
+\end{quote}
+
+\section{Reviewed Game}
+
+\begin{verbatim}
+Game ID: lynbgdRG
+Full ID: lynbgdRGhRSF
+Opponent: Lichess Stockfish level 2
+AION colour: white
+Final status: mate
+Winner: black
+Final move: f5f1
+\end{verbatim}
+
+\section{Detected Failure Modes}
+
+The review identifies:
+
+\begin{itemize}
+  \item repetition loops;
+  \item excessive king shuffling;
+  \item queen and rook invasion;
+  \item promotion race failure;
+  \item negative SQI spiral;
+  \item missed mate threat.
+\end{itemize}
+
+\section{Policy Updates}
+
+The next selector patch MUST:
+
+\begin{itemize}
+  \item block repetition loops;
+  \item raise king-safety weighting when losing;
+  \item detect queen and rook invasion;
+  \item detect promotion race threats;
+  \item avoid back-and-forth king moves;
+  \item stand down from bad SQI collapse when all candidates are negative;
+  \item prefer simplification when material-losing.
+\end{itemize}
+
+\section{Next Step}
+
+\begin{verbatim}
+22D.8 -- Patch SQI Selector Against Level 2 Failure Modes
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22D7-LEVEL2-SQI-LOSS-POST-GAME-REVIEW-KERNEL-LOCK\\
+Status: LOCKED --- level 2 SQI loss reviewed and policy updates generated\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

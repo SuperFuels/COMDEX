@@ -1,0 +1,476 @@
+% Drop-in technical section for the Tessaris/AION system record.
+% Implementation state verified on 23 September 2026.
+% Compatible with the handover preamble packages hyperref, enumitem and longtable.
+
+\section{Shared Work, Scheduling and Field Delivery System}
+\label{sec:tessaris-work-schedule-field-delivery}
+
+\subsection{Purpose and product boundary}
+
+The Work \& Schedule subsystem provides one operational record from an inbound
+customer request through scheduling, assignment, field or practitioner delivery,
+evidence capture, customer sign-off, quotation and invoicing.  It is intended to
+support service businesses whose work may be performed at a customer site, in a
+clinic or practice, by video, or from a desktop.  Examples include trades,
+consultancies, field engineering, sales appointments, dental or clinical
+appointments, and other capacity-constrained professional services.
+
+The central architectural decision is that desktop scheduling and mobile field
+work do not maintain separate job databases.  Both clients read and mutate the
+same workspace-scoped canonical record through the backend.  The desktop offers
+the wider scheduling, intake, stock and customer-history surfaces; the mobile
+application exposes the smaller execution surface needed by the assigned person.
+
+Payments are outside the implemented boundary.  The system can retain quotation
+and invoice drafts and can describe a future payment boundary, but it does not
+charge a card, transmit a payment link, or claim that money moved.  Likewise,
+reminders remain prepared, approval-controlled communication records until a
+real email or SMS adapter confirms delivery.
+
+\subsection{Implemented components and source files}
+
+\begin{longtable}{p{.28\linewidth}p{.66\linewidth}}
+\textbf{Component} & \textbf{Responsibility and source}\ \hline
+Canonical domain service &
+\path{backend/modules/aion_business/runtime/work_schedule_service.py} owns the
+workspace model, normalisation, revisioning, actions, recurrence, conflict
+detection, evidence files, generated documents, customer portal, reminders,
+customer history and stock movements.\\
+Desktop and full-server API &
+\path{backend/modules/aion_business/api/work_schedule_api.py} exposes the
+FastAPI contract.  Its router is registered by both
+\path{backend/desktop_app.py} and \path{backend/main.py}.\\
+Desktop workspace &
+\path{desktop/mac/src/aion_work_schedule_workspace.js} implements the calendar,
+job board, field workspace, booking inbox, customers, reminders, stock and job
+detail interactions.  Presentation is in
+\path{desktop/mac/src/aion_work_schedule_workspace.css}.\\
+Desktop registration &
+\path{desktop/mac/src/index.html} loads the workspace assets and
+\path{desktop/mac/src/app.js} selects
+\texttt{AionWorkScheduleWorkspace.render()} for the sidebar destination.\\
+Mobile workspace &
+\path{native/ios/PilotApp/Sources/PilotWorkScheduleView.swift} implements the
+seven-day schedule, open-work list, job creation, job detail, progress states,
+assignment, notes, evidence photographs, checklists, materials, time entries
+and directions.\\
+Signed mobile client &
+\path{native/ios/PilotApp/Sources/PilotNodeClient.swift} sends signed snapshot
+and action requests.  \path{PilotPulseView.swift} exposes Work \& Schedule as a
+separate mobile application section.\\
+Mobile-to-domain bridge &
+\path{backend/modules/pilot_unified/workspace_gateway.py} resolves the signed
+organisation membership, returns the canonical snapshot, limits admitted action
+fields, forwards mutations to \texttt{WorkScheduleService}, and routes real
+evidence uploads through the same file service.\\
+Tests &
+\path{backend/tests/aion_business/test_work_schedule_service.py} covers shared
+desktop/mobile jobs, evidence files, PDF generation, clashes, recurrence,
+natural-language drafts, revisions, delivery data, commercial numbering,
+customer portal actions and reminder preparation.  The signed mobile workspace
+contract is additionally covered by
+\path{backend/tests/aion_fabric/test_pilot_unified_workspace_gateway.py}.\\
+\end{longtable}
+
+\subsection{Canonical storage and data model}
+
+For business workspace $W$, the canonical JSON record is stored at:
+\begin{center}\small
+\path{<business-containers>/<W>/work_schedule.json}
+\end{center}
+Uploaded and generated evidence is stored beneath:
+\begin{center}\small
+\path{<business-containers>/<W>/work_schedule_files/<work-item-id>/}
+\end{center}
+The current schema identifier is
+\texttt{aion.work-schedule.v3}.  A workspace contains:
+\begin{itemize}[leftmargin=*]
+  \item canonical \texttt{items} and a derived mobile \texttt{jobs} projection;
+  \item inbound \texttt{intake} records from website, agent, phone, email or
+        customer-portal channels;
+  \item people, room, vehicle or equipment \texttt{resources};
+  \item consolidated \texttt{customers} and their linked work-item histories;
+  \item approval-controlled \texttt{reminders};
+  \item an append-style \texttt{stock\_movements} ledger;
+  \item hashed, expiring \texttt{portal\_access} grants; and
+  \item separate monotonic counters for quote and invoice numbering.
+\end{itemize}
+
+Each work item contains identity, title, customer and optional contact fields,
+type, state, date, time, duration, assignees, constrained resources, required
+skills, location, source and instructions.  Delivery subrecords include work
+updates, checklist rows, materials, time entries, dependencies, recurrence,
+documents, customer requests, quotation, invoice and customer-signature data.
+
+The service writes JSON through a sibling temporary file followed by replacement,
+preventing a partially written canonical file from becoming the visible record.
+Every successful mutation advances the workspace revision.  The service accepts
+an expected revision and rejects a mismatch with
+\texttt{work\_schedule\_revision\_conflict}.  Phone actions and service actions
+load and save against the current revision.  The desktop whole-model synchroniser
+does not yet supply its last-read revision on every PUT; completing that client
+precondition is a remaining multi-writer hardening task.
+
+\subsection{Shared desktop and mobile data flow}
+
+The shared path is:
+\begin{enumerate}[leftmargin=*]
+  \item the desktop obtains the canonical model from
+        \path{/api/aion/business/work-schedule/<workspace>};
+  \item an older local-browser record is used only as a one-time migration source
+        when the backend workspace is empty;
+  \item subsequent desktop changes are persisted to the backend rather than
+        treated as an independent source of truth;
+  \item the paired phone derives the business workspace from its signed active
+        membership and requests \path{/v1/workspaces/work-schedule/snapshot};
+  \item the unified gateway returns the service's derived \texttt{jobs}
+        projection; and
+  \item mobile actions return an updated schedule, so the next desktop or mobile
+        read sees the same work, evidence and delivery records.
+\end{enumerate}
+
+The mobile client does not accept an arbitrary business identifier from the
+interface.  \texttt{PilotNodeClient} signs the request using the possession-bound
+phone flow and supplies the membership identifier.  The gateway resolves the
+workspace, applies a narrow field allow-list and a 64~KB action-size boundary,
+then invokes the canonical service using the authenticated actor identifier.
+Evidence uploads are separately bounded to 20~MB before base64 decoding and
+durable storage.
+
+\subsection{HTTP API surface}
+
+The desktop and customer-facing API is rooted at:
+\begin{center}\small
+\path{/api/aion/business/work-schedule}
+\end{center}
+The implemented routes are:
+\begin{longtable}{p{.18\linewidth}p{.40\linewidth}p{.34\linewidth}}
+\textbf{Method} & \textbf{Route} & \textbf{Behaviour}\ \hline
+GET & \path{/<workspace>} & Read the complete authorised workspace model.\\
+PUT & \path{/<workspace>} & Save a normalised model; optionally enforce an expected revision.\\
+POST & \path{/<workspace>/actions} & Run a bounded domain action such as create, update, checklist, material, time, stock or reminder preparation.\\
+POST & \path{/<workspace>/intake} & Record a reviewable inbound booking request.\\
+POST & \path{/<workspace>/items/<id>/files} & Store a real bounded file and attach its metadata to the work item.\\
+GET & \path{/<workspace>/items/<id>/files/<document>} & Return an authorised stored evidence or generated document.\\
+POST & \path{/<workspace>/items/<id>/documents} & Generate a service report, completion certificate, quote or invoice PDF.\\
+POST & \path{/<workspace>/interpret} & Convert supported natural language into a reviewable create or update intention.\\
+POST & \path{/<workspace>/items/<id>/portal-access} & Issue a random, expiring customer portal token and retain only its SHA-256 hash.\\
+GET/POST & \path{/portal/<token>} and \path{/portal/<token>/actions} & Read the bounded customer projection or record a customer request.\\
+GET & \path{/portal/<token>/page} & Render the responsive customer self-service page.\\
+POST & \path{/public/<workspace>/booking} & Accept an inbound booking without exposing the schedule.\\
+\end{longtable}
+
+Public booking returns only a booking reference and review state.  It does not
+return internal work, customers, availability or staff.  Production exposure
+still requires the deployment's normal rate limiting, abuse protection and CSRF
+policy around this route.
+
+\subsection{Desktop scheduling and back-office workflow}
+
+The desktop workspace includes the following views:
+\begin{itemize}[leftmargin=*]
+  \item a seven-day calendar with direct creation and drag-to-day rescheduling;
+  \item a job board covering new, quotation, approval, scheduled, active and
+        completed states;
+  \item a field/practitioner view for executing the current workday;
+  \item a booking inbox for website, agent and staff-created requests;
+  \item customer history consolidated from canonical work items;
+  \item a reminder queue that distinguishes prepared communication from sent
+        communication; and
+  \item a materials ledger for receipt, allocation, use, adjustment and return.
+\end{itemize}
+
+A work-detail drawer exposes overview, delivery, updates, files, sign-off and
+commercial tabs.  Delivery includes checklist completion, required or used
+materials and time entries.  Location-bearing work provides a user-initiated
+route link.  The current route is a destination handoff to Google Maps; it is
+not a multi-stop optimiser, vehicle tracker or live-traffic scheduler.
+
+The field state machine supports scheduled or new work, on-way/en-route,
+in-progress, paused, completed, invoiced, paid and cancelled states.  Buttons
+for On my way, Start, Pause, Resume and Complete update the same canonical item
+and add an explanatory work-history entry.
+
+\subsection{Availability, recurrence and resources}
+
+Work can carry an assignee, multiple assignee identifiers, resource identifiers
+and required skills.  A resource may represent a person, room, vehicle or item
+of equipment and records capacity, skills and active state.  Conflict detection
+calculates each scheduled interval and reports an overlap when two unfinished
+items share an assignee or resource.  The current check detects direct interval
+overlap; it does not yet calculate travel time, working hours, leave, skill
+substitution or capacity greater than one.
+
+Recurring work supports bounded daily, weekly and monthly series, capped at 52
+occurrences.  Each generated item receives its own stable identifier and shares
+a series identifier with its origin.  Month generation limits the day to the
+valid final day of the target month.  Dependencies can be retained on work
+items, but no general critical-path or automatic dependency scheduler is yet
+implemented.
+
+\subsection{Work Pilot interpretation}
+
+The Work Pilot bar accepts ordinary wording for booking and changing work.  A
+deterministic interpreter is deliberately retained so common operations remain
+available when the selected model is offline.  It recognises work types,
+customer, assignee, location, duration, common clock forms, relative weekdays,
+today, tomorrow and day/month/year dates.  It can prepare new jobs, appointments,
+consultations, surveys, visits and meetings.  It also recognises supported
+reschedule, move, rebook, assign, cancel, complete and update requests.
+
+An update is applied only when the desktop can resolve exactly one existing work
+item from its title, customer or identifier.  No match produces an explicit
+failure and multiple matches require the person to choose the record.  The
+interpreter prepares structured fields rather than inventing absent facts.
+
+This is a reliable bounded fallback, not broad model-level interpretation.  A
+future integration may ask the Vault-selected local or hosted model to propose
+the same typed intention, but AION must still resolve the entity, validate the
+fields and perform the domain action.  A model must never write the schedule or
+claim that an external communication was sent directly.
+
+\subsection{Mobile field and practitioner experience}
+
+The iOS Work section is intentionally narrower than the desktop office surface.
+It provides:
+\begin{itemize}[leftmargin=*]
+  \item a seven-day strip, selected-day bookings, today's count, active count and
+        unfinished-work count;
+  \item creation of a job or appointment with title, customer, location,
+        assignee and start time;
+  \item customer, location, appointment time, status and instructions;
+  \item on-way, start and complete controls plus editable notes and assignment;
+  \item real photo-evidence upload using \texttt{PhotosPicker};
+  \item shared checklist completion and addition;
+  \item materials read/add controls and shared time-entry recording; and
+  \item a user-initiated directions link for work with a recorded location.
+\end{itemize}
+
+The iPhone build was compiled using automatic Apple development signing,
+installed on the connected physical device and launched under bundle identifier
+\texttt{ai.tessaris.pilot}.  Trusting the development certificate and enabling
+Developer Mode were device prerequisites for the local development build; they
+are not the intended production distribution mechanism.
+
+\subsection{Evidence, reports and customer sign-off}
+
+Desktop and mobile uploads now store bytes rather than filenames or synthetic
+evidence counters.  Filenames are reduced to safe basenames, stored names gain a
+random prefix and file metadata records type, size, creation time, creator and
+evidence kind.  File download resolves the document through its owning work item
+before opening the stored path.
+
+The desktop signature pad records the customer name, drawn signature and time on
+the work item.  It is a completion or attendance acknowledgement and is not
+represented as a substitute for regulated contractual acceptance, identity
+verification or qualified electronic signature requirements.
+
+Service reports and completion certificates are generated as PDFs and attached
+to the canonical item.  Quotes use identifiers of the form
+\texttt{Q-YYYY-NNNN}; invoices use \texttt{INV-YYYY-NNNN}.  Line items are
+normalised to description, quantity and unit price.  Subtotal, declared tax rate,
+tax and total are calculated using decimal arithmetic before PDF generation.
+These are working numbered business documents, but they are not yet posted into
+the Finance ledger, reconciled with an accounting provider or qualified for
+country-specific tax and invoice law.
+
+\subsection{Customer portal and controlled customer requests}
+
+An authorised desktop user can create a 30-day customer link for one work item.
+The service generates a high-entropy token, returns it once and stores only its
+SHA-256 digest with the item, customer, creator, creation time and expiry.  Portal
+resolution scans for the digest, rejects a revoked or expired grant and returns
+only a bounded projection of that work item.  It never returns the wider
+schedule, other customers, stock, resources or internal notes.
+
+The responsive portal page shows the work title, customer, status, date and time,
+assigned person, location and permitted commercial summary.  The customer can:
+\begin{itemize}[leftmargin=*]
+  \item approve or decline the current quote;
+  \item request another date and time; or
+  \item request cancellation and supply a note.
+\end{itemize}
+Rescheduling and cancellation are stored as
+\texttt{needs\_review} customer requests rather than silently rewriting or
+deleting office commitments.  Quote approval and decline are recorded on the
+commercial record and in the work-item update history.
+
+The portal currently runs from the local Tessaris HTTP service.  A link will be
+usable by a remote customer only after an authorised HTTPS deployment, public
+routing, abuse controls and privacy review are configured.
+
+\subsection{Reminder and notification boundary}
+
+The desktop scheduler calls \texttt{prepare\_due\_reminders()} for each business
+workspace.  The service prepares a 24-hour reminder for work within the next 48
+hours and a two-hour reminder for work within two hours, deduplicated by work
+item and reminder kind.  It selects email when an email address exists, SMS when
+only a phone number exists and otherwise records a manual action.
+
+Email and SMS reminders are stored with
+\texttt{status=needs\_approval}; reminders without a deliverable address are
+\texttt{manual\_action\_required}.  The approval endpoint
+\path{/<workspace>/reminders/<reminder>/approve-and-send} binds a named approver
+to the prepared reminder.  Email is submitted through the existing Resend
+adapter and SMS through Twilio Messaging.  A successful submission must return
+a provider request identifier before the reminder becomes
+\texttt{submitted\_to\_provider}; absent credentials, provider failure or a
+missing receipt records \texttt{failed}.  Reusing a reminder after it leaves
+\texttt{needs\_approval} is rejected, preventing an accidental duplicate send.
+Submission is not described as delivery: provider delivery-event reconciliation
+remains a separate production step.
+
+The Vault now exposes a purpose-separated integration catalogue.  Gmail and
+Microsoft Outlook are mailbox providers; Mailchimp Marketing manages audiences
+and campaigns; Resend is the recommended operational email transport; Twilio
+Messaging provides SMS; Google Maps Routes is the preferred routing candidate;
+Xero and QuickBooks Online are ledger candidates; and HubSpot or Pipedrive are
+the primary CRM candidates.  Catalogue, adapter, configured, connected and
+live-verified are different states.  Only Gmail currently has the established
+local OAuth health bridge.  Outlook has a bounded Microsoft Graph draft/send
+adapter, while OAuth registration and token refresh still have to be connected
+through Vault before use.
+
+\subsection{Stock, materials and time}
+
+Per-job materials record name, quantity, unit, optional unit cost and whether the
+material was used.  The workspace stock ledger records receive and return as
+positive quantities and allocate, use or downward adjustment as negative
+quantities.  Every movement has a stable identifier, optional work-item link,
+note, actor and time.  The desktop derives the displayed balance from these
+movements rather than mutating a separate total.
+
+Time entries record bounded minutes, purpose, actor and timestamp against the
+work item.  The delivery view sums those entries for field and back-office use.
+This supports operational time capture but is not a payroll timesheet, wage
+calculation or labour-law compliance system.  Stock similarly remains an
+operational ledger; reorder rules, suppliers, purchase orders, serial or batch
+tracking, returns-to-supplier and accounting valuation remain future modules.
+
+\subsection{Provider-neutral accountant harness}
+
+The Finance integration has been extended beyond a list of accounting brands.
+\path{accounting_provider_contract.py} defines one provider boundary and a
+canonical set of accounts, invoices and supplier bills, payments, bank
+transactions, journals, tracking categories and projects.  Provider adapters
+may retrieve and translate facts; they do not decide tax treatment, select an
+ambiguous nominal account or execute an unapproved posting.
+
+\path{quickbooks_online_accounting_adapter.py} reads QuickBooks Online accounts,
+invoices, bills, payments, purchases and journal entries through the Intuit
+Accounting API and maps them to the canonical ledger.  It preserves the Intuit
+company realm, provider identifiers and source collection in every source
+reference.  \path{sage_accounting_adapter.py} performs the equivalent mapping
+for Sage Business Cloud Accounting ledger accounts, sales and purchase
+invoices, contact payments, bank-account transactions and ledger entries.
+\path{freeagent_accounting_adapter.py} reads categories, contacts, invoices,
+bills, bank accounts, bank transactions and journal sets, including the
+explained/unexplained evidence attached to FreeAgent bank activity.
+\path{freshbooks_accounting_adapter.py} reads service-business invoices,
+supplier bills and their payment evidence, customer payments and expenses and,
+when the OAuth identity supplies the separate
+business UUID, the FreshBooks chart of accounts.  The Vault connection must
+retain both the FreshBooks account identifier and business UUID; a missing UUID
+is reported as missing account evidence rather than replaced with an invented
+chart.  \path{zoho_books_accounting_adapter.py} reads the chart of accounts,
+sales invoices, bills, customer and vendor payments, bank transactions and
+journals.  It retains the organisation identifier and OAuth-provided regional
+API domain so European and other non-US Zoho tenants are not routed to the
+wrong data centre.
+Access and refresh credentials are not accepted by the normalisation boundary
+and must remain in Vault-managed provider connection state.
+
+\path{accountant_harness_service.py} writes a read-only, hash-bound sync receipt,
+raw evidence hash and canonical Finance ledger.  That ledger is deliberately
+compatible with the existing Xero Finance matching engine, so all six
+providers share deterministic amount, date, reference and counterparty
+matching, duplicate detection, exceptions and human review.  No provider write
+is performed by ingestion or reconciliation.  Future mutations must retain the
+existing Xero control sequence: prepare an exact payload, bind approval to its
+hash, use an idempotency key, execute through the selected provider adapter,
+read the created or changed object back independently, and bind the receipt to
+the approved hash.
+
+The Finance integration API exposes the accounting-provider capability catalog,
+an internal post-authorisation snapshot-ingestion boundary and a provider-neutral
+reconciliation route.  QuickBooks Online, Sage, FreeAgent, FreshBooks and Zoho
+Books are therefore
+\emph{adapter-ready}, not connected or live-verified.  A live claim requires
+provider application registration, OAuth connection through Vault, sandbox
+acceptance, an approved write test, read-back reconciliation, failure testing
+and credential revocation testing.  Provider payment records may be imported
+as accounting evidence for reconciliation; this does not enable Tessaris to
+charge a card, initiate a bank payment or otherwise execute payment processing.
+
+\subsection{Safety and authority properties}
+
+The implementation enforces the following distinctions:
+\begin{itemize}[leftmargin=*]
+  \item a booking request is not a scheduled commitment until an authorised
+        action creates or updates a work item;
+  \item a prepared reminder is not a sent notification;
+  \item a customer reschedule or cancellation is a request awaiting review;
+  \item a generated quote or invoice is not an accounting-ledger posting;
+  \item a recorded payment outcome, where legacy UI data exists, is not evidence
+        that Tessaris charged a payment instrument; and
+  \item model interpretation proposes typed fields while the governed service
+        performs the mutation.
+\end{itemize}
+
+Mobile mutations are bound to a signed membership-derived workspace.  Public
+booking cannot read the schedule.  Portal tokens are random, hashed at rest,
+scoped to one work item and time-limited.  Evidence has a size boundary and safe
+stored name.  Domain operations reject missing work items, unsupported actions,
+invalid money values, invalid stock operations and duplicate work identifiers.
+
+\subsection{Verification and installed state}
+
+The implementation was verified through Python compilation, JavaScript syntax
+checking, the Work Schedule domain suite and unified mobile gateway suite.  At
+the recorded closure, 41 relevant tests passed.  The iOS target compiled and
+signed successfully, and the resulting application was installed and launched
+on the connected iPhone.  The Electron desktop package was rebuilt, installed
+at \path{/Applications/Tessaris.app}, launched and checked against the live
+desktop backend.  The installed interface exposed the shared-mobile indicator,
+calendar, job board, field workspace, booking inbox, customers, reminders and
+stock/materials views.
+
+Automated verification covers structure and bounded domain behaviour.  It does
+not qualify remote customer hosting, real message delivery, route optimisation,
+tax compliance, accounting posting, payment processing or industry regulation.
+
+\subsection{Remaining production and expansion work}
+
+The following are deliberately not closed by this implementation:
+\begin{enumerate}[leftmargin=*]
+  \item connect production Resend and Twilio credentials, verify sending domains
+        and numbers, and reconcile delivered, bounced, failed and opted-out
+        provider events after submission;
+  \item deploy the customer portal behind authorised public HTTPS routing,
+        authentication or equivalent possession controls, rate limiting and
+        privacy policy;
+  \item add map-native multi-stop optimisation, travel-time constraints, live
+        traffic and vehicle or practitioner routing;
+  \item complete bidirectional linkage to the Sales Revenue Spine and Finance
+        customer/invoice ledgers rather than relying only on derived work history;
+  \item supply line-item editing, credit notes, tax jurisdiction, due dates,
+        accounting export, ledger posting and reconciliation;
+  \item add purchasing, suppliers, reorder thresholds, stock locations, batches,
+        serials, returns and vertical-specific inventory controls;
+  \item add richer checklist templates, measurement schemas, timer start/stop,
+        labour approval and practitioner-specific clinical or regulated records;
+  \item route broad language through the Vault-selected accepted model while
+        retaining deterministic parsing, entity resolution and governed domain
+        execution as the fail-safe path;
+  \item make the desktop synchroniser send an expected revision on every write
+        and provide an explicit merge experience after concurrent edits; and
+  \item connect a certified payment provider only through a separately approved,
+        receipt-backed payment capability.
+\end{enumerate}
+
+The correct production claim is therefore that Tessaris now has a functional,
+shared desktop/mobile work-and-delivery foundation with real local persistence,
+evidence, controlled customer self-service and operational records.  External
+communications, public deployment, accounting qualification, route optimisation,
+specialist vertical workflows and payments remain integration or qualification
+work and must not be inferred from the presence of their internal records.

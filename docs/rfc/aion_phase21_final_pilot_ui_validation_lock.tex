@@ -1,0 +1,118 @@
+\section{Phase 21K --- Final Pilot UI Validation}
+\label{sec:aion-phase21k-final-pilot-ui-validation}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21K finalizes the AION Pilot visible frontend/operator layer.
+
+\subsection{Purpose}
+
+Phase 21 validates that AION Pilot is now visible to the user as an operating cockpit, not only as backend contracts.
+
+The Pilot cockpit must answer:
+
+\begin{itemize}
+  \item what Pilot is doing;
+  \item where Pilot is saving outputs;
+  \item what artifacts were created;
+  \item what was blocked;
+  \item what needs approval;
+  \item what proof, replay and receipts exist.
+\end{itemize}
+
+\subsection{Completed Locks}
+
+Phase 21 includes:
+
+\begin{itemize}
+  \item 20P --- Pilot Frontend Interaction Layer;
+  \item 21A --- Pilot Cockpit UI Contract;
+  \item 21B --- Pilot Cockpit Frontend Mount;
+  \item 21C --- Pilot Mission Composer and Artifact Preview;
+  \item 21D --- Pilot Artifact Builder Runtime;
+  \item 21E --- Pilot File System and Business Container View;
+  \item 21F --- Document/PDF Mission Demo;
+  \item 21G --- Pilot Feedback Controls;
+  \item 21H --- Blocked Action Panel;
+  \item 21I --- Pilot Mission Map View;
+  \item 21J --- Home Fixed Visible Founder Demo;
+  \item 21X --- Real Frontend Pilot Cockpit Mount.
+\end{itemize}
+
+\subsection{Final UI Contract}
+
+The Pilot cockpit MUST visibly expose:
+
+\begin{itemize}
+  \item mission composer;
+  \item Pilot status;
+  \item Pilot stream;
+  \item business container save path;
+  \item artifact list;
+  \item artifact hashes;
+  \item receipt hashes;
+  \item blocked actions;
+  \item feedback controls;
+  \item mission map;
+  \item proof and replay links;
+  \item Home Fixed founder demo surface.
+\end{itemize}
+
+\subsection{Safety Contract}
+
+The Pilot UI MUST NOT expose:
+
+\begin{itemize}
+  \item raw credentials;
+  \item private reasoning;
+  \item raw tool execution;
+  \item live payment buttons;
+  \item live deploy buttons;
+  \item live external send buttons;
+  \item live public post buttons;
+  \item live booking buttons;
+  \item live escrow buttons;
+  \item silent memory mutation;
+  \item silent reputation mutation.
+\end{itemize}
+
+\subsection{Required Safety Message}
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20p_pilot_frontend_interaction_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21a_pilot_cockpit_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21b_pilot_cockpit_frontend_mount_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21c_pilot_mission_composer_artifact_preview_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21d_pilot_artifact_builder_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21e_pilot_filesystem_container_view_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21f_document_pdf_mission_demo_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21g_pilot_feedback_controls_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21h_blocked_action_panel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21i_pilot_mission_map_view_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21j_home_fixed_visible_founder_demo_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21x_real_frontend_pilot_mount_ui_lock.py
+\end{verbatim}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{AION Pilot may be visible and interactive, but visibility does not grant execution authority. The cockpit may display missions, artifacts, files, receipts, proof, replay, blocked actions and feedback, but it MUST NOT execute live external side effects without the existing AION approval chain.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21K-FINAL-PILOT-UI-VALIDATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

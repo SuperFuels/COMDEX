@@ -1,0 +1,200 @@
+% Append-only section for the AION GPT-OSS 120B technical record.
+% Requires: amsmath, booktabs, tabularx, xcolor.
+\section{Selective Fourth-Expert Q3\_K Accuracy-Recovery Gate}
+\label{sec:selective-fourth-expert-q3k}
+
+\subsection{Purpose and predeclared boundary}
+
+The preceding 2.08\,MB AtomSheet residual calculator was extremely fast
+(approximately 0.040\,ms) but failed its untouched reasoning gate: none of the
+21 held-out positions achieved the required output-relative $L_2$ error of at
+most 0.02.  An oracle certification check confirmed that this was a
+representation failure, not merely a poor confidence selector: the required
+fallback rate was 100\%.  The present experiment therefore retained the three
+largest routed expert contributions in their original MXFP4 representation and
+changed only selected projections of the fourth, lowest-gate expert to padded
+Q3\_K.
+
+This is an explicitly quality-gated representation experiment.  It changes
+expert weights and is not bit-exact unrestricted GPT-OSS 120B inference.  The
+gate was fixed before the measured run: output-relative $L_2$ p95 no greater
+than 0.02, identical layer-output argmax at every measured position, at least
+1.005-fold route-weight reduction, no hidden fallback, and separate reporting
+for reasoning, arithmetic and extraction.  The experiment was restricted to
+real layer-12 routes and does not constitute a generated-token throughput or
+semantic-quality claim.
+
+\subsection{Method}
+
+For every captured position the unrestricted router, its four selected expert
+identities, all four gate values, all biases, the first three experts and the
+reduction order were preserved.  Seven masks were tested over the fourth
+expert's gate, up and down matrices.  A set bit replaced only that projection
+with a Q3\_K matrix obtained directly from the original MXFP4 weights.  The
+Q3\_K matrix was zero-padded internally from width 2880 to 3072; values were
+sliced back to the native width before combination with the preserved experts.
+The best cross-family mask compacted the fourth expert's gate and up
+projections while retaining its down projection in original MXFP4 form.
+
+\subsection{Measured result}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\linewidth}{lrrrrr}
+\toprule
+Family & Positions & Output $L_2$ p50 & Output $L_2$ p95 & Layer speedup p50 & Argmax equal \\
+\midrule
+Reasoning  & 21 & 0.00963 & 0.01432 & 1.053$\times$ & 21/21 \\
+Arithmetic & 33 & 0.00886 & 0.01783 & 1.197$\times$ & 33/33 \\
+Extraction & 22 & 0.01092 & 0.01489 & 1.296$\times$ & 22/22 \\
+\bottomrule
+\end{tabularx}
+\caption{Selective fourth-expert gate+up Q3\_K results on three real activation families.}
+\end{table}
+
+The candidate reduced the four-expert route's weight bytes by
+1.3469\% (a 1.01347-fold reduction).  Across the pooled 76 positions, 75 were
+individually below 0.02 output-relative $L_2$; the one arithmetic outlier was
+0.02369.  The predeclared family-wise p95 gate nevertheless passed in all
+three families, and every measured layer-output argmax remained unchanged.
+The pooled median isolated layer-compute speedup was approximately
+1.191$\times$.  Because the timing is a layer-12 microbenchmark, it must not be
+extrapolated to full-model tokens per second.
+
+Compacting all three fourth-expert projections was rejected as a general
+candidate despite passing reasoning: arithmetic p95 was 0.02554 and extraction
+p95 was 0.02389.  The projection-isolation experiment therefore improved both
+accuracy and compute behaviour by retaining the sensitive down projection.
+
+\subsection{Interpretation and next gate}
+
+This is the first tested compact fourth-expert representation to clear the
+declared 0.02 p95 numerical gate across reasoning, arithmetic and extraction.
+It replaces the failed proposition ``learn the omitted expert from a tiny
+activation-only calculator'' with the narrower proposition ``retain three
+original experts and compact only demonstrably tolerant components of the
+fourth expert.''  The result is a genuine accuracy advance, but the 1.35\%
+traffic reduction is not an orders-of-magnitude speed result.
+
+The candidate may advance only to a bounded multi-layer substitution test with
+unseen prompts.  That test must measure accumulated hidden-state and logit
+error, generated-token agreement, semantic quality, p50/p95 latency, bytes
+moved and fallback behaviour.  Failure at the token or semantic boundary will
+stop the branch; success at layer 12 alone does not justify warehouse-wide
+conversion.
+
+\subsection{Evidence bindings}
+
+The canonical evidence hashes are:
+\begin{itemize}
+  \item reasoning: \texttt{f558a113b08281b7b0fdec7317af8c74cef470e903ed7d54c24318d0ce3adb68};
+  \item arithmetic: \texttt{a34adc9d6cc967e0a0a9b8b18a81707964b353f064817cba0efbd9c8749c48a7};
+  \item extraction: \texttt{64102360ac830ba3892b575ba239ea558af7735218f8a125b9700a50c1ff83a8}.
+\end{itemize}
+The corresponding stored-file SHA-256 values are
+\texttt{4ab688628953c30c6ab677ea253612eee8f14427dccfd166ca2683b79e591e4c},
+\texttt{81cc3a30952cca175d50ef06eb460f130d9cb10b8720af903ae124f929f4f987},
+and
+\texttt{9a166c8541703e9b7acac47d2ca8124cb643191f0e7957d8f4b20eee8a6d2ad8},
+respectively.
+
+\subsection{Full-transformer transfer and confidence fallback}
+
+The layer-12 candidate was subsequently integrated into the complete
+36-layer runtime.  The implementation accepts an explicit layer allowlist,
+caches each derived Q3\_K projection, records conversion cost separately, and
+labels the result as a changed-weight quality track.  No converted weight was
+written into the source warehouse.  An initial persistent-L2 integration run
+caught a Python boundary defect (a zero-copy \texttt{memoryview} was combined
+with a byte string); it terminated before emitting an evidence file and was
+repaired without changing the numerical or performance gate.
+
+In a two-pass BOS test, both unrestricted control and layer-12 candidate were
+internally bitwise repeatable and generated token ID 2167.  The changed layer
+did propagate: the first route difference appeared at layer 19 and only 25 of
+36 routes matched the separately executed control.  Thus token equality at BOS
+was treated as a narrow result, not as proof of semantic equivalence.
+
+The candidate was then evaluated on a 15-token arithmetic prompt followed by
+five autoregressive positions.  In the proven 8\,GiB workbench plus 20\,GiB
+demand-admitted cartridge configuration, the unconditional candidate matched
+all five teacher token IDs
+\[
+  [35644,,200008,,2167,,1309,,316]
+\]
+and remained bitwise repeatable across its two candidate runs.  Nevertheless,
+its settled five-token rate was 1.32879 tokens/s, below the frozen unrestricted
+control's 1.74117 tokens/s.  The unconditional candidate was therefore stopped
+as a performance strategy.
+
+A confidence gate was derived from the existing cross-family layer captures:
+use the selective Q3\_K gate/up path only when the fourth normalized router
+gate is at most 0.20; otherwise execute the original fourth expert.  Every
+previously measured admitted position had output-relative $L_2<0.018$.  In the
+same 20-position arithmetic execution, this rule applied the candidate on 17
+of 20 layer-12 calls, matched all five teacher continuation tokens, and remained
+internally repeatable.  It recovered settled continuation to 1.67846 tokens/s
+and median token latency to 0.56382\,s, compared with 1.74117 tokens/s and
+0.56672\,s for the frozen exact control.  Since aggregate throughput remained
+3.60\% lower, the confidence-gated candidate is also
+\texttt{NOT\_PROMOTED} for speed.
+
+This experiment establishes a useful but bounded conclusion: selective
+projection compaction can survive a real prompt and preserve a short generated
+token sequence, while confidence fallback removes most of its route-induced
+performance regression.  However, compacting two projections of the fourth
+expert in only one layer saves too little physical traffic to beat the complete
+exact runtime.  The promoted exact frontier therefore remains approximately
+1.72--1.83 tokens/s.  Further multi-layer expansion is prohibited until a new
+candidate predicts downstream consequence, not merely local layer error, and
+demonstrates a positive balanced end-to-end speed gate.
+
+The full-transformer evidence canonical hashes are:
+\begin{itemize}
+  \item BOS control: \texttt{4013a5499845ee929bcd619b9e9c77da3d8a791e7d9645870aca651640be4f1e};
+  \item BOS layer-12 candidate: \texttt{c03026b34741bc2d1c88da5df893c723fec3b5f902cca90fec40c921e72b284d};
+  \item unconditional 20-position arithmetic candidate: \texttt{7c96952e54d4c694b576b9955a59126bb6399d9b04cd4998727d45419cae64bd};
+  \item confidence-gated 20-position candidate: \texttt{63473dd2ca7cf6f623338cd51601d5da54843dc2f8bd4a7f8b4e6bf841f8a6e9}.
+\end{itemize}
+
+\subsection{Compact error-correction audit and invalidation}
+
+A subsequent experiment attempted to correct the remaining layer-12 Q3\_K
+gate/up error with a compact learned residual.  Three selected experts remained
+in original MXFP4 form; only the fourth expert's gate and up projections used
+Q3\_K, its down projection remained original, and a 163,536-byte rank-4/rank-4
+correction cartridge was fitted on arithmetic captures.  Extraction selected
+the capacity and reasoning remained unseen development data.  The correction
+itself took 0.015417\,ms at median.
+
+The first report incorrectly returned an advance decision because its gate
+tested only the absolute two-percent relative-$L_2$ limit.  This was inadequate:
+the uncorrected Q3\_K representation already satisfied that limit on both
+held-out families.  The original report is preserved, never overwritten, and
+is bound to an \texttt{INVALID} sidecar.  Its stored-file SHA-256 is
+\texttt{3b8061e101814c701b491c075a4793238a01cf2b6263f023a9c184936109baea}
+and its canonical hash is
+\texttt{ca29eb904d34661a5be7d7c79bd2ecab2af3796a3be5dae09a7d4b60b9480786}.
+
+The repaired version-2 gate additionally requires at least a ten-percent p95
+improvement over the corresponding uncorrected compact representation on both
+selection and unseen-development families.  Under this corrected rule,
+extraction p95 changed from 0.0148845 to 0.0148418, only a
+$1.00288\times$ improvement.  Unseen reasoning p95 changed from 0.0143191 to
+0.0141196, only a $1.01413\times$ improvement, while its maximum error worsened
+from 0.0146089 to 0.0148673.  All absolute limits still passed, but both
+material-improvement gates failed.  The result is therefore
+\texttt{STOP\_COMPACT\_ERROR\_CORRECTION}; it supplies no full-model speed or
+quality promotion.
+
+This falsification narrows the next search: a small global correction of an
+already accurate Q3\_K fourth expert does not recover enough additional
+accuracy to justify its complexity.  Any successor must either condition the
+correction on expert identity and activation region or reduce physical expert
+work through a different representation, and must beat its uncorrected compact
+baseline rather than merely pass an absolute error threshold.  The corrected
+report canonical hash is
+\texttt{84efe6d3b69263f186c69820f94b100e3034c8c4014785215ee2d2f086f99a9f};
+its stored-file SHA-256 is
+\texttt{b0902664505b626b1031cc7c9d53a4e574cde75569bd818b26910f9fa985209f}.

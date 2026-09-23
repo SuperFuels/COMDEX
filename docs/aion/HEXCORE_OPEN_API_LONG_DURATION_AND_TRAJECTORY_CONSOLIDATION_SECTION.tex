@@ -1,0 +1,216 @@
+\section{Open API Acquisition, Mixed Real Outcomes, and Governed Trajectory Consolidation}
+\label{sec:open-api-duration-consolidation}
+
+This development increment advances three dependencies of the remaining AION
+programme.  First, AION acquired executable read-only interfaces from current
+official documentation and transferred them to unseen targets.  Second, the
+active Arena-v15 campaign was expanded from two repository authorities to four
+mixed software and environmental authorities.  Third, the accumulated HexCore
+result history was converted into a leakage-controlled, provenance-bearing
+manifest suitable for governed neural consolidation and matched substrate
+evaluation.
+
+\subsection{Open Public API Acquisition}
+\label{subsec:open-public-api-acquisition}
+
+AION inspected the official documentation for the GitHub repository API, the
+PyPI JSON API, and the Open-Meteo forecast API.  For each authority it recovered
+an endpoint route from source evidence, constructed a read-only HTTP
+\texttt{GET} adapter, inferred a bounded response schema, and executed the
+adapter against one development target and one unseen transfer target.
+
+For response object $J$ and maximum schema depth $d=3$, the inferred schema was
+constructed recursively as
+\begin{equation}
+ \mathcal{S}(J,d)=
+ \begin{cases}
+  \{k:\mathcal{S}(J_k,d+1)\}, & J\text{ is an object},\\
+  [\mathcal{S}(J_0,d+1)], & J\text{ is a nonempty array},\\
+  \operatorname{type}(J), & \text{otherwise},
+ \end{cases}
+\end{equation}
+with bounded key and depth limits.  The retained contract records the method,
+base authority, documentation-attested route, required response fields,
+credential requirement, side-effect class, and typed schema.
+
+The first challenger reached all six targets but was rejected because an empty
+Open-Meteo query returned a permissive response.  That outcome did not prove
+parameter validation.  The revised counterexample supplied a malformed
+coordinate type.  The remote service rejected it, establishing that the
+adapter's parameter contract was falsifiable rather than inferred solely from
+a successful request.
+
+Let $A_{\mathrm{cold}}$ be the number of documentation, diagnosis, and execution
+actions required without retained adapters, and $A_{\mathrm{retained}}$ the
+actions required after acquisition.  The observed information-action reduction
+was
+\begin{equation}
+ \Delta_A=1-\frac{A_{\mathrm{retained}}}{A_{\mathrm{cold}}}=0.50.
+\end{equation}
+
+\begin{table}[htbp]
+\centering
+\caption{Open public API acquisition results.}
+\label{tab:open-public-api-results}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Official documentation sources & 3 \\
+Independent public API authorities & 3 \\
+Documented routes discovered & 3/3 \\
+Typed adapters retained & 3 \\
+Development and transfer calls & 6 \\
+Successful live calls & 6/6 \\
+Unseen-target transfers & 3/3 \\
+Malformed-parameter rejection & Passed \\
+Information-action reduction & $50\%$ \\
+Credentials used & No \\
+Non-\texttt{GET} requests & 0 \\
+Unsafe or paid actions & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+For GitHub, the source/target pairs were Python/CPython and Node.js/Node.  For
+PyPI they were NumPy and Requests; for Open-Meteo they were Madrid and London.
+Every response, documentation body, route, schema, and URL commitment was
+hashed.  After runtime reconstruction, the adapters and champion remained
+available.  CAU promoted the governed procedure
+\begin{quote}
+\small\path{procedure_open_public_api_acquisition_80b9a41d73c6}.
+\end{quote}
+
+\subsection{Arena v15: Four-Authority Long-Duration Campaign}
+\label{subsec:v15-four-authority-expansion}
+
+The active Arena-v15 wall-clock campaign originally monitored the CPython and
+Node.js primary branches.  It now also uses the newly acquired interfaces to
+observe PyPI package metadata and Open-Meteo measurements.  This changes the
+campaign from repository-only monitoring into a mixed stream of software and
+environmental outcomes.
+
+At cycle $t$, each authority $s$ supplies an independently revealed revision or
+content commitment $r_{s,t}$.  Change and access failure remain distinct:
+\begin{align}
+ \mathrm{change}_{s,t}&=[r_{s,t}\neq r_{s,t-1}\land
+                         r_{s,t}\neq\{\}],\\
+ \mathrm{failure}_{s,t}&=[r_{s,t}=\{\}].
+\end{align}
+The learned monitoring risk is
+\begin{equation}
+ \rho_s=\frac{n^{\mathrm{change}}_s+n^{\mathrm{failure}}_s+1}
+ {n^{\mathrm{observation}}_s+2},
+\end{equation}
+which selects a shorter interval for volatile or unreliable sources.  The
+planned information actions and prior revisions are committed before each
+cycle.  Revealed outcomes are appended to the hashed evidence ledger, while
+campaign state is checkpointed by atomic replacement.
+
+\begin{table}[htbp]
+\centering
+\caption{Arena-v15 state after the four-authority expansion.  The campaign is
+active and not promoted.}
+\label{tab:v15-expanded-state}
+\begin{tabular}{lr}
+\hline
+Measure & Current state \\
+\hline
+Required wall-clock duration & 24 hours \\
+Real elapsed time at recorded update & 1.03 hours \\
+Required checkpointed cycles & 12 \\
+Completed cycles at recorded update & 3 \\
+Independent outcome authorities & 4 \\
+Restart recovery & Passed \\
+Protected execution outcomes & Passed \\
+Transactional outcomes & Passed \\
+Unsafe outcomes & 0 \\
+Promotion status & Blocked pending duration \\
+\hline
+\end{tabular}
+\end{table}
+
+The four authorities are CPython, Node.js, PyPI, and Open-Meteo.  Normal idle
+sleep remains inhibited by the native macOS supervisor while the campaign is
+active.  The elapsed-time and repeated-outcome gates cannot be bypassed by a
+fast internal loop.  Completion makes the result eligible for CAU review; it
+does not grant automatic promotion or independent certification.
+
+\subsection{Governed Verified-Trajectory Manifest}
+\label{subsec:verified-trajectory-manifest}
+
+Native consolidation and matched substrate comparison require a shared data
+authority.  A provenance-only corpus manifest was therefore constructed over
+the HexCore result history.  Each artifact $a_i$ receives commitment
+\begin{equation}
+ h_i=\operatorname{SHA256}(\operatorname{bytes}(a_i)),
+\end{equation}
+an authority classification, a capability family, a procedure identifier, and
+an artifact-level split.
+
+Four authority classes are kept separate:
+\begin{enumerate}
+ \item \textbf{verified positive}: CAU-promoted, provenance-bearing outcomes
+ that may provide positive training authority;
+ \item \textbf{verified negative}: rejected challengers retained only for
+ criticism, calibration, counterexamples, and abstention learning;
+ \item \textbf{protocol-only}: evaluation infrastructure that must never be
+ treated as demonstrated capability; and
+ \item \textbf{unresolved}: legacy or incomplete records quarantined pending
+ explicit classification.
+\end{enumerate}
+
+Initial split assignment is derived from the artifact hash.  If several
+artifacts name the same procedure, every copy is moved to the most conservative
+existing split,
+\begin{equation}
+ \mathrm{sealed}>\mathrm{development}>\mathrm{train},
+\end{equation}
+so a procedure cannot occur in more than one split.
+
+\begin{table}[htbp]
+\centering
+\caption{Verified trajectory manifest.}
+\label{tab:trajectory-manifest}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+SHA-256 committed artifacts & 127 \\
+Capability families & 7 \\
+Verified positive artifacts & 94 \\
+Verified negative artifacts & 21 \\
+Protocol-only artifacts & 2 \\
+Unresolved artifacts & 10 \\
+Training split & 83 \\
+Development split & 31 \\
+Sealed split & 13 \\
+Procedure-level split leakage & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+The manifest does not copy raw outcomes or change their authority.  It binds
+future neural training and substrate evaluation to the original artifacts and
+their hashes.  Rejected proposals therefore cannot silently re-enter training
+as true examples, and a frozen protocol cannot be mistaken for a capability
+result.
+
+\subsection{Integrated Verification and Claim Boundary}
+
+The combined verification covering API acquisition, trajectory governance,
+the active long-duration campaign, external human and physical protocols,
+Arenas v14--v17, and the AGI evidence registry passed $28/28$ focused tests.
+The evidence registry now tracks 21 committed capability artifacts with
+$100\%$ integrity.  No external gate is falsely marked verified, and AGI claim
+authorization remains false.
+
+The API result demonstrates bounded acquisition of three preselected,
+read-only public JSON interfaces.  Documentation locations, candidate
+authorities, objectives, network permissions, and safety rules remain
+engineered.  It does not authorize credentials, state-changing requests,
+payments, deployment, or irreversible actions.  The trajectory manifest is a
+data-governance result rather than a new intelligence capability.  Arena v15
+remains an active internal campaign until its real duration and outcome gates
+complete.  Independent human, physical, and integrated evaluation still
+require external administrators.

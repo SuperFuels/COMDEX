@@ -1,0 +1,87 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.49 --- Initiative Hygiene Guard}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.49 adds an initiative hygiene guard above the promotion safety stack.
+
+The purpose is to prevent AION from playing wing-pawn lunges under \texttt{initiative\_pressure} unless the move is concrete.
+
+\section{Failure Source}
+
+The Level-3 game exposed repeated initiative drift:
+
+\begin{verbatim}
+h2h4
+g2g4
+a2a3
+\end{verbatim}
+
+These moves were legal, but they were not concrete enough against Level 3.
+
+\section{Rule}
+
+Under \texttt{initiative\_pressure}, AION SHOULD reject wing-pawn lunges unless the move is one of:
+
+\begin{itemize}
+  \item a capture;
+  \item check or mate;
+  \item a promotion path;
+  \item a king-safety necessity;
+  \item otherwise concretely forcing.
+\end{itemize}
+
+\section{Live Stack Position}
+
+The new live stack is:
+
+\begin{verbatim}
+22E.38 -- Live one-move sender
+  -> 22E.49 -- Initiative Hygiene Guard
+    -> 22E.48 -- Promotion Safety / Queen Survival Guard
+      -> 22E.46 -- Dynamic Intent Switching & Plan Strength Evaluation
+        -> 22E.44 -- Proactive Intent Primacy & Plan Enforcement
+          -> 22E.43 -- Anti-Shuffling / Endgame Conversion Guard
+            -> 22E.42 -- Passed Pawn Intent Scope Guard
+              -> 22E.41 -- Queen-First Promotion Guard
+                -> 22E.37 -- Intent-Driven Strategic Well
+\end{verbatim}
+
+\section{Evidence Fields}
+
+The guard records:
+
+\begin{verbatim}
+initiative_hygiene_checked
+wing_pawn_lunge_detected
+wing_pawn_lunge_allowed
+initiative_hygiene_override_applied
+initiative_hygiene_reason
+safe_alternative_found
+\end{verbatim}
+
+\section{Boundary}
+
+This kernel does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E49-FULL-CHESS-INITIATIVE-HYGIENE-GUARD\\
+Status: LOCKED --- initiative hygiene guard implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

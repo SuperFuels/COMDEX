@@ -1,0 +1,112 @@
+\section{Universal Pilot-to-Pilot Handoffs}
+\label{sec:pilot-universal-handoffs}
+
+Pilot now provides one governed handoff contract for five useful private objects:
+messages, tasks, reminders, files and Pilot Moments.  This is the completion of
+mobile task \texttt{MOB-1403}.  The implementation composes the existing trusted-
+relationship authority, phone-possession certificate, capability lease and encrypted
+Unified Inbox; it does not create a parallel social network or a Tessaris-owned
+conversation database.
+
+\subsection{User experience}
+
+The private phone Inbox contains a collapsed control labelled ``Send to a trusted
+Pilot''.  The sender chooses an already accepted relationship and one object type.
+Pilot resolves that person to the private Pilot persona and mother-brain route saved
+in Contacts.  A relationship may be household, family, friend or professional.  A
+missing, mismatched, blocked, deleted or revoked relationship is denied before an
+encrypted packet can be constructed.  Acceptance produces a signed bilateral
+relationship claim that the recipient imports onto their own mother brain, allowing
+the same relationship to authorize replies without central ownership.
+
+Messages, reminders, files and rights-safe Moment cards are sent by an explicit press
+on the verified phone.  Tasks use a stricter two-step flow: the first press prepares
+the exact task and scope hash; a second possession-signed approval seals the same
+scope into the outbound packet.  The recipient mother imports a task as awaiting
+recipient acceptance.  Only the recipient can accept, decline, read, snooze or
+complete it.  Consequently a sender cannot manufacture an acceptance or completion
+receipt.
+
+\subsection{Composed authority path}
+
+Let $R$ be an active bilateral relationship, $L$ the phone's short-lived capability
+lease, $O$ the canonical handoff object and $K$ its idempotency key.  A handoff is
+admissible only if
+\[
+  \operatorname{ValidPhone}(L,O) \land
+  \operatorname{ActiveRelationship}(R,s,r) \land
+  \operatorname{TrustedMother}(m_r) \land
+  \operatorname{AllowedType}(O).
+\]
+The sender mother then encrypts the private payload to the recipient mother's X25519
+transport key with AES-GCM authenticated encryption.  The packet metadata binds the
+packet identifier, source mother, destination mother, recipient persona and time.
+The sender signs the packet hash with its Ed25519 mother identity.  The recipient
+verifies the signature, destination, hash and authenticated ciphertext before storing
+the private object.
+
+The stable states deliberately distinguish technical and human facts:
+\begin{description}
+  \item[\texttt{awaiting\_private\_approval}] an exact task exists only on the sender
+        mother and nothing has been sent;
+  \item[\texttt{encrypted\_packet\_ready}] ciphertext is ready for an authorised
+        transport, but destination receipt is not yet claimed;
+  \item[\texttt{recipient\_mother\_received}] the destination mother verified and
+        stored the packet;
+  \item[\texttt{recipient\_accepted}] the recipient explicitly accepted the task;
+  \item[\texttt{completed}] the recipient explicitly completed it and returned a
+        signed outcome receipt.
+\end{description}
+Queued work, ciphertext creation and transport attempts are never described as human
+delivery, reading, acceptance or completion.
+
+\subsection{Typed objects}
+
+\begin{description}
+  \item[Message.] Exact bounded text sent explicitly from the phone; no reply
+        receipt is implied.
+  \item[Task.] Title, recipient and personal-space scope, with a second exact
+        approval and separate recipient acceptance.
+  \item[Reminder.] Title, detail and ISO due time, imported as a proposed
+        structured card.
+  \item[File.] A bounded supported file, name, MIME type and hash; at most 1 MB
+        and encrypted at rest and in transit.
+  \item[Moment.] A context card, context hash and optional official HTTPS link;
+        protected programme audio and video must be absent.
+\end{description}
+
+Pilot Moments remain copyright- and provider-aware.  The handoff accepts a prepared
+\texttt{moment\_*} identifier, a verifiable context hash, a bounded description and,
+where available, an official HTTPS provider link.  Both
+\texttt{protected\_audio\_copied} and \texttt{protected\_video\_copied} must be false.
+The receiver obtains context, not an extracted television clip.
+
+\subsection{Privacy, replay resistance and revocation}
+
+Readable address-book data is not required by the handoff API.  The phone sees only
+relationships involving its active persona, then joins the chosen peer persona to a
+locally held Contact route.  Private content remains encrypted in the mother store;
+transport packets expose bounded routing metadata but not message, task, reminder,
+file or Moment content.  Reusing an idempotency key with different content is denied.
+Duplicate inbound packets are suppressed.  Relationship revocation, person deletion
+or blocking immediately prevents new handoffs even when an old contact route remains
+in a local address book.
+
+The design is transport-independent.  An encrypted packet may later travel over a
+direct customer connection, an unreadable relay, a queued store-and-forward path or a
+qualified optional Wave bridge.  The transport cannot broaden the signed relationship
+or capability scope.  Tessaris therefore need not host or possess conversations,
+private memories or Boardroom records for the Pilot network to grow.
+
+\subsection{Verification and remaining external gates}
+
+Automated tests exercise all five handoff types, destination-mother decryption,
+separate task approval and acceptance, relationship visibility, revocation denial,
+file integrity and Moment protected-media refusal.  The phone production build also
+type-checks and renders the compact composer within the existing Inbox rather than
+adding another top-level screen.
+
+Stage 14's coded adoption core is complete.  Formal closure still requires household,
+freelancer, employee and Boardroom field pilots across independent mothers, followed
+by independent security, privacy, legal and regulatory review.  Those external gates
+must not be inferred from local automated tests.

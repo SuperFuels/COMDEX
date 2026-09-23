@@ -1,0 +1,244 @@
+\section{O23 Voice Packaging Runtime Lock}
+
+\subsection{Status}
+
+The O23 voice packaging sprint is complete and locked.
+
+\begin{itemize}
+  \item \textbf{O23A} --- Voice asset discovery and packaging manifest.
+  \item \textbf{O23B} --- App-local voice bundle staging folder.
+  \item \textbf{O23C} --- Kokoro model assets staged.
+  \item \textbf{O23D} --- Whisper and spaCy assets staged.
+  \item \textbf{O23E} --- Python 3.12 runtime bundle strategy.
+  \item \textbf{O23F} --- App-local packaged-mode resolver.
+  \item \textbf{O23G} --- Startup readiness checker.
+  \item \textbf{O23H} --- No-hidden-downloads runtime lock.
+  \item \textbf{O23I} --- Staged worker path proof.
+  \item \textbf{O23J} --- Final packaging contract and documentation lock.
+\end{itemize}
+
+The final O23 validation passed with:
+
+\begin{verbatim}
+110 passed
+\end{verbatim}
+
+The final O23 commit is:
+
+\begin{verbatim}
+e93420e6 lock(voice): finalize packaging contract
+\end{verbatim}
+
+\subsection{Voice Bundle Contract}
+
+The local-first AION voice runtime now has a locked staging and release packaging contract.
+
+The staging bundle root is:
+
+\begin{verbatim}
+desktop/mac/voice_bundle_staging/voice
+\end{verbatim}
+
+The final packaged app voice root must be:
+
+\begin{verbatim}
+Tessaris.app/Contents/Resources/voice
+\end{verbatim}
+
+The final packaged Python runtime must exist at:
+
+\begin{verbatim}
+Tessaris.app/Contents/Resources/voice/python/bin/python
+\end{verbatim}
+
+The final runtime must be Python 3.12 and must include the required local voice dependencies:
+
+\begin{verbatim}
+kokoro
+soundfile
+faster_whisper
+ctranslate2
+av
+torch
+spacy
+numpy
+\end{verbatim}
+
+\subsection{Staged Assets}
+
+The staging bundle now contains the required local voice assets:
+
+\begin{verbatim}
+voice/kokoro/kokoro-v1_0.pth
+voice/kokoro/config.json
+voice/kokoro/voices/af_heart.pt
+voice/spacy/en_core_web_sm
+voice/whisper/base
+voice/manifest.json
+\end{verbatim}
+
+The Kokoro model, Kokoro voice, spaCy model, Whisper base model, and manifest are all verified by the startup readiness checker.
+
+\subsection{Python Runtime Strategy}
+
+O23E introduced a Python runtime strategy manifest and a staging launcher at:
+
+\begin{verbatim}
+desktop/mac/voice_bundle_staging/voice/python/bin/python
+\end{verbatim}
+
+This launcher currently delegates to:
+
+\begin{verbatim}
+.venv_voice/bin/python
+\end{verbatim}
+
+This is valid for development and staging only.
+
+The final release build must replace the staging launcher with an embedded or relocatable Python 3.12 runtime. The development virtual environment must not be committed or shipped as the final runtime.
+
+\subsection{Packaged Runtime Resolver}
+
+O23F added an app-local resolver for voice runtime selection.
+
+The resolver supports the following priority order:
+
+\begin{enumerate}
+  \item Explicit \texttt{AION\_VOICE\_PYTHON} override.
+  \item Explicit \texttt{AION\_VOICE\_BUNDLE\_ROOT} override.
+  \item Staging bundle mode.
+  \item Packaged app mode.
+  \item Development fallback only where allowed.
+\end{enumerate}
+
+The resolver can identify both the staging bundle path and the future packaged app path:
+
+\begin{verbatim}
+desktop/mac/voice_bundle_staging/voice
+desktop/mac/Tessaris.app/Contents/Resources/voice
+\end{verbatim}
+
+In the current repository state, packaged mode correctly reports that the final embedded runtime does not yet exist.
+
+\subsection{Startup Readiness Checker}
+
+O23G added a startup readiness checker for the local voice runtime.
+
+The readiness checker verifies:
+
+\begin{itemize}
+  \item voice bundle root exists;
+  \item Python runtime exists;
+  \item Python runtime is Python 3.12;
+  \item required Python imports are available;
+  \item Kokoro model exists;
+  \item Kokoro config exists;
+  \item Kokoro voice exists;
+  \item spaCy model exists;
+  \item Whisper model exists;
+  \item voice manifest exists;
+  \item ElevenLabs fallback is disabled;
+  \item browser SpeechRecognition fallback is disabled.
+\end{itemize}
+
+The readiness state is currently:
+
+\begin{verbatim}
+staging readiness: true
+packaged readiness: false
+packaged missing runtime clearly reported: true
+\end{verbatim}
+
+This is the expected pre-release state.
+
+\subsection{No-Hidden-Downloads Lock}
+
+O23H added a no-hidden-downloads runtime policy.
+
+In staging and packaged voice modes, the worker environment is locked with:
+
+\begin{verbatim}
+HF_HUB_OFFLINE=1
+TRANSFORMERS_OFFLINE=1
+HF_DATASETS_OFFLINE=1
+HF_HUB_DISABLE_TELEMETRY=1
+TOKENIZERS_PARALLELISM=false
+AION_VOICE_NO_HIDDEN_DOWNLOADS=true
+AION_ELEVENLABS_ENABLED=false
+AION_BROWSER_SPEECH_FALLBACK_ENABLED=false
+\end{verbatim}
+
+This prevents silent Hugging Face, Transformers, spaCy, ElevenLabs, or browser speech fallback behavior in packaged voice operation.
+
+\subsection{Staged Worker Path Proof}
+
+O23I proved that the voice worker can be launched through the staged app-local Python path:
+
+\begin{verbatim}
+desktop/mac/voice_bundle_staging/voice/python/bin/python
+\end{verbatim}
+
+The worker receives staged bundle paths through environment variables:
+
+\begin{verbatim}
+AION_VOICE_BUNDLE_ROOT
+AION_KOKORO_MODEL_PATH
+AION_KOKORO_CONFIG_PATH
+AION_KOKORO_VOICE_PATH
+AION_SPACY_MODEL_PATH
+AION_WHISPER_MODEL_PATH
+\end{verbatim}
+
+The staged proof confirms:
+
+\begin{itemize}
+  \item the worker launches successfully;
+  \item Python 3.12 is used;
+  \item all required imports resolve;
+  \item all staged asset paths exist;
+  \item offline/no-hidden-download policy is active;
+  \item no business-specific context is hard-coded.
+\end{itemize}
+
+\subsection{Final Packaging Lock}
+
+O23J created the final packaging lock script and documentation.
+
+The documentation file is:
+
+\begin{verbatim}
+docs/voice/aion_voice_packaging_lock_o23j.md
+\end{verbatim}
+
+The final packaging lock confirms:
+
+\begin{itemize}
+  \item staging voice bundle is ready;
+  \item final \texttt{Tessaris.app} embedded runtime is not yet built;
+  \item packaged mode correctly reports the missing final runtime;
+  \item release gates are documented and tested;
+  \item no hidden downloads are allowed;
+  \item no ElevenLabs fallback is allowed;
+  \item no browser SpeechRecognition fallback is allowed;
+  \item the platform remains business-agnostic.
+\end{itemize}
+
+\subsection{Release Gate}
+
+A release build must fail readiness until the final embedded runtime exists at:
+
+\begin{verbatim}
+Tessaris.app/Contents/Resources/voice/python/bin/python
+\end{verbatim}
+
+The customer packaged release must not silently fall back to:
+
+\begin{verbatim}
+.venv_voice/bin/python
+\end{verbatim}
+
+The next technical phase is:
+
+\begin{verbatim}
+O24 -- Build actual Tessaris.app embedded voice runtime
+\end{verbatim}

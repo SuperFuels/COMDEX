@@ -1,4 +1,4 @@
-from sentence_transformers import SentenceTransformer
+from backend.utils.sentence_transformer_runtime import get_sentence_transformer
 import numpy as np
 
 # ✅ DNA Switch
@@ -6,7 +6,7 @@ from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 # Load a lightweight embedding model
-model = SentenceTransformer("./models/all-MiniLM-L6-v2", local_files_only=True)
+model = get_sentence_transformer("./models/all-MiniLM-L6-v2", local_files_only=True)
 
 def compress_text(text: str) -> np.ndarray:
     """

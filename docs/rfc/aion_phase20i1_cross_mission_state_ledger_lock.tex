@@ -1,0 +1,114 @@
+\section{AION Phase 20I.1 --- Cross-Mission State Ledger Consensus and Ephemeral Cache Eviction}
+\label{sec:aion-phase20i1-cross-mission-state-ledger}
+
+\subsection{Status}
+
+Phase 20I.1 defines the first mission proof and replay ledger layer after the external capability perimeter.
+
+\begin{quote}
+\textbf{Status: LOCKED --- cross-mission ledger entries, deterministic consensus snapshots, cache eviction contracts, eviction assertions, and replay bindings are validated.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot can now generate external capability receipts. These receipts must be absorbed into a deterministic mission proof layer without allowing cross-mission leakage, race conditions, stale cache reuse, or replay divergence.
+
+Phase 20I.1 introduces a cross-mission state ledger for ordered proof updates and a cache eviction contract for ephemeral runtime state.
+
+\subsection{Ledger Entry Contract}
+
+Each ledger entry MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item entry type;
+  \item source hash;
+  \item sequence number;
+  \item previous entry hash;
+  \item payload;
+  \item entry hash.
+\end{itemize}
+
+The ledger entry hash MUST be deterministic over canonical JSON.
+
+\subsection{Ledger Chain Verification}
+
+AION MUST verify that each ledger entry points to the previous ledger entry hash.
+
+The first entry MUST point to:
+
+\begin{verbatim}
+sha256:genesis
+\end{verbatim}
+
+If a previous hash does not match, the ledger chain MUST be marked invalid.
+
+\subsection{Cross-Mission Consensus Snapshot}
+
+AION MUST compile deterministic consensus snapshots across mission runs for the same business.
+
+The consensus snapshot MUST include:
+
+\begin{itemize}
+  \item business ID;
+  \item entry count;
+  \item mission IDs;
+  \item mission run IDs;
+  \item ordered entry hashes;
+  \item consensus state;
+  \item consensus hash.
+\end{itemize}
+
+The consensus hash anchors parallel mission outputs into a stable proof surface.
+
+\subsection{Ephemeral Cache Eviction Contract}
+
+AION MUST evict mission-scoped ephemeral state at mission boundaries.
+
+Valid cache scopes include:
+
+\begin{itemize}
+  \item \texttt{mission\_vfs};
+  \item \texttt{browser\_session};
+  \item \texttt{provider\_context};
+  \item \texttt{staged\_state};
+  \item \texttt{temporary\_vector\_workspace};
+  \item \texttt{runtime\_scratchpad}.
+\end{itemize}
+
+Each eviction contract MUST bind the cache scope, cache key hash, reason, dependent hashes and eviction contract hash.
+
+\subsection{Eviction Assertion}
+
+A cache eviction MUST be asserted after execution.
+
+If the observed evicted hash does not match the expected cache key hash, eviction MUST fail.
+
+\subsection{Replay Binding}
+
+A consensus snapshot MUST bind to:
+
+\begin{itemize}
+  \item replay hash;
+  \item proof hash;
+  \item consensus hash.
+\end{itemize}
+
+Malformed proof or replay hashes MUST block the binding.
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{AION may preserve proof, but it must evict ephemeral execution state. Cross-mission knowledge may only persist through deterministic ledger entries, consensus snapshots, and approved memory promotion paths.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20I1-CROSS-MISSION-STATE-LEDGER-CONSENSUS-CACHE-EVICTION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

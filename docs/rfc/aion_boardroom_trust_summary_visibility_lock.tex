@@ -1,0 +1,149 @@
+\section{Phase 10B --- Boardroom Trust Summary Visibility v0}
+\label{sec:aion-boardroom-trust-summary-visibility-v0}
+
+\subsection{Status}
+
+Phase 10B locks the first Boardroom visibility surface for the AION trust and reputation summary.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Boardroom trust summary visibility tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 10A created the backend trust summary contract.
+
+Phase 10B exposes that summary in the Boardroom as a read-only trust visibility panel.
+
+The panel is for founder visibility first. It does not expose a public ranking, public A2A route, booking action, payment action, escrow action, or external message action.
+
+\subsection{Implemented Surface}
+
+The implementation lives in:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+The installed frontend lock is:
+
+\begin{verbatim}
+installBoardroomTrustSummaryVisibilityV0
+\end{verbatim}
+
+The renderer is:
+
+\begin{verbatim}
+renderBoardroomTrustSummaryVisibilityV0
+\end{verbatim}
+
+The browser export is:
+
+\begin{verbatim}
+window.renderBoardroomTrustSummaryVisibilityV0
+\end{verbatim}
+
+The visible lock marker is:
+
+\begin{verbatim}
+boardroom-trust-summary-visibility-v0
+\end{verbatim}
+
+\subsection{Rendered Trust Fields}
+
+The Boardroom trust summary panel renders:
+
+\begin{itemize}
+  \item Home Fixed business identity,
+  \item \texttt{business\_id},
+  \item \texttt{vertical\_key},
+  \item verified completed jobs,
+  \item disputed jobs,
+  \item cancelled jobs,
+  \item failed jobs,
+  \item average response time,
+  \item average completion time,
+  \item evidence-backed completion rate,
+  \item proof commitment rate,
+  \item proof verification success rate,
+  \item quote reliability rate,
+  \item recovery success rate,
+  \item \texttt{trust\_summary\_hash},
+  \item explainability notes,
+  \item human review status.
+\end{itemize}
+
+\subsection{Fallback Payload}
+
+If no backend trust payload is mounted, the panel renders a safe Home Fixed fallback payload.
+
+The fallback uses:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+status = trust_summary_ready
+trust_summary_hash = preview_unavailable
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+The Boardroom trust summary panel MUST remain read-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages,
+  \item expose a public A2A route,
+  \item expose a public ranking.
+\end{itemize}
+
+\subsection{Safety Flags}
+
+The render path preserves:
+
+\begin{verbatim}
+visibility_only = true
+human_review_required = true
+public_a2a_exposed = false
+no_public_ranking = true
+would_create_booking = false
+would_move_money = false
+would_move_pho = false
+would_create_payment = false
+would_create_escrow = false
+would_send_external_message = false
+\end{verbatim}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_boardroom_trust_summary_visibility_ui_lock.py
+\end{verbatim}
+
+Desktop JavaScript syntax validation:
+
+\begin{verbatim}
+node -c desktop/mac/src/app.js
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-BOARDROOM-TRUST-SUMMARY-VISIBILITY-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

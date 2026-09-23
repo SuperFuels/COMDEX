@@ -1,0 +1,58 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.14: Full Chess Multi-Ply Lookahead Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.14 defines the AION Full Chess Multi-Ply Lookahead Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can evaluate selected root move, opponent reply, and continuation lines to avoid deeper traps.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.14 extends one-ply strategy into selected multi-ply lookahead.
+
+\section{Multi-Ply Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{lookahead\_depth};
+  \item \texttt{candidate\_line\_count};
+  \item \texttt{surviving\_line\_count};
+  \item \texttt{greedy\_trap\_rejection\_count};
+  \item \texttt{king\_safety\_rejection\_count};
+  \item \texttt{material\_loss\_rejection\_count};
+  \item \texttt{selected\_line};
+  \item \texttt{selected\_line\_survives\_depth};
+  \item \texttt{multi\_ply\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates selected multi-ply full-board chess lookahead. It does not yet implement exhaustive game-tree search, full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B14-FULL-CHESS-MULTI-PLY-LOOKAHEAD-KERNEL-LOCK\\
+Status: LOCKED --- full chess multi-ply lookahead kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

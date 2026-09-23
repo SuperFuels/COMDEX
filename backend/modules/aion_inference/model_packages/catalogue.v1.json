@@ -1,0 +1,185 @@
+{
+  "schema_version": "aion.local-model-release-catalogue.v1",
+  "purpose": "The Model Vault reads this catalogue before it offers a local-model package for selection.",
+  "models": [
+    {
+      "model_id": "openai-gpt-oss-120b-q4-k-m-aion-sd",
+      "version": "1",
+      "package": "gpt-oss-120b-q4km-sd-v1.json",
+      "release_status": "acceptance_pending",
+      "selection_status": "visible_not_selectable",
+      "reason": "The verified 60.1 GB warehouse and exact runtime profile are present. A clean-card run and completed-answer suite must still establish the public claim range.",
+      "category": "Specialist local",
+      "role": "Large private reasoning",
+      "harness": {
+        "status": "Not yet applicable \u2014 specialist runtime assessment pending"
+      }
+    },
+    {
+      "model_id": "ibm-granite-3.1-3b-a800m-aion-sd",
+      "version": "1",
+      "release_status": "rebuild_required",
+      "selection_status": "visible_not_selectable",
+      "reason": "The original 32-layer expert packs and recipes remain, but the complete checkpoint, tokenizer, shared backbone and customer-card acceptance result are not currently available as one package.",
+      "category": "Local: entry worker",
+      "role": "Fast offline extraction and classification",
+      "harness": {
+        "status": "Planned \u2014 Granite structured-worker harness after package rebuild"
+      }
+    },
+    {
+      "model_id": "qwen3-30b-a3b-aion-resident-q2",
+      "version": "1",
+      "release_status": "quality_gate_failed",
+      "selection_status": "visible_not_selectable",
+      "reason": "The retained Q2 candidate was verified and ran at about 40 generated tokens/s on the 18 GB Mac, but passed only 6 of 8 structured acceptance cases: it made a gross-margin error and returned an unapproved unit label. The Q4 control is also retained but cannot execute on this Mac because Metal runs out of memory. Neither is selectable until a corrected candidate passes the quality gate.",
+      "category": "Local: Fast",
+      "role": "High-throughput business work",
+      "harness": {
+        "status": "Ready in code \u2014 Qwen native-tool Pilot harness; retained Q2 candidate failed release quality gate"
+      }
+    },
+    {
+      "model_id": "qwen3-8b-fast-local-q4",
+      "version": "1",
+      "release_status": "owner_approved_bounded",
+      "selection_status": "selectable",
+      "reason": "Owner approved for bounded Fast Local use. General reasoning, drafting, Support and Operations are permitted. Multi-step VAT arithmetic failed acceptance, so all Finance arithmetic is forced through verified Tessaris tools. Broader quality acceptance remains pending.",
+      "package": "qwen3-8b-fast-local-q4-v1.json",
+      "device_test": {
+        "status": "provisional",
+        "label": "Fast response \u2014 acceptance in progress",
+        "device": "18 GB Apple unified-memory Mac",
+        "result": "Warm business responses measured 15.8 to 19.3 tokens/s. Structured extraction, support and operations outputs were usable. A multi-step VAT calculation was incorrect, so finance arithmetic is routed to Tessaris verified tools.",
+        "recommendation": "Use as the Fast Local candidate with AION tool routing while Tessaris completes clean-device and broader quality checks."
+      },
+      "category": "Local: Fast",
+      "role": "Everyday business work",
+      "harness": {
+        "status": "Bounded Qwen structured-worker profile \u2014 model proposes only; AION owns tools, arithmetic, approvals and execution"
+      }
+    },
+    {
+      "model_id": "qwen3-14b-dense-q4-local",
+      "version": "1",
+      "release_status": "device_test_not_recommended",
+      "selection_status": "visible_not_selectable",
+      "reason": "The Q4 package completed a real 18 GB Mac check but exhausted virtual-memory headroom. Tessaris will recommend a smaller package for this device class.",
+      "device_test": {
+        "status": "not_recommended",
+        "label": "Not recommended on this Mac",
+        "device": "18 GB Apple unified-memory Mac",
+        "result": "Loaded in 4 minutes 20 seconds, pushed swap above 11 GB, and did not return a minimal arithmetic reply within one minute.",
+        "recommendation": "Try the smaller Fast Local package instead."
+      },
+      "category": "Local: evaluation record",
+      "role": "Dense-model compatibility test",
+      "harness": {
+        "status": "Not a release harness \u2014 model is not recommended on the 18 GB Mac"
+      }
+    },
+    {
+      "model_id": "qwen3-8-27b-local-pro",
+      "version": "1",
+      "release_status": "benchmark_preparation",
+      "selection_status": "visible_not_selectable",
+      "reason": "Official Qwen3.8-27B is the next Local Pro candidate. Tessaris will evaluate an 18 GB-safe GGUF representation, vision support, normal business quality, and normal-use throughput before packaging or publishing a claim.",
+      "category": "Local: Business Pro",
+      "role": "High-quality private business work",
+      "harness": {
+        "status": "Planned \u2014 Business Pro harness after a device-safe package is selected"
+      }
+    },
+    {
+      "model_id": "minimax-h3-local-video",
+      "version": "1",
+      "release_status": "licence_and_hardware_review",
+      "selection_status": "visible_not_selectable",
+      "reason": "MiniMax H3 is an open-weights video candidate for compatible GPU workstations. Its custom community licence, commercial distribution terms, complete payload size, and device requirements must be approved before Tessaris offers any local package. It is not an 18 GB Mac SD-card release candidate.",
+      "category": "Local: video workstation",
+      "role": "Creative video generation",
+      "harness": {
+        "status": "Planned \u2014 media-job harness after licence and GPU acceptance"
+      }
+    },
+    {
+      "model_id": "tessaris-fast-local-entry-3b",
+      "version": "1",
+      "release_status": "candidate_selection",
+      "selection_status": "visible_not_selectable",
+      "reason": "The 8 GB entry tier is reserved for a tested 3B-class local worker. Granite 3B is the current recovery candidate; Tessaris must retain or rebuild a complete checkpoint, tokenizer, runtime profile and 8 GB acceptance receipt before release.",
+      "category": "Local: entry worker",
+      "role": "8 GB starter tier",
+      "harness": {
+        "status": "Planned \u2014 structured-worker harness after the final 3B package is chosen"
+      }
+    },
+    {
+      "model_id": "google-gemma-fast-local-8gb",
+      "version": "1",
+      "release_status": "candidate_selection",
+      "selection_status": "visible_not_selectable",
+      "reason": "Gemma is a candidate for the 8 GB and 16 GB Fast Local tiers. Tessaris must select the exact upstream release and representation, then establish device-safe memory floors, normal-use throughput and business-task acceptance.",
+      "category": "Local: Fast",
+      "role": "Lightweight private assistant",
+      "harness": {
+        "status": "Planned \u2014 Gemma structured-worker harness; use the Local Library, not an API key"
+      }
+    },
+    {
+      "model_id": "mistral-ministral-3-8b-local",
+      "version": "1",
+      "release_status": "candidate_selection",
+      "selection_status": "visible_not_selectable",
+      "reason": "Ministral 3 8B is a candidate for the 16 GB Fast Local tier. It requires a signed runtime profile and 16 GB device acceptance before it is selectable.",
+      "category": "Local: Fast",
+      "role": "16 GB generalist and coding",
+      "harness": {
+        "status": "Planned \u2014 structured-worker and coding harness after device acceptance"
+      }
+    },
+    {
+      "model_id": "openai-gpt-oss-20b-private-reasoning",
+      "version": "1",
+      "release_status": "acceptance_pending",
+      "selection_status": "visible_not_selectable",
+      "reason": "Verified GPT-OSS-20B Q4 package is present on the test SD card and passed initial 18 GB Mac business tests. The selected direct-I/O profile measured 23.9 to 32.8 tokens/s across initial short business tasks; broader held-out quality, clean-card and bounded-output harness gates remain before Boardroom selection.",
+      "device_test": {
+        "status": "provisional",
+        "label": "Fast private reasoning \u2014 acceptance in progress",
+        "device": "18 GB Apple unified-memory Mac",
+        "result": "Verified Q4 package. Initial business tasks measured 23.9 to 32.8 tokens/s; selected 12-Metal-layer profile repeated 30.6 to 31.0 tokens/s on the finance test.",
+        "recommendation": "Keep as the 16 GB-plus Private Reasoning candidate while Tessaris completes the release harness and acceptance suite."
+      },
+      "category": "Local: Private reasoning",
+      "role": "Private analysis and tool use",
+      "harness": {
+        "status": "Ready in code \u2014 Harmony Pilot harness and local-only runtime adapter; held-out acceptance remains"
+      }
+    },
+    {
+      "model_id": "deepseek-r1-distill-qwen-14b-private-reasoning",
+      "version": "1",
+      "release_status": "candidate_selection",
+      "selection_status": "visible_not_selectable",
+      "reason": "DeepSeek-R1-Distill-Qwen-14B is reserved as a private-reasoning candidate for 16 GB-plus compatible devices and Hub profiles. It requires a selected representation, licensing review and acceptance receipts.",
+      "category": "Local: Private reasoning",
+      "role": "Offline reasoning",
+      "harness": {
+        "status": "Planned \u2014 private-reasoning harness after package and licence acceptance"
+      }
+    },
+    {
+      "model_id": "meta-muse-glimmer-agent-coding",
+      "version": "1",
+      "release_status": "candidate_selection",
+      "selection_status": "visible_not_selectable",
+      "reason": "Muse Glimmer is reserved as a local agent and coding candidate. Tessaris must validate the exact release, device profile, tool-use harness and agent-safety acceptance before release.",
+      "category": "Local: Agent / coding",
+      "role": "Coding and workflow automation",
+      "harness": {
+        "status": "Planned \u2014 isolated coding harness with approval-gated changes"
+      }
+    }
+  ]
+}

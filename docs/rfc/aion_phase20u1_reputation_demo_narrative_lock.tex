@@ -1,0 +1,112 @@
+\section{AION Phase 20U.1 --- Agent Reputation Isolation and Demo Narrative Lock}
+\label{sec:aion-phase20u1-reputation-demo-narrative}
+
+\subsection{Status}
+
+Phase 20U.1 locks the reputation isolation and founder-demo narrative boundary.
+
+\begin{quote}
+\textbf{Status: LOCKED --- ETS preview isolation, blocked-action demo metrics, visible safety messaging, and governance-required reputation mutation boundaries are validated.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20I.3 emits outcome metrics and ETS preview packets. Phase 20U.1 turns those packets into a visible, truthful, and non-mutating demo narrative.
+
+The required founder-demo message is:
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Reputation Isolation}
+
+ETS remains preview-only in Phase 20.
+
+The runtime MUST block:
+
+\begin{itemize}
+  \item \texttt{commit\_ets};
+  \item \texttt{write\_live\_reputation};
+  \item \texttt{mutate\_agent\_score};
+  \item \texttt{publish\_trust\_score};
+  \item \texttt{update\_public\_reputation};
+  \item \texttt{promote\_preview\_to\_live}.
+\end{itemize}
+
+A live reputation mutation requires a future governance layer and MUST NOT occur inside Phase 20 Mission Mode.
+
+\subsection{Demo Narrative Contract}
+
+The demo narrative MUST show:
+
+\begin{itemize}
+  \item autonomous percentage;
+  \item checkpoint count;
+  \item blocked action count;
+  \item receipt count;
+  \item estimated minutes saved;
+  \item outcome packet hash;
+  \item ETS preview hash;
+  \item visible safety message.
+\end{itemize}
+
+The narrative MUST also state:
+
+\begin{itemize}
+  \item no payment was created;
+  \item no booking was created;
+  \item no external message was sent;
+  \item no live reputation mutation happened;
+  \item no unapproved deployment happened.
+\end{itemize}
+
+\subsection{Blocked-Action Demo Metrics}
+
+Blocked actions MUST be visible in the demo.
+
+Each blocked action SHOULD include:
+
+\begin{itemize}
+  \item action type;
+  \item reason;
+  \item what would have happened;
+  \item safe alternative path;
+  \item risk level.
+\end{itemize}
+
+This proves that AION did not merely fail. It selected a safe alternative path.
+
+\subsection{Governance Requirement}
+
+AION MAY propose ETS/trust-score deltas.
+
+AION MUST NOT commit them.
+
+A governance requirement packet MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item agent ID;
+  \item ETS preview hash;
+  \item guard hash;
+  \item governance-required state;
+  \item requirement hash.
+\end{itemize}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{AION may demonstrate trust improvement, but it MUST NOT mutate trust. The demo may show ETS preview, blocked actions, proof, replay and receipts, but live reputation remains locked until a later governance approval layer exists.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20U1-AGENT-REPUTATION-ISOLATION-DEMO-NARRATIVE
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

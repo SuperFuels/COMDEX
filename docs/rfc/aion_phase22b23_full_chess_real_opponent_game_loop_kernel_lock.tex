@@ -1,0 +1,63 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.23: Full Chess Real Opponent Game Loop Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.23 defines the AION Full Chess Real Opponent Game Loop Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can emit a move, accept an opponent UCI move, mutate board state, export FEN, and record PGN.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.23 introduces the first real opponent loop boundary for playable chess integration.
+
+\section{Real Opponent Loop Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{opponent\_source};
+  \item \texttt{initial\_fen};
+  \item \texttt{final\_fen};
+  \item \texttt{turn\_count};
+  \item \texttt{aion\_turn\_count};
+  \item \texttt{opponent\_turn\_count};
+  \item \texttt{accepted\_opponent\_move\_count};
+  \item \texttt{mutation\_applied\_count};
+  \item \texttt{active\_color\_after\_loop};
+  \item \texttt{pgn\_export};
+  \item \texttt{pgn\_export\_ok};
+  \item \texttt{turns};
+  \item \texttt{final\_board\_hash};
+  \item \texttt{real\_opponent\_loop\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates a deterministic real-opponent chess loop using UCI input. It does not yet implement a complete chess engine, exhaustive search, engine-strength evaluation, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B23-FULL-CHESS-REAL-OPPONENT-GAME-LOOP-KERNEL-LOCK\\
+Status: LOCKED --- full chess real opponent game loop kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

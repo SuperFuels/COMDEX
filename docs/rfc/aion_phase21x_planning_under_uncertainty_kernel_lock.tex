@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21X: Planning Under Uncertainty Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21X defines the AION Planning Under Uncertainty Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can treat unknown entities as uncertain, gather evidence safely, update risk, and avoid overconfident action.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 21X handles the case where AION does not yet know whether an entity, route, or action is safe or dangerous.
+
+\section{Loop Contract}
+
+The locked loop is:
+
+\[
+unknown\_entity
+\rightarrow uncertainty\_score
+\rightarrow cautious\_observation
+\rightarrow evidence
+\rightarrow risk\_update
+\rightarrow safe\_action.
+\]
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{initial\_risk\_estimate};
+  \item \texttt{initial\_confidence};
+  \item \texttt{direct\_action\_allowed};
+  \item \texttt{observations};
+  \item \texttt{final\_risk\_estimate};
+  \item \texttt{final\_confidence};
+  \item \texttt{final\_action};
+  \item \texttt{avoided\_overconfident\_action};
+  \item \texttt{gathered\_information\_safely};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational planning under uncertainty. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21X-PLANNING-UNDER-UNCERTAINTY-KERNEL-LOCK\\
+Status: LOCKED --- planning under uncertainty kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

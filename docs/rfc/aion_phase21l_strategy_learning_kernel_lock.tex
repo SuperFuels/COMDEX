@@ -1,0 +1,70 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21L: Strategy Learning Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21L defines the AION Strategy Learning Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can select a strategy, score its outcome, adjust strategy trust, and persist the ranked strategy profile.}
+\end{quote}
+
+\section{Purpose}
+
+Before AION can survive a world, it must learn what a strategy is. This lock introduces a small controlled game in which AION chooses strategy primitives, receives reward or penalty, updates trust, and persists the resulting strategy profile.
+
+\section{Strategy Primitives}
+
+The first locked strategies are:
+
+\begin{itemize}
+  \item \texttt{explore\_unknown};
+  \item \texttt{repeat\_last\_success};
+  \item \texttt{avoid\_last\_failure}.
+\end{itemize}
+
+\section{Loop Contract}
+
+The locked contract is:
+
+\[
+strategy \rightarrow action \rightarrow reward \rightarrow trust\_update \rightarrow strategy\_memory.
+\]
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{baseline\_score};
+  \item \texttt{final\_score};
+  \item \texttt{improvement\_delta};
+  \item \texttt{best\_strategy};
+  \item \texttt{final\_strategy\_trust};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational strategy learning. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21L-STRATEGY-LEARNING-KERNEL-LOCK\\
+Status: LOCKED --- strategy learning kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -1,0 +1,149 @@
+% Append-only LaTeX section for the AION GPT-OSS 120B technical record.
+% Required packages in the parent document: booktabs, amsmath.
+
+\section{Q2 Error Correction and Contention-Aware Expert Rotation}
+\label{sec:gptoss120b-q2-correction-pairwise-rotation}
+
+\subsection{Purpose and integrity boundary}
+
+Two distinct attempts were evaluated after the stopped three-original-plus-Q2
+bridge.  The first asked whether a tiny learned correction could repair the
+remaining Q2 approximation error.  This was a separately labelled
+quality-track compiler and did not qualify as exact inference.  The second
+retained all four original MXFP4 experts, original gates, unrestricted router
+and left-associated accumulation order, but scheduled two expert calculations
+at a time before rotating to the second pair.  The second experiment therefore
+remained eligible for the exact track if every output, hidden state and logit
+matched bit for bit.
+
+\subsection{Low-rank Q2 error-correction gate}
+
+The compiler fitted a small low-rank correction to the difference between an
+original fourth expert and its Q2 approximation.  Arithmetic captures were
+used for fitting, extraction captures for selection and unseen reasoning
+captures for development evaluation.  The resulting cartridge occupied only
+293,931 bytes and its correction calculation required a median 0.0165~ms.
+The size and speed objectives therefore passed comfortably.
+
+Accuracy did not pass.  Selection p95 relative layer error was 0.13972 and
+development p95 was 0.12538, versus the predeclared 0.02 ceiling.  No evaluated
+row met the 0.02 threshold.  The decision was consequently
+\texttt{STOP\_Q2\_ERROR\_CORRECTION}.  This establishes that a global low-rank
+patch is too small to reconstruct the omitted expert's activation-dependent
+nonlinear contribution, despite being cheap enough for the required runtime.
+
+The report canonical SHA-256 is
+\texttt{e8a08b08afc3881d304916c70b2d5109f4a53d4a1b5a6852ad336497e077e1d8};
+its stored-file SHA-256 is
+\texttt{aade5af81160f98efe1bf2b29ab3dded6941927c6ea5318e1f9f430e94252145}.
+The compact cartridge SHA-256 is
+\texttt{6c77299dc479aa451b0cb30d0e320552cf83608229fadc70dba4e0ba0e2a42da}.
+
+\subsection{Why unrestricted four-way swarming was replaced}
+
+Prior four-way expert calculation had produced an attractive isolated
+observation, from 0.448~s to 0.244~s, but sustained generation fell into the
+1.77--2.27~tokens/s range.  All four workers were simultaneously reading large
+weight arrays from the same unified-memory fabric.  Their calculations were
+independent, but their data supply was not.  The experiment therefore tested a
+two-lane rotation: experts zero and one execute concurrently, then experts two
+and three; the four results are accumulated in the original order.
+
+\subsection{Real-layer screening result}
+
+The first screening used sixteen real layer-12 routes from each of reasoning,
+arithmetic and extraction captures at a total ten-thread budget.  Across the
+three families, all 192 paired candidate outputs were bitwise identical to the
+serial calculation.  Median reported layer speedups were 1.9534, 2.6897 and
+1.8479 respectively, and 14/16, 14/16 and 15/16 routes were faster.  This was a
+valid narrow signal and authorised complete-transformer integration; it was
+not generated-token evidence.
+
+\subsection{Complete-model falsification}
+
+The candidate was integrated behind a fixed five-pass \texttt{00110} pattern:
+warm-up control, settled control, two pairwise candidates and a final control.
+The first gate evaluated the 15-position arithmetic prompt plus one genuine
+continuation position through all 36 attention/MoE layers and the vocabulary
+head.  Every route, generated token, final hidden-state hash and step-logit hash
+was identical across all five passes.  Exactness therefore passed.
+
+The performance result failed decisively.  Aggregate native MoE calculation
+time was 0.8005--1.0020~s on the serial passes, but 9.2549 and 15.3560~s on the
+pairwise passes.  Total wall time and delivered-L2 bytes were also affected by
+unequal SD fallbacks, so those wall figures are not used as a balanced speed
+claim.  The native calculation counters alone are sufficient to reject the
+candidate.
+
+A second full-36-layer BOS gate replaced repeated graph construction with two
+persistent reusable lane graphs.  It again remained completely bitwise exact.
+Serial MoE time was 37.997--40.419~ms across the comparable early controls;
+the two pairwise passes required 945.058 and 2218.189~ms.  Reusing the graphs
+therefore did not cure the physical contention.  The fused serial graph is able
+to keep the machine's optimized packed kernel supplied more efficiently than
+two concurrent half-thread graphs.
+
+\begin{center}
+\begin{tabular}{lrrl}
+\toprule
+Gate & Serial MoE time & Pairwise MoE time & Exactness \\
+\midrule
+16-position complete model & 0.8005--1.0020~s & 9.2549--15.3560~s & bitwise pass \\
+36-layer BOS, persistent graphs & 37.997--40.419~ms & 945.058--2218.189~ms & bitwise pass \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The complete-model report canonical hashes are
+\texttt{0a804ebf99a82aac041aaf45a522886c42ede9019e247c93f449a8f618fde279}
+and
+\texttt{c5436f73997b1d29076d3b5217a8f725fda29c48366efc9a52eade81ac4d6089}.
+Their stored-file SHA-256 values are
+\texttt{b52799ac9cd63834cf4a4f511d693ad9048af7bd7324734a56b0839a9b8a21c1}
+and
+\texttt{f32ae6a7fa7695b9fd8e089d5820326f3e85cba4e5f27417a63afb0652bce52b}.
+
+\subsection{Decision and reusable lesson}
+
+Decision: \texttt{STOP\_PAIRWISE\_EXPERT\_CALCULATION}.  The narrow
+microbenchmark remains preserved as evidence that rotation can win under a
+particular residency and page state, but it is not representative of the
+complete transformer.  The full path demonstrates that multiple packed expert
+calculations still fight for the same unified-memory bandwidth and incur
+thread-pool overhead.
+
+The surviving scheduling rule is asymmetric.  Required expert \emph{delivery}
+may proceed concurrently, and a missing expert may be read while an already
+resident expert is calculated.  Actual packed expert arithmetic remains on one
+fused serial calculation path.  In warehouse language, several couriers may
+prepare or fetch the next tools, but only one optimized workbench consumes the
+shared machine-memory supply at a time.  This is the already promoted exact
+I/O--compute overlap architecture, not a new tokens/s promotion.
+
+\subsection{Corrected residency gate and selective-layer question}
+
+A subsequent audit found that the initial isolated gate did not explicitly
+warm both implementations before its measured ABBA sequence.  Because the
+ordinary capture store returns fragmented Python-owned component buffers, its
+first calculation can include lazy page faults.  The gate was corrected to run
+one unmeasured serial and one unmeasured pairwise calculation for every route
+before timing.  On eight layer-12 routes the corrected fragmented-buffer gate
+remained exact and reported a median 5.3840-fold pairwise advantage.  This does
+not reverse the full-model decision: it identifies the condition under which
+rotation helps---unprepared or fragmented expert pages.
+
+The optimized generation runtime does not use that representation.  Its
+reusable route arena places expert components in bounded, prepared slots before
+the fused calculation.  Per-layer inspection of the persistent full-model BOS
+gate found that pairwise execution was faster on zero of 36 layers.  The best
+pairwise layer achieved only 0.7245 times serial speed; the median layer ratio
+was 0.02563.  Therefore a selective ``pairwise only on winning layers'' policy
+has no admissible layers in the real optimized path and was not integrated.
+
+This also defines the useful AtomSheet boundary.  Four-dimensional cells can
+represent layer, expert, token and residency state, and can coordinate SD read,
+decode, verification, arena placement and calculation.  They cannot create a
+new physical memory channel.  The existing reusable arena is the concrete
+memory-cell mechanism: it converts fragmented expert objects into prepared
+calculation slots.  Once those slots are ready, a single fused calculation is
+faster than concurrent expert calculations on this unified-memory host.

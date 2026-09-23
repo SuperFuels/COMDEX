@@ -1,0 +1,107 @@
+% Standalone append-only section for the AION GPT-OSS 120B technical record.
+\section{Confidence-Gated Intermediate-Depth Token Diagnostic}
+\label{sec:intermediate-depth-diagnostic}
+
+The next quality-track execution investigation asked whether the final token identity becomes
+stable before all 36 transformer blocks have completed.  This is materially
+different from substituting cached expert outputs: no expert result, router
+decision, gate, weight, hidden state, or final output was changed.  At selected
+depths (after layers 18, 24, 30, 32, and 34), the diagnostic applied the original
+final RMS normalisation and original vocabulary head to the live intermediate
+hidden state.  It recorded the intermediate argmax token and the logit margin
+between the top two candidates, while the authoritative evaluation continued
+through all 36 layers.
+
+Two frozen families were measured under the promoted three-touch, exact-pool-
+escape configuration.  Arithmetic contributed nine distinct autoregressive
+positions and extraction contributed ten; each was repeated in a second pass.
+The full-depth candidate path remained bitwise repeatable in final hidden state
+and logits, and routes were repeatable in both runs.  Because continuation used
+the existing preserved-mass adaptive expert count, this is not unrestricted,
+bit-exact GPT-OSS 120B evidence.
+
+The strongest signal occurred after layer 32.  Across 38 observations (19
+distinct continuation positions repeated twice), unconditional agreement with
+the full-depth argmax was 34/38, or 89.47\%.  A logit-margin threshold of 0.25
+accepted 34/38 observations and every accepted prediction agreed with the
+full-depth token.  In distinct-position terms, it accepted 17/19 positions:
+8/9 arithmetic positions and 9/10 extraction positions, with 17/17 agreement.
+The two mismatching positions were both rejected by the confidence gate.  After
+layer 34, the same threshold accepted 17/19 distinct positions with 17/17
+agreement, but only one transformer block would remain to be avoided.
+
+This is a useful but deliberately unpromoted result.  The sample comprises only
+two deterministic sequences and their repeats, not 38 independent examples.
+More importantly, emitting a token after layer 32 does not eliminate the need to
+construct layers 33--35 key/value state if generation continues.  A naive early
+exit would therefore either corrupt subsequent-token state or defer the skipped
+work rather than remove it.  The diagnostic is consequently evidence for a
+possible low-latency speculative front end with exact asynchronous catch-up, not
+evidence of higher sustained tokens per second.  No timing from these instrumented
+runs is used as performance evidence because five additional vocabulary-head
+projections were intentionally inserted into every transformer pass.
+
+The arithmetic and extraction transformer evidence have canonical SHA-256 values
+\texttt{7c8d684c1ba881cfda4e4be1706377b6aa5b05e52d5001f0d2ed04141e12d104}
+and
+\texttt{a32f2426d0a047853a000c1bfa62c5ef15b1bd484a6142a3f53d1c3b3295f9ae},
+respectively.  The cross-family diagnostic receipt has canonical SHA-256
+\texttt{1165756c694c9d2eb55d8fa1d7b0e731ec5d7b3a87ff53eba9d23b98fda97886}.
+All three artifacts and an independently verified \texttt{SHA256SUMS} file are
+preserved on the mounted SD evidence volume under
+\texttt{early-exit-diagnostic-20260911}.
+
+The next valid gate is an unseen-prompt evaluation of the layer-32 margin rule.
+Only if it retains perfect accepted-token precision may it advance to an
+asynchronous exact-catch-up prototype.  The authoritative sustained-throughput
+frontier remains the promoted exact arithmetic/extraction control; this
+diagnostic does not replace or lower that bar.
+
+\subsection{Predeclared unseen-family transfer gate: stopped}
+
+The predeclared layer-32 margin threshold of 0.25 was then tested without change
+on the two previously unseen frozen families: technical explanation and business
+diagnosis.  Each family contributed ten distinct continuation positions and was
+repeated twice.  The business family passed all 10/10 positions, but explanation
+accepted all 10 and matched the full-depth token on only 8/10.  Across all four
+families, the frozen rule therefore accepted 37/39 distinct positions and matched
+35/37, or 94.59\% accepted-token precision.  It failed the required perfect-
+precision gate and is \texttt{STOPPED}; it will not be implemented as an early
+exit or described as a speed improvement.
+
+A post-hoc threshold of 2.0 would have matched all 32 accepted distinct positions
+at layer 32, and the layer-34 threshold of 0.25 matched all 36 accepted positions.
+Neither is promoted: the former was selected after seeing the held-out result,
+while the latter can avoid only one of 36 transformer blocks and still leaves the
+subsequent-token KV catch-up problem.  These observations may inform a future
+independently frozen study, but they do not justify further work on this branch
+against the present sustained-throughput objective.
+
+The explanation and business transformer evidence have canonical SHA-256 values
+\texttt{740356240573f1455e9fd5e73289b4fd8cfc1df4bfe0f1d22e51831032a7d610}
+and
+\texttt{8c566e66103fc9ffe1b089dbf0e13a0a41796049dd08eb85f3a0580fdd8e9c4d}.
+The four-family diagnostic receipt has canonical SHA-256
+\texttt{7d704a255da003f56afc8bcef513dacb611a951f0854893fd37eeab9237f0e2b}.
+
+\subsection{Exact speculative block ceiling}
+
+Before implementing a speculative runtime, the measured 2.35$\times$ exact
+multi-position layer speedup was composed with the amount of serial draft work
+that each intermediate depth would still require.  The bound is intentionally
+optimistic: every proposal is assumed accepted, draft-head, rejection,
+scheduling and KV catch-up costs are ignored, and transformer layers are treated
+as equal cost.  Even under those assumptions, layer-18 drafting can provide at
+most 1.3723$\times$, layer 24 at most 1.2129$\times$, layer 30 at most
+1.0867$\times$, layer 32 at most 1.0503$\times$, and layer 34 at most
+1.0162$\times$.  Observed full-trajectory argmax agreement at those depths was
+42.11\%, 48.72\%, 76.92\%, 89.74\%, and 92.31\%, respectively, so actual
+free-running performance could only be worse after the first rejected draft.
+
+Decision: \texttt{STOP\_INTERMEDIATE\_DEPTH\_DRAFT\_FOR\_ORDER\_GAIN}.  The
+existing exact block mechanism remains valuable if a genuinely cheap,
+same-tokenizer draft becomes available, but no compatible external draft model
+is currently installed and no model download is permitted in this programme.
+The calculation is an architectural upper bound, not measured token throughput.
+Its canonical SHA-256 is
+\texttt{4a39353629b10ac73cff42b7d82d595ce105818c0a24b5314e2ab401918dd58d}.

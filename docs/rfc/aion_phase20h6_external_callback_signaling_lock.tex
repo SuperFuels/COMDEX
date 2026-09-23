@@ -1,0 +1,181 @@
+\section{AION Phase 20H.6 --- External Webhook Callbacks and WebRTC Signaling Isolation}
+\label{sec:aion-phase20h6-external-callback-signaling-isolation}
+
+\subsection{Status}
+
+Phase 20H.6 locks External Webhook Callbacks and WebRTC Signaling Isolation.
+
+\begin{quote}
+\textbf{Status: LOCKED --- external callback ingress and signaling channels are provider-scoped, mission-scoped, nonce-bound, replay-protected, and mutation-blocked.}
+\end{quote}
+
+\subsection{Purpose}
+
+External execution does not end when AION sends or stages an action.
+
+Providers may respond asynchronously through webhooks, callbacks, OAuth redirects, payment intent updates, deploy notifications, booking updates, sockets, or WebRTC signaling events.
+
+AION MUST treat all inbound provider events as untrusted until they pass callback or signaling isolation checks.
+
+\subsection{Callback Contract}
+
+Every external callback contract MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item provider;
+  \item action type;
+  \item callback type;
+  \item callback URL ID;
+  \item expected payload hash;
+  \item staged state hash;
+  \item provider context hash;
+  \item nonce;
+  \item expiry timestamp;
+  \item consumed state;
+  \item callback contract hash.
+\end{itemize}
+
+\subsection{Callback Ingress Assertion}
+
+Before AION accepts a callback, it MUST assert:
+
+\begin{itemize}
+  \item callback has not already been consumed;
+  \item callback is not expired;
+  \item provider matches;
+  \item mission ID matches;
+  \item mission run ID matches;
+  \item callback type matches;
+  \item callback URL ID matches;
+  \item nonce matches;
+  \item payload hash matches the expected payload hash when one exists;
+  \item callback does not request a forbidden mutation.
+\end{itemize}
+
+\subsection{Replay Rejection}
+
+A callback event hash MUST be emitted for every inbound callback.
+
+If the callback event hash has already been seen, the callback MUST be quarantined as replayed.
+
+\subsection{Forbidden Callback Mutations}
+
+Callbacks MUST NOT directly execute:
+
+\begin{itemize}
+  \item external action commit;
+  \item business memory mutation;
+  \item content publication;
+  \item customer message sending;
+  \item payment capture;
+  \item production deployment;
+  \item booking creation;
+  \item DNS connection.
+\end{itemize}
+
+Callbacks may report status. They MUST NOT grant themselves execution authority.
+
+\subsection{Signaling Contract}
+
+Every signaling contract MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item provider;
+  \item browser worker ID;
+  \item browser session hash;
+  \item signaling channel ID;
+  \item allowed signal types;
+  \item expiry timestamp;
+  \item signaling contract hash.
+\end{itemize}
+
+\subsection{Signaling Message Assertion}
+
+Before AION accepts a signaling message, it MUST assert:
+
+\begin{itemize}
+  \item signaling contract is not expired;
+  \item mission ID matches;
+  \item mission run ID matches;
+  \item provider matches;
+  \item browser worker ID matches;
+  \item browser session hash matches;
+  \item signaling channel ID matches;
+  \item signal type is allowed;
+  \item signal does not request a forbidden mutation.
+\end{itemize}
+
+\subsection{Forbidden Signal Mutations}
+
+Signaling messages MUST NOT directly:
+
+\begin{itemize}
+  \item commit external actions;
+  \item approve payloads;
+  \item mutate memory;
+  \item write business container outputs;
+  \item send messages;
+  \item make payments;
+  \item deploy.
+\end{itemize}
+
+\subsection{Quarantine Rule}
+
+Any failed callback or signaling assertion MUST move the inbound event into quarantine.
+
+If any callback or signal in a batch is blocked, the summary runtime state MUST become:
+
+\begin{verbatim}
+callback_signal_quarantine
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n5_delegation_profiles_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n6_autonomy_budget_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n7_matrix_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h1_external_tool_gateway_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h2_provider_context_isolation_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h3_browser_worker_sandbox_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h4_browser_staged_state_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h5_browser_interception_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h6_external_callback_signaling_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20H6-EXTERNAL-CALLBACK-SIGNALING-ISOLATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

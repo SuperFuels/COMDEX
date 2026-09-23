@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.59 --- Rolling Plan Live Sender Integration}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.59 wires the Phase 22E.58 rolling strategic plan kernel into the live one-move sender.
+
+The rolling plan now runs before Monte Carlo and before live posting.
+
+\section{Reason}
+
+The Level 8 live rematch after Phase 22E.56 proved that the live sender worked mechanically, but it still allowed weak opening development such as edge-knight movement.
+
+Phase 22E.58 corrected the professional opening preference in standalone form.
+
+Phase 22E.59 integrates that correction into the live sender path.
+
+\section{Decision Order}
+
+The live sender order is now:
+
+\begin{verbatim}
+Rolling Strategic Plan
+  -> Strategic Well / SQI selector
+  -> plan consistency filter
+  -> opponent reply guard
+  -> Monte Carlo policy-value seed
+  -> live sender gate
+\end{verbatim}
+
+\section{Boundary}
+
+This phase does not grant live authority.
+
+The sender still posts only when all live gates are explicitly true.
+
+The integration does not call Stockfish, does not use Lichess analysis and does not use LLM move judgement.
+
+\section{Validation}
+
+Expected validation command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e59_live_sender_rolling_plan_integration_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e59_live_sender_rolling_plan_integration_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E59-LIVE-SENDER-ROLLING-PLAN-INTEGRATION\\
+Status: LOCKED --- rolling plan integrated before Monte Carlo\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

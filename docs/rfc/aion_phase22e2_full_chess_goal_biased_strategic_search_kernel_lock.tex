@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.2 --- Multi-Ply Strategic Search with Goal Bias}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.2 introduces multi-ply strategic search with goal bias.
+
+This phase consumes the Phase 22E.1 positional features layer and uses those features inside deterministic search scoring.
+
+\section{Search Contract}
+
+The kernel evaluates candidate move lines using:
+
+\begin{itemize}[leftmargin=*]
+  \item multi-ply legal move search;
+  \item positional score after candidate moves;
+  \item positional delta from the starting position;
+  \item goal bias over king safety, promotion defence, invasion reduction, repetition reduction, activity, centre control, and passed pawns;
+  \item deterministic trace hashing.
+\end{itemize}
+
+\section{Goal Biases}
+
+The locked goal biases are:
+
+\begin{itemize}[leftmargin=*]
+  \item defend king;
+  \item stop promotion;
+  \item reduce invasion;
+  \item reduce repetition;
+  \item improve piece activity;
+  \item improve centre control;
+  \item improve passed-pawn potential.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+It is deterministic local search using AION positional feature telemetry.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e2_full_chess_goal_biased_strategic_search_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e2_full_chess_goal_biased_strategic_search_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E2-FULL-CHESS-GOAL-BIASED-STRATEGIC-SEARCH\\
+Status: LOCKED --- multi-ply strategic search consumes positional features with goal bias\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

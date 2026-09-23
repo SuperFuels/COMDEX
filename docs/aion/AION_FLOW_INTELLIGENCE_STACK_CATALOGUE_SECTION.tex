@@ -1,0 +1,128 @@
+\section{AION Flow Intelligence Stack Catalogue and Canvas}
+\label{sec:aion-flow-intelligence-stack-catalogue}
+
+\subsection{Purpose and Product Boundary}
+
+AION Flow extends the existing Glyph workflow canvas into a visual, provider-neutral
+intelligence orchestration environment.  It does not create a second workflow product.
+The existing \emph{Add a step} catalogue, canvas, node graph, autosave mechanism and full
+Node Editor remain the canonical authoring surfaces.  A new \emph{Intelligence Stack}
+category exposes replaceable models, harnesses, compute and evidence while the customer's
+AION brain retains identity, memory, policy, authority, verified outcomes and learning.
+
+The governing execution shape is:
+
+\begin{quote}
+AION admission $\rightarrow$ permitted context and evidence $\rightarrow$ specialist
+intelligence $\rightarrow$ bounded deliberation $\rightarrow$ AION policy and approval
+$\rightarrow$ capability execution $\rightarrow$ verification $\rightarrow$ receipt and
+outcome learning.
+\end{quote}
+
+The AION boundary therefore surrounds the intelligence workflow.  A model is neither the
+owner of the workflow nor an execution authority.  Its output is a proposal that must pass
+evidence, policy, permission and verification controls.
+
+\subsection{Catalogue Families}
+
+The new catalogue presents eight searchable families:
+
+\begin{enumerate}
+  \item \textbf{AION Brain}: admission, active identity and space, scoped memory, Business
+  Map context, purpose and receipt boundaries;
+  \item \textbf{Models}: local models and customer-controlled private endpoints;
+  \item \textbf{Harnesses}: signed instructions, schemas, procedures, examples and declared
+  tools that can be versioned independently from a model;
+  \item \textbf{Compute}: the mother brain, another AION node, a private server or a
+  customer-owned cloud target;
+  \item \textbf{Evidence}: permissioned retrieval and deterministic schema, calculation,
+  policy and business-rule validation;
+  \item \textbf{Deliberation}: independent criticism and evidence-based reconciliation with
+  explicit iteration, time and cost ceilings;
+  \item \textbf{Governance}: disclosure, redaction, residency, encryption and private human
+  approval; and
+  \item \textbf{Action and Verification}: idempotent governed capabilities, observation,
+  verification and normalized route receipts.
+\end{enumerate}
+
+The initial catalogue deliberately supplies structural nodes rather than embedding a single
+provider's product vocabulary.  For example, a \emph{Private model endpoint} uses an opaque
+endpoint binding and immutable model manifest; provider-specific implementations can later
+bind to that contract without changing the graph.
+
+\subsection{Pre-insertion Disclosure}
+
+Each Intelligence Stack card declares its execution location, credential requirement, data
+classes, indicative cost, risk, maturity, modality, domain, licence, approval requirement and
+whether it can cause an external effect.  Local, customer-cloud and external destinations are
+visually differentiated.  A compact boundary legend explains that any route leaving the
+customer boundary must declare its destination, data classification, encryption and cost before
+execution.
+
+The module search operates across names, descriptions, node families, locations, modalities,
+domains, licences and maturity metadata.  The eight families can also be selected as compact
+filters.  Search controls, family tabs and module rows expose accessible labels and keyboard
+focus behaviour.
+
+\subsection{Schema-driven Node Configuration}
+
+Double-clicking an Intelligence Stack node continues to open the existing full Node Editor.
+The editor retains its Input Schema, Input Table, Input JSON, Parameters, Settings, Output
+Schema, Output Table and Output JSON views.  An additional schema-driven panel is rendered for
+the selected intelligence module.  This panel provides:
+
+\begin{itemize}
+  \item typed string, number, integer, Boolean, enumeration and list controls;
+  \item safe defaults, minimum and maximum values, required-field indicators and contextual help;
+  \item a non-executing configuration test that reports missing required settings;
+  \item a reset operation that restores the module's safe defaults; and
+  \item a concise preflight summary of location, credentials, risk, cost, approval and possible
+  external effect.
+\end{itemize}
+
+Configuration testing validates structure only.  It never invokes a model, connector or target
+system.  Consequential nodes keep the existing execution control disabled until the compiled
+flow proves policy, authority and an exact, unexpired approval.
+
+\subsection{Credential and Browser-state Safety}
+
+Raw API keys, passwords, provider tokens, private keys and secret-shaped values are rejected by
+the node editor.  A node stores only an opaque reference of the form
+\texttt{vault://binding-name}.  The referenced secret remains in the encrypted mother-brain
+vault and is resolved at execution time under the active identity, purpose and policy.  The raw
+secret is excluded from the canvas graph, browser state, autosave, logs, previews, receipts and
+workflow exports.
+
+This indirection permits credential rotation, revocation and provider replacement without
+editing every workflow.  Exported graphs remain inspectable and portable but cannot carry a
+customer's usable credentials.
+
+\subsection{Compatibility with Existing Glyph Workflows}
+
+Intelligence nodes are inserted through the same graph mutation path as existing Flow Control,
+Tools, Text Parser, Apps, Approval and Custom Logic nodes.  Their module identity, safe
+configuration schema and disclosure metadata are stored inside the existing node configuration
+object.  Existing autosave, undo and redo, zoom, copy and paste, edge routing and node-editor
+behaviour remain in place.  No existing workflow is migrated or executed merely because the new
+catalogue is available.
+
+\subsection{Implemented Initial Nodes}
+
+The first implementation includes AION admission, scoped Business Map context, local model,
+private model endpoint, versioned harness, configurable compute target, evidence retrieval,
+deterministic validation, independent critic, evidence-based reconciliation, disclosure and
+redaction gate, private human approval, governed capability, and verify-and-receipt nodes.
+
+The visible product now supports safe graph composition and configuration.  Live provider
+execution remains intentionally outside this stage.  Subsequent stages add signed model and
+harness registries, qualified compute adapters, richer evidence acquisition, deliberation,
+governance visualization, dry-run compilation and finally permissioned execution.
+
+\subsection{Verification Status}
+
+The JavaScript bundle passes syntax validation.  Automated interface contracts verify the new
+catalogue, all eight families, module insertion metadata, search and filters, disclosure badges,
+schema-generated configuration, raw-secret rejection, opaque vault references and the
+consequential-action execution lock.  Existing workflow picker and review-panel contract tests
+also pass.  The live Pilot television and AION learning processes do not require a restart for
+this documentation stage and were not interrupted.

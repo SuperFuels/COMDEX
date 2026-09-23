@@ -1,0 +1,118 @@
+% Append this section before \end{document} in the master AION document.
+\section{Replaceable Compute and Inference Plug-ins}
+\label{sec:compute-plugins}
+
+AION now has a provider-independent compute layer connecting the sovereign brain to
+local inference, customer-owned servers and optional GPU or API services.  The compute
+service is not the brain: it receives an admitted task, returns a structured result and
+has no independent authority over business memory, policy, identity or external actions.
+The same brain can therefore change compute without changing its Business Map, Pilot
+interfaces or approval history.
+
+\subsection{Supported Adapter Boundaries}
+
+The initial plug-in registry supports three executable protocol families:
+\begin{itemize}
+  \item local Ollama and llama.cpp-class inference;
+  \item a private OpenAI-compatible endpoint in a customer-controlled environment; and
+  \item an NVIDIA NIM-compatible endpoint using the same portable request boundary.
+\end{itemize}
+
+Each plug-in declares an adapter identifier, provider, model, engine, location,
+destination, residency, capabilities and expected quality, latency, cost and energy.
+Registration is immutable by identifier: changed configuration must be registered as a
+new plug-in rather than silently replacing an active definition.
+
+Local HTTP is accepted only on a loopback address.  Any customer-cloud or external
+endpoint must use HTTPS.  URLs containing embedded credentials, query secrets or user
+information are rejected.  A plug-in stores only a vault reference; the credential is
+resolved at call time and is absent from the public plug-in record.  Returned content must
+be a JSON object before it can re-enter AION's structured-response and policy pipeline.
+
+\subsection{Local and Private Execution}
+
+The Ollama adapter uses deterministic temperature, JSON output and a non-streaming bounded
+call.  It reports zero provider cost and a declared energy estimate to the route budget.
+On the Apple Silicon development machine, the live local service was discovered and a
+\texttt{gemma3:1b} request returned \texttt{\{"status":"ready"\}} successfully.  This is
+a real local integration proof, not a general quality benchmark.
+
+Private OpenAI-compatible endpoints and NIM-compatible endpoints use the same message and
+JSON-response contract.  This preserves routing portability between a customer's own
+inference server, private GPU service and future compatible hosts.  Tests use an isolated
+endpoint emulator to prove protocol, secret-resolution and structured-output behaviour.
+A real customer private endpoint and authorized NVIDIA environment are still required for
+production latency, security and model-quality qualification.
+
+\subsection{Customer-Owned Deployment Recipe}
+
+A deployment recipe is generated only for a non-local plug-in and names the customer's
+account as owner.  It declares that Tessaris is not the infrastructure owner and contains:
+\begin{itemize}
+  \item an immutable container image reference;
+  \item namespace, CPU, memory and optional GPU resources;
+  \item vault references rather than secret values;
+  \item a read-only root filesystem and non-root process requirement;
+  \item private-only ingress and deny-by-default egress;
+  \item health, metrics and prompt-free logging surfaces;
+  \item a bounded maximum replica count; and
+  \item queue-based scaling, including optional scale-to-zero.
+\end{itemize}
+
+The recipe is provider-neutral orchestration data rather than an automatic infrastructure
+mutation.  AWS, Google Cloud, Azure, NVIDIA infrastructure or another customer-selected
+environment may implement it.  Applying it remains an explicit customer-cloud operation
+with that provider's authentication, billing, regional and security controls.
+
+\subsection{Confidential Compute}
+
+Confidential compute is optional and replaceable.  A plug-in requesting this property must
+name an attestation verifier and an allow-list of accepted workload measurements.  Before
+invocation, AION requires a verifier-approved evidence object containing an accepted
+measurement, fresh expiry and request nonce.  Missing, expired, unknown or invalid evidence
+fails closed.  This contract avoids presenting the mere use of a cloud product as proof
+that a particular confidential workload was running.
+
+\subsection{Accelerator Profiles}
+
+The registry publishes explicit profiles for CPU, Apple Silicon and NVIDIA hardware.
+CPU and Apple Silicon routes support Ollama and llama.cpp-class engines, with Metal named
+for Apple acceleration.  NVIDIA routes may support CUDA, NIM, compatible private servers
+and Ollama after qualification.  Future accelerator types begin empty and require a signed
+profile plus benchmark evidence before activation.  Hardware branding alone never grants
+qualification.
+
+\subsection{Operating Modes and Migration Invariant}
+
+Pilot evaluates three independent operating modes:
+\begin{enumerate}
+  \item \textbf{Air-gapped}: at least one useful local, unpaid, network-free route;
+  \item \textbf{Internet with no paid AI}: local routes plus permitted free/public
+        evidence or customer-owned unpaid services; and
+  \item \textbf{Premium enabled}: optional paid routes that may improve quality or speed.
+\end{enumerate}
+
+The mode report states explicitly that core intelligence does not require a paid provider.
+A migration contract binds the same brain identifier and expected canonical-state hash
+before and after a compute change.  It records that the model is not authoritative and
+that no Business Map, policy or application-interface migration is required.  This gives
+a mechanically inspectable form to the principle that compute is replaceable while AION
+remains continuous.
+
+\subsection{Verification and Remaining External Gates}
+
+Automated tests cover endpoint and credential rejection, local Ollama protocol, private
+compatible protocol, immutable registration, customer ownership, scaling bounds, secret
+references, fresh replaceable attestation, accelerator profiles, three-mode usefulness and
+brain-state-preserving migration.  A live local Ollama health and inference probe also passed.
+
+Six Phase~5 tasks are closed in Pilot Fabric~0.60.0 and AION Sovereign Brain
+Bootstrap~0.8.0.  Two external qualifications remain deliberately open:
+\begin{itemize}
+  \item \texttt{SBB-0502}: measure a real customer-controlled private inference endpoint;
+  \item \texttt{SBB-0503}: deploy and measure an authorized NVIDIA NIM service and NeMo
+        evaluation environment without making either a dependency.
+\end{itemize}
+No production NVIDIA, Kubernetes-cluster, cloud-billing or confidential-hardware claim is
+made by the local and emulated tests.  Those results must be added as signed qualification
+evidence when the corresponding customer-controlled infrastructure is available.

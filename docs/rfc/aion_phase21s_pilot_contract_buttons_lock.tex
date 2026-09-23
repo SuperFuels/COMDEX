@@ -1,0 +1,88 @@
+\section{Phase 21S --- Pilot Mission Contract Buttons}
+\label{sec:aion-phase21s-pilot-contract-buttons}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21S makes the Pilot mission contract buttons functional in the frontend.
+
+\subsection{Purpose}
+
+The stream UI exposed contract controls:
+
+\begin{itemize}
+  \item Approve plan;
+  \item Revise plan;
+  \item Cancel.
+\end{itemize}
+
+Before this phase, the buttons were visible but did not change Pilot state.
+
+\subsection{Behavior}
+
+\subsubsection{Approve Plan}
+
+Approve plan changes the mission contract status to:
+
+\begin{verbatim}
+approved_for_safe_work
+\end{verbatim}
+
+This authorizes safe draft and preview work only.
+
+It does not authorize risky or live external actions.
+
+\subsubsection{Revise Plan}
+
+Revise plan changes the mission contract status to:
+
+\begin{verbatim}
+revision_requested
+\end{verbatim}
+
+Pilot waits for updated instructions.
+
+\subsubsection{Cancel}
+
+Cancel changes the mission status to:
+
+\begin{verbatim}
+cancelled
+\end{verbatim}
+
+Pilot stops the mission without live external side effects.
+
+\subsection{Safety Boundary}
+
+Phase 21S is a frontend state transition layer.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item send messages or emails;
+  \item post publicly;
+  \item deploy;
+  \item spend money;
+  \item book or dispatch;
+  \item create escrow;
+  \item mutate reputation;
+  \item expose credentials;
+  \item call raw tools.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21s_pilot_contract_buttons_ui_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21S-PILOT-CONTRACT-BUTTONS
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

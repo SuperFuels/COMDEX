@@ -1,0 +1,84 @@
+\section{Operator-Unreadable Remote Relay}
+\label{sec:pilot-mobile-opaque-relay}
+
+Pilot completes \texttt{MOB-0308} with an optional store-and-forward relay whose
+operator transports opaque envelopes but does not receive the application plaintext,
+the mother's private transport key, phone signing key, capability lease authority or
+provider credentials.  The relay is a continuity path, not a second mother brain.
+
+\subsection{Route establishment}
+
+When an owner configures \texttt{PILOT\_RELAY\_ENDPOINT}, the mother creates a persistent
+X25519 transport key and an opaque random route identifier.  Both are stored in the
+customer-controlled runtime with owner-only file permissions.  The private transport key
+never leaves the mother.  Successful local phone pairing returns a short-lived,
+mother-signed \texttt{pilot.opaque-relay-route.v1} descriptor containing:
+\begin{itemize}
+  \item the relay HTTPS endpoint and an opaque route identifier;
+  \item the mother's X25519 public transport key;
+  \item a bounded submission capability, expiry and request-size limits;
+  \item the fixed encryption suite and the mother's identity fingerprint; and
+  \item explicit declarations that the operator cannot read content and that no mother
+        secret is embedded.
+\end{itemize}
+
+Changing the endpoint, transport key, route identifier, bounds or security declarations
+invalidates the mother's Ed25519 signature.  A route is accepted by the phone only when
+it matches the mother identity established during physical or trusted-LAN pairing.
+
+\subsection{Encrypted request and response}
+
+The phone generates a fresh ephemeral X25519 key for every relayed operation.  It derives
+a shared secret with the signed mother public transport key.  HKDF-SHA-256 produces
+separate AES-256-GCM keys for the request and response directions.  The requested API
+path, phone certificate, lease, possession signature and private body are all inside the
+encrypted payload.  Only the following routing metadata remains visible:
+\begin{itemize}
+  \item opaque route and request identifiers;
+  \item creation and expiry times;
+  \item the ephemeral public key;
+  \item bounded ciphertext length; and
+  \item unavoidable connection metadata such as IP address and timing.
+\end{itemize}
+
+For shared secret $S$, request identifier $q$, direction $d$ and authenticated metadata
+$A$, the payload is
+\[
+ K_d=\operatorname{HKDF}_{\mathrm{SHA256}}(S,\,\texttt{PilotRelay}\parallel q\parallel d),
+ \qquad C_d=\operatorname{AESGCM}_{K_d}(N_d,P_d,A).
+\]
+The mother opens the request, applies the normal certificate, lease, scope, revocation,
+signature, approval and idempotency checks, then seals the exact status and response body
+to the originating ephemeral key.  The relay cannot forge a successful response because
+it cannot calculate the response-direction key or authentication tag.
+
+\subsection{Fallback and failure semantics}
+
+The phone attempts the trusted LAN first, then each signed customer-owned direct endpoint.
+The opaque relay is attempted only after those routes fail at the network layer.  A policy
+denial, expired lease, invalid signature or ordinary application error is authoritative and
+never triggers route hopping.  Consequential requests retain their original idempotency
+keys, so uncertain transport does not authorize duplicate actions.
+
+Requests expire after at most two minutes.  The reference queue bounds pending envelopes,
+deduplicates request identifiers, rejects invalid capabilities and deletes a response when
+the phone receives it.  The relay has no API that returns decrypted content.  A relay can
+still observe traffic volume or refuse delivery; it cannot be made trusted for availability
+merely by making it blind to content.
+
+\subsection{Verification and deployment boundary}
+
+Automated verification covers signed descriptors, endpoint and size bounds, owner-only key
+storage, descriptor tampering, request encryption, response encryption, direction-separated
+keys, duplicate submission, expiry, wrong relay capabilities and the phone's strict
+LAN--direct--relay order.  The optimized mobile application compiles with the complete
+WebCrypto X25519, HKDF and AES-GCM path.
+
+All 564 AION Fabric tests pass, the optimized mobile production build succeeds, and this
+append-only section compiles without warnings.
+
+The protocol and reference bounded queue are implemented, but no Tessaris-operated relay is
+silently introduced.  A household or organization must configure an approved HTTPS relay
+deployment before this route becomes active.  Automatic network-change detection, bounded
+reconnection and live-subscription cursor resumption across Wi-Fi and mobile data remain the
+separate \texttt{MOB-0309} stage.

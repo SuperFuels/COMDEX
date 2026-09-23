@@ -1,0 +1,151 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.47 --- Live Level-3 Post-Game Failure Review}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.47 records the first live Level-3 test after the Phase 22E.46 dynamic intent switching upgrade.
+
+The test successfully exercised the live stack at Level 3, but AION lost by mate. This document locks the failure map before the next repair phase.
+
+\section{Live Result}
+
+\begin{verbatim}
+Game ID: yEGNrLlw
+Full ID: yEGNrLlwCg20
+Target level: 3
+AION colour: white
+Final status: mate
+Final winner: black
+Final ply count: 74
+AION move count: 37
+Move send OK count: 37
+Post-400 recovery count: 0
+Trace hash: 0278cdef502c900b5c2a8d005471f97000631628d6f07dd837487f04ceaef15f
+\end{verbatim}
+
+\section{Technical Result}
+
+The live execution layer succeeded.
+
+\begin{itemize}
+  \item The Level-3 challenge was created.
+  \item The network gate was open.
+  \item The run was not a dry run.
+  \item All AION move posts succeeded.
+  \item No post-400 recovery was required.
+  \item The 22E.46 live sender stack was active.
+\end{itemize}
+
+\section{Observed Failure Map}
+
+\subsection{Wing-Pawn Drift Returned}
+
+After the opening correction, AION again played:
+
+\begin{verbatim}
+h2h4
+g2g4
+\end{verbatim}
+
+These moves were accepted under \texttt{initiative\_pressure}. Against Level 2 this was survivable, but against Level 3 it created long-term king and structure weaknesses.
+
+\subsection{Dynamic Intent Switching Was Active But Unstable}
+
+The new 22E.46 switching layer did activate. It switched between:
+
+\begin{verbatim}
+rapid_development
+initiative_pressure
+center_control
+neutralise_critical_threat
+king_safety
+\end{verbatim}
+
+However, the switching was not yet stable enough. AION often changed labels without enforcing a coherent board plan.
+
+\subsection{Promotion Conversion Failed}
+
+AION successfully created and promoted a passed pawn:
+
+\begin{verbatim}
+g6g7
+g7g8q
+\end{verbatim}
+
+But the promoted queen was then lost:
+
+\begin{verbatim}
+g7g8q
+...
+g1g8
+\end{verbatim}
+
+This means queen-first promotion worked, but queen survival and post-promotion conversion were not protected.
+
+\subsection{King Safety Became Passive}
+
+The king-safety mode produced repeated king moves:
+
+\begin{verbatim}
+e1f1
+f1g1
+g1g2
+g2f3
+f3e2
+e2f1
+f1e1
+e1d1
+d1c2
+c2b1
+b1a1
+\end{verbatim}
+
+This avoided immediate threats in places, but it did not remove the opponent's attacking resources or stop the mating net.
+
+\subsection{Endgame Threat Removal Failed}
+
+The final mate occurred after:
+
+\begin{verbatim}
+b1a1
+c5d4
+\end{verbatim}
+
+The Level-3 test exposed that AION needs a king-safety policy that removes the attacking piece or blocks the mating mechanism, not only moves the king.
+
+\section{Next Repair Priorities}
+
+The next repair sequence SHOULD be:
+
+\begin{enumerate}
+  \item Phase 22E.48 --- Promotion Safety / Queen Survival Guard.
+  \item Phase 22E.49 --- Initiative Hygiene Guard: reject wing-pawn lunges unless concrete.
+  \item Phase 22E.50 --- King Safety Threat-Removal Policy.
+  \item Phase 22E.51 --- Level-3 Rematch Validation.
+\end{enumerate}
+
+\section{Boundary}
+
+This review is evidence-only. It does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E47-LIVE-LEVEL3-POST-GAME-FAILURE-REVIEW\\
+Status: LOCKED --- Level-3 failure map recorded\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

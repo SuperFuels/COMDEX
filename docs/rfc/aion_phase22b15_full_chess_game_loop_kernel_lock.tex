@@ -1,0 +1,61 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.15: Full Chess Game Loop Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.15 defines the AION Full Chess Game Loop Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can run a deterministic selected full-board chess game loop across multiple turns.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.15 combines the prior full-board chess reasoning kernels into a repeated turn loop.
+
+\section{Game Loop Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{planned\_turn\_count};
+  \item \texttt{completed\_turn\_count};
+  \item \texttt{aion\_turn\_count};
+  \item \texttt{opponent\_turn\_count};
+  \item \texttt{legal\_turn\_count};
+  \item \texttt{king\_safe\_turn\_count};
+  \item \texttt{opponent\_reply\_evaluated\_count};
+  \item \texttt{multi\_ply\_checked\_count};
+  \item \texttt{material\_gain\_total};
+  \item \texttt{final\_state\_score};
+  \item \texttt{game\_loop\_completed};
+  \item \texttt{game\_loop\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates a deterministic selected full-board chess game loop. It does not yet implement exhaustive chess search, full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B15-FULL-CHESS-GAME-LOOP-KERNEL-LOCK\\
+Status: LOCKED --- full chess game loop kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

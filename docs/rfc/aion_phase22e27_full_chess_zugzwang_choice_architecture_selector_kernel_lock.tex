@@ -1,0 +1,66 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.27 --- Zugzwang Choice Architecture Selector}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.27 introduces Zugzwang choice architecture scoring.
+
+The selector no longer asks only which move improves AION immediately. It also asks which move leaves the opponent with the narrowest and weakest opponent reply set.
+
+\section{Contract}
+
+The core contract is to reduce the opponent reply set and measure opponent choice width after each candidate move. This choice width becomes a direct selector signal.
+
+
+The selector MUST score:
+
+\begin{itemize}[leftmargin=*]
+  \item opponent legal reply count after each candidate move;
+  \item opponent checking replies;
+  \item opponent capture replies;
+  \item enemy king mobility;
+  \item material delta;
+  \item check, capture, promotion, and mate pressure;
+  \item repeated move and repeated destination penalties.
+\end{itemize}
+
+\section{Strategic Regression Well}
+
+This phase begins the Strategic Regression Well model.
+
+AION should push the game state toward a smaller winning basin by removing bad self-options, narrowing opponent options, preserving plan continuity, and increasing conversion pressure.
+
+\section{Boundary}
+
+This phase does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e27_full_chess_zugzwang_choice_architecture_selector_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e27_full_chess_zugzwang_choice_architecture_selector_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E27-FULL-CHESS-ZUGZWANG-CHOICE-ARCHITECTURE-SELECTOR\\
+Status: LOCKED --- Zugzwang choice architecture selector implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

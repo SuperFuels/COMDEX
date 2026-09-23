@@ -60,21 +60,32 @@ def _deep_merge(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
-def _parse_fiscal_period(value: Any) -> Tuple[int, int]:
-    if isinstance(value, dict):
-        fy = value.get("fiscal_year")
-        fq = value.get("fiscal_quarter")
-        if fy is not None and fq is not None:
-            return int(fy), int(fq)
-
+def _parse_fiscal_period(value: str) -> Tuple[int, int]:
+    """
+    Supported formats:
+      - YYYY-Q1..YYYY-Q4
+      - YYYY-FY
+      - YYYY-H1 / YYYY-H2  (mapped to Q2 / Q4 for ordering + storage)
+    """
     s = str(value or "").strip()
-    m = re.search(r"(\d{4})\s*[-_/]?\s*Q\s*([1-4])", s, flags=re.IGNORECASE)
-    if not m:
-        m = re.search(r"(\d{4})\s*Q\s*([1-4])", s, flags=re.IGNORECASE)
-    if not m:
-        raise ValueError(f"Unsupported fiscal_period format: {value!r}")
-    return int(m.group(1)), int(m.group(2))
 
+    m = re.fullmatch(r"(\d{4})-Q([1-4])", s)
+    if m:
+        return int(m.group(1)), int(m.group(2))
+
+    m = re.fullmatch(r"(\d{4})-FY", s)
+    if m:
+        # FY treated as Q4 for ordering
+        return int(m.group(1)), 4
+
+    m = re.fullmatch(r"(\d{4})-H([12])", s)
+    if m:
+        year = int(m.group(1))
+        half = int(m.group(2))
+        # H1 ends at Q2; H2 ends at Q4
+        return year, 2 if half == 1 else 4
+
+    raise ValueError(f"Unsupported fiscal_period format: {value!r}")
 
 def quarter_event_storage_path(
     quarter_event_id: str,

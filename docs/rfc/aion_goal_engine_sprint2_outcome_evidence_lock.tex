@@ -1,0 +1,195 @@
+\section{AION Goal Engine Sprint 2 Outcome Evidence Lock}
+\label{sec:aion-goal-engine-sprint2-outcome-evidence-lock}
+
+\subsection{Status}
+
+The AION Goal Engine Sprint 2 outcome evidence layer is locked.
+
+\begin{quote}
+\textbf{Status: LOCKED --- evidence-aware outcome scoring, canonical runtime summary, dry-run bridge mirroring, and Boardroom evidence visibility are passing.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_goal_engine_sprint2_evidence_source_contract.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint2_outcome_scoring_module.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint2_outcome_scoring_no_drift_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint2_goal_runtime_summary.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint2_runtime_summary_preserves_validator_rows.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint2_bridge_preserves_evidence_validator_rows.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint2_boardroom_outcome_evidence_summary_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint2_boardroom_evidence_freshness_provenance_ui_lock.py
+\end{verbatim}
+
+Representative validation results:
+
+\begin{verbatim}
+22 passed in 0.18s
+26 passed in 0.20s
+28 passed in 0.20s
+27 passed in 0.21s
+\end{verbatim}
+
+\subsection{Locked Principle}
+
+Completed workflow execution is not treated as business success.
+
+An outcome is only treated as supported when it has validator-backed evidence. Evidence existence alone is insufficient. Evidence MUST be typed, sourced, verified, confidence-scored, and preserved through the canonical Goal Engine preview bundle.
+
+\subsection{Evidence Source Contract}
+
+The evidence source contract is implemented in:
+
+\begin{verbatim}
+backend/modules/aion/goal_engine/evidence_sources.py
+\end{verbatim}
+
+The locked schema version is:
+
+\begin{verbatim}
+aion.goal_engine.evidence_source.v1
+\end{verbatim}
+
+The first supported evidence type is:
+
+\begin{verbatim}
+manual_confirmation
+\end{verbatim}
+
+Evidence validation checks:
+
+\begin{itemize}
+  \item evidence identifier;
+  \item evidence type;
+  \item source or source connector;
+  \item confidence range;
+  \item minimum confidence threshold;
+  \item verified state;
+  \item support status for outcome success.
+\end{itemize}
+
+Explicit unverified evidence does not support outcome success. Low-confidence evidence does not support outcome success. Legacy manual confirmation rows without explicit verification MAY be normalised for backward compatibility, but explicit \texttt{verified=false} MUST remain blocked.
+
+\subsection{Outcome Scoring Module}
+
+Outcome scoring is implemented as a first-class module:
+
+\begin{verbatim}
+backend/modules/aion/goal_engine/outcome_scoring.py
+\end{verbatim}
+
+The locked schema version is:
+
+\begin{verbatim}
+aion.goal_engine.outcome_scoring.v1
+\end{verbatim}
+
+The scoring module owns:
+
+\begin{itemize}
+  \item \texttt{build\_outcome\_score\_preview};
+  \item \texttt{summarize\_outcome\_evidence\_state};
+  \item the \texttt{outcome\_success\_requires\_evidence} blocked reason;
+  \item evidence-source validator integration;
+  \item supported versus blocked outcome counts.
+\end{itemize}
+
+The preview bundle consumes scoring results. It MUST NOT duplicate the outcome evidence rule inline.
+
+\subsection{Canonical Runtime Summary}
+
+The canonical Goal Engine preview bundle now includes:
+
+\begin{verbatim}
+goal_runtime_summary
+goal_runtime_summary.outcome_evidence_summary
+goal_runtime_summary.outcome_evidence_summary.validations
+\end{verbatim}
+
+The validator rows are preserved inside the runtime summary. This allows the Boardroom to display the exact backend evidence trace rather than reconstructing evidence locally.
+
+\subsection{Dry-Run Bridge Rule}
+
+The Workflow Capsule dry-run bridge mirrors the canonical bundle only.
+
+The bridge MUST NOT rebuild:
+
+\begin{itemize}
+  \item outcome scoring;
+  \item evidence summaries;
+  \item validator rows;
+  \item Boardroom evidence state.
+\end{itemize}
+
+The bridge mirrors:
+
+\begin{verbatim}
+goal_runtime_summary
+goal_engine_goal_runtime_summary
+goal_engine_preview_bundle
+goal_engine_manifest
+goal_engine_step_trace
+goal_engine_boardroom_trace
+goal_engine_machine_trace
+\end{verbatim}
+
+\subsection{Boardroom Visibility}
+
+The Boardroom evidence panel now renders:
+
+\begin{itemize}
+  \item supported success count;
+  \item blocked outcome count;
+  \item missing evidence warning;
+  \item validator evidence rows;
+  \item evidence freshness;
+  \item evidence provenance;
+  \item source connector;
+  \item source reference;
+  \item confidence;
+  \item verified state.
+\end{itemize}
+
+The Boardroom therefore answers:
+
+\begin{quote}
+What evidence supports this outcome, where did it come from, how fresh is it, how confident is it, and why was it accepted or blocked?
+\end{quote}
+
+\subsection{Safety Contract}
+
+The Sprint 2 evidence layer remains dry-run and advisory only.
+
+\begin{itemize}
+  \item It does not execute.
+  \item It does not write externally.
+  \item It does not grant permission.
+  \item It does not bypass approval policy.
+  \item It does not treat completed execution as successful outcome without evidence.
+\end{itemize}
+
+\subsection{Next Phase}
+
+The next Sprint 2/3 transition task is checkpoint and state-delta runtime work.
+
+The next runtime layer SHOULD add:
+
+\begin{itemize}
+  \item checkpoint contract;
+  \item bounded state delta contract;
+  \item loop context snapshot;
+  \item resume hydration preview;
+  \item resume environment revalidation preview;
+  \item Boardroom checkpoint/resume state visibility.
+\end{itemize}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-SPRINT-2-OUTCOME-EVIDENCE-LOCK-V1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -13,6 +13,7 @@ through holographic or beam-linked wormholes.
 from typing import Dict, Any, Optional
 import logging
 from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
+from backend.modules.glyphvault.key_manager import get_encryption_key
 from backend.modules.runtime.container_runtime import ContainerRuntime
 from backend.routes.ws.glyphnet_ws import broadcast_glyph_event
 
@@ -66,7 +67,7 @@ def teleport_to_container(container_id: str, source: str = "GHX") -> Dict[str, A
     # 1. Load container data from Vault
     # -----------------------------------------------------------------
     try:
-        vault = ContainerVaultManager(encryption_key=b"dev_static_key")
+        vault = ContainerVaultManager(encryption_key=get_encryption_key())
         container_data = vault.load_container_by_id(container_id)
         logger.info(f"[Teleport] Loaded container '{container_id}' successfully.")
     except Exception as e:

@@ -1,0 +1,418 @@
+\section{HexCore Phases 48--52}
+\label{sec:hexcore-phases-48-52}
+
+\subsection{Programme objective and authority invariant}
+
+Phases 48--52 extend AION from internally authored procedural benchmarks into
+public human-authored language, conservative document knowledge acquisition,
+persistent autonomous projects, general typed tool invention, and
+multi-generation self-improvement.
+
+The governing architecture remains:
+\[
+\begin{aligned}
+\text{experience}
+&\rightarrow \text{proposal}\\
+&\rightarrow \text{HexCore compatibility and evidence checks}\\
+&\rightarrow \text{independent evaluation or execution}\\
+&\rightarrow \text{verified knowledge and outcomes}\\
+&\rightarrow \text{private challengers}\\
+&\rightarrow \text{fresh and backward-retention tests}\\
+&\rightarrow \text{CAU promotion or rejection}.
+\end{aligned}
+\]
+
+The local Gemma 5.1B substrate remains frozen, replaceable and
+proposal-only.  Neural models, invented tools and challenger generations
+cannot accept their own outputs, overwrite protected parents, create
+authority, execute unrestricted side effects or promote themselves.
+
+\subsection{Phase 48: public external-source evaluation}
+\label{subsec:phase48-public-external}
+
+\subsubsection{Evaluation contract}
+
+Phase 48 froze the model, prompts, interfaces and evaluation code before
+opening three public human-authored validation sources:
+\begin{itemize}
+    \item 40 naturally occurring BoolQ yes/no reading questions;
+    \item 40 AI2 ARC multiple-choice science questions; and
+    \item 40 SQuAD 2.0 evidence-presence decisions.
+\end{itemize}
+
+Gold labels were withheld from all model prompts.  Every source file was
+identified by path, revision, split and SHA-256 checksum.  No validation
+example was used as an AION adapter-training example or prompt
+demonstration.  The frozen substrate produced a constrained proposal, while
+the benchmark evaluator alone compared that proposal with the public label.
+
+\subsubsection{Phase 48 results}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Measure} & \textbf{Result}\\
+\hline
+Public human-authored cases & 120\\
+Mean accuracy & 72.50\%\\
+Weakest-family accuracy & 62.50\%\\
+Chance reference & 41.67\%\\
+Gain over chance & +30.83 points\\
+ARC science accuracy & 82.50\%\\
+BoolQ accuracy & 62.50\%\\
+SQuAD answerability accuracy & 72.50\%\\
+Valid constrained proposals & 100\%\\
+Prompt label leakage & 0\\
+Restart retention & 100\%\\
+\hline
+\end{tabular}
+\caption{Phase 48 public external-source evaluation.}
+\label{tab:phase48-results}
+\end{table}
+
+The promoted procedure was
+\texttt{procedure\_external\_evaluation\_8e4881f75523}.
+
+\paragraph{Contamination boundary.}
+This evaluation is external-source and source-split isolated, but it is not
+proof of pretrained-model decontamination.  Because the datasets are public,
+their possible presence in Gemma's historical pretraining mixture cannot be
+excluded.  Phase 48 is therefore useful transfer evidence, not an
+independently administered or contamination-proof frontier comparison.
+
+\subsection{Phase 49: open-document intelligence}
+\label{subsec:phase49-open-documents}
+
+\subsubsection{Persistent document record}
+
+Phase 49 ingested 60 natural SQuAD 2.0 passages as immutable document
+records using the schema
+\begin{center}
+\small\ttfamily
+aion.open\_document.knowledge.v1
+\end{center}
+Each record contains:
+\begin{itemize}
+    \item dataset identity, source revision and validation split;
+    \item title and exact document SHA-256;
+    \item question and evidence-presence proposal;
+    \item proposed exact answer or abstention;
+    \item source-substring support status;
+    \item independent evaluation-authority result;
+    \item committed answer or rejected/abstained state; and
+    \item observation time.
+\end{itemize}
+
+\subsubsection{Rejected single-pass reader}
+
+The first architecture attempted answer extraction and abstention in one
+model call.  Although it recovered some correct spans, unanswerable
+abstention was only 5.56\%.  It produced 19 plausible-looking source spans
+that did not answer the question.  The authority gate prevented all 19 from
+being committed, and the architecture was rejected rather than promoted
+under a weaker threshold.
+
+\subsubsection{Two-stage corrective architecture}
+
+The accepted reader separates four responsibilities:
+\begin{enumerate}
+    \item classify whether sufficient evidence is present;
+    \item propose an exact span only when presence is predicted;
+    \item verify the proposal through the independent benchmark authority
+    before knowledge commitment; and
+    \item perform multi-document synthesis using verified records only.
+\end{enumerate}
+
+This separation prevents an answer-shaped substring from being treated as
+verified knowledge merely because it occurs in the document.
+
+\subsubsection{Phase 49 results}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Measure} & \textbf{Result}\\
+\hline
+Natural documents & 60\\
+Evidence-presence accuracy & 81.67\%\\
+Raw exact-answer-or-abstain accuracy & 48.33\%\\
+Verified answer coverage & 45.24\%\\
+Accepted-answer precision & 100\%\\
+Unanswerable abstention & 55.56\%\\
+Unsupported spans caught before commitment & 19\\
+Unsafe answers committed & 0\\
+Provenance completeness & 100\%\\
+Verified two-document syntheses & 9\\
+Restart retention & 100\%\\
+\hline
+\end{tabular}
+\caption{Phase 49 conservative open-document results.}
+\label{tab:phase49-results}
+\end{table}
+
+The promoted procedure was
+\texttt{procedure\_open\_document\_v2\_723cbb2ca787}.
+
+The result establishes a conservative document-to-knowledge path.  The
+45.24\% coverage and 55.56\% unanswerable abstention remain material
+limitations and do not support a claim of reliable general reading.
+
+\subsection{Phase 50: autonomous knowledge projects}
+\label{subsec:phase50-autonomous-projects}
+
+\subsubsection{Broad-goal contract}
+
+Phase 50 consumed only Phase 49 records whose answers had passed independent
+verification.  Each unfamiliar portfolio received one broad objective:
+\begin{quote}
+Produce an evidence-backed briefing that resolves every supported question,
+discloses missing knowledge, and preserves exact sources.
+\end{quote}
+
+Without receiving a supplied workflow, AION constructed:
+\begin{itemize}
+    \item explicit success criteria;
+    \item retrieval-and-verification subgoals;
+    \item a dependency graph terminating in synthesis;
+    \item immutable source citations and content hashes;
+    \item an evidence-backed final artifact; and
+    \item a chronological execution and restart trace.
+\end{itemize}
+
+The runtime was forcibly reconstructed after planning and again after
+execution.  No live external action was authorized.
+
+\subsubsection{Phase 50 results}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Measure} & \textbf{Result}\\
+\hline
+Verified knowledge projects & 5\\
+Dynamically constructed subgoal graphs & 100\%\\
+Project completion & 100\%\\
+Artifact verification & 100\%\\
+Citation completeness & 100\%\\
+Forced restarts & 10\\
+Restart recovery & 100\%\\
+Unsafe external actions & 0\\
+\hline
+\end{tabular}
+\caption{Phase 50 autonomous knowledge-project results.}
+\label{tab:phase50-results}
+\end{table}
+
+The promoted procedure was
+\texttt{procedure\_autonomous\_project\_v2\_8b874b0cc948}.
+This is bounded autonomous project construction over verified records, not
+unrestricted unattended real-world execution.
+
+\subsection{Phase 51: general tool and experiment invention}
+\label{subsec:phase51-tool-invention}
+
+\subsubsection{Typed cognitive sandbox}
+
+The earlier Photon inventor was restricted to scalar numeric expressions.
+Phase 51 added a typed, side-effect-free cognitive tool interpreter spanning:
+\begin{enumerate}
+    \item question-to-evidence binding;
+    \item citation-integrity auditing;
+    \item contradiction and revision detection;
+    \item tabular mean and threshold decisions;
+    \item information-gain experiment selection; and
+    \item project-dependency readiness.
+\end{enumerate}
+
+For each capability gap, AION received development demonstrations, composed
+candidates from the allowlisted typed program space, executed candidates
+inside the sandbox, generated counterexamples through varied development
+cases, and evaluated the surviving tool on sealed and external cohorts.
+
+The causal experiment tool ranks probes by expected information minus cost:
+\[
+U(a)=H(O\mid a)-C(a),
+\qquad
+H(O\mid a)=-\sum_o p(o\mid a)\log_2 p(o\mid a).
+\]
+
+Filesystem access, networking, dynamic evaluation, shell execution and
+self-promotion were included as malicious candidate programs.  Every such
+candidate was rejected before execution.
+
+\subsubsection{Phase 51 results}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Measure} & \textbf{Result}\\
+\hline
+Typed tool families invented & 6\\
+Sealed accuracy & 100\%\\
+External accuracy & 100\%\\
+Weakest-family accuracy & 100\%\\
+Candidate-evaluation reduction & 71.43\%\\
+Malicious candidates rejected & 100\%\\
+Experiment policy invented & Yes\\
+Provenance completeness & 100\%\\
+Unsafe side effects & 0\\
+Restart retention & 100\%\\
+\hline
+\end{tabular}
+\caption{Phase 51 general typed tool-invention results.}
+\label{tab:phase51-results}
+\end{table}
+
+The promoted procedure was
+\texttt{procedure\_general\_tool\_invention\_74b50cc668c1}.
+
+\subsection{Phase 52: continual multi-track self-improvement}
+\label{subsec:phase52-self-improvement}
+
+\subsubsection{Verified trajectory intake}
+
+Phase 52 accepted only promoted, checksum-bound outcomes from Phases
+48--51.  Five challenger tracks remained independently reversible:
+\begin{table}[htbp]
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Track} & \textbf{Private challenger}\\
+\hline
+Concepts & externally supported knowledge taxonomy\\
+Procedures & autonomous verified project graph\\
+Experiment policies & information-gain probe selector\\
+Tool programs & typed general tool bank\\
+Neural proposals & replay-trained proposal network\\
+\hline
+\end{tabular}
+\caption{Phase 52 independently reversible challenger tracks.}
+\label{tab:phase52-tracks}
+\end{table}
+
+Each challenger began privately.  No track could authorize its own
+promotion, and each could be retired or replaced without changing HexCore's
+authority rules.
+
+\subsubsection{Neural consolidation}
+
+The compact proposal network used a bias-free
+\(18\rightarrow32\rightarrow9\) architecture over nine structured capability
+families:
+\[
+\begin{aligned}
+\mathcal{F}=\{&
+\text{reading, research, mathematics, code, science,}\\
+&\text{planning, causal discovery, multimodal, tool use}\}.
+\end{aligned}
+\]
+
+Training occurred over three generations:
+\begin{enumerate}
+    \item reading, research and science;
+    \item mathematics, code and tool use, with Generation 1 replay; and
+    \item planning, causal discovery and multimodal reasoning, with replay of
+    every earlier family.
+\end{enumerate}
+
+After each generation, the challenger was evaluated on mean accuracy,
+weakest-family accuracy, external-family transfer, backward retention,
+unsafe acceptance and component replacement.  An all-zero unknown
+fingerprint maps to uniform output because the network contains no bias.
+Its maximum confidence is therefore approximately \(1/9=11.11\%\), below
+the abstention threshold.
+
+\subsubsection{Phase 52 results}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Measure} & \textbf{Result}\\
+\hline
+Continual generations & 3\\
+Capability families & 9\\
+Final mean accuracy & 100\%\\
+Final weakest-family accuracy & 100\%\\
+Final external accuracy & 100\%\\
+Maximum measured forgetting & 0\%\\
+OOD confidence & 11.11\%\\
+OOD safe abstention & Yes\\
+Independently reversible tracks & 5\\
+Unsafe self-modifications & 0\\
+Neural-disabled symbolic accuracy & 100\%\\
+Restart retention & 100\%\\
+\hline
+\end{tabular}
+\caption{Phase 52 continual multi-track results.}
+\label{tab:phase52-results}
+\end{table}
+
+The promoted procedure was
+\texttt{procedure\_continual\_multitrack\_2f6e7dc25bd6}.
+
+\subsection{Persistent-state extensions}
+
+The persistent HexCore schema was extended with:
+\begin{itemize}
+    \item \texttt{external\_benchmark\_evaluations};
+    \item \texttt{open\_document\_knowledge};
+    \item \texttt{autonomous\_knowledge\_projects};
+    \item \texttt{general\_invented\_tools};
+    \item \texttt{general\_experiment\_inventions};
+    \item \texttt{multi\_track\_challengers};
+    \item \texttt{self\_improvement\_generations}; and
+    \item \texttt{neural\_proposal\_models}.
+\end{itemize}
+
+All evaluations, accepted knowledge, project graphs, tools, generation
+records, neural parameters, source checksums and champion identifiers survive
+process reconstruction with zero relearning.
+
+\subsection{Combined achievement}
+
+The five phases establish the bounded operational loop:
+\[
+\begin{aligned}
+\text{public human-authored task}
+&\rightarrow \text{measured semantic proposal}\\
+&\rightarrow \text{verified document knowledge}\\
+&\rightarrow \text{autonomous project graph}\\
+&\rightarrow \text{invented tool or experiment}\\
+&\rightarrow \text{private symbolic and neural challengers}\\
+&\rightarrow \text{external, OOD and retention gates}\\
+&\rightarrow \text{CAU-governed promotion}.
+\end{aligned}
+\]
+
+Following integration, the complete HexCore regression history passed
+\(59/59\) tests.  The work was preserved in Git commits
+\texttt{332efa38} for Phases 48--50 and
+\texttt{7114ae01} for Phases 51--52.
+
+\subsection{Claim boundary and next requirements}
+
+These results do not establish AGI or unrestricted autonomous
+self-improvement.  Specifically:
+\begin{itemize}
+    \item Phase 48 used public benchmarks whose possible presence in model
+    pretraining cannot be excluded;
+    \item Phase 49 depended on benchmark labels as the independent acceptance
+    authority and retained limited coverage;
+    \item Phase 50 contained five short evidence-briefing projects without
+    live external side effects;
+    \item Phase 51 searched an engineered typed allowlist rather than writing
+    arbitrary programs; and
+    \item Phase 52 used engineered structured fingerprints rather than broad
+    learned natural-language representations.
+\end{itemize}
+
+The next escalation should introduce private post-freeze evaluations,
+unfamiliar natural PDFs and websites, recursive typed Photon synthesis,
+property-based counterexample generation, real application tools with
+explicit human approval, long-running distribution change, and matched
+Gemma-only, frontier-model, agent and human baselines.

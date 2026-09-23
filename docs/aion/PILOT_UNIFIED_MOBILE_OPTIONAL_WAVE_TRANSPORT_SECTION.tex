@@ -1,0 +1,49 @@
+\section{Optional Offline Wave Transport Boundary}
+\label{sec:pilot-mobile-wave-transport}
+
+Pilot preserves the sovereign radio and Wave direction without making unqualified
+hardware part of the ordinary product.  The Wave transport is hidden by default,
+reports no radio capability until hardware is qualified and keeps PHO and wallet
+functions disabled.  An in-memory loopback or mock driver never counts as evidence
+of physical radio delivery.
+
+\subsection{Bridge enrollment and revocation}
+
+A bridge requires explicit local confirmation and receives a signed capability
+lease containing only allowlisted send, receive and push-to-talk scopes.  Leases are
+bounded to twenty-four hours.  Revocation disables the bridge and removes its queued
+work, preventing silent fallback through a device that no longer has authority.
+Unsupported capabilities, including wallet operations, are discarded.
+
+\subsection{Framing and inbound reconstruction}
+
+A bounded application payload is divided according to the configured MTU.  Every
+fragment carries protocol version, opaque message identifier, index, total count,
+whole-payload hash and its own canonical fragment hash.  The message sender signs
+the ordered fragment-hash list.  The receiver requires a complete contiguous
+sequence, identical message and payload hashes, valid fragment hashes, a valid
+sender signature and a matching reconstructed SHA-256 digest.
+
+Incomplete, altered or wrongly signed payloads fail closed.  A bounded seen-message
+ledger discards replayed messages.  Successful software reconstruction is labelled
+\texttt{radio\_reconstructed\allowbreak\_locally} with physical-delivery
+verification set to false; it is not called delivered to a person.
+
+\subsection{Store-and-forward policy}
+
+The durable queue supports emergency, urgent, normal and bulk priorities, explicit
+time-to-live, bounded retry counts and idempotency keys.  Reuse of an idempotency key
+for different bytes is rejected.  Expired or retry-exhausted records acquire honest
+terminal states.  Recipient identifiers are replaced by opaque references in queue
+projections.
+
+\subsection{Qualification boundary}
+
+Automated tests cover hidden product presentation, economic-feature isolation,
+allowlisted bridge scopes, revocation, fragmentation, reconstruction, corruption,
+missing fragments, signatures, deduplication, priority and idempotency.  The legacy
+GlyphNet radio-node and WirePack implementation has been inspected but not yet
+declared compatible with this authority.  A formal adapter, authenticated real
+drivers, ESP32/Raspberry Pi qualification, regional radio compliance and a physical
+internet-disconnected two-mother text/PTT test remain required before Pilot may
+advertise offline radio delivery.

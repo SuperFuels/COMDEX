@@ -1,0 +1,37 @@
+{
+  "schema_version": "aion.prompt_manifest.v1",
+  "prompts": [
+    {
+      "family": "manufacturing_quality",
+      "prompt": "A small manufacturer has an intermittent defect that appears after equipment changeovers. Produce a rigorous investigation and prevention plan with at least sixteen numbered steps. Cover containment, sampling, measurement-system checks, machine settings, materials, operators, environmental conditions, causal experiments, corrective action, control limits, ownership and evidence that recurrence has stopped."
+    },
+    {
+      "family": "cybersecurity_response",
+      "prompt": "A small organisation discovers suspicious sign-ins and possible mailbox forwarding rules. Write a detailed incident-response sequence with at least sixteen numbered actions covering safe containment, evidence preservation, identity sessions, credentials, forwarding rules, endpoint checks, logs, affected people, recovery, monitoring and lessons learned. Avoid assuming facts not in evidence."
+    },
+    {
+      "family": "energy_efficiency",
+      "prompt": "Design a low-cost programme for reducing electricity consumption in a mixed office and workshop building. Give at least sixteen numbered measures covering baselining, operating schedules, lighting, heating and cooling, compressed air, motors, plug loads, tariffs, measurement, occupant behaviour, maintenance, experiments and verification of savings."
+    },
+    {
+      "family": "project_recovery",
+      "prompt": "A software project is six weeks late, requirements keep changing and the team no longer trusts the schedule. Provide a practical recovery plan with at least sixteen numbered steps covering diagnosis, scope, dependencies, work in progress, technical risk, decision rights, stakeholder communication, replanning, quality gates, contingency and objective recovery measures."
+    },
+    {
+      "family": "data_migration",
+      "prompt": "Plan the migration of customer and transaction records from several inconsistent spreadsheets into a new business system. Give at least sixteen numbered stages covering discovery, field mapping, identifiers, duplicates, validation rules, privacy, trial loads, reconciliation, exception handling, rollback, approvals, cutover and post-migration evidence."
+    },
+    {
+      "family": "procurement_design",
+      "prompt": "Create a fair, inexpensive procurement process for a small business buying an important software service. Provide at least sixteen numbered controls covering requirements, market research, conflicts, comparable quotations, security, data exit, service levels, total cost, trials, scoring, negotiation, approval, contracting, renewal and supplier failure."
+    },
+    {
+      "family": "customer_support",
+      "prompt": "A subscription company has growing support queues and repeated customer complaints. Build a detailed improvement system with at least sixteen numbered actions covering demand categories, severity, response targets, ownership, knowledge articles, product feedback, automation boundaries, quality review, staffing, escalation, customer communication and outcome measures."
+    },
+    {
+      "family": "historical_analysis",
+      "prompt": "Explain how a historian should evaluate competing explanations for the decline of a trading city. Give at least sixteen numbered analytical practices covering primary sources, authorship, incentives, chronology, missing evidence, archaeology, economic data, environmental factors, comparison cases, counterfactuals, uncertainty and claims that would change with new evidence."
+    }
+  ]
+}

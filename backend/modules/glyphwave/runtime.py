@@ -7,6 +7,7 @@ Now includes:
     * Background async feedback coroutine
     * RuleManager (Codex) with SQI Drift integration
     * Graceful shutdown and loop stop handling
+    * CFE adaptive parameter injection into emission path
 """
 
 import asyncio
@@ -65,9 +66,14 @@ class GlyphWaveRuntime:
             # Lazy import - avoids circular dependency on import
             from backend.cfe.cfe_feedback_loop import CFEFeedbackLoop
 
-            self._feedback_loop = CFEFeedbackLoop(codex_runtime=self, telemetry=self.telemetry)
+            self._feedback_loop = CFEFeedbackLoop(
+                codex_runtime=self,
+                telemetry=self.telemetry,
+            )
             loop = asyncio.get_event_loop()
-            self._feedback_task = loop.create_task(self._feedback_loop.run(interval=1.0))
+            self._feedback_task = loop.create_task(
+                self._feedback_loop.run(interval=1.0)
+            )
             self._loop_running = True
             print("[GlyphWaveRuntime] 🧠 CFE feedback loop started.")
         except RuntimeError:
@@ -83,7 +89,9 @@ class GlyphWaveRuntime:
             self._rule_task = loop.create_task(self.rule_manager.pull_sqi_drift())
             print("[GlyphWaveRuntime] 🔁 RuleManager SQI drift adaptation started.")
         except RuntimeError:
-            print("[GlyphWaveRuntime] ⚠️ No active event loop for RuleManager drift polling.")
+            print(
+                "[GlyphWaveRuntime] ⚠️ No active event loop for RuleManager drift polling."
+            )
 
     async def _stop_feedback_loop(self):
         """Gracefully stop feedback loop and adaptive tasks if active."""
@@ -99,18 +107,57 @@ class GlyphWaveRuntime:
             print("[GlyphWaveRuntime] 🔁 RuleManager SQI drift polling stopped.")
 
     # ===============================================================
+    # Internal helpers
+    # ===============================================================
+    def _get_adaptive_runtime_values(self) -> Dict[str, Any]:
+        """Return normalized adaptive parameters for downstream use."""
+        resonance_gain = float(self.parameters.get("resonance_gain", 1.0) or 1.0)
+        symbolic_temperature = float(
+            self.parameters.get("symbolic_temperature", 0.0) or 0.0
+        )
+        reasoning_depth = int(self.parameters.get("reasoning_depth", 3) or 3)
+
+        return {
+            "resonance_gain": resonance_gain,
+            "symbolic_temperature": symbolic_temperature,
+            "reasoning_depth": reasoning_depth,
+        }
+
+    # ===============================================================
     # Core Send / Receive
     # ===============================================================
     def send(self, gip_packet: Dict[str, Any]) -> None:
         upgraded = self.codec.upgrade(gip_packet)
         shaped = self.scheduler.schedule(upgraded)
+
+        # Ensure envelope exists
+        envelope = shaped.setdefault("envelope", {})
+
+        # Pull latest CFE-adapted runtime parameters
+        adaptive = self._get_adaptive_runtime_values()
+        resonance_gain = adaptive["resonance_gain"]
+        symbolic_temperature = adaptive["symbolic_temperature"]
+        reasoning_depth = adaptive["reasoning_depth"]
+
+        # Apply adaptive modulation to emitted envelope
+        if "freq" in envelope and isinstance(envelope["freq"], (int, float)):
+            envelope["freq"] = float(envelope["freq"]) * resonance_gain
+
+        if "amplitude" in envelope and isinstance(envelope["amplitude"], (int, float)):
+            envelope["amplitude"] = float(envelope["amplitude"]) * resonance_gain
+
+        # Persist runtime feedback context for downstream systems
+        envelope["resonance_gain"] = resonance_gain
+        envelope["symbolic_temperature"] = symbolic_temperature
+        envelope["reasoning_depth"] = reasoning_depth
+
         self.carrier.emit(shaped)
         self.scope.log_beam_event(
             event="emitted",
-            signal_power=shaped["envelope"].get("freq", 1.0),
+            signal_power=envelope.get("freq", 1.0),
             noise_power=0.0001,
             kind="gwip",
-            tags=shaped["envelope"].get("tags", []),
+            tags=envelope.get("tags", []),
             container_id=gip_packet.get("container_id"),
         )
 

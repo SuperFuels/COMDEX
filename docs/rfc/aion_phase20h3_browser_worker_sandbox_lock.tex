@@ -1,0 +1,159 @@
+\section{AION Phase 20H.3 --- Browser Worker Sandbox Isolation}
+\label{sec:aion-phase20h3-browser-worker-sandbox-isolation}
+
+\subsection{Status}
+
+Phase 20H.3 locks Browser Worker Sandbox Isolation.
+
+\begin{quote}
+\textbf{Status: LOCKED --- browser workers are mission scoped, provider-context scoped, and final submit actions are blocked in v0.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Browser Worker Sandbox gives AION Pilot controlled browser capability without raw uncontrolled UI automation.
+
+Browser Worker v0 MAY:
+
+\begin{itemize}
+  \item read pages;
+  \item search;
+  \item extract metadata;
+  \item fill forms in staged mode;
+  \item prepare checkout state;
+  \item prepare deployment state;
+  \item prepare publication state;
+  \item capture screenshot evidence.
+\end{itemize}
+
+Browser Worker v0 MUST NOT:
+
+\begin{itemize}
+  \item click final submit;
+  \item submit payment;
+  \item publish public content;
+  \item deploy to production;
+  \item send external messages;
+  \item create bookings;
+  \item submit legal documents;
+  \item submit identity documents.
+\end{itemize}
+
+\subsection{Browser Session Contract}
+
+A browser worker session MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item provider;
+  \item browser worker ID;
+  \item provider context hash;
+  \item allowed domains;
+  \item session state;
+  \item kill switch state;
+  \item raw credential exposure state;
+  \item session hash.
+\end{itemize}
+
+\subsection{Scope Assertion}
+
+Before a browser worker action is evaluated, AION MUST assert:
+
+\begin{itemize}
+  \item mission ID matches;
+  \item mission run ID matches;
+  \item provider matches;
+  \item kill switch is not active;
+  \item raw credentials are not exposed.
+\end{itemize}
+
+\subsection{Domain Boundary}
+
+A browser action MUST target an allowed domain.
+
+If the target URL is outside the session's allowed domains, the browser action MUST be blocked.
+
+\subsection{Staged Payload Secret Blocking}
+
+Staged browser payloads MUST NOT include raw secret-shaped keys such as passwords, API keys, access tokens, session tokens, cookies, authorization headers, payment tokens, card numbers, or CVV values.
+
+\subsection{Final Submit Rule}
+
+Browser Worker v0 MUST fail closed for final side-effect actions.
+
+This includes:
+
+\begin{itemize}
+  \item final form submit;
+  \item final payment submit;
+  \item public publish;
+  \item production deployment;
+  \item external message send;
+  \item booking creation;
+  \item legal submission;
+  \item identity submission.
+\end{itemize}
+
+\subsection{Evidence Contract}
+
+Allowed browser actions MAY emit browser evidence containing:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item provider;
+  \item browser worker ID;
+  \item action type;
+  \item target URL;
+  \item browser action hash;
+  \item screenshot hash;
+  \item page state hash;
+  \item DOM summary hash;
+  \item evidence hash.
+\end{itemize}
+
+Blocked browser actions MUST NOT emit evidence.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n5_delegation_profiles_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n6_autonomy_budget_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n7_matrix_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h1_external_tool_gateway_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h2_provider_context_isolation_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h3_browser_worker_sandbox_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20H3-BROWSER-WORKER-SANDBOX-ISOLATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,8 @@
+{
+  "company_ref": "company/PAGE.L",
+  "enabled": false,
+  "trade_symbol_hl": null,
+  "venue": "LSE",
+  "currency": "GBP",
+  "notes": "Not enabled for trading yet."
+}

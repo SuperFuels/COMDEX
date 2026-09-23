@@ -1,0 +1,36 @@
+% Append-only technical record; no full-document preamble.
+\section{Disk-Guarded Authentic Teacher Capture Restart}
+The initial all-layer arithmetic capture was interrupted when available Mac
+storage fell below the declared safety reserve. Its approximately 117 MB of
+partial data is preserved and is not counted as verified evidence. Following
+authorized application and disposable-cache cleanup, a fresh training-only
+queue was launched under the local results directory with suffix
+\texttt{20260912\_retry01}; the existing frozen corpus and warehouse are unchanged.
+
+The queue now checks local free space every five seconds during each child
+capture, as well as between captures. If space falls below 3 GiB, it sends an
+interrupt to permit normal inference-priority lease cleanup, waits up to
+30 seconds, then escalates to termination and, if necessary, kill. Partial
+files remain preserved without a completion certificate. This is a sampled
+safety guard, not an atomic disk reservation: other applications can still
+consume storage between checks. Failed or interrupted captures are never
+counted as completed training observations.
+
+Restart-time free space was approximately 4.8 GiB. The target remains up to
+24 training prompts, family-balanced across all 36 layers, subject to the
+3 GiB reserve. No additional 20 GiB delivery cache is allocated. Thirteen
+focused queue and economics tests passed, including interruption on exhausted
+reserve and normal guarded completion. No model arithmetic, certificate gate,
+selection/holdout boundary, or validated token-rate claim is changed.
+
+\subsection{Second preserved interruption and fresh restart}
+The first retry subsequently crossed the same 3 GiB reserve and was stopped
+by the during-capture guard. It left 117 partial layer observations and no
+final teacher receipt or verified completion. These observations are not
+counted as completed evidence. After further space recovery, the Mac reported
+approximately 19 GiB free at the next restart. A new queue root with suffix
+\texttt{20260912\_retry02} was launched for up to 24 training-only captures;
+both earlier roots remain preserved. The initial arithmetic job declared
+1,332 expected layer-position observations. That count is a target, not an
+achieved result. Thirteen focused checks passed again before launch. All
+existing numerical, quality, integrity and memory gates remain unchanged.

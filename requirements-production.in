@@ -1,0 +1,10 @@
+# Minimal Tessaris/AION Flow runtime. Research, PDF and legacy cryptography
+# packages belong in separately reviewed feature environments.
+fastapi==0.141.1
+uvicorn[standard]==0.35.0
+pydantic==2.11.7
+python-dotenv==1.2.2
+python-multipart==0.0.31
+cryptography==50.0.0
+keyring==25.7.0
+PyYAML==6.0.2

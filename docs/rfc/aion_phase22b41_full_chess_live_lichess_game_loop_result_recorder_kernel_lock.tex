@@ -1,0 +1,116 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.41: Full Live Lichess Game Loop Result Recorder Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.41 records the first completed live AION Lichess game loop.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION completed and recorded a live Lichess game loop result.}
+\end{quote}
+
+\section{Recorded Game}
+
+The recorded live game is:
+
+\begin{verbatim}
+game_id: cPv6iyKb
+full_id: cPv6iyKbavrO
+platform: lichess
+account_id: peekoo123
+account_title: BOT
+opponent: Stockfish level 1
+opponent_type: lichess_ai
+opponent_level: 1
+rated: false
+variant: standard
+speed: correspondence
+aion_colour: white
+final_status: mate
+winner: white
+aion_result: win
+aion_move_count: 31
+network_move_send_count: 26
+response_ok_count: 26
+\end{verbatim}
+
+\section{Purpose}
+
+This phase converts the live game execution into durable AION evidence.
+
+It records:
+
+\begin{itemize}
+  \item the live Lichess game identity;
+  \item the AION bot account identity;
+  \item the opponent identity;
+  \item the complete move list;
+  \item the terminal status;
+  \item the winner;
+  \item the AION result;
+  \item the number of accepted live network moves;
+  \item the trace hash;
+  \item the result memory policy.
+\end{itemize}
+
+\section{Evidence Boundary}
+
+The result proves that AION:
+
+\begin{itemize}
+  \item played as a real Lichess BOT account;
+  \item posted real moves to Lichess;
+  \item had those moves accepted by Lichess;
+  \item continued until the game reached mate;
+  \item won the recorded game as White;
+  \item saved the result into runtime memory;
+  \item did not use an LLM shortcut.
+\end{itemize}
+
+\section{Limitations}
+
+This lock does not claim:
+
+\begin{itemize}
+  \item strong chess ability;
+  \item official rating strength;
+  \item Stockfish-level calculation;
+  \item grandmaster-level play;
+  \item general intelligence;
+  \item biological consciousness.
+\end{itemize}
+
+The opponent was Stockfish level 1, and the move selection loop was still a basic heuristic loop.
+
+\section{Runtime Memory}
+
+The result memory path is:
+
+\begin{verbatim}
+data/aion_games/full_chess_live_lichess_game_loop_result_memory.json
+\end{verbatim}
+
+This file is runtime evidence memory and SHOULD NOT be committed unless explicitly promoted.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B41-FULL-CHESS-LIVE-LICHESS-GAME-LOOP-RESULT-RECORDER-KERNEL-LOCK\\
+Status: LOCKED --- full live Lichess game loop result recorded and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -1,0 +1,180 @@
+\section{AION Exception and Recovery Loops v0.1 Lock}
+\label{sec:aion-exception-recovery-loops-lock}
+
+\subsection{Status}
+
+This lock defines the first internal preview-only exception and recovery loop layer for AION Gateway and the AION Parallel Business Infrastructure.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Phase 7E Exception and Recovery Loops v0.1.}
+\end{quote}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/exceptions.py
+\end{verbatim}
+
+The contract version is:
+
+\begin{verbatim}
+aion.exception_recovery.v0.1
+\end{verbatim}
+
+\subsection{Purpose}
+
+The exception layer models operational failures that may occur during real-world fulfilment.
+
+It does not execute recovery. It produces a deterministic recovery preview for the Human Boardroom, future Machine A2A trace, and future guarded approval path.
+
+\subsection{Supported Exception Types}
+
+The locked exception types are:
+
+\begin{itemize}
+  \item \texttt{provider\_late}
+  \item \texttt{provider\_cancelled}
+  \item \texttt{missing\_evidence}
+  \item \texttt{quote\_changed}
+  \item \texttt{budget\_exceeded}
+  \item \texttt{approval\_delayed}
+  \item \texttt{unsafe\_request\_blocked}
+  \item \texttt{customer\_dispute}
+  \item \texttt{proof\_verification\_failed}
+  \item \texttt{settlement\_readiness\_blocked}
+\end{itemize}
+
+\subsection{Supported Recovery Actions}
+
+The locked recovery action vocabulary is:
+
+\begin{itemize}
+  \item \texttt{reschedule}
+  \item \texttt{backup\_provider}
+  \item \texttt{pause}
+  \item \texttt{cancel}
+  \item \texttt{escalate}
+  \item \texttt{request\_missing\_evidence}
+  \item \texttt{revise\_quote}
+  \item \texttt{recommend\_refund}
+\end{itemize}
+
+\subsection{Core Objects}
+
+\subsubsection{FulfilmentException}
+
+A \texttt{FulfilmentException} records the operational exception:
+
+\begin{itemize}
+  \item \texttt{exception\_id}
+  \item \texttt{exception\_type}
+  \item \texttt{business\_id}
+  \item \texttt{job\_id}
+  \item \texttt{severity}
+  \item \texttt{source}
+  \item \texttt{summary}
+  \item \texttt{detected\_at\_ms}
+  \item \texttt{evidence\_refs}
+  \item \texttt{blocked\_reasons}
+  \item \texttt{metadata}
+  \item \texttt{exception\_hash}
+\end{itemize}
+
+\subsubsection{ExceptionRecoveryAction}
+
+An \texttt{ExceptionRecoveryAction} records a possible recovery action, but does not perform it.
+
+Every action is locked with:
+
+\begin{itemize}
+  \item \texttt{requires\_human\_review = true}
+  \item \texttt{autonomous\_execution\_allowed = false}
+  \item \texttt{would\_execute\_workflow = false}
+  \item \texttt{would\_create\_booking = false}
+  \item \texttt{would\_move\_money = false}
+  \item \texttt{would\_create\_payment = false}
+  \item \texttt{would\_create\_escrow = false}
+  \item \texttt{would\_send\_external\_message = false}
+\end{itemize}
+
+\subsubsection{ExceptionRecoveryPreview}
+
+An \texttt{ExceptionRecoveryPreview} bundles the exception, recovery actions, and safety flags into one deterministic preview payload.
+
+\subsection{Machine Trace Compatibility}
+
+The function:
+
+\begin{verbatim}
+build_exception_state_for_machine_trace(...)
+\end{verbatim}
+
+creates a compact exception state that can later be embedded into the Machine Boardroom / A2A trace payload.
+
+This lock does not expose a public A2A route.
+
+\subsection{Hashing Rule}
+
+Hashes are computed from deterministic JSON:
+
+\begin{verbatim}
+json.dumps(payload, sort_keys=True, separators=(",", ":"))
+hashlib.sha256(...)
+\end{verbatim}
+
+Changing exception content MUST change the \texttt{exception\_hash}.
+
+The machine trace exception state also carries a deterministic \texttt{machine\_trace\_exception\_hash}.
+
+\subsection{Safety Boundary}
+
+This lock is preview-only.
+
+The exception layer MUST NOT:
+
+\begin{itemize}
+  \item execute a workflow,
+  \item create a booking,
+  \item create a payment,
+  \item create escrow,
+  \item move money,
+  \item move PHO,
+  \item require a token,
+  \item require a wallet,
+  \item send an email,
+  \item send a WhatsApp message,
+  \item call a phone provider,
+  \item expose a public route,
+  \item grant permissions,
+  \item autonomously resolve an exception.
+\end{itemize}
+
+Human review remains mandatory.
+
+\subsection{Home Fixed Test Vertical}
+
+The example preview uses:
+
+\begin{verbatim}
+business_id = home_fixed
+vertical_key = home_repair
+\end{verbatim}
+
+Home Fixed is the live/test repair-business vertical for this layer.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_exception_recovery_loops_lock.py
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-EXCEPTION-RECOVERY-LOOPS-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

@@ -1,0 +1,192 @@
+% BOARD_PACK_ONE_PAGER_v2.tex
+\section{Board Pack Intake One-Pager (v2: AI Output Contract + Operator Steps)}
+\label{sec:boardpack-onepager-v2}
+
+\subsection*{Purpose}
+For each new board pack / trading update / interim / annual report, the operator MUST:
+\begin{itemize}
+  \item ingest the PDF into the equities runtime,
+  \item ensure period variables exist (variable\_watch + trigger\_map),
+  \item apply any missing values via manual feeds (macro + reported KPIs),
+  \item tick the period to materialize trigger states + intelligence snapshot,
+  \item write a commentary JSON for the dashboard (one per period).
+\end{itemize}
+
+\subsection*{Operator inputs (MUST provide)}
+\begin{tabularx}{\textwidth}{@{}lY@{}}
+\textbf{Item} & \textbf{Rule} \\
+\hline
+PDF file & Place in \url{<REPO>/_inputs/boardpacks/} (operator-visible). \\
+company\_ref & \texttt{company/TICKER} (e.g.\ \texttt{company/PAGE.L}). \\
+fiscal\_period & \texttt{YYYY-Q1..Q4} or \texttt{YYYY-FY} or \texttt{YYYY-H1/H2}. \\
+source\_type & \texttt{board\_pack} or \texttt{trading\_update}. \\
+as\_of date & Period-end date in \texttt{YYYY-MM-DD} (e.g.\ H1 $\rightarrow$ 30 Jun). \\
+\end{tabularx}
+
+\subsection*{Where files live (visibility note)}
+\begin{itemize}
+  \item Operator inputs: \url{<REPO>/_inputs/boardpacks/} (Finder-visible).
+  \item Runtime outputs: \url{<REPO>/.runtime/equities/} (macOS hides dot-folders).
+\end{itemize}
+
+\paragraph{macOS Finder.}
+Open hidden runtime folder:
+\begin{itemize}
+  \item \texttt{Cmd+Shift+G} then paste: \texttt{<REPO>/.runtime/equities}
+  \item or toggle hidden files: \texttt{Cmd+Shift+.}
+\end{itemize}
+
+\subsection*{A) Ingest the PDF (MANDATORY)}
+\begin{verbatim}
+cd "<REPO>"
+source .venv/bin/activate
+BASE="<REPO>/.runtime/equities"
+
+PYTHONPATH=. python -m backend.scripts.run_board_pack_intake \
+  --pdf "<REPO>/_inputs/boardpacks/<FILE>.pdf" \
+  --company-ref "company/<TICKER>" \
+  --fiscal-period "<PERIOD>" \
+  --source-type "<board_pack|trading_update>" \
+  --base-dir "$BASE"
+\end{verbatim}
+
+\subsection*{B) AI output contract (what the model MUST produce)}
+The model MUST return a single JSON object with the following top-level keys (even if some values are empty):
+\begin{verbatim}
+{
+  "company_profile": {...},
+  "quarter_summary": {...},
+  "feed_candidates": [...],
+  "variable_watch_seed": {...},
+  "trigger_map_seed": {...},
+  "assessment_seed": {...},
+  "thesis_seed": {...},
+  "board_pack_commentary": {...}
+}
+\end{verbatim}
+
+\paragraph{feed\_candidates (MUST).}
+For every KPI/guidance number found in the PDF, emit:
+\begin{verbatim}
+{"feed_id": "...", "value": <number|null>, "unit": "...",
+ "as_of": "YYYY-MM-DD", "note": "...", "confidence": 0.0-1.0,
+ "needs_manual": true|false}
+\end{verbatim}
+
+\paragraph{Do not fabricate macro prints.}
+If REC/INSEE/IFO values are not in the PDF text, value MUST be \texttt{null} and \texttt{needs\_manual=true}.
+
+\subsection*{C) Manual feeds (MANDATORY when values are missing)}
+\paragraph{What counts as manual.}
+Manual feeds are REQUIRED when:
+\begin{itemize}
+  \item macro prints are external (REC/INSEE/IFO, etc.), or
+  \item the PDF is ambiguous, or
+  \item the pipeline extracted nothing / low confidence.
+\end{itemize}
+
+\paragraph{Where to store manual feeds.}
+Store period-scoped manual feeds under the runtime base:
+\begin{verbatim}
+<REPO>/.runtime/equities/manual_feeds/company_<TICKER>_<PERIOD>.json
+\end{verbatim}
+
+\paragraph{Manual feeds schema (array of feed objects).}
+\begin{verbatim}
+[
+  {"feed_id":"...", "value":123.4, "unit":"...", "as_of":"YYYY-MM-DD",
+   "note":"...", "confidence":1.0}
+]
+\end{verbatim}
+
+\paragraph{Operator rule.}
+After writing manual feeds, the operator MUST apply them into the period trigger map
+(\texttt{latest\_value}, \texttt{last\_updated\_at}, \texttt{current\_state}).
+
+\subsection*{D) Tick the period (MANDATORY)}
+Tick recomputes trigger state, alerts, and intelligence artifacts.
+\begin{verbatim}
+PYTHONPATH=. python -u -m backend.scripts.run_live_monitor_tick \
+  --base-dir "$BASE" \
+  --company-ref "company/<TICKER>" \
+  --fiscal-period "<PERIOD>" \
+  --fx-mode "ewma"
+\end{verbatim}
+
+\subsection*{E) Commentary JSON (MANDATORY for dashboard)}
+\paragraph{Why it exists.}
+The dashboard cannot be useful without a compact interpretation layer per period.
+
+\paragraph{Where to store commentary.}
+One file per company+period:
+\begin{verbatim}
+<REPO>/.runtime/equities/commentary/company_<TICKER>/<PERIOD>.json
+\end{verbatim}
+
+\paragraph{Minimum required shape.}
+\begin{verbatim}
+{
+  "company_ref": "company/<TICKER>",
+  "fiscal_period_ref": "<PERIOD>",
+  "doc_id": "<stable_id>",
+  "as_of": "YYYY-MM-DD",
+  "headline": "...",
+  "key_numbers": { "...": 123.4 },
+  "guidance": { "...": "..." },
+  "gates": {
+    "gate_1_leading_indicators": "OPEN|CLOSED|PARTIAL|UNKNOWN",
+    "gate_2_company_deterioration": "OPEN|OPEN_FRAGILE|CLOSED|UNKNOWN",
+    "gate_3_price": "OPEN|CLOSED|UNKNOWN"
+  },
+  "takeaways": ["...", "..."],
+  "feeds_added": ["feed_id_1","feed_id_2"],
+  "notes_for_aion": ["..."]
+}
+\end{verbatim}
+
+\subsection*{F) Quick verification (MANDATORY checks)}
+\begin{verbatim}
+jq '.variables | length' \
+  "$BASE/variable_watch/company_<TICKER>/<PERIOD>.json"
+
+jq '.trigger_entries | length' \
+  "$BASE/company_trigger_maps/company_<TICKER>/<PERIOD>.json"
+
+ls -la "$BASE/manual_feeds/company_<TICKER>_<PERIOD>.json" 2>/dev/null || true
+ls -la "$BASE/commentary/company_<TICKER>/<PERIOD>.json"
+\end{verbatim}
+
+\subsection*{G) Operating brief (prompt control plane)}
+The active brief used by OpenAI intake MUST be strong (not the 1-line default).
+File location:
+\begin{verbatim}
+<REPO>/.runtime/equities/openai_operating_briefs/brief_aion_equities_default.json
+<REPO>/.runtime/equities/openai_operating_briefs/_active_brief.json
+\end{verbatim}
+
+\paragraph{Operator rule.}
+Before trusting extraction quality, confirm:
+\begin{verbatim}
+jq -r '.brief_text' \
+  "<REPO>/.runtime/equities/openai_operating_briefs/brief_aion_equities_default.json" \
+  | wc -c
+\end{verbatim}
+Brief text SHOULD be long (hundreds/thousands of characters), not \textasciitilde100.
+
+\subsection*{What you are meant to do each board pack (simple checklist)}
+\begin{enumerate}
+  \item Put PDF in \url{_inputs/boardpacks/}.
+  \item Run \texttt{run\_board\_pack\_intake}.
+  \item If key numbers/macro are missing: write \texttt{manual\_feeds/company\_<TICKER>\_<PERIOD>.json}.
+  \item Apply manual feeds into the period trigger map (values + confirmed state).
+  \item Run \texttt{run\_live\_monitor\_tick}.
+  \item Write the commentary JSON under \texttt{commentary/company\_<TICKER>/<PERIOD>.json}.
+  \item Verify variable count + trigger count + commentary file exists.
+\end{enumerate}
+
+\begin{flushleft}
+Lock ID: \texttt{AION-EQ-BOARDPACK-ONEPAGER-V2}\\
+Status: \texttt{DRAFT}\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+\end{flushleft}

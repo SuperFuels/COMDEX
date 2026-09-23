@@ -1,0 +1,72 @@
+\section{Phase 21B --- Pilot Cockpit Frontend Mount}
+\label{sec:aion-phase21b-pilot-cockpit-frontend-mount}
+
+\subsection{Status}
+
+Phase 21B locks the first visible AION Pilot cockpit mount contract.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Pilot cockpit frontend mount contract installed.}
+\end{quote}
+
+\subsection{Purpose}
+
+This phase defines the visible Boardroom entry point for AION Pilot.
+
+The Pilot cockpit MUST answer the operator questions:
+
+\begin{itemize}
+  \item what is Pilot doing;
+  \item what state is Pilot in;
+  \item where the mission is mounted;
+  \item what panels are available;
+  \item whether Pilot is executing safely;
+  \item whether live external action buttons are hidden by default.
+\end{itemize}
+
+\subsection{Cockpit Panels}
+
+The cockpit shell includes:
+
+\begin{itemize}
+  \item mission composer;
+  \item plan preview;
+  \item Pilot stream;
+  \item business container files;
+  \item artifact outputs;
+  \item approvals;
+  \item blocked actions;
+  \item mission map;
+  \item proof and replay;
+  \item feedback.
+\end{itemize}
+
+\subsection{Safety Contract}
+
+The Pilot cockpit is a visible operating surface. It is not a bypass.
+
+It MUST NOT expose raw tool execution, external mutation, live memory mutation or live action buttons by default.
+
+\subsection{Required Visible Message}
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20p_pilot_frontend_interaction_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21a_pilot_cockpit_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21b_pilot_cockpit_frontend_mount_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21B-PILOT-COCKPIT-FRONTEND-MOUNT
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

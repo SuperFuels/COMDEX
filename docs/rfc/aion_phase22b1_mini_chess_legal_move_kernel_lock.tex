@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.1: Mini Chess Legal Move Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.1 defines the AION Mini Chess Legal Move Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can represent a mini chess board, generate legal moves, reject illegal moves, detect captures, and preserve king safety.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.1 introduces the smallest chess-learning substrate before full chess self-play.
+
+\section{Move Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{board\_size};
+  \item \texttt{pieces};
+  \item \texttt{legal\_moves};
+  \item \texttt{illegal\_moves};
+  \item \texttt{capture\_moves};
+  \item \texttt{threat\_map};
+  \item \texttt{selected\_move};
+  \item \texttt{avoided\_illegal\_move};
+  \item \texttt{avoided\_exposing\_king};
+  \item \texttt{selected\_safe\_capture};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational mini-chess legal move grounding. It does not prove full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B1-MINI-CHESS-LEGAL-MOVE-KERNEL-LOCK\\
+Status: LOCKED --- mini chess legal move kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -1,0 +1,204 @@
+\section{Phase 12C --- Public Website Form/Button/Chat Widget Request Mapping v0}
+\label{sec:aion-public-widget-request-mapping-v0}
+
+\subsection{Status}
+
+Phase 12C locks the first deterministic request mapping contract for public website widget surfaces.
+
+\begin{quote}
+\textbf{Status: LOCKED --- public website form/button/chat widget request mapping tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 12A created the backend public intent gateway preview.
+
+Phase 12B created the frontend-visible public embed widget shell.
+
+Phase 12C maps the public widget surfaces into safe backend preview request objects.
+
+The locked widget surfaces are:
+
+\begin{itemize}
+  \item \texttt{website\_form\_widget\_preview},
+  \item \texttt{website\_button\_widget\_preview},
+  \item \texttt{embedded\_chat\_widget\_preview}.
+\end{itemize}
+
+The mapping remains preview-only and guarded.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/public_widget_request_mapping.py
+\end{verbatim}
+
+The module exports:
+
+\begin{itemize}
+  \item \texttt{PUBLIC\_WIDGET\_REQUEST\_MAPPING\_VERSION},
+  \item \texttt{build\_public\_widget\_request\_mapping\_preview},
+  \item \texttt{build\_public\_widget\_request\_mapping\_summary}.
+\end{itemize}
+
+The contract version is:
+
+\begin{verbatim}
+aion.public_widget_request_mapping.v0.1
+\end{verbatim}
+
+\subsection{Mapping Contract}
+
+The form surface maps to:
+
+\begin{verbatim}
+human_form_to_normalized_inbound_intent
+\end{verbatim}
+
+The button surface maps to:
+
+\begin{verbatim}
+button_request_to_machine_cart_request
+\end{verbatim}
+
+The embedded chat surface maps to:
+
+\begin{verbatim}
+chat_request_to_normalized_intent_or_machine_cart_request
+\end{verbatim}
+
+The preview emits:
+
+\begin{itemize}
+  \item \texttt{normalized\_intent\_preview},
+  \item \texttt{machine\_cart\_request\_preview},
+  \item \texttt{public\_intent\_gateway\_preview},
+  \item \texttt{required\_guards},
+  \item \texttt{safety},
+  \item \texttt{blocked\_reasons}.
+\end{itemize}
+
+\subsection{Required Guards}
+
+The mapping requires:
+
+\begin{itemize}
+  \item tenant/business key validation,
+  \item signed request validation,
+  \item rate limiting,
+  \item abuse protection,
+  \item human review.
+\end{itemize}
+
+The public intent gateway preview states:
+
+\begin{verbatim}
+tenant_business_key_validation_required = true
+signed_request_validation_required = true
+rate_limiting_required = true
+abuse_protection_required = true
+human_review_required = true
+unauthenticated_public_write_route_exposed = false
+\end{verbatim}
+
+\subsection{Hashing}
+
+The mapping emits deterministic hashes:
+
+\begin{itemize}
+  \item \texttt{request\_hash},
+  \item \texttt{normalized\_intent\_hash},
+  \item \texttt{machine\_cart\_request\_hash},
+  \item \texttt{response\_hash},
+  \item \texttt{summary\_hash}.
+\end{itemize}
+
+The hashes are stable for identical payloads and change when mapped request data changes.
+
+\subsection{Frontend Smoke Test Note}
+
+Phase 12C does not create a new frontend visual surface.
+
+It only creates the backend mapping contract used by the Phase 12B widget shell.
+
+Therefore no new manual frontend smoke test is required for this phase.
+
+A frontend smoke test will be required again when the mapping is wired into visible widget behaviour or mounted UI controls.
+
+\subsection{Safety Boundary}
+
+The Phase 12C widget request mapping MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item expose an unauthenticated public write route.
+\end{itemize}
+
+The locked safety values are:
+
+\begin{verbatim}
+preview_only = true
+human_review_required = true
+would_create_booking = false
+would_create_live_job = false
+would_execute_goal_engine = false
+would_bypass_human_review = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_send_external_messages = false
+would_expose_unauthenticated_public_write_route = false
+\end{verbatim}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_public_widget_request_mapping_lock.py \
+  backend/tests/workflow_capsules/test_aion_public_widget_request_mapping_lock_doc.py
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Next Step}
+
+The next implementation step is Phase 12D:
+
+\begin{quote}
+\textbf{Phase 12D --- Public Embed Widget Mapping Bridge v0}
+\end{quote}
+
+Phase 12D should connect the Phase 12B frontend widget shell to the Phase 12C request mapping contract while preserving the same preview-only safety boundary.
+
+Because Phase 12D will affect frontend-visible widget behaviour, it MUST include a manual frontend smoke test.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PUBLIC-WIDGET-REQUEST-MAPPING-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

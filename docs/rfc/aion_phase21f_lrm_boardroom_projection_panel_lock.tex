@@ -1,0 +1,156 @@
+\section{Phase 21F --- Read-only LRM Boardroom Projection Panel}
+\label{sec:phase21f-lrm-boardroom-projection-panel-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- read-only AION-LRM Boardroom projection panel mounted in the existing Boardroom dashboard.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 21F renders the same AION-LRM context used by the Pilot stream as a Boardroom projection-only panel.
+
+It uses the existing frontend state populated by the Phase 21D fetch bridge.
+
+It does not fetch data itself.
+
+It does not replace the Boardroom.
+
+It does not create a duplicate Pilot.
+
+\subsection{Implemented Frontend Surface}
+
+The live frontend file is:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+Phase 21F adds:
+
+\begin{verbatim}
+renderAionLrmBoardroomProjectionPanel
+\end{verbatim}
+
+The panel is mounted inside:
+
+\begin{verbatim}
+renderBoardroomDashboardView
+\end{verbatim}
+
+It reads state from:
+
+\begin{verbatim}
+getAionPilotFrontendInteractionState
+\end{verbatim}
+
+\subsection{State Fields Read}
+
+The panel reads preview-only state prepared by Phase 21D and rendered by Phase 21E:
+
+\begin{verbatim}
+lrm_pilot_context_payload
+boardroom_projection
+lrm_context_payload_hash
+lrm_next_review_state
+lrm_loop_hash
+\end{verbatim}
+
+\subsection{Rendered Information}
+
+The panel renders:
+
+\begin{itemize}
+  \item LRM status;
+  \item human review state;
+  \item evidence state;
+  \item payload hash;
+  \item loop hash;
+  \item recommendation hash;
+  \item human review decision hash;
+  \item evidence gap hash;
+  \item evidence satisfaction hash.
+\end{itemize}
+
+These values are proof anchors.
+
+\subsection{Safety Boundary}
+
+Phase 21F is read-only and projection-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item fetch data itself;
+  \item create a duplicate Pilot;
+  \item replace the Boardroom;
+  \item create a booking;
+  \item create a payment;
+  \item create escrow;
+  \item send an external message;
+  \item write live chain data;
+  \item execute workflow steps;
+  \item write business-container files;
+  \item expose private chain-of-thought;
+  \item expose hidden reasoning;
+  \item expose credentials.
+\end{itemize}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+Phase 21F
+Read-only LRM Boardroom Projection Panel
+renderAionLrmBoardroomProjectionPanel
+renderBoardroomDashboardView
+getAionPilotFrontendInteractionState
+lrm_pilot_context_payload
+boardroom_projection
+lrm_context_payload_hash
+lrm_next_review_state
+lrm_loop_hash
+proof anchors
+read-only
+projection-only
+no duplicate Pilot
+no Boardroom replacement
+preview-only
+human review
+no booking
+no payment
+no escrow
+no external message
+no live chain
+no workflow execution
+no private chain-of-thought
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21f_lrm_boardroom_projection_panel_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21f_lrm_boardroom_projection_panel_ui_lock_doc.py
+\end{verbatim}
+
+\subsection{Next Phase}
+
+The next phase SHOULD create an end-to-end local smoke test proving:
+
+\begin{verbatim}
+local API endpoint
+→ frontend fetch bridge
+→ existing Pilot state
+→ Pilot readonly LRM card
+→ Boardroom readonly LRM projection panel
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21F-LRM-BOARDROOM-PROJECTION-PANEL-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

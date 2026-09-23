@@ -1,0 +1,60 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.23 --- Live POST 400 Recovery + Stale-State Guard}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.23 adds a recovery guard for live Lichess POST failures.
+
+The Phase 22E.22 live rematch failed before queen endgame activation because a locally legal move returned HTTP 400 from the live server.
+
+\section{Contract}
+
+On HTTP 400, the runtime MUST NOT immediately abort.
+
+It MUST:
+
+\begin{itemize}[leftmargin=*]
+  \item fetch or consume the latest game state;
+  \item compare expected ply count with server ply count;
+  \item detect whether the attempted move is already present;
+  \item detect stale local state;
+  \item detect whether the game has already finished;
+  \item only hard-abort when the latest confirmed current state still rejects the move.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not select chess moves, does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+It only handles live transport recovery after HTTP 400.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e23_full_chess_live_post_400_recovery_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e23_full_chess_live_post_400_recovery_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E23-FULL-CHESS-LIVE-POST-400-RECOVERY\\
+Status: LOCKED --- live POST 400 recovery and stale-state guard implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

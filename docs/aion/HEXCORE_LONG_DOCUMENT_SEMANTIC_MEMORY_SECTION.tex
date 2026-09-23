@@ -1,0 +1,57 @@
+\section{Long-Document Semantic Memory and Concept Composition}
+\label{sec:long-document-semantic-memory}
+
+AION completed a governed semantic-memory cycle over three complete
+public-domain books comprising 143,164 words.  A replaceable language substrate
+proposed answers and exact quotations from retrieved sentence windows.  HexCore
+retained a proposal only when its quotation was recoverable from the immutable
+source:
+\[
+  \text{book}
+  \rightarrow \text{retrieved evidence}
+  \rightarrow \text{proposal}
+  \rightarrow \text{span verification}
+  \rightarrow \text{concept--relation memory}.
+\]
+Reported content was not automatically marked as independently verified.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Complete books & 3 \\
+Source words & 143,164 \\
+Verified question accuracy & 88.89\% \\
+Weakest-book accuracy & 66.67\% \\
+Accepted-answer provenance recovery & 100\% \\
+Delayed relation retrieval after restart & 100\% \\
+Concept-composition accuracy & 100\% \\
+Hypothetical compositions committed as facts & 0 \\
+Unsafe knowledge commitments & 0 \\
+Restart relearning & 0 \\
+\hline
+\end{tabular}
+\caption{Bounded long-document semantic-memory results.}
+\end{table}
+
+The retained graph preserved source-bound relations including
+\(\texttt{white}\rightarrow\texttt{rabbit}\),
+\(\texttt{pink}\rightarrow\texttt{eyes}\), and
+\(\texttt{blue}\rightarrow\texttt{caterpillar}\).  A first proximity rule
+incorrectly proposed \(\texttt{pink}\rightarrow\texttt{rabbit}\); delayed
+structural evaluation detected the error, and the binding rule was restricted
+to adjective-to-immediately-modified-noun relations.
+
+The system constructed novel combinations such as \texttt{blue rabbit} and
+\texttt{yellow machine}, but retained them only as hypothetical compositions.
+No generated combination was converted into a factual claim.  Contradictory
+reader notes were likewise retained with provenance rather than silently
+resolved.
+
+The promoted procedure is
+\texttt{procedure\_long\_document\_semantic\_memory\_6d1736d5906a}.
+The result remains bounded: the sources and questions are public development
+material, retrieval and semantic types are engineered, and no independent
+evaluator authored the cohort.

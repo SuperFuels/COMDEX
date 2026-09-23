@@ -1,0 +1,938 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=23mm,headheight=15pt]{geometry}
+\usepackage{xcolor}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{lastpage}
+\usepackage{pifont}
+\usepackage{amssymb}
+\usepackage{seqsplit}
+
+\definecolor{AionNavy}{HTML}{13233A}
+\definecolor{AionBlue}{HTML}{245A8D}
+\definecolor{AionLightBlue}{HTML}{EAF5FC}
+\definecolor{AionTeal}{HTML}{168C8C}
+\definecolor{AionGreen}{HTML}{237A57}
+\definecolor{AionAmber}{HTML}{B97618}
+\definecolor{AionRed}{HTML}{A63D40}
+\definecolor{AionInk}{HTML}{1F2933}
+\definecolor{AionGray}{HTML}{667788}
+\definecolor{AionPale}{HTML}{F3F7FA}
+\definecolor{AionRule}{HTML}{D8E2EA}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=AionBlue,
+  urlcolor=AionTeal,
+  citecolor=AionBlue,
+  pdftitle={AION Third-Party Integration, Training and Pilot Execution Standard},
+  pdfauthor={AION / Tessaris / COMDEX},
+  pdfsubject={Repeatable standard for integrating external business tools into AION},
+  pdfkeywords={AION, Tessaris, Pilot, Vault, connectors, OAuth, MCP, tools, skills, governance}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textcolor{AionGray}{AION Third-Party Integration Standard}}
+\rhead{\textcolor{AionGray}{Version 1.0 --- 25 August 2026}}
+\cfoot{\textcolor{AionGray}{\thepage\ / \pageref{LastPage}}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{AionRule}\leaders\hrule height \headrulewidth\hfill}}
+
+\titleformat{\section}{\Large\bfseries\color{AionNavy}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries\color{AionBlue}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{AionInk}}{\thesubsubsection}{0.7em}{}
+\titlespacing*{\section}{0pt}{2.3ex plus .4ex}{1.0ex}
+\titlespacing*{\subsection}{0pt}{1.8ex plus .3ex}{0.7ex}
+
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.25em,topsep=0.4em}
+\setlist[enumerate]{leftmargin=1.7em,itemsep=0.35em,topsep=0.4em}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{4pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\pass}{\textcolor{AionGreen}{\ding{51}}}
+\newcommand{\fail}{\textcolor{AionRed}{\ding{55}}}
+\newcommand{\must}{\textbf{MUST}}
+\newcommand{\mustnot}{\textbf{MUST NOT}}
+\newcommand{\should}{\textbf{SHOULD}}
+
+\newtcolorbox{rulebox}{
+  colback=AionBlue!4,colframe=AionBlue!75!black,
+  title=Governing rule,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+\newtcolorbox{truthbox}{
+  colback=AionRed!4,colframe=AionRed!70!black,
+  title=Truth and claim boundary,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+\newtcolorbox{releasebox}{
+  colback=AionGreen!5,colframe=AionGreen!75!black,
+  title=Release condition,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+\newtcolorbox{warningbox}{
+  colback=AionAmber!6,colframe=AionAmber!80!black,
+  title=Fail-closed requirement,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+
+\lstdefinelanguage{AionJSON}{
+  basicstyle=\ttfamily\footnotesize,
+  string=[s]{\"}{\"},
+  stringstyle=\color{AionTeal},
+  comment=[l]{//},
+  commentstyle=\color{AionGray}\itshape,
+  morekeywords={true,false,null},
+  keywordstyle=\color{AionBlue}\bfseries
+}
+\lstset{
+  language=AionJSON,
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{AionPale},
+  frame=single,
+  rulecolor=\color{AionRule},
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  xleftmargin=0.5em,xrightmargin=0.5em,
+  aboveskip=0.8em,belowskip=0.8em
+}
+
+\begin{document}
+
+\begin{titlepage}
+  \pagecolor{AionNavy}
+  \color{white}
+  \vspace*{16mm}
+  {\fontsize{23}{28}\selectfont\bfseries AION Third-Party Integration, Training and Pilot Execution Standard\par}
+  \vspace{4mm}
+  {\fontsize{15}{19}\selectfont One repeatable method for connecting, teaching, governing and operating every external business tool\par}
+  \vspace{14mm}
+  {\color{AionTeal!45!white}\rule{\textwidth}{1.4pt}}
+  \vspace{10mm}
+
+  \begin{tabularx}{\textwidth}{>{\bfseries}p{39mm}X}
+    Document date & 25 August 2026 \\
+    Version & 1.0 \\
+    System & Tessaris / AION Central Pilot \\
+    Repository & \path{/Users/kevinrobinson/dev/COMDEX} \\
+    Applies to & OAuth, API-key, MCP, webhook, local-service, browser and desktop-control integrations \\
+    Primary outcome & Every installed provider behaves consistently, truthfully and safely from Vault connection to verified Pilot execution \\
+    Status & Normative implementation and release standard \\
+  \end{tabularx}
+
+  \vfill
+  \begin{tcolorbox}[colback=AionBlue!55!AionNavy,colframe=AionTeal!70!white,
+    title=Purpose,fonttitle=\bfseries,coltitle=white,coltext=white,boxrule=0.6pt]
+  This standard defines how any new third party becomes a genuine AION
+  capability. It covers provider selection, credential storage, machine-readable
+  action contracts, AION training, Pilot routing, owner authority, execution,
+  read-back verification, user-facing capability explanations, failure handling,
+  revocation and release evidence. The standard prevents a connected logo, a
+  learned description or a generated draft from being mistaken for verified
+  operational power.
+  \end{tcolorbox}
+  \vspace{5mm}
+  {\small Internal engineering standard --- local-first, evidence-backed, approval-governed}
+\end{titlepage}
+\nopagecolor
+\color{AionInk}
+
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+
+\section*{Document control}
+\addcontentsline{toc}{section}{Document control}
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{38mm}X}
+Owner & Tessaris Connectors and AION Runtime \\
+Review authority & Product owner, connector maintainer and security reviewer \\
+Change rule & Changes to actions, scopes, authority, receipts or release gates require a new manifest hash and regression evidence \\
+Source standard & \path{docs/aion/AION_THIRD_PARTY_TOOL_INTEGRATION_STANDARD_2026-08-24.md} \\
+Machine validator & \path{backend/modules/connectors/tool_manifest.py} \\
+Provider catalogue & \path{backend/modules/connectors/priority_provider_catalog.py} \\
+Release gate & \path{backend/modules/connectors/provider_release_gate.py} \\
+Human checklist & \path{docs/aion/templates/AION_THIRD_PARTY_TOOL_IMPLEMENTATION_CHECKLIST.md} \\
+\end{tabularx}
+
+\begin{truthbox}
+An integration is not operational merely because AION knows how the provider
+works, a credential has been entered, an adapter exists, or a dry run passes.
+Live capability is action-specific and exists only when the current workspace
+has a healthy grant, sufficient scope, applicable owner authority, a released
+adapter and the required verification receipts. The Vault and Pilot must report
+that state exactly.
+\end{truthbox}
+
+\clearpage
+\pagenumbering{arabic}
+
+\section{Executive standard}
+
+Every third party is represented as a collection of narrow, named powers. Gmail
+is not one power called ``use Gmail.'' It is a set such as search email, read
+email, create draft, send email, reply, label and archive. Each power has its own
+inputs, risk, permission scope, owner authority, adapter method, receipt and
+release evidence.
+
+The definitive capability statement is computed from five sources:
+
+\begin{enumerate}
+  \item the validated provider manifest;
+  \item the provider's achieved release stage;
+  \item the current workspace credential and granted scopes;
+  \item the current user's and workspace's authority policy; and
+  \item current connector health and incident state.
+\end{enumerate}
+
+The same computed statement drives the Vault connection screen, Pilot's action
+resolver, the answer to ``what can you do with this tool?'', approval screens
+and the execution gate. No surface may maintain a separate hard-coded list.
+
+\begin{rulebox}
+\textbf{One manifest, one live-state resolver, many views.} The Vault explains
+the powers; Pilot selects and executes them; the dashboard displays their state;
+and receipts prove their outcomes. All four read the same action IDs and current
+eligibility. This eliminates drift between what the user is promised and what
+the runtime can actually do.
+\end{rulebox}
+
+\section{Scope and terminology}
+
+\begin{longtable}{>{\bfseries}p{34mm}p{118mm}}
+\toprule
+Term & Meaning \\
+\midrule
+Provider & The external system, for example Gmail, Microsoft Outlook, Xero, HubSpot, Twilio or Stripe. \\
+Connector & The authenticated channel between Tessaris and the provider. \\
+Adapter & Code that converts a validated AION action into a bounded provider operation and reconciles the result. \\
+Action & A stable atomic power such as \code{gmail.send\_email}. \\
+Skill & AION's learned method for deciding when and how an action should be used. \\
+Business knowledge & Owner-approved company facts, policies and operating preferences retrieved from the Business Brain. \\
+Vault reference & An opaque identifier for locally stored credentials; never the secret itself. \\
+Authority & The owner's permission mode and limits for a named action. \\
+Receipt & Durable local evidence of the requested payload, policy decision, provider result and reconciliation. \\
+Read-back & A separate provider query that confirms the resulting external state. \\
+Capability state & A runtime result describing whether an action is known, connected, executable, approval-gated or blocked. \\
+Release stage & The highest evidence-backed maturity level achieved by the provider integration. \\
+\bottomrule
+\end{longtable}
+
+\section{Reference architecture}
+
+\begin{tcolorbox}[colback=AionPale,colframe=AionRule,boxrule=0.6pt]
+\begin{verbatim}
+User request
+    |
+    v
+AION intent + Business Brain + prior experience
+    |
+    v
+Capability resolver ---- provider manifest
+    |                     release receipts
+    |                     Vault health/scopes
+    |                     owner authority
+    v
+Pilot plan and exact preview
+    |
+    v
+Authority decision ---- blocked / ask / bounded auto / full access
+    |
+    v
+Adapter prepare -> execute -> provider read-back
+    |
+    v
+Receipt + business outcome + experience capsule
+\end{verbatim}
+\end{tcolorbox}
+
+The language model never receives raw credentials. It proposes a stable action
+and structured payload. A deterministic control plane decides whether that
+action exists and is currently eligible. The adapter receives a short-lived
+Vault reference only after policy evaluation.
+
+\subsection{Separation of responsibilities}
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{32mm}X X}
+\toprule
+Layer & Responsible for & Must not do \\
+\midrule
+AION intelligence & Understand intent, retrieve approved knowledge, choose a skill, fill or request missing inputs & See secrets, invent permissions or claim execution \\
+Capability resolver & Join manifest, release, connection, scope, authority and health state & Make provider calls \\
+Pilot & Present the plan, obtain approval when required, dispatch eligible work and explain results & Bypass policy or hard-code provider behaviour \\
+Vault & Store credentials, scopes, connection metadata and revocation controls & Expose raw secrets to prompts or receipts \\
+Adapter & Validate, preview, execute and reconcile a named action & Accept arbitrary provider commands \\
+Receipt ledger & Preserve exact evidence and uncertainty & Convert an attempted request into unverified success \\
+\bottomrule
+\end{tabularx}
+
+\section{The standard provider installation lifecycle}
+
+Every integration \must follow the stages below in order. A stage may contain
+several actions, but no later claim can be made from evidence belonging only to
+an earlier stage.
+
+\subsection{Stage 1: select the business outcome}
+
+Define the useful job before selecting technology. Examples include reading an
+inbox, preparing and sending an approved reply, creating a CRM contact, issuing
+an invoice, placing a consented call or reconciling a payment. Record the owning
+department, expected user value and prohibited uses.
+
+\subsection{Stage 2: decompose the provider into atomic actions}
+
+Each operation receives a stable provider-prefixed action ID. Read, draft,
+external write, delete and financial operations remain distinct. A universal
+``do anything'' action is prohibited.
+
+\subsection{Stage 3: choose and register the connection}
+
+Supported connection types are OAuth~2, scoped API key, signed webhook, MCP,
+local service, browser session and desktop control. Official APIs or official
+MCP servers are preferred when they expose the required result identifiers and
+read-back operations. Browser or desktop control is a bounded fallback, not a
+universal permission.
+
+The connection definition \must include:
+
+\begin{itemize}
+  \item a Vault reference;
+  \item least-privilege scopes;
+  \item a side-effect-free health check;
+  \item token-expiry and refresh behaviour;
+  \item a revocation method and emergency kill switch; and
+  \item confirmation that secrets are invisible to the model, logs and receipts.
+\end{itemize}
+
+\subsection{Stage 4: create and validate the tool manifest}
+
+The manifest is the provider's machine-readable contract. It declares identity,
+connection, required skills, required company knowledge, actions, risks,
+authority, adapter methods, receipts, reconciliation and failure behaviour. It
+is validated and SHA-256 fingerprinted before registration.
+
+\subsection{Stage 5: train and examine AION}
+
+AION learns the provider model and each action's correct use. Training does not
+grant credentials or authority. Section~\ref{sec:training} defines the full
+curriculum and evidence gates.
+
+\subsection{Stage 6: implement the adapter}
+
+The adapter implements \code{health\_check}, \code{prepare}, \code{preview},
+\code{execute}, \code{reconcile} and \code{revoke} where applicable. Writes use
+idempotency and fail closed. The adapter accepts only registered actions and
+validated payloads.
+
+\subsection{Stage 7: bind authority}
+
+Every action is bound to an owner policy: \code{ask\_each\_time},
+\code{auto\_within\_limits}, \code{full\_access} or \code{blocked}. The policy
+may add recipients, accounts, records, hours, amounts, currencies or frequency
+limits. A refusal with \code{ask\_again=false} is retained.
+
+\subsection{Stage 8: verify progressively}
+
+Contract tests and dry runs come first. A sandbox action and provider read-back
+come next. Finally, one bounded live action receives exact approval, executes,
+is read back from the provider, and produces durable receipts. Failure and
+revocation must also be proved.
+
+\subsection{Stage 9: release and monitor}
+
+The action is displayed as live only at its achieved stage. Runtime health,
+scope loss, provider incidents or revoked authority can immediately demote or
+block it without editing the manifest.
+
+\section{The machine-readable provider contract}
+
+The canonical schema is \code{aion.third\_party\_tool.v1}. The repository
+template is:
+
+\begin{center}
+\path{backend/modules/connectors/templates/provider_tool_manifest.template.json}
+\end{center}
+
+The following abbreviated example shows the required shape. It is illustrative;
+the validated repository manifest remains authoritative.
+
+\begin{lstlisting}
+{
+  "schema_version": "aion.third_party_tool.v1",
+  "tool": {
+    "tool_id": "gmail",
+    "label": "Gmail",
+    "category": "email"
+  },
+  "connection": {
+    "type": "oauth2",
+    "vault_reference": "vault.gmail.credentials",
+    "least_privilege_scopes": [
+      "gmail.readonly", "gmail.compose", "gmail.modify"
+    ],
+    "health_check": "gmail.health_check",
+    "revocation_method": "revoke grant and remove Vault entry"
+  },
+  "skills": [{
+    "skill_id": "gmail.business_email",
+    "required_knowledge": [
+      "email_etiquette", "business_identity",
+      "recipient_policy", "approved_company_knowledge"
+    ]
+  }],
+  "actions": [{
+    "action_id": "gmail.send_email",
+    "kind": "write",
+    "risk": {"external_write": true, "tier": "medium"},
+    "authority": {
+      "default_mode": "ask_each_time",
+      "allowed_modes": [
+        "ask_each_time", "auto_within_limits",
+        "full_access", "blocked"
+      ]
+    },
+    "execution": {
+      "adapter_method": "send_email",
+      "dry_run_supported": true,
+      "idempotency": "required"
+    },
+    "receipt": {"required": true},
+    "failure": {"fail_closed": true}
+  }]
+}
+\end{lstlisting}
+
+\subsection{Mandatory action fields}
+
+\begin{longtable}{>{\bfseries}p{34mm}p{118mm}}
+\toprule
+Field & Required content \\
+\midrule
+Action identity & Stable action ID, user label and plain-English purpose. \\
+Skills & Skill IDs and approved business knowledge required before use. \\
+Input contract & Required fields, types, formats, limits and missing-input behaviour. \\
+Output contract & Provider request IDs, result IDs, status and completion evidence. \\
+Risk & Read/write, financial status, reversibility, data classes and tier. \\
+Authority & Policy key, default mode, allowed modes and constraints. \\
+Execution & Adapter method, dry-run support, timeout and idempotency. \\
+Receipt & Required evidence fields and reconciliation method. \\
+Failure & Fail-closed rule, retryable classes and truthful user message. \\
+Explanation & User-facing summary of what the action does and what it does not do. \\
+\bottomrule
+\end{longtable}
+
+\section{Vault connection and capability explanation}
+\label{sec:vault}
+
+The Vault is both the secure connection point and the user's capability
+contract. Before the user connects a provider, the screen explains what AION
+could do if the required scopes and adapters are available. After connection,
+it explains what AION can actually do in the current workspace.
+
+\subsection{Required provider card}
+
+Every provider card \must show:
+
+\begin{itemize}
+  \item provider name, category and connection method;
+  \item connection health and last successful check;
+  \item requested permissions in plain English;
+  \item \textbf{AION can now}: currently eligible read, draft and write actions;
+  \item \textbf{AION will ask before}: approval-gated actions;
+  \item \textbf{AION cannot yet}: missing scopes, adapters, authority or release evidence;
+  \item current authority mode and important limits;
+  \item data accessed and local evidence retained;
+  \item buttons to connect, test, change authority and revoke; and
+  \item a link to the detailed provider capability record.
+\end{itemize}
+
+The screen \mustnot display ``connected'' as a synonym for ``can execute.'' It
+must separately display authentication, scope, adapter, release and authority
+state.
+
+\subsection{Example: Gmail before connection}
+
+\begin{tcolorbox}[colback=AionLightBlue,colframe=AionBlue!45]
+\textbf{Gmail --- business email}\par
+Connect Gmail to let AION search and read permitted mail, prepare drafts, and
+send or reply when the relevant action is verified and authorised. AION never
+sees your password or OAuth token. Connecting Gmail does not automatically
+permit sending, deleting or acting on every message.
+\end{tcolorbox}
+
+\subsection{Example: Gmail after connection}
+
+\begin{tcolorbox}[colback=AionLightBlue,colframe=AionBlue!45]
+\textbf{Connected --- healthy grant}\par
+\textbf{AION can now:} search permitted email, read messages and prepare drafts.\par
+\textbf{AION will ask before:} sending a new email or reply under the current
+\code{ask\_each\_time} policy.\par
+\textbf{AION cannot:} send without the required scope and released adapter,
+read excluded accounts, reveal credentials, or claim delivery without provider
+evidence.\par
+\textbf{Permissions:} read, compose and modify mail. \textbf{Last checked:}
+derived from the live connector health receipt.
+\end{tcolorbox}
+
+\subsection{Capability explanation must be generated, not written twice}
+
+The Vault UI does not own these sentences. A shared capability-introspection
+service renders them from the current computed state. Pilot uses the same
+service when answering questions about tools. Provider labels may have curated
+plain-English wording in the manifest, but the verbs and eligibility state come
+from registered actions and live evidence.
+
+\section{Training AION on a provider}
+\label{sec:training}
+
+AION must learn more than the provider's marketing description or API syntax.
+It must learn how business objects behave, which operation achieves which
+outcome, what can go wrong and how to prove the result.
+
+\subsection{Seven mandatory lessons}
+
+\begin{enumerate}
+  \item provider objects, identifiers and state transitions;
+  \item least-privilege authentication and local Vault handling;
+  \item atomic read, draft and write action contracts;
+  \item business policy, authority limits and approval escalation;
+  \item provider errors, retries, idempotency and rate limits;
+  \item receipt creation and independent provider reconciliation; and
+  \item credential revocation, kill switch and incident response.
+\end{enumerate}
+
+Training sources should include official provider documentation, the actual
+adapter contract, workspace policy, approved Business Brain facts, representative
+fixtures and observed failure receipts. Community tutorials may support
+discovery but do not override official or locally verified evidence.
+
+\subsection{Training outputs}
+
+The training run produces:
+
+\begin{itemize}
+  \item a provider object and state model;
+  \item an action-selection map from user intent to stable action IDs;
+  \item required and optional input definitions;
+  \item permission and authority explanations;
+  \item error, retry and reconciliation playbooks;
+  \item adversarial examples and prohibited assumptions;
+  \item verified experience capsules from practical tests; and
+  \item a source and version ledger so learning can be refreshed when the provider changes.
+\end{itemize}
+
+\subsection{Required assessments}
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{44mm}X}
+\toprule
+Assessment & Evidence required \\
+\midrule
+Closed-book provider model & AION explains objects, states, actions, scopes and failure cases without source access. \\
+Intent-to-action transfer & Unfamiliar user requests map to the correct action or to an honest capability gap. \\
+Safe dry run & AION constructs a valid payload and preview with zero external side effects. \\
+Adversarial permission test & AION refuses scope escalation, hidden recipients, unsafe amounts and unsupported actions. \\
+Sandbox execution & A controlled write completes and is independently read back. \\
+Failure and repair & AION diagnoses expired credentials, rate limits, duplicates and ambiguous outcomes without inventing success. \\
+Retention & Closed-book checks after 1, 7, 30 and 90 days, with source-free execution where precommitted. \\
+\bottomrule
+\end{tabularx}
+
+\begin{warningbox}
+Reading documentation is not provider competence. Passing a knowledge test is
+not operational readiness. AION is classified as practically competent only
+after unfamiliar actions, failures, repairs and provider read-backs produce
+independent evidence. Training never supplies credentials or owner authority.
+\end{warningbox}
+
+\section{Making Pilot genuinely able to do the work}
+
+Pilot must route a natural request to installed powers rather than match it to
+a hard-coded response. The same mechanism must handle ``send that Gmail
+message,'' ``raise this Xero invoice,'' ``move the HubSpot deal'' and future
+providers without adding one-off conversational branches.
+
+\subsection{Runtime decision sequence}
+
+For every user request Pilot performs the following sequence:
+
+\begin{enumerate}
+  \item identify the intended business outcome and affected objects;
+  \item retrieve approved Business Brain facts, policies and relevant experience;
+  \item query the capability resolver for matching action IDs;
+  \item evaluate release stage, connection, scope, health and authority;
+  \item select an eligible action, a safe draft alternative or a precise blocker;
+  \item ask only for information genuinely missing from the action contract;
+  \item produce the exact preview and payload hash;
+  \item execute only after the applicable authority decision;
+  \item reconcile provider state independently;
+  \item record the receipt, business outcome and any learned repair; and
+  \item answer the user in plain English with what happened and what remains uncertain.
+\end{enumerate}
+
+\subsection{Capability resolver contract}
+
+The resolver should expose a function equivalent to:
+
+\begin{lstlisting}
+describe_provider_capabilities(
+  workspace_id,
+  user_id,
+  provider_id,
+  optional_intent
+) -> ProviderCapabilityView
+\end{lstlisting}
+
+Its output must be deterministic from current state and suitable for both UI
+and runtime use:
+
+\begin{lstlisting}
+{
+  "provider_id": "gmail",
+  "connection": "healthy",
+  "release_stage": "live_verified",
+  "actions": [
+    {
+      "action_id": "gmail.search_email",
+      "status": "available",
+      "authority": "auto_within_limits"
+    },
+    {
+      "action_id": "gmail.create_draft",
+      "status": "available",
+      "authority": "auto_within_limits"
+    },
+    {
+      "action_id": "gmail.send_email",
+      "status": "approval_required",
+      "authority": "ask_each_time"
+    }
+  ],
+  "blocked": [],
+  "generated_from": {
+    "manifest_sha256": "...",
+    "credential_health_receipt": "...",
+    "authority_revision": "..."
+  }
+}
+\end{lstlisting}
+
+\subsection{Answering ``What can you do with Gmail?''}
+
+Pilot first queries the resolver, then gives a state-qualified answer. For
+example:
+
+\begin{tcolorbox}[colback=AionPale,colframe=AionRule]
+\textbf{Connected and approval-gated}\par
+``With the Gmail account connected to this business, I can search and read the
+permitted inbox and prepare email drafts. I can also send new emails and replies,
+but your current policy requires me to show you the exact recipient, subject and
+message for approval first. I cannot access another account, see your OAuth
+secret, or confirm delivery unless Gmail provides verifiable status.''
+\end{tcolorbox}
+
+If disconnected, Pilot explains the available integration and offers to open
+the Vault. If a scope is missing, it names the affected actions. If the adapter
+is not released, it says that the action is not yet operational. These are
+computed answers, not provider-specific dialogue scripts.
+
+\subsection{Missing information behaviour}
+
+Pilot should request the minimum missing input conversationally. A draft email
+may proceed with clearly marked placeholders; an external send cannot. The
+action contract determines whether Pilot asks, uses an approved default,
+prepares a placeholder draft or stops. It must not manufacture recipients,
+amounts, legal commitments, account identifiers or company facts.
+
+\section{Authority and removal of the stabilisers}
+
+The owner can increase autonomy without changing the provider adapter. Authority
+is action-specific, visible, reversible and bounded.
+
+\begin{longtable}{>{\bfseries}p{38mm}p{113mm}}
+\toprule
+Mode & Behaviour \\
+\midrule
+\code{blocked} & Never execute. Optionally retain \code{ask\_again=false}. \\
+\code{ask\_each\_time} & Show the exact payload and request approval for this instance. \\
+\code{auto\_within\_limits} & Execute only within declared recipients, accounts, amounts, times, frequency and other constraints. \\
+\code{full\_access} & Standing authority for the named action, still subject to adapter validation, provider scope, kill switch, receipts and statutory safety constraints. \\
+\bottomrule
+\end{longtable}
+
+Read authority never implies write authority. Draft authority never implies
+send authority. Invoice creation never implies issue, payment or bank transfer.
+High-risk actions cannot default to unrestricted full access. Financial actions
+must define amount and currency controls, and may impose a mandatory approval
+floor regardless of the general mode.
+
+When authority is missing, Pilot may ask once whether the owner wants to approve
+the instance or change the standing rule. It must explain the exact capability,
+scope and consequences. If the owner declines and selects ``do not ask again,''
+Pilot records the blocked policy and later provides a quiet route to manual
+settings instead of repeatedly prompting.
+
+\section{Adapter execution contract}
+
+\subsection{Required phases}
+
+\begin{enumerate}
+  \item \code{health\_check()} proves the connection without changing provider state;
+  \item \code{prepare()} validates identities, inputs, policy and provider constraints;
+  \item \code{preview()} renders exactly what is proposed;
+  \item \code{execute()} performs only the named registered action;
+  \item \code{reconcile()} reads provider state back and binds it to the payload hash; and
+  \item \code{revoke()} or the central kill switch prevents further execution.
+\end{enumerate}
+
+\subsection{Write safety}
+
+External writes must use an idempotency key or verified provider-managed
+idempotency. Timeouts cannot be treated as failure or success until reconciled.
+Retries cannot duplicate messages, invoices, calls or payments. Arbitrary raw
+API calls remain blocked unless deliberately registered as a separate bounded
+action.
+
+\section{Receipts, read-back and learning from outcomes}
+
+Every consequential action produces a local receipt containing:
+
+\begin{itemize}
+  \item workspace, provider, action and adapter version;
+  \item manifest hash and authority decision;
+  \item exact payload hash, without secrets;
+  \item provider request and result identifiers;
+  \item attempt and completion timestamps;
+  \item reconciliation method and result;
+  \item final state: \code{verified\_complete}, \code{failed} or \code{uncertain}; and
+  \item error classification and safe repair when applicable.
+\end{itemize}
+
+Successful and failed practical work becomes a governed AION experience
+capsule. Future retrieval may reuse the verified method and repair, but never a
+credential, unverified claim or workspace-private fact outside its authority.
+
+\section{Release stages and exact evidence gate}
+
+\begin{longtable}{>{\bfseries}p{36mm}p{115mm}}
+\toprule
+Stage & Meaning \\
+\midrule
+\code{catalogued} & Provider and intended business value are registered. \\
+\code{contract\_ready} & Valid manifest and contract SHA-256 exist. \\
+\code{knowledge\_ready} & AION passed the provider knowledge assessment. \\
+\code{adapter\_ready} & Adapter contract and dry-run receipts pass. \\
+\code{credential\_ready} & Current workspace credential health is verified. \\
+\code{sandbox\_verified} & Controlled provider write and read-back pass. \\
+\code{live\_verified} & Approved live action, independent read-back, failure test and revocation test all pass. \\
+\bottomrule
+\end{longtable}
+
+The machine gate requires the following evidence before live verification:
+
+\begin{enumerate}
+  \item \code{contract\_sha256};
+  \item \code{knowledge\_assessment\_receipt};
+  \item \code{adapter\_contract\_receipt};
+  \item \code{dry\_run\_receipt};
+  \item \code{credential\_health\_receipt};
+  \item \code{sandbox\_write\_receipt};
+  \item \code{approved\_live\_action\_receipt};
+  \item \code{provider\_readback\_receipt};
+  \item \code{failure\_test\_receipt}; and
+  \item \code{revocation\_test\_receipt}.
+\end{enumerate}
+
+\begin{releasebox}
+Only \code{live\_verified} permits the statement that AION can perform the
+tested action through the provider. The statement remains qualified by current
+workspace connection, scopes, health and authority. Release is per action where
+provider actions mature at different rates.
+\end{releasebox}
+
+\section{End-to-end Gmail example}
+
+This example is the reference pattern for future integrations.
+
+\subsection{Business scope}
+
+The initial Gmail release supports searching permitted mail, reading messages,
+creating drafts, sending new messages and replying. Delete, account-wide
+administration and unrestricted mailbox automation are excluded until separately
+contracted.
+
+\subsection{Connection and Vault}
+
+The workspace completes OAuth, granting only the scopes required by enabled
+actions. The Vault stores tokens locally under \code{vault.gmail.credentials}.
+The model sees only \code{gmail} capability state and never the token. The Vault
+tests connection health and offers immediate revocation.
+
+\subsection{Training}
+
+AION learns Gmail message/thread identifiers, drafts, replies, headers, recipient
+handling, scopes, common API failures, retry/idempotency constraints and read-back.
+It also retrieves business identity, approved company facts, email etiquette and
+recipient policy from the Business Brain.
+
+\subsection{Pilot request}
+
+For ``reply to Jane confirming Friday's installation,'' Pilot:
+
+\begin{enumerate}
+  \item resolves the relevant thread and \code{gmail.reply\_email};
+  \item confirms Jane's identity and the approved installation fact;
+  \item drafts the reply without requiring approval;
+  \item checks current send authority;
+  \item if required, shows the exact account, recipient, subject and body;
+  \item executes once approved or automatically within a standing bounded rule;
+  \item reads back the sent-message identifier and thread state; and
+  \item reports verified completion or an honest uncertain/failed state.
+\end{enumerate}
+
+\subsection{Capability answer}
+
+When asked what Gmail can do, Pilot uses the resolver. It does not simply recite
+the manifest. Its answer changes if the grant expires, sending scope is absent,
+the action is blocked, or a provider incident demotes the connector.
+
+\section{Testing requirements}
+
+Every provider release must demonstrate all of the following:
+
+\begin{itemize}
+  \item manifest validation and stable hash;
+  \item secrets absent from manifest, prompt, log and receipt;
+  \item missing, expired and revoked credential handling;
+  \item insufficient-scope handling;
+  \item deterministic capability explanations in Vault and Pilot;
+  \item proof that UI wording changes when live state changes;
+  \item intent selection without provider-specific hard-coded conversation logic;
+  \item safe drafts without unnecessary approval;
+  \item blocked and approval-required writes;
+  \item exact-payload preview and hash binding;
+  \item zero-side-effect dry run;
+  \item idempotent duplicate and timeout behaviour;
+  \item rate-limit and malformed-response handling;
+  \item sandbox execution and provider read-back;
+  \item one bounded approved live action and independent read-back;
+  \item failure, kill-switch and revocation tests; and
+  \item no claim of completion when outcome is uncertain.
+\end{itemize}
+
+\section{Standard implementation checklist}
+
+\subsection*{Provider and contract}
+\begin{itemize}
+  \item[$\square$] Business outcome, owner and prohibited uses recorded.
+  \item[$\square$] Atomic actions and user explanations defined.
+  \item[$\square$] Manifest validates and SHA-256 is preserved.
+  \item[$\square$] Official provider documentation version is recorded.
+\end{itemize}
+
+\subsection*{Connection and Vault}
+\begin{itemize}
+  \item[$\square$] Least-privilege connection and scopes implemented.
+  \item[$\square$] Credentials remain local and invisible to the model.
+  \item[$\square$] Health check, token refresh, revocation and kill switch work.
+  \item[$\square$] Vault card displays actual powers, approvals, blockers and limits.
+\end{itemize}
+
+\subsection*{Training and runtime}
+\begin{itemize}
+  \item[$\square$] Seven-lesson provider syllabus completed.
+  \item[$\square$] Closed-book, transfer and adversarial assessments pass.
+  \item[$\square$] Pilot resolves natural requests to stable action IDs.
+  \item[$\square$] Capability answers come from the live resolver.
+  \item[$\square$] Missing inputs are requested naturally and minimally.
+\end{itemize}
+
+\subsection*{Execution and release}
+\begin{itemize}
+  \item[$\square$] Adapter prepare, preview, execute, reconcile and revoke paths work.
+  \item[$\square$] Authority modes and limits are visible and enforced.
+  \item[$\square$] Writes are idempotent and receipt-backed.
+  \item[$\square$] Sandbox and bounded live actions are independently read back.
+  \item[$\square$] Failure and revocation evidence pass the machine release gate.
+  \item[$\square$] The published claim matches the achieved action stage exactly.
+\end{itemize}
+
+\section{Operational maintenance}
+
+Provider contracts require continuing maintenance. Scope names, API versions,
+rate limits, schemas and consent rules can change. A scheduled health process
+should detect documentation or provider-version changes, rerun contract tests,
+and demote affected actions until refreshed evidence passes. Incidents must be
+visible in the Vault and Pilot capability answer.
+
+New community skills enter quarantine. Their source, licence, dependencies,
+network destinations, secret access and command surface are reviewed before
+installation. They never inherit business credentials or standing authority.
+
+\section{Current implementation map}
+
+\begin{longtable}{>{\bfseries}p{48mm}p{103mm}}
+\toprule
+Purpose & Repository path \\
+\midrule
+Manifest validator & \path{backend/modules/connectors/tool_manifest.py} \\
+Manifest template & \path{backend/modules/connectors/templates/provider_tool_manifest.template.json} \\
+Priority provider manifests and curricula & \path{backend/modules/connectors/priority_provider_catalog.py} \\
+Release evidence gate & \path{backend/modules/connectors/provider_release_gate.py} \\
+Curated AION business skill catalogue & \path{backend/modules/connectors/aion_business_skill_catalog.py} \\
+Manifest tests & \path{backend/tests/connectors/test_tool_manifest.py} \\
+Provider and gate tests & \path{backend/tests/connectors/test_priority_provider_catalog.py} \\
+Human provider checklist & \path{docs/aion/templates/AION_THIRD_PARTY_TOOL_IMPLEMENTATION_CHECKLIST.md} \\
+Concise integration standard & \path{docs/aion/AION_THIRD_PARTY_TOOL_INTEGRATION_STANDARD_2026-08-24.md} \\
+Provider expansion programme & \path{docs/aion/AION_PROVIDER_AND_SKILL_EXPANSION_PROGRAMME_2026-08-24.md} \\
+\bottomrule
+\end{longtable}
+
+\section{Current provider claim boundary}
+
+The repository presently contains validated contracts and training syllabi for
+Gmail, Microsoft Outlook, Xero, HubSpot, Twilio Voice and Stripe. Repository
+readiness records describe foundations and blockers, not universal live power.
+At the time of this document, no provider has evidence for every
+\code{live\_verified} release field in the central gate.
+
+\begin{truthbox}
+The standard is complete as a repeatable engineering contract. It does not
+claim that every provider, every account or every action is live. AION may say
+``I can'' only when the requested action is registered, released, connected,
+healthy, sufficiently scoped and authorised in the current workspace. Otherwise
+it must say what it can prepare safely, what is missing and how the owner can
+enable or approve the capability.
+\end{truthbox}
+
+\section{Definition of a successful installation}
+
+A new third party is successfully installed when a user can connect it in the
+Vault, understand its real powers before granting access, ask Pilot an unfamiliar
+natural-language question about those powers, receive a truthful state-qualified
+answer, delegate an eligible task, review or automatically authorise it under a
+visible policy, obtain a verified provider result and receipt, revoke access, and
+observe Pilot immediately stop claiming or exercising that power.
+
+That end-to-end behaviour---not the existence of a logo, credential, prompt,
+skill file or adapter method---is the Tessaris definition of a working AION
+integration.
+
+\end{document}

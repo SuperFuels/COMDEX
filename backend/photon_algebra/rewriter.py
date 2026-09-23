@@ -105,7 +105,7 @@ _STRUCT_CACHE: Dict[int, tuple] = {}
 _cache_hits: int = 0
 _cache_misses: int = 0
 
-COMMUTATIVE = {"⊕", "⊗", "↔", "≈"}  # ⊖ and ⊂ are directional
+COMMUTATIVE = {"⊕", "⊗", "↔", "≈"}  # ⊖, ⊂, ⊗_M are directional
 
 def _is_commutative(op: str) -> bool:
     return op in COMMUTATIVE
@@ -913,6 +913,8 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
                 return EMPTY
 
     if op == "⊕":
+        flat = _flatten_plus(states)
+
         if strict:
             # Structural-only: flatten and sort, but skip absorption/idempotence
             dedup = []
@@ -922,8 +924,19 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
                 if k not in seen:
                     seen.add(k)
                     dedup.append(s)
-            return {"op": "⊕", "states": dedup}
-        flat = _flatten_plus(states)
+
+            dedup_sorted = sorted(dedup, key=lambda s: _get_key(s, ctx))
+
+            if not dedup_sorted:
+                out = EMPTY
+            elif len(dedup_sorted) == 1:
+                out = {"op": "⊕", "states": dedup_sorted}
+            else:
+                out = {"op": "⊕", "states": dedup_sorted}
+
+            ctx.memo[skey] = out
+            _NORMALIZE_MEMO[skey] = out
+            return out
 
         # Drop ∅ (identity)
         flat = [
@@ -951,7 +964,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
             pruned.append(s)
 
         flat = pruned
-                # --- Explicit absorption collapse: a ⊕ (a ⊗ b) -> a ---
+        # --- Explicit absorption collapse: a ⊕ (a ⊗ b) -> a ---
         for s in flat:
             if isinstance(s, dict) and s.get("op") == "⊗":
                 factors = s.get("states", [])
@@ -1113,6 +1126,35 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
         else:
             out = {"op": op, "states": uniq_sorted}
 
+        ctx.memo[skey] = out
+        _NORMALIZE_MEMO[skey] = out
+        return out
+
+    elif op == "⊗_M":
+        flat = []
+        for s in states:
+            if isinstance(s, dict) and s.get("op") == "⊗_M":
+                flat.extend(s.get("states", []))
+            else:
+                flat.append(s)
+
+        # annihilator: magnetic composition with ∅ collapses to ∅
+        if any(s == "∅" or (isinstance(s, dict) and s.get("op") == "∅") for s in flat):
+            out = EMPTY
+            ctx.memo[skey] = out
+            _NORMALIZE_MEMO[skey] = out
+            return out
+
+        # preserve order; directional operator
+        flat = [_normalize_inner(s, ctx) for s in flat]
+
+        if len(flat) == 1:
+            out = flat[0]
+            ctx.memo[skey] = out
+            _NORMALIZE_MEMO[skey] = out
+            return out
+
+        out = {"op": "⊗_M", "states": flat}
         ctx.memo[skey] = out
         _NORMALIZE_MEMO[skey] = out
         return out
@@ -1329,6 +1371,28 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
 
         # Default: keep ¬
         out = {"op": "¬", "state": inner}
+        ctx.memo[skey] = out
+        _NORMALIZE_MEMO[skey] = out
+        return out
+
+    elif op == "Φ_B":
+        inner = _normalize_inner(expr.get("state"), ctx, strict=strict)
+
+        # Φ_B(∅) -> ∅
+        if inner == EMPTY or (isinstance(inner, dict) and inner.get("op") == "∅"):
+            out = EMPTY
+            ctx.memo[skey] = out
+            _NORMALIZE_MEMO[skey] = out
+            return out
+
+        # idempotence: Φ_B(Φ_B(a)) -> Φ_B(a)
+        if isinstance(inner, dict) and inner.get("op") == "Φ_B":
+            out = inner
+            ctx.memo[skey] = out
+            _NORMALIZE_MEMO[skey] = out
+            return out
+
+        out = {"op": "Φ_B", "state": inner}
         ctx.memo[skey] = out
         _NORMALIZE_MEMO[skey] = out
         return out

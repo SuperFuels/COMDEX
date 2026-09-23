@@ -1,0 +1,131 @@
+\section{Phase 10A --- Trust and Reputation Summary v0}
+\label{sec:aion-trust-reputation-summary-v0}
+
+\subsection{Status}
+
+Phase 10A locks the first deterministic trust and reputation summary for AION Parallel Business Infrastructure.
+
+\begin{quote}
+\textbf{Status: LOCKED --- trust reputation summary tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+The trust and reputation layer turns completed operational history into an explainable business trust summary.
+
+This summary is intended for Boardroom visibility first and external agent access later.
+
+The summary is evidence-backed, proof-aware, and deterministic. It remains visibility-only in this lock.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/trust_reputation.py
+\end{verbatim}
+
+The module defines:
+
+\begin{itemize}
+  \item \texttt{BusinessTrustSummary},
+  \item \texttt{build\_business\_trust\_summary},
+  \item \texttt{build\_home\_fixed\_trust\_summary\_fixture}.
+\end{itemize}
+
+The exported contract version is:
+
+\begin{verbatim}
+aion.trust_reputation.v0.1
+\end{verbatim}
+
+\subsection{Tracked Trust Fields}
+
+The summary tracks:
+
+\begin{itemize}
+  \item verified completed jobs,
+  \item disputed jobs,
+  \item cancelled jobs,
+  \item failed jobs,
+  \item average response time,
+  \item average completion time,
+  \item evidence-backed completion rate,
+  \item proof commitment rate,
+  \item proof verification success rate,
+  \item quote reliability rate,
+  \item recovery success rate.
+\end{itemize}
+
+\subsection{Home Fixed Fixture}
+
+The first fixture is for:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+\end{verbatim}
+
+This keeps the trust layer aligned with the Phase 8 Home Fixed vertical testbed and Phase 9 Boardroom Parallel Twin frontend.
+
+\subsection{Explainability}
+
+The trust summary MUST remain explainable.
+
+The payload includes \texttt{explainability\_notes} describing how verified completions, proof verification, evidence, recovery, and quote reliability are derived.
+
+\subsection{Hash Contract}
+
+The summary includes:
+
+\begin{verbatim}
+trust\_summary\_hash
+\end{verbatim}
+
+The hash is deterministic for identical trust inputs.
+
+Changing job history MUST change the trust summary hash.
+
+\subsection{Safety Boundary}
+
+The trust layer MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages,
+  \item expose a public A2A route.
+\end{itemize}
+
+The summary is visibility-only.
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_trust_reputation_summary_lock.py
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-TRUST-REPUTATION-SUMMARY-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

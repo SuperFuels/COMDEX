@@ -2,7 +2,8 @@ import os
 import re
 import numpy as np
 from typing import List, Dict
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import util
+from backend.utils.sentence_transformer_runtime import get_sentence_transformer
 
 # ========================
 # 🔧 Label Cleaning + Heuristics
@@ -71,7 +72,7 @@ def get_embedding_model():
     global _model
     if _model is None:
         model_path = os.environ.get("SYMBOLNET_MODEL_PATH", "./models/all-MiniLM-L6-v2")
-        _model = SentenceTransformer(model_path)
+        _model = get_sentence_transformer(model_path)
     return _model
 
 

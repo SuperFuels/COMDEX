@@ -1,0 +1,47 @@
+\section{Phase 13 Machine Metadata Deterministic Hash Regression Lock}
+\label{sec:phase13-machine-metadata-deterministic-hash-regression-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- Machine Metadata Deterministic Hash regression tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock locks machine/A2A metadata identity as deterministic and hash-derived, not runtime-random.
+
+\subsection{Regression Boundary}
+
+The locked boundary is intentionally conservative. It verifies that the repository still contains the expected gateway/test/doc vocabulary for this surface, while blocking known unsafe regressions such as runtime-random identity, live payment mutation, live escrow release, booking confirmation, external message sends, or stale hard-coded vertical assumptions.
+
+\subsection{Safety Contract}
+
+This Phase 13 regression lock MUST remain a test and documentation boundary only.
+
+It MUST NOT introduce live payment capture, escrow release, booking confirmation, external provider calls, external messages, runtime-random identifiers, or automatic approval behaviour.
+
+\subsection{Validation}
+
+Validation command:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase13_machine_metadata_deterministic_hash_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_machine_metadata_deterministic_hash_regression_lock_doc.py
+\end{verbatim}
+
+Focused suite command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13-MACHINE-METADATA-DETERMINISTIC-HASH-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

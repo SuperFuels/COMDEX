@@ -1,0 +1,117 @@
+\section{AION Phase 20N.6 --- Autonomy Budget and Progressive Trust}
+\label{sec:aion-phase20n6-autonomy-budget-progressive-trust}
+
+\subsection{Status}
+
+Phase 20N.6 locks Autonomy Budget and Progressive Trust.
+
+\begin{quote}
+\textbf{Status: LOCKED --- mission autonomy is budgeted, capped, and never allowed to create unapproved live side effects.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot requires mission-level caps for autonomous work.
+
+The budget layer controls:
+
+\begin{itemize}
+  \item external reads;
+  \item browser sessions;
+  \item runtime minutes;
+  \item safe steps before review;
+  \item sub-plan depth;
+  \item total steps;
+  \item unapproved spend;
+  \item unapproved public posts;
+  \item unapproved production deployments;
+  \item unapproved live customer messages.
+\end{itemize}
+
+\subsection{Default Live Side-Effect Caps}
+
+By default, these values MUST remain zero:
+
+\begin{verbatim}
+max_spend_without_payload_approval: 0
+max_public_posts_without_approval: 0
+max_production_deployments_without_approval: 0
+max_live_customer_messages_without_approval: 0
+\end{verbatim}
+
+\subsection{Progressive Trust}
+
+Progressive trust MAY increase read-only or staged operating room.
+
+Progressive trust MUST NOT remove exact approval requirements from always-approval actions.
+
+\subsection{Trust Ladder}
+
+The trust ladder contains:
+
+\begin{itemize}
+  \item \texttt{trust\_0};
+  \item \texttt{trust\_1};
+  \item \texttt{trust\_2};
+  \item \texttt{trust\_3};
+  \item \texttt{trust\_4}.
+\end{itemize}
+
+Higher trust MAY increase:
+
+\begin{itemize}
+  \item read-only external capacity;
+  \item preview deployment capacity;
+  \item staged workflow capacity;
+  \item recurring template preparation.
+\end{itemize}
+
+Higher trust MUST NOT authorize:
+
+\begin{itemize}
+  \item unapproved payments;
+  \item unapproved legal action;
+  \item unapproved identity action;
+  \item unapproved production deployment;
+  \item unapproved domain purchase;
+  \item unapproved new ad spend;
+  \item unapproved live customer messages.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n5_delegation_profiles_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n6_autonomy_budget_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20N6-AUTONOMY-BUDGET-PROGRESSIVE-TRUST
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

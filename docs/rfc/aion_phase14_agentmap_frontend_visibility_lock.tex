@@ -1,0 +1,68 @@
+\section{Phase 14H --- AgentMap Frontend Visibility and Button Contract Lock}
+\label{sec:phase14-agentmap-frontend-visibility-lock}
+
+\textbf{Status: LOCKED --- the AgentMap frontend visibility panel is mounted into the dashboard surface with visible Generate, copy, download, verification, synthetic simulation, and human-review simulation controls.}
+
+\subsection{Purpose}
+
+Phase 14H prevents backend-only AgentMap functionality from becoming invisible to the operator.
+
+The AgentMap dashboard backend contract already exposes the machine discovery payload, validation state, deterministic hashes, hosted path, self-hosted path, install tag, synthetic inbound-agent simulation state, and human-review simulation state.
+
+This lock adds the frontend visibility contract. The dashboard MUST visibly expose the Machine Discovery surface and the operator-facing controls required to generate, preview, verify, copy, download, regenerate, and simulate the AgentMap flow.
+
+\subsection{Visible Frontend Requirements}
+
+The frontend MUST expose a visible \texttt{Machine Discovery} / \texttt{AgentMap Dashboard} panel.
+
+The panel MUST include:
+
+\begin{itemize}
+  \item \texttt{Generate AgentMap}
+  \item \texttt{Regenerate AgentMap}
+  \item \texttt{Copy AgentMap URL}
+  \item \texttt{Download agentmap.json}
+  \item \texttt{Copy website install tag}
+  \item \texttt{Run Synthetic Agent Simulation}
+  \item \texttt{Run Human Review E2E Simulation}
+  \item visible \texttt{agentmap\_hash} / \texttt{agentmap_hash} status text
+  \item visible hosted path \texttt{/agentmap.json}
+  \item visible self-hosted path \texttt{/.well-known/agentmap.json}
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The frontend panel is preview-only.
+
+It MUST NOT imply that live bookings, live payments, escrow, dispatch, external messages, or live chain writes are enabled.
+
+The visible operator copy MUST make the safety boundary clear.
+
+\subsection{Frontend Mount Contract}
+
+The function \texttt{renderAgentMapFrontendVisibilityPanel} MUST be mounted inside \texttt{renderDashboardSurface}.
+
+This ensures the panel is not dead code and is visible from the existing Business Dashboard route.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_visibility_lock.py
+\end{verbatim}
+
+\subsection{Raw Lock Footer Terms}
+
+\begin{verbatim}
+lock id:
+status:
+maintainer: tessaris ai
+author: kevin robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\textbf{Lock ID:} AION-PHASE14-AGENTMAP-FRONTEND-VISIBILITY-v0.1\\
+\textbf{Status:} LOCKED\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson

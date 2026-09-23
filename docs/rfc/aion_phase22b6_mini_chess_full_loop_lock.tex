@@ -1,0 +1,57 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.6: Mini Chess Full Loop Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.6 defines the AION Mini Chess Full Loop Lock.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can run the mini-chess proof chain from legal move grounding through opponent win.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.6 joins Phases 22B.1 through 22B.5 into one deterministic proof run.
+
+\section{Full Loop Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{legal\_move\_lock\_passed};
+  \item \texttt{threat\_map\_lock\_passed};
+  \item \texttt{capture\_material\_lock\_passed};
+  \item \texttt{self\_play\_lock\_passed};
+  \item \texttt{opponent\_win\_lock\_passed};
+  \item \texttt{full\_loop\_passed};
+  \item \texttt{combined\_summary};
+  \item \texttt{combined\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates the full operational mini-chess loop. It does not prove full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B6-MINI-CHESS-FULL-LOOP-LOCK\\
+Status: LOCKED --- mini chess full loop implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

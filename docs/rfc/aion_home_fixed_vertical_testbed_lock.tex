@@ -1,0 +1,265 @@
+\section{Phase 8 --- Home Fixed Vertical Testbed v0}
+\label{sec:aion-home-fixed-vertical-testbed-v0}
+
+\subsection{Status}
+
+Phase 8 locks the first end-to-end vertical dry-run for the AION Agent Gateway and Parallel Business Infrastructure.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Home Fixed vertical dry-run implemented as an internal preview testbed.}
+\end{quote}
+
+The first live/test vertical is now \textbf{Home Fixed}, not CostaConnect or CostaConexion.
+
+\subsection{Purpose}
+
+The Home Fixed vertical testbed proves that the Gateway stack can model a real home-repair business as a machine-readable operational twin.
+
+The testbed runs the full internal path:
+
+\begin{enumerate}
+  \item Parallel business profile.
+  \item Machine-readable service catalog.
+  \item Customer repair request intake.
+  \item Machine cart request.
+  \item Quote preview.
+  \item Fulfilment job preview.
+  \item Provider assignment preview.
+  \item Job timeline preview.
+  \item Evidence upload and completion confirmation preview.
+  \item Settlement readiness preview.
+  \item Job proof hash.
+  \item GlyphChain proof receipt preview.
+  \item Proof verification preview.
+  \item Machine trace preview.
+\end{enumerate}
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/home_fixed_vertical.py
+\end{verbatim}
+
+The exported contract version is:
+
+\begin{verbatim}
+aion.home_fixed_vertical.v0.1
+\end{verbatim}
+
+\subsection{Home Fixed Business Identity}
+
+The locked preview business identity is:
+
+\begin{itemize}
+  \item \texttt{business\_id = home\_fixed\_almeria\_001}
+  \item \texttt{business\_name = Home Fixed}
+  \item \texttt{vertical\_key = home\_repair}
+  \item \texttt{settlement\_mode = fiat\_first}
+  \item \texttt{proof\_required = true}
+  \item \texttt{human\_review\_required = true}
+\end{itemize}
+
+Supported locations include Albox, Arboleas, Zurgena, Huércal Overa, Almería, and Murcia.
+
+\subsection{Machine Catalog Fixture}
+
+The Home Fixed catalog includes initial machine-readable service entries:
+
+\begin{itemize}
+  \item \texttt{general\_home\_repair}
+  \item \texttt{roof\_wall\_repair}
+  \item \texttt{painting\_decorating}
+\end{itemize}
+
+Each service declares:
+
+\begin{itemize}
+  \item service name,
+  \item description,
+  \item base fiat rate,
+  \item currency,
+  \item price model,
+  \item required evidence,
+  \item SLA hours,
+  \item human review requirement.
+\end{itemize}
+
+\subsection{Machine Cart and Quote Preview}
+
+The testbed creates a Home Fixed machine cart request from a customer repair intent.
+
+The quote preview returns:
+
+\begin{itemize}
+  \item \texttt{quote\_id}
+  \item \texttt{business\_id}
+  \item \texttt{job\_id}
+  \item \texttt{service\_key}
+  \item \texttt{currency}
+  \item \texttt{quoted\_fiat\_amount}
+  \item \texttt{max\_fiat\_price}
+  \item \texttt{quote\_expiry\_minutes}
+  \item \texttt{evidence\_requirements}
+  \item \texttt{quote\_hash}
+\end{itemize}
+
+The quote preview does not create a payment, escrow, booking, or live workflow execution.
+
+\subsection{Fulfilment Job Preview}
+
+The testbed creates a \texttt{FulfilmentJob} preview with:
+
+\begin{itemize}
+  \item \texttt{job\_id}
+  \item \texttt{business\_id}
+  \item \texttt{vertical\_key}
+  \item \texttt{service\_type}
+  \item \texttt{location}
+  \item \texttt{requested\_outcome}
+  \item \texttt{current\_stage = requested}
+  \item \texttt{next\_expected\_event = human\_review}
+\end{itemize}
+
+No live workflow run or Goal Engine execution is created by this preview.
+
+\subsection{Provider Assignment and Timeline Preview}
+
+The provider assignment preview uses:
+
+\begin{verbatim}
+provider_id = home_fixed_core_team
+provider_name = Home Fixed Core Team
+assignment_status = preview_only
+\end{verbatim}
+
+The timeline preview is append-only in shape, but does not mutate any live job timeline.
+
+\subsection{Evidence and Completion Preview}
+
+The Home Fixed evidence bundle includes:
+
+\begin{itemize}
+  \item \texttt{before\_photo}
+  \item \texttt{after\_photo}
+  \item \texttt{completion\_confirmation}
+\end{itemize}
+
+Each evidence item receives a deterministic \texttt{evidence\_hash}.
+
+The full evidence bundle receives an \texttt{evidence\_bundle\_hash}.
+
+\subsection{Settlement Readiness Preview}
+
+The settlement readiness preview is fiat-first.
+
+It may mark the job as payment-ready for preview purposes, but it does not move money.
+
+The settlement preview explicitly records:
+
+\begin{itemize}
+  \item \texttt{payment\_requested = false}
+  \item \texttt{deposit\_paid = false}
+  \item \texttt{payment\_ready = true}
+  \item \texttt{disputed = false}
+  \item \texttt{refund\_recommended = false}
+  \item \texttt{would\_move\_money = false}
+  \item \texttt{would\_create\_payment = false}
+  \item \texttt{would\_create\_escrow = false}
+  \item \texttt{would\_require\_pho = false}
+  \item \texttt{would\_require\_token = false}
+  \item \texttt{would\_require\_wallet = false}
+\end{itemize}
+
+\subsection{GlyphChain Proof Receipt Preview}
+
+The Home Fixed dry-run builds a final \texttt{job\_proof\_hash} from:
+
+\begin{itemize}
+  \item job preview hash,
+  \item quote hash,
+  \item timeline hash,
+  \item evidence bundle hash,
+  \item settlement readiness hash.
+\end{itemize}
+
+The testbed then connects to the existing AION/GlyphChain proof receipt layer where available.
+
+The proof receipt remains documentation/proof-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item move PHO,
+  \item require a token,
+  \item require a wallet,
+  \item create payment,
+  \item create escrow,
+  \item submit a banking transaction.
+\end{itemize}
+
+\subsection{Machine Trace Preview}
+
+The Home Fixed machine trace preview exposes the compact internal A2A state:
+
+\begin{itemize}
+  \item job status,
+  \item provider assignment,
+  \item evidence state,
+  \item settlement readiness state,
+  \item proof commitment state.
+\end{itemize}
+
+This does not expose a public route.
+
+\subsection{Hashing Rule}
+
+All preview hashes use deterministic JSON:
+
+\begin{verbatim}
+json.dumps(payload, sort_keys=True, separators=(",", ":"))
+hashlib.sha256(...)
+\end{verbatim}
+
+Changing the requested service MUST change the final \texttt{job\_proof\_hash} and \texttt{home\_fixed\_vertical\_hash}.
+
+\subsection{Safety Boundary}
+
+This lock is internal and preview-only.
+
+The Home Fixed vertical testbed MUST NOT:
+
+\begin{itemize}
+  \item expose a public route,
+  \item execute the Goal Engine,
+  \item create a live workflow run,
+  \item create a booking,
+  \item notify a provider,
+  \item create a calendar event,
+  \item send external messages,
+  \item create a payment,
+  \item create escrow,
+  \item move money,
+  \item move PHO,
+  \item require a wallet.
+\end{itemize}
+
+Human review remains mandatory.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_home_fixed_vertical_testbed_lock.py
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-HOME-FIXED-VERTICAL-TESTBED-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

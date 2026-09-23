@@ -3,7 +3,9 @@
 # === Quantum-Gravitational and Causal Feedback Unification ===
 # ============================================================
 
-import os, json, datetime
+import os
+import json
+import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -31,17 +33,19 @@ x_files = [
     "X3_symatic_compilation_summary.json",
 ]
 
+
 def load_json_list(files):
     loaded = []
     for f in files:
         path = os.path.join(base_path, f)
         if os.path.exists(path):
-            with open(path, "r") as fh:
+            with open(path, "r", encoding="utf-8") as fh:
                 loaded.append(json.load(fh))
                 print(f"  * Loaded {f}")
         else:
             print(f"  ⚠️  Missing: {f}")
     return loaded
+
 
 omega = load_json_list(omega_files)
 xi = load_json_list(xi_files)
@@ -49,42 +53,111 @@ x = load_json_list(x_files)
 
 if not (omega and xi and x):
     print("⚠️ Missing data - cannot complete bridge integration.")
-    exit()
+    raise SystemExit(1)
 
 # ------------------------------------------------------------
-# 2. Helper function
+# 2. Helper functions
 # ------------------------------------------------------------
-def safe_get(d, key):
-    return d.get("metrics", {}).get(key, np.nan)
+def safe_get(d, key, default=np.nan):
+    return d.get("metrics", {}).get(key, default)
+
+
+def is_valid_number(val):
+    if val is None:
+        return False
+    try:
+        return not np.isnan(val)
+    except TypeError:
+        return True
+
+
+def first_valid_metric(d, *keys, default=np.nan):
+    metrics = d.get("metrics", {})
+    for key in keys:
+        val = metrics.get(key, np.nan)
+        if is_valid_number(val):
+            return float(val)
+    return default
+
+
+def safe_mean(vals):
+    clean = []
+    for v in vals:
+        if is_valid_number(v):
+            clean.append(float(v))
+    if not clean:
+        return 0.0
+    return float(np.mean(clean))
+
+
+def clamp01(x):
+    return max(0.0, min(1.0, float(x)))
+
 
 # ------------------------------------------------------------
 # 3. Extract and compute core metrics
 # ------------------------------------------------------------
-# Ω: collapse and recovery
-collapse_vals = [safe_get(d, "collapse_threshold") or safe_get(d, "collapse_ratio") for d in omega]
-recovery_vals = [safe_get(d, "recovery_ratio") or safe_get(d, "collapse_recovery_ratio") for d in omega]
+# Ω metrics
+# Ω1 gives the collapse-side signal via div_J_mean
+# Ω3 gives the recovery-side signal via recovery_ratio
+collapse_vals = [
+    first_valid_metric(d, "div_J_mean", "collapse_threshold", "collapse_ratio")
+    for d in omega
+]
 
-# Ξ: coherence and synchrony
-sync_vals = [safe_get(d, "R_sync") or safe_get(d, "ratio_mean") for d in xi]
-flux_vals = [safe_get(d, "J_info_mean") or safe_get(d, "ratio_mean") for d in xi]
+recovery_vals = [
+    first_valid_metric(d, "recovery_ratio", "collapse_recovery_ratio")
+    for d in omega
+]
 
-# X: pattern strength and invariance
-pattern_vals = [safe_get(d, "pattern_strength") for d in x]
-inv_vals = [safe_get(d, "invariance") for d in x]
+# Ξ metrics
+sync_vals = [
+    first_valid_metric(d, "R_sync", "ratio_mean")
+    for d in xi
+]
 
-collapse = np.nanmean(collapse_vals)
-recovery = np.nanmean(recovery_vals)
-synchrony = np.nanmean(sync_vals)
-flux_balance = np.nanmean(flux_vals)
-pattern_strength = np.nanmean(pattern_vals)
-invariance = np.nanmean(inv_vals)
+flux_vals = [
+    first_valid_metric(d, "J_info_mean", "flux_balance", "ratio_mean")
+    for d in xi
+]
 
-# Derived global metrics
-bridge_ratio = (recovery * synchrony) / (abs(collapse) + 1e-9)
-causal_closure = (pattern_strength * invariance * synchrony) / (1 + abs(flux_balance - 1))
+# X metrics
+pattern_vals = [
+    first_valid_metric(d, "pattern_strength")
+    for d in x
+]
+
+inv_vals = [
+    first_valid_metric(d, "invariance")
+    for d in x
+]
+
+collapse = safe_mean(collapse_vals)
+recovery = safe_mean(recovery_vals)
+synchrony = safe_mean(sync_vals)
+flux_balance = safe_mean(flux_vals)
+pattern_strength = safe_mean(pattern_vals)
+invariance = safe_mean(inv_vals)
 
 # ------------------------------------------------------------
-# 4. Classify global state
+# 4. Derived global metrics
+# ------------------------------------------------------------
+if abs(collapse) > 1e-12:
+    bridge_ratio = (recovery * synchrony) / abs(collapse)
+else:
+    bridge_ratio = 0.0
+
+causal_closure = (
+    pattern_strength * invariance * synchrony
+) / (1.0 + abs(flux_balance - 1.0))
+
+# For chart only, keep bar values bounded/visual
+recovery_plot = clamp01(recovery)
+synchrony_plot = clamp01(synchrony)
+pattern_plot = clamp01(pattern_strength)
+
+# ------------------------------------------------------------
+# 5. Classify global state
 # ------------------------------------------------------------
 if causal_closure > 0.9:
     state = "Full causal closure - light field self-executing"
@@ -94,7 +167,7 @@ else:
     state = "Subcritical - incomplete bridge (requires tuning)"
 
 # ------------------------------------------------------------
-# 5. Print and save summary
+# 6. Print and save summary
 # ------------------------------------------------------------
 print("\n🧠 Quantum Bridge Summary")
 print(f"Collapse mean        = {collapse:.3e}")
@@ -130,16 +203,16 @@ summary = {
 }
 
 out_json = os.path.join(base_path, "unified_summary_v1.7_quantum_bridge.json")
-with open(out_json, "w") as f:
+with open(out_json, "w", encoding="utf-8") as f:
     json.dump(summary, f, indent=2)
 print(f"✅ Unified Ω-Ξ-X Quantum Bridge summary saved -> {out_json}")
 
 # ------------------------------------------------------------
-# 6. Visualization
+# 7. Visualization
 # ------------------------------------------------------------
 fig, ax = plt.subplots(figsize=(7, 4))
 x_labels = ["Ω", "Ξ", "X"]
-values = [recovery, synchrony, pattern_strength]
+values = [recovery_plot, synchrony_plot, pattern_plot]
 
 ax.bar(x_labels, values, color=["#3b82f6", "#10b981", "#f59e0b"], alpha=0.8)
 ax.set_title("Tessaris Quantum Bridge Map")

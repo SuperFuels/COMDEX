@@ -1,0 +1,85 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.61 --- Parallel Opponent Beam Router + SQI Collapse}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.61 adds the parallel opponent beam router and SQI collapse layer.
+
+Phase 22E.60 generates opponent response beams for one candidate move.
+
+Phase 22E.61 routes multiple candidate moves through that beam system, expands opponent replies into continuation beams, and collapses the candidate set by SQI risk.
+
+\section{Architecture}
+
+The locked route is:
+
+\begin{verbatim}
+candidate moves
+  -> Phase 22E.60 opponent response beams
+  -> continuation beam expansion
+  -> parallel beam budget
+  -> SQI collapse packet
+  -> QQC router packet
+  -> HexCore router packet
+  -> selected candidate or rejected candidate
+\end{verbatim}
+
+\section{Parallel Beam Budget}
+
+The kernel exposes a parallel beam budget.
+
+The default budget is 1000 beams.
+
+Focused tests use smaller child limits for runtime speed, but the contract records that the router is designed for a 1000-beam budget.
+
+\section{Collapse Rule}
+
+The router computes:
+
+\begin{itemize}
+  \item maximum opponent beam danger;
+  \item minimum SQI coherence;
+  \item SQI collapse risk;
+  \item QQC symbolic temperature;
+  \item HexCore drift.
+\end{itemize}
+
+A candidate is rejected when opponent reply risk dominates the collapse threshold.
+
+\section{Boundary}
+
+This phase does not post moves.
+
+It does not call Stockfish, does not use Lichess analysis and does not use LLM move judgement.
+
+\section{Validation}
+
+Expected validation command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e61_full_chess_parallel_opponent_beam_router_sqi_collapse_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e61_full_chess_parallel_opponent_beam_router_sqi_collapse_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E61-FULL-CHESS-PARALLEL-OPPONENT-BEAM-ROUTER-SQI-COLLAPSE\\
+Status: LOCKED --- parallel opponent beam router and SQI collapse layer added\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

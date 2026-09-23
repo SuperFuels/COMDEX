@@ -1,0 +1,74 @@
+\section{Phase 20B --- Mission Template v0}
+\label{sec:phase20b-mission-template-v0}
+
+\subsection{Status}
+
+Phase 20B locks the first deterministic Mission Mode template registry.
+
+\begin{quote}
+\textbf{Status: LOCKED --- template registry only. No autonomy, no live execution, no external writes.}
+\end{quote}
+
+\subsection{Purpose}
+
+Mission templates convert common business objectives into deterministic Mission Contract seed inputs.
+
+The first registry includes:
+
+\begin{itemize}
+  \item \texttt{home\_fixed\_lead\_campaign\_v0}
+  \item \texttt{home\_fixed\_quote\_intake\_v0}
+  \item \texttt{weekly\_marketing\_pack\_v0}
+  \item \texttt{generic\_business\_build\_pack\_v0}
+\end{itemize}
+
+\subsection{Safety Contract}
+
+Templates MAY define safe planning and preview steps.
+
+Templates MUST NOT create bookings, payments, escrows, deployments, social posts, customer messages, file writes to production, or live reputation updates.
+
+Templates MUST default the following lanes to blocked or checkpointed:
+
+\begin{itemize}
+  \item \texttt{external\_action}
+  \item \texttt{financial\_action}
+  \item \texttt{legal\_action}
+  \item \texttt{deployment\_action}
+  \item \texttt{memory\_mutation}
+\end{itemize}
+
+\subsection{AION Pilot Native Runtime Naming}
+
+The template seed records that the executor is \texttt{AION Pilot} and that the native runtime owner is \texttt{aion\_core}.
+
+AION Pilot is not a separate application, not a UI-driving bot, and not an OpenClaw clone.
+
+AION Pilot is AION operating its own internal Mission Mode services under a governed Mission Contract.
+
+\subsection{Deterministic Hashing}
+
+Each template has a deterministic \texttt{template\_hash}.
+
+Each template-derived contract seed has a deterministic \texttt{contract\_seed\_hash}.
+
+These hashes are based on canonical JSON with sorted keys and compact separators.
+
+\subsection{Validation}
+
+Validation command:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PHASE20B-MISSION-TEMPLATE-V0
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

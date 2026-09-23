@@ -1,0 +1,156 @@
+% Append this section before \end{document} in the master AION document.
+\section{Signed Model Catalogue and Evaluation Fabric}
+\label{sec:signed-model-catalogue}
+
+The AION brain is deliberately independent of any individual language model.  This
+creates a second requirement: a replacement model must not be trusted merely because
+it can be downloaded or because a provider claims that it is superior.  Pilot therefore
+uses a customer-controlled model catalogue that establishes identity, compatibility,
+licensing, measured quality and safe promotion before a model can serve live work.
+
+The catalogue is implemented by the \texttt{SignedModelCatalogue} authority.  Its state
+is separate from the canonical Business Map and from customer operational records.
+Installing, replacing, blocking or removing a model consequently cannot erase or rewrite
+what AION has learned about the business.  Models remain replaceable computational tools;
+the brain retains identity, policy, memory, evidence, permissions and outcome history.
+
+\subsection{Signed and Immutable Model Identity}
+
+Each model release is described by a versioned manifest containing:
+\begin{itemize}
+  \item a stable model identifier and immutable version;
+  \item the provider and inference format;
+  \item the artefact's SHA--256 digest and exact byte length;
+  \item the licence identifier and explicit commercial-use and redistribution flags;
+  \item approved download mirrors;
+  \item supported processor architectures, accelerator classes and inference engines;
+  \item minimum memory and storage requirements; and
+  \item the issuing public key, manifest hash and Ed25519 signature.
+\end{itemize}
+
+The manifest hash is calculated over canonical JSON before the signature is applied.
+Registration succeeds only when the issuer is present in the local trust set, the hash
+matches and the signature verifies.  A second manifest cannot silently reuse the same
+model identifier and version with different content.  This prevents a mutable download
+location or provider catalogue entry from redefining an already approved model release.
+
+Revocation is also signed by the original issuer and must include a human-readable
+reason.  A revoked model is marked blocked.  If it is the active champion and a previous
+qualified champion exists, the route is rolled back automatically.
+
+\subsection{Installation and Hardware Qualification}
+
+Before installation, Pilot compares the manifest with the coarse hardware profile
+created during sovereign-brain setup.  The preflight checks available memory and storage,
+processor architecture, accelerator class and selected inference engine.  It then streams
+the candidate artefact through SHA--256 verification and checks its byte length, avoiding
+the need to load a large weight file into memory.  Commercial deployment is rejected when
+the manifest does not explicitly permit commercial use.
+
+The resulting installation decision is fail-closed and reports concrete reasons such as
+insufficient memory, an unsupported architecture, an incompatible inference engine, a
+licence restriction or an artefact-integrity mismatch.  Compatibility is therefore a
+measured deployment property rather than an assumption based on a model name.
+
+\subsection{Seven-Dimensional Evaluation}
+
+A model cannot be qualified without a complete benchmark record.  Every benchmark suite
+must report all of the following dimensions:
+\begin{enumerate}
+  \item task performance;
+  \item domain performance;
+  \item safety performance;
+  \item governed tool-use performance;
+  \item latency;
+  \item monetary cost; and
+  \item energy use.
+\end{enumerate}
+
+Quality, safety and tool-use dimensions use minimum acceptance thresholds.  Latency,
+cost and energy use maximum thresholds.  The benchmark includes a suite identifier,
+provenance and a content hash so that a result can be traced to its evaluation method.
+A model is labelled \emph{qualified} only when it is compatible with the intended machine
+and engine and the latest public benchmark meets every customer threshold.  Otherwise it
+is labelled \emph{blocked}; unevaluated valid releases remain \emph{experimental}.
+
+Public repeatable benchmark results and customer-private outcome scores are intentionally
+separated.  Public results may appear in the administrator catalogue.  Private results
+are stored in a separate owner-readable file, require a customer identifier and never
+appear in the administrator projection.  This permits AION to learn which model works
+best for a particular business without leaking its performance, workloads or outcomes
+into a shared model registry.
+
+\subsection{Champion, Challenger and Bounded Promotion}
+
+Each task class may have an active champion and one challenger.  A canary can direct no
+more than 20 percent of eligible work to the challenger and may collect no more than
+1,000 paired requests.  Both models must already be qualified, and a caller cannot replace
+the recorded champion merely by naming a different one when opening a canary.
+
+For each sample, the catalogue records comparable champion and challenger measurements.
+At the request ceiling it calculates the mean for every configured threshold.  The
+challenger must both meet the absolute customer threshold and equal or outperform the
+champion: higher is better for quality dimensions and lower is better for latency, cost
+and energy.  Failure on any dimension rejects the challenger.  Success promotes it while
+retaining the previous champion as a rollback target.
+
+This mechanism deliberately avoids ``majority confidence'' or model popularity as a
+promotion rule.  A candidate becomes the default only after bounded, task-specific,
+customer-defined evidence demonstrates that it is not inferior on any required measure.
+
+\subsection{Regression, Drift and Provider Change}
+
+After promotion, Pilot can compare current measurements with a stored baseline and a
+per-metric tolerance.  A quality reduction, a latency/cost/energy increase, or a change
+to the provider-behaviour fingerprint constitutes drift.  Detected drift blocks the model
+and triggers rollback where a previous champion is available.  The report preserves the
+affected metric names and whether provider behaviour changed, without storing customer
+prompt or result content.
+
+\subsection{Licence-Controlled Mirroring}
+
+Offline and private deployments do not mirror an unrestricted catalogue.  Pilot constructs
+a bounded mirror plan from the customer's active deployment profiles.  It includes only
+registered, non-blocked models whose licence explicitly permits redistribution, and only
+the artefact identity and approved mirror required by those profiles.  Inactive profiles,
+revoked releases and non-redistributable artefacts are excluded.  This reduces supply-chain
+exposure, disk use and licence risk while retaining the packages required for recovery.
+
+\subsection{Administrator Experience}
+
+The administrator view groups releases into qualified, blocked and experimental lists.
+For each release it shows provider, licence, qualification record, public benchmarks and
+revocation state, together with active task routes and canary status.  It explicitly states
+that customer-private outcomes are not exposed.  Operational controls can therefore answer
+four distinct questions: \emph{What is available?  What can run here?  What has passed our
+tests?  What is presently serving this task?}
+
+\subsection{Security and Failure Properties}
+
+The implementation enforces the following invariants:
+\begin{itemize}
+  \item an untrusted or invalidly signed manifest cannot enter the catalogue;
+  \item a version cannot be redefined after registration;
+  \item an artefact cannot pass installation when its bytes differ from the manifest;
+  \item incomplete benchmark suites cannot qualify a model;
+  \item customer-private outcomes cannot enter the public administrator projection;
+  \item an inferior challenger cannot become the default;
+  \item canary traffic and duration are bounded;
+  \item revocation or measured drift blocks continued promotion and supports rollback;
+  \item mirroring requires both active demand and explicit redistribution permission; and
+  \item no catalogue operation modifies canonical business state.
+\end{itemize}
+
+\subsection{Implementation Status}
+
+This phase is implemented in AION Sovereign Brain Bootstrap~0.7.0 and Pilot
+Fabric~0.59.0.  Automated verification covers trusted signing, tamper rejection,
+immutability, hardware and artefact checks, benchmark completeness, public/private
+separation, qualification, bounded promotion, inferior-candidate rejection, manual and
+automatic rollback, provider drift, signed revocation, licence-aware mirroring and
+business-state independence.
+
+Production distribution still requires organisation-specific issuer governance, secure
+mirror operation, platform package signing and real hardware/model qualification.  Those
+are deployment gates rather than permission to bypass the catalogue.  A model without
+valid identity, compatibility and measured acceptance remains unavailable for live work.

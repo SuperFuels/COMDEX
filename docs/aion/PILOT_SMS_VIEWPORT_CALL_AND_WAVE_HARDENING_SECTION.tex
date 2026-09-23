@@ -1,0 +1,106 @@
+\section{Mobile Delivery, Responsive Qualification and Sovereign Transport Hardening}
+\label{sec:pilot-sms-viewport-call-wave-hardening}
+
+This implementation pass closes five independently executable tasks from the unified
+mobile programme: representative responsive viewport qualification
+(\texttt{MOB-0216}), an official SMS adapter (\texttt{MOB-0702}), adverse-network
+and authority tests for calls and groups (\texttt{MOB-1208}), reuse of the existing
+Wave framing and queue foundations (\texttt{MOB-1302}), and radio-bridge hardening
+(\texttt{MOB-1304}).  Provider accounts, independently audited media encryption,
+direct-radio hardware and internet-disconnected field delivery remain explicit
+external gates.
+
+\subsection{Official SMS delivery boundary}
+
+Pilot now has a provider adapter for the Twilio Messages API.  The adapter is
+selected by a persona-bound service configuration on the mother brain; credentials
+are never sent to the television, phone interface or recipient.  SMS and WhatsApp
+are separate configured channels even when both use the same provider API.  A
+contact's SMS number is stored and resolved independently from its email, Pilot and
+WhatsApp routes.
+
+Before submission, Pilot validates an exact E.164 destination, a bounded message
+body and the identity whose provider account will be used.  The approved draft
+identifier becomes the provider idempotency key.  A successful API response must
+contain a valid provider account identifier, message identifier and recognized
+provider state.  Pilot retains only a narrow receipt and never treats API acceptance
+as carrier delivery, human reading, task acceptance or consent.
+
+Where a public HTTPS status-callback endpoint is configured, incoming callback
+parameters are authenticated with the provider's HMAC signature over the exact
+callback URL and sorted form values.  Invalid signatures fail closed.  Live SMS
+qualification still requires the customer's authorized provider account, a real
+recipient and callback receipts.  The WhatsApp route remains unavailable until an
+officially approved sender and account are supplied; browser automation and
+unofficial session extraction are not substitutes.
+
+\subsection{Representative responsive mobile qualification}
+
+The unified mobile surface was exercised in an automated real browser at three
+representative CSS viewport sizes: 320 by 568 pixels, 360 by 800 pixels and 430 by
+932 pixels.  These cover a small iPhone-class display, a common Android-class
+display and a large iPhone-class display.  At every size the document width equalled
+the viewport width, no horizontal overflow occurred, the application landmark and
+primary navigation remained available, and every visible interactive target was at
+least 44 by 44 CSS pixels.
+
+The shared style contract now enforces the minimum target on mode controls, section
+headers, cards, the composer and icon/avatar buttons.  This closes responsive layout
+qualification, but does not replace later physical-device testing of VoiceOver,
+TalkBack, guardian/child journeys, camera permissions, biometrics and background
+lifecycle behavior.
+
+\subsection{Adverse-network and compromised-participant behavior}
+
+The call authority was tested with missing and out-of-order transport records,
+simulated loss and jitter, reconnect epochs, participant removal and forged-device
+attempts.  A call cannot connect until both parties have registered possession-signed
+transport records for the current epoch.  Delayed legitimate evidence can recover a
+partial negotiation; stale evidence cannot cross a reconnect boundary because every
+reconnect advances the epoch and requires fresh keys, fingerprints and nonces.
+
+Group messages now carry an exact canonical payload signed by the sending device.
+The mother verifies current membership, the current group-key epoch, payload bounds
+and a single-use nonce.  A removed member cannot post under the new epoch, a replayed
+message is rejected, and possession of public identifiers alone cannot forge another
+participant.  These tests qualify the signaling and authorization state machine.
+They do not close \texttt{MOB-1201}: the native WebRTC media construction still
+requires independent end-to-end-encryption review.
+
+\subsection{Reuse of the Wave foundation}
+
+The optional Wave path now exposes an inspectable foundation receipt describing the
+existing reusable machinery: bounded indexed fragments, per-fragment and complete
+payload SHA-256 integrity, Ed25519-authenticated bundles, priority/TTL/retry and
+idempotent queueing, duplicate suppression, and store-and-forward persistence.
+Local reconstruction remains explicitly different from physical delivery.  The
+ordinary Pilot product continues to hide Wave, PHO and wallet functions unless
+supported hardware and policy deliberately enable them.
+
+The legacy GlyphNet radio node retains its genuine reconnecting serial driver and
+authenticated WebSocket bridge driver.  A real link automatically disables the
+development mock.  Development injection routes now return not-found unless an
+explicit development flag enables them.  The service has no default bridge secret,
+does not accept bridge credentials in WebSocket query strings and requires a header
+token plus a versioned timestamp, single-use nonce and HMAC for every radio WebSocket
+connection.  Nonces are bounded, expire with the authentication window and are
+remembered to prevent replay.
+
+The radio node was migrated to Express 5.2.1, recompiles successfully and reports no
+known production dependency vulnerabilities in the package audit.  This closes the
+software bridge-hardening task without claiming a radio product exists.  Genuine BLE
+and Wi-Fi Direct drivers, ESP32 or Raspberry Pi qualification, regional frequency
+compliance, and two-mother text/push-to-talk delivery with the internet physically
+disabled remain \texttt{MOB-1307--MOB-1310}.
+
+\subsection{Acceptance boundary}
+
+Automated evidence covers exact SMS routing and callback authentication, contact
+channel separation, responsive target sizing, signed adverse-network call and group
+behavior, Wave framing/queue integrity, and source-level radio security invariants.
+The complete regression contains 588 passing AION Fabric tests.  The radio-node
+TypeScript build passes and its production dependency audit reports zero known
+vulnerabilities.  This append-only section also compiles independently.
+No message was sent, no external account was connected, no physical radio delivery
+was attempted, and the live household television runtime was not restarted during
+this work.

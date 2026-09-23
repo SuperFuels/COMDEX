@@ -1,0 +1,111 @@
+% Append-only technical-record section. Requires amsmath, booktabs, hyperref.
+\section{Local Taylor Expert Function Atlas: Held-Out Layer-12 Gate}
+\label{sec:gptoss120b-taylor-atlas-gate}
+
+\subsection{Purpose and claim boundary}
+
+This experiment tested whether an omitted GPT-OSS 120B expert could be replaced by a
+small, resident, expert-specific local function without repeatedly moving its full
+MXFP4 weights.  It belongs exclusively to the quality-gated track.  The unrestricted
+four-expert model remains the teacher and exact fallback.  This section reports a
+single-layer numerical gate; it is not a full-model quality result and it makes no
+generated-token throughput claim.
+
+The business and writing blind cohorts remained sealed.  Arithmetic activations were
+used to fit candidate geometries, extraction activations selected the configuration,
+and reasoning activations were opened only after selection as the unseen development
+family.
+
+\subsection{Compiler design}
+
+For each of all 128 experts in layer 12, AION queried the original SD-backed expert at
+real activation anchors and along positive and negative principal activation
+directions.  Central finite differences produced a local Jacobian.  At runtime the
+nearest anchor supplied an expert-specific first-order Taylor approximation,
+\begin{equation}
+ \widehat{E}_e(x) = E_e(a_j) + J_{e,j}\,(z(x)-z(a_j)),
+\end{equation}
+where $e$ identifies the original expert, $a_j$ is the nearest activation anchor,
+and $z$ is the normalized low-dimensional activation coordinate.  Six bounded
+configurations spanning one to four anchors and rank four to sixteen were selected
+without access to the reasoning outputs.
+
+The numerical source was the already-validated bounded GGML batch primitive at batch
+size one.  Three preliminary invocations exposed a scratch-arena construction defect
+in an experimental reusable-graph helper: the helper repeatedly consumed the whole
+declared arena and then requested one final metadata object.  Those invocations
+produced no atlas evidence and were excluded.  Increasing the arena was stopped; the
+gate was rerun using the validated primitive instead.
+
+\subsection{Measured result}
+
+The selected candidate used four anchors, activation rank eight, and a finite-
+difference step of 0.05.  Table~\ref{tab:taylor-atlas-result} gives the held-out result.
+
+\begin{table}[ht]
+\centering
+\caption{Layer-12 local Taylor Atlas gate.}
+\label{tab:taylor-atlas-result}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Quantity & Measured value \\
+\midrule
+Experts compiled & 128 \\
+Extraction selection p95 relative layer-output error & 0.102799 \\
+Reasoning development p50 relative layer-output error & 0.063165 \\
+Reasoning development p95 relative layer-output error & 0.085561 \\
+Reasoning development maximum relative error & 0.091601 \\
+Drop-fourth reasoning baseline p95 & 0.103692 \\
+Atlas calculation median & 0.024625 ms \\
+Atlas calculation p95 & 0.049758 ms \\
+Exact packed-expert calculation median & 0.162792 ms \\
+F32 atlas bytes per expert & 415,800 \\
+Layer atlas size & 53,222,400 bytes \\
+Projected 36-layer F32 size & 1,916,006,400 bytes \\
+Compressed cartridge size on disk & 47,907,384 bytes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The atlas reduced the unseen reasoning p95 error by approximately 17.5\% relative to
+omitting the fourth expert entirely.  It was more than four times smaller than one
+original expert and comfortably faster than the 0.4 ms correction-time ceiling.
+Nevertheless, its 0.085561 p95 error was more than four times the predeclared 0.02
+acceptance limit.
+
+A post-gate certification audit strengthened the stopping decision.  None of the 21
+unseen reasoning positions achieved relative layer-output error at or below 0.02;
+none achieved 0.03; only one achieved 0.04.  Consequently, a certification mask at
+the declared numerical boundary would accelerate zero observed positions.
+
+\subsection{Decision and interpretation}
+
+The status is \texttt{STOP\_TAYLOR\_ATLAS}.  The result is scientifically useful:
+expert-specific local derivatives transfer better than deleting the expert, while
+remaining exceptionally cheap.  They do not encode enough of the omitted nonlinear
+expert function to preserve the layer output at the required accuracy.
+
+This also closes a family of closely related candidates.  A prior direct randomized-
+SVD factorization of the original gate, up, and down matrices produced approximately
+1.06--1.09 relative expert-output error at ranks 32--128.  Prior shared MXFP4 product
+dictionaries and activation-addressed residual-block oracles also failed their
+frozen numerical gates.  Expanding the present atlas across layers would therefore
+consume memory and engineering time without a certified operating region.
+
+The programme returns to the measured frontier: exact four-expert execution with
+demand-admitted storage and overlap, plus separately labelled quality-gated adaptive
+expert selection, exact fallback, and multi-token reuse only where the reduced route
+union makes reuse physically beneficial.  Context Atlases remain useful for reducing
+prompt and retrieval work, but they must not be presented as a replacement for neural
+expert computation or as evidence of higher decode tokens per second.
+
+\subsection{Integrity receipts}
+
+The canonical report SHA-256 is
+\texttt{c1402b98045d5ca5d3ed659f80fd6179952f76e89573682d8124797510ead65b}.
+The cartridge SHA-256 is
+\texttt{7e8a05e96c39bec2fb73da89dbf0b632788b4926aa9af3c05af1b025945fd886}.
+The warehouse-manifest SHA-256 is
+\texttt{dfc85d22c833d3c25a6caf3575a40cb3964656b336c98b5873b94faa3dacc2c3}.
+The authorization SHA-256 is
+\texttt{c5360a7bfe0a2a87abd0853108e69fd5cc7ed13d46b244b2e0dd3ccb377d698e}.

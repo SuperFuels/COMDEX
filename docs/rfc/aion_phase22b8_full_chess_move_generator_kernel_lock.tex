@@ -1,0 +1,58 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.8: Full Chess Move Generator Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.8 defines the AION Full Chess Move Generator Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can generate selected full-board chess move classes and reject illegal move classes.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.8 extends full-board grounding into selected full-chess movement rules.
+
+\section{Move Generator Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{pawn\_forward\_move\_count};
+  \item \texttt{pawn\_capture\_move\_count};
+  \item \texttt{knight\_move\_count};
+  \item \texttt{sliding\_move\_count};
+  \item \texttt{king\_move\_count};
+  \item \texttt{blocked\_path\_rejection\_count};
+  \item \texttt{own\_piece\_rejection\_count};
+  \item \texttt{king\_safety\_rejection\_count};
+  \item \texttt{selected\_move\_legal};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates selected full-board chess move generation. It does not yet implement castling, en passant, promotion, full checkmate search, full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B8-FULL-CHESS-MOVE-GENERATOR-KERNEL-LOCK\\
+Status: LOCKED --- full chess move generator implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

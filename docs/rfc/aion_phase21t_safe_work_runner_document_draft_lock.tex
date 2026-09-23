@@ -1,0 +1,74 @@
+\section{Phase 21T --- Safe Work Runner and Document Draft Generator}
+\label{sec:aion-phase21t-safe-work-runner-document-draft}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21T makes approved safe work visibly progress and produce a meaningful draft document preview.
+
+\subsection{Purpose}
+
+Before Phase 21T, approving a mission contract changed status but did not visibly continue work.
+
+Phase 21T adds a frontend safe-work runner that produces a preview-only work sequence:
+
+\begin{itemize}
+  \item safe work started;
+  \item drafting output;
+  \item saving draft artifact;
+  \item receipt created;
+  \item safe work completed.
+\end{itemize}
+
+\subsection{Document Draft Rule}
+
+For document tasks, Pilot MUST generate a richer draft document preview rather than a generic outline.
+
+The preview may include:
+
+\begin{itemize}
+  \item executive summary;
+  \item mission;
+  \item service focus;
+  \item target customers;
+  \item offer strategy;
+  \item marketing plan;
+  \item operations plan;
+  \item risks and controls;
+  \item next steps;
+  \item approval boundary.
+\end{itemize}
+
+\subsection{Approval Boundary}
+
+Approve plan authorizes safe draft and preview work only.
+
+It MUST NOT authorize:
+
+\begin{itemize}
+  \item posting publicly;
+  \item sending messages or emails;
+  \item deploying;
+  \item spending money;
+  \item booking or dispatching;
+  \item escrow or payment actions;
+  \item reputation mutation;
+  \item raw tool execution.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21t_safe_work_runner_document_draft_ui_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21T-SAFE-WORK-RUNNER-DOCUMENT-DRAFT
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

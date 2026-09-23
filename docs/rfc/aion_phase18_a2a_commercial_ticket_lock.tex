@@ -1,0 +1,164 @@
+
+\section{Phase 18 --- A2A Commercial Ticket API/UI Lock}
+\label{sec:phase18-a2a-commercial-ticket-api-ui-lock}
+
+\subsection{Status}
+
+Phase 18 is locked as the AION A2A Commercial Ticket preview layer.
+
+The lock connects the desktop frontend, backend ticket contract, and local preview API for safe agent-to-agent commercial negotiation previews.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Phase 18 frontend/backend/API suite passing with 35 tests.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase18_a2a_commercial_ticket_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase18_backend_contracts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase18_preview_api_lock.py
+\end{verbatim}
+
+Validation result:
+
+\begin{verbatim}
+35 passed, 20 warnings in 14.23s
+\end{verbatim}
+
+The warnings are existing repository-wide deprecation warnings and are not Phase 18 failures.
+
+\subsection{Locked Components}
+
+Phase 18 records the following locked components:
+
+\begin{itemize}
+  \item Backend commercial ticket contract module:
+  \texttt{backend/workflow\_capsules/aion\_a2a\_commercial\_ticket.py}
+  \item Local preview API route:
+  \texttt{/api/local-node/aion/phase18/a2a-commercial-ticket-preview}
+  \item Desktop frontend A2A ticket panel:
+  \texttt{desktop/mac/src/app.js}
+  \item Phase 18 frontend lock tests:
+  \texttt{backend/tests/workflow\_capsules/test\_aion\_phase18\_a2a\_commercial\_ticket\_lock.py}
+  \item Phase 18 backend contract tests:
+  \texttt{backend/tests/workflow\_capsules/test\_aion\_phase18\_backend\_contracts\_lock.py}
+  \item Phase 18 preview API tests:
+  \texttt{backend/tests/workflow\_capsules/test\_aion\_phase18\_preview\_api\_lock.py}
+\end{itemize}
+
+\subsection{Commercial Ticket Contract}
+
+The locked commercial ticket contract supports safe A2A preview tickets for service work, discovery visits, quotations, proposals, and future commercial routes.
+
+The current locked Home Fixed test vertical includes:
+
+\begin{itemize}
+  \item \texttt{plumbing\_hourly}: hourly service/callout route.
+  \item \texttt{roof\_discovery}: discovery/assessment route for roof leak inspection.
+\end{itemize}
+
+The roof discovery scenario is deliberately not allowed to create a fake final quote. It returns a discovery visit proposal preview and requires inspection before final pricing.
+
+The locked roof scenario records:
+
+\begin{verbatim}
+requested_slot: Tomorrow 11:30
+available_slot: Tomorrow 13:30
+unavailable_reason: 11:30 is already held for another site visit.
+customer_request: Leaking pergola roof in Arboleas after rain
+\end{verbatim}
+
+\subsection{Preview API Contract}
+
+The Phase 18 local preview API supports scenario selection by query parameter.
+
+\begin{verbatim}
+/api/local-node/aion/phase18/a2a-commercial-ticket-preview?scenario=home_fixed_roof_discovery
+/api/local-node/aion/phase18/a2a-commercial-ticket-preview?scenario=plumbing_hourly
+\end{verbatim}
+
+Unknown scenarios MUST fall back safely to the plumbing hourly preview.
+
+The API returns:
+
+\begin{itemize}
+  \item user-facing display fields for the normal UI;
+  \item raw ticket identifiers and hashes for advanced trace only;
+  \item route labels and pricing labels;
+  \item service rules;
+  \item proposal preview;
+  \item availability preview;
+  \item negotiation state and negotiation steps;
+  \item guard envelope;
+  \item deterministic ticket and route hashes.
+\end{itemize}
+
+\subsection{No-Live-Side-Effects Safety Contract}
+
+Phase 18 is preview-only. It MUST NOT create live operational side effects.
+
+The locked guard envelope requires:
+
+\begin{verbatim}
+preview_only: true
+booking_created: false
+payment_created: false
+escrow_created: false
+external_message_sent: false
+live_chain_write: false
+human_review_required: true
+\end{verbatim}
+
+The frontend, backend contract, and API regression tests all preserve this safety boundary.
+
+\subsection{Frontend Behaviour}
+
+The desktop frontend now attempts to fetch the local Phase 18 preview API from:
+
+\begin{verbatim}
+http://127.0.0.1:8080/api/local-node/aion/phase18/a2a-commercial-ticket-preview
+\end{verbatim}
+
+If the local backend is available, the ticket source changes to Local API.
+
+If the local backend is unavailable, the panel safely falls back to the local frontend demo ticket.
+
+The frontend includes:
+
+\begin{itemize}
+  \item API/local fallback behaviour;
+  \item timeout handling to prevent permanent loading state;
+  \item source status display;
+  \item success note for loaded API preview;
+  \item advanced technical trace;
+  \item hidden raw enums in normal user UI;
+  \item runtime protection against the fixed workflow slim header overlaying the A2A ticket.
+\end{itemize}
+
+\subsection{Advanced Technical Trace}
+
+Raw technical values are restricted to the advanced trace area where possible.
+
+The advanced trace records:
+
+\begin{itemize}
+  \item \texttt{ticket\_hash};
+  \item \texttt{route\_hash};
+  \item \texttt{requested\_scenario};
+  \item \texttt{resolved\_scenario};
+  \item guard envelope booleans;
+  \item raw route/pricing enum values where required for debugging.
+\end{itemize}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PHASE18-A2A-COMMERCIAL-TICKET-API-UI-LOCK-V1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
+

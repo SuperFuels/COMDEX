@@ -1,0 +1,105 @@
+\section{Unified Mobile Governed Communication}
+\label{sec:pilot-unified-mobile-communication}
+
+The unified Pilot mobile application now projects the existing governed communication authority
+onto a dedicated private Messages surface.  The phone is a possession-bound review and approval
+surface; it is not an independent messaging server.  Contacts, drafts, provider bindings and
+receipts remain on the person's mother brain, while shared television speech may prepare a request
+but cannot choose a private recipient, sending account or final message by itself.
+
+\subsection{User Experience and Action States}
+
+The Personal space includes an Email and Messages shortcut.  From this surface the person can
+select one of their private contacts, choose an available email, WhatsApp or Pilot-to-Pilot route,
+enter a subject where applicable, and prepare the exact content.  Preparation creates no external
+effect.  The draft is then displayed with its resolved contact name, exact private destination,
+subject, body and current state.
+
+The delivery lifecycle is deliberately explicit:
+\begin{enumerate}
+  \item \texttt{awaiting\_private\_approval}: the recipient and content are visible for review;
+  \item \texttt{guardian\_approval\_required}: a child or teenager cannot approve an external route alone;
+  \item \texttt{approved\_pending\_adapter}: the exact hash was approved, but nothing has been sent;
+  \item \texttt{executing}: a single authorized provider attempt may be in flight;
+  \item \texttt{delivery\_unknown\_reconcile\_required}: Pilot cannot safely claim either success or failure;
+  \item \texttt{delivered}: the provider returned a verified message identifier and Pilot recorded a receipt; and
+  \item \texttt{rejected}: the person declined the draft and no delivery occurred.
+\end{enumerate}
+
+Approval and execution remain separate taps.  If no authorized sending account or platform adapter
+is connected, Pilot keeps the approved draft intact and reports that delivery is unavailable.  It
+does not open an uncontrolled browser, invent success or downgrade the action into an unverified
+claim.
+
+\subsection{Mother-Brain Architecture}
+
+The mobile surface calls a provider-independent communication projection through signed HTTPS
+routes.  That projection reuses \texttt{GovernedCommunication}, \texttt{PilotInbox}, the private
+contact authority, production identity records and persona-specific Google OAuth metadata.  The
+mother brain performs recipient resolution, immutable-scope hashing, policy checks, adapter
+selection and receipt normalization.  Provider credentials and OAuth vault references are never
+returned to the phone or television.
+
+The current provider boundary supports a Gmail sending adapter that requires the person's own
+authorized Google binding.  WhatsApp and equivalent messaging delivery remain disabled until an
+officially permitted provider adapter is configured.  Pilot-to-Pilot conversation transport remains
+separate from public-provider messaging and continues to use the encrypted Unified Inbox route.
+
+\subsection{Possession-Bound Capabilities}
+
+Communication access is divided into narrow lease scopes:
+\begin{itemize}
+  \item \texttt{communication.read} for private drafts, summaries, follow-ups and receipts;
+  \item \texttt{communication.draft} for preparing exact content without sending it;
+  \item \texttt{communication.approve} for accepting or rejecting the unchanged content hash;
+  \item \texttt{communication.execute} for one approved provider attempt;
+  \item \texttt{communication.convert} for turning an authorized received summary into a task or calendar proposal;
+  \item \texttt{communication.followup} for a conditional no-reply reminder; and
+  \item \texttt{communication.call} for preparing a telephone handoff that still requires a deliberate phone tap.
+\end{itemize}
+
+Every mobile operation is signed with the phone's non-exportable Ed25519 key and checked against
+the active certificate, persona and short-lived capability lease.  Persona substitution fails
+closed.  Draft and decision retries use idempotency keys bound to canonical request hashes; an
+identical retry returns the original object, while reuse with changed content or a changed decision
+is rejected.
+
+\subsection{Verified Delivery and Minimal Receipts}
+
+Execution is permitted only when the same persona approved the stored content hash.  A successful
+adapter must return a verified provider message identifier.  Pilot then stores a normalized receipt
+containing the draft identifier, persona, channel, provider message and thread identifiers, a hash
+of the recipient, and the verified delivery time.  Raw provider responses are not retained.  A
+repeat execution returns the original receipt rather than sending the message twice.
+
+If the adapter raises an error after an attempt begins, Pilot records an unknown-effect state and
+requires reconciliation.  This prevents an uncertain timeout from causing an automatic duplicate
+message.  The interface never labels a draft as delivered merely because it left the phone or was
+accepted by the mother brain.
+
+\subsection{Received Summaries, Follow-Through and Calls}
+
+Authorized provider ingestion stores sender, freshness and source provenance together with a
+bounded AION Native summary and a hash of the original body.  The raw body is not retained in this
+communication record.  From the private phone, the person may convert a received summary into a
+local task or prepare a calendar item; calendar execution still uses its own exact approval gate.
+
+After a verified sent message, the person may schedule a reminder conditioned on the absence of a
+verified reply.  Pilot also supports call preparation using a privately stored telephone route.
+Preparation never places the call: the phone presents a separate \emph{Tap to call} action so the
+operating system and user remain the final call authority.
+
+\subsection{Verification and Remaining External Qualification}
+
+Automated tests cover private snapshots, retry-safe drafting, changed-content rejection, exact
+approval, missing-adapter failure, verified provider receipts, repeat-execution deduplication,
+conditional follow-ups, received-message task conversion, provenance retention, raw-body exclusion
+and explicit call placement.  Surface checks cover the Messages shortcut, exact-content review,
+approval, execution and verified receipt views.  At coded closure of \texttt{MOB-0506}, all 460
+AION Fabric tests passed and the optimized Next.js application compiled and statically generated
+the unified mobile route.
+
+No real message, email or call was made during this implementation.  Production qualification still
+requires a user-authorized Google account and a real Gmail receipt, plus separately authorized and
+officially supported messaging providers where available.  Those external qualifications remain
+visible in the master checklist and cannot be closed by a simulated adapter.

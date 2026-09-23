@@ -1,0 +1,62 @@
+\section{Phase 15D --- AXO Anti-Gaming and Trust Rule Lock Foundation}
+\label{sec:phase15d-axo-anti-gaming-trust-rule-lock}
+
+\subsection{Status}
+
+Phase 15D locks the first AXO anti-gaming and trust-rule preview layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- preview-only AXO anti-gaming and trust-rule checks added.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase15_axo_anti_gaming_trust_rule_lock.py
+\end{verbatim}
+
+Focused suite command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Purpose}
+
+Phase 15A defined the AXO and ETS contract foundation. Phase 15B exposed ETS preview state in AgentMap. Phase 15C exposed AXO readiness in Boardroom.
+
+Phase 15D now adds the missing trust boundary: scores remain preview-only unless anti-gaming and trust-rule checks are satisfied.
+
+\subsection{Locked Contracts}
+
+The following contracts are now defined:
+
+\begin{itemize}
+  \item \texttt{AXO\_ANTI\_GAMING\_RULESET\_VERSION}
+  \item \texttt{AXO\_TRUST\_RULE\_LOCK\_VERSION}
+  \item \texttt{AXO\_ANTI\_GAMING\_RULES}
+  \item \texttt{build\_axo\_trust\_rule\_lock\_preview}
+  \item \texttt{build\_axo\_anti\_gaming\_agentmap\_extension}
+\end{itemize}
+
+The ruleset requires signed feedback, proof receipt linkage, job trace linkage, evidence linkage, customer/system score separation, self-scoring prevention, and human review for any future trust mutation.
+
+\subsection{Safety Boundary}
+
+This phase MUST NOT enable live reputation mutation.
+
+It MUST NOT allow autonomous score acceptance.
+
+It MUST NOT merge customer outcome score with system execution score.
+
+It MUST NOT create bookings, payments, escrow, dispatch, external messages, or chain writes.
+
+\subsection{Lock Footer}
+
+\begin{quote}
+Lock ID: \texttt{aion.phase15d.axo\_anti\_gaming\_trust\_rule\_lock.v0.1}\\
+Status: LOCKED\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson
+\end{quote}

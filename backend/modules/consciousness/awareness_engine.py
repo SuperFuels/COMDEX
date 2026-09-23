@@ -263,6 +263,23 @@ class AwarenessEngine(ResonantReinforcementMixin):
             ),
         }
 
+    def assess_epistemic_state(self, cognitive_record: Dict[str, Any]) -> Dict[str, Any]:
+        """Report what AION knows and does not know without inventing confidence."""
+        capability = cognitive_record.get("capability") or {}
+        review = cognitive_record.get("metacognitive_review") or {}
+        unresolved = capability.get("unresolved_questions") or []
+        confidence = max(0.0, min(1.0, 1.0 - float(review.get("uncertainty") or 0.0)))
+        return {
+            "record_hash": cognitive_record.get("record_hash"),
+            "known": list(capability.get("verified_capabilities") or []),
+            "suspected": list(capability.get("partial_capabilities") or []),
+            "unknown": list(unresolved),
+            "confidence": confidence,
+            "blindspot_count": len(unresolved),
+            "confidence_authority": "evidence_and_uncertainty_only",
+            "harmonic_metrics_authority": "telemetry_only",
+        }
+
 
 # 🧪 Local diagnostic
 if __name__ == "__main__":

@@ -1,0 +1,64 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.24: Full Chess Basic Search Engine Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.24 defines the AION Full Chess Basic Search Engine Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can score selected candidate moves with a deterministic depth-limited search layer.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.24 introduces the first deterministic search layer before deeper minimax and alpha-beta search.
+
+\section{Basic Search Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{search\_depth};
+  \item \texttt{candidate\_move\_count};
+  \item \texttt{evaluated\_node\_count};
+  \item \texttt{rejected\_move\_count};
+  \item \texttt{accepted\_move\_count};
+  \item \texttt{bad\_capture\_rejection\_count};
+  \item \texttt{king\_risk\_rejection\_count};
+  \item \texttt{material\_loss\_rejection\_count};
+  \item \texttt{selected\_move\_id};
+  \item \texttt{selected\_uci\_move};
+  \item \texttt{selected\_move\_score};
+  \item \texttt{selected\_move\_preserves\_king};
+  \item \texttt{selected\_move\_profitable};
+  \item \texttt{candidates};
+  \item \texttt{search\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates deterministic depth-limited chess search over selected candidate moves. It does not yet implement minimax, alpha-beta pruning, quiescence search, engine-strength evaluation, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B24-FULL-CHESS-BASIC-SEARCH-ENGINE-KERNEL-LOCK\\
+Status: LOCKED --- full chess basic search engine kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

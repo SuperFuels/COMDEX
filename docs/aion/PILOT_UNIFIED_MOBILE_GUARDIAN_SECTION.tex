@@ -1,0 +1,55 @@
+\begingroup
+\sloppy
+\setlength{\emergencystretch}{3em}
+\raggedright
+\section{Unified Mobile Pilot Guardian}
+\label{sec:pilot-unified-mobile-guardian}
+
+Pilot Guardian is now available inside the unified Personal phone application as a priority-help
+surface.  It reuses the existing Guardian authority and remains deliberately separate from ordinary
+messages, calls and contact permissions.  Its present production claim is narrow: it can prepare
+and attempt an urgent alert to a contact explicitly authorized by the protected person or their
+guardian.  It does not diagnose a fall, contact an emergency service or claim ambulance dispatch.
+
+\subsection{Separate Authority and Protected Person}
+
+The mother issues three distinct capabilities: \texttt{guardian.read},
+\texttt{guardian.configure} and \texttt{guardian.alert}.  Requests are signed by the paired phone
+and bound to its active certificate, lease and private identity.  A phone may protect its own person
+or a child profile explicitly linked to that adult as guardian; it cannot open or act upon an
+unrelated adult's Guardian state.
+
+An emergency contact permission names one existing private contact, one delivery channel, whether
+emergency interruption is allowed and whether location may be shared.  The permission explicitly
+states that it grants no ordinary-contact authority.  Location sharing additionally requires a
+separate permission receipt and is omitted from alerts when that proof is absent.
+
+\subsection{Confirm-before-send Incident Flow}
+
+Pressing the large help control creates an incident in
+\texttt{awaiting\_large\_confirmation}.  No alert is sent at this point.  The surface presents the
+number of authorized routes and separate controls to confirm or cancel a false alarm.  Confirmation
+locks the exact permission identifiers and then attempts their registered providers.  A result is
+\texttt{alerts\_verified} only when a provider returns both a positive verification and provider
+alert identifier.  Missing, failed or unverified adapters produce
+\texttt{connectivity\_fallback\_required} and a prominent instruction to use local emergency
+services directly.
+
+Create, configure, confirm, deliver and cancel paths are idempotent.  Network retransmission of an
+identical signed operation returns its recorded result; reuse of the key for changed details is
+rejected.  In particular, a repeated phone response cannot silently produce a second provider
+alert.
+
+\subsection{Safety State and Verification}
+
+The interface always displays that emergency-service dispatch is not connected.  Each returned
+state includes \texttt{ambulance\_dispatched=false}, an explicit delivery-verification flag and a
+fallback flag.  Sensor observations remain prompts rather than diagnoses or automatic dispatch
+authority.
+
+Focused Guardian, identity-boundary and mobile-surface tests verify separate permissions, the
+large-confirmation boundary, fail-closed delivery, honest dispatch claims and replay protection.
+The optimized Next.js production build compiles successfully.  Automated verification registered
+no real contact, sent no alert and contacted no emergency service.
+
+\endgroup

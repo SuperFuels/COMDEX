@@ -1,0 +1,53 @@
+\section{Governed Full-Screen Television Presentation}
+\label{sec:pilot-mobile-governed-tv-presentation}
+
+Pilot can deliberately project a private briefing, dashboard or repository-backed
+document onto the room-scale television without turning the television into an
+independent private-data store.  This completes coded task \texttt{MOB-0807} and
+closes the coded portion of shared-TV continuity.
+
+\subsection{Authority before content}
+
+Every presentation begins on a possession-signed phone.  The mother verifies the
+phone certificate and lease, the \texttt{tv.control} scope, the active shared-screen
+persona and the current signed surface manifest.  Personal presentation is limited
+to the mother's own bounded ``today'' briefing.  Workspace and Boardroom content
+additionally requires a current membership and an exact capability exposed by the
+provider-independent Workspace gateway.  A document is selected from the signed
+repository catalogue; a caller-supplied path or arbitrary television URL is never
+accepted as authority.
+
+\subsection{Ephemeral projection}
+
+The mother converts the authorized source into a small presentation model and
+recursively removes secret-, token-, password-, cookie-, credential- and private-key
+fields.  Arrays, maps and strings are bounded, and the complete serialized model is
+limited to 256 KiB.  The model exists only in volatile process memory for at most ten
+minutes and never beyond the shared-screen lease.  Durable state receives a hash-only
+audit receipt containing the content reference, kind, authority domain and expiry;
+it does not receive the private body.
+
+The television Canvas polls the token-protected mother state and constructs a
+full-screen, high-legibility overlay using text-only DOM operations.  It provides a
+clear close control and an automatic-close explanation.  Dismissal, logout, identity
+change, lease expiry or locked-surface purge removes the in-memory presentation.
+Reloading the television after that point cannot reconstruct the private content.
+
+\subsection{Phone and Workspace flow}
+
+The private controller exposes ``My briefing'', ``Present this on TV'' and ``Close
+presentation'' actions beside the content they govern.  Workspace presentation sends
+the membership identifier, signed authority domain and repository content identifier
+back to the mother.  The mother re-reads the provider at execution time; the phone's
+label is not trusted as the document or dashboard.  Presentation grants no permission
+to modify a file, approve work, send a message or execute a Boardroom action.
+
+\subsection{Verification boundary}
+
+Automated tests cover signature and persona enforcement, secret-field removal,
+non-persistence of private text, explicit dismissal, logout purge, safe television
+rendering and the possession-signed mobile route.  The optimized mobile production
+build also compiles.  A two-person physical television exercise remains a field
+closure gate: present private material, transfer or expire control, and confirm that
+the real display removes it without retaining a recoverable copy.
+

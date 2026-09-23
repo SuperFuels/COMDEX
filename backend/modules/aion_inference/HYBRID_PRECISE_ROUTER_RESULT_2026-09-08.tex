@@ -1,0 +1,175 @@
+% Append-only section for the AION technical record.
+% Requires no packages beyond those already used by the main record.
+\section{Precise Metal Routing and Evidence-Guided Hybrid Stabilisation}
+\label{sec:precise-metal-hybrid-router}
+\providecommand{\aionreporthash}[2]{%
+  \par\noindent\texttt{#1}\texttt{#2}\par}
+
+\subsection{Objective and unchanged gates}
+
+This stage attempted to retain the approximately 38-token-per-second advantage
+of the changed Metal routing kernel while correcting the repeatability defect
+that had prevented promotion.  The experiment did not lower or reinterpret any
+previously declared threshold.  The quality-gated track continued to require:
+(i) more than 30 generated tokens per second at 64, 128, and 256 generated
+tokens; (ii) no more than a 10\% candidate-rate decrease from 128 to 256 tokens;
+(iii) candidate self-repeatability no worse than control at 128 and 256 tokens;
+(iv) passage of the frozen teacher-forced and twelve-case semantic gates; and
+(v) the existing storage-first and 3~GiB bank-integrity conditions.
+
+This is explicitly a \emph{quality-gated changed-kernel track}.  It is not the
+bit-exact track.  The earlier exact INT8 dynamic-bank result remains the exact
+reference boundary.  No speed result in this section may be described as
+bit-identical to the PyTorch-router control unless the individual evidence says
+so.
+
+\subsection{Exact prefill grouping}
+
+The first adjustment retained the original PyTorch router linear operation,
+\texttt{topk}, and softmax.  Metal performed only expert counting and stable
+grouping.  On 32 synthetic 96-token batches through the real Granite layer-16
+router, expert indices, per-expert sizes, and gate values were bit-identical on
+every batch.  The first implementation improved the isolated routing-chain p50
+by 52.7127\% and p95 by 48.0342\%.  Its canonical report SHA-256 is
+\aionreporthash{d9519e1984ca96ff020d703772028e30}{e1816a3d7ec70189d2a6ad0117f1669d}
+
+A second stable grouping kernel assigned one Metal thread per expert and scanned
+assignments in original order.  It avoided the first kernel's quadratic
+per-assignment prior scan.  At 96 tokens it retained exact indices, sizes, and
+gates while improving p50 by 47.9913\% and p95 by 29.8930\%.  At 384 tokens it
+retained the same exactness while improving p50 by 24.4187\% and p95 by
+14.5377\%.  The corresponding canonical report hashes are
+\aionreporthash{2ce054e26b1bf1b1dc976e8975b47d85}{7592f881c78551a18f9967d667c4dc1d}
+and
+\aionreporthash{047ec6ad6979c188c56f94d9cf7696f5}{26e01f50931e2b40ca3af697b1065a70}
+
+The narrow win did not by itself guarantee a full-model win because each of the
+32 layers still has dependencies and host-visible expert-size synchronization.
+One full semantic run crossed the unchanged 15\% gate at 19.2307\%, with all
+12 answers identical and the same 7/12 score.  Its report hash is
+\aionreporthash{13f41e05df8c41654062a7d2f45fe0c}{5f8cd9fd4e534fb7112f439ab0aac0f54}
+Later repetitions showed that this short workload has material timing variance;
+therefore that single passing run was not used alone to claim final promotion.
+
+\subsection{Stopped exact-normalisation variant}
+
+A conservative decode candidate allowed Metal to identify the eight experts
+but returned gate gathering, softmax, and sorting to the original PyTorch path.
+It achieved exact expert indices and bit-identical gate values on all 256 narrow
+samples.  However, its p50 improvement was only 17.3603\% and its p95 improvement
+was 10.8799\%, below the frozen 30\% and 15\% narrow speed gates.  It was stopped
+rather than scaled.  Canonical report SHA-256:
+\aionreporthash{b5cc021a39732d606672ed4d66bcee14}{3869f69a344e64d7100f829e3f3ea9c8}
+
+\subsection{Precise Metal exponential}
+
+The next adjustment retained the single fast Metal selection kernel but replaced
+its default exponential with Metal's precise exponential for gate normalisation.
+On 256 real-router activation samples, the candidate selected exactly the same
+experts and reduced the measured maximum gate error to zero.  It retained a
+76.5380\% p50 routing improvement and an 85.1939\% p95 routing improvement.
+This passed its frozen narrow gate.  Canonical report SHA-256:
+\aionreporthash{7a1f125c50f689f7407dcda58dc39e84}{5c8356c67c7a25f4c75aceb417f54231}
+
+All-layer precise routing sustained 38.5478, 38.2177, and 37.5013 tokens per
+second at 64, 128, and 256 generated tokens respectively.  Nevertheless, the
+128-token candidate repeated only seven of eight prompt families.  This result
+was preserved and was not promoted.  The failure demonstrated that zero error
+on a finite synthetic activation sample was not sufficient evidence of full-run
+determinism.
+
+\subsection{Full-run route audit}
+
+A diagnostic-only run compared the original PyTorch route against the precise
+Metal route at every decode layer and token for the failing document-governance
+case.  Diagnostic synchronization was deliberately included, so its throughput
+is not performance evidence.  Across 4,064 layer--token route checks, Metal
+selected the correct eight experts in every check.  Only layers 19, 21, and 22
+showed any gate-value deviation.  Their maximum absolute errors were respectively
+$6.1035\times10^{-5}$, $1.2207\times10^{-4}$, and
+$6.1035\times10^{-5}$.  The global maximum was therefore only
+$1.2207\times10^{-4}$, but accumulation was sufficient to expose a late greedy
+generation branch on a sensitive sequence.  Canonical audit SHA-256:
+\aionreporthash{09cc5abf27aa102ac9abfb481ffe4229}{bc25d8ad78aff1993a5e7db304f0b479}
+
+\subsection{Evidence-guided hybrid router}
+
+The final candidate uses the precise Metal router on 29 of 32 layers and retains
+the original PyTorch decode router only on measured-sensitive layers 19, 21,
+and 22.  Exact prefill grouping remains enabled within its bounded 512-token
+capacity.  Thus 90.625\% of decode routers retain the fast path, while the three
+observed numerical weak points use the reference path.  No new model weights,
+duplicate expert banks, model downloads, or relaxed memory ceilings were added.
+
+The exact document-governance case that had diverged at generated token 49 was
+first rerun in isolation.  Both candidate runs then repeated exactly, both
+matched the control token stream, and candidate throughput was 41.2012 tokens
+per second versus 27.5858 for control.  Canonical report SHA-256:
+\aionreporthash{8e4ba2634a58da0d2e3e7bb219a8e3f}{32e52744a6d842c3cad17459867c3bfdc}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{r r r r r r}
+\hline
+Generated & Families & Control & Hybrid & Gain & p95 time gain \\
+tokens & & (tokens/s) & (tokens/s) & (\%) & (\%) \\
+\hline
+64  & 4 & 27.3319 & 40.4898 & 48.1411 & 33.7754 \\
+128 & 8 & 28.1468 & 41.5690 & 47.6863 & 34.5948 \\
+256 & 8 & 27.8892 & 40.8329 & 46.4115 & 33.1754 \\
+\hline
+\end{tabular}
+\caption{Balanced A/B/B/A full-model results for the final hybrid router.}
+\label{tab:aion-hybrid-router-results}
+\end{table}
+
+The candidate exceeded 40 tokens per second at all three measured lengths.  Its
+128-to-256 rate reduction was approximately 1.77\%, well inside the declared
+10\% ceiling.  Median time to first token was 0.1952, 0.2051, and 0.2031 seconds
+at 64, 128, and 256 tokens, compared with 0.2011, 0.2163, and 0.2133 seconds for
+control.  Candidate self-repeatability was 4/4 families at 64 tokens, 8/8 at
+128, and 8/8 at 256; the corresponding controls were also 4/4, 8/8, and 8/8.
+
+Canonical full-model report SHA-256 values are:
+\begin{itemize}
+  \item 64 tokens:
+  \aionreporthash{4109b7acb0cbc3542e725b4aebab452c}{257b22bb6bcd18eeaa97402facf1af6e}
+  \item 128 tokens:
+  \aionreporthash{0c087710ecbdbdb9fff8f21cbffd5627}{b18c7bdd3f108e12dcfbb5739b44fcb3}
+  \item 256 tokens:
+  \aionreporthash{f592efa18a67986ce77c0ab8bfa19c47}{71a7a6f3c136baedc85e27fa17e1e1fc}
+\end{itemize}
+
+The changed kernel does not produce bit-identical logits relative to control.
+Maximum recorded step-logit differences were 0.8311, 2.1758, and 40.3184 at
+64, 128, and 256 tokens.  Candidate streams matched the reference control in
+8/8 candidate comparisons at 64 tokens, 16/16 at 128, and 12/16 at 256.  The
+candidate nevertheless repeated its own complete 256-token streams 8/8.  These
+facts prohibit an exact-output claim and require the quality-gated label.
+
+\subsection{Frozen semantic gate and current decision}
+
+On the final hybrid mechanism, all twelve frozen multiple-choice answers matched
+control, all answers were parseable, and both control and candidate retained the
+same 7/12 score.  Candidate throughput was 12.4223 tokens per second versus
+11.0708 for the dynamic-bank control, an improvement of 12.2075\%.  This missed
+the unchanged short-task threshold of 15\%.  The semantic artifact therefore
+records \texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\aionreporthash{f34951e361b06f99f7b6a99434648a74}{02568a3b69055563c80a287b2ac453ec}
+
+Accordingly, the honest current decision is:
+\begin{quote}
+The hybrid precise router is a proven 40-token-per-second long-generation
+candidate on the measured 18~GB M3 Pro and SD-backed Granite INT8 bank, with
+full candidate self-repeatability on the final 64/128/256 cohorts.  It is not
+yet globally promoted because the final frozen short-task semantic run achieved
+12.21\% rather than the required 15\% speed improvement, and the changed kernel
+is not logit-exact relative to control.
+\end{quote}
+
+The next admissible step is a replicated, order-balanced short-task evaluation
+or a measured prompt-path optimization that leaves answer-quality gates intact.
+The 15\% threshold must not be lowered, the stopped exact-normalisation variant
+must not be relabelled, and the 40-token-per-second result must not be generalized
+to arbitrary models, hardware, prompt distributions, or cold SD streaming.

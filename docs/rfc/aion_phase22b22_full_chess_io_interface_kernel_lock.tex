@@ -1,0 +1,64 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.22: Full Chess FEN / UCI / PGN Interface Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.22 defines the AION Full Chess I/O Interface Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can import/export FEN, parse/export UCI, and record/export PGN move text.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.22 adds the standard chess interface layer required for playable chess integration.
+
+\section{Interface Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{fen\_input};
+  \item \texttt{fen\_export};
+  \item \texttt{fen\_round\_trip\_ok};
+  \item \texttt{active\_color};
+  \item \texttt{castling\_rights};
+  \item \texttt{en\_passant\_target};
+  \item \texttt{halfmove\_clock};
+  \item \texttt{fullmove\_number};
+  \item \texttt{uci\_input};
+  \item \texttt{uci\_move};
+  \item \texttt{uci\_round\_trip\_ok};
+  \item \texttt{pgn\_records};
+  \item \texttt{pgn\_export};
+  \item \texttt{pgn\_export\_ok};
+  \item \texttt{io\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates deterministic FEN, UCI, and PGN interface handling. It does not yet implement a complete playable chess engine, exhaustive search, engine-strength evaluation, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B22-FULL-CHESS-IO-INTERFACE-KERNEL-LOCK\\
+Status: LOCKED --- full chess FEN / UCI / PGN interface kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

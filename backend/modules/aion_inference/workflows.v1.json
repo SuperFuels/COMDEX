@@ -1,0 +1,29 @@
+{
+  "schema_version": "aion.workflow_lookup.v1",
+  "workflows": [
+    {
+      "workflow_id": "aion.workflow.quotation.review.v1",
+      "label": "Quotation preparation and human review",
+      "keywords": ["quote", "quotation", "estimate", "price"],
+      "action_keywords": ["prepare", "draft", "create", "write", "send"],
+      "required_constraints": ["HUMAN_REVIEW_REQUIRED"],
+      "executor_bound": false
+    },
+    {
+      "workflow_id": "aion.workflow.booking.consent.v1",
+      "label": "Booking with explicit consent",
+      "keywords": ["book", "booking", "schedule", "installation"],
+      "action_keywords": ["book", "schedule", "arrange", "confirm"],
+      "required_constraints": ["BOOKING_CONSENT_REQUIRED"],
+      "executor_bound": false
+    },
+    {
+      "workflow_id": "aion.workflow.customer.response.v1",
+      "label": "Governed customer response",
+      "keywords": ["customer", "client", "response", "reply"],
+      "action_keywords": ["write", "draft", "prepare", "reply", "respond"],
+      "required_constraints": [],
+      "executor_bound": false
+    }
+  ]
+}

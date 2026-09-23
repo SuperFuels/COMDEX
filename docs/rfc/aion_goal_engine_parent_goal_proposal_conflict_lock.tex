@@ -1,0 +1,168 @@
+\section{Goal Engine Parent-Goal Proposal and Child-Agent Conflict Lock}
+\label{sec:goal-engine-parent-goal-proposal-conflict-lock}
+
+\subsection{Status}
+
+The Goal Engine now exposes a preview-only parent-goal proposal and child-agent conflict visibility path for orchestrated child runs and glyphs.
+
+\begin{quote}
+\textbf{Status: LOCKED --- focused Goal Engine suite passing with 353 tests.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Validation result:
+
+\begin{verbatim}
+353 passed
+\end{verbatim}
+
+\subsection{Purpose}
+
+This lock makes parent/child orchestration safer and more inspectable.
+
+When child agents or child glyphs complete, disagree, block, or require review, AION now derives a visible parent-goal update proposal instead of mutating the parent goal directly.
+
+The system MUST treat this as advisory state only.
+
+\subsection{Locked Runtime Contracts}
+
+The following preview contracts are now locked:
+
+\begin{itemize}
+  \item \texttt{parent\_goal\_update\_proposal}
+  \item \texttt{child\_agent\_conflict\_preview}
+  \item \texttt{orchestrator\_parent\_child\_aggregation\_runtime\_summary}
+  \item \texttt{parent\_child\_aggregation\_previews}
+\end{itemize}
+
+The parent-child aggregation preview MUST include:
+
+\begin{itemize}
+  \item \texttt{parent\_goal\_update\_proposal}
+  \item \texttt{child\_agent\_conflict\_preview}
+  \item \texttt{aggregate\_blocked\_reasons}
+  \item \texttt{conflict\_detected}
+  \item \texttt{approval\_gate = parent\_goal\_update\_review}
+\end{itemize}
+
+\subsection{Safety Guarantees}
+
+This lock is preview-only.
+
+The implementation MUST NOT:
+
+\begin{itemize}
+  \item mutate parent goals automatically;
+  \item mark parent goals as complete automatically;
+  \item auto-resolve child-agent disagreement;
+  \item execute child agents;
+  \item write externally;
+  \item grant permissions;
+  \item bypass human review.
+\end{itemize}
+
+The following flags MUST remain false in the preview path:
+
+\begin{verbatim}
+would_execute = false
+would_write_external = false
+would_mutate_parent_goal = false
+would_grant_permission = false
+would_auto_resolve = false
+\end{verbatim}
+
+The following review gate MUST remain visible:
+
+\begin{verbatim}
+approval_gate = parent_goal_update_review
+manual_review_required = true
+\end{verbatim}
+
+\subsection{Child-Agent Conflict Behaviour}
+
+A child-agent conflict is detected when child agents or child glyphs return materially different recommendations.
+
+Example recommendation disagreement:
+
+\begin{verbatim}
+approve
+reject
+revise
+\end{verbatim}
+
+When disagreement is detected, the preview MUST return:
+
+\begin{verbatim}
+trace_type = child_agent_conflict_preview
+conflict_detected = true
+conflict_policy = human_review
+recommended_resolution = human_review_required
+manual_review_required = true
+child_agent_conflict_requires_review
+\end{verbatim}
+
+When no disagreement is detected, the preview MAY return:
+
+\begin{verbatim}
+conflict_detected = false
+recommended_resolution = no_conflict_detected
+manual_review_required = false
+\end{verbatim}
+
+Missing parent goals or missing children MUST fail closed with:
+
+\begin{verbatim}
+parent_goal_id_required
+child_agents_or_glyphs_required
+valid = false
+\end{verbatim}
+
+\subsection{Boardroom Visibility Lock}
+
+The Boardroom now includes a visibility-only panel:
+
+\begin{verbatim}
+renderAionGoalEngineParentGoalProposalConflictPanelV1
+data-aion-goal-engine-parent-goal-proposal-conflict="v1"
+\end{verbatim}
+
+The panel reads canonical payloads from the parent-child aggregation runtime summary and displays:
+
+\begin{itemize}
+  \item Parent Goal Proposal;
+  \item proposed parent-goal status;
+  \item approval gate;
+  \item Child Agent Conflict;
+  \item recommended resolution;
+  \item manual review status;
+  \item no-execution and no-mutation safety flags.
+\end{itemize}
+
+The panel is visibility only. It MUST NOT provide direct mutation, execution, approval bypass, or auto-resolution controls.
+
+\subsection{Locked Tests}
+
+The following tests lock this behaviour:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_goal_engine_parent_goal_update_proposal.py
+backend/tests/workflow_capsules/test_goal_engine_child_agent_conflict_preview.py
+backend/tests/workflow_capsules/test_goal_engine_boardroom_parent_goal_proposal_conflict_ui_lock.py
+backend/tests/workflow_capsules/test_goal_engine_orchestrator_parent_child_aggregation.py
+backend/tests/workflow_capsules/test_goal_engine_orchestrator_parent_child_preview_bundle_attachment.py
+backend/tests/workflow_capsules/test_goal_engine_orchestrated_glyphs_workflow_tabs_ui_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-PARENT-GOAL-PROPOSAL-CONFLICT-v1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

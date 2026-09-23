@@ -25,6 +25,12 @@ from backend.modules.aion_conversation.contracts import (
 
 # Phase D Sprint 2 (read-only learning context for orchestrator debug/trace)
 from backend.modules.aion_learning.runtime import get_aion_learning_runtime
+from backend.modules.workflow_capsules.orchestration.workflow_intent_resolver import (
+    WorkflowIntentResolver,
+)
+from backend.modules.workflow_capsules.execution.workflow_capsule_runner import (
+    WorkflowCapsuleRunner,
+)
 
 
 @dataclass
@@ -191,6 +197,53 @@ def _composer_known_facts_from_turn_ctx(turn_ctx: Dict[str, Any]) -> List[str]:
     if planner_reason:
         facts.append(f"Planner routed this turn as {planner_reason}")
 
+    # HexCore governed recall is evidence for reasoning, not automatically
+    # accepted truth. Provenance and confidence stay attached to every item.
+    governed = dict(turn_ctx.get("hexcore_governance") or {})
+    for item in list(governed.get("recalled_knowledge") or [])[:5]:
+        if not isinstance(item, dict):
+            continue
+        answer = str(item.get("answer") or "").strip()
+        if answer:
+            facts.append(
+                "Recalled knowledge "
+                f"(source={item.get('source') or 'unknown'}, "
+                f"confidence={_safe_float(item.get('confidence'), 0.0):.2f}): "
+                f"{_truncate_text(answer, 240)}"
+            )
+
+    task_intelligence = dict(governed.get("task_intelligence") or {})
+    for item in list(task_intelligence.get("canonical_truth") or [])[:5]:
+        claim = dict(item.get("claim") or {}) if isinstance(item, dict) else {}
+        if claim:
+            facts.append(
+                "Canonical verified claim: "
+                f"{claim.get('subject')} {claim.get('predicate')} {claim.get('object')}"
+            )
+    for item in list(task_intelligence.get("experiential_memory") or [])[:4]:
+        if not isinstance(item, dict):
+            continue
+        lesson = item.get("lesson") or item.get("experience_claim")
+        facts.append(
+            "Relevant prior experience "
+            f"({item.get('capsule_id') or 'unknown'}): "
+            f"{_truncate_text(lesson or item.get('title') or '', 240)}"
+        )
+    skills = [
+        str(item.get("name") or item.get("skill_id") or "")
+        for item in list(task_intelligence.get("required_skills") or [])[:8]
+        if isinstance(item, dict)
+    ]
+    if skills:
+        facts.append(f"Task-relevant skills selected before execution: {', '.join(skills)}")
+    gaps = [str(v) for v in list(task_intelligence.get("missing_capabilities") or [])[:8]]
+    if gaps:
+        facts.append(f"Known execution capability gaps: {', '.join(gaps)}")
+    if task_intelligence.get("encountered_unverified"):
+        facts.append(
+            "Unverified encountered material exists for this task; use it only as a research lead, never as fact."
+        )
+
     # dedupe preserve order
     out: List[str] = []
     for f in facts:
@@ -240,6 +293,13 @@ def _composer_goals_from_turn_ctx(turn_ctx: Dict[str, Any]) -> List[str]:
     if "prefer_meta_reflection" in hints:
         goals.append("provide concise meta reflection grounded in state")
 
+    governed = dict(turn_ctx.get("hexcore_governance") or {})
+    task_intelligence = dict(governed.get("task_intelligence") or {})
+    if task_intelligence.get("status") == "prepared":
+        goals.append("reuse relevant verified experience and recorded lessons before improvising")
+        goals.append("use canonical claims as facts and keep unverified encounters labelled as research leads")
+        goals.append("report a required capability honestly when no verified executor is available")
+
     # Deduplicate while preserving order
     out: List[str] = []
     for g in goals:
@@ -259,6 +319,27 @@ def _composer_source_refs(turn_ctx: Dict[str, Any]) -> List[str]:
     planner = dict(turn_ctx.get("planner") or {})
     if planner.get("reason") and "response_mode_planner" not in refs:
         refs.append("response_mode_planner")
+
+    governed = dict(turn_ctx.get("hexcore_governance") or {})
+    recall_sources = {
+        str(item.get("source") or "")
+        for item in list(governed.get("recalled_knowledge") or [])
+        if isinstance(item, dict)
+    }
+    if "cee_lex_memory" in recall_sources and "hexcore:cee_lex_memory" not in refs:
+        refs.append("hexcore:cee_lex_memory")
+    if (
+        "hexcore_persistent_knowledge" in recall_sources
+        and "hexcore:persistent_knowledge" not in refs
+    ):
+        refs.append("hexcore:persistent_knowledge")
+    if governed.get("pattern_results") and "hexcore:pattern_engine" not in refs:
+        refs.append("hexcore:pattern_engine")
+    if governed.get("tessaris_rules") and "hexcore:tessaris_rules" not in refs:
+        refs.append("hexcore:tessaris_rules")
+    task_intelligence = dict(governed.get("task_intelligence") or {})
+    if task_intelligence.get("trace_id") and "hexcore:task_intelligence" not in refs:
+        refs.append("hexcore:task_intelligence")
 
     return refs
 
@@ -1533,6 +1614,7 @@ class ConversationOrchestrator:
         self,
         tracker: Optional[DialogueStateTracker] = None,
         config: Optional[OrchestratorConfig] = None,
+        governed_runtime: Optional[Any] = None,
     ) -> None:
         self.tracker = tracker or DialogueStateTracker()
         self.config = config or OrchestratorConfig()
@@ -1544,11 +1626,132 @@ class ConversationOrchestrator:
         # Phase D Sprint 2 learning runtime (read-only advisory context)
         self.learning_runtime = get_aion_learning_runtime()
 
+        # Workflow Capsules: safe dry-run proposal route.
+        self.workflow_intent_resolver = WorkflowIntentResolver()
+        self.workflow_capsule_runner = WorkflowCapsuleRunner()
+
         # Trading Sprint 3.1: paper-only trading learning/journal capture runtime (non-breaking)
         try:
             self.trading_learning_capture = get_trading_learning_capture_runtime()
         except Exception:
             self.trading_learning_capture = None
+
+        # HexCore is the authority shell around the existing reasoning path.
+        # The reasoning provider remains replaceable; authority and learning are not.
+        if governed_runtime is not None:
+            self.governed_runtime = governed_runtime
+        else:
+            from backend.modules.hexcore.governed_runtime import get_hexcore_governed_runtime
+
+            self.governed_runtime = get_hexcore_governed_runtime()
+
+    def _try_workflow_capsule_route(
+        self,
+        *,
+        user_text: str,
+        session_id: str,
+        turn_id: str,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Safe workflow capsule proposal route.
+
+        This route only performs dry-run proposal generation. It never resumes,
+        never live-executes, and never performs external writes.
+        """
+
+        try:
+            resolution = self.workflow_intent_resolver.resolve(user_text)
+        except Exception as exc:
+            return None
+
+        if not getattr(resolution, "matched", False):
+            return None
+
+        dry = self.workflow_capsule_runner.run_dry(
+            resolution.canonical_key or resolution.display_glyph or "WG-001",
+            inputs={
+                "gmail_message_id": "orchestrator-demo-message",
+                "session_id": session_id,
+                "turn_id": turn_id,
+            },
+            available_vault_requirements=[],
+            cau_state={
+                "allow_learn": False,
+                "adr_active": False,
+                "deny_reason": "orchestrator_workflow_proposal_default_no_learning",
+            },
+            extra={
+                "source": "ConversationOrchestrator",
+                "route": "workflow_capsule_proposal",
+                "session_id": session_id,
+                "turn_id": turn_id,
+            },
+            rebuild_registry=True,
+            create_approval=True,
+        )
+
+        if not dry.ok:
+            return {
+                "ok": True,
+                "origin": "aion_conversation_orchestrator",
+                "response": (
+                    "I found a matching workflow capsule, but the dry-run proposal failed. "
+                    "No action was taken."
+                ),
+                "confidence": 0.62,
+                "mode": "workflow_proposal",
+                "metadata": {
+                    "local_mode_handler": True,
+                    "local_handler": "workflow_capsule_route",
+                    "workflow_resolution": resolution.to_dict(),
+                    "workflow_capsule_result": dry.to_dict(),
+                },
+                "debug": {
+                    "workflow_resolution": resolution.to_dict(),
+                    "workflow_capsule_result": dry.to_dict(),
+                },
+            }
+
+        approval_id = (dry.approval or {}).get("approval_id")
+        steps = list((dry.expansion or {}).get("steps") or [])
+        blocked = list((dry.policy or {}).get("blocked_steps") or [])
+
+        response = (
+            f"Workflow proposal ready: {dry.display_name or dry.canonical_key}. "
+            f"Dry-run expanded {len(steps)} steps. "
+            f"Approval required: {bool((dry.run or {}).get('approval_required'))}. "
+            f"External writes are blocked until approval and vault checks pass. "
+            f"Approval ID: {approval_id or 'n/a'}."
+        )
+
+        return {
+            "ok": True,
+            "origin": "aion_conversation_orchestrator",
+            "response": response,
+            "confidence": 0.82,
+            "mode": "workflow_proposal",
+            "metadata": {
+                "phase": "workflow_capsule_orchestrator_route_v1",
+                "local_mode_handler": True,
+                "local_handler": "workflow_capsule_route",
+                "workflow_resolution": resolution.to_dict(),
+                "workflow_capsule": {
+                    "canonical_key": dry.canonical_key,
+                    "display_name": dry.display_name,
+                    "run_id": dry.run_id,
+                    "approval_id": approval_id,
+                    "step_count": len(steps),
+                    "blocked_step_count": len(blocked),
+                    "external_writes_blocked": bool((dry.run or {}).get("external_writes_blocked")),
+                    "approval_required": bool((dry.run or {}).get("approval_required")),
+                },
+                "workflow_capsule_result": dry.to_dict(),
+            },
+            "debug": {
+                "workflow_resolution": resolution.to_dict(),
+                "workflow_capsule_result": dry.to_dict(),
+            },
+        }
 
     def _build_learning_context_view(self, *, include_debug: bool) -> Optional[Dict[str, Any]]:
         """
@@ -1927,6 +2130,7 @@ class ConversationOrchestrator:
             apply_teaching=packet.apply_teaching,
             include_debug=packet.include_debug,
             include_metadata=packet.include_metadata,
+            request_metadata=packet.request_metadata,
         )
         return TurnResult.from_dict(out).validate()
 
@@ -1939,15 +2143,52 @@ class ConversationOrchestrator:
         apply_teaching: Optional[bool] = None,
         include_debug: bool = False,
         include_metadata: bool = True,
+        request_metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         started = time.time()
         turn_id = str(uuid.uuid4())
+        request_metadata = dict(request_metadata or {})
 
         if apply_teaching is None:
             apply_teaching = self.config.enable_teaching_default
 
         state = self.tracker.get_or_create(session_id)
         state_before = state.to_dict()
+
+        governed_request_metadata = dict(request_metadata)
+        governed_request_metadata.setdefault(
+            "goals",
+            [
+                {"kind": "commitment", "value": str(value)}
+                for value in list(state_before.get("commitments") or [])
+            ]
+            + [
+                {"kind": "unresolved", "value": str(value)}
+                for value in list(state_before.get("unresolved") or [])
+            ],
+        )
+        governed_request_metadata.setdefault(
+            "memories",
+            [
+                dict(value)
+                for value in list(state_before.get("recent_turns") or [])[-8:]
+                if isinstance(value, dict)
+            ],
+        )
+
+        governed_context = None
+        governance_begin_error = None
+        try:
+            governed_context = self.governed_runtime.begin_turn(
+                turn_id=turn_id,
+                session_id=session_id,
+                user_text=user_text,
+                request_metadata=governed_request_metadata,
+            )
+        except Exception as exc:
+            # Answering remains available; learning is impossible without a
+            # successfully established governed context.
+            governance_begin_error = type(exc).__name__
 
         # Assemble from current state BEFORE appending the new user turn
         turn_ctx_raw = build_turn_context(user_text=user_text, dialogue_state=state_before)
@@ -1974,6 +2215,22 @@ class ConversationOrchestrator:
         # Override/normalize context mode with planner output for downstream consistency
         turn_ctx["response_mode"] = planned_mode
         turn_ctx["planner"] = plan
+        if governed_context is not None:
+            turn_ctx["hexcore_governance"] = {
+                "governance_id": governed_context.governance_id,
+                "authority": dict(governed_context.authority),
+                "recalled_knowledge": list(governed_context.recalled_knowledge),
+                "pattern_results": list(governed_context.pattern_results),
+                "tessaris_rules": list(governed_context.tessaris_rules),
+                "goals": list(governed_context.goals),
+                "memories": list(governed_context.memories),
+                "reasoning_providers": list(governed_context.reasoning_providers),
+                "cognitive_foundation": dict(governed_context.cognitive_foundation),
+                "learning_layers": dict(getattr(governed_context, "learning_layers", {}) or {}),
+                "task_intelligence": dict(
+                    getattr(governed_context, "task_intelligence", {}) or {}
+                ),
+            }
 
         # Phase D Sprint 2: read-only learning context (debug/trace + compact metadata summary)
         learning_context_view = self._build_learning_context_view(include_debug=include_debug)
@@ -1992,6 +2249,17 @@ class ConversationOrchestrator:
 
         # Use state AFTER user append for local handlers (summary/follow-up can see latest turn)
         state_after_user = state.to_dict()
+
+        # ------------------------------------------------------------------
+        # Workflow Capsule route: safe dry-run proposal only.
+        # This happens before generic skill routing so explicit workflow/glyph
+        # requests resolve to capsule proposals, not the default composer.
+        # ------------------------------------------------------------------
+        workflow_local_out = self._try_workflow_capsule_route(
+            user_text=user_text,
+            session_id=session_id,
+            turn_id=turn_id,
+        )
 
         # ------------------------------------------------------------------
         # Phase C Sprint 1 / Trading Sprint 2+: optional skill route (non-breaking)
@@ -2056,8 +2324,10 @@ class ConversationOrchestrator:
                     except Exception:
                         trading_learning_event = None
 
-        # Skill-first local routing, then existing local handlers
-        if skill_out is not None and bool(skill_out.ok):
+        # Workflow route first, then skill-first local routing, then existing local handlers
+        if workflow_local_out is not None:
+            local_out = workflow_local_out
+        elif skill_out is not None and bool(skill_out.ok):
             if skill_out.skill_id == "skill.trading_get_curriculum":
                 outp = dict(skill_out.output or {})
                 modules = list(outp.get("modules") or [])
@@ -2205,7 +2475,10 @@ class ConversationOrchestrator:
                     "psi_tilde": _safe_float((turn_ctx.get("phi_state") or {}).get("Φ_coherence"), 0.5),
                 },
                 source_refs=_composer_source_refs(turn_ctx),
-                apply_teaching=bool(apply_teaching),
+                # Legacy composer teaching is intentionally disabled on the
+                # governed path. HexCore may commit only after outcome
+                # verification and a positive CAU decision.
+                apply_teaching=False,
                 include_debug=include_debug,
                 include_metadata=include_metadata,
             )
@@ -2214,11 +2487,48 @@ class ConversationOrchestrator:
         response_text = str(composer_out.get("response") or "")
         confidence = _safe_float(composer_out.get("confidence"), 0.0)
         metadata = dict(composer_out.get("metadata") or {})
+        metadata["hexcore_governed_teaching_requested"] = bool(apply_teaching)
+
+        governance_result: Dict[str, Any]
+        if governed_context is None:
+            governance_result = {
+                "schema_version": "aion.hexcore.governance_result.v1",
+                "authority": {
+                    "allow_learn": False,
+                    "deny_reason": "GOVERNED_CONTEXT_UNAVAILABLE",
+                    "source": "conversation_orchestrator_fail_closed",
+                },
+                "learning_committed": False,
+                "learning_reason": "GOVERNED_CONTEXT_UNAVAILABLE",
+                "error": governance_begin_error,
+            }
+        else:
+            try:
+                governance_result = self.governed_runtime.complete_turn(
+                    context=governed_context,
+                    response_text=response_text,
+                    confidence=confidence,
+                    mode=str((local_out or {}).get("mode") or planned_mode or "answer"),
+                    apply_teaching=bool(apply_teaching),
+                    request_metadata=governed_request_metadata,
+                )
+            except Exception as exc:
+                governance_result = {
+                    "schema_version": "aion.hexcore.governance_result.v1",
+                    "governance_id": governed_context.governance_id,
+                    "authority": dict(governed_context.authority),
+                    "learning_committed": False,
+                    "learning_reason": "GOVERNANCE_FINALIZATION_FAILED",
+                    "error": type(exc).__name__,
+                }
+
+        # Local handlers may override planner mode, e.g. workflow_proposal.
+        effective_mode = str((local_out or {}).get("mode") or planned_mode or "answer")
 
         # Update dialogue state
         state.topic = str(turn_ctx.get("topic") or state.topic or "AION response")
         state.intent = str(turn_ctx.get("intent") or state.intent or "answer")
-        state.last_mode = planned_mode
+        state.last_mode = effective_mode
         state.last_user_text = user_text
         state.last_response_text = response_text
 
@@ -2238,7 +2548,7 @@ class ConversationOrchestrator:
             state=state,
             role="assistant",
             text=response_text,
-            mode=planned_mode,
+            mode=effective_mode,
             confidence=confidence,
             metadata={"turn_id": turn_id, "metadata": metadata},
             turn_id=turn_id + ":a",
@@ -2274,7 +2584,7 @@ class ConversationOrchestrator:
             "timestamp": composer_out.get("timestamp"),
             "response": response_text,
             "confidence": confidence,
-            "mode": planned_mode,
+            "mode": effective_mode,
             "topic": state.topic,
         }
 
@@ -2289,6 +2599,7 @@ class ConversationOrchestrator:
                     "commitment_count": len(state.commitments),
                     "latency_ms": int((time.time() - started) * 1000),
                     "planned_mode": planned_mode,
+                    "effective_mode": effective_mode,
                     "planner_reason": plan.get("reason"),
                     "local_mode_handler": bool(local_out is not None),
                     "used_prebuilt_planner": bool(prebuilt_plan_dict.get("mode")),
@@ -2309,6 +2620,8 @@ class ConversationOrchestrator:
                     "trading_journal": trading_journal_summary_after or trading_journal_summary_before,
                     # Phase D Sprint 2 (compact, read-only advisory summary)
                     "learning_context": learning_context_summary,
+                    # HexCore cognitive authority, recall and verified outcome loop
+                    "hexcore": governance_result,
                 },
             }
 
@@ -2340,6 +2653,7 @@ class ConversationOrchestrator:
                     "trading_weakness_signals": trading_weakness_signals,
                     # Phase D Sprint 2 (full read-only context view for diagnostics)
                     "learning_context_view": learning_context_view,
+                    "hexcore_governance": governance_result,
                 },
             }
 

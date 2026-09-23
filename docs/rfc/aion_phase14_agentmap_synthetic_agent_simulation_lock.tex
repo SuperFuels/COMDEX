@@ -1,0 +1,138 @@
+\section{Phase 14E --- Synthetic Inbound Agent Simulation Preview Lock}
+\label{sec:phase14e-agentmap-synthetic-agent-simulation-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- synthetic inbound agent simulation preview v0 is implemented as a deterministic, preview-only, read-only verification flow.}
+
+This lock adds a safe simulation layer that mimics an external AI agent discovering a business through the AgentMap, verifying the discovered payload, parsing safe capability routes, submitting a synthetic intent, and halting at the human-review boundary.
+
+\subsection{Purpose}
+
+The purpose of the Phase 14E synthetic inbound agent simulation preview is to prove that the AgentMap discovery stack can support an end-to-end machine-facing flow without enabling live business execution.
+
+The simulated flow is:
+
+\begin{enumerate}
+  \item Build the read-only AgentMap discovery endpoint preview.
+  \item Run AgentMap live verification preview.
+  \item Parse safe capability routes only.
+  \item Submit a synthetic inbound agent intent.
+  \item Build a gateway preview state.
+  \item Halt at human review.
+\end{enumerate}
+
+This is the backend foundation for the future dashboard action similar to ``Run E2E Agent Simulation''.
+
+\subsection{Contract}
+
+The Phase 14E simulation response MUST expose:
+
+\begin{itemize}
+  \item \texttt{simulation\_version}
+  \item \texttt{status}
+  \item \texttt{passed}
+  \item \texttt{business\_id}
+  \item \texttt{business\_name}
+  \item \texttt{vertical\_key}
+  \item \texttt{agentmap\_hash}
+  \item \texttt{endpoint\_hash}
+  \item \texttt{verification\_hash}
+  \item \texttt{simulation\_hash}
+  \item \texttt{summary\_hash}
+  \item \texttt{synthetic\_intent}
+  \item \texttt{gateway\_preview}
+  \item \texttt{side\_effects}
+  \item \texttt{checks}
+  \item \texttt{safety\_profile}
+\end{itemize}
+
+The \texttt{simulation\_hash} and \texttt{summary\_hash} are deterministic replay and audit anchors only.
+
+\subsection{Safety Boundary}
+
+The synthetic inbound agent simulation is preview-only and read-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a live booking;
+  \item create or capture payment;
+  \item create escrow;
+  \item release escrow;
+  \item dispatch a job;
+  \item send an external message;
+  \item write live chain data;
+  \item mutate a public route;
+  \item perform live HTTP requests to customer websites.
+\end{itemize}
+
+The simulation MUST halt at human review before any live business operation.
+
+\subsection{Human Review Handoff}
+
+The simulation handoff state MUST expose:
+
+\begin{itemize}
+  \item \texttt{state = waiting\_human\_review}
+  \item \texttt{human\_review\_required = true}
+  \item \texttt{preview\_only = true}
+  \item \texttt{live\_execution\_authorized = false}
+\end{itemize}
+
+The handoff exists to prove that the machine-facing AgentMap stack can complete discovery, validation, route selection, and intent preview while still respecting the Phase 13 and Phase 14 safety boundary.
+
+\subsection{Validation}
+
+Validation files:
+
+\begin{verbatim}
+backend/modules/aion_gateway/agentmap_synthetic_agent_simulation.py
+backend/tests/workflow_capsules/test_aion_phase14_agentmap_synthetic_agent_simulation_lock.py
+backend/tests/workflow_capsules/test_aion_phase14_agentmap_synthetic_agent_simulation_lock_doc.py
+docs/rfc/aion_phase14_agentmap_synthetic_agent_simulation_lock.tex
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Required validation command:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_synthetic_agent_simulation_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_synthetic_agent_simulation_lock_doc.py
+\end{verbatim}
+
+Focused suite validation command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+synthetic inbound agent simulation
+simulation_hash
+summary_hash
+agentmap_hash
+endpoint_hash
+verification_hash
+human review
+preview-only
+read-only
+synthetic
+no live booking
+no payment
+no escrow
+no dispatch
+no external message
+no live chain
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PHASE14E-SYNTHETIC-AGENT-SIMULATION-v0.1\\
+Status: LOCKED\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson
+

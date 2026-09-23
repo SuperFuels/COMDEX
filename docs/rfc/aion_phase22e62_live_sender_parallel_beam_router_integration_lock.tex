@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage{enumitem}
+
+\title{AION Phase 22E.62 --- Live Sender Parallel Opponent Beam Router Integration Lock}
+\author{Kevin Robinson}
+\date{June 2026}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22E.62 integrates the Phase 22E.61 parallel opponent beam SQI collapse router into the AION full chess live sender.
+
+\section{Purpose}
+
+The live sender MUST no longer rely only on the strategic well, rolling plan, tactical exposure guard, and Monte Carlo seed.
+
+Before a move is emitted, the sender now routes legal candidate moves through the Phase 22E.61 parallel opponent beam router.
+
+\section{Safety Boundary}
+
+This phase is a dry-run integration lock.
+
+It MUST NOT create a live Lichess move.
+
+It MUST NOT create a payment, booking, escrow event, external message, or live chain write.
+
+\section{Decision Stack}
+
+The intended stack is:
+
+\begin{enumerate}[nosep]
+  \item strategic well candidate;
+  \item rolling strategic plan candidate;
+  \item Phase 22E.61 parallel opponent beam SQI collapse;
+  \item opponent tactical exposure guard;
+  \item Monte Carlo policy value seed;
+  \item final opening drift guard;
+  \item dry-run emission proof.
+\end{enumerate}
+
+\section{Evidence}
+
+The live sender evidence MUST expose:
+
+\begin{itemize}[nosep]
+  \item \texttt{phase22e62\_parallel\_opponent\_beam\_router\_live\_sender\_integration\_used};
+  \item \texttt{phase22e61\_parallel\_opponent\_beam\_router\_used};
+  \item \texttt{phase22e61\_selected\_move};
+  \item \texttt{phase22e61\_trace\_hash};
+  \item \texttt{phase22e62\_router\_override\_applied}.
+\end{itemize}
+
+\section{Lock Footer}
+
+Lock ID: AION-PHASE22E62-LIVE-SENDER-PARALLEL-BEAM-ROUTER-INTEGRATION
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson.
+
+\end{document}

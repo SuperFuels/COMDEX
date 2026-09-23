@@ -1,0 +1,249 @@
+% Insert this section before the existing "Do not regress" section in the
+% Tessaris Pilot / COO Mission Layer technical handover. It uses only packages
+% already present in that document's preamble.
+
+\section*{Pilot operating team: mission execution bridge and department-local teaching}
+
+This release connects the visible COO Mission Room to AION's governed mission
+runtime. A founder can now describe a business outcome in ordinary language;
+the model selected and released in the Vault proposes a bounded plan, AION
+validates the proposed capabilities, and eligible work is placed in the
+appropriate Department Pilot workspace. The release also moves teaching by
+demonstration into each Department Computer card and makes the purpose and
+state of the computer viewer explicit.
+
+This is not a Qwen-specific implementation. Qwen, a connected cloud model, or
+another accepted local model may be selected in the Vault. The model is used
+for reasoning and proposal generation only. AION remains the authority for
+capability admission, computer access, approvals, persistence, audit evidence
+and execution receipts.
+
+\subsection*{End-to-end mission flow}
+
+The Mission Room now follows this sequence:
+
+\begin{enumerate}[leftmargin=*]
+\item The founder enters an outcome and selects \emph{Plan and launch
+mission}. The desktop sends a \texttt{MissionRequest} to
+\texttt{POST /api/aion/business/pilot-team/\{workspace\}/missions/launch}.
+The request includes the desired outcome, requesting identity, constraints and
+deliverables.
+\item \texttt{PilotOperatingTeamService.launch\_mission()} first creates a
+durable mission with a unique identity, revision, timeline, hand-off depth and
+parallel-assignment limits.
+\item \texttt{CooMissionService} resolves the workspace's released Vault
+selection. It receives only a bounded fact projection assembled from
+authoritative departmental business containers. Every projection records its
+retrieval state, source identifiers and retrieval time.
+\item The selected model returns a structured proposal. It may nominate only
+registered Department Pilot capabilities; free-form model text is not treated
+as execution authority.
+\item Each valid proposal item is converted into a typed department queue
+item. AION rebinds it to the durable mission identity and evaluates it through
+the External Tool Gateway.
+\item A sealed assignment is written into the assigned Department Computer's
+task directory. The corresponding capsule is updated with the mission ID,
+task ID, capability, objective, activity state and last-activity time.
+\item The Mission Room refreshes from persisted state. A successfully planned
+mission with assignments becomes \texttt{running}; unavailable or rejected
+planning remains \texttt{queued} with an explicit reason. No silent fallback
+to canned advice or a different model is permitted.
+\end{enumerate}
+
+\subsection*{Department evidence boundary}
+
+The COO planner does not receive the whole workspace. The service projects a
+limited set of authoritative containers for the relevant department and
+redacts secret fields before model use or persistence.
+
+\begin{longtable}{p{.22\linewidth}p{.70\linewidth}}
+\textbf{Department} & \textbf{Authoritative projection}\\ \hline
+Finance & Financial model, finance inbox and department intelligence.\\
+Sales & Department intelligence and business operating model.\\
+Marketing & Brand foundation and department intelligence.\\
+Support & Department intelligence and operational runtime summary.\\
+People & Organisation authority and business structure.\\
+Operations & Business operating model, operational runtime summary and boardroom snapshot.\\
+Products and services & Business map and business financial model.\\
+\end{longtable}
+
+If a source has not been published, the projection records
+\texttt{not\_published}; the model must not invent the missing fact. Passwords,
+passcodes, one-time codes, tokens, API keys, authorisation headers and other
+secret-labelled values are recursively removed by the runtime redaction
+boundary.
+
+\subsection*{Assignment and capsule state}
+
+Each department assignment contains the department, outcome, registered
+capability, task identity, delegating actor, dependency list, queue item,
+gateway decision and creation time. The assignment is sealed with an integrity
+hash before it is written to the department workspace. Its state is derived
+deterministically:
+
+\begin{itemize}[leftmargin=*]
+\item \texttt{waiting\_approval} when the queue item requires exact approval;
+\item \texttt{queued} when gateway policy admits the work;
+\item \texttt{blocked} when gateway policy refuses it.
+\end{itemize}
+
+The mission record stores the redacted model selection, proposal, approval
+request, assignments and append-only timeline entry. The field
+\texttt{external\_side\_effect\_executed} is initially false. Creating or
+planning a mission therefore cannot be mistaken for proof that an email was
+sent, a payment was made, a record was changed, or another external side
+effect occurred.
+
+\subsection*{What ``Watch computer'' means}
+
+Every Department Pilot has a persistent browser profile, scoped files and
+department grants. \emph{Watch computer} opens that isolated workspace and
+passes the capsule's department ID, browser-profile ID, mission ID, task ID,
+activity state and current objective to the Electron browser shell.
+
+The viewer displays one of two explicit states:
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{Idle:} ``No mission assigned.'' Watching exposes the isolated
+workspace but does not invent instructions or start work.
+\item \textbf{Active:} the mission strip displays the persisted activity state,
+objective and task identity for the assignment bound to that capsule.
+\end{itemize}
+
+If the same browser window is reused, the shell reloads whenever the selected
+profile or mission-state key changes. This fixes the earlier stale-view issue
+in which taking control or switching department context could leave the viewer
+showing old state. \emph{Take control} transfers the capsule controller to the
+founder; \emph{Return to Pilot} restores Pilot control. Neither button bypasses
+the gateway or the approval rules.
+
+\subsection*{Department-local teaching by demonstration}
+
+The former global teaching panel and department selector have been removed.
+Each of the eight Department Computer cards now owns its own skill name,
+expected result and \emph{Start teaching} control. The desktop layout renders
+four cards per row, reduces to two columns below 900 pixels, and uses one
+column below 560 pixels.
+
+Teaching operates as follows:
+
+\begin{enumerate}[leftmargin=*]
+\item The founder enters a skill name and expected result on the intended
+department card.
+\item \emph{Start teaching} opens that department's isolated browser and starts
+the native interaction recorder. Only one department recording may be active
+at a time.
+\item The founder demonstrates one short process. Recorded interactions are
+converted into semantic steps with inputs, validation, failure behaviour and
+approval boundaries; raw secrets are not retained.
+\item \emph{Stop and create draft} submits the observed steps, department,
+outcome, source systems and \texttt{stop\_and\_report} failure policy to the
+skill compiler.
+\item The result remains a draft until it has passed safe validation and
+review. Publication does not grant unbounded execution authority.
+\end{enumerate}
+
+Compatibility is retained for demonstrations recorded by the older interface:
+both \path{requires_approval} and \path{approval_required} compile into
+the same mandatory approval stop. This closes a legacy naming mismatch that
+could otherwise have weakened a recorded skill's approval boundary.
+
+\subsection*{Taught processes on the workflow canvas}
+
+After a demonstrated skill passes safe validation and human publication, AION
+exports it as a version-pinned module in the workflow canvas's \emph{Taught
+Processes} group. The same node can be inserted directly from the Demonstrated
+Skill Library. Draft and failed skills are not exposed as executable modules.
+
+The node retains the skill identity and published hash, owning department,
+required inputs, output contract and approval boundaries. Canvas compilation
+preserves these fields, so a saved workflow cannot silently adopt a later edit
+of the demonstrated process. Connector triggers, built-in application nodes,
+branches, delays and taught-process nodes can therefore be composed in one
+graph.
+
+Executing a taught-process node creates an idempotent
+\path{workflow_skill_run} in the owning Department Computer. The parent AION
+Flow changes to \texttt{waiting}; downstream nodes remain queued until the
+Department Computer returns verified evidence and the workflow is resumed.
+A successful completion requires evidence. If the process reports an external
+effect at a recorded approval boundary, its evidence must also include the
+exact approval receipt hash. Repeated delivery of the same idempotency key
+reuses the existing run rather than repeating the browser process.
+
+This wait-and-resume contract is deliberate. Dispatching a browser job is not
+reported as completion, and the desktop renderer cannot provide arbitrary
+steps or a fabricated hash as execution authority.
+
+\subsection*{Authority and failure behaviour}
+
+The following rules are invariant:
+
+\begin{itemize}[leftmargin=*]
+\item The selected model can propose work but cannot call connectors, control
+the browser, manufacture an approval hash or directly mutate external state.
+\item Capabilities must exist in AION's registered department capability set
+before they can become queue items.
+\item External changes remain held for exact-payload approval and must pass
+through the server-side External Tool Gateway.
+\item Model, provider, evidence, policy or gateway failure is fail-closed. The
+mission remains persisted with its reason and no unapproved side effect.
+\item Demonstrated browser replay currently performs safe validation only.
+Live replay remains disabled until each action can enter the governed tool
+queue, approval and receipt path.
+\end{itemize}
+
+During installed-application verification, a real multi-department mission
+reached the Vault-selected provider but received HTTP 429 (provider rate
+limit). The mission was correctly retained as \texttt{queued} with
+\texttt{planner\_status=model\_unavailable}, zero assignments and no external
+action. This is the intended fail-closed result, not permission to substitute
+another model.
+
+\subsection*{Persistence and audit record}
+
+Operating-team state is workspace-scoped beneath the Pilot runtime store.
+Mission records and department assignments are individually sealed; important
+transitions also enter the hash-chained audit log. A mission timeline records
+whether planning dispatched work, produced no department tasks, or was
+blocked. Completion packs remain the evidence-bearing proof of finished work;
+a model response, a green UI state or an open browser is not a completion
+receipt.
+
+COO delegation retains two loop limits: a maximum hand-off depth of four and a
+maximum of eight parallel assignments per mission. These limits prevent
+unbounded agent-to-agent delegation while still permitting cross-department
+coordination.
+
+\subsection*{Primary implementation files}
+
+\begin{itemize}[leftmargin=*]
+\item \path{backend/modules/aion_business/runtime/pilot_operating_team_service.py}:
+mission creation, evidence projection, governed dispatch, task persistence,
+capsule state, teaching compilation and audit records.
+\item \path{backend/modules/aion_business/api/pilot_operating_team_api.py}:
+typed Pilot Team endpoints, including \texttt{missions/launch}.
+\item \path{backend/services/aion_mission_mode/pilot_capability_adapter.py}:
+registered capability mappings used by the Department Pilot router.
+\item \path{desktop/mac/src/pilot_operating_team_ui.js}: Mission Room request,
+department cards, card-local teaching state and mission-status rendering.
+\item \path{desktop/mac/src/pilot_operating_team.css}: four-column Department
+Computer layout, responsive breakpoints, activity state and embedded teaching
+controls.
+\item \path{desktop/mac/electron/main.js} and
+\path{desktop/mac/electron/isolated-browser.html}: isolated profile selection,
+mission-state refresh and the visible idle/active mission strip.
+\end{itemize}
+
+\subsection*{Verification}
+
+The focused service and desktop contract suite contains 19 passing tests. It
+covers workspace bootstrap, capsule isolation, human takeover and return,
+secret-free teaching, skill validation and publication, routines and duplicate
+trigger protection, Mission Room planning and dispatch, gateway binding,
+mission controls, completion packs, scoped memory, worker nodes, templates and
+audit-chain verification. Python compilation, desktop JavaScript syntax,
+Electron main-process syntax and isolated-browser inline-script parsing also
+passed. The packaged application was installed and visually checked with eight
+Department Computer cards arranged as two rows of four, local teaching controls
+on every card, and the explicit idle message in the computer viewer.

@@ -1,0 +1,23 @@
+{
+  "schema": "aion.shadow-expert-training-authorization.v1",
+  "authorized_at": "2026-09-10",
+  "authorized_by": "user",
+  "authorization_source": "current Codex task",
+  "authorized": true,
+  "scope": {
+    "allowed": [
+      "local training of derived AION Glyph Shadow Expert weights",
+      "frozen model-generated numerical captures",
+      "staged experimental gains below the 10x traffic target",
+      "exact SD fallback for rejected predictions"
+    ],
+    "forbidden": [
+      "prompt text persistence",
+      "personal or customer data",
+      "external publication",
+      "model downloads",
+      "describing changed arithmetic as exact GPT-OSS 120B"
+    ]
+  },
+  "quality_boundary": "Accuracy and confidence/fallback safety gates remain strict. Ten-times traffic reduction is a programme target, not an all-or-nothing first-candidate gate."
+}

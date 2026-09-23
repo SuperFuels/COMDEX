@@ -1,0 +1,47 @@
+\section{AION Goal Engine Checkpoint Maintenance Lock}
+\label{sec:aion-goal-engine-checkpoint-maintenance-lock}
+
+\subsection{Status}
+
+The AION Goal Engine now exposes checkpoint maintenance previews for compaction and pruning.
+
+\begin{quote}
+\textbf{Status: LOCKED --- checkpoint maintenance preview v1.}
+\end{quote}
+
+\subsection{Purpose}
+
+Checkpoint maintenance is visibility-only at this stage.
+
+The following trace blocks are canonical:
+
+\begin{verbatim}
+checkpoint_compaction_preview
+checkpoint_prune_preview
+\end{verbatim}
+
+The preview layer MAY identify compactable checkpoints and prune candidates, but it MUST NOT delete, mutate, resume, or externally write.
+
+\subsection{Safety Invariants}
+
+\begin{verbatim}
+dry_run_only = true
+would_delete = false
+would_write_external = false
+would_grant_permission = false
+human_review_required
+guarded_checkpoint_persistence_required
+\end{verbatim}
+
+Checkpoint compaction MUST retain the configured most recent checkpoints.
+
+Checkpoint pruning MUST only mark candidates for later guarded review.
+
+\subsection{Lock Footer}
+
+\begin{quote}
+Lock ID: AION-GOAL-ENGINE-CHECKPOINT-MAINTENANCE-V1\\
+Status: LOCKED\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson
+\end{quote}

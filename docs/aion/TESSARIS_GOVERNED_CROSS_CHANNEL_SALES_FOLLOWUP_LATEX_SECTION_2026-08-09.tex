@@ -1,0 +1,252 @@
+% Overleaf-ready section fragment.
+% Recommended parent-document packages:
+% \usepackage{booktabs}
+% \usepackage{tabularx}
+% \usepackage{array}
+% \usepackage{enumitem}
+% \usepackage{hyperref}
+
+\section{Governed Cross-Channel Sales Follow-Up}
+\label{sec:tessaris-governed-cross-channel-sales-followup}
+
+\subsection{Objective and Delivered Outcome}
+
+This increment extended the Tessaris Sales Agent from a governed telephone
+caller into a governed cross-channel qualification system.  The purpose is to
+retain the natural conversational quality demonstrated by the live Retell call
+while preventing the underlying language model from inventing business goals,
+prices, bookings, evidence routes or follow-up actions.
+
+The resulting workflow is:
+
+\begin{quote}
+customer enquiry $\rightarrow$ exact-approved call attempt $\rightarrow$
+exact-approved retry $\rightarrow$ exact-approved written follow-up
+$\rightarrow$ short email conversation $\rightarrow$ human booking review.
+\end{quote}
+
+The same frozen qualification contract follows the customer across telephone,
+email and future messaging channels.  Confirmed information is retained, and
+each subsequent message requests only the information that remains missing.
+No call, email, message, appointment, price or work commitment is performed
+merely because a model generated suitable language.
+
+\subsection{Business-Configurable Contact Policy}
+
+The follow-up policy is provider-neutral and configurable independently for
+each business.  It is not hard-coded to Home Fixed.  Agent Studio now exposes
+the following settings:
+
+\begin{itemize}[leftmargin=*]
+  \item maximum telephone attempts, bounded to one, two or three;
+  \item fallback channel: email, SMS, WhatsApp Business or human review;
+  \item number of questions per written message, bounded to one, two or three;
+  \item the approved business email or document destination;
+  \item the required qualification fields and desired call outcome;
+  \item permitted actions, opening style, close strategy and conversation guidance.
+\end{itemize}
+
+The persisted contact policy is represented by the following logical contract:
+
+\begin{verbatim}
+contact_sequence = {
+  maximum_phone_attempts: 1..3,
+  fallback_channel: email | sms | whatsapp | none,
+  continue_same_goal_contract: true,
+  questions_per_written_message: 1..3,
+  automatic_send: false,
+  booking_boundary:
+    request_or_prepare_only_until_verified_calendar_and_communication_approval
+}
+\end{verbatim}
+
+Changing any Agent Studio setting creates a new agent version, invalidates the
+previous simulation credit and requires the new exact version to pass the full
+governance examination before promotion.
+
+\subsection{Frozen Goal Contract Across Channels}
+
+Every prepared production call contains a normalised
+\texttt{call\_goal\_contract} and a canonical SHA-256 contract hash.  The
+contract identifies:
+
+\begin{itemize}[leftmargin=*]
+  \item the desired outcome;
+  \item required information fields;
+  \item permitted outcomes and prohibited commitments;
+  \item the approved photo or document route;
+  \item whether written contact confirmation is required; and
+  \item the applicable conversation and closing policy.
+\end{itemize}
+
+The call draft, retry decision, written fallback and subsequent email turns all
+retain the same goal-contract hash.  A model can choose natural phrasing within
+the conversation, but it cannot silently expand the objective or add authority.
+This separates conversational intelligence from commercial authority.
+
+\subsection{Unanswered-Call State Machine}
+
+Each prepared call records its attempt number.  A terminal provider outcome is
+required before Tessaris can calculate the next contact step.  The governed
+state machine is summarised in Table~\ref{tab:contact-sequence-states}.
+
+\begin{table}[htbp]
+\centering
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.25\textwidth}
+                              >{\raggedright\arraybackslash}p{0.27\textwidth}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Observed condition} & \textbf{Resulting state} & \textbf{Authority boundary} \\
+\midrule
+Conversation completed & \texttt{conversation\_completed\_no\_fallback} & No unanswered-call workflow is created. \\
+No answer, busy, failed dial or voicemail before the attempt limit & \texttt{telephone\_retry\_requires\_approval} & A retry is proposed but cannot start without separate exact approval. \\
+Attempt limit reached with an email or SMS destination & \texttt{fallback\_message\_exact\_approval\_required} & A deterministic draft is created but not sent. \\
+WhatsApp selected without a verified connector & \texttt{blocked\_whatsapp\_business\_connector\_required} & The system fails closed rather than pretending that a message was delivered. \\
+No valid destination & \texttt{blocked\_*\_destination\_missing} & A person must correct the contact record. \\
+No fallback selected & \texttt{human\_review\_required\_no\_fallback} & The opportunity returns to a person. \\
+\bottomrule
+\end{tabularx}
+\caption{Governed unanswered-call transitions.}
+\label{tab:contact-sequence-states}
+\end{table}
+
+Every transition is stored as a hash-protected
+\texttt{aion.sales.contact\_sequence\_step.v1} record containing the provider
+outcome, attempt count, next channel, authority decision, goal-contract hash and
+explicit false values for automatic sending and booking creation.
+
+\subsection{Deterministic Email Continuation}
+
+After the configured telephone-attempt limit, Tessaris prepares a deterministic
+written message.  The language model does not invent the operational content of
+this message.  The template:
+
+\begin{enumerate}[leftmargin=*]
+  \item identifies the relevant customer and enquiry;
+  \item states that a telephone attempt was made;
+  \item asks only the next configured number of missing qualification questions;
+  \item tells the customer that confirmed facts will not need to be repeated;
+  \item states that a person reviews any appointment, price or work; and
+  \item remains in \texttt{exact\_approval\_required} state.
+\end{enumerate}
+
+When a governed email or SMS reply is received, the written-continuation service
+accepts only fields present in the frozen goal contract.  Confirmed values
+accumulate across turns in hash-protected
+\texttt{aion.sales.written\_goal\_continuation.v1} records.  The next draft asks
+only the next one to three missing questions.  Previous confirmations are
+carried forward, preventing the customer from being asked to repeat the same
+information.
+
+When every required field has been established, Tessaris stops generating
+qualification questions and changes state to:
+
+\begin{verbatim}
+qualification_goals_complete_human_booking_review_required
+\end{verbatim}
+
+This state may lead to an internally prepared appointment, but it does not
+confirm an external booking.  Calendar creation and customer notification retain
+their own independent authority and exact-approval gates.
+
+\subsection{Home Fixed Reference Configuration}
+
+Home Fixed Sales Agent configuration version~3 is the first reference deployment
+of this policy.  Its promoted settings are:
+
+\begin{itemize}[leftmargin=*]
+  \item business motion: inbound;
+  \item lead temperature: warm;
+  \item desired outcome: human-reviewed site-visit request;
+  \item maximum telephone attempts: two;
+  \item written fallback: email;
+  \item maximum questions per written message: two;
+  \item approved image, document and written-conversation destination:
+        \texttt{kevin.robinson101@gmail.com};
+  \item automatic message sending: disabled; and
+  \item automatic booking, pricing, payment and work confirmation: prohibited.
+\end{itemize}
+
+The earlier \texttt{info@homefixed.com} value is a dummy website address and is
+not used as Tessaris's operational evidence route.  Future businesses can enter
+their own preferred mailbox without changing the service architecture.
+
+WhatsApp number \texttt{+34 711 269 364} remains a valid customer-facing route,
+but automated WhatsApp continuation is not claimed.  Selecting WhatsApp fails
+closed until a governed WhatsApp Business connector can authenticate inbound
+and outbound messages and attach them to the canonical Sales opportunity.
+
+\subsection{Interfaces and Principal Components}
+
+The principal implementation components are:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{sales\_revenue\_service.py}: Agent Studio configuration,
+        contact-policy normalisation, call-attempt numbering and frozen call contracts;
+  \item \texttt{sales\_completion\_service.py}: deterministic post-call messages,
+        unanswered-call decisions and multi-turn written continuation;
+  \item \texttt{sales\_revenue\_api.py}: versioned Agent Studio configuration and
+        governed call preparation;
+  \item \texttt{sales\_completion\_api.py}: contact-fallback and written-continuation
+        interfaces; and
+  \item \texttt{aion\_sales\_revenue\_workspace.js}: the non-technical Agent Studio
+        controls presented in the Tessaris desktop application.
+\end{itemize}
+
+The principal new HTTP operations are logically:
+
+\begin{verbatim}
+POST /api/aion/sales-completion/{business}/opportunities/{opportunity}/
+     contact-fallback
+
+POST /api/aion/sales-completion/{business}/opportunities/{opportunity}/
+     written-continuation
+\end{verbatim}
+
+Both operations require an authorised acting person.  Neither operation sends a
+message or creates a customer-visible booking.
+
+\subsection{Verification Evidence}
+
+The Home Fixed version was reset, re-examined and promoted only after all
+\textbf{11/11} governance simulations passed.  The broader focused verification
+set comprised \textbf{22} distinct checks covering Sales configuration,
+Retell goal binding, deterministic confirmation, unanswered-call retry,
+cross-channel contract continuity, accumulated written replies and desktop
+interface integration.
+
+The verification established that:
+
+\begin{itemize}[leftmargin=*]
+  \item the first unanswered attempt produces only an approval-gated retry;
+  \item the second unanswered attempt produces an approval-gated email draft;
+  \item the call-goal hash remains unchanged across telephone and email;
+  \item already confirmed fields are excluded from later questions;
+  \item replies accumulate across multiple written turns;
+  \item completed qualification creates a human booking-review requirement;
+  \item no test sent an email, WhatsApp message or additional telephone call;
+  \item no test created a customer-visible appointment or commercial commitment; and
+  \item the rebuilt Tessaris desktop application started with a healthy local backend.
+\end{itemize}
+
+The previous installed application remains recoverable at
+\texttt{/Applications/Tessaris.app.backup-20260809-before-contact-sequence}.
+
+\subsection{Current Honest Boundary and Next Work}
+
+The governed telephone-to-email workflow is implemented, but fully unattended
+email conversation ingestion still depends on the configured Gmail connector
+passing authenticated replies into the written-continuation operation.  Message
+preparation, exact approval and Gmail-draft creation are separate stages; this
+increment did not enable automatic sending.
+
+WhatsApp continuation requires a verified WhatsApp Business adapter with
+business-specific credentials, customer consent, delivery receipts, inbound
+thread correlation and the same exact-approval boundary.  Until that adapter is
+implemented, Tessaris correctly reports WhatsApp as unavailable rather than
+silently substituting email, SMS or another provider.
+
+The architecture is therefore ready for controlled real-customer evaluation:
+Retell supplies the high-quality conversational voice, while Tessaris/AION
+supplies the business objectives, memory, authority separation, evidence routes,
+cross-channel continuity and independently reviewable consequences.

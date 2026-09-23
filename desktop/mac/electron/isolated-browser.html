@@ -1,0 +1,557 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Aion Isolated Browser</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 52px auto 1fr;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #111827;
+      color: #111827;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: auto auto auto 1fr auto auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border-bottom: 1px solid #d8dee8;
+    }
+
+    button {
+      height: 34px;
+      min-width: 38px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      border-radius: 8px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #eef6ff;
+      border-color: #1a8aff;
+    }
+
+    #url {
+      height: 36px;
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 0 14px;
+      font-size: 14px;
+      outline: none;
+      background: white;
+    }
+
+    #url:focus {
+      border-color: #1a8aff;
+      box-shadow: 0 0 0 3px rgba(26, 138, 255, 0.15);
+    }
+
+    .status {
+      font-size: 12px;
+      color: #475569;
+      white-space: nowrap;
+      padding: 0 8px;
+    }
+
+    webview {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: white;
+    }
+
+    .recording {
+      color: #991b1b;
+      font-weight: 900;
+    }
+
+    .mission-strip {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: center;
+      min-height: 38px;
+      padding: 7px 12px;
+      border-bottom: 1px solid #d8dee8;
+      background: #eef3f5;
+      color: #52636f;
+      font-size: 12px;
+    }
+
+    .mission-strip strong {
+      color: #667782;
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .mission-strip.active { background: #e8f5ef; color: #244c3e; }
+    .mission-strip.active strong { color: #1e7258; }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button id="back" title="Back">←</button>
+    <button id="forward" title="Forward">→</button>
+    <button id="reload" title="Reload">↻</button>
+    <input id="url" value="https://mail.google.com/mail/u/0/#inbox" />
+    <button id="go">Go</button>
+    <div id="status" class="status">Aion isolated browser</div>
+  </div>
+  <div id="mission" class="mission-strip">
+    <strong>Idle</strong>
+    <span>No mission assigned. Watch computer shows this isolated workspace; it does not start work.</span>
+  </div>
+
+  <webview
+    id="browser"
+    partition="persist:aion-isolated-browser"
+    allowpopups
+  ></webview>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const webviewPreload = params.get("webviewPreload") || "";
+    const browserProfileId = String(params.get("browserProfileId") || "aion-isolated-browser")
+      .replace(/[^a-zA-Z0-9_.-]+/g, "-")
+      .slice(0, 120) || "aion-isolated-browser";
+    const departmentId = String(params.get("departmentId") || "operations")
+      .replace(/[^a-zA-Z0-9_.-]+/g, "-")
+      .slice(0, 80) || "operations";
+    const missionId = String(params.get("missionId") || "").slice(0, 160);
+    const taskId = String(params.get("taskId") || "").slice(0, 160);
+    const activityState = String(params.get("activityState") || "idle").slice(0, 80);
+    const objective = String(params.get("objective") || "").replace(/\s+/g, " ").trim().slice(0, 1000);
+
+    const webview = document.getElementById("browser");
+    let recorderActive = false;
+    let recorderScriptText = "";
+    webview.setAttribute("partition", "persist:" + browserProfileId);
+    if (webviewPreload) {
+      webview.setAttribute("preload", webviewPreload);
+      console.log("[aion-wrapper] webview preload set", webviewPreload);
+    }
+
+    const urlInput = document.getElementById("url");
+    const statusEl = document.getElementById("status");
+    statusEl.textContent = departmentId.replace(/[_-]+/g, " ") + " · isolated";
+    const missionEl = document.getElementById("mission");
+    if (missionId && objective) {
+      missionEl.classList.add("active");
+      missionEl.querySelector("strong").textContent = activityState || "queued";
+      missionEl.querySelector("span").textContent = objective + (taskId ? " · " + taskId : "");
+    }
+
+    function normaliseUrl(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return "https://mail.google.com/mail/u/0/#inbox";
+      if (/^https?:\/\//i.test(raw)) return raw;
+      return "https://" + raw;
+    }
+
+    function loadUrl(value) {
+      const url = normaliseUrl(value);
+      urlInput.value = url;
+      webview.src = url;
+    }
+
+    document.getElementById("go").addEventListener("click", () => loadUrl(urlInput.value));
+    urlInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") loadUrl(urlInput.value);
+    });
+
+    document.getElementById("back").addEventListener("click", () => {
+      if (webview.canGoBack()) webview.goBack();
+    });
+
+    document.getElementById("forward").addEventListener("click", () => {
+      if (webview.canGoForward()) webview.goForward();
+    });
+
+    document.getElementById("reload").addEventListener("click", () => {
+      webview.reload();
+    });
+
+    webview.addEventListener("did-navigate", (event) => {
+      urlInput.value = event.url;
+    });
+
+    webview.addEventListener("did-navigate-in-page", (event) => {
+      urlInput.value = event.url;
+    });
+
+    webview.addEventListener("page-title-updated", (event) => {
+      document.title = "Aion Browser · " + event.title;
+    });
+
+    webview.addEventListener("did-finish-load", async () => {
+      try {
+        urlInput.value = webview.getURL();
+      } catch (_) {}
+
+      statusEl.textContent = departmentId.replace(/[_-]+/g, " ") + " · ready";
+      if (window.aionDesktop?.notifyIsolatedBrowserLoaded) {
+        window.aionDesktop.notifyIsolatedBrowserLoaded({
+          url: webview.getURL(),
+          title: webview.getTitle(),
+        });
+      }
+      if (recorderActive && recorderScriptText && window.aionIsolatedBrowser?.startRecorder) {
+        await window.aionIsolatedBrowser.startRecorder(recorderScriptText);
+      }
+    });
+
+    webview.addEventListener("console-message", (event) => {
+      console.log("[aion-webview-console]", event.message);
+    });
+
+    webview.addEventListener("ipc-message", (event) => {
+      console.log("[aion-wrapper] webview ipc-message", event.channel, event.args);
+
+      if (event.channel === "aion-browser-recorder-event") {
+        const payload = event.args?.[0] || {};
+        if (window.aionDesktop?.forwardBrowserRecorderEvent) {
+          window.aionDesktop.forwardBrowserRecorderEvent(payload);
+        }
+      }
+
+      if (event.channel === "browser-operator-captured-step") {
+        const payload = event.args?.[0] || {};
+        if (window.aionDesktop?.forwardBrowserRecorderEvent) {
+          window.aionDesktop.forwardBrowserRecorderEvent(payload);
+        }
+      }
+    });
+
+    window.aionIsolatedBrowser = {
+      loadUrl,
+
+      async installRecorder(scriptText) {
+        try {
+          await webview.executeJavaScript(scriptText, true);
+          console.log("[aion-wrapper] recorder installed into webview", webview.getURL());
+          return { ok: true, url: webview.getURL(), title: webview.getTitle() };
+        } catch (error) {
+          console.error("[aion-wrapper] recorder install failed", error);
+          return { ok: false, error: String(error && error.message ? error.message : error) };
+        }
+      },
+
+      async captureNextClickOnce() {
+        statusEl.textContent = "Click target";
+        statusEl.classList.add("recording");
+
+        try {
+          const payload = await webview.executeJavaScript(`
+            new Promise((resolve) => {
+              function cssPath(el) {
+                if (!el || !el.tagName) return "";
+
+                // Ignore Gmail/Google generated ids like ":64" because they are unstable.
+                if (el.id && !String(el.id).startsWith(":")) {
+                  return "#" + CSS.escape(el.id);
+                }
+
+                const parts = [];
+                let node = el;
+
+                while (node && node.nodeType === 1 && parts.length < 6) {
+                  let part = node.tagName.toLowerCase();
+
+                  const testId = node.getAttribute("data-testid");
+                  const aria = node.getAttribute("aria-label");
+                  const role = node.getAttribute("role");
+
+                  if (testId) {
+                    part += '[data-testid="' + testId.replace(/"/g, '\\\"') + '"]';
+                    parts.unshift(part);
+                    break;
+                  }
+
+                  if (aria) {
+                    part += '[aria-label="' + aria.replace(/"/g, '\\\"') + '"]';
+                    parts.unshift(part);
+                    break;
+                  }
+
+                  if (role) {
+                    part += '[role="' + role.replace(/"/g, '\\\"') + '"]';
+                  }
+
+                  const parent = node.parentElement;
+                  if (parent) {
+                    const sameTag = Array.from(parent.children).filter((x) => x.tagName === node.tagName);
+                    if (sameTag.length > 1) {
+                      part += ":nth-of-type(" + (sameTag.indexOf(node) + 1) + ")";
+                    }
+                  }
+
+                  parts.unshift(part);
+                  node = parent;
+                }
+
+                return parts.join(" > ");
+              }
+
+              function labelFor(el) {
+                return (
+                  el?.getAttribute?.("aria-label") ||
+                  el?.getAttribute?.("title") ||
+                  el?.innerText?.trim?.().slice(0, 120) ||
+                  el?.placeholder ||
+                  el?.name ||
+                  el?.id ||
+                  el?.tagName?.toLowerCase?.() ||
+                  "element"
+                );
+              }
+
+              function meaningfulTarget(el) {
+                if (!el || !el.closest) return el;
+
+                return (
+                  el.closest('tr[role="row"]') ||
+                  el.closest('[role="button"]') ||
+                  el.closest('button') ||
+                  el.closest('a[href]') ||
+                  el.closest('[role="link"]') ||
+                  el.closest('input') ||
+                  el.closest('textarea') ||
+                  el.closest('select') ||
+                  el
+                );
+              }
+
+              function handler(event) {
+                const rawEl = event.target;
+                const el = meaningfulTarget(rawEl);
+                const label = labelFor(el) || labelFor(rawEl);
+                const selector = cssPath(el);
+
+                document.removeEventListener("click", handler, true);
+
+                const selectorSource =
+                  selector.startsWith("#") ? "generated_or_id_selector" :
+                  selector.includes("aria-label") ? "aria_label" :
+                  selector.includes("data-testid") ? "data_testid" :
+                  selector.includes("[role=") ? "role_selector" :
+                  "css_path";
+
+                const selectorConfidence =
+                  selector.startsWith("#") ? "low" :
+                  selector.includes("aria-label") || selector.includes("data-testid") ? "high" :
+                  selector.includes("[role=") ? "medium" :
+                  "low";
+
+                resolve({
+                  type: "click_element",
+                  event_type: "click_element",
+                  label: "Click " + label,
+                  safety: "interaction",
+                  output: "click_result",
+                  selector,
+                  primary_selector: selector,
+                  fallback_selectors: [
+                    selector,
+                    '[role="main"] [role="link"]',
+                    '[role="main"] [role="button"]',
+                    'tr[role="row"]',
+                    'div[role="main"] tr[role="row"]'
+                  ].filter(Boolean),
+                  selector_source: selectorSource,
+                  selector_confidence: selectorConfidence,
+                  human_label: label,
+                  url: window.location.href,
+                  current_url: window.location.href,
+                  url_pattern: window.location.href,
+                  page_title: document.title || "",
+                  requires_approval: true,
+                  captured: true,
+                  captured_at: new Date().toISOString(),
+                });
+              }
+
+              document.addEventListener("click", handler, true);
+            })
+          `, true);
+
+          statusEl.textContent = "Captured";
+          statusEl.classList.remove("recording");
+
+          console.log("[aion-wrapper] captured click via direct promise", payload);
+          return { ok: true, payload };
+        } catch (error) {
+          statusEl.textContent = "Ready";
+          statusEl.classList.remove("recording");
+          return { ok: false, error: String(error && error.message ? error.message : error) };
+        }
+      },
+
+      async startRecorder(scriptText) {
+        recorderActive = true;
+        if (scriptText) recorderScriptText = scriptText;
+        statusEl.textContent = "Recording";
+        statusEl.classList.add("recording");
+
+        if (recorderScriptText) {
+          await this.installRecorder(recorderScriptText);
+        }
+
+        try {
+          await webview.executeJavaScript(
+            "window.__AION_BROWSER_RECORDER_START__ && window.__AION_BROWSER_RECORDER_START__()",
+            true,
+          );
+          console.log("[aion-wrapper] recorder started", webview.getURL());
+          return { ok: true, url: webview.getURL(), title: webview.getTitle() };
+        } catch (error) {
+          console.error("[aion-wrapper] recorder start failed", error);
+          return { ok: false, error: String(error && error.message ? error.message : error) };
+        }
+      },
+
+      async stopRecorder() {
+        recorderActive = false;
+        statusEl.textContent = "Ready";
+        statusEl.classList.remove("recording");
+
+        try {
+          await webview.executeJavaScript(
+            "window.__AION_BROWSER_RECORDER_STOP__ && window.__AION_BROWSER_RECORDER_STOP__()",
+            true,
+          );
+        } catch (_) {}
+
+        return { ok: true };
+      },
+
+      async replaySemanticSteps(payload = {}) {
+        const steps = Array.isArray(payload.steps) ? payload.steps : [];
+        const inputs = payload.inputs && typeof payload.inputs === "object" ? payload.inputs : {};
+        const dryRun = payload.mode !== "live";
+        const approved = new Set(Array.isArray(payload.approved_step_ids) ? payload.approved_step_ids : []);
+        const approvalHash = String(payload.approval_payload_hash || "");
+        const results = [];
+
+        statusEl.textContent = dryRun ? "Validating skill" : "Running skill";
+        statusEl.classList.add("recording");
+
+        try {
+          for (const step of steps) {
+            const operation = String(step.operation || step.type || step.event_type || "observe").toLowerCase();
+            const selector = String(step.target?.selector || step.selector || "");
+            const stepId = String(step.step_id || ("step_" + (results.length + 1)));
+            const needsApproval = step.approval_required === true || step.requires_approval === true;
+
+            if (!dryRun && needsApproval && (!approved.has(stepId) || !approvalHash)) {
+              results.push({ step_id: stepId, operation, status: "exact_approval_required" });
+              return {
+                ok: false,
+                status: "exact_approval_required",
+                stopped_at_step_id: stepId,
+                results,
+              };
+            }
+
+            if (operation === "open_page") {
+              const expected = String(step.target?.url_pattern || step.url_pattern || step.url || "");
+              results.push({
+                step_id: stepId,
+                operation,
+                status: "validated",
+                current_url: webview.getURL(),
+                expected_url: expected,
+              });
+              continue;
+            }
+
+            if (!selector) {
+              results.push({ step_id: stepId, operation, status: "invalid_missing_selector" });
+              return { ok: false, status: "invalid_skill", stopped_at_step_id: stepId, results };
+            }
+
+            const value = inputs[stepId] ?? inputs[step.value_source] ?? inputs[step.target?.label] ?? "";
+            const scriptPayload = JSON.stringify({ operation, selector, value, dryRun });
+            const result = await webview.executeJavaScript(`
+              (() => {
+                const task = ${scriptPayload};
+                let element = null;
+                try {
+                  element = document.querySelector(task.selector);
+                } catch (error) {
+                  return { ok: false, status: "invalid_selector", error: String(error?.message || error) };
+                }
+                if (!element) return { ok: false, status: "target_not_found" };
+                const visible = !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+                if (!visible) return { ok: false, status: "target_not_visible" };
+                if (task.dryRun) {
+                  return {
+                    ok: true,
+                    status: "validated",
+                    tag_name: element.tagName?.toLowerCase?.() || "",
+                    role: element.getAttribute?.("role") || "",
+                  };
+                }
+                if (["type_text", "fill", "change_field", "select_dropdown"].includes(task.operation)) {
+                  const prototype = element instanceof HTMLTextAreaElement
+                    ? HTMLTextAreaElement.prototype
+                    : element instanceof HTMLSelectElement
+                      ? HTMLSelectElement.prototype
+                      : HTMLInputElement.prototype;
+                  const descriptor = Object.getOwnPropertyDescriptor(prototype, "value");
+                  if (descriptor?.set) descriptor.set.call(element, String(task.value));
+                  else element.value = String(task.value);
+                  element.dispatchEvent(new Event("input", { bubbles: true }));
+                  element.dispatchEvent(new Event("change", { bubbles: true }));
+                  return { ok: true, status: "completed" };
+                }
+                if (["click", "click_element", "click_checkpoint", "approval_checkpoint", "submit"].includes(task.operation)) {
+                  element.click();
+                  return { ok: true, status: "completed" };
+                }
+                return { ok: true, status: "observed" };
+              })()
+            `, true);
+            results.push({ step_id: stepId, operation, ...result });
+            if (!result?.ok) {
+              return { ok: false, status: "step_failed", stopped_at_step_id: stepId, results };
+            }
+          }
+          return { ok: true, status: dryRun ? "validation_passed" : "completed", results };
+        } finally {
+          statusEl.textContent = "Ready";
+          statusEl.classList.remove("recording");
+        }
+      },
+
+      startRecording() {
+        statusEl.textContent = "Recording";
+        statusEl.classList.add("recording");
+      },
+
+      stopRecording() {
+        statusEl.textContent = "Ready";
+        statusEl.classList.remove("recording");
+      },
+
+      getWebview() {
+        return webview;
+      }
+    };
+
+    // Load only after wrapper is safely installed.
+    loadUrl(urlInput.value || "https://mail.google.com/mail/u/0/#inbox");
+  </script>
+</body>
+</html>

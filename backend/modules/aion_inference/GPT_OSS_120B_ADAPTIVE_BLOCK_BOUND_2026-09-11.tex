@@ -1,0 +1,42 @@
+% Standalone append-only section for the AION GPT-OSS 120B technical record.
+\section{Adaptive Multi-Position Reuse Bound}
+\label{sec:gptoss120b-adaptive-block-bound-20260911}
+
+The preserved-mass adaptive continuation policy and multi-position expert
+union were promising separately, so their maximum compositional opportunity
+was measured before constructing another full transformer runtime.  The audit
+used the already verified 0.85 preserved-mass arithmetic and extraction traces.
+For every non-overlapping two-, four-, and eight-position response window, it
+counted the original active expert demands and the unique layer--expert union
+that a teacher-forced block could fetch once.  No prompt text, hidden state, or
+quality decision was used to select a favourable window.
+
+For arithmetic, median delivery reductions were 1.1169, 1.3605, and 1.6718
+times for blocks of two, four, and eight positions.  Extraction produced
+1.1494, 1.3484, and 1.6047 times.  The best individual window in either family
+reached 1.9943 times.  Thus adaptive expert counts do improve the union density,
+but even a known eight-token teacher block cannot remove more than roughly half
+the expert delivery in the best observed window.
+
+The 30-token/s target is 16.406 times the promoted 1.82858-token/s exact
+extraction frontier.  Under the intentionally favourable and physically
+unrealistic assumption that all elapsed time scales linearly with expert
+delivery, the best observed 1.9943-times window would yield only 3.6467
+tokens/s.  Actual gain must be lower because attention, routing, output,
+scheduling, draft generation, rejection and recovery remain.
+
+A separate trajectory check compared the existing fast top-two arithmetic
+draft with the preserved-mass target.  They shared only the first five greedy
+response tokens before diverging.  This is a single initial-prefix observation,
+not a post-rejection acceptance rate, but it confirms that known teacher tokens
+cannot be assumed free.  Autoregressive generation still requires a draft and
+verification/recovery mechanism.
+
+Decision:
+\texttt{DO\_NOT\_BUILD\_FULL\_COMPOSITE\_FROM\_ROUTE\_REUSE\_ALONE}.
+Multi-position reuse remains a legitimate supporting optimization, but its
+measured physical ceiling is too small to be the missing order-of-magnitude
+mechanism.  It should be composed only after a future candidate independently
+reduces active expert bytes or supplies a high-acceptance cheap draft.  The
+canonical receipt SHA-256 is
+\texttt{aace38fa5d0bb09ef94549aa0f89a49171843490cde855f8adc2ea1aa59a1aba}.

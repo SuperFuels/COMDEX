@@ -1,0 +1,686 @@
+% Append-only section for the AION technical record.
+% Requires amsmath; no additional packages are needed.
+\section{Exact Shared-Prefix KV Reuse: Measured Boundary}
+\label{sec:exact-prefix-kv-boundary}
+
+\subsection{Question and hypothesis}
+
+The experiment tested whether requests sharing an identical governed system,
+Business Map, and response-contract prefix could reuse the corresponding neural
+key--value (KV) state. The intended optimization was to calculate the common
+prefix once on Apple Metal and process only each request's unique suffix. This
+is genuine causal-state reuse, not semantic matching and not reuse based merely
+on similar expert routes.
+
+\subsection{Integrity contract}
+
+The cache address cryptographically bound the exact token prefix, all local
+model artifacts, FP16 datatype, and MPS backend. Reuse was forbidden unless all
+fields matched. The model and evidence remained on the mounted SD volume.
+Neither prompt text nor logit vectors were persisted. Promotion required both
+bit-identical generated token identifiers and bit-identical logits at every
+generation step, as well as at least a ten-percent total-time improvement after
+charging the candidate for its one-time shared-prefix build.
+
+\subsection{Method}
+
+Four synthetic business requests contained 181--193 input tokens. Their exact
+longest common token prefix contained 166 tokens, leaving 15--27 unique tokens
+per request. The control performed each complete prefill in one Metal call. The
+candidate calculated the 166-token prefix once, created independently growing
+cache views without copying their underlying Metal tensors, preserved absolute
+position and cache indices explicitly, and then processed each unique suffix.
+Each arm greedily generated eight tokens per request.
+
+An earlier engineering attempt tried to deep-copy non-leaf Metal cache tensors
+and was rejected by PyTorch before evidence was emitted. It is not treated as
+an experimental result. The corrected, position-bound run produced the
+canonical evidence artifact
+\texttt{exact\_prefix\_kv\_mps\_position\_bound\_20260908T0012Z.json}, whose
+canonical report SHA-256 is
+\texttt{e7ad2824fbe27bfe194ca78c05dd4cc98dc53c73cfe674de8c3f9e974852e150}.
+
+\subsection{Results}
+
+The control required 4.8451 seconds in total. The candidate required 4.6543
+seconds including the shared-prefix build, an observed improvement of 3.94\%.
+Control per-request time was 1.1072 seconds at p50 and 1.5882 seconds at
+nearest-rank p95. Candidate suffix execution, excluding the separately charged
+shared build, was 1.0604 seconds at p50 and 1.1095 seconds at p95.
+
+The performance gate failed because 3.94\% is below the declared 10\% threshold.
+The integrity gate also failed. Three of four generated token streams matched;
+one differed. None of the four requests produced bit-identical logits at every
+step. The largest step-logit difference observed after divergence was
+$36.0342$.
+
+\subsection{Conclusion and claim boundary}
+
+The candidate is \texttt{NOT\_PROMOTED} and is stopped on the exact-output
+track. Although causal KV state is mathematically reusable, splitting a
+one-pass FP16 Metal prefill changes the floating-point kernel shape and therefore
+does not preserve the control's bit pattern on the tested software stack. The
+experiment does not show that KV caching is useless: it shows that this form
+cannot be advertised as an exact-output optimization relative to one-pass
+prefill, and its measured speed gain was too small in this workload.
+
+The strategy may be reconsidered only as an explicitly quality-gated service or
+with a backend that proves bit-identical chunked and one-pass prefill. Exact
+work should instead prioritize avoiding neural calls entirely where outputs are
+already verified: governed replay, narrowly verified AtomSheets, and finite
+Semantic Gateway transformations. Those paths remove repeated calculations
+without changing neural arithmetic.
+
+\section{Native INT8 Glyph-Block Candidate}
+\label{sec:native-int8-glyph-block}
+
+After stopping exact prefix reuse, the model-level search moved to physical
+weight traffic. The installed PyTorch/Metal stack exposes a native weight-only
+INT8 matrix operation. This permits calculation directly from compact expert
+weights instead of restoring each expert to a full FP16 tensor first.
+
+A verified layer-16 Granite decode route containing eight experts was tested
+over 200 order-balanced samples. Symmetric per-output-channel INT8 weights and
+FP16 scales reduced the representation from 37,748,736 bytes to 18,915,328
+bytes, a 49.89\% reduction. Native packed calculation with resident weights was
+28.41\% faster at p50 than FP16. A naive fault implementation that transferred
+each scale and matrix separately was 24.01\% slower and was rejected. Retaining
+the small scales on Metal and joining both matrices of each expert into one
+contiguous Glyph-addressed block made the complete placement-and-execution path
+50.00\% faster at p50 than FP16.
+
+This result is not exact. Maximum layer-output error was 0.0036621 and mean
+absolute error was 0.00036268. It is therefore labelled
+\texttt{ADVANCE\_TO\_FULL\_MODEL\_QUALITY\_GATE}, not promoted. Canonical SD-backed
+evidence is recorded in
+\texttt{int8pack-glyph-block-layer16-real-route-v2.json}; its canonical report
+SHA-256 is
+\texttt{48537cbcaba494e2e1d4555558d7bb585a1f53134a1926dc81e35e4536a45357}.
+
+The measured ratio projects the complete 6.04 GB decimal Granite expert library
+to approximately 3.03 GB decimal, or 2.82 GiB, including per-row scales. This
+may allow all 1,280 experts to remain inside the existing 3 GiB expert budget,
+removing repeated expert eviction after initialization. This projection is not
+a full-model result. The required next experiment is a content-addressed
+32-layer build followed by frozen output-quality, token-agreement, throughput,
+time-to-first-token, peak-memory and cold/warm tests against both FP16 and the
+promoted exact compressed streaming control.
+
+\section{Full-Model Packed Library and Storage-First Boot}
+\label{sec:int8-storage-first-boot}
+
+The complete derived library contains 1,280 experts across all 32 Granite
+layers. Its logical size is 3,026,452,480 bytes (2.8186 GiB), compared with
+6,040,094,720 verified source bytes: a measured 49.894\% reduction. Every source
+and derived object is hash-bound, and the library was atomically exposed only
+after all layers and experts existed. The manifest canonical SHA-256 is
+\texttt{62b7768bd2062d668a2c2aefbf765137829ac34390e8cb1421532c61dc3c3d5b}.
+
+The first full-resident mechanism test installed native INT8 experts into all
+32 layers. Across four frozen prompt families and eight generated tokens per
+prompt, all 32 token identifiers matched FP16. Median time to first token
+improved by 10.69\%. Median generation increased from 8.235 to 8.425 tokens per
+second, only 2.30\%, below the declared 10\% speed gate. Logits were non-exact.
+Direct full-resident speed is therefore \texttt{NOT\_PROMOTED}. Active Metal
+allocation nevertheless fell from 6,597,587,456 to 3,591,071,232 bytes.
+
+The storage-first implementation then constructed the model without the 64
+combined FP16 expert tensors. It loaded 226 shared tensors and installed the
+INT8 Glyph blocks directly. FP16 experts were never materialized. Ready-state
+active Metal allocation was 3,584,241,664 bytes, 45.67\% below FP16. Boot time
+fell from 91.2310 to 43.6290 seconds, a 52.18\% improvement. Median generation
+was 8.215 tokens per second, 0.25\% below FP16, and all 32 short-run tokens again
+matched. Every declared storage-first gate passed. The canonical evidence
+SHA-256 is
+\texttt{adb6e1e6deb9826c818bd4c1253bc298ba7b98d1360bc969fcc4f53c4df8a9e5}.
+
+The status is \texttt{ADVANCE\_TO\_LONG\_QUALITY\_GATE}, not production
+promotion. The result establishes a functioning fully resident model with
+roughly half the expert storage, 45.67\% less active Metal memory and 52.18\%
+faster boot while retaining short-run tokens and throughput. It does not prove
+exact logits, 64--256-token quality, randomized prompt robustness or task
+accuracy. Those are mandatory next-stage gates.
+
+\section{Long-Generation Quality Boundary}
+\label{sec:int8-long-quality-boundary}
+
+The same four prompt families were extended to 64 generated tokens each. The
+all-layer INT8 model produced finite logits, increased median throughput from
+9.921 to 10.213 tokens per second (2.95\%), and reduced median time to first
+token by 20.32\%. It matched 166 of 256 autoregressive token positions
+(64.84\%), below the declared 75\% gate. It also missed the 10\% speed gate and
+is \texttt{NOT\_PROMOTED}. The report canonical SHA-256 is
+\texttt{a7c8bf2e0a4ba3d169561766103620803884fdb8460b1386b8e6424e75129b00}.
+
+Two complete FP16 expert layers can be retained while keeping the expert
+representation at 2.9940 GiB. Retaining the first and last layers improved
+median throughput by 10.50\% and TTFT by 24.44\%, but token agreement was only
+67.19\%. A real-activation sensitivity audit then substituted one packed layer
+at a time across all four prompt families. Layers 29 and 1 were most sensitive,
+followed by 17, 28 and 24. The audit canonical SHA-256 is
+\texttt{190345280c86024d7f72ab693eb535ed9ac5924e4da4a0376381404ac7aeba93}.
+Retaining layers 29 and 1 under the same budget produced only 64.06\% token
+agreement and was also \texttt{NOT\_PROMOTED}.
+
+Whole-layer mixed precision is stopped under the 3 GiB ceiling. The successful
+short-run capacity and boot result remains valid, but long-form quality is not
+promoted. The next candidate must improve the quantizer or retain sparse
+high-value expert weights. It must use separate frozen calibration and
+evaluation cohorts, teacher-forced diagnostics that distinguish one-token
+divergence cascades from widespread probability damage, and semantic task
+scoring in addition to raw token agreement.
+
+A three-percent FP16 residual shelf was also tested on the real layer-16 route.
+It kept the projected library within 2.9925 GiB, but reduced maximum layer error
+only 1.32\% and slowed native packed calculation by 116.90\% because of the
+additional indexing and FP16 correction kernels. It is
+\texttt{NOT\_PROMOTED} and stopped. The canonical report SHA-256 is
+\texttt{ca2604039afc04d5daf28611df89c8c96312d6c4a55e9cbf2223194e2ffd668a}.
+This falsifies sparse input-column correction for the current quantizer: its
+error is too distributed to repay the added kernels.
+
+\subsection{Teacher-forced probability diagnostic}
+
+To distinguish intrinsic quantization damage from autoregressive cascade, both
+models were then evaluated on the same 256 FP16-generated token histories. The
+packed model preserved the FP16 top-one choice at 247 positions (96.48\%) and
+achieved 96.33\% mean top-five overlap. Mean KL divergence was 0.003455 nats,
+and mean additional negative log likelihood on FP16-selected tokens was only
+0.006691 nats. All four declared probability gates passed. The canonical report
+SHA-256 is
+\texttt{1c732ec78c27f73e769275c314caeaa08c637282fafab937110ad51f48ba3930}.
+
+This result shows that raw positional agreement after free-running divergence
+substantially overstates the underlying probability damage. It is labelled
+\texttt{ADVANCE\_TO\_SEMANTIC\_TASK\_GATE}, not promoted. The logits are not
+exact, and a frozen held-out evaluation of completed answer quality is required
+before the packed model can be described as useful for long-form work.
+
+\subsection{Frozen semantic microtask gates}
+
+Two separately committed semantic cohorts were tested. A strict JSON cohort
+was unsuitable because both FP16 and INT8 passed only two of eight tasks,
+although seven parsed outputs were identical and INT8 was 6.26\% faster. A
+twelve-case multiple-choice cohort removed JSON-format ambiguity. FP16 passed
+only six cases, below its required ten-case competence floor. INT8 passed seven,
+agreed with FP16 on eleven of twelve decisions (91.67\%), and ran 18.31\%
+faster. Both gates are \texttt{NOT\_PROMOTED}; a candidate cannot inherit
+absolute semantic credibility from a weak control. The multiple-choice report
+canonical SHA-256 is
+\texttt{4105f6fa4203073525639bf0b6cf7aca042f0f179bbb0582e2c3047551a00ba1}.
+
+The observations add relative non-inferiority evidence but do not prove broad
+capability. A larger frozen cohort must first establish FP16 competence using a
+choice-likelihood method that is independent of response formatting. Because
+the method is being refined after these results, a new unseen holdout remains
+mandatory for promotion.
+
+\subsection{Direct choice-likelihood diagnostic}
+
+The free-generation parser was then removed as a possible confound. On the
+already-observed twelve-case cohort, the evaluator performed one forward pass
+per question and compared the next-token scores for A, B, C and D directly. It
+combined the probability mass of the bare and space-prefixed single-token
+spellings for each choice. This eliminated generation length, commentary and
+answer parsing from the measurement.
+
+FP16 nevertheless remained at six correct answers out of twelve. INT8 produced
+eight correct answers, and the two models agreed on ten of twelve choices
+(83.33\%). Aggregate candidate forward time was 3.3656 seconds versus 4.1288
+seconds for FP16, 18.49\% lower, although speed was not a promotion criterion in
+this post-hoc diagnostic. The result is
+\texttt{DIAGNOSTIC\_DID\_NOT\_CLEAR\_BASELINE}. Its canonical report SHA-256 is
+\texttt{7caf487aec34af497257f815f02e6e45b3bfba0a029cdd6353a278767117cd49}.
+
+This falsifies response formatting as the principal cause of the control's weak
+score. The cohort and evaluation method had already been observed, so this
+result cannot promote the candidate in any event. An unseen holdout will not be
+spent on the inadequate control design. The next semantic gate must first prove
+FP16 competence on a larger independently frozen benchmark; only after that
+control gate passes may the packed INT8 model be evaluated. The capacity, boot
+and teacher-forced probability results remain valid, but absolute long-form
+semantic quality remains unproven.
+
+\subsection{Native Metal INT4 direct-path sweep}
+
+The next mechanism gate used Apple's native Metal INT4 packed matrix operation
+on the same real layer-16 eight-expert route as the successful INT8 test. Three
+affine quantizers used groups of 32, 64 and 128 weights. Relative to FP16, their
+logical expert representations were 68.75\%, 71.875\% and 73.4375\% smaller.
+Their median resident expert calculations were respectively 34.83\%, 36.04\%
+and 36.70\% faster. Thus four-bit packed execution is both physically smaller
+and computationally functional on the existing M3 Pro Metal backend.
+
+The quality gate did not pass. Group 32 was the most accurate INT4 condition,
+with maximum layer-output error 0.0159302. The matched INT8 control measured
+0.00299072, making group-32 error 5.33 times larger than INT8 and exceeding the
+predeclared four-times ceiling. Groups 64 and 128 increased maximum error to
+0.0227661 and 0.0281067. The result is
+\texttt{STOP\_INT4\_DIRECT\_PATH}; canonical report SHA-256:
+\texttt{1f6a3b60c40fe351e635140c1ce0a31c4ee4854b65c85c206be8184055955b07}.
+
+Naive affine INT4 therefore does not advance to a full-model build. Its storage
+and speed measurements establish a useful frontier, not a deployable model.
+The gate will not be weakened and the direct group-size sweep will not be
+repeated. A future four-bit candidate must use activation-aware quantization,
+freeze separate calibration and evaluation activations, and improve upon the
+recorded group-32 error/speed frontier before scaling.
+
+\subsection{Activation-aware INT4 clipping boundary}
+
+A second four-bit mechanism gate replaced random activation with captured real
+Granite layer-16 activation. Commercial-risk and technical-explanation prompt
+families formed the calibration partition. Business-planning and cache-diagnosis
+families were withheld for evaluation. For every input and output expert matrix,
+the calibration-weighted reconstruction objective selected among clipping
+ratios 1.00, 0.98, 0.95, 0.90 and 0.85. Seventy-nine of eighty matrices selected
+0.98 and one selected 0.95.
+
+On the disjoint evaluation activations, normalized RMSE improved only from
+0.12036 for naive group-32 INT4 to 0.11881, and mean absolute error improved by
+1.62\%. Maximum error worsened from 0.222656 to 0.310547. The matched INT8
+maximum error was 0.0449219, so the activation-aware INT4 maximum was 6.91 times
+larger. Median one-token layer time was still 19.46\% faster than FP16 and
+slightly faster than naive INT4, but both declared error gates failed. The
+result is \texttt{STOP\_ACTIVATION\_AWARE\_INT4\_V1}; canonical report SHA-256:
+\texttt{2cb2f415902b2f802f769c215ac8a00f3f420c517166b5ee3fc12f335b4d5e78}.
+
+This falsifies simple activation-weighted clipping as the missing four-bit
+mechanism. It did not materially address distributed quantization error and
+increased the worst error. Ratio tuning will not be repeated. Any later INT4
+candidate must change the equivalent weight/activation transformation itself,
+charge runtime rescaling explicitly, and win a new narrow gate before a
+full-model library is constructed.
+
+\subsection{Equivalent channel-rescaled INT4 boundary}
+
+The final four-bit mechanism candidate changed the weight/activation geometry
+rather than clipping. Each input channel of a stored weight matrix was
+multiplied by a bounded calibration-derived scale, while the corresponding live
+activation channel was divided by the same scale. These operations cancel
+exactly before quantization. Both runtime inverse scales and their storage were
+charged. The resulting representation, including FP16 scale vectors, remained
+68.66\% smaller than FP16. A balanced scaling exponent of 0.5 was selected for
+73 of 80 matrices by the calibration objective.
+
+On the disjoint real evaluation activations, normalized RMSE fell from 0.12036
+to 0.11346 and mean absolute error improved by 5.64\%. Maximum error nevertheless
+rose from 0.222656 to 0.246094, 5.48 times the matched INT8 error. After charging
+the two inverse-scale operations, median one-token layer speed was only 6.93\%
+better than FP16, compared with 17.22\% for naive INT4; the transformed path was
+12.43\% slower than naive INT4. All four acceptance checks failed. The result is
+\texttt{STOP\_EQUIVALENT\_SCALED\_INT4\_V1}; canonical report SHA-256:
+\texttt{6f8a13860f37b9c7a749f8b44941aa9e8ae8016e8a3004547cb3025e7b30e7dd}.
+
+The current four-bit branch is therefore closed. Direct affine INT4,
+activation-weighted clipping and equivalent channel rescaling each failed the
+declared quality/speed boundary. A full INT4 library will not be built from
+these methods. Native INT8 remains the packed candidate that has passed the
+mechanism, capacity, storage-first boot and teacher-forced probability gates.
+
+\subsection{Sparse INT8 expert-dispatch breakthrough}
+
+Runtime inspection identified a pure dispatch defect in the successful packed
+INT8 path. Each decode token selected eight experts per layer, but the module
+still invoked the input and output Metal matrix operations for all 40 experts.
+Thirty-two zero-token experts caused 64 empty calls per layer, or 2,048
+avoidable Metal calls across all 32 layers for each generated token. The
+candidate removed only empty calls; selected experts, packed weights,
+activations and their calculation order were unchanged.
+
+Five hundred balanced trials used the real layer-16 eight-expert route. Metal
+matrix calls fell from 80 to 16 per layer-token, an 80\% reduction. Median layer
+time fell from 0.900542 ms to 0.548188 ms (39.13\%), while nearest-rank p95 fell
+from 1.97037 ms to 1.55921 ms (20.87\%). Candidate and control packed-INT8
+outputs were bit-identical and maximum error was zero. All mechanism gates
+passed. The result is
+\texttt{ADVANCE\_TO\_FULL\_MODEL\_SPARSE\_DISPATCH\_GATE}; canonical report
+SHA-256:
+\texttt{0a9244267122b65a627805bac04b51a7659416fbb87b543013f56ed240ebdf11}.
+
+This is an exact-within-INT8 dispatch optimization, not an additional quality
+trade. The layer result cannot by itself establish end-to-end generation speed,
+because attention, routing, shared weights and generation orchestration remain
+unchanged. Promotion requires a storage-first 64-token multi-family ABBA gate
+with bit-identical INT8 token identifiers and step logits.
+
+\subsection{Full-model sparse-dispatch promotion}
+
+The first full-model form skipped both empty Metal matrix calls and their empty
+concatenation entries. A storage-first four-family, 64-token ABBA run improved
+median throughput by 13.93\%, from 10.254 to 11.682 tokens/s, and improved p95
+generation time by 12.53\%. All token identifiers matched. Nevertheless, one of
+twelve repeat comparisons produced non-identical logits with maximum error
+1.17578125. The other eleven comparisons, including the second candidate run
+for that family, were bit-identical. The implementation was
+\texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{1facb2f8687be315f6cfb6ba1e4ba94ea2977ce959bce317d0ec62985f041d2b}.
+
+The corrected implementation continued to omit every zero-token matrix
+operation but restored the original 40-entry empty/non-empty concatenation
+topology. Its repeated layer gate remained bit-identical, with p50 improved
+31.43\% and p95 improved 15.67\%. The layer report canonical SHA-256 is
+\texttt{f93eb681e4167d9f74c3ce9e37ac87bd286247e24472412d525f5f448f416015}.
+
+The same full-model ABBA protocol was then repeated without prompt-specific
+warm-up. Across 1,024 measured generated tokens, median control throughput was
+10.144 tokens/s and sparse-dispatch throughput was 11.264 tokens/s, an 11.04\%
+improvement. P95 generation time improved 7.88\%, from 6.7465 to 6.2150 seconds.
+Every generated token identifier and every generation-step logit was
+bit-identical across all twelve comparisons; maximum logit error was zero.
+Storage-first construction again skipped all 64 FP16 expert tensors. All gates
+passed, producing \texttt{PROMOTE\_INT8\_SPARSE\_DISPATCH}. Canonical report
+SHA-256:
+\texttt{73a2057a10c8f04f38a41f92bec6ad6a240b8033c958c3ee761bb3570cb43dee}.
+
+This is a promoted exact-within-INT8 runtime optimization. It does not convert
+the lossy INT8 representation into FP16 equivalence, and the evidence remains
+bounded to four fixed prompt families and 64-token ABBA generation. The next
+stage requires longer generation and a larger unseen prompt cohort under the
+same bit-exact packed-INT8 requirement.
+
+\subsection{Unseen 128-token replication boundary}
+
+Eight new prompt families were frozen in isolated commit
+\texttt{0853d69f} before either condition ran. The next storage-first ABBA gate
+doubled response length to 128 tokens and measured 4,096 generated tokens across
+32 runs. Sparse dispatch retained a 10.03\% median throughput improvement, from
+10.2175 to 11.2427 tokens/s, and improved p95 generation time by 7.46\%.
+
+Integrity did not hold universally. One of sixteen candidate repetitions first
+changed token identifier at generation step 43 and reached maximum step-logit
+error 37.7129; its other candidate repetition and closing baseline for the same
+family were exact. Separately, one unchanged all-40 baseline repetition kept
+every token identifier but produced maximum logit error 0.634766. The other 22
+of 24 repeat comparisons were bit-identical. The result is
+\texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{989ec69183409a6b3c93c7f5d07c2c5538172d2b35ae2ef88d20bd1f221ac287}.
+
+The promoted four-family 64-token boundary remains valid. The larger cohort
+does not establish exact 128-token behavior. Baseline self-drift shows that
+Metal repeatability must be diagnosed separately, but candidate divergence also
+occurred and the exact gate will not be weakened. Deterministic-mode repetition
+of the two exposed families is the next diagnostic; even if successful, a new
+full frozen replication is required before extending the claim.
+
+\subsection{Deterministic-Metal diagnostic}
+
+PyTorch deterministic algorithms were enabled in a post-hoc 128-token ABBA
+diagnostic restricted to the two families that exposed drift. The runtime
+accepted the setting, but every one of six repeat comparisons produced
+non-identical tokens and logits, including both closing unchanged all-40
+baseline runs. Maximum step-logit error reached 43.46875.
+
+The setting also imposed substantial cost. Median control throughput was 7.130
+tokens/s, compared with 10.217 in the ordinary eight-family run, while sparse
+dispatch produced 7.706 rather than 11.243 tokens/s. Its relative median gain
+fell to 8.08\%, below the ten-percent gate, although p95 generation time improved
+14.22\%. The diagnostic is \texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{4e50a445d556b02c167f82c00ac62630625bf7d3a1c875d929f7725d671fcf04}.
+
+Deterministic-algorithm mode is stopped on this MPS path. It neither made the
+relevant kernels repeatable nor preserved the promoted speed gain. The exact
+claim remains bounded to the successful 64-token sparse-dispatch cohort.
+Longer quality-gated evidence must report baseline self-repeatability separately
+and must not describe tolerance or token agreement as bit-exactness.
+
+\subsection{Bounded persistent decode-arena boundary}
+
+The sparse INT8 path still allocated two concatenation buffers per layer-token.
+A candidate therefore preallocated input and output Metal arenas for eight
+routed decode assignments and reused them; larger prefill batches retained the
+existing sparse concatenation. The projected 32-layer arena occupied only
+1,310,720 bytes (1.25 MiB), and candidate output was bit-identical.
+
+Performance regressed. Across 500 balanced real-route trials, median layer time
+increased from 0.602104 to 0.616250 ms, a 2.35\% slowdown. Nearest-rank p95
+increased from 1.48804 to 1.63779 ms, a 10.06\% slowdown. The explicit slice
+copy commands cost more than the allocation and concatenation they replaced.
+The result is \texttt{STOP\_DECODE\_ARENA}; canonical report SHA-256:
+\texttt{3fb648e8b208c00daef7eebb5833163b66faa4051fc724d5822ef949f0437b25}.
+
+The persistent arena is not scaled or enabled. Default arena capacity is zero,
+and sparse concatenation remains the promoted packed-INT8 dispatch path.
+
+\subsection{Cached resident weight-view boundary}
+
+The next candidate cached lightweight references to every expert's already
+resident packed-weight and scale views. This avoided repeated attribute lookup,
+slicing and reshaping without duplicating weight storage or changing any matrix
+operation. On 1,000 balanced trials of the real layer-16 route, median dispatch
+time improved by 11.31\%, from 0.607209 ms to 0.538562 ms, and nearest-rank p95
+improved by 1.65\%. Layer outputs were bit-identical. The narrow gate advanced
+to full-model testing; canonical report SHA-256:
+\texttt{f29f2f17583ec86d10f7546cf58abb1051d6ed814d9f2ca9df133ecba16c441d}.
+
+The four-family, 64-token storage-first ABBA test kept promoted sparse dispatch
+active in both arms and changed only dynamic versus cached view construction.
+Across eight observations per condition, median throughput decreased from
+10.9462 to 10.8475 tokens/s, a 0.90\% regression. P95 generation time worsened
+by 0.05\%. Every generated token identifier matched, but generation-step logits
+were not universally bit-identical; maximum observed error was 0.46875. The
+result is \texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{948136d201fd319a36439960410de325df70f201461fdb33d7b33966d8aaa384}.
+
+The microbenchmark effect did not survive full-model execution and the exact
+integrity gate also failed. Cached weight views are therefore stopped as a
+production optimization. The promoted sparse dispatcher remains unchanged.
+
+\subsection{Reusable empty-view boundary}
+
+The exact sparse dispatcher retains all 40 concatenation entries and therefore
+creates 64 zero-length tensors per layer-token, a projected 2,048 creations per
+32-layer generated token. A bounded candidate reused one input and one output
+zero-length Metal view. It added no weight storage and preserved the original
+concatenation topology.
+
+On 1,000 balanced trials of the real layer-16 route, median time improved by
+6.81\%, from 0.609751 ms to 0.568229 ms, and output was bit-identical. The
+nearest-rank p95 nevertheless increased by 3.82\%, from 1.50133 ms to 1.55867
+ms. This exceeded the predeclared maximum 3\% tail-latency regression. The
+result is \texttt{STOP\_CACHED\_EMPTY\_VIEWS}; canonical report SHA-256:
+\texttt{4d8a5ab1d4ac140740bf8d590f7bb0cda0c42d4a03d73e64589880bd71a947eb}.
+
+The candidate is not scaled to the full model or enabled by default. It shows
+that reducing Python tensor-object churn can improve median dispatch time, but
+this implementation did not deliver acceptable tail stability. The promoted
+sparse dispatcher remains unchanged.
+
+\subsection{Route-specialized compilation boundary}
+
+A mechanism probe compiled one real packed-INT8 eight-expert graph on the local
+MPS stack and produced bit-identical output. Granite's production router cannot
+form one full dynamic graph because it converts data-dependent expert counts to
+a Python list. A bounded alternative would cache a small number of fixed-route
+compiled graphs per layer and retain eager execution as fallback.
+
+Three hash-bound observations supplied 16,256 layer-route samples and 6,889
+unique route sets when counted independently by layer. Aggregate exact-repeat
+fraction was 57.62\%, but those repetitions were distributed across many route
+patterns. The most common fixed graph covered only 3.05\% at the median layer;
+the best eight graphs per layer covered only 12.99\%. This failed the
+predeclared 50\% median-coverage requirement. The result is
+\texttt{STOP\_ROUTE\_SPECIALIZED\_COMPILE}; canonical report SHA-256:
+\texttt{0f037de61a3efb5e845294820ccaad11a42088fa567ec5092e839e4d050496d7}.
+
+A fixed-route graph dictionary is not built. The useful surviving direction is
+dynamic compilation: remove the router's Python \texttt{tolist()} boundary, or
+build a fused Metal router/expert kernel that consumes expert indices directly
+without specializing the graph to each route set.
+
+\subsection{Fused eight-expert Metal matvec advance}
+
+The native packed-INT8 Metal operation requires two-dimensional inputs and
+cannot batch eight dynamically selected weight matrices. AION therefore
+runtime-compiled a Metal SIMD matrix-vector kernel that accepts the eight
+already-selected resident expert buffers and performs all eight one-token
+products in one launch. Using it for both expert projections reduced expert
+matrix launches from 16 to two per layer-token, an 87.5\% reduction, without
+duplicating weights.
+
+A 1,000-trial balanced gate exercised the complete input projection, SiLU/gate
+and output projection on a real layer-16 eight-expert route. Median time improved
+from 0.412355 ms to 0.329604 ms, a 20.07\% reduction. Nearest-rank p95 improved
+from 1.35450 ms to 0.642416 ms, or 52.57\%. Maximum additional error relative
+to packed INT8 was 0.0000305176 and RMSE was 0.000000307926, both below the
+frozen 0.00075 maximum-error ceiling. Every gate passed, producing
+\texttt{ADVANCE\_FUSED\_METAL\_MATVEC\_TO\_MODEL\_INTEGRATION}. Canonical
+report SHA-256:
+\texttt{18b1ce06a354cb4b1e5c480bf2bb5f84e34ceceafebac5177b2a1aa2ffb2238f}.
+
+This result establishes the kernel mechanism only. Its altered reduction order
+means it belongs to the explicitly separate quality-gated changed-kernel track,
+not the bit-exact track. Full-model integration must be limited to one-token,
+eight-unique-expert decode with the promoted packed-INT8 fallback retained, then
+pass frozen probability, token, latency, memory and semantic gates.
+
+\subsection{Fused-kernel full-model boundary}
+
+The integration activated fused execution only for one-token routes containing
+eight unique expert assignments and retained the promoted sparse packed-INT8
+fallback everywhere else. Both conditions shared one storage-first resident
+model; the candidate added 1.25 MiB of bounded output buffers.
+
+Across the four-family, 64-token ABBA gate, median throughput improved from
+10.9755 to 11.5191 tokens/s, a 4.95\% gain, and p95 generation time improved by
+5.40\%. The candidate nevertheless missed its frozen 5\% throughput floor by
+0.05 percentage points. Integrity also failed: only two of four families kept
+identical generated token sequences. Both candidate repeats diverged for the
+technical-explanation and business-planning families, whereas every closing
+sparse-INT8 control repeat remained exact. Maximum accumulated step-logit error
+was 38.5405. The result is \texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{fe7f1f63669671ab02509b7c9187bc0b4d7cf5a12975f1b91781f72abb91346b}.
+
+Fused Metal matvec v1 is stopped at the full-model boundary and remains disabled
+by default. The narrow kernel's small local error is amplified by recurrent
+autoregressive execution. Its measured speed gain is preserved as evidence but
+is not a promotion. A future kernel requires materially lower accumulated error
+under a new frozen narrow gate before model-scale repetition.
+
+\subsection{Calibration-selected fused-layer boundary}
+
+Four frozen calibration families measured each of the 32 layers independently
+for one decode step. The 16 layers with the lowest maximum second-step logit
+disturbance were frozen as layers 0, 2--9, 12--14, 17, 22--23 and 29. The
+cryptographically bound selection-plan SHA-256 is
+\texttt{941f7224eef566f293937306302b3ad76a0280cb22a314f5798ae1a1ad07085c}.
+
+Four disjoint frozen holdout families then underwent 64-token ABBA generation.
+Median throughput improved from 11.0729 to 11.6042 tokens/s, a 4.80\% gain, but
+p95 generation time regressed by 3.46\%. The logistics-planning family changed
+tokens in both fused repeats. Document governance, product analysis and systems
+explanation retained token identity but all exceeded the 0.05 step-logit ceiling.
+Every closing sparse-INT8 control was exact. Maximum step-logit error reached
+30.3359. The result is \texttt{NOT\_PROMOTED}; canonical report SHA-256:
+\texttt{302f634116f56606e0fa6a9babfe8a863f84b3056fd33f60d8ee9ee97af44386}.
+
+Sensitivity-selected fusion is stopped. It did not prevent recurrent numerical
+amplification or tail-latency regression. Progressively smaller subsets must not
+be tuned post hoc against this holdout. Any future fused candidate must improve
+the arithmetic agreement of the kernel itself under a new frozen design.
+
+\subsection{GPU-resident dynamic expert-bank breakthrough}
+
+The next architecture removed Granite's per-layer GPU-to-Python route boundary.
+Top-eight indices and gates remain on Metal and address one contiguous 40-expert
+bank; two SIMD kernels perform both projections and reduce gated outputs on the
+device. A 1,000-trial real layer-16 gate improved p50 from 1.87092 ms to 1.18408
+ms (36.71\%) and p95 from 2.96121 ms to 2.21871 ms (25.07\%). Maximum extra
+error was 0.0000610352, below the 0.00075 ceiling. The report SHA-256 is
+\texttt{c093f623b2e5f6fe1b142f001a9775c1939352672b3b364269104bcf30f121b4}.
+
+The SD-native conversion produced 32 independently hashed layer banks containing
+3,026,452,480 logical bytes (2.8196 GiB), with zero duplicate runtime weight
+bytes. Manifest canonical SHA-256:
+\texttt{5ccd5b7d44467bd193e6cb8fc39b95df888a6f285a9d2e68690c685f24e8bb27}.
+
+In four-family 64-token storage-first ABBA generation, the native-bank control
+reached 11.2886 tokens/s and dynamic-bank execution reached 24.4679 tokens/s,
+a 116.75\% improvement. P95 generation time improved 56.43\%, from 6.0314 to
+2.62775 seconds. Both dynamic repeats retained identical token sequences in all
+four families, and every closing control was bit-exact. Maximum step-logit
+difference was 2.17969. The mechanism decision is
+\texttt{ADVANCE\_DYNAMIC\_BANK\_TO\_QUALITY\_GATES}; report SHA-256:
+\texttt{a167b4218c07d1a396093ab65d39ff8c111bad5c69b5af62b29e9372a6e5ece9}.
+
+This is a genuine model-scale speed breakthrough and the first result near the
+30-token/s target on the ordinary 18 GB Mac. It is not yet a quality promotion:
+the changed kernel must pass direct FP16 teacher-forced probability and frozen
+semantic validation.
+
+\subsection{Dynamic-bank quality qualification and bounded promotion}
+
+Incremental teacher forcing supplied FP16, bank-native INT8 and dynamic-bank
+INT8 with identical histories across 256 frozen positions. Native INT8 retained
+97.66\% FP16 top-one agreement, while dynamic banking retained 97.27\%, a
+reduction of only 0.39 percentage points. Dynamic top-five overlap was 95.86\%,
+mean KL divergence was 0.003687 nats and additional NLL on FP16-selected tokens
+was 0.008386 nats. Every relative-quality gate passed, and dynamic execution
+reduced teacher-forced time by 55.76\%. The decision was
+\texttt{ADVANCE\_DYNAMIC\_BANK\_TO\_FROZEN\_SEMANTIC\_GATE}; report SHA-256:
+\texttt{50bfc1e9928cfac76236f65f9ba3b432ca8dac4c52aea7e4cd169d2b078a0204}.
+
+The previously frozen twelve-case semantic suite then produced identical answers
+for native and dynamic INT8 in all 12 cases. Both scored 7/12 correct and every
+answer was parseable. On these short tasks, dynamic throughput improved from
+6.2627 to 9.4227 generated tokens/s, a 50.46\% increase. All gates passed and the
+result is \texttt{PROMOTE\_DYNAMIC\_BANK\_WITHIN\_VALIDATED\_BOUNDARY}; canonical
+report SHA-256:
+\texttt{225b5fef106cf01f201adaef53df4b56b32b4ad262fcb4149b558083a7ed021a}.
+
+The promotion is deliberately bounded. AION has demonstrated a 2.8196 GiB
+SD-native expert bank running Granite at 24.47 tokens/s on four 64-token families,
+with unchanged generated token sequences, strong FP16-relative probability
+preservation and complete answer preservation on the frozen semantic suite. The
+absolute 7/12 task score prevents any claim of universal model competence. This
+is a promotion of the execution architecture and relative preservation. Unseen
+128--256-token, repeatability and broader competent-model validation remain the
+next expansion gates.
+
+\subsection{Unseen long-generation replication and extended promotion}
+
+The first long-generation replication reused an eight-family cohort that had
+been frozen before dynamic-bank development. Across 32 ABBA runs and 4,096
+generated tokens, dynamic banking sustained 24.8073 tokens/s at 128 tokens per
+run, versus 11.2547 tokens/s for the native bank. This was a 120.42\% median
+throughput improvement, while p95 generation time improved by 55.95\%.
+Dynamic candidate repetitions were token-identical for all eight families;
+native repetitions were token-identical for six. Canonical report SHA-256:
+\texttt{6a9e929ffd2d527437ee1204a382a42655ebb554068452f48d3ef470b87a8933}.
+
+A disjoint eight-domain holdout was then frozen in commit \texttt{7113f1ad},
+before either condition executed. Its file SHA-256 is
+\texttt{68bad763a3d70ba735779d4d6168114a11a4609183245d9c5c83b627221ac385}.
+The 256-token ABBA run measured 8,192 generated tokens. Dynamic banking
+sustained 23.9612 tokens/s versus 10.6228 tokens/s for the native bank, a
+125.56\% improvement. P95 generation time improved by 59.05\%. The candidate
+rate declined only 3.41\% when generation length doubled from 128 to 256.
+Dynamic and native repetitions were each token-identical for seven of eight
+families. Canonical report SHA-256:
+\texttt{cfb5823bb2aa58c273769a8430296db3eb40ffd1a61b9a30b212de3773a916b9}.
+
+Free-running native and dynamic output was not identical for seven of the eight
+256-token families. This was not hidden or relabelled as exactness. The
+changed-kernel track therefore underwent an extended teacher-forced comparison
+on 2,048 identical positions from the new holdout. Native INT8 retained
+98.1934\% FP16 top-one agreement and dynamic banking retained 98.2422\%.
+Dynamic top-five overlap was 96.7969\%, mean KL divergence was 0.002552 nats,
+and its FP16-token NLL delta was $-0.002641$ nats. Every predeclared relative
+quality gate passed, while dynamic teacher time improved by 56.23\%. Canonical
+report SHA-256:
+\texttt{bd4e56118cec96351c3ee4db5d0a762590826668b9e5de57a072e1cad08601f4}.
+
+One final hash-bound decision combined the 128-token evidence, the disjoint
+256-token evidence, the 2,048-position teacher gate and the prior twelve-case
+semantic gate. All seven acceptance conditions passed. The result is
+\texttt{PROMOTE\_DYNAMIC\_BANK\_LONG\_GENERATION\_BOUNDARY}; canonical report
+SHA-256:
+\texttt{2e772e66d43a28c35cdf6c85b3027a08f29a5e0db1ab6fe39ceac2f3c4569620}.
+
+The extended claim remains bounded to this Granite MoE model, the measured
+18~GB M3 Pro, and the resident 2.8196~GiB SD-native expert bank. It establishes
+sustained approximately 24-token/s execution through 256 generated tokens,
+strong FP16-relative probability preservation, and repeatability no worse than
+the native Metal control. It does not establish bit-exact logits, identical
+free-running wording, arbitrary larger-model performance, or continuous
+weight streaming from SD at the resident-bank rate.

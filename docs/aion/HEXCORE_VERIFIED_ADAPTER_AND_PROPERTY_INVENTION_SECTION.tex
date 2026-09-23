@@ -1,0 +1,96 @@
+\section{Verified Execution Adapters and Grounded Property Invention}
+\label{sec:verified-adapter-property-invention}
+
+The previous executable-falsification system rejected all three original bugs
+but could certify only one of three repaired repositories. The principal failure
+was not falsification intent; it was unreliable loading and fixture
+construction. This stage separated those capabilities into independently
+verified execution-adapter acquisition and property invention.
+
+\subsection{Source-attested adapter acquisition}
+
+Given a public issue, original source file and public in-tree tests, the adapter
+learner generated a minimal program binding \texttt{AION\_TARGET} to a real
+repository symbol. Independent instrumentation recovered the bound object's
+source location and required
+\begin{equation}
+ \operatorname{resolve}(\operatorname{source}(AION\_TARGET))
+ = \operatorname{resolve}(p_{\mathrm{declared}}).
+\end{equation}
+A fabricated marker or substitute implementation could not satisfy this gate.
+
+Marshmallow and pydicom passed immediately. Pvlib required two trace-driven
+revisions to avoid unrelated package initialization and load
+\texttt{pvlib.iam} with its minimum public dependency. The acquisition session
+used five attempts; a deterministic verification replay reconfirmed the three
+retained adapters.
+
+\begin{table}[ht]
+\centering
+\caption{Verified execution-adapter acquisition.}
+\label{tab:verified-adapters}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Repositories & 3 \\
+Verified adapters & 3/3 \\
+Weakest-repository success & 100\% \\
+Exact source-path attestation & 100\% \\
+Initial attempts & 5 \\
+Trace-driven revisions & 2 \\
+Unsafe executions / timeouts / live writes & 0 / 0 / 0 \\
+Restart retention & 100\% \\
+\hline
+\end{tabular}
+\end{table}
+
+CAU promoted
+\texttt{procedure\_verified\_execution\_adapter\_acquisition\_4b5bdc4a2a7e}.
+
+\subsection{Adapter-grounded property invention}
+
+Functional and adversarial properties were then generated inside each attested
+adapter. A repository passed only when
+\begin{equation}
+ \neg T_f(x_{\mathrm{original}}) \land
+ T_f(x_{\mathrm{candidate}}) \land
+ T_a(x_{\mathrm{candidate}}) \land
+ S(T_f,T_a,x_{\mathrm{candidate}}),
+\end{equation}
+where $T_f$ is the invented functional falsifier, $T_a$ is the invented
+adversarial suite and $S$ denotes the static safety gate.
+
+\begin{table}[ht]
+\centering
+\caption{Adapter-grounded property invention.}
+\label{tab:adapter-grounded-properties}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+End-to-end repository success & 3/3 (100\%) \\
+Weakest-repository success & 100\% \\
+Original buggy checkouts rejected & 3/3 \\
+Repaired checkouts accepted & 3/3 \\
+Adversarial suites accepted & 3/3 \\
+Property attempts & 6 \\
+Unsafe executions / timeouts / live writes & 0 / 0 / 0 \\
+Restart relearning & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+Criticism removed an over-specific Marshmallow container-shape assumption,
+constructed the correct lazy/raw pydicom materialisation path, and eliminated a
+pvlib property that contradicted the corrected behavior. It did not expose the
+historical human patch or hidden verifier tests. CAU promoted
+\texttt{procedure\_adapter\_grounded\_property\_invention\_60fe24a6e28a}.
+
+\subsection{Claim boundary}
+
+The result demonstrates learned execution grounding recomposed with executable
+counterexample invention on three public Python repositories. It does not yet
+establish repeated-seed stability, three-language transfer, explicit malicious
+candidate rejection, conditional memory routing at scale or independently
+administered hidden evaluation. Those requirements remain closed gates.

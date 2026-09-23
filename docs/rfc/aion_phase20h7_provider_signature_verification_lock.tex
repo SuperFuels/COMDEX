@@ -1,0 +1,183 @@
+\section{AION Phase 20H.7 --- External Provider Webhook Signature Handshakes and Cryptographic Vault Key Verification}
+\label{sec:aion-phase20h7-provider-webhook-signature-verification}
+
+\subsection{Status}
+
+Phase 20H.7 locks provider webhook signature handshakes and cryptographic vault key verification.
+
+\begin{quote}
+\textbf{Status: LOCKED --- inbound provider events must prove cryptographic origin before callback or signaling assertions can be trusted.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20H.6 proves that inbound callbacks and signaling messages match the expected mission, run, provider, nonce, expiry, payload and mutation constraints.
+
+Phase 20H.7 adds provider-origin proof.
+
+An inbound event MUST NOT be accepted merely because it has the correct shape. It must also carry a valid provider signature verified against a vault-scoped signing key reference.
+
+\subsection{Vault Signature Key Reference}
+
+A provider signature key reference MUST bind:
+
+\begin{itemize}
+  \item business ID;
+  \item provider;
+  \item credential scope;
+  \item vault key ID;
+  \item signature algorithm;
+  \item signature header type;
+  \item key version;
+  \item secret material visibility flag;
+  \item vault signature key reference hash.
+\end{itemize}
+
+Raw signing secrets MUST NOT be visible in model context, runtime records, callback payloads or receipts.
+
+\subsection{Signature Algorithms}
+
+The signature verification layer recognises:
+
+\begin{verbatim}
+hmac_sha256
+hmac_sha512
+static_test_signature
+\end{verbatim}
+
+Unsupported algorithms MUST be rejected.
+
+\subsection{Signature Header Types}
+
+The signature verification layer recognises:
+
+\begin{verbatim}
+stripe_signature
+github_signature_256
+generic_hmac_signature
+jws_detached
+provider_test_signature
+\end{verbatim}
+
+Unsupported signature header types MUST be rejected.
+
+\subsection{Signature Verification Assertion}
+
+For every inbound provider event, AION MUST assert:
+
+\begin{itemize}
+  \item signature header is present;
+  \item provider matches expected provider;
+  \item business ID matches expected business;
+  \item vault key provider matches expected provider;
+  \item vault key business ID matches expected business;
+  \item signature algorithm is supported;
+  \item timestamp is not expired;
+  \item timestamp is not from the future;
+  \item signature event hash has not been seen before;
+  \item signature verifies against the vault-scoped signing key reference.
+\end{itemize}
+
+If any assertion fails, the event MUST be quarantined.
+
+\subsection{Signature Event Hash}
+
+Every signature verification attempt MUST emit a signature event hash binding:
+
+\begin{itemize}
+  \item provider;
+  \item callback URL ID;
+  \item payload body hash;
+  \item signature header hash;
+  \item timestamp;
+  \item vault signature key reference hash.
+\end{itemize}
+
+If the signature event hash already exists in the seen-event registry, the event MUST be rejected as replayed.
+
+\subsection{Secret Visibility Prohibition}
+
+Webhook signing secrets, API keys, private keys, access tokens, refresh tokens and session tokens MUST NOT be present in model-visible or runtime-visible structures.
+
+If visible secret material is detected, verification MUST fail closed.
+
+\subsection{Callback Binding}
+
+A valid signature assertion MUST be bound to the Phase 20H.6 callback ingress assertion before the provider event can influence runtime state.
+
+The binding MUST assert:
+
+\begin{itemize}
+  \item signature assertion is allowed;
+  \item callback ingress assertion is allowed;
+  \item mission ID matches;
+  \item mission run ID matches;
+  \item provider matches.
+\end{itemize}
+
+\subsection{Summary State}
+
+A provider signature summary MUST emit:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item allowed count;
+  \item blocked count;
+  \item blocked reasons;
+  \item assertion hashes;
+  \item runtime state;
+  \item summary hash.
+\end{itemize}
+
+If any provider signature assertion is blocked, runtime state MUST become:
+
+\begin{verbatim}
+provider_signature_quarantine
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n5_delegation_profiles_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n6_autonomy_budget_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n7_matrix_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h1_external_tool_gateway_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h2_provider_context_isolation_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h3_browser_worker_sandbox_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h4_browser_staged_state_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h5_browser_interception_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h6_external_callback_signaling_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h7_provider_signature_verification_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20H7-PROVIDER-WEBHOOK-SIGNATURE-VERIFICATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

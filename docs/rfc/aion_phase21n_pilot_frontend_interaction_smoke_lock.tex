@@ -1,0 +1,56 @@
+\section{Phase 21N --- Pilot Frontend Interaction Smoke Test}
+\label{sec:aion-phase21n-pilot-frontend-interaction-smoke}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21N wires the visible Pilot cockpit draft-mission button to a local frontend interaction state.
+
+\subsection{Purpose}
+
+The cockpit was visible, but the \texttt{Create draft mission} button did not visibly update the Pilot state.
+
+Phase 21N proves the frontend can accept a mission request and update visible state without creating live side effects.
+
+\subsection{Interaction Contract}
+
+Clicking \texttt{Create draft mission} MUST:
+
+\begin{itemize}
+  \item read the mission composer text;
+  \item update Pilot status from idle to draft created;
+  \item append visible stream events;
+  \item show draft artifact state;
+  \item show receipt hash;
+  \item show replay hash;
+  \item show proof hash.
+\end{itemize}
+
+\subsection{Safety Rule}
+
+The frontend interaction is local and preview-only.
+
+It MUST NOT call raw tools, send email, deploy, post, book, escrow, create payment, mutate reputation, or expose private reasoning.
+
+\subsection{Required Safety Message}
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21n_pilot_frontend_interaction_smoke_ui_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21N-PILOT-FRONTEND-INTERACTION-SMOKE
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

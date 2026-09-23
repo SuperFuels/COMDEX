@@ -1,0 +1,116 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.36 --- Proactive Plan Primacy and Intent Driver}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.36 locks the Proactive Plan Primacy and Intent Driver.
+
+The purpose of this phase is to make AION play with its own active intent rather than only reacting move by move.
+
+AION SHOULD choose a strategic intent, preserve that intent across moves, and bias future selection toward moves that advance the active plan.
+
+\section{Core Principle}
+
+The locked principle is:
+
+\begin{quote}
+AION MUST play with strategic intent first. Reactive safety layers MAY override the active plan only when a tactical emergency or critical threat exists.
+\end{quote}
+
+This prevents winging the game from move to move.
+
+\section{Supported Active Intents}
+
+The driver may emit the following active intents:
+
+\begin{verbatim}
+center_control
+rapid_development
+king_safety
+initiative_pressure
+simplify_when_ahead
+convert_passed_pawn
+build_mate_net
+neutralise_critical_threat
+improve_position
+\end{verbatim}
+
+\section{Runtime Outputs}
+
+The kernel emits:
+
+\begin{verbatim}
+active_intent
+previous_intent
+intent_changed
+emergency_override_active
+emergency_override_reason
+intent_commitment_score
+intent_progress_score
+opponent_forced_to_react
+recommended_intent_move_bias
+intent_candidates
+trace_hash
+\end{verbatim}
+
+\section{Emergency Override}
+
+Emergency override is allowed when:
+
+\begin{itemize}[leftmargin=*]
+  \item the king is in check;
+  \item a critical threat exists;
+  \item the current plan fails a safety gate;
+  \item a forced conversion or tactical survival condition appears.
+\end{itemize}
+
+The emergency override intent is:
+
+\begin{verbatim}
+neutralise_critical_threat
+\end{verbatim}
+
+\section{Integration Target}
+
+Phase 22E.36 does not replace the Strategic Regression Well.
+
+It prepares a new input signal for it.
+
+Phase 22E.37 MUST integrate the active intent and recommended move bias into the Strategic Regression Well Optimiser.
+
+\section{Boundary}
+
+This phase does not send moves.
+
+This phase does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e36_full_chess_proactive_plan_primacy_intent_driver_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e36_full_chess_proactive_plan_primacy_intent_driver_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E36-FULL-CHESS-PROACTIVE-PLAN-PRIMACY-INTENT-DRIVER\\
+Status: LOCKED --- proactive strategic intent driver implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

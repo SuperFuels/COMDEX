@@ -1,0 +1,75 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.20 --- Queen Endgame Mate Conversion Kernel}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.20 implements a queen endgame mate conversion kernel.
+
+This phase targets the Phase 22E.18 Level-2 live rerun failure mode: AION promoted a pawn to a queen but failed to convert the endgame before losing on time.
+
+\section{Conversion Rules}
+
+The kernel activates when AION has a queen advantage in an endgame position.
+
+It scores legal moves by:
+
+\begin{itemize}[leftmargin=*]
+  \item checkmate;
+  \item checks;
+  \item captures;
+  \item rook capture while winning;
+  \item enemy king mobility reduction;
+  \item queen proximity to the enemy king;
+  \item own king support distance;
+  \item repetition and repeated queen-square penalties;
+  \item clock pressure forcing bonuses.
+\end{itemize}
+
+\section{Failure Patch}
+
+The patch directly targets:
+
+\begin{itemize}[leftmargin=*]
+  \item queen shuffling;
+  \item failure to reduce enemy king mobility;
+  \item failure to use forcing checks;
+  \item failure to simplify when winning;
+  \item clock pressure failure.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not call Lichess, does not send moves, does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+It performs deterministic local legal-move scoring only.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e20_full_chess_queen_endgame_mate_conversion_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e20_full_chess_queen_endgame_mate_conversion_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E20-FULL-CHESS-QUEEN-ENDGAME-MATE-CONVERSION\\
+Status: LOCKED --- queen endgame mate conversion kernel implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

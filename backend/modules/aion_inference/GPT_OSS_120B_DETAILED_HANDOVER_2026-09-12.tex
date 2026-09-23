@@ -1,0 +1,594 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=22mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,
+ columns=fullflexible,keepspaces=true,showstringspaces=false,
+ frame=single,rulecolor=\color{gray},aboveskip=8pt,belowskip=8pt}
+\setlength{\emergencystretch}{3em}
+\title{AION GPT-OSS 120B\\Detailed Technical and Operational Handover}
+\author{Experimental continuation record}
+\date{Snapshot: 12 September 2026, approximately 23:42 CEST / 21:42 UTC}
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Read this first: objective, present state and immediate constraint}
+The target remains general GPT-OSS 120B execution on an ordinary 18 GB
+M3 Pro Mac, with the complete selected model representation on the existing
+SD warehouse. Do not retreat to the smaller Granite resident model and call
+that a 120B breakthrough. The desired raw-generation North Star is 30--50
+tokens/s, but no usable 120B result at that rate has been established.
+
+The current attack is a compact correction for the \emph{last selected expert}
+on two-, three- and four-expert calls. The controller should retain the real
+earlier contributions and reconstruct the final one cheaply, only where a
+frozen correction has adequate support and passes numerical, downstream and
+cost gates. Unsupported calls require the real expert. This is an approximate
+quality-gated research track; the exact unrestricted teacher remains separate.
+
+At this snapshot, two teacher captures are complete and verified; the
+explanation capture is running. One automatic cross-family local correction
+probe has completed and failed the fixed 2\% accuracy gate. No new speed has
+been promoted. Collection and local probing continue in independent OS
+processes; changing chat does not require terminating them.
+
+\paragraph{Immediate operational warning.}
+The last observed local free space was approximately 3.4 GiB, near the
+mandatory 3 GiB guard. Swap usage was approximately 7.82 GiB of 9 GiB allocated.
+These values are transient and must be rechecked. The queue may stop safely
+if disk reserve is exhausted. Do not disable the guard, delete verified model
+objects, erase the promoted L2 cache, or treat partial captures as complete.
+The pending handover file itself is small; teacher and system storage are the
+material concern.
+
+At the final preparation recheck, approximately 23:45 CEST, explanation01 was
+still active (about nine minutes elapsed) and free space had recovered to
+approximately 6.3 GiB. This does not cancel the reserve warning: inspect live
+values rather than relying on either snapshot.
+
+\section{Where everything is}
+\subsection{Actual repository and execution environment}
+The active code repository is:
+\begin{quote}\path{/Users/kevinrobinson/dev/COMDEX}\end{quote}
+The app may present a different working directory,
+\path{/Users/kevinrobinson/Documents/Tessaris}; do not assume that is the
+inference repository. Run the commands below from COMDEX. Python is the
+repository's \path{.venv/bin/python}; the observed interpreter is Python 3.13.
+The native route audit uses locally installed \texttt{clang++} and Homebrew
+GGML libraries. No new download is required for the present programme.
+
+\subsection{Model source and storage tiers}
+The current source manifest is:
+\begin{quote}\path{/Volumes/AION_120B/AION-Warehouse/v1/expert-bank/gpt-oss-120b-q4km-expert-frames.v1/manifest.v1.json}\end{quote}
+The verified SD warehouse holds the selected Q4\_K\_M/GGUF representation,
+including MXFP4 expert components. The outer warehouse transformation is
+lossless relative to that selected representation. It is not a claim that
+Q4\_K\_M equals the original higher-precision release.
+
+The unrestricted architecture has 36 layers, 128 experts/layer and four
+selected experts/token/layer. Expert objects have six components: gate, up
+and down weights and their biases. A nominal expert frame is approximately
+13.25 MiB. Preserve source hashes and verified addressing.
+
+Existing internal-disk L2 location used by the read-only native audit:
+\begin{quote}\path{/Users/kevinrobinson/dev/COMDEX/.runtime/aion-gptoss-l2-extraction-exact-20260910}\end{quote}
+It is the promoted approximately 20 GiB demand-admitted disk cartridge.
+It is not disposable evidence and must not be deleted to free space.
+The active broad teacher queue did \emph{not} allocate or receive an additional
+L2 tier; do not infer its cold/warm behaviour from the earlier exact L2 gate.
+
+\subsection{Current evidence and technical records}
+All following paths are relative to COMDEX unless shown absolute:
+\begin{longtable}{p{0.29\linewidth}p{0.64\linewidth}}
+\toprule Item & Path / purpose \\ \midrule
+Frozen corpus & \path{results/aion_gptoss_120b_c4_coverage_corpus_20260912.json} \\
+Active teacher root & \path{results/aion_gptoss_c4_full_layer_training_queue_20260912_retry02} \\
+Automatic local probes & \path{results/aion_ranked_correction_incremental_local_gates_20260912} \\
+Current plan & \path{backend/modules/aion_inference/SD_ONLY_EXECUTION_PLAN.md} \\
+Latest consolidated appendix & \path{backend/modules/aion_inference/GPT_OSS_120B_RANKED_CORRECTION_CONSOLIDATED_APPEND_2026-09-12.tex} \\
+Opportunity appendix & \path{backend/modules/aion_inference/GPT_OSS_120B_RUNTIME_CORRECTION_OPPORTUNITY_APPEND_2026-09-12.tex} \\
+Restart appendix & \path{backend/modules/aion_inference/GPT_OSS_120B_C4_CAPTURE_RESTART_APPEND_2026-09-12.tex} \\
+Earlier C4 / lookahead record & \path{backend/modules/aion_inference/GPT_OSS_120B_COLIBRI_TRANSFER_RECORD_2026-09-12.tex} \\
+Native reduction evidence & \path{results/aion_ranked_correction_reduction_gate_20260912.json} \\
+Two-teacher economics & \path{results/aion_gptoss_c4_coverage_economics_20260912_two_verified.json} \\
+Quiet runtime opportunity & \path{results/aion_gptoss_correction_runtime_opportunity_quiet_control_20260912.json} \\
+\bottomrule
+\end{longtable}
+The plan is a long chronological record: older Granite objectives, old evidence
+roots and earlier ``active'' notes remain in it. Read the latest operational
+updates and the recent appendices, rather than taking historical entries as
+current commands. Current evidence is local under \path{results/}; the user
+manually appends supplied LaTeX to Overleaf. Do not resume filling the SD with
+large evidence objects. The consolidated appendix overlaps earlier appendices.
+
+\section{Verified speed claims: keep these separate}
+\begin{longtable}{p{0.28\linewidth}p{0.18\linewidth}p{0.47\linewidth}}
+\toprule Track & Recorded rate & Meaning \\ \midrule
+Exact arithmetic & 1.72455 t/s & Frozen short-window unrestricted original four-expert route with promoted L2/read-compute overlap. \\
+Exact extraction & 1.82858 t/s & Corresponding frozen short-window exact extraction gate. \\
+Correct reasoning quality path & About 7 t/s & Tested adaptive-0.80 trajectory-protected operating region; not a broad general model-quality result. Quiet paired observations 7.001898 and 5.491965 t/s. \\
+Fixed top-one ceiling & 28.6174 t/s & Resident physical/runtime measurement with unusable repetitive/incoherent quality. Not a usable 120B speed claim. \\
+Recent corrections & No promoted rate & Local accuracy, support, reducer correctness and data coverage only. \\
+\bottomrule
+\end{longtable}
+Granite's earlier approximately 40 t/s result uses a much smaller resident
+compressed expert bank and is \emph{not} continuous 120B SD streaming.
+Do not substitute repeated position-zero evaluations, teacher-block throughput,
+truncated answer windows, best passes, or pure arithmetic timings for actual
+causal sustained generated tokens/s. Report completed answers and paired
+conditions, TTFT, continuation rate, p50/p95, physical/logical traffic, memory,
+fallbacks and failures.
+
+\section{Why the strategy changed from C4 only to ranked corrections}
+The current quiet adaptive control uses four experts on only 22.8682\% of
+layer calls. Approximately 77.13\% already use two or three. Therefore
+replacing only E4 cannot act on most calls in the approximately 7 t/s path.
+
+An offline analyzer divided aggregate route-finish plus delivery time by
+active expert count and assumed the earlier resident correction cost ratio
+0.0773. Complete E4 coverage yielded hypothetical multipliers 1.04924 and
+1.06370. Replacing the last contribution on eligible two/three/four calls
+yielded hypothetical multipliers 1.25993 and 1.27733. These are exploratory
+accounting estimates, \emph{not} measured gains or rigorous ceilings. They do
+not isolate overhead, unequal expert costs, fallback rates, changed locality,
+instrumentation overlap or the SD fault path.
+
+The next hypothesis is consequently:
+\[
+ 4\rightarrow3+\widehat C_4,\qquad
+ 3\rightarrow2+\widehat C_3,\qquad
+ 2\rightarrow1+\widehat C_2.
+\]
+Each rank needs its own identity, gate, activation/state support and downstream
+validation. An unrestricted teacher's rank target cannot automatically certify
+the same rank under adaptive changed activations or renormalized gates.
+
+\section{Live jobs at the snapshot}
+\subsection{Teacher queue}
+Queue PID: \texttt{25160}; elapsed approximately 43.5 minutes. It processes up
+to 24 declared training prompts in family-balanced round-robin order. It runs
+one child at a time, with six CPU threads, an 8 GiB expert-cache ceiling,
+in-process attention/MoE/embedding/output and in-memory layer flow, two passes,
+and counterfactual targets across all 36 layers. It yields background
+curriculum through the existing bounded priority lease.
+
+Active child PID: \texttt{47716}; \texttt{c4\_explanation\_01}; elapsed
+approximately five minutes. It uses 33 total token positions, 17 prompt
+positions and 16 continuation positions, capturing positions 3--32:
+1,080 planned layer-position observations. This is \emph{not} yet completed
+evidence. PIDs and progress will change; always rediscover them.
+
+The queue checks disk reserve every five seconds during a child and between
+jobs. On an exhausted reserve it sends SIGINT first, allowing priority-lease
+cleanup, then escalates if the child does not exit. Partial artifacts are
+preserved and the queue stops; it does not silently overwrite or certify them.
+The shared flock is \path{.runtime/aion-gptoss-inference.lock}. The existence
+of the lock file does not itself mean a process holds the lock. Do not remove
+it or start another full-model job while the current child is active.
+
+\subsection{Incremental local fitting worker}
+Worker PID: \texttt{38315}; elapsed approximately 29 minutes. Its configured
+maximum lifetime is 14,400 seconds (four hours), measured from launch, not
+from this handover. It is not an indefinite service. The teacher queue may
+outlast it, so the next task must monitor or renew it deliberately.
+
+Every 15 seconds it scans completed training seals, sorts completed job names
+lexicographically, and probes adjacent pairs from different families. These
+are \emph{not} necessarily pairs in chronological capture order. It skips
+completed output reports, stops on incomplete output directories, and refuses
+non-training prompts. It invokes a new local-fitting subprocess for each new
+pair, so subsequent probes load current saved code.
+
+The worker is layer-12-only, single-BLAS-thread, local-data-only. It performs
+no new SD expert reads, no neural teacher evaluations, no automatic correction
+injection and no full-generation speed gate. It is an exploratory
+training/development probe, not a certification engine.
+
+\subsection{What persists across a new chat}
+OS processes, repository files, results and native code persist. Old chat
+terminal session IDs may not be available in a new task; they are not required
+to inspect process state or files. Do not launch duplicate commands just
+because a previous chat's terminal handle is unavailable. Existing jobs should
+be left running unless a verified fault or safety guard requires intervention.
+
+\section{Completed evidence and current negative results}
+\subsection{Arithmetic teacher}
+\path{results/aion_gptoss_c4_full_layer_training_queue_20260912_retry02/c4_arithmetic_01}
+contains the teacher receipt, captures and \texttt{COMPLETE\_VERIFIED.json}.
+It completed 1,332 observations: 37 captured positions across 36 layers,
+40 total positions, 24 prompt positions and 16 continuation positions.
+It contributes 576 continuation E4 calls. Routes, hidden state and logits
+repeated exactly. This process loaded older E4-only code: it has no E2/E3
+target coverage. Its arithmetic input matches an earlier declared prompt;
+do not present it as an untouched new prompt.
+
+\subsection{Business teacher}
+\path{results/aion_gptoss_c4_full_layer_training_queue_20260912_retry02/c4_business_01}
+completed 1,188 observations: 33 captured positions across 36 layers, 36 total
+positions, 20 prompt positions and 16 continuation positions. There are 1,188
+hash-bound E2, E3 and E4 target vectors each. Routes, hidden state and logits
+repeated exactly. This is the first verified completed use of the new ranked
+target writer, not just a software implementation claim.
+
+Together the two teachers provide 2,520 captured layer-position observations
+and 1,152 continuation E4 calls. No layer/expert identity yet meets the
+exploratory eight-call/two-family support rule in that two-teacher report.
+This is identity recurrence accounting only; certified traffic is unset.
+
+\subsection{First arithmetic-to-business local probe}
+Report:
+\begin{quote}\path{results/aion_ranked_correction_incremental_local_gates_20260912/c4_arithmetic_01--c4_business_01/report.json}\end{quote}
+Layer 12/expert 64 had four arithmetic fitting calls and one business
+development call at position 20. Cosine support was 0.8910833, above the fixed
+0.80 screen. Omission error was 0.06939687 (6.939687\%); corrected error was
+0.03246070 (3.246070\%), a roughly 53.2\% relative reduction. Resident fitted
+arrays occupied 149,764 bytes and passed the storage-size gate.
+
+The fixed local error gate is 0.02, so status is \texttt{NOT\_CERTIFIED}.
+There are zero passing calls out of all 16 business E4 calls; 15 lack a fitted
+identity. No correction was injected. E2/E3 have no arithmetic fitting targets;
+their absent fitted models are a data-coverage limitation, not an approximation
+failure. Measured single-call timing under teacher load is diagnostic only.
+
+The next expected automatic pair after explanation completion is business to
+explanation. Both jobs have the new target writer, enabling E2/E3/E4 fitting
+where sufficient repeated identity/activation support exists. Do not promise
+that sufficient support or accuracy will occur.
+
+\subsection{Prefill-to-continuation sanity failure}
+The fixed same-prompt chronological smoke fitted on prefill and tested later
+continuation. Layer 2/expert 0, layer 13/expert 0 and layer 18/expert 53 were
+chosen from support counts, not errors. Array sizes were 184,324, 149,764 and
+149,764 bytes. All six continuation calls failed the unchanged cosine screen,
+with similarities 0.1581--0.5985. This is zero supported coverage, not accuracy
+failure and not independent cross-family evidence. Identity recurrence alone
+does not establish activation-region recurrence.
+
+\section{Local compiler: implementation and frozen gates}
+\subsection{Source files}
+\begin{longtable}{p{0.35\linewidth}p{0.58\linewidth}}
+\toprule Function & Relative source path \\ \midrule
+Teacher and counterfactual capture & \path{backend/scripts/run_aion_gptoss_first_token_gate.py} \\
+Queue / integrity / disk guard & \path{backend/scripts/run_aion_gptoss_c4_coverage_queue.py} \\
+Corpus construction & \path{backend/scripts/build_aion_gptoss_c4_coverage_corpus.py} \\
+Ranked local affine fitting & \path{backend/scripts/run_aion_ranked_correction_local_gate.py} \\
+Completion watcher & \path{backend/scripts/watch_aion_ranked_correction_local_gates.py} \\
+Chronological smoke wrapper & \path{backend/scripts/run_aion_ranked_correction_chronological_sanity.py} \\
+Native packed expert / reducer & \path{backend/modules/aion_inference/native/gptoss_persistent_moe_library.cpp} \\
+Native exact-target audit & \path{backend/scripts/run_aion_ranked_correction_reduction_gate.py} \\
+Frame source / local L2 & \path{backend/modules/aion_inference/gptoss_expert_frame_store.py} \\
+Runtime opportunity analysis & \path{backend/scripts/analyze_aion_gptoss_correction_runtime_opportunity.py} \\
+Identity coverage economics & \path{backend/scripts/analyze_aion_gptoss_c4_coverage_economics.py} \\
+Earlier secant local gate & \path{backend/scripts/run_aion_gptoss_local_c4_prototype_gate.py} \\
+Earlier downstream analyzer & \path{backend/scripts/analyze_aion_gptoss_local_c4_downstream.py} \\
+\bottomrule
+\end{longtable}
+
+\subsection{Target schema and verification}
+Each gated contribution is a 2,880-value little-endian F32 vector,
+11,520 bytes. New E2/E3 capture adds 23,040 bytes per observation without
+another neural evaluation beyond existing counterfactual capture. Original
+ordered identities and native F32 gates are retained. Diagnostic F64 values
+are converted back to their original F32 target representation.
+
+Only completed seals are eligible. Verification checks receipt canonical
+hash, status and exact repeatability; corpus binding; full layer-position
+grid; vector sizes/hashes; both E2/E3 vectors whenever either is declared;
+full-vocabulary 201,088-F32 logits per captured position; and the seal's entire
+file inventory. Partial binary files, planned counts and unsealed directories
+are never successful evidence.
+
+\subsection{Affine kernel-ridge model}
+The fitter groups by rank and expert within the selected layer. It requires
+at least four aligned finite fitting calls, retains at most 32, and requires
+positive gates. Let $\mu$ be mean activation and $s$ the mean centered norm;
+anchors are $z_i=(x_i-\mu)/s$. With $K_{ij}=z_i^Tz_j+1$, coefficients are
+\[
+ A=(K+0.001I)^{-1}Y_g,
+\]
+where row $i$ of $Y_g$ is the gated target divided by its gate. Center, scale,
+anchors, coefficients and unit anchors are stored as F32 arrays. At runtime
+the predicted ungated vector is multiplied by the actual gate.
+
+The nearest raw-activation cosine must be at least 0.80. This mask is an
+experimental support heuristic, not a proof of semantic safety. Supported
+local error is $\|\widehat c-c\|_2/\|y_{\mathrm{teacher}}\|_2$, using the
+\emph{full layer output} as denominator; it must be at most 0.02 and less
+than omission error. Every supported development call in a fitted region
+must pass. Stored arrays must be less than 25\% of nominal expert-frame size.
+That storage gate does not establish compute-cost economics.
+
+Models are stored and hashed before different-family development evaluation.
+Both prompts currently belong to the training split; this is exploratory
+internal development, not sealed holdout evaluation. Fit and development
+prompts must differ in identity and family. The corpus separately freezes
+24 training, six selection and six untouched holdout prompts over arithmetic,
+business, explanation, extraction, reasoning and writing. Planned total
+44,064 observations is not completed evidence.
+
+\subsection{Coverage metrics}
+The report denominator includes every development call of each rank,
+including identities without a fitted model. It counts unsupported identities,
+activation-supported calls, individual numerical passes and calls belonging
+to regions passing the complete local probe. A failed region is not credited
+as usable candidate traffic. Missing targets yield unavailable information;
+certified traffic share remains null until downstream certification exists.
+
+\section{Reducer correctness: a real integration win, not speed}
+Earlier C4 insertion changed floating-point addition order. Even the true
+exact E4 vector then changed 838 or 883 output elements in two audits.
+The repaired reducer appends the gated correction to the left-associated
+expert sum \emph{before} residual addition, eliminating those differences.
+
+The new native \texttt{aion\_gptoss\_moe\_finish\_ranked\_correction} accepts
+one, two or three retained experts plus a gated final vector. On a real
+cached route, one plus real C2, two plus real C3 and three plus real C4
+matched corresponding diagnostic two/three/four-expert outputs bit-for-bit,
+with zero differing elements in all three cases. Existing exact and original
+top-three-C4 entry points were unchanged.
+
+The audit used one CPU thread and source-hash-verified existing local L2
+components, read-only. It made zero SD expert reads, no cache admission and
+no cache deletion. This removes addition-order contamination from future
+correction tests. It does not validate a learned correction, reduced expert
+quality, full-model substitution or timing gain.
+
+\section{Earlier C4 evidence and what must not be conflated}
+The layer-12/expert-22 constant correction reduced recorded omission error
+4.12\% to 1.66\%, with 11,520 bytes and only one of 41 extraction calls in
+the declared region. This proved local feasibility, not broad transfer.
+The richer two-anchor secant has 46,080 bytes of payload and 69,288 loaded
+array bytes; its earlier extraction development activation became fitting
+data and must not be called untouched validation.
+
+On a prospective unused training-family extraction activation, the secant
+had 0.774095\% local error versus 1.577208\% for the constant correction on
+that \emph{same} activation. Only one of 39 calls passed joint cosine and
+interpolation support. A local charged warm cost probe measured approximately
+7.73\% of resident E4 compute under concurrent diagnostic load, not SD
+retrieval cost or full-generation economics.
+
+Single-position substitution at position 27/layer 12 preserved all 42 token
+and second-choice IDs, but only 15 positions were at/after substitution.
+There were 28 ordered-route changes, 15 expert-set changes and one top-expert
+change, maximum chosen-logit drift 0.526638 and worst recorded top-two danger
+ratio 11.4143\%. Status: \texttt{TOKEN\_STABLE\_DOWNSTREAM\_DRIFT}.
+Do not certify trajectory preservation, long continuation or speed from this.
+The affine kernel-ridge files are not the old secant cartridge schema and
+cannot simply be supplied to the old C4 environment variable.
+
+\section{How to resume safely in a fresh task}
+\subsection{First actions: inspection, not duplicate execution}
+\begin{lstlisting}
+cd /Users/kevinrobinson/dev/COMDEX
+git status --short
+git log -8 --oneline
+ps -axo pid,etime,%cpu,rss,command | rg '[c]overage_queue|[w]atch_aion_ranked|[f]irst_token_gate'
+df -h /System/Volumes/Data
+sysctl vm.swapusage
+ls -l /Volumes/AION_120B/AION-Warehouse/v1/expert-bank/gpt-oss-120b-q4km-expert-frames.v1/manifest.v1.json
+find results/aion_gptoss_c4_full_layer_training_queue_20260912_retry02 -maxdepth 2 -name COMPLETE_VERIFIED.json
+find results/aion_ranked_correction_incremental_local_gates_20260912 -maxdepth 3 -name report.json
+\end{lstlisting}
+Many unrelated learning, frontend, runtime, data and inference experiment
+changes exist. Preserve them. Stage only explicitly task-owned files after
+inspection. Never use reset/checkout cleanup against the dirty worktree.
+If available, read applicable AGENTS instructions before changes.
+Use \texttt{rg --no-ignore} when searching ignored \path{results/} files;
+ordinary \texttt{rg --files results/} can misleadingly return nothing.
+
+\subsection{Inspect the next probe before choosing any integration}
+After explanation completes, inspect the corresponding completed seal,
+teacher receipt and business-to-explanation report. Check support counts per
+rank/expert, all-call denominator, local error versus omission, array bytes,
+hashes and failures. A reduction in error above 2\% is an informative failure,
+not promotion. A supported local pass still requires a downstream experiment.
+Do not lower cosine or error thresholds after inspecting the failed business
+example, and do not repeatedly tune against sealed holdouts.
+
+\subsection{If the fitting watcher expires}
+Confirm no watcher or local fitting subprocess is active. If its prior output
+directories all contain final reports, the following command can resume the
+watcher using the same output root; completed reports are skipped. The longer
+lifetime below is a deliberate monitoring setting, not a change to gates:
+\begin{lstlisting}
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 .venv/bin/python -u -m backend.scripts.watch_aion_ranked_correction_local_gates --root results/aion_gptoss_c4_full_layer_training_queue_20260912_retry02 --corpus results/aion_gptoss_120b_c4_coverage_corpus_20260912.json --output-root results/aion_ranked_correction_incremental_local_gates_20260912 --maximum-seconds 86400
+\end{lstlisting}
+An incomplete output directory must be inspected and preserved; do not delete
+it or fabricate its report to force the watcher forward. This command is a
+manual resume recipe, \emph{not} authorization to start a second watcher now.
+
+\subsection{If the teacher queue stops on disk or interruption}
+Preserve original roots and identify the exact incomplete child. Earlier roots
+are \path{results/aion_gptoss_c4_full_layer_training_queue_20260912} and
+\path{results/aion_gptoss_c4_full_layer_training_queue_20260912_retry01}; they
+contain interrupted data, not completed evidence. Retry02 is the active root.
+
+Free space only through validated user-authorized targets, preferably with a
+comfortable 5--10 GiB margin. Do not erase the warehouse or promoted L2.
+The queue refuses an incomplete child directory, so blindly restarting in the
+same root will not resume partially executed arithmetic. A safe implementation
+must preserve the failed attempt, explicitly retry it, and keep validated
+completion directories accessible to verification and the watcher. If using a
+new retry root, account for already verified captures to avoid needlessly
+repeating them, and update monitoring paths. Do not invent a completion seal.
+
+Only if no queue/child is active, reserve is adequate, and every existing child
+in retry02 is fully complete can this same-root command safely skip verified
+captures and continue:
+\begin{lstlisting}
+.venv/bin/python -u -m backend.scripts.run_aion_gptoss_c4_coverage_queue --manifest /Volumes/AION_120B/AION-Warehouse/v1/expert-bank/gpt-oss-120b-q4km-expert-frames.v1/manifest.v1.json --corpus results/aion_gptoss_120b_c4_coverage_corpus_20260912.json --root results/aion_gptoss_c4_full_layer_training_queue_20260912_retry02 --maximum-captures 24
+\end{lstlisting}
+The launching environment must not contain experimental local-C4 or changed
+arithmetic flags; inspect the queue's explicit environment rejection logic.
+Do not add a 20 GiB L2 option with the currently insufficient local free space.
+
+\subsection{Useful offline analysis command}
+Use a new output filename each time; evidence writers refuse overwrite:
+\begin{lstlisting}
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 .venv/bin/python -m backend.scripts.analyze_aion_gptoss_c4_coverage_economics --root results/aion_gptoss_c4_full_layer_training_queue_20260912_retry02 --corpus results/aion_gptoss_120b_c4_coverage_corpus_20260912.json --output results/aion_gptoss_c4_coverage_economics_NEW_SNAPSHOT.json
+\end{lstlisting}
+The analyzer validates completed data and excludes partial directories. Its
+illustrative equal-four-expert speed bounds are not matched candidate timings.
+
+\section{What to do next: advancement ladder and stopping rules}
+\begin{enumerate}
+\item Complete and verify broad training trajectories. Quantify layer/rank/
+expert support and activation recurrence. Do not equate frequent identity with
+certifiable function support or completed short captures with semantic success.
+\item Inspect fixed exploratory cross-family probes. If support is inadequate,
+collect more authentic training calls rather than claim that a tiny sample
+certifies a region. If errors persist above 2\%, reject that region/model.
+\item For a sufficiently supported local candidate, freeze model bytes,
+training/development assignment, support rule and cost contract before
+selection and untouched testing. C2/C3 require their own changed-active-state
+targets/certification design.
+\item Build an isolated, schema-validated ranked-correction runtime interface.
+The native reducer is ready, but the current affine compiler output is not
+automatically accepted by the old C4 injection path. Add integrity, gate/state
+support, exact fallback and false-acceptance tests before enabling substitution.
+\item Begin at one position and one layer, outside any active teacher job.
+Compare local output, all downstream router scores and ordered/set identities,
+hidden-state drift, full logits, top-two margins and emitted token. Preserve
+original reduction order. Do not call token stability trajectory exactness.
+\item Test untouched trajectories and then completed blinded answers across
+arithmetic, extraction, reasoning, business, explanation and writing. Keep
+selection data separate from final holdout evidence.
+\item Charge support/controller/correction/fallback overhead. Require the
+declared correction cost below 25\% of the omitted real expert under relevant
+resident/fault conditions, not just small storage or an isolated multiply.
+\item Only after earlier gates pass, alternate control/candidate conditions
+within one loaded process. Balance order, separate warm-up/settled and
+cold/warm storage, report p50/p95, bytes, peaks, failures and completed-answer
+quality. A rate clearly above the tested approximately 7 t/s control is the
+next meaningful quality-track milestone; 8--10 t/s is a target, not a claim.
+\end{enumerate}
+If a local family repeatedly fails despite meaningful new coverage, reconsider
+the representation (for example weight-informed or router-sensitive local
+corrections) through a new declared development experiment. Do not keep the
+branch alive solely because its calculator is fast, and do not silently relax
+the 2\% gate. The avenue remains open, but no multiplier is guaranteed.
+
+\section{Prior failures: avoid unprincipled repetition}
+The record has already falsified larger RAM halos under 18 GB pressure,
+unrestricted expert swarming/more threads, parallel SD reads as a bandwidth
+fix, conventional batch-one Metal/mapping/prefaulting, global top-one/top-two
+quality, simple cosine GHX output reuse, global low-rank/product dictionaries,
+and reusing previous-token expert output despite changed activation.
+Prepared quartet copying was slower; admitted quartet reuse was too rare to
+repay multi-gigabyte slabs. Pure multi-position layer reuse did not transfer
+its approximately 2.35-fold layer gain into comparable full generation.
+
+These branches may be revisited only with a fundamentally new physical
+mechanism and an explicit narrow gate. AtomSheets are logical computation
+and certification structures, not extra CPU/GPU memory channels. The SD
+cannot compute neural arithmetic without additional hardware. Deterministic
+AtomSheet task bypass improves completed-task throughput, not raw unrestricted
+120B tokens/s, and must not substitute for the present raw-speed objective.
+
+\section{Tests, commits and integrity identifiers}
+\subsection{Focused software test command}
+The latest execution passed 22 of 22 tests:
+\begin{lstlisting}
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 .venv/bin/python -m pytest -q backend/tests/test_aion_ranked_correction_coverage_summary.py backend/tests/test_aion_ranked_correction_local_gate.py backend/tests/test_aion_ranked_correction_reduction_gate.py backend/tests/test_aion_gptoss_ranked_correction_targets.py backend/tests/test_aion_gptoss_c4_coverage_queue.py backend/tests/test_aion_gptoss_correction_runtime_opportunity.py
+\end{lstlisting}
+The pytest hook writes \path{docs/rfc/theorems_results.md}; do not include this
+unrelated generated change in an isolated inference commit. Software passes
+are not learned accuracy, quality or speed promotion.
+
+\subsection{Recent isolated commits}
+\begin{longtable}{ll}
+\toprule Commit & Purpose \\ \midrule
+\texttt{b4ca366c} & Verified business teacher and first cross-family rejection. \\
+\texttt{396187e2} & Full-denominator correction coverage accounting. \\
+\texttt{81dea819} & Exact ranked native reduction audit and read-only checks. \\
+\texttt{4ef69778} & First verified teacher and prefill-support negative result. \\
+\texttt{650bf61e} & Incremental local gate worker. \\
+\texttt{9b29d0db} & Hash-bound E2/E3 target capture extension. \\
+\texttt{5f9d149d} & Measured adaptive runtime opportunity. \\
+\texttt{0165d625} & Retry02 restart record. \\
+\texttt{9582032d} & During-capture disk guard and coverage economics. \\
+\texttt{ae5baf0b} & Earlier C4 addition-order repair and secant freezing. \\
+\bottomrule
+\end{longtable}
+This document itself may be committed after the snapshot; inspect Git for its
+subsequent commit rather than assuming the listed head remains current.
+
+\subsection{Canonical hashes}
+Canonical hashes use sorted compact JSON with the claimed canonical field
+removed; they are not necessarily the SHA-256 of the pretty-printed JSON file.
+Binary component hashes and stored-file hashes must not be conflated.
+\begin{description}
+\item[Corpus] \nolinkurl{f8d7d407aa548afddce383888ac81bf66abee6d7aaa0357e72c32972e61646a3}
+\item[Arithmetic teacher] \nolinkurl{2c685a371d367016291d20f366bafe98d98ae592b28c44366f73a35bb77940a7}
+\item[Arithmetic completion] \nolinkurl{f6ff83bd0c5e2b97c6215f7b68b3151ca9e5dfb22b7a9c856764923345f32a25}
+\item[Business teacher] \nolinkurl{a9a6faf2c267279d5bedec8532bfa804ba4e9a4b10d9587b3c6db3332ef23047}
+\item[Business completion] \nolinkurl{790ed2d994de3aed6b482e83fea7430cdbb064f595e01ab56d1bda07ae044d8a}
+\item[First cross-family local report] \nolinkurl{4592c8e862fddfdf4820c1f80c4bd0a3fc482ecebcfabf2593cb9c9f8b8e5dae}
+\item[Two-teacher coverage] \nolinkurl{3ca4db91d9f9fcc14b25c41b99ea2a024027579b8e59ea1bf349cd746b2a94fa}
+\item[Quiet runtime opportunity] \nolinkurl{e72d148f596f4ee6c61b5946e1d02f2326458a77ee39b14c6c32eac12d01c2d5}
+\item[Ranked native audit] \nolinkurl{0d21ecacfd752304361670515b0470c733fee5089aaff8765608e0ed46655f72}
+\end{description}
+
+\section{Cleanup and authority boundaries}
+The user authorized stopping unused Ollama. Homebrew's Ollama service and
+loaded model runner were stopped; model files are untouched, and the service
+will not automatically restart until explicitly started. This released an
+idle roughly 1.4 GiB resident process; do not claim a measured inference gain
+without a matched run. The native teacher remained running.
+
+Earlier user-authorized cleanup removed Claude, Zoom and identified update/
+download caches. Do not broaden that authorization to arbitrary files or
+model evidence. Trash was verified empty at the earlier UI check, but current
+shell access to Trash is privacy-restricted. Do not attempt broad recursive
+deletion or bypass protection. Current disk use includes heavy swapping, so
+the teacher's approximately hundreds of megabytes of result files are not
+automatically the cause of every free-space fluctuation.
+
+No purchases, new model downloads, publication, personal/customer-data
+ingestion or unrelated worktree edits are authorized in this continuation.
+The user previously authorized correction training/injection research through
+the declared gated protocol; this does not authorize deploying unvalidated
+corrections or weakening integrity gates.
+
+\section{Suggested instruction for the next task}
+Continue the existing AION GPT-OSS 120B ranked correction programme in COMDEX.
+Read this handover and the latest plan updates. First inspect live queue,
+watcher, disk reserve and verified seals; do not launch duplicate inference.
+Preserve all unrelated changes and every partial/failed artifact. The current
+teacher root is retry02; two teachers are verified and explanation01 was
+active at the snapshot. Inspect its completion and the automatic business-to-
+explanation rank-2/3/4 probe. The first arithmetic-to-business E64 correction
+reduced error but failed 2\%; it is not promoted. Broaden authentic coverage
+without accessing sealed holdouts or changing gates. Only advance supported
+frozen local candidates to isolated downstream testing and charged balanced
+completed-answer speed validation. Maintain exact/quality separation and
+report no new tokens/s until measured. The raw target is 120B, not Granite.
+Renew the four-hour fitting watcher only if it has actually expired and no
+duplicate worker is active. If disk reserve stops a job, preserve it and
+resolve space through exact authorized targets before resuming.
+
+\section{Document verification and use in Overleaf}
+This is a standalone LaTeX source: upload it as a new Overleaf document and
+compile with the standard packages in its preamble. To append to an existing
+record instead, copy the body sections only, omit this document's preamble,
+title, table of contents and document delimiters, and ensure the existing
+preamble supplies the packages used here. The latest consolidated results
+appendix is separately designed for direct append-only insertion.
+
+Source checks confirmed balanced braces and environments and verified all nine
+listed canonical hashes against saved artifacts. No local LaTeX engine was
+used to compile this handover; no PDF rendering or visual verification is
+claimed. The snapshot is a continuation guide, not a live dashboard or a
+substitute for checking current processes, disk space and artifact integrity.
+
+\end{document}

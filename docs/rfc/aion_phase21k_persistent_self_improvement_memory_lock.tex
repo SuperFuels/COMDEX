@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21K: Persistent Self-Improvement Memory Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21K defines persistent self-improvement memory.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can persist learned corrections across runs and bootstrap future trial loops from previous strategy memory.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 21I proves in-run trial-and-error self-improvement. Phase 21K persists the improved strategy so AION does not relearn from zero every time.
+
+\section{Contract}
+
+The locked contract is:
+
+\[
+TrialLoopResult \rightarrow PersistentStrategyMemory \rightarrow NextTrialBootstrap.
+\]
+
+The persistent memory MUST store:
+
+\begin{itemize}
+  \item \texttt{learned\_prompt\_map};
+  \item \texttt{misses};
+  \item \texttt{best\_score};
+  \item \texttt{run\_count};
+  \item \texttt{last\_improvement\_delta};
+  \item \texttt{meta\_awareness};
+  \item \texttt{response\_bias};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates persistent operational self-improvement memory across runs. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21K-PERSISTENT-SELF-IMPROVEMENT-MEMORY-LOCK\\
+Status: LOCKED --- persistent self-improvement memory implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

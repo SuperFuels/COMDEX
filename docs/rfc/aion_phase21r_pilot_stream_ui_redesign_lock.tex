@@ -1,0 +1,52 @@
+\section{Phase 21R --- Pilot Stream UI Redesign}
+\label{sec:aion-phase21r-pilot-stream-ui-redesign}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21R changes the Pilot view from a dashboard/card layout into a stream-first operator interface.
+
+\subsection{Purpose}
+
+The previous Pilot dashboard was still too technical and visually resembled an internal control panel.
+
+The new Pilot interface MUST follow a simpler stream pattern:
+
+\begin{itemize}
+  \item stream above;
+  \item fixed composer/input bar at the bottom;
+  \item user request shown as plain stream text;
+  \item Pilot plans, contracts, results and receipts shown as cards/containers;
+  \item advanced proof details collapsed by default.
+\end{itemize}
+
+\subsection{User Experience Rule}
+
+The default user flow MUST feel like:
+
+\begin{quote}
+Ask Pilot what to do, watch the stream, open results, and inspect details only when needed.
+\end{quote}
+
+\subsection{Safety Boundary}
+
+The redesign is presentation-only.
+
+It MUST NOT grant execution authority, expose credentials, expose private reasoning, or create live external side effects.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21r_pilot_stream_ui_redesign_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21R-PILOT-STREAM-UI-REDESIGN
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

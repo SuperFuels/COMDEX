@@ -1,0 +1,148 @@
+\section{Arenas v16--v17: Open-Pixel Control and Predictive Visual Dynamics}
+\label{sec:arenas-v16-v17-open-pixel}
+
+Arenas v16 and v17 tested whether the verified physical skills retained after
+Arena v14 could be reconstructed without two important inference-time
+scaffolds: an explicit task identifier and hand-engineered position or angular
+features.  Both challengers were evaluated from temporally separated RGB frames
+on MountainCar, CartPole, and Acrobot.  Both were rejected.  Their negative
+results identify a specific architectural boundary rather than an unspecified
+need for more data.
+
+\subsection{Arena v16: Task-Free Visual Binding and Behavioral Cloning}
+
+The Arena-v16 policy received a temporal visual tensor
+\begin{equation}
+ X_t=\left[I_t,\,I_t-I_{t-4}\right],
+\end{equation}
+where each RGB frame was resampled to $48\times48$ pixels.  A shared convolutional
+encoder produced representation $z_t$.  The network simultaneously inferred a
+task binding and selected one private action head,
+\begin{align}
+ p(k\mid X_t)&=\operatorname{softmax}(W_kz_t+b_k),\\
+ \hat{k}_t&=\arg\max_k p(k\mid X_t),\\
+ \hat{u}_t&=h_{\hat{k}_t}(z_t).
+\end{align}
+No task identifier, simulator state, supplied position, or supplied angle was
+available at sealed inference.
+
+The initial $32\times32$ grayscale challenger achieved $99.90\%$ task
+recognition but only $57.94\%$ action imitation and $0/15$ control success.  A
+larger color-temporal encoder raised action imitation to $81.15\%$ and control
+success to $7/15$.  During development, one transient task misclassification
+proposed action 2 to a two-action CartPole environment.  The environment rejected
+the invalid action.  A subsequent absolute action-contract gate constrained
+every proposal to the independently exposed action space; no invalid action
+could thereafter execute.
+
+Three governed dataset-aggregation rounds then collected states induced by the
+challenger's own mistakes and attached verified corrective labels.  A second
+curriculum mixed teacher and challenger execution with teacher probability
+decaying from $0.50$ to $0.15$, keeping unstable trajectories alive long enough
+to expose recovery states.  Neither intervention closed the sealed gate.
+
+\begin{table}[htbp]
+\centering
+\caption{Final Arena-v16 sealed outcome.}
+\label{tab:arena-v16-results}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Neural parameters & 49,526 \\
+Balanced training frames & 8,586 \\
+Raw-pixel task-binding accuracy & $99.89\%$ \\
+Action-imitation accuracy & $90.69\%$ \\
+MountainCar success & 5/5 \\
+Acrobot success & 2/5 \\
+CartPole success & 0/5 \\
+Overall sealed success & 7/15 \\
+Unsupported-environment abstention & 2/2 \\
+Unsafe actions after contract gate & 0 \\
+Promotion & Rejected \\
+\hline
+\end{tabular}
+\end{table}
+
+Arena v16 establishes that open visual family binding is achievable in the
+tested public environments, but accurate action classification on expert and
+correction states does not guarantee stable closed-loop control.  Small action
+errors move the learner away from its training distribution and compound over
+time.
+
+\subsection{Arena v17: Outcome-Grounded Predictive Latent Dynamics}
+
+Arena v17 replaced direct behavioral cloning with an explicit latent world
+model.  Numerical environment state was used only as private training authority;
+sealed inference remained RGB-only.  For grounded latent state $s_t$, executed
+action $a_t$, and next state $s_{t+1}$, training minimized
+\begin{equation}
+ \mathcal{L}=
+ \mathcal{L}_{\mathrm{task}}
+ +10\mathcal{L}_{\mathrm{state}}
+ +2\mathcal{L}_{\mathrm{transition}}
+ +3\mathcal{L}_{\mathrm{action}}
+ +\mathcal{L}_{\mathrm{true\mbox{-}state\ policy}},
+\end{equation}
+where
+\begin{equation}
+ \mathcal{L}_{\mathrm{transition}}
+ =\left\|f_{\theta}(\hat{s}_t,a_t)-s_{t+1}\right\|_2^2 .
+\end{equation}
+The additional true-state policy term first taught each controller the verified
+decision boundary on training outcomes; the same controller was then required
+to operate on visually reconstructed state.
+
+\begin{table}[htbp]
+\centering
+\caption{Final Arena-v17 sealed outcome.}
+\label{tab:arena-v17-results}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Neural parameters & 52,442 \\
+Balanced training frames & 9,000 \\
+Normalized latent-state RMSE & 0.0929 \\
+Training task accuracy & $99.87\%$ \\
+Action accuracy & $78.14\%$ \\
+Overall sealed success & 5/15 \\
+Weakest-task success & $0\%$ \\
+Unsafe actions & 0 \\
+Promotion & Rejected \\
+\hline
+\end{tabular}
+\end{table}
+
+Increasing state, transition, and policy losses reduced representation error but
+did not improve the operational gate.  Average one-step reconstruction error
+was not the relevant authority: small errors near switching boundaries changed
+actions, and those errors accumulated over long trajectories.
+
+\subsection{Architectural Conclusion and Governance}
+
+No retained physical champion was modified.  Failed cohorts, weights, outcomes,
+and rejection reasons survived restart for audit.  Focused verification across
+Arenas v14--v17, the active long-duration campaign, and the external-human
+contract passed $14/14$ tests.
+
+The experiments eliminate two underpowered development paths:
+\begin{enumerate}
+ \item scaling pixel-to-action behavioral cloning; and
+ \item treating low average one-step latent error as sufficient evidence of
+ stable long-horizon control.
+\end{enumerate}
+The next justified physical architecture is a recurrent belief-state model with
+explicit uncertainty, multi-step counterfactual prediction, long-horizon return
+optimization, and governed fallback to the verified Arena-v14 specialist bank:
+\begin{equation}
+ I_{0:t}\rightarrow q(s_t\mid I_{0:t})
+ \rightarrow \{\hat{s}^{(a)}_{t+1:t+H}\}_{a}
+ \rightarrow \underset{a}{\arg\max}\,\mathrm{E}[R_{t:t+H}]
+ \rightarrow \text{verify or fall back}.
+\end{equation}
+
+These are bounded results over public simulators.  They do not establish open
+visual understanding, robotics, external certification, or AGI.  Their value is
+methodological: they prevent further compute from being spent on two model
+families that failed the operational authority gate.

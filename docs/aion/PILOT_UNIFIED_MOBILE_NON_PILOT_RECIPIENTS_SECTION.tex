@@ -1,0 +1,99 @@
+\section{Non-Pilot Recipients and Connected Communication}
+\label{sec:pilot-mobile-non-pilot}
+
+Pilot must be useful before every contact has installed Pilot.  The unified mobile
+application therefore supports a governed communication path which begins with an
+existing private contact, can use an authorised external provider, and can produce a
+bounded invitation for a recipient who is not yet part of the Pilot network.  This is
+an adoption mechanism, but it is not permitted to weaken identity, consent, delivery
+truth or household isolation.
+
+\subsection{Persona-bound email authority}
+
+Google authorisation is bound to the exact Production Private Identity persona.  The
+OAuth flow uses PKCE, requests only reviewed Gmail scopes, stores access and refresh
+material behind an opaque mother-private vault reference, and exposes neither tokens
+nor the vault reference to the phone or television.  At execution time the Gmail
+adapter resolves the connected binding for the exact sending persona.  A different
+adult on the same mother cannot borrow it.
+
+The execution path is
+\[
+ \mathsf{draft}\rightarrow\mathsf{exact\ phone\ review}\rightarrow
+ \mathsf{persona\ approval}\rightarrow\mathsf{OAuth\ adapter}\rightarrow
+ \mathsf{provider\ receipt}.
+\]
+The adapter creates a deterministic message identifier for reconciliation, calls the
+official Gmail send operation, retains only normalized identifiers and hashes, and
+does not retain the raw provider response.  Connecting a real Google account and
+qualifying token refresh remain deployment operations; the code does not manufacture
+an account or credential.
+
+\subsection{Exact scope and state truth}
+
+Every draft records the selected channel, recipient, subject, body and a bounded list
+of attachment descriptors.  Each attachment descriptor includes its identifier,
+display name, media type, byte size and SHA-256 digest.  The entire scope is included
+in one immutable content hash.  A change to any field invalidates the earlier
+approval.
+
+Pilot distinguishes the following states:
+\begin{enumerate}
+  \item \texttt{awaiting\_private\_approval}: prepared locally and not sent;
+  \item \texttt{approved\_pending\_adapter}: approved but no provider call made;
+  \item \texttt{provider\_accepted}: the provider verified receipt of the send
+        request, but human delivery and reading are unknown;
+  \item \texttt{delivered}: a separately authenticated provider delivery event was
+        recorded, while human reading still remains unknown; and
+  \item \texttt{delivery\_unknown\_reconcile\_required}: an attempt may have happened
+        but Pilot cannot safely claim or automatically repeat it.
+\end{enumerate}
+This separation prevents a common but serious false claim: an HTTP success from a
+mail or messaging provider is not evidence that a person received, read or accepted
+the request.
+
+\subsection{Reply follow-through}
+
+Received-message summaries retain sender, provider freshness and source provenance,
+but not the raw body.  From the private phone a person may convert a reply into a
+task, a reminder proposal requiring a private time, or a calendar proposal requiring
+private dates.  A sender may also schedule a conditional no-reply reminder after a
+provider-accepted message.  These transformations create new governed objects; they
+do not inherit permission to send, schedule or execute an external effect.
+
+\subsection{Useful invitations}
+
+For a recipient without Pilot, the sender can create a seven-day, high-entropy bearer
+invitation for one exact request.  The public projection contains the request title,
+bounded summary, intended display name, channel and expiry.  It omits sender persona
+identifiers, household data, contacts, tasks, files, memory and provider credentials.
+After the recipient creates or activates their own private identity, the trusted phone
+can claim the invitation and open that exact pending request.  No unrelated sender or
+household records become visible.
+
+The current invitation origin is the customer's own mother endpoint.  Internet-wide
+delivery therefore depends on the later customer-controlled remote-access or opaque
+relay deployment.  The invitation format and claim boundary are implemented without
+pretending that a public relay already exists.
+
+\subsection{Abuse controls and child protection}
+
+Blocking is private to the acting persona and prevents further drafts to that contact.
+Reports are recorded locally with an explicit category and never claim that an
+external provider has received a report unless a future authorised provider receipt
+proves it.  A daily new-recipient ceiling limits unsolicited fan-out.  Child and teen
+external communication retains the existing guardian decision followed by the
+child's exact sender approval; joining Pilot does not bypass that sequence.
+
+Official SMS and WhatsApp delivery remain integration gates.  Pilot may register only
+an authorised provider adapter capable of returning a verifiable provider identifier.
+It must not automate consumer WhatsApp Web, scrape sessions, guess credentials or
+label an unsupported handoff as delivered.
+
+\subsection{Verification}
+
+Automated tests cover persona-bound OAuth selection, cross-person rejection, exact
+attachment hashing, provider-accepted versus delivered state, authenticated delivery
+advancement, reply conversion, invitation expiry and claim isolation, blocking,
+report truth and guardian controls.  Provider-network field qualification remains
+separate because tests do not send real mail, SMS or WhatsApp messages.

@@ -1,0 +1,171 @@
+% Append-only LaTeX section for the AION GPT-OSS 120B technical record.
+% Required packages in the parent document: booktabs, amsmath.
+
+\section{Exact Demand-Admitted Family Cartridges for GPT-OSS 120B}
+\label{sec:gptoss120b-exact-family-cartridges}
+
+\subsection{Problem and claim boundary}
+
+The preceding 20~GiB persistent-L2 experiment promoted a task-aligned
+arithmetic session but falsified rapid mixed-family switching: extraction,
+when executed after arithmetic, incurred 690, 230 and 51 SD fallbacks over
+three passes.  This section records the next exact architecture.  It changes
+only which verified internal-disk expert frames are protected from eviction.
+It does not constrain the router, change top-$k$, alter gates, replace weights,
+reduce active experts, quantize further, or modify any neural calculation.
+An absent expert is still fetched and hash-verified from the authoritative SD
+warehouse.  Consequently, a wrong family prediction can reduce performance
+but cannot change the model result.
+
+Only two complete semantic route families were available: arithmetic and
+invoice extraction.  Six additional traces were synthetic route-diversity
+stress probes.  They are not described as six further business or semantic
+families.  The result is therefore a measured two-family exact result, not a
+general multi-domain production claim.
+
+\subsection{Offline working-set analysis}
+
+The analyzer removed each semantic family's separately protected 7.9--8~GiB
+RAM pool, then examined the residual unrestricted L2 demand.  Arithmetic used
+1,283 distinct residual layer-experts occupying 15.8367~GiB; extraction used
+1,315 occupying 16.2317~GiB.  Their residual intersection contained 667
+layer-experts occupying 8.2331~GiB, while their combined residual union occupied
+23.8354~GiB.  The union over both semantic traces and all six stress traces was
+31.5994~GiB.  These measurements explain why one undifferentiated 20~GiB LRU
+could thrash after a family change.
+
+Candidate layouts at 20, 25 and 30~GiB were evaluated.  The selected bounded
+layout was:
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Component & Decoded capacity \\
+\midrule
+Semantic-prioritised shared core & 10~GiB \\
+Active family segment & up to approximately 8~GiB \\
+Unprotected exception halo & 2~GiB \\
+Total internal-disk L2 ceiling & 20~GiB \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This configuration covered 100\% of observed residual accesses in both
+semantic traces and all six stress traces in offline replay.  That figure is a
+trace-coverage result, not unseen-family proof and not a runtime speed result.
+The plan records exact layer/expert addresses, decoded and compressed byte
+counts, the source warehouse-manifest hash, every source-trace hash and a
+canonical SHA-256.
+
+An eager switch would have staged 14.0134~GiB of compressed SD data for
+arithmetic and 14.4524~GiB for extraction after including the active RAM pool.
+The implementation therefore rejected eager cartridge loading.  It protects a
+planned expert only after unrestricted inference genuinely requests it.  This
+``demand admission'' preserves the shared core and family segment while
+leaving the 2~GiB halo available for exact exceptions.
+
+\subsection{Live alternating-family gate}
+
+The live gate used the original GPT-OSS 120B Q4\_K\_M/MXFP4 warehouse on the
+64~GB SD card, the 18~GB M3 Pro host, an 8~GiB-class protected RAM pool, the
+four-slot reusable route arena and the same 20~GiB internal-disk L2.  Each
+family executed 48 positions in three passes.  Arithmetic was run from an
+extraction-shaped cache; extraction was then run from the resulting
+arithmetic-shaped cache.
+
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+Family/pass & Continuation t/s & p50 latency (s) & p95 latency (s) & SD fallbacks \\
+\midrule
+Arithmetic switch pass & 0.50019 & 1.9251 & 3.9907 & 311 \\
+Arithmetic settled pass 2 & 1.54384 & 0.6609 & 0.7797 & 0 \\
+Arithmetic settled pass 3 & 1.69828 & 0.5822 & 0.7323 & 0 \\
+Extraction switch pass & 1.24913 & 0.7786 & 0.9306 & 311 \\
+Extraction settled pass 2 & 1.57676 & 0.6354 & 0.7543 & 0 \\
+Extraction settled pass 3 & 1.61736 & 0.6235 & 0.7332 & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each hostile switch read approximately 3.67~GiB of compressed expert data on
+demand, roughly 74\% less than the corresponding eager-switch estimate.  Both
+families then reached zero SD fallbacks and zero L2 evictions on the two
+settled passes.  The settled medians were 1.62106~t/s for arithmetic and
+1.59706~t/s for extraction.  Arithmetic improved 1.69\% over its preceding
+1.59411~t/s task-aligned arena median.  Extraction improved 13.24\% over the
+stable 1.41036~t/s verified bulk-copy control and 86.33\% over the preceding
+0.85713~t/s settled median from the thrashing mixed-family reusable-arena run.
+
+All six live passes retained repeatable token IDs, complete unrestricted
+four-expert routes, layer outputs, final hidden states and logits.  The
+runtime's family-cartridge receipt explicitly records that eager prefetch was
+disabled.  The focused cache and analysis suite passed 19/19 tests, including
+a test proving that a protected exact cartridge entry cannot be displaced by
+an unprotected halo admission.
+
+\subsection{Stopped RAM-hotset extension}
+
+The settled profile assigned 43--48\% of continuation time to internal expert
+delivery, 32--34\% to native expert calculation, 16--19\% to attention and
+approximately 1.6\% to output.  Offline replay predicted that a 1.5~GiB
+family-specific RAM hotset could retain 121 repeatedly used arithmetic experts
+and avoid 10.5537~GiB of later decoded L2 traffic.  A capacity-only experiment
+was first invalidated as an optimisation: the reusable arena intentionally
+kept transient misses out of durable L1, so resident expert memory remained
+7.8999~GiB and settled throughput regressed 2.66\%.
+
+A second implementation explicitly copied only those 121 hash-bound hot
+experts into durable L1 on their first genuine unrestricted use.  It behaved
+as designed: resident expert memory reached 9.3934~GiB, all 121 experts were
+admitted once, and settled L2 delivery fell from approximately 42.03 to
+29.98~GiB per pass, a 28.67\% reduction.  Nevertheless, arithmetic settled at
+only 1.35679 and 1.28251~t/s, median 1.31965~t/s.  This was 18.59\% below the
+1.62106~t/s cartridge control.  Native expert-finish time rose to 11.41 and
+12.67~s from roughly 6--7~s in the lower-pressure control.  The added residency
+therefore reduced weight delivery but created enough memory/cache pressure to
+make calculation materially slower.  Exact tokens, routes, hidden states and
+logits still passed.  Decision:
+\texttt{NOT\_PROMOTED\_STOP\_L1\_HOTSET\_ON\_18GB\_HOST}.
+
+\subsection{Interpretation and next gate}
+
+This is a genuine cross-family cache-stability breakthrough, not the requested
+30--50~t/s endpoint.  It converts repeated mixed-family LRU churn into one
+bounded on-demand transition followed by stable zero-SD-fallback execution.
+It also shows that the family cartridge should be a retention policy, not a
+large speculative SD read.
+
+The remaining settled ceiling is dominated by repeatedly delivering decoded
+expert bytes from internal storage into the reusable route arena and by native
+expert/attention computation.  The next speed experiment must profile those
+two costs under the now-stable cartridge.  A fused packed expert kernel should
+advance only if it wins on real four-expert routes; compact or reduced-expert
+representations must remain in a separately labelled quality track with a
+frozen semantic evaluation.  No exact-track claim may extrapolate trace
+coverage to unseen families.
+
+The RAM-hotset falsification narrows that next gate further: it is not enough
+to reduce bytes if doing so increases the resident working set.  The next
+exact experiment should retain the promoted memory footprint and test a
+single-pass fused native four-expert kernel or a lower-copy internal-delivery
+path.  Both delivery bytes and native compute time must improve together.
+
+\subsection{Evidence identifiers}
+
+The offline plan's canonical SHA-256 is
+\texttt{92261fb29f0258e1d5f0f7b7251d46f48ff47de5180df35f975213c40ce19c01};
+its stored-file SHA-256 is
+\texttt{20d2eaac70d35a3992ce76e43cbe0a28719499d206d9536d307b261f55e2353a}.
+The arithmetic runtime canonical SHA-256 is
+\texttt{28038805ac6b52d4f583f94a3ac2ccd9c58434ff89f46f3ad007638d30ee45d6},
+with stored-file SHA-256
+\texttt{15c73e6f216e39027963c77cb96a0ebe21ef09b903d1ca786ebc8c6da377ee04}.
+The extraction runtime canonical SHA-256 is
+\texttt{381373997ca16a6bf4bc0876f5c719a472e49742b6af2f58f3b14ff6265b8bdd},
+with stored-file SHA-256
+\texttt{8132f9200b6ff4649c018048bd331984359da5775c804800b04cf6a91d855c68}.
+The stopped durable-L1 hotset runtime canonical SHA-256 is
+\texttt{45cc9cca1692da4e29744b7633ff7455556b61eb8d9cea4ba32132aa616bb783},
+with stored-file SHA-256
+\texttt{3918a2e4c622d58f05962df35a5a40ea354d76ce436a1c1acc0e42e43b943ff5}.

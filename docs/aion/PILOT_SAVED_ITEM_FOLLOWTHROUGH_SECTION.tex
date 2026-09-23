@@ -1,0 +1,213 @@
+% Overleaf-ready section. Dependencies: \usepackage{booktabs,array,hyperref}
+
+\section{Governed Programme-to-Private Follow-Through}
+\label{sec:pilot-saved-item-followthrough}
+
+\subsection{Purpose}
+
+Pilot Fabric 0.28 converts a saved television observation into a safe starting
+point for personal work.  A product, recipe, destination, song, learning
+concept, or idea may be researched, shortlisted, converted into a local draft,
+or used to prepare a consequential service proposal.  The architectural rule is:
+
+\begin{quote}
+Saving an item records private evidence and interest.  It does not grant
+standing authority to purchase, book, message, schedule, or modify an account.
+Every consequential continuation requires a new exact scope and a separate
+private approval.
+\end{quote}
+
+This capability closes the first practical loop from shared television context
+to persona-bound private agency while preventing the shared screen from choosing
+an identity or external service.
+
+\subsection{Input and Identity Boundary}
+
+Follow-through begins only from an item in state \texttt{saved}.  The private
+phone supplies its active \texttt{persona\_id}; the mother reloads the saved item
+by \texttt{save\_id} and compares the bound persona before continuing.  A caller
+cannot supply an arbitrary title or copy another persona's record into a new
+proposal.  Cross-persona research, conversion, approval, refresh, and deletion
+are rejected.
+
+The immutable source link consists of:
+
+\begin{verbatim}
+{
+  "save_id": "save_...",
+  "persona_id": "persona_...",
+  "category": "product",
+  "status": "saved",
+  "item_hash": "sha256..."
+}
+\end{verbatim}
+
+Every continuation record retains the \texttt{save\_id} and source item hash,
+making it possible to show which television evidence led to the later research
+or proposal without retaining raw programme audio or pixels.
+
+\subsection{Three Continuation Classes}
+
+\subsubsection{Private Research}
+
+Pilot creates a category-specific research query.  Products request evidence on
+suitability, price, delivery, returns, safety, and alternatives; destinations
+request transport, weather, access, costs, and planning evidence; recipes request
+ingredients, timings, substitutions, and food-safety notes.  Music, learning,
+and general ideas receive similarly bounded prompts.
+
+The query uses the provider-independent AION research router.  Results may be
+served by AION memory, a local model, bounded public evidence, optional Gemini,
+or a premium provider according to the configured policy.  Only sanitized HTTPS
+links and bounded title, reason, and detail fields enter the private result.
+Research sets \texttt{external\_effect} to false and creates no approval.
+
+\subsubsection{Local Drafts}
+
+Shortlists, tasks, and learning plans remain entirely inside the mother brain.
+A shortlist records criteria such as suitability, evidence, cost, and risk.  A
+task records a title, notes, and incomplete state.  A learning draft records the
+topic and source context.  These operations do not contact an account or service
+adapter and therefore require no external-action approval.
+
+\subsubsection{Consequential Proposals}
+
+Product, destination, and music saves may prepare shopping, trip, and playlist
+proposals.  These use the existing persona-bound Service Execution Hub:
+
+\begin{itemize}
+    \item a product creates a shopping proposal with item, quantity, source
+    context, and \texttt{purchase: false};
+    \item a destination creates a booking proposal with destination, requested
+    trip, private date field, and \texttt{booking: false}; and
+    \item music creates a music-service proposal with the requested playlist
+    concept; the scope explicitly records that no account write occurred.
+\end{itemize}
+
+Missing fields place the proposal in \texttt{needs\_details}.  For example, a
+trip remains locked until its date is entered on the private phone.  A complete
+proposal moves to \texttt{awaiting\_private\_approval}.  The phone displays the
+exact parameters and offers explicit Approve and Reject controls.
+
+Approval produces \texttt{approved\_pending\_adapter}, not an execution claim.
+An external effect is possible only when the same persona has connected an
+authorized adapter, the action is executed once, the uncertain-effect rules pass,
+and the provider returns a verified receipt.
+
+\subsection{State Machine}
+
+\begin{center}
+\small
+Saved item
+$\rightarrow$
+\begin{tabular}{ll}
+research complete & no external effect,\\
+local draft ready & no external effect,\\
+needs details & private fields missing,\\
+awaiting private approval & exact scope complete.
+\end{tabular}
+\end{center}
+
+The consequential branch continues:
+
+\begin{center}
+\small
+Awaiting private approval
+$\rightarrow$
+rejected \quad or \quad approved pending adapter
+$\rightarrow$
+execute once
+$\rightarrow$
+verified receipt.
+\end{center}
+
+No generative-model result can skip or modify this state machine.
+
+\subsection{Follow-Through Data Contract}
+
+\begin{verbatim}
+{
+  "schema_version": "pilot.saved-followthrough.v1",
+  "followthrough_id": "follow_...",
+  "save_id": "save_...",
+  "persona_id": "persona_...",
+  "kind": "action",
+  "action": "shopping",
+  "source_save_hash": "sha256...",
+  "status": "private_service_proposal_ready",
+  "exact_scope": {
+    "item": "Extendable ladder",
+    "quantity": 1,
+    "purchase": false
+  },
+  "private_approval_created": true,
+  "external_effect": false,
+  "record_hash": "sha256..."
+}
+\end{verbatim}
+
+Research records replace \texttt{exact\_scope} with a bounded answer and up to
+five sanitized evidence items.  Service records embed the current proposal state
+so the private interface and audit can distinguish missing details, pending
+approval, rejection, adapter wait, and verified execution.
+
+\subsection{Private Phone Experience}
+
+Each persona-owned saved card now provides four bounded controls:
+
+\begin{enumerate}
+    \item \textbf{Research} retrieves evidence without changing an account;
+    \item \textbf{Prepare action} selects the category-appropriate shopping,
+    trip, playlist, task, or learning route;
+    \item \textbf{Make shortlist} creates a local decision aid; and
+    \item \textbf{Delete} removes the private saved item.
+\end{enumerate}
+
+The \emph{Continue a saved item} panel shows the result route, answer, HTTPS
+sources, exact scope, missing private fields, and current approval state.  It
+explicitly warns that approval does not equal execution and that no purchase,
+booking, message, or external account change is claimed without an adapter
+receipt.
+
+\subsection{Security and Privacy Properties}
+
+\begin{itemize}
+    \item The shared television cannot launch a persona-bound follow-through.
+    \item The source save and active phone persona must match.
+    \item Research result URLs must use HTTPS.
+    \item Raw provider responses, programme pixels, and raw audio are excluded.
+    \item Service parameter validation rejects credential fields including raw
+    passwords, tokens, card numbers, CVVs, PINs, and private keys.
+    \item Local drafts never acquire an external service binding.
+    \item Consequential proposals require a fresh approval unrelated to the
+    original Save decision.
+    \item Adapter execution is persona-bound, execute-once, and receipt-verified.
+    \item Audit records contain identifiers, action class, state, and hashes but
+    omit raw private content.
+\end{itemize}
+
+\subsection{Verification}
+
+Release 0.28 adds tests for private research, HTTPS sanitization, cross-persona
+rejection, shopping-proposal isolation, local draft non-execution, missing trip
+details, separate approval, adapter-pending state, and persona-filtered snapshots.
+These tests run alongside the complete Fabric suite and the append-only audit-
+chain verification.
+
+\subsection{Roadmap Contribution}
+
+This release advances the original master roadmap in two areas.  Under
+\emph{Tasks, lists and reminders}, television context can become a private local
+task without modifying another person's list.  Under \emph{Shopping, booking
+and procurement}, programme evidence can become a private shortlist or exact
+proposal while purchase, reservation, payment, and provider execution remain
+locked.  Real task-provider connections, baskets, bookings, payments, warranties,
+and receipts remain future adapter work rather than claimed functionality.
+
+\subsection{Conclusion}
+
+Programme-to-private follow-through transforms the television from an isolated
+answer surface into the beginning of useful personal work.  More importantly,
+it proves that this transition can preserve identity, evidence provenance, and
+consequential-action boundaries: interest becomes research, research becomes an
+exact proposal, and only a new private decision can authorize the next stage.

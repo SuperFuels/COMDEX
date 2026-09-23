@@ -1,0 +1,259 @@
+\section{AION Managed-Agent Goal Engine Build Plan Lock}
+\label{sec:aion-managed-agent-goal-engine-build-plan-lock}
+
+\subsection{Strategic Build Order}
+
+This lock records the remaining build plan for the AION managed-agent Goal Engine sprint.
+
+The immediate priority is to finish the Goal Engine, Workflow Canvas, dry-run runtime, Boardroom trace, evidence visibility, checkpointing, and safety contracts before moving into the external Agent-to-Agent interface.
+
+\begin{quote}
+\textbf{Finish the cockpit, execution layer, and trust layer first. Then expose the agent API as the commercial interface.}
+\end{quote}
+
+The operating model is:
+
+\begin{itemize}
+  \item \textbf{Founder UI / Boardroom:} human cockpit and trust/control layer.
+  \item \textbf{Workflow Canvas:} single editing and composition surface.
+  \item \textbf{Workflow Engine:} execution layer.
+  \item \textbf{Evidence Trace:} trust and proof layer.
+  \item \textbf{Agent API:} later commercial interface for external AI agents.
+\end{itemize}
+
+\subsection{Canvas Direction Lock}
+
+The Workflow Canvas is the single editing and composition surface.
+
+The separate Master Glyph Canvas mode is deprecated as a separate canvas mode. Reusable glyph workflows are managed through the Glyph Library modal and opened as tabs inside the main Workflow Canvas.
+
+Child glyphs remain important, but they are orchestrated through parent workflows, Goal nodes, and the Glyph Library modal rather than a separate canvas surface.
+
+\subsection{Remaining Build Plan}
+
+\begin{enumerate}
+  \item \textbf{Consolidate Goal Engine Runtime}
+  \begin{itemize}
+    \item Refactor repeated dry-run bridge overrides into stable preview-builder registry.
+    \item Add canonical \texttt{GoalEnginePreviewBundle} object.
+    \item Normalize manifest, step trace, and Boardroom trace serialization paths.
+    \item Prevent dual-serialization drift between manifest and Boardroom trace.
+    \item Block unbounded experiment plans.
+    \item Replace appended patch layers with first-class modules where possible.
+  \end{itemize}
+
+  \item \textbf{Outcome and Metrics Layer}
+  \begin{itemize}
+    \item Support manual outcome confirmation first.
+    \item Promote \texttt{outcome\_score} preview into canonical scoring module.
+    \item Track \texttt{metric\_target} versus \texttt{metric\_actual}.
+    \item Emit outcome events to Boardroom.
+    \item Store evidence references.
+    \item Track cost, time-to-result, confidence, source, freshness, and provenance.
+    \item Support multi-dimensional scoring: effectiveness, efficiency, safety, cost, and user satisfaction.
+    \item Do not treat completed workflow as successful outcome without evidence.
+  \end{itemize}
+
+  \item \textbf{Checkpoint and State-Delta Runtime}
+  \begin{itemize}
+    \item Checkpoint each long-running loop.
+    \item Write bounded state deltas only.
+    \item Maintain \texttt{loop\_context\_snapshot}.
+    \item Do not append full historical payloads.
+    \item Hydrate resumed runs from checkpoints.
+    \item Revalidate approvals, vaults, connectors, parent goal status, child glyph state, and external state before resume.
+    \item Stop safely if external state changed.
+    \item Add checkpoint compaction and safe pruning.
+  \end{itemize}
+
+  \item \textbf{Boardroom Visibility UI}
+  \begin{itemize}
+    \item Show red-team warnings.
+    \item Show active goals.
+    \item Show variants under test.
+    \item Show loop iteration count.
+    \item Show approvals waiting.
+    \item Show blocked reasons.
+    \item Show outcome score.
+    \item Show what AION learned.
+    \item Show parent/child glyph provenance.
+    \item Show checkpoint and resume state.
+    \item Show environment revalidation result.
+    \item Show exploration versus exploitation ratio.
+    \item Show goal decomposition tree.
+    \item Show orchestrated agents/glyphs.
+    \item Show evidence viewer.
+    \item Show visual warning badges on Goal Engine canvas nodes when safety risk is high.
+  \end{itemize}
+
+  \item \textbf{Multi-Glyph / Multi-Agent Orchestrator}
+  \begin{itemize}
+    \item Coordinate multiple specialist glyphs.
+    \item Add \texttt{agents[]} with role, \texttt{glyph\_code}, and execution mode.
+    \item Support coordination modes: sequential, parallel, review-gated.
+    \item Support conflict policies: human review, majority vote, highest confidence, safest option.
+    \item Add max parallel agents and child timeout policy.
+    \item Aggregate child status to parent goal.
+    \item Show orchestrated child glyphs through the Glyph Library modal and Workflow Canvas tab model.
+  \end{itemize}
+
+  \item \textbf{Tiered Memory Model}
+  \begin{itemize}
+    \item Working memory.
+    \item Session memory.
+    \item Goal memory.
+    \item Long-term advisory memory.
+    \item Episodic run memory.
+    \item Semantic glyph memory.
+    \item Retention policy.
+    \item Memory write guard.
+    \item Memory read guard.
+    \item Memory provenance.
+    \item Memory confidence.
+    \item Memory expiry.
+    \item Forgetting and consolidation rules.
+  \end{itemize}
+
+  \item \textbf{Managed-Agent Provider Layer}
+  \begin{itemize}
+    \item Add provider capability manifest.
+    \item Add OpenAI, local, Claude, and future provider capability flags.
+    \item Add enhanced agent mode flag.
+    \item Track long-running session support.
+    \item Track checkpoint/resume support.
+    \item Track sandboxed execution support.
+    \item Track outcome evaluation support.
+    \item Track memory/dreaming support.
+    \item Track multi-agent orchestration support.
+    \item Track MCP/private connector support later.
+    \item Track provider token, cost, and runtime limits.
+    \item Add provider fallback/degradation mode.
+    \item Show provider-specific capability disclosure in UI.
+  \end{itemize}
+
+  \item \textbf{Hierarchical Goal Decomposition}
+  \begin{itemize}
+    \item Break high-level goals into bounded sub-goals.
+    \item Add \texttt{parent\_goal\_id}.
+    \item Add \texttt{sub\_goals[]}.
+    \item Add \texttt{decomposition\_strategy}.
+    \item Add \texttt{max\_depth}.
+    \item Add \texttt{max\_sub\_goals}.
+    \item Require approval before expansion when risk is high.
+    \item Add confidence per sub-goal.
+    \item Add \texttt{needs\_human\_review} state.
+    \item Show decomposition preview before execution.
+  \end{itemize}
+
+  \item \textbf{Versioning and Reproducibility}
+  \begin{itemize}
+    \item Add \texttt{goal\_version}.
+    \item Add \texttt{experiment\_version}.
+    \item Add \texttt{loop\_version}.
+    \item Add \texttt{outcome\_schema\_version}.
+    \item Add \texttt{memory\_schema\_version}.
+    \item Add \texttt{checkpoint\_schema\_version}.
+    \item Pin child glyph versions.
+    \item Store source capsule checksum.
+    \item Store goal contract checksum.
+    \item Preserve old versions.
+    \item Add rollback support later.
+  \end{itemize}
+
+  \item \textbf{Outcome Evidence Sources}
+  \begin{itemize}
+    \item Manual confirmation evidence first.
+    \item Gmail reply evidence later.
+    \item CRM lead evidence later.
+    \item UTM click evidence later.
+    \item Booking evidence later.
+    \item Payment/revenue evidence later.
+    \item Screenshot/file evidence later.
+    \item Evidence confidence.
+    \item Evidence freshness.
+    \item Evidence provenance.
+    \item Evidence viewer in Boardroom.
+  \end{itemize}
+
+  \item \textbf{Goal Engine Tab Later}
+  \begin{itemize}
+    \item Simple user-facing Goal Engine tab.
+    \item User types goal in plain English.
+    \item AION drafts workflow from goal.
+    \item Show generated workflow before save.
+    \item Require dry-run before activation.
+  \end{itemize}
+
+  \item \textbf{Tests and Lock Docs}
+  \begin{itemize}
+    \item Lock tests preventing manifest and Boardroom trace drift.
+    \item Experiment unbounded-plan tests.
+    \item Outcome evidence source tests.
+    \item Resume revalidation tests.
+    \item Exploration decay tests.
+    \item Goal decomposition tests.
+    \item Multi-agent orchestrator tests.
+    \item Tiered memory policy tests.
+    \item Version pinning tests.
+    \item Lock docs for each completed phase.
+  \end{itemize}
+\end{enumerate}
+
+\subsection{Sprint Sequence}
+
+\begin{verbatim}
+Sprint 1  - Contracts + UI Nodes
+Sprint 2  - Goal-Aware Dry Run
+Sprint 3  - Outcome Scoring + Evidence
+Sprint 4  - Loop Safety + State-Delta Checkpoints
+Sprint 5  - Resume Revalidation
+Sprint 6  - Exploration / Experiment Guard
+Sprint 7  - Goal Decomposition
+Sprint 8  - Multi-Glyph Orchestrator
+Sprint 9  - Simulation / What-If Runtime
+Sprint 10 - Reflection + Tiered Memory
+Sprint 11 - Managed-Agent Provider Layer
+Sprint 12 - Real Metrics + Adaptive Optimizer
+\end{verbatim}
+
+\subsection{Non-Negotiable Rules}
+
+\begin{itemize}
+  \item AION is not just adding A/B testing. This is the Goal Engine / Experiment Runtime.
+  \item Goal nodes define intent only. They never grant permissions.
+  \item Loops, experiments, and managed-agent sessions must always be bounded by runtime, cost, iteration, write, and approval limits.
+  \item Resume is not continue. Resume must revalidate approvals, vaults, connectors, budget, goal necessity, glyph state, and external environment.
+  \item Checkpointing must use bounded state deltas, not ever-growing full payload history.
+  \item Experiments need exploration floors so AION does not converge too early on a weak early winner.
+  \item Outcome scores require evidence. Completed execution is not the same as business success.
+  \item Learning is advisory only. Prior-bank, habit capsules, memory, and feedback can recommend but never bypass policy.
+  \item Child glyphs are specialist agents under a parent goal.
+  \item Boardroom is the trust layer. It must show what AION did, refused, learned, simulated, spent, and why.
+  \item Managed-agent providers are accelerators, not the product. AION remains the orchestration OS.
+  \item Version everything so goal-driven execution is reproducible and auditable.
+\end{itemize}
+
+\subsection{A2A Transition Gate}
+
+The external Agent-to-Agent direction begins only after the following are stable:
+
+\begin{itemize}
+  \item Goal Engine contracts are present.
+  \item Workflow Canvas node visibility is stable.
+  \item Dry-run preview bundle is canonical.
+  \item Boardroom trace visibility is stable.
+  \item Evidence references and outcome scoring are visible.
+  \item Safety, budget, red-team, and approval states are visible.
+  \item Checkpoint/resume semantics are defined.
+\end{itemize}
+
+After this gate, AION can expose the machine-facing business-to-agent telemetry and fulfilment protocol.
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-MANAGED-AGENT-GOAL-ENGINE-BUILD-PLAN-V1
+Status: STRATEGIC BUILD PLAN LOCK
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

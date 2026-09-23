@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21I: Self-Improvement Trial Loop Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21I defines the AION Self-Improvement Trial Loop.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can attempt a task, score itself, update strategy, retry, and produce improvement evidence.}
+\end{quote}
+
+\section{Purpose}
+
+This lock gives AION a chess-bot-style improvement loop. The loop does not depend on an LLM shortcut. It performs deterministic attempts, scores those attempts, stores corrections, retries, and proves whether performance improved.
+
+\section{Loop Contract}
+
+The locked loop is:
+
+\[
+attempt \rightarrow score \rightarrow observe\_self\_state \rightarrow update\_strategy \rightarrow retry \rightarrow evidence.
+\]
+
+The loop consumes the Phase 21H meta-awareness state and uses it as a response and strategy bias.
+
+\section{Runtime Outputs}
+
+The loop emits:
+
+\begin{itemize}
+  \item \texttt{loop\_version};
+  \item \texttt{round\_scores};
+  \item \texttt{baseline\_score};
+  \item \texttt{final\_score};
+  \item \texttt{improvement\_delta};
+  \item \texttt{improved};
+  \item \texttt{equilibrium\_reached};
+  \item \texttt{final\_strategy};
+  \item \texttt{meta\_awareness\_state};
+  \item \texttt{evidence};
+  \item \texttt{boundary\_statement}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational self-improvement by trial, scoring, correction, and retry. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21I-SELF-IMPROVEMENT-TRIAL-LOOP-LOCK\\
+Status: LOCKED --- self-improvement trial loop implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

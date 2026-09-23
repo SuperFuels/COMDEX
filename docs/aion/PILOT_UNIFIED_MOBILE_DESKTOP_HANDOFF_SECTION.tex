@@ -1,0 +1,33 @@
+\section{Explicit Desktop Handoff}
+\label{sec:pilot-mobile-desktop-handoff}
+\raggedright
+
+The unified phone now provides an explicit \emph{Continue on desktop} action for complex business
+setup and deep work.  It preserves the mobile product's role as a briefing, communication,
+delegation, and approval surface while returning configuration-heavy work to the full Boardroom.
+
+The trusted phone signs a request containing its current person, organisation membership, and a
+bounded human-readable purpose.  The Workspace Gateway verifies the phone lease and the separate
+\texttt{workspace.desktop.handoff} membership capability, then issues a five-minute context ticket
+signed by the mother brain.  The ticket binds person, membership, space, provider, provider
+workspace reference, purpose, issue time, and expiry.
+
+A random handoff token is placed in the desktop route and its one-way hash is included in the signed
+ticket.  The token transfers context only.  The ticket explicitly states that desktop
+authentication is required and that it grants no workspace access.  Opening the route therefore
+cannot turn possession of a copied link into organisation membership or bypass the Boardroom's own
+identity checks.
+
+The phone opens the existing AION Business desktop surface in a new protected browser context and
+explains that the user must authenticate there.  No Boardroom records, files, credentials, or
+Personal Pilot memory are embedded in the handoff URL.  The desktop remains the authoritative
+surface for company creation, detailed configuration, and prolonged analysis.
+
+Ticket lifetime is constrained to between one and fifteen minutes, with five minutes used by the
+mobile interface.  Content-bound idempotency returns the same ticket after a genuine retry and
+rejects reuse for another person, workspace, or purpose.  Revoked or expired membership prevents a
+new ticket from being issued.
+
+Automated tests verify exact handoff scope, bounded expiry, mother signature, token hash, replay
+behaviour, and the explicit no-access property.  Twenty-six focused gateway tests and the optimized
+mobile build pass.  This closes \texttt{MOB-0611}.

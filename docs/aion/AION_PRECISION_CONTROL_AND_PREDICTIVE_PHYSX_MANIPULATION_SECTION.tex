@@ -1,0 +1,781 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,longtable,multirow}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{float}
+\usepackage{caption}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!55!black,
+  urlcolor=blue!55!black,
+  citecolor=blue!55!black
+}
+\setlist{nosep,leftmargin=*}
+\newcommand{\AION}{\textsc{Aion}}
+\newcommand{\HexCore}{\textsc{HexCore}}
+\newcommand{\PhysX}{\textsc{PhysX}}
+\newcommand{\MuJoCo}{\textsc{MuJoCo}}
+\newcommand{\pass}{\textcolor{green!45!black}{\textbf{PASS}}}
+\newcommand{\reject}{\textcolor{red!65!black}{\textbf{REJECT}}}
+\newcommand{\bounded}{\textcolor{orange!70!black}{\textbf{BOUNDED}}}
+
+\title{From Motor Calibration to Predictive Franka Manipulation\\
+\large AION Precision-Control Apprenticeship, Articulated Transfer, and NVIDIA PhysX Evaluation}
+\author{AION / Tessaris Research Programme}
+\date{4 August 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document records the complete development sequence by which \AION{}
+progressed from generic stop-at-target calibration to articulated cube lifting
+under local \MuJoCo{} physics and then to its first teacher-removed cube lift
+under NVIDIA Isaac/\PhysX{}.  The programme did not treat vision accuracy,
+joint imitation, or offline action error as manipulation success.  Each
+candidate was required to commit actions before execution, receive only RGB
+and bounded robot proprioception at runtime, and face independently executed
+physical consequences.  A cross-body precision method reduced final local
+positioning error by $1{,}620.37\times$, a local articulated controller lifted
+4/4 sealed cubes against 0/4 for cold control, and the subsequent cloud
+programme falsified two inadequate representations before a predictive
+position--orientation controller completed one fresh \PhysX{} lift.  That
+controller remained unpromoted because it scored only 1/12, below the fixed
+greater-than-2/12 reliability gate.  The result is therefore a documented
+advance in earned physical competence and failure localization, not a claim of
+general robotic manipulation, NVIDIA world-model mastery, AGA, or AGI.
+\end{abstract}
+
+\section{Research Question and Operating Principle}
+
+The original failure was often described as a cube-lifting problem, but the
+deeper capability deficit was general movement judgment:
+
+\begin{quote}
+Given a target, an unfamiliar body, delayed and uncertain actuation, and only
+partial visual feedback, can \AION{} predict the effect of a movement, brake
+before overshoot, observe the resulting error, and issue progressively smaller
+corrections until a physical objective is achieved?
+\end{quote}
+
+This is the shared structure behind reaching, grasping, walking, steering,
+parking, and other embodied tasks.  Perception alone is insufficient.  The
+controller must translate distance, direction, speed, orientation, timing, and
+uncertainty into bounded actions whose real consequences are repeatedly
+measured.
+
+The retained precision loop is
+\begin{equation}
+\text{intervene}
+\rightarrow \text{identify dynamics}
+\rightarrow \text{predict}
+\rightarrow \text{approach}
+\rightarrow \text{brake}
+\rightarrow \text{observe}
+\rightarrow \text{micro-correct}.
+\label{eq:precision-loop}
+\end{equation}
+
+The physical programme separates inexpensive practice from independent
+examination:
+\begin{equation}
+\underbrace{\text{large-scale local \MuJoCo{} practice}}_{\text{cheap, varied, inspectable}}
+\rightarrow
+\underbrace{\text{frozen Isaac/\PhysX{} examination}}_{\text{paid, simulator-disjoint authority}}
+\rightarrow
+\text{diagnosis and revised local learning}.
+\label{eq:practice-exam}
+\end{equation}
+
+NVIDIA execution is therefore not used for routine trial and error.  It is the
+independent physics authority that detects whether a method learned genuine
+control principles or merely exploited the local simulator.
+
+\section{Authority Separation and Runtime Contract}
+
+Every stage distinguishes proposal inputs from evaluator authority.
+
+\begin{table}[H]
+\centering
+\caption{Runtime and evaluation authority boundary.}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.27\linewidth}
+                >{\raggedright\arraybackslash}p{0.30\linewidth}
+                >{\raggedright\arraybackslash}p{0.33\linewidth}}
+\toprule
+Layer & Permitted & Withheld or evaluator-owned \\
+\midrule
+Local precision lanes & position/velocity observations, bounded actions, time
+& hidden delay, actuator matrix, damping, sealed target dynamics \\
+Local articulated arm & RGB, bounded joints, bounded gripper state, time
+& cube pose, contact flags, physical lift score, teacher actions \\
+Isaac/\PhysX{} & RGB, 18-dimensional bounded robot proprioception, episode step
+& cube coordinates, simulator contacts, reward internals, teacher actions \\
+Training only & quarantined geometry and successful teacher trajectories
+& no authority to appear in the deployed runtime \\
+Promotion & immutable receipts, cold/champion controls, fixed gates
+& no score self-awarded by the proposal policy \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Every physical action is hashed and committed before execution.  Non-finite,
+out-of-range, incorrectly dimensioned, or authority-expanding programs are
+rejected.  A development success can authorize a later sealed exam but cannot
+promote itself.
+
+\section{Stage I: Cross-Body Precision-Control Apprenticeship}
+
+\subsection{Identified forward dynamics}
+
+For a previously unseen control body, \AION{} performs bounded interventions
+to identify action delay $d$, actuation matrix $A$, and damping matrix $D$:
+\begin{align}
+\dot{v}_{t} &= A u_{t-d} - Dv_t, \\
+q_{t+1} &= q_t + v_t\Delta t
+          + \tfrac{1}{2}\dot{v}_{t}\Delta t^2.
+\label{eq:forward-model}
+\end{align}
+
+The inverse controller uses the identified model to approach the target, while
+a braking model reduces command magnitude near the stopping boundary.
+Uncertainty reduces control authority.  Observations are incorporated after
+every action rather than after a long open-loop trajectory.
+
+The existing AION prediction engine remains responsible for executive-level
+feasibility and risk forecasts.  The precision forward model is a faster,
+numerical component for immediate actuator consequences.  These layers are
+complementary rather than duplicates.
+
+\subsection{Sealed result}
+
+Six source-disjoint worlds varied control dimension, delay, strength, damping,
+target, and post-action disturbance.  The sealed cohort ranged from one to
+five dimensions.
+
+\begin{table}[H]
+\centering
+\caption{Cross-body precision-control results.}
+\begin{tabular}{lr}
+\toprule
+Measure & Result \\
+\midrule
+Learned controller success & 6/6 \\
+Matched uncalibrated control & 0/6 \\
+Mean learned final error & $0.000029995$ \\
+Mean cold final error & $0.048603$ \\
+Final-error improvement & $1{,}620.37\times$ \\
+Hidden action-delay identification & 100\% \\
+Disturbance recovery & 6/6 \\
+Control dimensions & 1--5 \\
+Pre-action commitments & 1,560 \\
+Malicious action programs rejected & 3/3 \\
+Near-uncontrollable actuator & explicit abstention \\
+Memorized trajectories retained & 0 \\
+Body-specific parameters retained & 0 \\
+Restart reconstruction & pass \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\HexCore{} promoted
+\texttt{procedure\_cross\_body\_precision\_control\_apprenticeship\_v1}.
+The retained asset is the method
+\texttt{identify\_predict\_brake\_micro\_correct}, not the sealed trajectories
+or individual body parameters.
+
+\section{Stage II: Local Articulated Precision and Cube Lifting}
+
+\subsection{Composed control stack}
+
+The precision method was composed with previously retained visual topology and
+contact/occlusion skills:
+\begin{equation}
+\begin{split}
+\text{RGB landmarks}
+&\rightarrow \text{articulated topology}
+\rightarrow \text{pixel-space inverse kinematics} \\
+&\rightarrow \text{motor identification and relevance routing}
+\rightarrow \text{approach} \\
+&\rightarrow \text{opposing-finger contact}
+\rightarrow \text{lift}
+\rightarrow \text{physical outcome}.
+\end{split}
+\label{eq:articulated-loop}
+\end{equation}
+
+The local authority used a two-link \MuJoCo{} arm, opposing fingertip
+actuators, gravity, friction, a free cube, and hidden action delay.  Arm length,
+motor gain, damping, starting configuration, camera position, cube size, cube
+mass, and friction varied across the sealed worlds.
+
+\subsection{Failure-driven relevance routing}
+
+The lane forward model initially failed because gravity and articulated joint
+coupling appeared as unexplained acceleration.  A private successor added
+constant and position-dependent acceleration terms, but an unrestricted fit
+scored only 3/4 and lost to a strong fixed-model controller at 4/4.  It was
+rejected.
+
+A selective model router then retained discovered delay when useful but fell
+back to robust dynamics when nonlinear residuals were unreliable:
+\begin{equation}
+\begin{cases}
+\text{use identified dynamics}, & \text{if residual and conditioning are credible},\\
+\text{retain delay and use robust fallback}, & \text{otherwise}.
+\end{cases}
+\label{eq:model-router}
+\end{equation}
+
+This is the physical analogue of governed semantic routing: more learned model
+content is not always better; competence includes refusing an unreliable
+internal model.
+
+\subsection{Sealed local tournament}
+
+\begin{table}[H]
+\centering
+\caption{Local articulated cube-lifting tournament.}
+\begin{tabular}{lccc}
+\toprule
+Measure & Routed \AION{} & Strong fixed ablation & Cold \\
+\midrule
+Successful lifts & 4/4 & 4/4 & 0/4 \\
+Mean lift height & 0.08182 m & 0.08178 m & 0.00243 m \\
+Privileged runtime geometry & 0 & 0 & 0 \\
+Teacher actions & 0 & 0 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+There were 570 pre-action commitments, four of four malicious action classes
+were blocked, and the simulator-neutral capsule survived restart.  \HexCore{}
+promoted \texttt{procedure\_articulated\_precision\_cube\_lifting\_v1}.
+The result authorized construction of an Isaac adapter and one frozen PhysX
+tournament; it did not establish transfer to NVIDIA physics.
+
+\section{Stage III: Franka Adapter and Offline Transfer Gates}
+
+The Franka adapter was reconstructed from successful historical Isaac teacher
+programs.  Forty programs were used for private construction, eight for
+development criticism, and five remained sealed.  The deployed capsule was
+converted to a digest-checked NumPy representation requiring no
+\texttt{joblib} or \texttt{scikit-learn} installation inside the Isaac
+container.
+
+The first capsule contained an RGB cube detector, camera-to-table projection,
+five cube-conditioned seven-joint waypoints, an identified action-to-motion
+model, one-step inverse-dynamics corrections, and v13 fallback for admitted
+out-of-distribution cases.
+
+\begin{table}[H]
+\centering
+\caption{Initial offline Franka authorization gates.}
+\begin{tabular}{lrr}
+\toprule
+Gate & Sealed result & Decision \\
+\midrule
+RGB cube world-position mean error & 0.000630 m & \pass \\
+RGB cube world-position p90 error & 0.000907 m & \pass \\
+Joint-waypoint mean error & 0.050689 rad & \pass \\
+Joint-waypoint p90 error & 0.108063 rad & \pass \\
+Next-motion mean error & 0.007623 rad & \pass \\
+Next-motion p90 error & 0.020122 rad & \pass \\
+Action-matrix condition number & 31.19 & \pass \\
+Malicious contracts rejected & 6/6 & \pass \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These metrics authorized a paid tournament; they were never treated as
+physical competence.
+
+\section{Stage IV: First PhysX Rejection---Joint Similarity Is Not Contact}
+
+The first frozen cloud exam used
+\texttt{Isaac-Lift-Cube-Franka-v0}, seeds 99107--99118, 12 episodes per arm,
+250 actions per episode, teacher actions disabled, and no runtime cube or
+contact state.
+
+\begin{table}[H]
+\centering
+\caption{Initial fresh PhysX tournament.}
+\begin{tabular}{lrrrr}
+\toprule
+Arm & Strict lifts & Mean max. height & Mean return & Unsafe \\
+\midrule
+Joint-waypoint challenger & 0/12 & 0.055000 m & 0.6580 & 0 \\
+Protected v13 & 2/12 & 0.132124 m & 15.7639 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The challenger progressed through all five stored phases but never moved the
+cube above its initial height.  It was rejected; v13 remained champion.  The
+failure falsified the implication
+\begin{equation}
+\text{low joint imitation error}
+\not\Rightarrow
+\text{correct end-effector/object relation}
+\not\Rightarrow
+\text{contact or lift}.
+\label{eq:falsified-joint-assumption}
+\end{equation}
+
+A seven-joint arm is redundant: many plausible joint configurations can have
+small imitation error while placing or orienting the gripper incorrectly.  The
+offline evaluator had rewarded resemblance to a teacher trajectory rather than
+verified reduction of task-space error.
+
+\IfFileExists{../../results/visual/precision_franka_physx_sequence.png}{
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{../../results/visual/precision_franka_physx_sequence.png}
+\caption{Representative first PhysX challenger sequence.  The robot follows a
+plausible joint programme but fails to make object-moving contact.}
+\end{figure}
+}{}
+
+\section{Stage V: Task-Space Servoing and Live Visual Diagnosis}
+
+\subsection{Public Franka kinematics}
+
+The redesign used the source-attested Franka kinematic chain to reconstruct the
+hand pose from the seven bounded joint angles.  For transform $T_i(q_i)$,
+\begin{equation}
+T_{0h}(q)=\prod_{i=1}^{7} T_i(q_i)\,T_{7h},
+\qquad
+p_h(q)=\operatorname{translation}(T_{0h}(q)).
+\end{equation}
+
+Finite differences produce a positional Jacobian
+\begin{equation}
+J_p[:,i]\approx \frac{p_h(q+\epsilon e_i)-p_h(q)}{\epsilon}.
+\end{equation}
+The controller combines the RGB-derived cube position $p_c$ with a
+phase-specific target height $z_k$ and computes a bounded task-space correction
+\begin{equation}
+\Delta q = J_p^{+}\,
+\operatorname{clip}_{\delta}
+\left(
+\begin{bmatrix}p_{c,x}&p_{c,y}&z_k\end{bmatrix}^{\!T}-p_h(q)
+\right).
+\label{eq:position-servo}
+\end{equation}
+
+The identified action-to-motion model converts desired joint displacement into
+a bounded actuator command.  The arm reobserves after every action.
+
+\subsection{First live task-space result}
+
+On the same 12-seed budget, position servoing raised mean return from 0.6580 to
+0.9067 but still produced 0/12 lifts.  Protected v13 produced 1/12 on that
+repetition.  Visual evidence was more informative than the scalar failure:
+the arm approached the cube, arrived with unsuitable wrist/finger orientation,
+disturbed the object, and then lifted empty.  Thus position was materially
+improved, while contact orientation and closure timing remained unsolved.
+
+\IfFileExists{../../results/visual/task_space_franka_physx_sequence.png}{
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{../../results/visual/task_space_franka_physx_sequence.png}
+\caption{Position-only task-space servo.  The hand reaches the object region,
+but orientation and contact timing are inadequate and the cube is displaced.}
+\end{figure}
+}{}
+
+\section{Stage VI: Predictive Position--Orientation Deliberation}
+
+\subsection{Rejected private solvers}
+
+A six-dimensional pose Jacobian was introduced:
+\begin{equation}
+J_{6D}(q)=
+\begin{bmatrix}
+J_p(q)\\J_{\omega}(q)
+\end{bmatrix},
+\end{equation}
+where $J_{\omega}$ maps joint changes to wrist rotation.  Two private solvers
+were rejected offline:
+\begin{enumerate}
+\item a weighted simultaneous position/orientation solver, and
+\item a strict position-first null-space orientation solver.
+\end{enumerate}
+Both improved the combined pose score on 80\% of samples but moved closer to
+the cube on only 60--64\%.  The positional safety gate was not softened.
+
+\subsection{Prediction-filtered candidate selection}
+
+The accepted private challenger operationalized the frame-by-frame
+``time-to-think'' advantage.  At each observation it generated five wrist
+correction strengths
+\begin{equation}
+\alpha\in\{0,0.10,0.25,0.50,1.00\},
+\end{equation}
+formed the corresponding desired joint corrections
+\begin{equation}
+\Delta q^{(\alpha)} =
+\Delta q_{\text{position}}+alpha\Delta q_{\text{orientation}},
+\end{equation}
+and passed each through the learned actuator model to predict
+$\hat q_{t+1}^{(\alpha)}$.  Any candidate expected to increase hand--cube
+distance was rejected:
+\begin{equation}
+\left\|p^* - p_h(\hat q_{t+1}^{(\alpha)})\right\|
+>
+\left\|p^* - p_h(q_t)\right\|+\varepsilon
+\quad\Longrightarrow\quad
+\alpha\ \text{inadmissible}.
+\end{equation}
+Among the remaining candidates, the controller minimized
+\begin{equation}
+S(\alpha)=
+\left\|p^* - p_h(\hat q_{t+1}^{(\alpha)})\right\|
++0.08\left\|\phi\!\left(R^*R_h(\hat q_{t+1}^{(\alpha)})^T\right)\right\|,
+\label{eq:candidate-score}
+\end{equation}
+where $\phi(\cdot)$ is the rotation-vector map.  The policy commits only the
+best admissible action; independent \PhysX{} then decides what actually occurs.
+
+This is not a claim of access to the future.  Additional wall-clock compute is
+used between discrete frames to criticize possible actions, but the next
+physical observation remains the sole outcome authority:
+\begin{equation}
+\text{belief state}
+\rightarrow \text{candidate futures}
+\rightarrow \text{reject harmful predictions}
+\rightarrow \text{commit one action}
+\rightarrow \text{independent physics}
+\rightarrow \text{prediction error}.
+\label{eq:predictive-loop}
+\end{equation}
+
+\subsection{Sealed offline gate}
+
+Five held-out successful programs yielded 25 task-space transitions.
+
+\begin{table}[H]
+\centering
+\caption{Predictive pose offline gate.}
+\begin{tabular}{lr}
+\toprule
+Measure & Result \\
+\midrule
+Analytic contact mean $xy$ error & 0.023822 m \\
+Contact vertical-offset mean & 0.092113 m \\
+Contact vertical-offset standard deviation & 0.001957 m \\
+Positive position improvement & 92\% \\
+Positive combined-pose improvement & 100\% \\
+Mean after/before position-error ratio & 0.945199 \\
+Mean predicted distance reduction per step & 0.010691 m \\
+Privileged runtime inputs & 0 \\
+Unsafe actions & 0 \\
+Decision & \pass \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This gate authorized one new-seed PhysX examination only.
+
+\section{Stage VII: First Predictive-Pose PhysX Lift}
+
+The final frozen cohort used previously unavailable seeds 99207--99218, 12
+episodes, 250 actions per episode, teacher absent, and zero privileged runtime
+fields.  The policy and offline-gate digests were fixed before execution.
+
+\begin{table}[H]
+\centering
+\caption{Predictive pose PhysX tournament.}
+\begin{tabular}{lrrrr}
+\toprule
+Arm & Strict lifts & Mean max. height & Mean return & Unsafe \\
+\midrule
+Predictive pose challenger & 1/12 & 0.093268 m & 7.9603 & 0 \\
+Protected v13 & 0/12 & 0.055000 m & 0.8913 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The successful challenger episode lifted the cube to 0.514217 m.  This was the
+first complete teacher-removed \PhysX{} lift produced by the new task-space
+lineage.  Mean return improved by approximately $12.1\times$ relative to the
+original joint-waypoint challenger.  However, the fixed promotion rule required
+all of the following:
+\begin{enumerate}
+\item challenger strict lifts greater than 2/12;
+\item challenger lifts greater than protected v13;
+\item zero unsafe actions;
+\item a passing offline relational gate; and
+\item no teacher or privileged runtime fields.
+\end{enumerate}
+
+The challenger satisfied items 2--5 but failed item 1.  It was therefore
+\reject, no procedure identifier was assigned, and
+\texttt{procedure\_rgb\_phase\_bound\_episodic\_memory\_v13} remained the
+protected cloud champion.  A paid cold arm was omitted after the absolute gate
+failed because its result could not authorize promotion.
+
+\IfFileExists{../../results/visual/predictive_pose_franka_physx_sequence.png}{
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{../../results/visual/predictive_pose_franka_physx_sequence.png}
+\caption{Representative predictive-pose episode-zero strip.  The sealed
+tournament's successful lift occurred in episode five; only episode zero was
+preselected for visual capture, preventing outcome-driven frame selection.}
+\end{figure}
+}{}
+
+\section{Causal Development Ladder}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.19\linewidth}
+                  >{\raggedright\arraybackslash}p{0.43\linewidth}
+                  >{\raggedright\arraybackslash}p{0.26\linewidth}}
+\caption{What each stage established and what it falsified.}\\
+\toprule
+Stage & Evidence earned & Remaining or falsified assumption \\
+\midrule
+\endfirsthead
+\toprule
+Stage & Evidence earned & Remaining or falsified assumption \\
+\midrule
+\endhead
+Precision lanes & $1{,}620.37\times$ lower error; delay identification and
+disturbance recovery & Not yet articulated contact \\
+Local articulated & 4/4 lift versus 0/4 cold; relevance routing & Local
+\MuJoCo{} success did not establish PhysX transfer \\
+Offline Franka adapter & sub-millimetre cube reconstruction and accurate joint
+motion model & Joint similarity was not contact competence \\
+Joint-waypoint PhysX & clean 0/12 negative against v13 2/12 & Stored joint
+phases failed to preserve object-relative geometry \\
+Position servo & visibly reached the cube and improved mean reward & Wrist
+orientation and closure disturbed the object \\
+Naive pose solvers & combined pose could improve & Orientation could not be
+purchased by sacrificing approach accuracy \\
+Predictive pose & five candidates criticized per frame; 92\% closer, 100\%
+combined improvement offline; first live lift & Contact acquisition remained
+inconsistent at 1/12 \\
+\bottomrule
+\end{longtable}
+
+The principal intelligence advance is not the final score in isolation.  It is
+the governed sequence
+\begin{equation}
+\text{observe failure}
+\rightarrow \text{localize representation error}
+\rightarrow \text{construct alternatives}
+\rightarrow \text{reject weak variants locally}
+\rightarrow \text{freeze one candidate}
+\rightarrow \text{face simulator-disjoint consequences}
+\rightarrow \text{retain the causal lesson}.
+\end{equation}
+
+\section{Safety, Reproducibility, and Cost Discipline}
+
+\begin{itemize}
+\item All cloud arms used the same Isaac environment, episode count, step
+budget, and committed seed cohort.
+\item Runtime observations contained RGB and bounded joint/gripper
+proprioception only.
+\item Teacher actions and privileged simulator object/contact fields were zero.
+\item Every action was finite, bounded, dimension-checked, and committed before
+execution.
+\item Capsule and manifest digests were checked before use.
+\item The protected v13 policy remained immutable throughout challenger work.
+\item Development failures did not overwrite the champion.
+\item Cold execution was omitted only after an absolute promotion requirement
+had already failed and cold could not change the decision.
+\item The NVIDIA L40S was stopped immediately after receipts and frame evidence
+were copied locally.
+\item No live repository or objective mutation was authorized by the physical
+policy.
+\end{itemize}
+
+The efficient training strategy remains thousands of randomized local contact
+episodes and only occasional frozen cloud exams.  Local randomization should
+cover object pose, size, mass, friction, robot configuration, camera jitter,
+action delay, grip strength, sensor noise, and forced slip.  Isaac should not
+become an expensive practice loop.
+
+\section{Next Experimental Contract: Contact Consistency}
+
+The current bottleneck is no longer gross vision or gross arm motion.  It is
+repeatable acquisition and retention of contact.  The next local curriculum
+must separate the following capabilities:
+
+\begin{enumerate}
+\item \textbf{Pre-grasp alignment:} place the tool centre point above the cube
+without collision.
+\item \textbf{Finger straddle:} infer from visual/finger geometry whether the
+cube lies between the jaws rather than merely near the wrist.
+\item \textbf{Contact-timed closure:} close only when both jaws are predicted
+to contact the object symmetrically.
+\item \textbf{Micro-slide recovery:} after partial or one-sided contact, open
+slightly, translate 1--3 cm, and reobserve.
+\item \textbf{Lift verification:} raise 2--5 cm and verify that the cube moves
+with the gripper.
+\item \textbf{Slip response:} if visual object height or gripper/object
+co-motion diverges, brake, lower, re-centre, and retry.
+\item \textbf{Abandon/reapproach:} after a bounded number of failed corrections,
+retreat completely and construct a new approach.
+\end{enumerate}
+
+Nominal and recovery memories must remain distinct:
+\begin{equation}
+\text{approach}\parallel\text{pre-grasp}\parallel\text{close}
+\parallel\text{lift}\parallel\text{recover},
+\end{equation}
+with a router selecting one short, interruptible option at a time.  Full
+eight-step recovery chunks and indiscriminate nominal/recovery pooling remain
+disallowed by earlier negative results.
+
+Before another paid exam, a frozen contact capsule should satisfy:
+\begin{itemize}
+\item at least 80\% held-out local success at every curriculum layer;
+\item explicit improvement over the current predictive-pose capsule;
+\item fresh body, camera, delay, friction, and object randomization;
+\item original-fail/candidate-pass contact counterexamples;
+\item recovery after forced misses and slips;
+\item delayed reconstruction from the retained method rather than replayed
+trajectories;
+\item zero unsafe actions and explicit abstention outside admitted geometry.
+\end{itemize}
+
+Only then should a new frozen PhysX cohort compare
+\begin{equation}
+\text{contact-consistent challenger}
+\quad\text{vs}\quad
+\text{protected v13}
+\quad\text{vs}\quad
+\text{cold},
+\end{equation}
+with promotion still requiring more than 2/12 strict lifts, victory over both
+controls, and no safety or authority failure.
+
+\section{Claim Boundary}
+
+The programme has established:
+\begin{itemize}
+\item transferable, uncertainty-aware motor calibration across unfamiliar
+local bodies;
+\item bounded articulated visual cube lifting under local MuJoCo physics;
+\item a fail-closed portable Franka adapter;
+\item falsification of joint-space imitation as manipulation authority;
+\item object-relative position and wrist-orientation reasoning;
+\item prediction-filtered candidate action selection between frames; and
+\item one complete teacher-removed lift under fresh NVIDIA PhysX physics.
+\end{itemize}
+
+It has not established reliable Franka lifting, superiority over v13 across
+cohorts, general manipulation, real-robot competence, Cosmos or GR00T mastery,
+autonomous general apprenticeship, or AGI.  The cloud champion remains v13 and
+the predictive-pose controller remains an unpromoted research challenger.
+
+\section{Contact-Relation Learning and Recovery Arbitration}
+
+The subsequent rapid cycle treated reliable contact as a distinct competence.
+For successful teacher trajectory $i$, AION extracted the first closure event
+and learned the object-relative relation
+\begin{equation}
+  \Delta_i = p^{\mathrm{hand}}_i - p^{\mathrm{cube}}_{i,0},
+  \qquad
+  \widehat{\Delta}(x,y)=W\phi(x,y)+b,
+\end{equation}
+where $\phi(x,y)=[1,x,y,x^2,xy,y^2]$.  The relation transferred to sealed
+successful programs with mean error $0.01697$ m and p90 error $0.02955$ m.
+All RGB geometry, waypoint, dynamics and relation gates passed before live
+execution.
+
+On fresh PhysX seeds $99307$--$99318$, the v2 contact controller achieved one
+strict lift from twelve, tying protected v13 at one from twelve.  It therefore
+failed both the absolute and comparative gates.  Trace attribution revealed a
+more general defect: 56.37\% of proposals reverted to the old policy.  Contact
+had moved the cube outside the narrow reset distribution in 1,171 actions, and
+520 further actions were rejected because no full step was predicted to improve
+alignment.  The controller was treating the consequence of its own intervention
+as a reason to stop learning from that intervention.
+
+V3 introduced table-bounded re-acquisition, re-observation after failed closure,
+object-relative retry offsets, predictive step-size backtracking, and the rule
+that elapsed time alone cannot authorize a phase transition.  This reduced
+fallback to 6.6\%, but an excessively conservative hold rule produced 877
+no-motion observations and trapped 1,372 proposals in coarse approach.  On
+fresh seeds $99407$--$99418$, v3 achieved zero strict lifts while protected v13
+achieved one.  V3 was rejected.
+
+The frozen v4 proposal is the synthesis of these negative results.  It uses a
+progress-conditioned coarse transition; selects the best ten-percent-scale
+information action when all full steps are pessimistic; verifies attachment
+with an 8 cm lift before a 25 cm lift; and converts detected slip into reopen,
+re-observe and re-plan.  Its policy digest is
+\texttt{738e2d02a91e57a054f08e3c4e1015ec75307968efd747ce7fc4546ed1f3994d}.
+No PhysX result is claimed for v4.  The prospective $99507$--$99518$ tournament
+could not start because the external Brev account had insufficient credit.
+The proposal remains frozen and unpromoted.
+
+\begin{table}[htbp]
+\centering
+\caption{Prospective contact-recovery generations under NVIDIA PhysX.}
+\begin{tabular}{lcccc}
+\toprule
+Generation & AION lifts & v13 lifts & Fallback & Decision \\
+\midrule
+v2 contact relation & 1/12 & 1/12 & 56.37\% & reject \\
+v3 re-plan/backtrack & 0/12 & 1/12 & 6.60\% & reject \\
+v4 recovery synthesis & --- & --- & --- & external exam pending \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+One execution used a container-relative evidence path and lost its artifact at
+container teardown.  It was treated as invalid, assigned no score, and repeated
+with the identical frozen seed cohort using an absolute mounted path.  This
+distinction prevents infrastructure activity from masquerading as scientific
+evidence.
+
+\section{Artifact Manifest}
+
+\small
+\begin{longtable}{p{0.30\linewidth}p{0.64\linewidth}}
+\toprule
+Artifact & Repository path \\
+\midrule
+\endfirsthead
+\toprule
+Artifact & Repository path \\
+\midrule
+\endhead
+Precision implementation & \path{backend/modules/hexcore/precision_control_apprenticeship.py} \\
+Precision sealed result & \path{results/hexcore_precision_control_apprenticeship.json} \\
+Articulated implementation & \path{backend/modules/hexcore/articulated_precision_cube_lifting.py} \\
+Articulated sealed result & \path{results/hexcore_articulated_precision_cube_lifting.json} \\
+Franka adapter builder & \path{integrations/isaac_lab/build_precision_franka_adapter.py} \\
+Predictive runtime policy & \path{integrations/isaac_lab/aion_precision_franka_policy.py} \\
+Task-space offline evaluator & \path{integrations/isaac_lab/evaluate_task_space_franka_gate.py} \\
+Predictive CAU evaluator & \path{integrations/isaac_lab/evaluate_predictive_pose_franka_tournament.py} \\
+Initial adapter result & \path{results/hexcore_precision_franka_adapter.json} \\
+Initial PhysX decision & \path{results/hexcore_precision_franka_physx_tournament.json} \\
+Predictive offline gate & \path{results/hexcore_task_space_franka_gate.json} \\
+Predictive PhysX decision & \path{results/hexcore_predictive_pose_franka_tournament.json} \\
+Contact-recovery decision & \path{results/hexcore_contact_recovery_franka_lineage.json} \\
+Initial immutable receipt & \path{results/immutable/isaac_precision_franka/precision_franka_physx_receipt.json} \\
+Position-servo receipt & \path{results/immutable/isaac_precision_franka/task_space_franka_physx_receipt.json} \\
+Predictive-pose receipt & \path{results/immutable/isaac_precision_franka/predictive_pose_franka_physx_receipt.json} \\
+Contact-relation receipt & \path{results/immutable/isaac_precision_franka/contact_consistent_franka_physx_receipt.json} \\
+Re-plan receipt & \path{results/immutable/isaac_precision_franka/replan_backtracking_franka_physx_receipt.json} \\
+Portable NumPy capsule & \path{results/immutable/isaac_precision_franka/precision_franka_v1.npz} \\
+Initial visual strip & \path{results/visual/precision_franka_physx_sequence.png} \\
+Position visual strip & \path{results/visual/task_space_franka_physx_sequence.png} \\
+Predictive visual strip & \path{results/visual/predictive_pose_franka_physx_sequence.png} \\
+Contact visual strip & \path{results/visual/contact_consistent_franka_physx_sequence.png} \\
+Re-plan visual strip & \path{results/visual/replan_backtracking_franka_physx_sequence.png} \\
+Roadmap & \path{docs/aion/AION_INTEGRATED_AGI_DEVELOPMENT_ROADMAP.md} \\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\end{document}

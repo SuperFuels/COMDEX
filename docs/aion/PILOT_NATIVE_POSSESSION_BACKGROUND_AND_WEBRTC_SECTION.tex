@@ -1,0 +1,94 @@
+\section{Native Phone Possession, Private Background Delivery and Authenticated Calls}
+\label{sec:pilot-native-possession-background-webrtc}
+
+This stage replaces browser-only assumptions with native platform security boundaries
+while preserving Pilot's provider-independent mother protocol.  The coded native
+possession, biometric, background-delivery and authenticated-call tasks are complete
+(\texttt{MOB-1103--1105} and \texttt{MOB-1202}).  Signed distributable applications, push-provider credentials,
+representative-device qualification and store review remain separate gates.
+
+\subsection{iOS possession design}
+
+Pilot's existing phone protocol uses Ed25519 signatures.  Because Apple Secure
+Enclave does not expose an Ed25519 signing operation, the iOS client generates the
+compatible Curve25519/Ed25519 protocol key and immediately encrypts its private
+representation with a key derived from a non-exportable Secure Enclave P-256 key.
+The wrapping record is stored in Keychain with
+\texttt{WhenUnlockedThisDeviceOnly} protection and is invalidated when the enrolled
+biometric set changes.
+
+For an exact consequential action, Local Authentication requests Face ID or Touch ID.
+Successful device-owner authentication unlocks one protected signing operation over
+the canonical challenge containing the device, action reference, payload hash, nonce
+and expiry.  The mother verifies the ordinary trusted-phone signature and single-use
+challenge.  It records possession confirmation; it never records or claims that a
+biometric measurement identified a person.
+
+The Swift native core compiles independently with the installed command-line Swift
+toolchain.  A SwiftUI application shell, XcodeGen specification, permission strings,
+deep-link scheme, native notification registration and background task handler are
+included.  The repository deliberately contains no Apple team identifier,
+provisioning profile or APNs credential.
+
+\subsection{Android possession design}
+
+The Android source maintains the same Ed25519 mother protocol.  Its protocol private
+key is wrapped with AES-GCM using a non-exportable Android Keystore key.  The wrapping
+key requires a strong biometric or device credential, is usable only for a short
+authenticated interval, and is invalidated when biometric enrollment changes.
+Android BiometricPrompt supplies the protected cipher operation rather than a boolean
+claim that the application could forge.
+
+The native Compose shell includes Personal, Workspace and Boardroom modes, daily
+shortcuts, the Pilot composer and the customer-mother ownership explanation.  The
+manifest disables cleartext traffic and backups and declares camera, microphone,
+notification and biometric permissions.  No Android signing keystore, Firebase
+credential or customer endpoint is stored in source.
+
+\subsection{Private background Inbox delivery}
+
+The mother stores APNs or FCM device tokens only inside its encrypted native cache;
+durable policy state contains their hashes.  A background event is idempotent by its
+opaque event identifier.  The provider receives a content-available wake and the
+generic text ``Open Pilot to view a private update.''  It never receives message,
+task, calendar, approval or Guardian content in the notification body.
+
+Provider acceptance is recorded separately from human delivery.  Retries return the
+existing event record instead of emitting another push.  On iOS, BackgroundTasks
+deduplicates opaque event identifiers before a signed cursor refresh.  On Android,
+WorkManager uses unique work with keep-existing policy.  The actual private item is
+retrieved from the pinned customer mother only after the application resumes its
+authorized connection.
+
+\subsection{Authenticated WebRTC epochs}
+
+A callee can no longer register a call identity merely by supplying a public key.  It
+must sign a call-specific participant proof with that key.  For every media epoch,
+both caller and callee then sign an exact transport record containing the call,
+persona, epoch, fresh X25519 public key, DTLS fingerprint and nonce.  Altered actors,
+calls, epochs, keys, fingerprints and replayed nonces fail closed.
+
+The call may enter \texttt{connected} only when both authenticated records exist for
+the current epoch.  Reconnection advances the required epoch, removes the prior
+commitment and requires both participants to register fresh transport identities.
+The mother stores a canonical commitment to the public handshake records; it does not
+derive or retain the WebRTC media session key.
+
+This completes signalling authentication and rotation, not independent cryptographic
+assurance for the media implementation.  \texttt{MOB-1201} remains open until the
+native WebRTC construction and dependencies receive an independent security audit.
+
+\subsection{Verification and explicit blockers}
+
+Automated tests cover signed and replay-resistant biometric challenges, exact payload
+binding, encrypted push-token storage, content-free notifications, idempotent provider
+submission, native source invariants, signed call-participant registration, two-party
+transport readiness and mandatory fresh reconnection epochs.  Swift package tests
+compile and pass on this Mac.
+
+The current machine lacks the full Xcode/iOS SDK, an Apple development team, JDK,
+Android SDK and Gradle.  Therefore \texttt{MOB-1101} and \texttt{MOB-1102} remain open:
+no signed IPA or APK has been produced.  APNs/FCM delivery, biometric behavior,
+accessibility, child controls, lock-screen privacy and lifecycle behavior must still
+be qualified on representative physical devices under \texttt{MOB-1110} and
+\texttt{MOB-1111}.

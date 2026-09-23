@@ -1,0 +1,233 @@
+\section{Phase 11H --- Well-Known Discovery Preview v0}
+\label{sec:aion-a2a-well-known-discovery-preview-v0}
+
+\subsection{Status}
+
+Phase 11H locks the well-known discovery preview for the guarded A2A external agent API layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- A2A well-known discovery preview tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock defines the preview metadata that future external agents may discover through well-known paths.
+
+The goal is to describe how an AI agent should discover the AION machine-readable business layer without mounting a live public route yet.
+
+The preview advertises:
+
+\begin{itemize}
+  \item \texttt{/.well-known/aion-agent},
+  \item \texttt{/.well-known/ai-agent},
+  \item capability discovery preview,
+  \item current availability preview,
+  \item accepted protocols,
+  \item authentication requirements.
+\end{itemize}
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/a2a_well_known_discovery.py
+\end{verbatim}
+
+The module exports:
+
+\begin{itemize}
+  \item \texttt{A2A\_WELL\_KNOWN\_DISCOVERY\_VERSION},
+  \item \texttt{A2A\_WELL\_KNOWN\_PATHS},
+  \item \texttt{ACCEPTED\_PROTOCOLS},
+  \item \texttt{A2AWellKnownDiscoveryPreview},
+  \item \texttt{build\_well\_known\_discovery\_preview},
+  \item \texttt{build\_well\_known\_discovery\_summary}.
+\end{itemize}
+
+The contract version is:
+
+\begin{verbatim}
+aion.a2a_well_known_discovery.v0.1
+\end{verbatim}
+
+\subsection{Default Business Context}
+
+The default preview context remains:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+industry_key = trades
+\end{verbatim}
+
+This is a testbed default only. The discovery contract is universal and MUST support other verticals such as legal services, accounting services, ecommerce, clinics, restaurants, consultants, and B2B suppliers.
+
+\subsection{Well-Known Paths}
+
+The locked preview paths are:
+
+\begin{verbatim}
+/.well-known/aion-agent
+/.well-known/ai-agent
+\end{verbatim}
+
+These paths are discovery previews only.
+
+They are not mounted as public routes in this phase.
+
+\subsection{Capability Discovery Preview}
+
+The discovery payload advertises that the following guarded A2A preview surfaces exist:
+
+\begin{itemize}
+  \item business capabilities,
+  \item machine catalog,
+  \item availability preview,
+  \item quote request preview,
+  \item job request preview,
+  \item job trace preview,
+  \item job evidence preview,
+  \item settlement readiness preview,
+  \item proof receipt preview,
+  \item trust summary preview.
+\end{itemize}
+
+The capability discovery route preview is:
+
+\begin{verbatim}
+/api/aion/a2a/home_fixed/business_capabilities
+\end{verbatim}
+
+\subsection{Availability Preview}
+
+The discovery payload advertises current availability in preview form only:
+
+\begin{verbatim}
+status = preview_available
+availability_mode = preview_only
+live_booking_enabled = false
+live_status_polling_enabled = false
+human_review_required = true
+\end{verbatim}
+
+The availability preview MUST NOT create a booking or expose live status polling.
+
+\subsection{Accepted Protocols}
+
+The accepted protocol preview includes:
+
+\begin{verbatim}
+aion.a2a.preview.v0
+aion.machine_cart.preview.v0
+aion.proof_receipt.preview.v0
+aion.trust_summary.preview.v0
+\end{verbatim}
+
+These protocols describe the current preview vocabulary for machine-readable capability discovery, quote preview, proof receipt preview, and trust summary preview.
+
+\subsection{Authentication Requirements}
+
+The discovery preview advertises guarded authentication requirements:
+
+\begin{verbatim}
+requires_auth = true
+auth_mode = api_key_or_signed_agent_preview
+api_key_supported_preview = true
+signed_agent_supported_preview = true
+agent_identity_validation_enabled = false
+scoped_permissions_enabled = false
+\end{verbatim}
+
+Production authentication is not implemented by this phase.
+
+This lock only declares the requirement that future public discovery MUST be guarded before exposure.
+
+\subsection{Hash Contract}
+
+The discovery preview includes deterministic hashes:
+
+\begin{verbatim}
+discovery_hash
+response_hash
+summary_hash
+\end{verbatim}
+
+Equivalent inputs MUST produce equivalent hashes.
+
+Changing the business identity, vertical key, industry key, accepted protocols, or discovery payload SHOULD change the relevant hash.
+
+\subsection{Safety Boundary}
+
+The Phase 11H well-known discovery preview MUST NOT:
+
+\begin{itemize}
+  \item expose a public route,
+  \item mount \texttt{/.well-known/aion-agent},
+  \item mount \texttt{/.well-known/ai-agent},
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item enable live status polling.
+\end{itemize}
+
+The locked safety flags include:
+
+\begin{verbatim}
+preview_only = true
+public_route_mounted = false
+would_expose_public_route = false
+would_create_booking = false
+would_create_live_job = false
+would_execute_goal_engine = false
+would_bypass_human_review = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_send_external_messages = false
+live_status_polling_enabled = false
+\end{verbatim}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_a2a_well_known_discovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_a2a_well_known_discovery_lock_doc.py
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+Focused suite validation:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-A2A-WELL-KNOWN-DISCOVERY-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

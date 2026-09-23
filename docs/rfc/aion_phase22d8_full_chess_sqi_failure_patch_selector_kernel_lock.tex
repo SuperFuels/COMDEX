@@ -1,0 +1,61 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22D.8: SQI Failure Patch Selector Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- SQI selector patched against level 2 failure modes.}
+\end{quote}
+
+\section{Kernel Location}
+
+\begin{verbatim}
+backend/modules/aion_games/full_chess_sqi_failure_patch_selector_kernel.py
+\end{verbatim}
+
+\section{Purpose}
+
+Phase 22D.8 applies deterministic guard penalties from the Phase 22D.7 review.
+
+The selector now penalises:
+
+\begin{itemize}
+  \item repetition loops;
+  \item back-and-forth cycles;
+  \item unsafe king shuffling;
+  \item queen and rook invasion failures;
+  \item promotion race failures;
+  \item negative SQI spiral behaviour.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+\section{Next Step}
+
+\begin{verbatim}
+22E.1 -- Positional Strategy Features
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22D8-SQI-FAILURE-PATCH-SELECTOR-KERNEL-LOCK\\
+Status: LOCKED --- SQI selector patched against level 2 failure modes\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

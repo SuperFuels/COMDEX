@@ -1,0 +1,98 @@
+\section{Phase 15A --- AXO and Execution Trust Score Contract Foundation}
+\label{sec:aion-phase15a-axo-ets-contract-foundation-lock}
+
+\subsection{Status}
+
+Phase 15A locks the first preview-only contract layer for AXO and Execution Trust Score.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AXO vocabulary, ETS feedback packet preview, score separation, trace links, AgentMap ETS preview, and safety boundaries are defined.}
+\end{quote}
+
+\subsection{Purpose}
+
+The purpose of this lock is to define how AION can receive, represent, and expose trust feedback without mutating live reputation, accepting autonomous score changes, or enabling booking/payment/escrow side effects.
+
+This phase is intentionally preview-only. It prepares the trust layer that will later sit behind AgentMap, AXO readiness dashboards, job trace evaluation, evidence validation, and proof receipt verification.
+
+\subsection{Locked Contracts}
+
+The locked module is:
+
+\begin{verbatim}
+backend/modules/aion/axo/axo_ets_contracts.py
+\end{verbatim}
+
+It defines:
+
+\begin{itemize}
+  \item \texttt{AXO\_SCORING\_VOCABULARY}
+  \item \texttt{ETS\_FEEDBACK\_PACKET\_VERSION}
+  \item \texttt{build\_ets\_feedback\_packet\_preview}
+  \item \texttt{validate\_ets\_feedback\_packet\_preview}
+  \item \texttt{build\_ets\_agentmap\_preview}
+\end{itemize}
+
+\subsection{Score Separation}
+
+Customer outcome score and system execution score are separate fields.
+
+\begin{itemize}
+  \item Customer outcome score is a customer-visible satisfaction and service quality signal.
+  \item System execution score is a machine execution, evidence, trace, and policy-compliance signal.
+\end{itemize}
+
+These scores MUST NOT be merged. A good machine execution trace does not automatically mean a good customer outcome, and a good customer outcome does not automatically prove that the system followed policy.
+
+\subsection{Trace Links}
+
+Every ETS feedback packet preview links to:
+
+\begin{itemize}
+  \item a job trace identifier,
+  \item a proof receipt identifier,
+  \item one or more evidence identifiers.
+\end{itemize}
+
+This keeps ETS grounded in evidence and proof receipts instead of free-floating reputation claims.
+
+\subsection{Safety Boundary}
+
+The ETS layer is locked as preview-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item write live reputation,
+  \item autonomously accept score changes,
+  \item create bookings,
+  \item create payments,
+  \item create escrow,
+  \item bypass human review.
+\end{itemize}
+
+Anti-gaming and trust rules remain unlocked in this phase, so all score exposure is informational only.
+
+\subsection{Validation}
+
+Validation command:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase15_axo_ets_contract_foundation_lock.py
+\end{verbatim}
+
+Focused suite membership is required in:
+
+\begin{verbatim}
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE15A-AXO-ETS-CONTRACT-FOUNDATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,59 @@
+\section{Phase 16D: Boardroom Founder Demo UX Hardening Lock}
+\label{sec:phase16d-founder-demo-ux-hardening-lock}
+
+\subsection{Status}
+
+Phase 16D locks the founder-demo front page hardening pass for the AION Boardroom.
+
+\begin{quote}
+\textbf{Status: LOCKED --- founder demo UX hardening, AgentMap hash containment, website install snippets, workflow-to-widget bridge, controlled runtime drawer, and proof replay path.}
+\end{quote}
+
+\subsection{Locked Front Page Behaviour}
+
+The Boardroom front page MUST remain focused on the founder-demo path:
+
+\begin{verbatim}
+Home Fixed website/widget request
+-> Public Intent Gateway
+-> Guard Envelope
+-> AgentMap/capability route
+-> Machine Cart/quote preview
+-> Human Review handoff
+-> Founder decision preview
+-> FulfilmentJob preview
+-> Evidence preview
+-> Proof receipt preview
+-> ETS preview
+-> Boardroom replay
+\end{verbatim}
+
+The proof card MUST visibly show that no booking, payment, escrow, external message, or live chain write is created. Human review MUST remain required and replay/hash proof MUST remain available.
+
+\subsection{Locked UX Constraints}
+
+\begin{itemize}
+  \item AgentMap hashes MUST be visually contained using short display text while preserving the full value in the UI.
+  \item Website install tags and generated workflow form snippets MUST be copy-ready.
+  \item The workflow-to-widget panel MUST show the guarded A2A route from website form to quote preview and human review.
+  \item Advanced runtime diagnostics MUST remain available but MUST NOT dominate the front page.
+  \item Older workflow run history MAY remain visible, but SHOULD be tucked behind a details/replay disclosure.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase16d_founder_demo_ux_hardening_lock.py
+
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE16D-FOUNDER-DEMO-UX-HARDENING
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,76 @@
+\section{Phase 21L --- Live Agents Aion Pilot Cockpit Mount}
+\label{sec:aion-phase21l-live-agents-aion-pilot-mount}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21L moves the primary visible Pilot cockpit surface into the confirmed Live Agents Aion workspace render path.
+
+\subsection{Confirmed Frontend Route}
+
+The Live Agents department router contains the Aion route:
+
+\begin{verbatim}
+if (departmentKey === "aion") {
+  return renderAionWorkspaceSurface(selectedRuns, selectedAgentCard);
+}
+\end{verbatim}
+
+Therefore the correct mount target is:
+
+\begin{verbatim}
+renderAionWorkspaceSurface(selectedRuns, selectedAgentCard)
+\end{verbatim}
+
+\subsection{Purpose}
+
+AION Pilot is an operator/agent surface, not a normal chat surface.
+
+The primary cockpit therefore belongs in:
+
+\begin{verbatim}
+Live Agents -> Aion
+\end{verbatim}
+
+The top-level Aion chat tab may point users to the cockpit, but it MUST NOT be the primary operator surface.
+
+\subsection{Visible Operator Identity}
+
+The Live Agents Aion workspace MUST show that Pilot is:
+
+\begin{itemize}
+  \item a native AION runtime operator;
+  \item not UI automation;
+  \item plan-gated;
+  \item preview/safety bounded;
+  \item unable to perform live external side effects without exact approval.
+\end{itemize}
+
+\subsection{Required Safety Message}
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21l_live_agents_aion_pilot_mount_ui_lock.py
+\end{verbatim}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{Moving Pilot into Live Agents / Aion changes visibility only. It MUST NOT grant execution authority, expose private reasoning, expose credentials, or create live external side effects without the existing AION approval chain.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21L-LIVE-AGENTS-AION-PILOT-MOUNT
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

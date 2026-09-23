@@ -1,0 +1,100 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.50 --- King Safety Threat-Removal Policy}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.50 adds a king-safety threat-removal policy above the initiative hygiene stack.
+
+The purpose is to prevent AION from treating king safety as passive king-walking.
+
+\section{Failure Source}
+
+The Level-3 game exposed repeated king movement during king-safety mode:
+
+\begin{verbatim}
+e1f1
+f1g1
+g1g2
+g2f3
+f3e2
+e2f1
+f1e1
+e1d1
+d1c2
+c2b1
+b1a1
+\end{verbatim}
+
+This moved the king but did not remove the attacking resources.
+
+\section{Rule}
+
+When AION is in \texttt{king\_safety}, passive king movement SHOULD be rejected if a stronger legal move exists that:
+
+\begin{itemize}
+  \item captures an attacking piece;
+  \item blocks a mating mechanism;
+  \item gives check;
+  \item reduces king pressure;
+  \item prevents immediate mate.
+\end{itemize}
+
+\section{Live Stack Position}
+
+The new live stack is:
+
+\begin{verbatim}
+22E.38 -- Live one-move sender
+  -> 22E.50 -- King Safety Threat-Removal Policy
+    -> 22E.49 -- Initiative Hygiene Guard
+      -> 22E.48 -- Promotion Safety / Queen Survival Guard
+        -> 22E.46 -- Dynamic Intent Switching & Plan Strength Evaluation
+          -> 22E.44 -- Proactive Intent Primacy & Plan Enforcement
+            -> 22E.43 -- Anti-Shuffling / Endgame Conversion Guard
+              -> 22E.42 -- Passed Pawn Intent Scope Guard
+                -> 22E.41 -- Queen-First Promotion Guard
+                  -> 22E.37 -- Intent-Driven Strategic Well
+\end{verbatim}
+
+\section{Evidence Fields}
+
+The guard records:
+
+\begin{verbatim}
+king_safety_threat_removal_checked
+passive_king_walk_detected
+threat_removal_alternative_found
+threat_removal_override_applied
+threat_removal_reason
+selected_move_threat_score
+alternative_threat_score
+king_pressure_before
+king_pressure_after_selected
+king_pressure_after_final
+\end{verbatim}
+
+\section{Boundary}
+
+This kernel does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E50-FULL-CHESS-KING-SAFETY-THREAT-REMOVAL-POLICY\\
+Status: LOCKED --- king safety threat-removal policy implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

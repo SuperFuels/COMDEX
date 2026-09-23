@@ -192,6 +192,25 @@ data/photon_sci/*.jsonl
 data/logs/**
 exports/**
 
+# Experiment evidence and simulator checkpoints remain local. Curated reports
+# and source contracts live under docs/ and backend/; existing tracked result
+# fixtures remain tracked, but new multi-gigabyte run output must not enter Git.
+results/**
+MUJOCO_LOG.TXT
+
+# Live AION service coordination and failed-state recovery snapshots are
+# machine-local runtime data rather than reproducible source.
+backend/modules/hexcore/data/service_locks/
+backend/modules/hexcore/data/**/*.lock
+backend/modules/hexcore/data/**/*.malformed.*
+backend/modules/hexcore/data/phase45_artifacts/
+backend/modules/hexcore/data/**/provider_cache.json
+backend/modules/hexcore/data/**/openai_provider_cache.json
+backend/modules/hexcore/data/**/teacher_cache.json
+# Large, rapidly changing local resume state.  Its compact governed evidence
+# snapshot is results/hexcore_situational_executive_driver.json.
+backend/modules/hexcore/data/situational_executive_driver/state.json
+
 # optional: if you never want ANY runtime data tracked
 # data/**# INERTIA artifacts: keep only what is already tracked; ignore future runs
 INERTIA/artifacts/programmable_inertia/**/*
@@ -201,6 +220,15 @@ INERTIA/artifacts/programmable_inertia/**/*
 
 # Tessaris: local artifacts (generated)
 **/artifacts/**
+
+# AION desktop local build/runtime artifacts (source remains tracked separately)
+.venv_voice/
+.o25ax_backup_*/
+desktop/mac/Tessaris.app/
+desktop/mac/voice_bundle_staging/
+desktop/mac/src/app.js.broken-*
+desktop/mac/src/app.js.phase*backup*
+desktop/mac/src/app.js.phase*-route-truth-backup
 
 
 # runtime / generated
@@ -267,3 +295,112 @@ tools/solana/glyphos-token/*.json
 # telegram
 /tools/telegram/groups.txt
 .runtime/
+
+# local env files
+env.local
+*.local
+*.secret
+
+# local app.js backups
+desktop/mac/src/app.js.bak-*
+desktop/mac/src/app.js.bak*
+
+# accidental terminal/scratch files
+Your daily*
+null_surface.csv
+refined_null_surface.csv
+resonance_prediction.json
+
+# local snapshots/runtime diagnostics
+snapshots/
+benchmarks/sqi_semiprime_lab/
+
+# Firebase local/build output
+.firebase/
+.firebase/**
+
+# frontend generated builds
+**/.next/
+**/out/
+**/dist/
+
+# backend-served frontend build output
+backend/static/_next/
+backend/static/_next/**
+backend/static/**/*.js.map
+
+# backup files
+*.bak
+*.bak.*
+*.bak-*
+*.bak-*
+*.bak.md
+*.bak.*
+
+# timestamp backup files
+*.tsx.bak.*
+*.ts.bak.*
+*.py.bak-*
+*.js.bak-*
+
+# Firebase project binding
+.firebaserc
+**/.firebaserc
+
+# old git backups / accidental repo copies
+.git_old*/
+.git_old_before_tessaris_sync_*/
+
+# local ML model blobs
+*.safetensors
+*.bin
+
+# generated static builds
+backend/static/_next/
+backend/static/.next/
+.firebase/
+.firebase/**
+
+# local backups
+*.bak
+*.bak-*
+*.bak.*
+
+# local ML model blobs only
+backend/models/all-MiniLM-L6-v2/
+
+# local embedding/model downloads
+models/
+models/**
+backend/models/all-MiniLM-L6-v2/
+backend/models/all-MiniLM-L6-v2/**
+*.safetensors
+*.bin
+
+# Local desktop app backup snapshots
+desktop/mac/src/app.before-node-editor-cleanup.*.js
+
+# Local secrets / env
+.env.local
+backend/.env.local
+backend/env.local
+desktop/mac/.env
+desktop/mac/.env.local
+desktop/mac/env.local
+# Local backups / scratch
+*.before_*
+*.before-*
+*.after-*
+desktop/mac/src/app.js.before*
+desktop/mac/src/app.js.after*
+
+# Local duplicate/scratch entry point; the authoritative desktop source is
+# desktop/mac/src/app.js.
+/app.js
+
+# Generated LaTeX build intermediates.  Keep the source document and PDF, not
+# machine-specific compiler state.
+*.aux
+*.out
+*.toc
+*.synctex.gz

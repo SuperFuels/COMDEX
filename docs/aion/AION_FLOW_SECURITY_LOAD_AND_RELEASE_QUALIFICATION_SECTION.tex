@@ -1,0 +1,80 @@
+\section{AION Flow Security Remediation, Load Qualification and Release Gates}
+\label{sec:aion-flow-security-load-qualification}
+
+This section records the production-hardening work completed after the formal AION Flow threat
+review. It is designed to be appended to the existing AION technical document. Internal engineering
+qualification is complete; independent enterprise certification and representative field validation
+remain explicitly open.
+
+\subsection{Canonical request authority}
+
+Every preparation, approval, execution, run inspection and control operation, evaluation decision,
+template lifecycle change and production operation now requires a short-lived signed desktop
+session. The signature binds the HTTP method, exact target including its query, request-body hash,
+device, person, workspace, issue time and one-use nonce. Expired, modified and replayed requests fail
+closed. The mother brain then resolves that person against the canonical workspace and Organisation
+Authority stores. A role, person or workspace asserted by browser code cannot grant permission.
+
+Execution policy is no longer accepted from the canvas. Each workspace has a signed, versioned,
+persisted policy with optimistic revision checks and an exact policy receipt. The default permits
+local dry-run work only, permits no external writes and has a zero cloud-spend ceiling. A policy
+change therefore remains attributable, reversible and separate from a workflow definition.
+
+\subsection{Customer keystore and production dependencies}
+
+Production runtime no longer contains a universal fallback encryption key. It resolves a
+customer-provided secret, an owner-only configured key file or a platform keyring entry, and refuses
+to start the affected secure path when none exists. Development installations generate their own
+owner-only machine secret instead of sharing a repository constant.
+
+Release engineering now maintains a minimal hash-locked Python production manifest. It produces a
+CycloneDX software bill of materials and an Ed25519 signature over the lock hash and bill of
+materials. The locked set reported no known vulnerabilities during the recorded audit. Legacy ECDSA
+and WeasyPrint paths are excluded from this production environment rather than being inherited from
+the all-purpose research installation.
+
+\subsection{Sustained-load evidence}
+
+The earlier timing check measured only repeated graph hashing and was not sufficient. The replacement
+qualification covers three distinct synthetic profiles. A 1,500-node linear graph with 1,499 edges
+passed production shape, identity and authority validation with a recorded 95th-percentile time of
+997.635 milliseconds. A 256-route fan-out and fan-in graph with 512 edges produced deterministic
+ordered results with a 95th-percentile processing time of 38.646 milliseconds. A simulated
+long-running workflow wrote 250 atomic local checkpoints, recovered checkpoint 250 and recorded a
+95th-percentile checkpoint-write time of 0.625 milliseconds.
+
+The run used synthetic identifiers, made no external model calls and performed no external business
+actions. Its signed report hash is
+\texttt{f1f1d047cbc628f0}\allowbreak\texttt{2be7715fbc2c8f93}\allowbreak
+\texttt{fcde9fff5b18b993}\allowbreak\texttt{03d4977ecd659263}.
+These figures qualify the tested machine and build, not every future customer device. The Production
+centre now exposes the same signed qualification so each installation can generate its own evidence.
+
+\subsection{Accessibility and privacy boundary}
+
+The Production centre is exposed as a labelled modal dialog with semantic controls, a polite live
+status region, keyboard focus on entry, Escape dismissal and focus restoration. The mobile surface
+remains review-only. Encrypted imports restore neither credentials nor execution authority.
+Operational telemetry contains hashes, counts, node families, status totals and latency buckets; it
+does not contain workflow content, credentials or customer identifiers. Load evidence likewise uses
+synthetic content only.
+
+The governing privacy rule remains that the canvas, imported graph, model output, evidence and
+provider response are untrusted inputs. Credentials remain opaque Visual Vault references. Persisted
+customer policy determines disclosure, and only an authorised capability plus a verified receipt can
+prove an external effect.
+
+\subsection{Independent release work still required}
+
+The implementation team cannot self-certify the remaining release gates. Before an applicable
+enterprise release, AION Flow still requires independent penetration testing; a WCAG~2.2 AA audit
+including keyboard, screen-reader, zoom, contrast and cognitive-accessibility testing;
+jurisdiction-specific privacy, employment, retention, AI-governance and sector review; dependency
+licence and update-signature review; platform signing and notarisation with the release owner's
+identities; and representative trials across real organisations, roles, workspaces, private models,
+customer-cloud endpoints and disaster-recovery exercises.
+
+Accordingly, remediation tasks \texttt{AFLOW-1107R1} through \texttt{AFLOW-1107R4} and sustained-load
+task \texttt{AFLOW-1108} are complete. Task \texttt{AFLOW-1109} remains open only for the independent,
+jurisdictional and representative field evidence described above. No model, template or canvas policy
+may waive those gates.

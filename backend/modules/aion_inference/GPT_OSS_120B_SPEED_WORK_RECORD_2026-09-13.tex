@@ -1,0 +1,879 @@
+% Drop-in section. Requires amsmath, booktabs and url.
+% Recommended: \usepackage[hyphens]{url}.
+\section{GPT-OSS 120B: work and speed experiments, 13 September 2026}
+\label{sec:gptoss-speed-20260913}
+
+\subsection{Scope and claim boundary}
+This records work on the 18\,GB M3 Pro Mac, with results inspected at
+approximately 01:30 CEST on 13 September 2026. The active repository is
+\path{/Users/kevinrobinson/dev/COMDEX}. The complete selected model remains
+in the verified SD warehouse. Local caches and the new embedding table are
+additional copies; the SD source was not removed or altered.
+
+The objective remains faster useful generation, with 30--50 tokens/s as a
+research target. Isolated kernel speed, generation speed on a specified
+workload, and validated answer quality are separate claims. The exact
+four-expert and adaptive quality tracks are different experiments. No result
+below establishes general generation at 30--50 tokens/s.
+
+\subsection{Disk-space recovery and source preservation}
+The previous explanation teacher stopped when free internal-disk space fell
+below the queue's 3\,GiB reserve. Its partial evidence was preserved. This
+was a resource interruption, not an accuracy failure.
+
+Before deleting old application builds, local history and outstanding source
+changes were pushed to the remote backup branch
+\path{source-backup-before-storage-cleanup-20260913}.
+The outstanding-source snapshot is
+\texttt{967e7cfce7ce82954bc4b64bf50063121801bd9a}; the subsequent
+preservation-record snapshot is
+\texttt{552277721d00fbc77c57c3a86ae992f42c4c58ed}.
+Both were verified remotely. Local main, its index and working-tree changes
+were preserved; this was not a merge into remote main. These snapshots
+predate the new embedding and kernel source additions described below.
+
+Authorized cleanup removed 145 old Tessaris application copies, 160 weight
+files from five redundant Granite pack variants, seven archived Qwen
+screening/edge GGUF variants, and unused Ollama model files. The current
+\path{/Applications/Tessaris.app} was retained after checking that the old
+copies had no newer application payload timestamp. Free internal space rose
+from approximately 4.19 to 158.60\,GiB, an observed filesystem delta of
+154.41\,GiB. Logical file sizes need not sum to that delta.
+
+Retained items include the complete 120B warehouse, its existing promoted
+20\,GiB L2 cache, current inference evidence, and one original Granite BF16
+expert pack with 32 layers and 1,280 experts. All retained layer files were
+checked against recorded SHA-256 values. Variant manifests, relocation and
+invalidation records were retained before deleting redundant weights.
+
+The former small-model SD root was not mounted. The promoted Granite INT8
+bank and full small-model checkpoints were therefore not freshly confirmed.
+Expert weights and recipes alone are not a consumer-ready language model:
+shared tensors, tokenizer, configuration, dependencies and verified launch
+instructions are also required. No fresh consumer-bundle reproduction was
+certified. The detailed inventory and rebuild chain are under
+\path{backend/modules/aion_inference/storage_retention_20260913/}.
+Disk recovery prevents reserve interruptions; it is not itself a speed result.
+
+\subsection{Explanation retry: complete reference evidence}
+The interrupted attempt was moved outside the active queue root to
+\path{results/aion_gptoss_c4_explanation_interrupted_20260913T000830}.
+At approximately 00:08:30 CEST, explanation alone was retried; arithmetic
+and business were explicitly skipped as already verified.
+
+Settings were six CPU threads, an 8\,GiB resident expert cache, in-process
+embedding/attention/MoE/vocabulary output, in-memory layer flow, two passes,
+33 executed positions and a 17-token forced prompt. Capture positions 3--32
+covered all 36 layers. Counterfactual capture retained already computed
+rank-2/3/4 contributions. No experimental correction or changed gate-mass
+environment was inherited and no extra persistent L2 cache was added.
+
+Explanation saved 1,080 layer observations and 30 full vocabulary vectors,
+each containing 201,088 float32 logits. Pass durations were 363.5505 and
+343.7027 seconds. Routes, final hidden states and logits repeated bitwise.
+The passing receipt and completion seal were written, then receipt and
+captured-binary hashes were independently rechecked.
+\begin{center}
+\begin{tabular}{lrl}
+\toprule
+Capture & Layer observations & State \\
+\midrule
+Arithmetic & 1,332 & Verified \\
+Business & 1,188 & Verified \\
+Explanation & 1,080 & Verified \\
+Total & 3,600 & Verified \\
+\bottomrule
+\end{tabular}
+\end{center}
+These seals certify authentic repeatable reference trajectories, not a
+correction, adaptive-state substitution, answer-quality or speed certificate.
+The evidence root is
+\path{results/aion_gptoss_c4_full_layer_training_queue_20260912_retry02/}.
+
+\subsection{All-layer correction probes}
+The existing fixed local affine kernel-ridge policy was extended to all
+36 layers. Fitting/probe prompts were from different families, both in the
+declared training split. No sealed holdout was read and no accuracy-policy
+retuning occurred.
+
+The policy uses at least four and at most 32 fitting calls per rank/expert,
+regularization $10^{-3}$, and maximum-anchor activation cosine at least
+0.80. For omitted contribution $c$, prediction $\widehat c$ and full teacher
+MoE output $y$, the local metric is
+\[
+ e=\frac{\lVert\widehat c-c\rVert_2}{\max(\lVert y\rVert_2,10^{-30})}.
+\]
+A local pass requires $e\leq0.02$ and improvement over dropping $c$.
+Region candidacy requires all supported probe calls in the region to pass,
+plus the existing payload check. That check uses one quarter of an
+approximate 13.25\,MiB expert budget, not a measured compute-cost ratio.
+
+Arithmetic-to-business had only rank-4 fitting targets because the older
+arithmetic capture lacks ranks 2/3. Rank 4 had one supported call out of
+576 and no pass. Ranks 2/3 had no fitted identities; this is missing fitting
+evidence, not proof that all such corrections fail.
+
+Business-to-explanation tested all ranks using the verified new capture:
+\begin{center}
+\begin{tabular}{rrrrr}
+\toprule
+Rank & Probe calls & No fitted identity & Supported & Local passes \\
+\midrule
+2 & 576 & 556 & 10 & 0 \\
+3 & 576 & 566 & 3 & 2 \\
+4 & 576 & 573 & 1 & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+The two rank-3 passes lie in locally passing candidate regions but cover
+only $2/576\approx0.35\%$ of rank-3 traffic. There is no useful certified
+coverage. The historical 3.246\% correction failure against the 2\% gate
+has not been superseded by a certified result.
+
+No correction was injected. Teacher-rank targets do not certify changed
+adaptive states. Compute-cost ratios, downstream routes/logits and untouched
+full-answer checks remain outstanding. Timings under active teacher load
+are diagnostic only.
+
+\subsection{Expert-cache replay and real capacity tests}
+Offline replay used chronological expert requests from both arithmetic and
+business teacher passes. Identity is (layer, expert). A complete original
+raw frame is 13,253,760 bytes: approximately 13.25\,MB decimal, or
+12.64\,MiB. An 8\,GiB RAM cache holds 648 such frames.
+
+The simulation starts with empty caches per job, retains RAM across two
+passes, and uses inclusive local-disk LRU touched on RAM misses. Its no-L2
+case exactly reproduces recorded cumulative RAM hits and faults for both
+traces.
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+& \multicolumn{4}{c}{Simulated SD reads, passes A/B} \\
+\cmidrule(lr){2-5}
+Trace & No L2 & 20\,GiB & 40\,GiB & 80\,GiB \\
+\midrule
+Arithmetic & 2,624/2,529 & 1,968/1,383 & 1,925/0 & 1,925/0 \\
+Business & 2,372/2,295 & 1,632/87 & 1,632/0 & 1,632/0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Thus 40\,GiB covers all repeat-pass RAM misses on these fixed traces;
+80\,GiB adds no benefit. This is counterfactual read-count evidence, not
+latency, tokens/s or coverage of unfamiliar prompts.
+
+The real 20\,GiB pilot used the 40-position arithmetic trajectory,
+24-token prompt, six threads, 8\,GiB RAM, four experts and two passes.
+Pass durations were 343.4410 and 263.0135 seconds; continuation rates were
+0.13734 and 0.14318 tokens/s. Both passes matched original teacher tokens,
+routes, layer outputs, hidden states and logits. An interrupt arrived after
+the completed receipt was saved; that receipt was independently checked
+and preserved. No fresh matched no-L2 control ran today, so these rates
+alone do not establish a causal cache gain.
+
+The 40\,GiB pilot started briefly, then was cleanly interrupted to prioritise
+adaptive computation. Its partial cache was renamed and preserved. It has
+no completed result and is queued after computation experiments.
+
+\subsection{Local embeddings: exact reads, inconclusive generation gain}
+Inspection established that attention/router weights already stay in RAM
+during resident inference and vocabulary output is staged locally at
+startup. Embedding rows were still read through the SD warehouse reader.
+
+The original 398,154,240-byte embedding tensor was copied in bounded chunks
+to \path{.runtime/aion-gptoss-local-shared-embedding-20260913/}.
+Metadata binds source shard, tensor name/offset/dimensions/GGML type/length,
+warehouse manifest hash and table SHA-256. Runtime checks the binding and
+local bytes before inference. No weight conversion was applied.
+
+The wrapper redirects only reads wholly inside this tensor and runs the
+unchanged inference gate. Local rows use positional file reads; all other
+reads retain their original path. Read calls/bytes/time are separately
+recorded. Three unit tests passed: row offset correctness, non-embedding
+fallback, and rejection of altered table bytes before inference.
+
+A row-read probe used the original 40-position arithmetic sequence in
+SD/local/local/SD order, three repetitions per block, and a fresh bounded
+64\,MiB reader per SD block. OS caches were not flushed. Reading 40 rows
+took approximately 875--893\,ms through the SD reader versus
+0.023--0.044\,ms locally. Every row hash matched the teacher. This is a
+read-path improvement, not equivalent model throughput acceleration.
+
+Full generation used four serial two-pass runs in SD/local/local/SD order,
+the same warmed 20\,GiB expert cache, 8\,GiB RAM, six threads, 40 positions
+and a 24-token prompt. All runs matched teacher embedding rows, routes,
+layer outputs, hidden states, logits and tokens exactly.
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+Order/location & A tokens/s & B tokens/s & A/B seconds \\
+\midrule
+1: SD & 0.143372 & 0.145137 & 262.77/257.68 \\
+2: local & 0.144669 & 0.144348 & 254.12/254.24 \\
+3: local & 0.144051 & 0.145208 & 252.58/255.40 \\
+4: SD & 0.142791 & 0.142712 & 263.62/261.58 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Warm-pass medians were 0.1439246 tokens/s (SD) and 0.1447780 (local), a
+ratio of 1.005929, approximately $+0.59\%$. This small difference is
+inconclusive as a practical repeatable speed gain. The embedding method
+has not yet been measured on the fast adaptive path.
+
+\subsection{Different bottlenecks on exact and adaptive paths}
+Recorded continuation timings in the first local-embedding repeat pass
+attribute 95.60\% to expert loading, 2.90\% to MoE finish, 1.22\% to
+attention, 0.08\% to routing and 0.13\% to vocabulary output. Unclassified
+residual work is approximately 0.07\%. Loading includes delivery-path work,
+not just raw SD transfer; the residual does not isolate individual copies.
+
+The older quiet adaptive control at 7.0019/5.4920 tokens/s attributes only
+0.16/0.15\% to expert loading, but 71.33/76.39\% to MoE finish.
+Attention is 20.46/17.20\%, vocabulary output 4.96/3.57\%, and
+unclassified work 2.21/1.92\%. These are inclusive process timings.
+Thus larger local storage targets long exact delivery, while faster expert
+computation targets the existing adaptive track. Loading is not the
+universal explanation for every inference rate.
+
+\subsection{Joined gate/up projection kernel}
+The existing native implementation already uses caller-owned weight buffers,
+avoiding roughly 53\,MiB of copying per four-expert layer call. Earlier
+reusable-graph microbenchmarks reported approximately 1--5\% gains without
+meeting their promotion criterion; these are not new successes today.
+
+The new candidate combines two projections of the same input:
+\[
+ g=W_gx+b_g,\quad u=W_ux+b_u,\quad
+ z=\begin{bmatrix}W_g\\W_u\end{bmatrix}x,
+ \quad g=z_{1:d}+b_g,\quad u=z_{d+1:2d}+b_u,
+ \qquad d=2880.
+\]
+SwiGLU, down projection, float32 biases, original MXFP4 bytes, gate values,
+left-associated expert summation and residual addition are retained.
+SwiGLU constants remain 1.702 and 7.0. No experts are dropped and no weights
+are requantized. Reduced duplicate input preparation/dispatch is the
+hypothesis; its components were not separately timed.
+
+One writable joined buffer exposes adjacent gate/up views whose lengths sum
+to the original lengths. Cache accounting is unchanged. Packing and byte
+checks happen on admission, not every resident call. Two unit tests passed
+for unchanged bytes/size, native adjacency and incompatible-length rejection.
+The native library compiled and loaded.
+
+Real business inputs at (position, layer) $(20,0)$, $(24,12)$ and $(32,24)$
+were tested with 2/3/4 active experts. Weights were resident before timing.
+Each case had four warmup rounds and 24 measured ABBA rounds. Both kernels
+used the same joined storage layout. All repeated outputs were bitwise
+identical; four-expert outputs also matched captured teacher outputs.
+\begin{center}
+\begin{tabular}{rrrr}
+\toprule
+Position & Layer & Experts & Original/joined median time ratio \\
+\midrule
+20 & 0 & 2 & 1.07427 \\
+20 & 0 & 3 & 1.03225 \\
+20 & 0 & 4 & 1.07421 \\
+24 & 12 & 2 & 1.07688 \\
+24 & 12 & 3 & 1.07536 \\
+24 & 12 & 4 & 1.08995 \\
+32 & 24 & 2 & 1.12734 \\
+32 & 24 & 3 & 1.10041 \\
+32 & 24 & 4 & 1.11214 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Median case ratio is 1.076880: a 7.69\% throughput speedup, equivalently
+about 7.14\% less time. Median p95 ratio is 1.110354. The fixed automatic
+advancement criterion of 1.10 median ratio was not met, so the original
+report remains \texttt{NOT\_PROMOTED}. A separately recorded experimental
+full-generation pilot was nevertheless launched because the exact
+subthreshold gain warranted measurement. No production promotion or
+accuracy-policy relaxation occurred.
+
+\subsection{Adaptive full-generation pilot: preliminary positive warm result}
+The pilot uses the original 64-position reasoning workload, 21-token prompt,
+six threads, 8\,GiB resident expert pool, frozen pool constraints after the
+prompt, gate-mass threshold 0.80 and minimum two experts. Control and
+candidate both use joined storage; projection dispatch alone changes.
+The sequence is original/joined/joined/original, two passes each.
+Every completed receipt is compared with the original recorded adaptive
+trajectory for tokens, routes, layer outputs, hidden states and logits.
+
+At the recording boundary, the first original and first joined runs had
+completed and passed these comparisons. The second joined run was active;
+the final original run was pending.
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+Kernel & A tokens/s & B tokens/s & A seconds & B seconds \\
+\midrule
+Original & 6.705155 & 8.116176 & 228.9275 & 224.8347 \\
+Joined & 6.258983 & 9.100563 & 227.1205 & 223.2348 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Tokens/s covers continuation positions 21--63, excluding forced prompt and
+one-time startup. Pass durations include prompt execution; loading/staging
+adds further wall time outside these durations.
+\[
+ \frac{9.100563}{8.116176}-1=0.121287.
+\]
+The first matched warm result is therefore approximately $+12.13\%$.
+However, joined pass A was $6.65\%$ slower. The complete ABBA result remains
+outstanding, so 12.13\% is preliminary, not a certified repeatable/general
+gain. Earlier 5--7 tokens/s records cannot replace today's matched control.
+
+\subsection{Second candidate: persistent CPU workers}
+A second native candidate was compiled and loaded. It combines joined
+projections with a reusable CPU thread pool and graph-work buffer, using
+the installed GGML CPU graph-plan/compute interfaces. Six workers are reused;
+idle polling is disabled to avoid competing with other kernels. Scratch
+is 64-byte aligned and grows only when necessary. Thread-count changes
+recreate the pool; shutdown releases it.
+
+This targets setup and waiting without changing weights, expert selection
+or formulas. At recording time it was queued after the current adaptive
+comparison. There is no numerical gate or speed result yet. The predefined
+real-input gate uses the same nine cases, bitwise equality and automatic
+1.10 median-ratio criterion. A qualifying full adaptive pilot follows.
+Compilation/loading alone is not numerical or performance evidence.
+
+\subsection{Metal audit, resource limits and next steps}
+OpenAI's Metal source was inspected. Its \texttt{moematmul.metal} contains
+an MF4-weight selected-expert input kernel fused with SwiGLU. Buffer layout
+and bias representation need adaptation. It was not integrated or timed
+here; generic Metal results must not be reused as proof for this kernel.
+The command-line Metal compiler was unavailable; runtime source compilation
+is a separate option. Primary source:
+\url{https://github.com/openai/gpt-oss/blob/main/gpt_oss/metal/source/moematmul.metal}.
+
+The sequence is to finish the joined adaptive ABBA pilot, run the pooled
+worker kernel gate and any qualifying full pilot, then retry the 40\,GiB
+capacity experiment with an empty cache root. Interrupted artifacts remain
+preserved. Quality coverage, memory pressure and downstream/full-answer
+checks still constrain any promotion. No claim of a broad breakthrough
+or new certified correction is made.
+
+Disk remained above 100\,GiB free at recording time. Recent swap checks
+varied around 5--7\,GiB. Timing estimates therefore remain uncertain;
+these pilot rates are not an isolated hardware ceiling.
+
+\subsection{Implementation and evidence index}
+Paths are relative to COMDEX. JSON receipts carry full canonical hashes,
+settings and claim boundaries.
+\begin{itemize}
+\item Preservation inventory/recipes:
+\path{backend/modules/aion_inference/storage_retention_20260913/}.
+\item Teacher retry log:
+\path{results/aion_gptoss_c4_explanation_retry_20260913T000830.log}.
+Capture/seal root:
+\path{results/aion_gptoss_c4_full_layer_training_queue_20260912_retry02/}.
+\item Correction/cache evidence:
+\path{results/aion_speed_offline_probes_20260913/}, including
+\path{correction_summary.json}, \path{business_explanation_summary.json},
+\path{cache_replay.json}, \path{real_l2_20gib.json} and
+\path{20gib_priority_preservation.json}.
+\item Embedding wrapper:
+\path{backend/scripts/run_aion_gptoss_embedding_location_gate.py}.
+Tests:
+\path{backend/tests/test_aion_gptoss_embedding_location_gate.py}.
+Evidence:
+\path{results/aion_embedding_location_probe_20260913/}, including
+\path{embedding_row_read_probe.json}, \path{component_profile.json},
+\path{summary.json} and four generation receipts.
+\item Packing helper:
+\path{backend/modules/aion_inference/gptoss_joined_projection.py}.
+Native sources:
+\path{backend/modules/aion_inference/native/gptoss_joined_projection_library.cpp}
+and
+\path{backend/modules/aion_inference/native/gptoss_joined_pooled_projection_library.cpp}.
+Packing tests:
+\path{backend/tests/test_aion_gptoss_joined_projection.py}.
+\item Full-generation wrapper:
+\path{backend/scripts/run_aion_gptoss_joined_projection_full_gate.py}.
+First-kernel evidence:
+\path{results/aion_joined_projection_gate_20260913/}, including
+\path{fixed_plan.json}, \path{kernel_summary.json},
+\path{full_pilot_decision.json} and completed adaptive receipts.
+\item Second-kernel evidence:
+\path{results/aion_joined_pooled_projection_gate_20260913/}.
+Remaining cache driver:
+\path{results/aion_speed_offline_probes_20260913/run_cache_after_pooled.py}.
+\end{itemize}
+The companion frozen snapshot is
+\path{results/aion_daily_record_20260913/evidence_snapshot.json}.
+Later results require a dated update; they must not be silently treated as
+known at this recording boundary.
+
+\subsection{01:44 CEST preparation checkpoint: packed Metal compatibility}
+The final joined-projection control remains active, with pooled workers and
+the capacity pilot queued. No competing heavy benchmark was launched.
+A bounded next-kernel design was prepared at
+\path{results/aion_overnight_speed_20260913/FUSED_METAL_MICROGATE_DESIGN.md}.
+The archived official fused kernel accepts separate packed blocks/scales
+and BF16 biases, whereas the current GGML expert ABI binds MXFP4 matrices
+and F32 biases. Direct pointer substitution is invalid; a separately verified
+block/nibble-layout bridge and original F32 bias handling are required.
+Safe shader math does not prove GGML-identical SIMD reduction order.
+The proposed first gate is block-level decode equality, followed by one
+authentic expert with less than 64 MiB additional bank/scratch, then selected
+2/3/4-expert routes if successful. Admission transformation, memory ownership,
+dispatch and synchronization must be charged. This checkpoint is static
+preparation only: no Metal execution, accuracy or speed result is claimed.
+
+\subsection{02:00 CEST checkpoint: complete dispatch pilots and launcher repair}
+The complete original/joined/joined/original adaptive comparison retained
+bitwise source trajectory equality in all four conditions. Its warm medians
+were 6.569698 tokens/s for original and 6.656552 for joined: ratio 1.013220,
+approximately 1.32\% gain, not the earlier favorable 12.13\% single pair.
+The pooled-worker microgate then retained exact outputs but reached only
+1.096357 median ratio, below its fixed 1.10 criterion. It did not advance
+automatically to full generation. Neither establishes a broad speed promotion.
+
+The queued graph-template experiment failed before execution because its
+launch interpreter could not import NumPy. This was an environment failure,
+not a numerical or speed failure. The repository virtual environment was
+checked and contains NumPy 2.4.2. With no competing inference driver active,
+the unchanged graph-template script was relaunched using that interpreter
+and the explicit repository Python path. Existing failure logs were preserved;
+no dependency download or gate change occurred. The template experiment holds
+the inference lease for its microgate, rebinds caller pointers and changing
+gates, and advances only on its declared exactness/1.10 criterion. Results
+remain pending at this checkpoint.
+
+The relaunched template microgate then completed all nine authentic cases,
+with exact outputs including the changing-gate rebinding checks. Median ratio
+was 1.105353, exceeding the unchanged 1.10 advancement gate. The conditional
+full adaptive original/joined/joined/original experiment began automatically.
+This is narrow kernel advancement, not a measured full-generation gain.
+
+\subsection{02:16 CEST lightweight packed-block audit}
+While template full generation remained active, a bounded installed-GGML
+dequantizer audit tested all 16 MXFP4 codes at five scale exponents, including
+zero. All 160 decoded F32 values matched the declared planar layout bitwise.
+The installed ABI uses 32 values per 17-byte block, with low nibbles mapping
+to positions 0--15 and high nibbles to 16--31. Direct adjacent interpretation
+failed in every test case. Existing split Metal probe code explicitly repacks
+these nibbles, so this finding does not establish a nibble-order defect there.
+The zero exponent decodes with scale $2^{-127}$, not zero; a future shader
+using exponent bits directly must handle this case separately. Whether real
+selected weights contain this scale was not measured. No Metal dispatch,
+neural expert benchmark, SD read or full-model gain followed from the audit.
+Evidence canonical SHA-256:
+\begin{quote}\ttfamily\small
+ab9e747261d9852bf00fca3aab374d29\allowbreak
+7517dd7e957a65c8ffd50e120c84cb7d
+\end{quote}
+Implementation is
+\path{backend/scripts/run_aion_mxfp4_block_layout_audit.py}; evidence is
+\path{results/aion_overnight_speed_20260913/installed_mxfp4_block_layout.json}.
+
+\subsection{02:33 CEST offline inspection of completed capacity pilots}
+The 20 and 40 GiB arithmetic pilot receipts have valid canonical hashes and
+repeatable routes, hidden states and logits. Their cumulative store counters
+were differenced between passes, rather than reporting accumulated totals as
+repeat-pass traffic. At 20 GiB, pass B recorded 1,383 SD fallbacks,
+17,548,003,850 compressed bytes read, 15,188,873,136 L2 bytes read and
+18,330,027,528 L2 bytes written; continuation was 0.143178 tokens/s.
+At 40 GiB, pass B recorded zero SD fallbacks, zero compressed expert bytes,
+zero L2 writes/evictions and 33,518,900,664 L2 bytes read; continuation was
+0.967028 tokens/s. The 40 GiB pass A rate was 0.148385 tokens/s.
+
+Thus the repeated fixed trajectory can be served without further expert SD
+reads in this larger local tier, but tens of gigabytes still move through L2.
+These sequential single-prompt pilots are not balanced causal promotion
+evidence and do not replace the prior optimized exact 1.72455/1.82858 tokens/s
+frontier. Startup, shared-tensor activity and cold/warm filesystem conditions
+must remain separate from expert counter deltas. Template adaptive ABBA remains
+active; no competing benchmark was launched.
+40 GiB receipt canonical SHA-256:
+\begin{quote}\ttfamily\small
+c0fb1f05c20adcb59256e7c2edb6a5aa\allowbreak
+d8cb805ef5ff39a09e095b4273ce8c44
+\end{quote}
+
+\subsection{03:10 CEST template completion and Metal compatibility refinement}
+The graph-template full adaptive ABBA comparison completed with all four
+conditions matching the frozen source routes, layer outputs, hidden states,
+logits and generated tokens bitwise. Warm continuation medians were
+10.653403 tokens/s for original and 11.558112 for joined/template:
+ratio 1.084922, an 8.4922\% measured improvement. This is one fixed adaptive
+reasoning trajectory and an 8 GiB resident pool, not unrestricted inference
+or broad quality certification. Canonical summary SHA-256:
+\begin{quote}\ttfamily\small
+a3bb56aa354c11c0786ef86736a48f36\allowbreak
+2153560e9b4687c8833157276590371e
+\end{quote}
+
+With no inference driver active, a bounded runtime-compiled Metal decoder
+tested 160 synthetic packed values against the installed GGML dequantizer.
+Floating scale multiplication failed bitwise on 32 values: 28 at exponent
+zero and four at exponent one; other tested exponents (100,127,200) matched.
+Integer construction and buffer writes of the F32 bit pattern then matched
+all 160 values exactly. Both results are preserved. This does not prove
+subnormal preservation during subsequent Metal floating arithmetic, actual
+expert scale frequency, neural kernel correctness or any speed improvement.
+No full model or 8 GiB duplicate expert pool was loaded for this microgate.
+Implementation: \path{backend/modules/aion_inference/native/gptoss_mxfp4_metal_block_audit.mm}.
+Reproduction wrapper: \path{backend/scripts/run_aion_mxfp4_metal_block_audit.py}.
+Evidence: \path{results/aion_overnight_speed_20260913/metal_block_decode_gate.json}.
+Canonical SHA-256:
+\begin{quote}\ttfamily\small
+bb220566d9c2076c748d016945c1c2e\allowbreak
+47998ae880372010438530eb697a503bb
+\end{quote}
+
+\subsection{03:28 CEST authentic fused gate/up numerical probe}
+A new one-dispatch selected-expert Metal shader performs original packed
+gate and up projections, original F32 bias addition and SwiGLU-OAI without
+retaining a dense dequantized weight matrix. The first development case is
+business position 24, layer 12, expert 41. All six original expert components
+were retrieved and verified by the SD frame store; the shader uses only
+gate/up and their biases. Its 518,400 selected projection blocks contain no
+scale exponents zero or one, so the preceding synthetic subnormal issue
+does not explain this case's initial discrepancy.
+
+Using original F32 activation directly gave relative L2 errors 0.003498
+(gate), 0.004100 (up), and 0.006758 (hidden). Installed CPU type traits show
+that MXFP4 dot products use type 8, Q8\_0, for their input. Passing the
+installed CPU-quantized/dequantized activation to Metal instead reduced
+these errors to $9.984\times10^{-8}$, $1.082\times10^{-7}$ and
+$2.027\times10^{-7}$. Maximum hidden absolute error was
+$9.537\times10^{-7}$. This is descriptive numerical agreement only:
+1,609/1,654/2,075 elements still differ bitwise in the three stages.
+Status remains \texttt{CHANGED\_ARITHMETIC\_NOT\_PROMOTED}.
+No timing, complete route, teacher token or semantic substitution was tested.
+The authoritative CPU input remains separate and unmodified in the final
+reproduction; all attempts, binaries and reports remain distinct.
+
+Native source: \path{backend/modules/aion_inference/native/gptoss_fused_gate_up_microgate.mm}.
+Wrapper: \path{backend/scripts/run_aion_fused_gate_up_microgate.py}.
+Final numerical receipt:
+\path{results/aion_overnight_speed_20260913/fused_gate_up_matched_isolated_business/numerical_gate.json}.
+Canonical SHA-256:
+\begin{quote}\ttfamily\small
+09da3a997030ceac609293f8421e5e29\allowbreak
+e3068b0b46b91226726754e21a39aa41
+\end{quote}
+A separate screening/timing protocol was frozen before the next two cases
+in \path{results/aion_overnight_speed_20260913/FUSED_GATE_UP_NEXT_GATE.md}.
+It explicitly charges the compatibility input conversion and GPU dispatch;
+it cannot promote a changed-arithmetic kernel to the exact track.
+
+\subsection{03:46 CEST fused numerical transfer passes; charged timing fails}
+Both predeclared next cases passed the separate numerical screening bounds
+($10^{-6}$ relative L2 and $5\times10^{-6}$ maximum absolute error),
+with internally bitwise-repeatable GPU output. Layer 0/expert 45 had hidden
+relative L2 $2.12719\times10^{-7}$; layer 24/expert 82 had
+$1.33884\times10^{-7}$. Neither is bitwise equal to the CPU teacher.
+
+Charged resident ABBA timing (four discarded rounds, 24 measured rounds,
+48 samples/mode, six CPU threads) then failed decisively. CPU/GPU median
+times were 0.112209/0.642750 ms and 0.119562/0.688792 ms:
+the GPU was approximately 5.73 and 5.76 times slower. GPU wall time includes
+the required input quantization/dequantization, submission, synchronization
+and output copy. All timed GPU outputs remained internally repeatable.
+GPU buffers used 8,881,920 bytes; CPU graph context arena was 33,554,432
+bytes, separate from host original buffers and the verified expert store.
+CPU reference uses installed with-context worker dispatch, not the fastest
+template candidate; losing even against it is sufficient to reject scaling
+this shader unchanged. No full-model substitution followed.
+
+The first timing wrapper retained an obsolete ``no performance measurement''
+boundary string although its nested timing fields are present; the second
+wrapper corrected that description. This is kernel timing only, never tokens/s.
+One premature second numerical launch was refused by the inference lock;
+its empty output directory remains preserved. After the first child finished,
+the second case used a distinct retry directory and completed normally.
+No inference ran concurrently and no original model/caches were altered.
+
+Timing receipt canonical hashes, in case order:
+\begin{quote}\ttfamily\small
+357978fef4909675a159f76f26627ee7\allowbreak
+142fa76847ad8db89e30711e72f52cfb\\
+60cb4a301a449212f257155bdd9232f\allowbreak
+5c9d6d3ad0bc48d1d604cf43e7e151066
+\end{quote}
+The next distinct probe would calculate original MXFP4 times Q8\_0 using
+integer block dot products directly, rather than dequantizing the activation
+and multiplying each weight as F32. It must retain bias/SwiGLU semantics and
+the same screening/charged timing gates; this is not evidence it will win.
+
+\subsection{04:04 CEST direct packed integer-dot probe and phase diagnosis}
+The next shader consumes 3,060 bytes of original Q8\_0 activation blocks
+instead of 11,520 dequantized F32 bytes. Installed type/block-size traits
+and every manually decoded activation value were checked against GGML
+before dispatch. MXFP4 half-unit integer codes multiply signed Q8 bytes;
+one floating rescale follows each integer block sum. Original weight bytes,
+biases and SwiGLU-OAI constants remain unchanged. The development case and
+both frozen next cases passed separate numerical screening and internal GPU
+repeatability; final float reduction is still not bitwise teacher-equal.
+
+Charged ABBA medians again failed: CPU/GPU 0.178980/0.437479 ms at layer 0,
+and 0.112959/0.695917 ms at layer 24. These are respectively approximately
+2.44 and 6.16 times slower on GPU, not a promoted improvement. Comparison
+against the previous floating shader is not balanced between experiments
+and cannot support a claimed percentage gain. Kernel scaling is stopped
+unchanged; no full generation or layer injection followed.
+
+A subsequent diagnostic separates conversion, host encoding, device
+timestamps and submission/wait. At layer 0, its median GPU wall time was
+0.767459 ms, device span 0.541729 ms, input conversion 0.004167 ms and
+host encoding 0.018105 ms. Device span overlaps host waiting; independently
+reported medians cannot be added or used as precise percentage attribution.
+Nevertheless device work is substantial: removing only input conversion or
+host encoding cannot make this implementation outperform its 0.160166 ms
+CPU control. The next physically different shader would require tiled/vector
+loads and better packed arithmetic, not merely hiding this dispatch.
+
+Charged timing canonical receipts:
+\begin{quote}\ttfamily\small
+55d63ae40a62730593d12a3a2d0d0d5\allowbreak
+d5a7385b2f454e19674361e67ea79cc16\\
+78da930659e06105930d21078baaacc\allowbreak
+d5a2f12d2a18f2b68b12884530bf4fca6
+\end{quote}
+Phase diagnostic canonical receipt:
+\begin{quote}\ttfamily\small
+1fb2cbbe7ebcdfde4e07e1b1019a318\allowbreak
+a6b12c342eeea3a6c9b8a27bd6e3b5d6e
+\end{quote}
+Evidence directories are \path{results/aion_overnight_speed_20260913/integer_timing_p20_l0},
+\path{results/aion_overnight_speed_20260913/integer_timing_p32_l24}, and
+\path{results/aion_overnight_speed_20260913/integer_phase_diagnostic_p20_l0}.
+
+\subsection{04:21 CEST tiled probe stopped; longer CPU-template validation started}
+A tiled integer shader assigns four lanes to each block, uses four-element
+activation/code arithmetic and removes dynamic scalar code tables. Original
+expert bytes and input quantizer remain unchanged. Development and the two
+fixed numerical cases passed screening and internal repeatability, but charged
+GPU medians were 0.605708 and 0.605458 ms versus CPU 0.111417 and
+0.109063 ms: approximately 5.44 and 5.55 times slower. Device median spans
+were about 0.4771 ms. This variant is stopped unchanged; no GPU candidate
+qualified for a full-model test. Tiled timing receipts:
+\begin{quote}\ttfamily\small
+bce92097b40e4b608eb2b72222c02e5\allowbreak
+6b05b507825e69b1a58dd39e2a088c19f\\
+80f99ee59ccb3924a7df2d2bae6a0da\allowbreak
+19d314d920704229b7c6de3d9c3c90294
+\end{quote}
+
+The programme now extends the successful CPU template mechanism to 128
+positions on the existing adaptive reasoning prompt, retaining its exact
+64-position measured prefix. A frozen original/joined/joined/original,
+two-pass protocol checks every route, layer-output hash, hidden-state hash,
+logit hash and generated token against the first original extended path;
+the prefix must also match the existing receipt. The same 8 GiB original
+expert pool, six threads, mass 0.80 and minimum two experts are retained.
+The fixed 1.10 timing criterion remains unchanged, and completed-answer
+semantic review is separate even if mechanical timing passes. This is a
+longer extension of one known adaptive prompt, not an untouched broad holdout.
+The child captures own the inference lease; the parent does not duplicate it.
+Guard reserve is 10 GiB. No GPU source is injected into this experiment.
+Driver: \path{backend/scripts/run_aion_template_long_generation_gate.py}.
+Frozen plan and receipts: \path{results/aion_template_128_generation_gate_20260913}.
+The first original condition was started; results remain pending here.
+
+\subsection{04:39 CEST healthy long-generation progression and offline review tooling}
+The first original 128-position condition completed and passed the driver's
+repeatability/source-prefix checks; the first joined condition is running.
+No final timing ratio is available and no competing inference was started.
+While the lease remained occupied, a local byte-BPE decode method and offline
+response-report wrapper were prepared without reading SD metadata. Four small
+direct software checks passed: whitespace/BPE boundaries, UTF-8 split across
+tokens, optional Harmony marker preservation and invalid-ID rejection.
+This is software validation only, not new full-vocabulary decode evidence.
+
+The review wrapper verifies the receipt hash before reading tokenizer metadata
+and requires the actual inference lease to be free. It includes the last
+prefill evaluation's predicted token as the first response token; selecting
+only evaluations after the prompt would omit it. It distinguishes the first
+assistant turn-end marker from tokens generated subsequently in a fixed-length
+benchmark. Those later tokens must not be misrepresented as additional useful
+completed-answer throughput. Text decoding does not automatically establish
+factual or semantic quality. The wrapper has not yet run against the pending
+128-position experiment. Sources:
+\path{backend/modules/aion_inference/gptoss_gguf_tokenizer.py} and
+\path{backend/scripts/report_aion_generation_response.py}.
+
+\subsection{05:17 CEST exact 128-position result and 256-position extension}
+The 128-position original/joined/joined/original test completed: every
+condition matched the source first 64 positions and the first extended
+original trajectory bitwise for all 128 positions. Warm medians were
+12.089655 tokens/s (original) and 12.944312 tokens/s (joined/template),
+a ratio of 1.070693 (+7.0693\%). The predeclared 1.10 promotion gate was not
+met; status is \texttt{NOT\_PROMOTED}. This one-prompt adaptive result
+neither changes the unrestricted exact frontier nor establishes broad quality.
+
+SD-native decoding reviewed original and joined receipts. The text is
+identical and coherently reasons toward ``this box is heavy,'' but is still
+composing at position 128 and has no assistant turn-end marker. Fixed-window
+throughput is therefore not a completed-answer speed claim. Review canonical
+hashes: \texttt{57ed61ae7d57f176c2db63203085224f1df29512bbc2225fe10509cc9779abc0}
+and \texttt{a16489c8208c274cc0e32e2839feeeb16c442aaf29c9e275ab8865b1a25b7c53}.
+
+To measure a complete continuation rather than extrapolate, the identical
+frozen protocol was extended to 256 positions in a new exclusive evidence
+root. Input, 8 GiB pool, six threads, route policy, two passes, ABBA order,
+bitwise checks and 1.10 criterion are unchanged; only token length changed,
+declared before execution. The first original condition is active here.
+
+\subsection{05:34 CEST exact 256-position result falsifies completed-answer use}
+The 256-position ABBA test also matched every route, layer output, hidden
+state, logit and token bitwise across all four conditions. Warm medians were
+11.150300 tokens/s original and 11.977267 joined/template, ratio 1.074165
+(+7.4165\%). Again it is below the unchanged 1.10 mechanical promotion gate.
+The canonical summary is
+\texttt{c648d65b37cb3c35291f8336d766144c5cbeb3ef2ce17ae129b18e4c001136c4}.
+
+Corrected Harmony-marker review (checking \texttt{<|end|>},
+\texttt{<|return|>} and \texttt{<|endoftext|>}, rather than an obsolete
+FIM-only marker) found no turn end in either exact original or joined pass.
+The answer continues speculative analysis and becomes repetitive; it never
+delivers a completed final answer in 256 positions. Therefore this trajectory
+is mechanically repeatable but fails the completed-answer quality/usefulness
+criterion. It must not be used as a user-facing 12 tokens/s 120B claim.
+The corrected review receipts have canonical hashes
+\texttt{9aa6f1b801c67642f27725137ff7e63b2a71523945b556c208efdf70ae5da00b}
+and \texttt{b4493fd2810c73bfee530b913c21f8cb3c39dca1193cb937852128b945c47e82}.
+The earlier FIM-only reports remain preserved but are superseded for
+turn-completion interpretation. The failure is shared by baseline and
+candidate, so it does not establish a joined-template regression; it exposes
+that the selected fixed adaptive prompt is unsuitable as a completed-response
+benchmark. No 512-position repetition test was launched.
+
+\subsection{05:52 CEST direct-answer teacher trajectory launched}
+The prior arithmetic teacher's frozen prompt was decoded using the corrected
+review tool. It correctly derives $18\times7=126$ euros, but its 40-position
+window also ends before a Harmony completion marker. It cannot establish a
+completed-answer quality claim. The review tool was repaired to infer prompt
+length from \texttt{input\_token\_ids} for older valid receipts that predate
+an explicit \texttt{prompt\_token\_count} field; the repaired arithmetic
+review canonical SHA-256 is
+\texttt{6e378a7a378b6eaca119d39dcb15f0610596f5410d484d2d6506a1c76ea3433a}.
+
+A new public direct-answer teacher trajectory was then declared before run:
+``What is 17 multiplied by 23? Reply with only the final number. Do not
+explain.'' Its 25 SD-native Harmony tokens are bound in the invocation.
+The authoritative path uses all original experts and weights, 8 GiB declared
+cache, six threads, in-process embedding/attention/MoE/output and two
+64-position repeat passes. No pool, expert reduction, correction or kernel
+substitution is used. The output is
+\path{results/aion_gptoss_120b_direct_arithmetic_teacher_20260913/teacher.json}.
+It is an authentic teacher/completion-eligibility capture, not a speed claim;
+only a verified completed teacher response can seed a later request-specific
+quality-track pool. The inference lease is held by this run at this checkpoint.
+
+\section{Later 13 September update: verified speed boundaries and public benchmark}
+\label{sec:gptoss-speed-later-20260913}
+
+\subsection{System and representation}
+The evaluated system is GPT-OSS 120B in the verified Q4\_K\_M/MXFP4 GGUF
+warehouse on removable SD storage, running locally on an 18\,GB M3 Pro Mac.
+The runtime keeps attention, router, embedding, output and the current active
+expert material in unified memory; it does not place the complete 120B model
+in RAM. The normal full-model experiment used an 8\,GiB transient expert cache
+and a 40\,GiB internal persistent cache. The adaptive experiment additionally
+uses a predeclared 8\,GiB selected-expert pool. These are distinct operating
+modes and must never be collapsed into one advertised rate.
+
+\subsection{Joined-template CPU kernel}
+The promoted experimental implementation combines adjacent gate/up MXFP4
+projections, retains a CPU worker pool, and reuses one GGML graph template per
+active-expert count while rebinding every caller-owned input, expert component
+and gate pointer before execution. This avoids graph construction and worker
+startup on each expert call without retaining stale model buffers. Nine
+real layer/route/count microcases were bitwise equal to their controls and
+had a median 1.10535 speed ratio. The conditional 64-position adaptive ABBA
+then produced a warm median of 10.65340 tokens/s for the original path and
+11.55811 tokens/s for the joined-template path, a ratio of 1.08492.
+
+Longer one-prompt extensions remained bitwise equal: the 128-position ratio
+was 1.07069 and the 256-position ratio was 1.07417. These results establish
+a repeatable approximately 7--8.5\% implementation gain for the specified
+warm adaptive benchmark. They do not establish normal unrestricted throughput
+or completed-answer quality: the 256-position response did not reach a valid
+assistant completion marker. The 11.56 tokens/s value is consequently a
+\emph{benchmark-specific warm adaptive rate}, not a general public claim.
+Evidence roots are
+\path{results/aion_joined_template_projection_gate_20260913},
+\path{results/aion_template_128_generation_gate_20260913}, and
+\path{results/aion_template_256_generation_gate_20260913}.
+
+\subsection{Persistent-cache delivery improvements}
+On a storage-heavy exact trace, a 40\,GiB persistent cache was tested with
+the original copied-frame reader and with a reusable four-slot route arena.
+The arena performs direct process-verified \texttt{preadv} reads into reusable
+buffers, avoiding a whole-frame allocation and subsequent component copies.
+An ABBA experiment retained exact generated tokens, routes, layer outputs,
+final hidden states and logits in all four runs. The copied reader's median
+was approximately 0.97 tokens/s; the reusable-arena median was approximately
+2.44 tokens/s, a 2.5$\times$ improvement for this warm, loading-heavy trace.
+
+An additional exact ABBA experiment overlapped the later cached-expert read
+with the earlier calculation. It raised the median from approximately 2.26 to
+2.39 tokens/s, about 6\%. This result applies to the full-model delivery path,
+not to the selected-expert adaptive benchmark where the relevant experts are
+already resident. Evidence is in
+\path{results/aion_reusable_arena_l2_40gib_20260913}.
+
+\subsection{Three-expert falsification}
+The adaptive trace normally averages about 3.3--3.5 active experts per layer.
+A two-pass test forced every continuation layer to exactly three experts while
+retaining the joined-template kernel and the same resident pool. It was stable
+between its two own passes but changed the generated trajectory and was slower:
+5.59484 and 8.94293 tokens/s for the two measured passes. It therefore does
+not promote. This falsifies uniform three-expert truncation as a route to a
+better 11.56 tokens/s result; it is neither quality-preserving nor faster in
+this configuration. The receipt is
+\path{results/aion_3expert_adaptive_quality_20260913/receipt.json}.
+
+\subsection{Representative full-model public-prompt benchmark}
+To measure a defensible normal-use speed, four fixed public prompts were run:
+one each for explanation, business advice, elementary reasoning and short
+writing. Each uses the original four-expert model, SD warehouse, 40\,GiB
+persistent cache, reusable route arena, read/compute overlap, two 64-token
+passes and no prompt-specific selected-expert pool, expert reduction or
+approximation. Each pass was exactly repeatable. Table~\ref{tab:gptoss-normal-speed}
+reports continuation speed only.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrr}
+\toprule
+Prompt family & First pass (tokens/s) & Warm repeat (tokens/s) \\
+\midrule
+Explanation & 0.36835 & 2.90079 \\
+Business & 0.88254 & 2.88738 \\
+Reasoning & 0.80772 & 2.19960 \\
+Writing & 1.12250 & 2.05100 \\
+\midrule
+Median & 0.84513 & 2.54349 \\
+\bottomrule
+\end{tabular}
+\caption{Full exact GPT-OSS 120B continuation rates on four generic public
+prompts. First pass includes cache population for newly selected experts;
+warm repeat reuses the populated local cache.}
+\label{tab:gptoss-normal-speed}
+\end{table}
+
+The 64-token cap did not reach a final assistant-turn marker for these prompts:
+the model was still composing reasoning or a response. This benchmark therefore
+supports a full-model speed claim but not a completed-answer quality claim.
+A longer, completion-terminated response suite and human/semantic review are
+required before advertising normal answer quality. The sealed summary is
+\path{results/aion_gptoss_normal_usage_benchmark_20260913/runs/summary.json},
+canonical SHA-256
+\texttt{fc026f54fcc726f6cd24870d1a6594ec6ccfc2871cab007012498d8efc6ed89e}.
+
+\subsection{Permitted public wording at this checkpoint}
+The technically supported statement is: \emph{``GPT-OSS 120B runs locally
+from an SD-card warehouse on an 18\,GB M3 Pro Mac. In a four-prompt exact
+full-model benchmark, median continuation speed was 0.85 tokens/s on the
+first pass and 2.54 tokens/s on a warm repeat using a 40\,GiB local cache.''}
+
+It is also accurate to state separately that a selected-expert adaptive
+benchmark reached 11.56 tokens/s after warmup. It must state that this is a
+specified adaptive benchmark, not normal unrestricted full-model throughput.
+Do not claim that the SD card streams the full 120B model at 11.56 tokens/s,
+that every prompt reaches that rate, or that the present 64-token corpus
+establishes completed-answer quality.

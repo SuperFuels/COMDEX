@@ -1,0 +1,64 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.28 --- One-Ply Blunder Guard}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.28 introduces a one-ply blunder guard for AION full chess.
+
+The guard checks whether a candidate move allows an immediate catastrophic opponent reply.
+
+\section{Contract}
+
+The guard MUST inspect all legal opponent replies after the candidate move.
+
+It MUST detect:
+
+\begin{itemize}[leftmargin=*]
+  \item immediate checkmate replies;
+  \item checking replies;
+  \item queen loss;
+  \item rook or major material loss;
+  \item illegal candidate moves;
+  \item whether the candidate remains safe to send.
+\end{itemize}
+
+The guard exposes the final send decision as:
+
+\begin{verbatim}
+safe_to_send
+\end{verbatim}
+
+\section{Boundary}
+
+This phase does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e28_full_chess_one_ply_blunder_guard_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e28_full_chess_one_ply_blunder_guard_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E28-FULL-CHESS-ONE-PLY-BLUNDER-GUARD\\
+Status: LOCKED --- one-ply blunder guard implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

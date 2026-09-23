@@ -1,0 +1,136 @@
+\section{Phase 20G --- Evidence Request / Evidence Gap Envelope v0}
+\label{sec:phase20g-evidence-gap-envelope-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- evidence request and evidence gap envelope added for AION-LRM human review decisions.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20G handles the human review decision \texttt{request\_more\_evidence}.
+
+When a human operator requests more evidence, AION-LRM now produces a structured Evidence Request / Evidence Gap Envelope showing:
+
+\begin{itemize}
+  \item what evidence is required;
+  \item what evidence already exists;
+  \item what evidence is missing;
+  \item why it is needed;
+  \item which recommendation card it blocks;
+  \item which human review decision envelope it came from;
+  \item which proof hashes and context hashes it links to.
+\end{itemize}
+
+This is still preview-only and MUST NOT send messages or execute live actions.
+
+\subsection{Implemented Module}
+
+\begin{verbatim}
+backend/modules/aion_lrm/evidence_gap_envelope.py
+\end{verbatim}
+
+The module exposes:
+
+\begin{verbatim}
+EVIDENCE_GAP_ENVELOPE_VERSION
+DEFAULT_REQUIRED_EVIDENCE
+build_evidence_gap_envelope
+build_default_home_fixed_evidence_gap_envelope
+\end{verbatim}
+
+\subsection{Evidence Contract}
+
+The envelope records:
+
+\begin{itemize}
+  \item source human review decision envelope hash;
+  \item source decision summary hash;
+  \item blocked recommendation card hash;
+  \item blocked recommendation summary hash;
+  \item required evidence;
+  \item existing evidence;
+  \item missing evidence;
+  \item proof hashes;
+  \item context hashes;
+  \item replay trace hash;
+  \item deterministic evidence gap hash;
+  \item deterministic summary hash.
+\end{itemize}
+
+\subsection{Default Home Fixed Evidence}
+
+The default Home Fixed evidence request includes:
+
+\begin{verbatim}
+site_photo
+roof_or_pergola_measurements
+access_notes
+customer_contact_confirmation
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+The evidence gap envelope is preview-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a booking;
+  \item create a payment;
+  \item create escrow;
+  \item send an external message;
+  \item write live chain data;
+  \item execute a workflow;
+  \item grant live permission.
+\end{itemize}
+
+The evidence request is a structured internal preview object only.
+
+\subsection{Private Reasoning Boundary}
+
+The evidence gap envelope MUST NOT expose private chain-of-thought, hidden reasoning, credentials, access tokens, API keys, passwords, or secrets.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20g_evidence_gap_envelope_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20g_evidence_gap_envelope_lock_doc.py
+
+python -m compileall backend/modules/aion_lrm
+\end{verbatim}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+Phase 20G
+Evidence Request
+Evidence Gap Envelope
+request_more_evidence
+missing evidence
+recommendation card
+human review decision envelope
+proof hashes
+context hashes
+preview-only
+human review
+private chain-of-thought
+no booking
+no payment
+no escrow
+no external message
+no live chain
+Tessaris AI
+Kevin Robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20G-EVIDENCE-GAP-ENVELOPE-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

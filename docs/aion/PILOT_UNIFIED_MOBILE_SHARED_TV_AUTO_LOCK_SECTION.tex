@@ -1,0 +1,79 @@
+\section{Trusted-Phone Presence and Automatic Shared-Television Locking}
+\label{sec:pilot-mobile-shared-tv-auto-lock}
+
+Pilot treats a television as a shared surface rather than as a trusted personal
+computer.  A person's private television workspace is therefore a short-lived,
+exclusive lease held by a separately trusted phone.  The implementation now closes
+the remaining gap between explicit logout and passive abandonment of the room.
+
+\subsection{Two independent expiry conditions}
+
+The mother maintains two deadlines for the active shared-screen identity.  The
+\emph{inactivity deadline} is renewed only by a real accepted interaction, such as a
+directional television command or an authorized experience action.  The
+\emph{presence deadline} is renewed by a possession-signed heartbeat received
+directly from the paired phone on a private, loopback or link-local network address.
+Both deadlines are bounded to five minutes in the current consumer configuration.
+The session is valid only while both conditions remain true.
+
+This separation prevents a background heartbeat from disguising an abandoned and
+unused television as active.  It also prevents television speech or another remote
+surface from keeping private tiles unlocked after the trusted phone has left the
+local boundary.  A direct remote route or opaque relay may carry an authorized
+command, but it is deliberately insufficient evidence that the possession device is
+still in the room or household.
+
+\subsection{Acquisition, renewal and release}
+
+Acquisition continues to require the existing Ed25519 possession signature, active
+persona, trusted device record and mobile capability lease.  A second person cannot
+silently displace a live session.  The phone sends a local presence proof every
+thirty seconds while the application is visible and online.  Passive presence
+updates only \texttt{last\_presence\_at} and
+\texttt{presence\_expires\_at}; it never changes
+\texttt{last\_activity\_at} or the inactivity deadline.
+
+Explicit logout remains immediate and is signed by the controlling phone.  Spoken
+logout uses the existing governed television route.  Device revocation and account
+recovery also clear the active identity.  If either deadline expires, the next
+authoritative read atomically removes the active identity and records whether the
+cause was \texttt{inactivity\_timeout} or
+\texttt{trusted\_phone\_departed}.  A revoked or unknown phone cannot renew
+presence.
+
+\subsection{Interface and privacy behaviour}
+
+The unified phone displays whether the television is locked, controlled by this
+person or controlled by another household member.  It explains the inactivity and
+nearby-phone boundary beside the takeover control.  When an expiry is observed, the
+controller returns to the locked state and requires a new signed takeover.
+
+The shared-surface authority already issues only public tiles without an active
+identity and purges private presentation records before issuing a locked manifest.
+Automatic expiry therefore reaches the same privacy state as explicit logout:
+private task, calendar, message, approval, file and Boardroom material is not retained
+as television presentation data.  Authoritative personal and business records remain
+on the customer-controlled mother and are not deleted merely because a screen locks.
+
+\subsection{Protocol boundary}
+
+The phone uses the dedicated
+\texttt{/v1/personal/tv/presence} operation.  Its request is covered by the normal
+phone certificate, capability lease and request signature and requires the
+\texttt{tv.control} scope.  The service additionally derives locality from the
+observed client address; a caller-provided ``local'' flag is not trusted.  The
+response contains deadlines and policy state but no private content, device key or
+network address.
+
+\subsection{Verification and remaining field qualification}
+
+Automated tests prove separate activity and presence deadlines, departure expiry,
+lock-reason recording, signed phone authority, rejection of non-local presence,
+revoked-device denial and the mobile interface contract.  The complete AION Fabric
+suite contains 567 tests, and the optimized mobile production build compiles.
+
+A real two-person household exercise remains deliberately open.  It must demonstrate
+takeover, ordinary use, five minutes without interaction, trusted-phone departure,
+explicit logout and reacquisition on the physical television.  Automated time and
+network-address tests are not represented as proof that a particular home router or
+mobile operating system delivered every field transition.

@@ -1,0 +1,58 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.9: Full Chess Threat Map Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.9 defines the AION Full Chess Threat Map Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can detect check, map attacked squares, find escape moves, reject unsafe escapes, and select a checking counter-move.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.9 extends full-board chess reasoning into threat-map and check detection.
+
+\section{Threat Map Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{black\_attacked\_squares};
+  \item \texttt{white\_attacked\_squares};
+  \item \texttt{white\_in\_check};
+  \item \texttt{checking\_pieces};
+  \item \texttt{legal\_escape\_moves};
+  \item \texttt{rejected\_unsafe\_moves};
+  \item \texttt{checking\_counter\_moves};
+  \item \texttt{selected\_checking\_counter\_move};
+  \item \texttt{threat\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates selected full-board chess threat-map reasoning. It does not yet implement full checkmate search, full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B9-FULL-CHESS-THREAT-MAP-KERNEL-LOCK\\
+Status: LOCKED --- full chess threat map implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

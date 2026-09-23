@@ -1,0 +1,315 @@
+\section{Local Model Release Packaging Standard}
+\label{sec:local-model-release-standard}
+
+\subsection{Product contract}
+
+Tessaris is not a general model repository.  It provides a curated local-model
+library: every listed model has a defined task role, a supported device profile,
+an installed runtime, an integrity record, and measured quality and speed
+evidence.  A customer must be able to insert an SD card, select a model in
+Vault, choose \emph{Download to SD card}, and use the model in Boardroom without
+manually arranging weights, choosing a quantisation, or configuring an
+inference engine.
+
+The customer package is deliberately different from the internal master
+archive.  Customers receive only the payload required for their selected device
+and release.  Tessaris retains the source checkpoint or exact input quantisation,
+the reference/control representation, build recipes, test corpus and release
+evidence needed to reproduce and audit that package later.
+
+\subsection{Standard release unit}
+
+Every new model, including a model released after this document, must be
+represented by a versioned Tessaris release unit with the following contents.
+
+\begin{enumerate}
+  \item \textbf{Identity and provenance.}  Record the upstream publisher,
+  upstream revision or download URL, licence, model identifier, byte count and
+  SHA--256 for every retained input artifact.  Community conversions must name
+  their converter and revision; an unofficial or ``uncensored'' derivative is
+  never silently substituted for an official model.
+  \item \textbf{Selected customer payload.}  Include the chosen weight
+  representation, tokenizer, configuration, template and any required vision
+  files.  Include AION-generated expert banks, shards or caches only when they
+  are necessary for the selected runtime.  Do not include internal controls,
+  abandoned variants, teacher captures or other experimental material in a
+  customer download.
+  \item \textbf{Runtime profile.}  Specify the engine and exact build,
+  required native kernels, thread and memory limits, cache policy, minimum
+  internal free space, SD-card reserve, supported architectures and minimum
+  unified memory.  The profile must fail closed on an unsupported device rather
+  than silently choose a weaker configuration.
+  \item \textbf{Integrity card.}  Supply \texttt{model-package.v1.json} with
+  hashes, relative paths, runtime profile, compatibility limits, licence notice
+  and release status.  A production card must also carry a Tessaris release
+  signature.  The present JSON card format and catalogue are implemented in
+  \texttt{backend/modules/aion\_inference/model\_packages/}; development cards
+  are not a substitute for a signed public release.
+  \item \textbf{Acceptance evidence.}  Preserve a device-clean installation
+  receipt, completed-answer quality suite, speed suite spanning ordinary
+  business prompts, failure/fallback behaviour and reproducible command or
+  runner version.  A best-case speed measurement is never the public speed
+  claim.  The published claim is a range measured from the approved normal-use
+  suite on the named hardware class.
+\end{enumerate}
+
+The installed card layout should be stable across all models:
+
+\begin{verbatim}
+TessarisModels/<model-id>/<release-version>/
+  model-package.v1.json
+  payload/                 # customer-selected weights and required assets
+  runtime/                 # profile, compatible engine and native components
+  receipts/                # install and acceptance receipts, not hidden claims
+  LICENSES/                # upstream and Tessaris notices
+\end{verbatim}
+
+Vault reads the release catalogue before displaying a selectable model.  A
+catalogue entry may be visible while it is being prepared, but it must remain
+non-selectable until the package card, payload verification, hardware check and
+acceptance result all pass.  Vault currently uses
+\texttt{catalogue.v1.json} and \texttt{LocalModelVault} for this discovery
+step.  The future ``Download to SD card'' operation must write the standard
+layout atomically: download to a temporary folder, verify all hashes, write the
+card and receipt, then make the release visible to Vault.
+
+\subsection{Release procedure for every model}
+
+\begin{enumerate}
+  \item Acquire the official model and record provenance and hashes before
+  optimisation.
+  \item Produce one or more candidate representations.  Retain the exact
+  source, control/reference representation and all deterministic build recipes.
+  Optimisation changes must be separately identifiable; no candidate inherits a
+  performance or quality claim merely because its source model passed one.
+  \item Run correctness, task-quality and normal-use throughput acceptance on
+  the intended hardware classes.  Preserve failed experiments as internal
+  evidence, but do not ship them.
+  \item Build the minimal customer payload and generate the package card,
+  complete hash inventory, licence bundle and runtime profile.
+  \item Perform a clean SD-card install using only that package.  Verify that
+  Vault discovers it, Boardroom can start it, and removal of the card makes the
+  model unavailable rather than simulated.
+  \item Sign the release, publish the package to managed Tessaris storage, add
+  the approved entry to the Vault catalogue, and publish only the speed and
+  hardware range established by the clean acceptance receipt.
+\end{enumerate}
+
+This procedure makes future models routine: select a model for a defined role,
+optimise it, certify it, package it in the same layout, publish it, and let
+Vault install and recognise it.  Larger frontier models that do not pass the
+local hardware and speed gates remain API-routed providers rather than being
+forced into the SD catalogue.
+
+\subsection{Current retained material and release state}
+
+On 13 September 2026, the small-model master archive was created at
+\begin{verbatim}
+/Users/kevinrobinson/AION-Artifact-Archive/2026-09-13-small-model-master
+\end{verbatim}
+It is approximately 33~GiB.  It is an internal recovery archive, not a
+customer package.  Its file \texttt{SHA256\_VERIFICATION.txt} records matching
+source-card and archive SHA--256 values for the following material:
+\begin{itemize}
+  \item Qwen3--30B--A3B Q2 expert candidate:
+  \texttt{7b1165eef9a868954a3fc9bdc31e3f454a04ebd86b14040945074c99edce5bac};
+  \item Qwen3--30B--A3B Q4\_K\_M reference:
+  \texttt{0d003f6662faee786ed5da3e31b29c978de5ae5d275c8794c606a7f3c01aa8f5};
+  \item both Granite 3.1 3B A800M checkpoint tensors, together with its
+  tokenizer and configuration files.
+\end{itemize}
+
+The original complete Granite BF16 expert-layer pack set is retained separately
+at
+\begin{verbatim}
+/Users/kevinrobinson/AION-Artifact-Archive/
+  2026-09-09-granite-layer-packs/granite-3.1-3b-a800m-v1
+\end{verbatim}
+The source code, native kernels, build recipes, technical records and Vault
+integration live in
+\begin{verbatim}
+/Users/kevinrobinson/dev/COMDEX
+\end{verbatim}
+and the committed history was pushed to the \texttt{origin/main} Tessaris
+repository on 13 September 2026.  Model binaries are intentionally not placed
+in Git; they belong in the master archive and, once signed, managed release
+storage.
+
+The Qwen Q2 candidate has a recorded 50+ tokens/s result on its specialised
+resident path, but it has not completed broad normal-business acceptance and is
+therefore not a public speed claim or selectable Vault release.  Granite is
+present and recoverable, but likewise requires a package card and full
+acceptance.  GPT--OSS 120B remains a separate, acceptance-pending exact package;
+its original SD card must be independently archived before that card is reused.
+
+\subsection{Storage rule}
+
+An SD card may be repurposed only after two independent conditions hold:
+\begin{enumerate}
+  \item every irreplaceable source and reference artifact has an independently
+  stored, hash-verified master copy; and
+  \item the release code, recipes, manifests, evidence and package definitions
+  have been committed and pushed.
+\end{enumerate}
+After a signed package is placed in managed Tessaris storage, the internal Q4
+control may be moved from the Mac to that storage if internal disk space is
+needed.  It must remain recoverable for audit and rebuild; it is not discarded
+merely because customers do not download it.
+
+\subsection{Boardroom intelligence stack and role harnesses}
+
+The SD-card library solves a storage and portability problem, not a working
+memory problem.  It allows a customer to keep several approved local-model
+packages without filling the computer's internal drive.  When AION activates a
+model, the selected representation must still fit the device's available
+unified memory or RAM/VRAM, including operating-system headroom and the chosen
+context window.  Models that do not fit must not be loaded by swapping weights
+through slow storage or by presenting a simulated response.
+
+Consequently, an SD card is a portable library rather than an inherent source
+of token-speed improvement.  An internal NVMe SSD is normally preferable for
+initial loading on a desktop or Windows workstation.  Once the selected model
+is resident in working memory, normal generation speed is primarily determined
+by the model representation, memory bandwidth, execution runtime and hardware.
+The SD package provides portability, easy installation, release integrity and
+the ability to change the available local library without consuming internal
+storage.
+
+A complete Boardroom installation may combine the following layers:
+\begin{enumerate}
+  \item \textbf{Local LLM library.}  Two or three compatible packages stored
+  on SD card or approved local storage: a light everyday worker, a stronger
+  private general-work model, and, where useful, a reasoning or domain
+  specialist.  Only the model selected for the current task needs working
+  memory; the others remain stored in the library.
+  \item \textbf{Frontier API tier.}  One or more connected providers such as
+  OpenAI, Claude, Gemini, Kimi or DeepSeek for tasks beyond local hardware or
+  local quality gates.  These models are not stored on the SD card.  Vault
+  stores the connection configuration securely and AION records which provider
+  served each request.
+  \item \textbf{Image, video and voice capabilities.}  Approved local or API
+  providers may supply visual creation, speech-to-text and text-to-speech.  The
+  provider is selected by the same compatibility, privacy, quality, speed and
+  cost rules as an LLM.
+  \item \textbf{AION router.}  AION inspects the task and selects a compatible
+  local model, a specialised harness, or an API provider.  It must account for
+  the device profile, available memory, storage location, privacy requirement,
+  expected latency, cost and required capability.  It may retain a model warm
+  for related tasks or release it before activating another one.
+\end{enumerate}
+
+Each local package may also contain versioned \emph{role harnesses}.  A harness
+is the reusable work layer around a model: role instructions, approved tools,
+templates, task schemas, routing rules and evaluation checks.  It gives a
+model a defined business function rather than exposing only a blank chat
+window.  Examples include coding harnesses with repository, testing and review
+workflows; business harnesses with document, spreadsheet and reporting
+workflows; finance harnesses with structured extraction, reconciliation and
+calculation checks; and sales, marketing or operations harnesses with their
+respective templates and knowledge sources.
+
+Harnesses are separately versioned from model weights.  Their package card
+must state compatible model releases, required tools, data-access boundaries,
+evaluation evidence and fallback behaviour.  This permits a business to keep a
+small, legible intelligence stack while AION delegates individual tasks to the
+appropriate local specialist or frontier provider.
+
+\subsection{Device capability negotiation}
+
+Tessaris must not assume that a customer uses an 18~GB Mac.  The 18~GB profile
+is a reference acceptance target, not a universal release.  On first scan and
+before every local-model installation, Vault records a non-sensitive device
+capability snapshot: operating system, CPU architecture, available unified
+memory or RAM, supported GPU runtime and VRAM, internal free storage, connected
+SD or external storage, and supported acceleration backends.  No model is
+offered merely because its files fit on an SD card.
+
+Each model family may have several signed, separately tested variants.  For
+example, a dense 27B model may provide a compact 18~GB-Mac profile, a higher
+quality 36~GB-Mac profile, one or more Windows/NVIDIA GPU profiles, and an
+API fallback.  Every variant has its own payload hashes, memory floor, context
+limit, runtime flags, measured normal-use speed range and quality receipt.
+They are different releases for compatibility and claims, even when they share
+the same upstream model family.
+
+Vault compares the device snapshot with these profiles and presents only the
+safe choices.  It may recommend the best local tier, offer an SD-card download
+to the selected storage location, or route the request to an approved API when
+no local tier clears the memory, speed or quality gates.  AION receives the
+selected profile as part of the model identity, allowing the router to choose
+between local and frontier capability without requiring the business to
+understand hardware, quantisation or GPU terminology.
+
+\subsection{Initial curated model catalogue and provider plan}
+
+The first Tessaris catalogue must be deliberately small.  It is a tested
+library of useful roles, not a mirror of every model release.  A model enters
+the catalogue only after its licence, source integrity, device variants,
+normal-use speed, task quality and packaging receipt have passed the standard
+release gate in this document.
+
+\begin{center}
+\begin{tabular}{p{0.18\linewidth}p{0.30\linewidth}p{0.42\linewidth}}
+\textbf{Publisher} & \textbf{Candidate} & \textbf{Proposed Tessaris role} \\
+\hline
+OpenAI & GPT--OSS--20B & Private reasoning and tool use on compatible
+16--18~GB-class devices.  GPT--OSS--120B is retained as a specialist-hardware
+package, not a standard laptop product. \\
+Meta & Muse Glimmer & Local agent, coding and workflow-automation candidate. \\
+Google & Gemma family & Lightweight offline assistant for broadly compatible
+hardware.  Gemma is the local open-model family; Gemini remains a frontier API
+provider. \\
+Mistral & Mistral Small~4 or Ministral~3 8B & Generalist, coding and
+multilingual local candidate.  The 8B tier is especially appropriate for
+ordinary laptops. \\
+DeepSeek & DeepSeek--R1--Distill--Qwen--14B & Private reasoning candidate. \\
+Qwen & Qwen3.8 27B & Local Pro business model candidate. \\
+\end{tabular}
+\end{center}
+
+The initial supported Local Library is therefore organised by role rather than
+by publisher:
+\begin{enumerate}
+  \item \textbf{Fast Local.}  Granite~3B, Gemma, or Ministral~3 8B for quick,
+  routine offline work on a wide range of compatible devices.
+  \item \textbf{Business Pro.}  Qwen3.8 27B, subject to a signed device
+  variant and measured business-quality and normal-speed receipts.
+  \item \textbf{Private Reasoning.}  GPT--OSS--20B or
+  DeepSeek--R1--Distill--Qwen--14B, selected only when the device profile
+  clears their memory and latency requirements.
+  \item \textbf{Local Agent and Coding.}  Muse Glimmer, subject to the same
+  compatibility and agent-safety acceptance process.
+\end{enumerate}
+
+Claude, Gemini, Grok, Kimi and the full DeepSeek frontier models are not
+downloadable local packages in this initial library.  They belong in the
+\textbf{Frontier API tier}.  AION may use an approved connected provider when
+the task requires its capability, the customer allows external processing, and
+the local device or local quality tier is unsuitable.  The receipt must name
+the provider and model used.
+
+The catalogue also needs media and voice capability, each represented as an
+independently selected provider profile rather than as an assumed extension of
+the text model:
+\begin{enumerate}
+  \item \textbf{Images.}  Maintain one or more approved image-generation and
+  image-understanding providers.  A local image package may be offered only on
+  devices with a validated accelerator and memory profile; otherwise AION uses
+  an approved image API with a clear cost and privacy receipt.
+  \item \textbf{Video.}  Begin with an approved video API, including MiniMax
+  where its commercial terms and product integration are accepted.  Local video
+  releases are workstation products and require their own GPU, licence, speed,
+  reliability and output-quality acceptance evidence.  They must never be
+  presented as ordinary laptop or SD-card packages merely because the weights
+  can be stored externally.
+  \item \textbf{Voice.}  Provide separate speech-to-text and text-to-speech
+  choices.  A compact, validated local voice package can serve privacy-sensitive
+  or offline use; a higher-quality or multilingual API profile can be selected
+  when the customer permits it.
+\end{enumerate}
+
+This creates a complete business intelligence stack: a small set of local
+packages for private and economical routine work, specialist role harnesses,
+and connected frontier, image, video and voice services when they are the
+better fit.  Vault presents the safe installed choices while AION performs the
+routing decision from the task, policy, capability and device profile.

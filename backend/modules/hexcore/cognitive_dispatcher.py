@@ -72,6 +72,8 @@ class CognitiveDispatcher:
         self.quantum_atom = quantum_atom  # optional symbolic classifier
         self.logger = logger
         self.ledger = MorphicLedger()
+        from backend.modules.hexcore.governed_cognitive_stack import GovernedCognitiveStack
+        self.governed_stack = GovernedCognitiveStack()
 
         # ─── Engine Groups ─────────────────────────────────────
         # Ensure situational engine is created first
@@ -144,6 +146,20 @@ class CognitiveDispatcher:
         route the task to the proper consciousness subsystem.
         """
         try:
+            # Broad missions always enter through competence, ethics,
+            # metacognition and authority checks before specialist routing.
+            if payload.get("objective") or payload.get("goal") or payload.get("broad_mission"):
+                deliberation = await asyncio.to_thread(
+                    self.governed_stack.deliberate,
+                    {**payload, "objective": payload.get("objective") or payload.get("goal") or intent},
+                )
+                if payload.get("deliberate_only", True):
+                    return deliberation
+                return await asyncio.to_thread(
+                    self.governed_stack.execute,
+                    deliberation,
+                    execution_adapter=payload.get("execution_adapter"),
+                )
             tag = await self._classify_intent(intent)
             self.logger.info(f"[Dispatcher] Intent classified -> {tag}")
 

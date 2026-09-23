@@ -1,0 +1,60 @@
+\section{Phase 14L --- AgentMap Frontend Duplicate Panel Cleanup Lock}
+\label{sec:phase14-agentmap-frontend-duplicate-cleanup-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- the Boardroom now mounts only the verified AgentMap dashboard panel.}
+
+Phase 14L removes the old duplicate AgentMap visibility panel from the Boardroom render path while keeping the newer verified AgentMap dashboard panel.
+
+\subsection{Reason}
+
+Manual frontend inspection showed two Machine Discovery panels:
+
+\begin{itemize}
+  \item an older partial panel with undefined safety fields;
+  \item the newer verified dashboard panel with live verification, deterministic hash, hosted and self-hosted paths, settings, and generated JSON preview.
+\end{itemize}
+
+The old panel was causing confusion and displayed incomplete values such as \texttt{undefined}. The correct behaviour is to render a single AgentMap dashboard.
+
+\subsection{Locked Behaviour}
+
+The Boardroom dashboard MUST:
+
+\begin{itemize}
+  \item render the new \texttt{renderAgentMapDashboardPanel()} exactly once;
+  \item not mount the deprecated \texttt{renderAgentMapFrontendVisibilityPanel()} in the Boardroom dashboard;
+  \item preserve the top navigation and Boardroom shell;
+  \item show no undefined Machine Discovery safety fields;
+  \item keep AgentMap preview-only and human-review safety semantics visible.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_duplicate_cleanup_lock.py
+\end{verbatim}
+
+Focused suite membership is also locked through:
+
+\begin{verbatim}
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Files}
+
+\begin{verbatim}
+desktop/mac/src/app.js
+backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_duplicate_cleanup_lock.py
+docs/rfc/aion_phase14_agentmap_frontend_duplicate_cleanup_lock.tex
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\textbf{Lock ID:} AION-PHASE14-AGENTMAP-FRONTEND-DUPLICATE-CLEANUP-v0.1\\
+\textbf{Status:} LOCKED\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson

@@ -1,0 +1,152 @@
+\section{Phase 21D --- Frontend Fetch Bridge for LRM Pilot Context Preview}
+\label{sec:phase21d-lrm-pilot-frontend-fetch-bridge-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- frontend fetch bridge added for loading the Phase 21C AION-LRM Pilot Context Preview into the existing Pilot state.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 21D connects the frontend to the Phase 21C local preview endpoint.
+
+It loads the AION-LRM Pilot Context Preview into the existing Pilot frontend state.
+
+This phase does not redesign the Pilot interface and does not create a duplicate Pilot surface.
+
+\subsection{Endpoint}
+
+The bridge fetches:
+
+\begin{verbatim}
+/api/local-node/aion/lrm/pilot-context-preview
+\end{verbatim}
+
+\subsection{Implemented Frontend Functions}
+
+The live frontend file is:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+Phase 21D adds:
+
+\begin{verbatim}
+getAionLrmPilotContextPreviewUrl
+applyAionLrmPilotContextPreviewPayload
+fetchAionLrmPilotContextPreviewIntoPilotState
+\end{verbatim}
+
+The bridge writes into the existing Pilot state returned by:
+
+\begin{verbatim}
+getAionPilotFrontendInteractionState
+\end{verbatim}
+
+\subsection{Existing Pilot Integration}
+
+The existing draft mission flow is:
+
+\begin{verbatim}
+createAionPilotFrontendDraftMission
+\end{verbatim}
+
+Phase 21D attaches the LRM context fetch to that existing flow.
+
+It does not replace:
+
+\begin{verbatim}
+renderAionPilotCockpitPanel
+renderAionPilotSimpleTaskStream
+renderAionPilotFrontendStreamEvents
+\end{verbatim}
+
+\subsection{Payload Fields Stored In Pilot State}
+
+The bridge stores preview-only fields including:
+
+\begin{verbatim}
+lrm_pilot_context_payload
+lrm_context_payload_hash
+lrm_context_summary_hash
+lrm_next_review_state
+lrm_loop_hash
+replay_hash
+proof_hash
+artifact_hash
+receipt_hash
+visible_stream_events
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+Phase 21D is a fetch bridge only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a duplicate Pilot;
+  \item redesign the Pilot UI;
+  \item create a booking;
+  \item create a payment;
+  \item create escrow;
+  \item send an external message;
+  \item write live chain data;
+  \item execute workflow steps;
+  \item write business-container files;
+  \item expose private chain-of-thought;
+  \item expose hidden reasoning;
+  \item expose credentials.
+\end{itemize}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+Phase 21D
+Frontend Fetch Bridge
+AION-LRM
+Pilot Context Preview
+/api/local-node/aion/lrm/pilot-context-preview
+getAionLrmPilotContextPreviewUrl
+applyAionLrmPilotContextPreviewPayload
+fetchAionLrmPilotContextPreviewIntoPilotState
+getAionPilotFrontendInteractionState
+createAionPilotFrontendDraftMission
+existing Pilot state
+no duplicate Pilot
+no UI redesign
+preview-only
+human review
+no booking
+no payment
+no escrow
+no external message
+no live chain
+no workflow execution
+no private chain-of-thought
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21d_lrm_pilot_frontend_fetch_bridge_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21d_lrm_pilot_frontend_fetch_bridge_ui_lock_doc.py
+\end{verbatim}
+
+\subsection{Next Phase}
+
+The next phase SHOULD render a small read-only LRM context card inside the existing Pilot stream or Boardroom dashboard.
+
+It SHOULD use the state loaded by this fetch bridge and MUST NOT create a new Pilot surface.
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21D-LRM-PILOT-FRONTEND-FETCH-BRIDGE-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

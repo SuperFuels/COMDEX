@@ -1,0 +1,130 @@
+\section{AION Phase 20T --- Deterministic Mission Diff and Payload Escrow}
+\label{sec:aion-phase20t-mission-diff-payload-escrow}
+
+\subsection{Status}
+
+Phase 20T locks deterministic mission diff and payload escrow.
+
+\begin{quote}
+\textbf{Status: LOCKED --- mission plan changes are diffed deterministically and checkpoint approvals bind to escrowed payload hashes.}
+\end{quote}
+
+\subsection{Purpose}
+
+Before a mission plan is executed or approved, AION must show what changed from the source template or prior plan.
+
+For checkpointed actions, AION must escrow the exact payload the human is approving.
+
+\begin{quote}
+\textbf{The human approves the escrowed payload hash, not a loose description of the intended action.}
+\end{quote}
+
+\subsection{Mission Diff}
+
+The mission diff MUST compare template steps against proposed steps and emit deterministic entries for:
+
+\begin{itemize}
+  \item added steps;
+  \item modified steps;
+  \item removed steps.
+\end{itemize}
+
+The diff MUST emit:
+
+\begin{verbatim}
+diff_hash: sha256:<digest>
+\end{verbatim}
+
+\subsection{Risk Highlighting}
+
+The diff MUST highlight added or modified steps in risk lanes:
+
+\begin{itemize}
+  \item \texttt{external\_action}
+  \item \texttt{financial\_action}
+  \item \texttt{legal\_action}
+  \item \texttt{deployment\_action}
+  \item \texttt{memory\_mutation}
+\end{itemize}
+
+\subsection{Payload Escrow}
+
+Checkpoint-bound payloads MUST be placed into escrow before approval.
+
+Escrow payload types include:
+
+\begin{itemize}
+  \item quote preview;
+  \item message draft;
+  \item booking preview;
+  \item publish payload;
+  \item advert publish payload;
+  \item customer reply payload;
+  \item payment preview;
+  \item escrow preview.
+\end{itemize}
+
+\subsection{Payload Escrow Record}
+
+A payload escrow record MUST include:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item checkpoint ID;
+  \item step ID;
+  \item action type;
+  \item payload type;
+  \item payload hash;
+  \item payload;
+  \item escrow state;
+  \item approval hash;
+  \item escrow hash.
+\end{itemize}
+
+\subsection{Approval Binding}
+
+An approval may bind to escrow only when:
+
+\begin{equation}
+H_{\mathrm{approved\_payload}}
+=
+H_{\mathrm{escrowed\_payload}}
+\end{equation}
+
+If the hashes differ, the approval MUST NOT bind.
+
+\subsection{Edited Payload Invalidation}
+
+Before execution, AION MUST recalculate the current payload hash and compare it with the escrowed payload hash.
+
+If the payload changed, execution MUST be blocked and fresh approval required.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20T-MISSION-DIFF-PAYLOAD-ESCROW
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

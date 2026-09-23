@@ -1,0 +1,73 @@
+\section{Phase 17D --- Workflow Trigger Bridge}
+\label{sec:aion-phase17d-workflow-trigger-bridge}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 17D connects public website intake to the internal business ticket and workflow preview path.
+
+\subsection{Purpose}
+
+The bridge converts a canonical \texttt{website\_intake.trigger.created} payload into a guarded business ticket.
+
+It then selects the correct workflow by \texttt{business\_id} and detected service, attaches trigger evidence, and prepares a guarded workflow preview.
+
+\subsection{Flow}
+
+\begin{verbatim}
+Public website intake endpoint
+→ website_intake.trigger.created
+→ business ticket
+→ trigger evidence attachment
+→ workflow selection
+→ guarded workflow preview
+\end{verbatim}
+
+\subsection{Ticket Contract}
+
+A generated business ticket MUST include:
+
+\begin{itemize}
+  \item \texttt{ticket\_id};
+  \item \texttt{ticket\_type};
+  \item \texttt{business\_id};
+  \item \texttt{customer};
+  \item \texttt{request};
+  \item \texttt{workflow};
+  \item \texttt{evidence};
+  \item \texttt{guards}.
+\end{itemize}
+
+\subsection{Safety}
+
+The bridge MUST NOT create live side effects.
+
+It MUST preserve:
+
+\begin{itemize}
+  \item no booking created;
+  \item no payment created;
+  \item no escrow created;
+  \item no external message sent;
+  \item no live chain write;
+  \item no live execution;
+  \item human review required;
+  \item preview only.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase17d_workflow_trigger_bridge_lock.py
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE17D-WORKFLOW-TRIGGER-BRIDGE
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

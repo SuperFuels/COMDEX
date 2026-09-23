@@ -10,6 +10,7 @@ from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.websocket_manager import WebSocketManager, broadcast_event  
 from backend.modules.glyphos.glyph_watcher import GlyphWatcher
 from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
+from backend.modules.glyphvault.key_manager import get_encryption_key
 from backend.modules.teleport.teleport_packet import TeleportPacket
 from backend.modules.glyphos.entanglement_utils import entangle_glyphs
 from backend.modules.security.key_fragment_resolver import KeyFragmentResolver
@@ -25,8 +26,6 @@ from backend.modules.lean.lean_proofverifier import validate_lean_container
 from backend.modules.qfield.qfc_ws_broadcast import send_qfc_payload
 from backend.modules.qfield.qfc_utils import build_qfc_view
 from backend.modules.glyphwave.qwave.beam_controller import BeamController
-
-ENCRYPTION_KEY = b'\x00' * 32  # Placeholder key
 
 try:
     # ✅ Lazy import to avoid circular dependency
@@ -115,7 +114,7 @@ class ContainerRuntime:
         self.loop_thread = threading.Thread(target=self._start_event_loop, daemon=True)
         self.loop_thread.start()
         self.ucs_features = UCSBaseContainer.global_features  # ✅ Apply UCS global features (time_dilation, gravity, micro_grid)
-        self.vault_manager = ContainerVaultManager(ENCRYPTION_KEY)
+        self.vault_manager = ContainerVaultManager(get_encryption_key())
         self._registered_once: set[str] = set()
         self._soullaw_checked_containers: set[str] = set()
         self._soul_law_checked = set() 

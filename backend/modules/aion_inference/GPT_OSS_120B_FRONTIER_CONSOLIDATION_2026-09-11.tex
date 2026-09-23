@@ -1,0 +1,186 @@
+% Standalone append-only section for the AION GPT-OSS 120B technical record.
+% Requires only the packages already used by the parent technical record.
+\section{GPT-OSS 120B Consolidated Performance Frontier and Falsification Record}
+\label{sec:gptoss120b-frontier-consolidation-20260911}
+
+\subsection{Scope and claim boundary}
+
+This section consolidates the experiments completed after promotion of the
+exact unrestricted GPT-OSS 120B SD-backed runtime.  Every exact-track test used
+the existing 18~GB M3 Pro, the mounted AION 120B SD warehouse, the original
+Q4\_K\_M/MXFP4 weights, the unrestricted 128-expert router, four selected
+experts per layer, all 36 transformer layers, and authoritative fallback to the
+verified SD representation.  Candidate mechanisms were promoted only when the
+declared numerical, memory, integrity, and transfer gates passed.  Changed
+arithmetic and reduced-expert experiments remain separately labelled quality
+tracks and are not represented as bit-exact unrestricted GPT-OSS 120B.
+
+The promoted exact runtime retains an 8~GiB protected request-specific expert
+core, a demand-admitted 20~GiB internal-disk L2 cartridge, three-touch exception
+admission, and exact read/compute overlap.  Its current verified short-window
+frontier is 1.72455 tokens/s on arithmetic and 1.82858 tokens/s on extraction,
+equivalent to approximately 0.58 and 0.55 seconds per generated token.  The
+original unrestricted SD-streamed path was approximately 0.07--0.10 tokens/s;
+the promoted architecture therefore represents an approximately 18--24-fold
+improvement while retaining exact token, final-hidden-state, and step-logit
+equivalence.  The 30-token/s North Star remains 16.41 times above the present
+1.82858-token/s frontier and has not been achieved.
+
+\subsection{Activation-sparse expert-column gate}
+
+Activation sparsity was tested as a changed-model traffic-reduction mechanism
+on sixteen frozen real expert activations.  The unrestricted router, selected
+experts, original residual, original packed MXFP4 weights, and dense down
+projection were retained.  Gate/up input coordinates were preserved according
+to cumulative absolute activation mass, and the resulting expert contribution
+and complete layer output were compared with the original calculation.
+
+At 75\% retained activation mass, the projected weight-column traffic reduction
+was 1.60 times, but p95 relative $L_2$ error reached 0.0991 for layer output and
+0.3203 for expert contribution.  At 90\% retained mass, the corresponding
+errors fell to 0.0401 and 0.1349, but projected traffic reduction fell to only
+1.3187 times.  Retaining 99\% of activation mass passed the numerical gates,
+but yielded only approximately 1.0842 times projected traffic reduction.
+Consequently no sparse kernel or compact column warehouse was constructed.
+Decision: \texttt{STOP\_ACTIVATION\_SPARSE\_COLUMNS}.  The evidence was
+preserved in isolated commit \texttt{c9c0c274}.
+
+\subsection{Protected-core shrink and cross-family transfer}
+
+The inverse memory-pressure hypothesis was then tested: reduce the protected
+core from 8~GiB to 6~GiB, freeing unified memory for packed calculation while
+accepting additional exact L2 delivery.  On matched warm 24-position arithmetic
+runs, the 6~GiB candidate reached 1.35598 tokens/s versus 1.27873 tokens/s for
+the 8~GiB control, a 6.04\% improvement.  However, its median L2 delivery rose
+from 15.441~GB to 20.146~GB per pass, an increase of 30.47\%.  Routes, tokens,
+final hidden states, and logits remained bitwise equivalent.
+
+The unchanged candidate was transferred to extraction using independently
+fresh, identically constructed temporary L2 cartridges.  There the result
+reversed: 6~GiB reached only 0.19713 tokens/s versus 0.26809 tokens/s for 8~GiB,
+a 26.47\% regression.  Median L2/SD delivery rose to 31.418/6.138~GB from
+24.877/2.893~GB.  Exactness again passed, proving that the failure was physical
+performance rather than correctness.  Decision:
+\texttt{STOP\_CORE\_SHRINK\_NOT\_GENERAL}.  The 8~GiB protected core remains
+the cross-family control.  Reproducible experiment caches were removed only
+after evidence capture, recovering approximately 30~GiB of local storage; no
+evidence was deleted.  The result, checksums, and transfer record were preserved
+in commit \texttt{6fa61028}.
+
+\subsection{Fused Metal under production memory pressure}
+
+The packed four-expert Metal graph was retested while the parent process held a
+real 8~GiB protected pool containing 8,588,436,480 resident bytes across 648
+protected expert entries.  The frozen extraction activation, original route,
+original gates, and original weights were retained.  Pool construction took
+91.886 seconds and read 8,248,768,440 compressed warehouse bytes.
+
+Under this pressure, packed CPU execution measured 1.38742~ms median and
+1.52171~ms p95.  Metal measured 1.87546~ms median and 2.06663~ms p95 after a
+3.46379~ms route upload.  Even excluding upload, Metal achieved only 0.7398
+times CPU throughput and was approximately 26\% slower.  Relative $L_2$ output
+error was 0.0058435, maximum absolute error was 0.040543, and output argmax
+agreed, but the output was not bitwise identical.  A separately labelled
+256~MiB synthetic CPU cache-disturbance diagnostic also failed to justify Metal
+once route upload was charged.  Decision:
+\texttt{STOP\_FUSED\_METAL\_ROUTE\_UNDER\_PRESSURE}.  The evidence was
+preserved in commit \texttt{cc1fccc4}.
+
+\subsection{Direct zero-copy Metal binding}
+
+The remaining Metal hypothesis was that per-route copying, rather than compute,
+caused the loss.  GGML reported host-pointer buffer support on the M3 Pro.  A
+page-aligned 53,100,544-byte host arena was therefore constructed and bound
+directly to the Metal backend.  This worked mechanically: measured backend
+upload fell to approximately 0.00004~ms.  Host-arena packing was recorded
+separately and excluded from compute timing, because a production version would
+require verified decompression to land directly in persistent slots.
+
+Zero-copy did not pass the performance gate.  In the hot screen, CPU median was
+0.70054~ms and Metal median was 0.90877~ms, giving Metal 0.7709 times CPU
+throughput.  Under the actual 8~GiB protected-pool pressure, CPU median was
+1.15854~ms and zero-copy Metal median was 1.85440~ms, giving Metal only 0.6248
+times CPU throughput.  Relative $L_2$ error remained 0.0058435 and argmax
+agreement remained true, but bitwise equivalence did not hold.  This proves
+that route upload can be removed, but also proves that upload was not the
+decisive reason the batch-one MXFP4 Metal route lost.  Decision:
+\texttt{STOP\_ZERO\_COPY\_METAL\_ROUTE}.  The current GGML Metal branch is
+closed unless a genuinely different custom kernel first beats packed CPU in a
+narrow gate.  Evidence and LaTeX were preserved in commit \texttt{887817f8}.
+
+\subsection{Adaptive expert count plus multi-position reuse bound}
+
+The best quality-passing preserved-mass adaptive traces were next combined
+offline with the previously exact multi-position expert-union mechanism.  For
+every non-overlapping response window, the analysis counted individual active
+expert demands and the unique layer--expert union that could be fetched once
+for a known teacher block.  This deliberately measured the best physical reuse
+opportunity before constructing a costly speculative runtime.
+
+For arithmetic, median expert-delivery reductions were 1.1169, 1.3605, and
+1.6718 times for two-, four-, and eight-position blocks.  Extraction produced
+1.1494, 1.3484, and 1.6047 times.  The best individual window reached 1.9943
+times.  Under the intentionally over-generous assumption that all exact runtime
+time scales linearly with expert delivery, the 1.82858-token/s frontier would
+rise only to 3.6467 tokens/s.  Real improvement must be lower because attention,
+routing, output calculation, draft generation, verification, rejection, and
+recovery remain.
+
+The available top-two arithmetic draft and preserved-mass target shared only
+their first five greedy response tokens before diverging.  This is not a corpus
+acceptance rate, but it confirms that teacher tokens cannot be treated as free
+and that autoregressive causality remains.  Decision:
+\texttt{DO\_NOT\_BUILD\_FULL\_COMPOSITE\_FROM\_ROUTE\_REUSE\_ALONE}.
+Multi-position reuse remains a supporting optimization for any future cheap,
+high-acceptance compatible draft, but cannot independently close the 16.41-fold
+North-Star gap.  The canonical evidence SHA-256 is
+\texttt{aace38fa5d0bb09ef94549aa0f89a49171843490cde855f8adc2ea1aa59a1aba},
+and the implementation record is commit \texttt{e940cf71}.
+
+\subsection{Current physical interpretation}
+
+The experiment has established that the complete 120B representation can
+reside in an addressable, verified SD warehouse and execute on a machine whose
+18~GB unified memory cannot conventionally contain the model.  The promoted
+runtime is exact and dramatically faster than the original SD-streamed path.
+However, it has also established that the current system remains dominated by
+movement of the selected expert data through the memory hierarchy.  Neither
+more RAM residency, less RAM residency, ordinary Metal offload, removal of the
+Metal upload copy, activation-column omission, nor teacher-block reuse provides
+the missing order-of-magnitude improvement under the tested constraints.
+
+For completeness, component-pipelined expert execution had already been tested
+before this consolidation.  That exact candidate read and calculated gate/up
+components first while fetching the down projection concurrently.  Across
+eight captured four-expert routes and 48 balanced observations per mode, every
+output remained bitwise identical.  Whole-expert overlap required 4.9073~ms
+median per route, whereas staged projection required 7.3853~ms, giving a
+candidate/control speed ratio of only 0.6645.  Extra file operations, graph
+execution, and synchronization exceeded the short gate/up interval available
+for hiding the down read.  Decision:
+\texttt{STOP\_STAGED\_PROJECTION\_IO}.  This branch is preserved in commit
+\texttt{962e2c35} and must not be repeated without a fundamentally different
+single-dispatch implementation.
+
+The resulting frontier changes the next research abstraction.  The exact
+engine remains the oracle and fallback, while the primary order-of-magnitude
+candidate becomes an explicitly quality-gated transformed expert
+representation.  Its first gate must operate on genuine original matrices and
+unseen real activations, require no more than 20\% of the original physical
+expert traffic, and measure complete expert and layer-output error.  It must not
+repeat previously stopped magnitude pruning, activation-column omission,
+global residual dictionaries, simple low-rank output imitation, or fixed
+lower-bit MXFP4 codebooks.  No full-model implementation is justified until a
+multi-family microgate demonstrates both the required traffic reduction and a
+predeclared numerical acceptance region with exact fallback for rejected
+states.
+
+\subsection{Consolidated conclusion}
+
+The honest verified GPT-OSS 120B frontier on the existing 18~GB M3 Pro is
+therefore 1.72455--1.82858 tokens/s.  AION has proved viable bounded execution
+of the SD-resident 120B-class model and delivered an approximately 18--24-fold
+improvement over the original unrestricted SD path.  It has not yet produced a
+30--50-token/s unrestricted 120B runtime.  The principal remaining requirement
+is a mechanism that reduces or eliminates most physical active-expert movement,
+not another small adjustment to eviction policy or conventional GPU dispatch.

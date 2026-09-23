@@ -1,0 +1,87 @@
+\section{Phase 21E --- Pilot File System and Business Container View}
+\label{sec:aion-phase21e-pilot-filesystem-container-view}
+
+\subsection{Status}
+
+Phase 21E locks the Pilot file-system read model for visible generated artifacts.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Pilot artifacts are visible only through business-container-bound file views.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Pilot cockpit MUST answer a direct user question:
+
+\begin{quote}
+Where did AION save the thing it created?
+\end{quote}
+
+This phase defines the visible artifact file tree for Pilot-created outputs.
+
+\subsection{Artifact Visibility Contract}
+
+Each artifact view MUST show:
+
+\begin{itemize}
+  \item artifact type;
+  \item title;
+  \item business identifier;
+  \item mission identifier;
+  \item run identifier;
+  \item step identifier;
+  \item business container path;
+  \item artifact hash;
+  \item receipt hash;
+  \item draft or preview status.
+\end{itemize}
+
+\subsection{Container Boundary}
+
+Artifacts MUST be shown under the canonical path:
+
+\begin{verbatim}
+business/<business_id>/missions/<mission_id>/runs/<run_id>/artifacts/<artifact_name>
+\end{verbatim}
+
+The Pilot file view MUST reject parent traversal and cross-business artifacts.
+
+\subsection{Read Model Rule}
+
+The file-system panel is a read model.
+
+It MAY expose:
+
+\begin{itemize}
+  \item open output;
+  \item download output;
+  \item view receipt.
+\end{itemize}
+
+It MUST NOT expose live external action buttons or raw tool execution.
+
+\subsection{Credential Rule}
+
+The file view MUST NOT expose raw credentials, API keys, passwords, session tokens or cookies.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21e_pilot_filesystem_container_view_lock.py
+\end{verbatim}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{Pilot may show generated files, but the file view MUST remain a read model bound to the business container. It MUST NOT execute tools, expose credentials, escape the business container or provide live external action buttons.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21E-PILOT-FILESYSTEM-CONTAINER-VIEW
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

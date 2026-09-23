@@ -1,0 +1,33 @@
+\section{Mobile Boardroom Briefings and Department Summaries}
+\label{sec:pilot-mobile-boardroom-summaries}
+\raggedright
+
+Pilot now connects the unified mobile Workspace surface to the existing AION Business
+repositories through a read-only Boardroom provider adapter.  The adapter discovers the
+authoritative workspaces and reads their existing boardroom snapshot, operational runtime
+summary, dashboard summary, and department work envelopes.  It does not create a parallel
+mobile business database.
+
+An accepted workspace member can request a briefing, departmental view, or dashboard from
+the private Spaces screen.  The phone signs the request, the mobile lease must carry the
+general workspace-read capability, and the named membership must independently permit the
+requested surface.  The gateway returns a bounded projection with the source provider,
+provider revision, retrieval time, and deterministic projection hash.
+
+The mobile projection uses an explicit top-level allowlist and recursive size, depth, and
+collection limits.  Passwords, secrets, access tokens, credentials, private keys, API keys,
+email addresses, and phone fields are removed even if an upstream summary accidentally
+contains them.  Department work is reduced to its task reference, department, status, and
+title.  Raw business containers, customer records, and Personal Pilot data do not cross
+into the phone summary.
+
+The interface keeps invitation state and business data separate.  A pending invitation
+cannot open a summary.  After acceptance, the member may choose Briefing, Departments, or
+Dashboard; suspended, expired, or revoked membership is rejected on the next request even
+if the buttons remain visible in a stale browser render.
+
+Automated tests verify real repository adaptation, provider revision, bounded department
+declarations, briefing and dashboard projection, and recursive removal of secret and
+contact fields.  Gateway, pairing, and mobile-surface tests pass, and the optimized Next.js
+application compiles.  This closes \texttt{MOB-0606}.
+

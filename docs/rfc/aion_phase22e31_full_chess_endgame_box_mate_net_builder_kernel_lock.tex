@@ -1,0 +1,66 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.31 --- Endgame Box/Mate Net Builder}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.31 introduces an endgame box and mate-net builder for AION full chess.
+
+The purpose is to convert winning endgames by reducing enemy king mobility, pushing the enemy king toward the board edge, improving own king support, and prioritising checkmate.
+
+\section{Contract}
+
+The kernel MUST score:
+
+\begin{itemize}[leftmargin=*]
+  \item enemy king mobility;
+  \item enemy king edge distance;
+  \item own king distance to the enemy king;
+  \item check pressure;
+  \item checkmate priority;
+  \item repeated move penalties;
+  \item major-piece box control.
+\end{itemize}
+
+The kernel MUST detect at least:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{king\_queen\_vs\_king};
+  \item \texttt{king\_rook\_vs\_king};
+  \item \texttt{queen\_conversion};
+  \item \texttt{rook\_conversion}.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e31_full_chess_endgame_box_mate_net_builder_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e31_full_chess_endgame_box_mate_net_builder_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E31-FULL-CHESS-ENDGAME-BOX-MATE-NET-BUILDER\\
+Status: LOCKED --- endgame box and mate-net builder implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

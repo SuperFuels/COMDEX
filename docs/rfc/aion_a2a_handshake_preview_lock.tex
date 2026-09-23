@@ -1,0 +1,256 @@
+\section{Phase 11I --- Real A2A Handshake Preview v0}
+\label{sec:aion-a2a-handshake-preview-v0}
+
+\subsection{Status}
+
+Phase 11I locks the guarded real A2A handshake preview layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- A2A handshake, quote negotiation, and live status polling preview tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 11I previews the future real A2A handshake flow without enabling live external-agent execution.
+
+This phase adds three preview contracts:
+
+\begin{itemize}
+  \item real A2A handshake preview contract,
+  \item quote negotiation preview contract,
+  \item live status polling preview contract.
+\end{itemize}
+
+The lock exists to define the future agent-to-business handshake shape while preserving the current safety boundary.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/a2a_handshake_preview.py
+\end{verbatim}
+
+The module exports:
+
+\begin{itemize}
+  \item \texttt{A2A\_HANDSHAKE\_PREVIEW\_VERSION}
+  \item \texttt{build\_a2a\_handshake\_preview}
+  \item \texttt{build\_a2a\_quote\_negotiation\_preview}
+  \item \texttt{build\_a2a\_live\_status\_polling\_preview}
+  \item \texttt{build\_a2a\_handshake\_preview\_bundle}
+  \item \texttt{build\_a2a\_handshake\_preview\_summary}
+\end{itemize}
+
+The contract version is:
+
+\begin{verbatim}
+aion.a2a_handshake_preview.v0.1
+\end{verbatim}
+
+\subsection{Universal Business Boundary}
+
+The default preview context remains the Home Fixed testbed:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+industry_key = trades
+\end{verbatim}
+
+The handshake contract is universal and MUST NOT be hardcoded as a trade-only system.
+
+The same preview shape must support future vertical adapters for legal services, accounting services, ecommerce, B2B suppliers, healthcare-adjacent booking workflows, local services, and professional services.
+
+\subsection{Handshake Preview Contract}
+
+The real A2A handshake preview requires:
+
+\begin{verbatim}
+requesting_agent_id
+requesting_agent_name
+requested_protocol
+business_id
+intent_type
+\end{verbatim}
+
+The locked preview status is:
+
+\begin{verbatim}
+status = handshake_preview_only
+handshake_accepted = false
+handshake_preview_only = true
+requires_auth = true
+auth_mode = api_key_or_signed_agent_preview
+agent_identity_validation_enabled = false
+scoped_permissions_enabled = false
+route_hint = future_guarded_approval_path
+\end{verbatim}
+
+This phase does not validate live agent identity and does not grant scoped permissions.
+
+\subsection{Accepted Protocols}
+
+The handshake preview advertises accepted preview protocols:
+
+\begin{verbatim}
+aion.a2a.preview.v0
+aion.machine_cart.preview.v0
+aion.quote_negotiation.preview.v0
+aion.live_status_polling.preview.v0
+aion.proof_receipt.preview.v0
+\end{verbatim}
+
+These are protocol previews only.
+
+They do not enable live negotiation, public polling, workflow execution, booking, settlement, or proof execution.
+
+\subsection{Quote Negotiation Preview}
+
+The quote negotiation preview requires:
+
+\begin{verbatim}
+business_id
+service_id
+requested_outcome
+target_price
+currency
+\end{verbatim}
+
+The locked negotiation boundary is:
+
+\begin{verbatim}
+status = quote_negotiation_preview_only
+quote_negotiation_enabled = false
+counter_offer_enabled = false
+final_quote_created = false
+pricing_mode = requires_human_review
+human_review_required = true
+route_hint = future_guarded_approval_path
+\end{verbatim}
+
+This phase may preview future quote negotiation metadata, but it MUST NOT negotiate a live quote.
+
+\subsection{Live Status Polling Preview}
+
+The live status polling preview requires:
+
+\begin{verbatim}
+business_id
+job_id
+requesting_agent_id
+\end{verbatim}
+
+The locked polling boundary is:
+
+\begin{verbatim}
+status = live_status_polling_preview_only
+current_stage = waiting_human_review
+live_status_polling_enabled = false
+public_status_stream_enabled = false
+human_review_required = true
+route_hint = future_guarded_approval_path
+\end{verbatim}
+
+This phase previews the future status-polling shape only.
+
+It does not enable live status polling or public status streams.
+
+\subsection{Hashing Contract}
+
+The Phase 11I preview layer emits deterministic hashes:
+
+\begin{verbatim}
+handshake_hash
+quote_negotiation_hash
+status_polling_hash
+bundle_hash
+summary_hash
+\end{verbatim}
+
+The bundle hash binds the handshake preview, quote negotiation preview, live status polling preview, business identity, safety state, and blocked reasons.
+
+Changing the business identity, requesting agent identity, requested protocol, service request, job identifier, or safety state MUST alter the relevant hash.
+
+\subsection{Safety Boundary}
+
+Phase 11I MUST remain guarded and preview-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item expose a public route,
+  \item accept a real A2A handshake,
+  \item validate live external agent identity,
+  \item grant scoped permissions,
+  \item negotiate a live quote,
+  \item enable live status polling,
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item confirm final completion,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages.
+\end{itemize}
+
+The locked safety flags are:
+
+\begin{verbatim}
+preview_only = true
+guarded = true
+human_review_required = true
+autonomous_execution_allowed = false
+public_route_exposed = false
+would_execute_workflow = false
+would_create_booking = false
+would_create_live_job = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_send_external_message = false
+live_status_polling_enabled = false
+quote_negotiation_enabled = false
+real_a2a_handshake_enabled = false
+\end{verbatim}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_a2a_handshake_preview_lock.py \
+  backend/tests/workflow_capsules/test_aion_a2a_handshake_preview_lock_doc.py
+\end{verbatim}
+
+Focused suite validation:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-A2A-HANDSHAKE-PREVIEW-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

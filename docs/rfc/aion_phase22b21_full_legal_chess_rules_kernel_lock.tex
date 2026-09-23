@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.21: Full Legal Chess Rules Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.21 defines the AION Full Legal Chess Rules Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can validate the remaining special, terminal, and draw chess rule classes.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.21 completes the selected legal-rule layer required before a live playable chess loop.
+
+\section{Full Legal Rules Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{legal\_rule\_case\_count};
+  \item \texttt{passed\_rule\_case\_count};
+  \item \texttt{failed\_rule\_case\_count};
+  \item \texttt{castling\_validated};
+  \item \texttt{en\_passant\_validated};
+  \item \texttt{promotion\_validated};
+  \item \texttt{checkmate\_validated};
+  \item \texttt{stalemate\_validated};
+  \item \texttt{repetition\_draw\_validated};
+  \item \texttt{fifty\_move\_draw\_validated};
+  \item \texttt{legal\_check\_escape\_validated};
+  \item \texttt{illegal\_king\_adjacency\_rejected};
+  \item \texttt{full\_legal\_rules\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates deterministic validation of the remaining chess rule classes. It does not yet implement a complete UCI/PGN engine, exhaustive search, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B21-FULL-LEGAL-CHESS-RULES-KERNEL-LOCK\\
+Status: LOCKED --- full legal chess rules kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

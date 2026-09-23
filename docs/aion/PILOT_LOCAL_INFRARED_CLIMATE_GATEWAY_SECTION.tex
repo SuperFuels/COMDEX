@@ -1,0 +1,82 @@
+\section{Pilot Fabric 0.34: Local Infrared Climate Gateway}
+\label{sec:local-ir-climate}
+
+Pilot Fabric 0.34 extends the device fabric to legacy appliances that expose no
+Wi-Fi, Bluetooth, installable runtime, or documented network API.  The first
+target is a Toshiba RAS-24J2KVG-E indoor air-conditioning unit operated by a
+WH-UC01NE infrared handset.  Pilot does not modify the air conditioner and does
+not require Toshiba cloud credentials.  A small, USB-powered infrared gateway
+in the same room acts as a universal edge actuator.
+
+\subsection{Architecture}
+
+The mother brain communicates with a supported BroadLink-compatible gateway on
+the local network.  The gateway learns the handset's 38-kHz infrared waveform
+and later retransmits that waveform within line of sight of the appliance.  The
+control path is therefore
+\begin{quote}
+private phone or local speech $\rightarrow$ governed mother brain $\rightarrow$
+local authenticated LAN session $\rightarrow$ infrared gateway $\rightarrow$
+Toshiba receiver.
+\end{quote}
+Initial attachment of a new gateway to the household's 2.4-GHz Wi-Fi may require
+the manufacturer's provisioning application.  Once provisioned, discovery,
+learning, storage, and command transmission are local operations; the learned
+codes and control path do not depend on a model provider or Toshiba account.
+
+\subsection{Full-state preset model}
+
+Air-conditioner handsets commonly transmit a complete state frame containing
+mode, temperature, fan, and related settings.  Pilot consequently stores named,
+explicit presets rather than pretending that an ambiguous power toggle is a
+reliable state transition.  The bounded schema permits \texttt{off},
+\texttt{fan\_auto}, and \texttt{cool}, \texttt{heat}, or \texttt{dry} presets
+between 16 and 30 degrees Celsius.  Examples include \texttt{cool\_22} and
+\texttt{heat\_20}.  ``Turn on'' reuses the last explicitly transmitted active
+preset; it never invents a new appliance state.
+
+The owner teaches each useful preset once from the private phone interface:
+select a preset, place the gateway in learning mode, point the WH-UC01NE at it,
+press the exact handset command, and capture the result.  Pilot stores the
+bounded binary packet in a private file with mode 0600, records its SHA-256
+digest, and exposes only the name, length, timestamp, and digest to user
+interfaces.  Raw infrared packets never enter the audit ledger.
+
+\subsection{Governance and verification semantics}
+
+Preset names are strictly validated, packet size is bounded, stored packets are
+integrity-checked before transmission, and repeated sends are rate-limited.
+Phone controls pass through the existing CSRF-protected private companion.  A
+voice command is accepted only when it resolves to an already learned explicit
+preset, for example ``Pilot, set the air con to 22 degrees'' or ``Pilot, turn the
+air con off.''
+
+Infrared is a one-way transport.  A successful gateway call proves only that the
+stored waveform was delivered to the transmitter.  Every receipt therefore
+sets \texttt{transport\_delivered=true} and
+\texttt{air\_conditioner\_state\_verified=false}.  Pilot must not claim that the
+compressor started, the room reached the set point, or the unit changed mode
+unless a separate permitted sensor or appliance adapter later supplies that
+evidence.  This distinction preserves the Fabric rule that command delivery is
+not outcome verification.
+
+\subsection{Deployment boundary}
+
+The Mac, television, iPhone, and Android phones do not contain a general-purpose
+38-kHz infrared transmitter.  Software alone therefore cannot operate this
+legacy Toshiba receiver.  The external gateway is the minimum physical bridge,
+but unlike an internal RB-N105S-G module it needs no air-conditioner disassembly,
+electrical installation, or per-appliance cloud integration.  The same gateway
+can learn additional line-of-sight infrared appliances while each receives its
+own governed capability namespace and explicit command library.
+
+\subsection{Implemented interface and tests}
+
+The private controller shows gateway presence, the pending learning operation,
+learned presets, and one-touch controls.  The runtime supports bounded discovery,
+selection, learning initiation, capture, integrity-checked transmission, last
+active preset recall, redacted status snapshots, and audit receipts.  Automated
+tests cover discovery, learning, replay, unsafe preset rejection, corrupt packet
+rejection, rate limiting, absent hardware, voice routing, code redaction, and the
+non-verification rule.  The feature remains dormant and causes no network or
+appliance change when compatible hardware is absent.

@@ -1,0 +1,74 @@
+% Append-only technical-record section. Requires amsmath.
+\section{Cross-Family Layer-Consequence Omission Gate}
+
+A second first-principles probe asked whether whole selected experts could be
+omitted at a layer only after measuring their actual contribution, rather than
+using a global router-mass threshold.  For every captured activation, each of
+the four original MXFP4 experts was evaluated separately with its original
+gate.  The full four-expert layer result was reconstructed in the original
+order, and top-1, top-2 and top-3 partial results were compared with it.
+
+The available frozen arithmetic, extraction and unseen-reasoning corpora
+provided 681 real observations at layer 12.  A retained count could be selected
+only if that layer met all three predeclared limits across the combined corpus:
+p95 output-relative $L_2\leq0.02$, maximum output-relative $L_2\leq0.025$, and
+p95 expert-contribution-relative $L_2\leq0.15$.  None of top-1, top-2 or top-3
+passed.  Layer 12 therefore retained all four experts, yielding no theoretical
+work reduction.  Decision: \texttt{STOP\_LAYER\_CONDITIONED\_OMISSION} for
+this measured layer.
+
+This result does not prove that every one of the 36 layers is equally
+sensitive, because the current cross-family teacher captures contain only
+layer 12.  It does show that the layer already used for residual and compact
+expert development cannot be safely reduced by a fixed expert count on the
+present broad corpus.  A future multi-layer consequence map must collect a
+separately frozen cross-family sample at every layer and must survive causal
+generation; this layer-12 result provides no justification to weaken the
+full-model gate.
+
+The canonical evidence SHA-256 is
+\texttt{ba32b0c70ed67298c114231c2feb6bc74e4c16b97221110a1fe1490691007f31}.
+This is an offline changed-arithmetic bound, not generated-token speed or
+semantic-quality evidence.  The unrestricted exact frontier remains
+approximately 1.72--1.83 tokens/s.
+
+\subsection{Impossible best-subset oracle}
+
+The gate was strengthened to remove a possible objection: perhaps the weakest
+expert by router order is not the least consequential expert for the actual
+activation.  For each of the 681 observations, an impossible oracle enumerated
+every one-, two- and three-expert subset and selected the subset having the
+smallest error against the already-known four-expert teacher output.  This
+oracle cannot be deployed because it sees the answer before choosing, but it
+is a strict existence bound for any future consequence predictor.
+
+Even this oracle retained all four experts for 585 observations.  It could use
+three experts for 92 observations, two for four observations, and one for
+none.  Total expert work fell by only $1.03811\times$.  This is far below the
+predeclared $1.50\times$ threshold for constructing a predictor and cannot
+plausibly compound toward the missing speed multiplier.  The stronger result
+therefore confirms \texttt{STOP\_LAYER\_CONDITIONED\_OMISSION} at layer 12.
+The oracle evidence canonical SHA-256 is
+\texttt{dbd6237a6f43ac6642df887c10233efd43ecc4cac9f64dd939d25c2919ab1869}.
+
+\subsection{Correction to layer coverage}
+
+The preceding prose incorrectly described the 681 observations as layer 12
+only.  Inspection of the hash-bound report confirms that the capture glob
+covered 12 sampled layers:
+\[
+  0,3,6,9,12,15,18,21,24,27,30,35.
+\]
+Layer 12 contributed 76 observations and each of the other sampled layers
+contributed 55.  Every one of the 12 layers retained all four experts under
+the fixed cross-family limits.  The impossible best-subset oracle counts
+($0$ top-1, $4$ top-2, $92$ top-3 and $585$ top-4 observations) and its
+$1.03811\times$ total bound already cover this 12-layer sample.  The conclusion
+is therefore stronger than first stated: consequence-selected omission failed
+across one third of the transformer depth, sampled from early through final
+layers.  The remaining 24 unsampled layers are not inferred.
+
+The first SD copy of this section is preserved with an
+\texttt{INVALID} sidecar because its coverage description was wrong.  This
+corrected append-only version supersedes the prose only; neither numerical
+evidence report nor decision changed.

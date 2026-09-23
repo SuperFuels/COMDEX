@@ -1,0 +1,118 @@
+\section{Goal Engine Guarded Child-Run Creation Request Lock}
+\label{sec:aion-goal-engine-guarded-child-run-creation-request-lock}
+
+\subsection{Status}
+
+The AION Goal Engine now exposes a guarded child-run creation request contract for multi-agent orchestration.
+
+\begin{quote}
+\textbf{Status: LOCKED --- focused Goal Engine suite passing with 441 tests.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Expected validation result:
+
+\begin{verbatim}
+441 passed
+\end{verbatim}
+
+\subsection{Purpose}
+
+This lock closes the gap between a visible guarded child-agent handoff and an executable child-run creation request.
+
+The contract does not create the child run directly. It produces a review-only request packet that preserves parent and child links, target workflow identity, target run identity, glyph identity, and safety flags. The actual child workflow run remains blocked until a human-approved runtime layer consumes the request.
+
+\subsection{Locked Contract}
+
+The canonical schema version is:
+
+\begin{verbatim}
+aion.goal_engine.guarded_child_run_creation_request.v1
+\end{verbatim}
+
+The canonical trace type is:
+
+\begin{verbatim}
+guarded_child_run_creation_request
+\end{verbatim}
+
+The locked helper is:
+
+\begin{verbatim}
+build_guarded_child_run_creation_request(...)
+\end{verbatim}
+
+The helper MUST preserve:
+
+\begin{itemize}
+  \item parent goal identity;
+  \item child goal identity;
+  \item child agent identity;
+  \item child glyph identity;
+  \item target workflow identity;
+  \item target child run identity;
+  \item approval/review gate metadata;
+  \item blocked reasons when the request is not safe.
+\end{itemize}
+
+\subsection{Safety Invariants}
+
+The request is deliberately non-autonomous.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a workflow run directly;
+  \item execute a child agent;
+  \item mark a parent goal complete;
+  \item resolve a conflict automatically;
+  \item write externally;
+  \item grant permissions;
+  \item bypass human approval.
+\end{itemize}
+
+The field:
+
+\begin{verbatim}
+child_run_created
+\end{verbatim}
+
+MUST remain false at this stage.
+
+The request MAY become eligible for a downstream approval-action runtime, but only after the handoff has been marked ready for execution handoff and a target workflow plus child run identifier are both present.
+
+\subsection{Relationship to Recent Guarded Orchestration Work}
+
+This lock sits after the following recent locks:
+
+\begin{itemize}
+  \item guarded child-agent execution handoff;
+  \item human-approved conflict resolution;
+  \item multi-agent execution replay history;
+  \item recent guarded orchestration panel auto-mount.
+\end{itemize}
+
+Together these locks move the orchestrator beyond passive preview while preserving review gates. The system can now describe a safe child-run creation request without actually executing it.
+
+\subsection{Implementation Files}
+
+\begin{verbatim}
+backend/modules/aion/goal_engine/orchestrator.py
+backend/tests/workflow_capsules/test_goal_engine_guarded_child_run_creation_request.py
+docs/rfc/aion_goal_engine_guarded_child_run_creation_request_lock.tex
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-GUARDED-CHILD-RUN-CREATION-REQUEST-v1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

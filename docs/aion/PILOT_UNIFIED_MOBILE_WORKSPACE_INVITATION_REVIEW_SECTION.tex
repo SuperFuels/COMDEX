@@ -1,0 +1,29 @@
+\section{Private Phone Review of Workspace Invitations}
+\label{sec:pilot-mobile-workspace-invitation-review}
+\raggedright
+
+Workspace and Boardroom invitations are now reviewed on the recipient's trusted phone.
+The Spaces screen shows the organization, inviter, proposed role, every requested scope,
+all applicable constraints, and the exact expiry before offering separate decline and
+accept controls.  The shared television does not display or accept these invitations.
+
+The mother accepts an invitation response only when the current certificate and lease
+carry the dedicated invitation-response capability, the request names the certificate's
+person, and the paired phone signs the complete response.  The invitation must still be
+pending, addressed to that person, unexpired, and bound to a known workspace.  Acceptance
+creates one membership containing exactly the offered role, scopes, and invitation
+expiry.  Declining creates no workspace authority.
+
+The decision receipt records the decision, person, trusted device, time, and a hash of
+the accepted or declined scope.  Retrying the same terminal decision returns the existing
+result; a conflicting later decision is rejected.  Internal request hashes are not
+exposed to the application.  The interface distinguishes accepted from declined state
+and never presents a pending invitation as workspace access.
+
+The live mother service now exposes signed invitation snapshot and response routes, and
+new phone pairings request only the two explicit invitation capabilities.  Existing
+phones must reconnect to obtain these permissions; renewal cannot silently add them.
+Automated tests prove possession-bound review and acceptance, exact membership creation,
+receipt generation, private filtering, and forged-signature rejection.  The optimized
+mobile build also completes successfully.  This closes \texttt{MOB-0604}.
+

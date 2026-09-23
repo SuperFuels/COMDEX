@@ -1,0 +1,77 @@
+\section{Phase 21C --- Pilot Mission Composer and Artifact Preview Flow}
+\label{sec:aion-phase21c-pilot-mission-composer-artifact-preview}
+
+\subsection{Status}
+
+Phase 21C locks the first visible Pilot mission composer flow.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Pilot can accept an artifact request, show a plan preview, declare the business-container output path, expose the artifact preview record, and capture governed feedback without live side effects.}
+\end{quote}
+
+\subsection{Purpose}
+
+This phase answers the operator-facing question:
+
+\begin{quote}
+\textbf{If the user asks AION Pilot to build a PDF document with data, what does Pilot do and where does the result go?}
+\end{quote}
+
+The locked answer is:
+
+\begin{itemize}
+  \item Pilot creates a mission preview first;
+  \item Pilot shows the plan before execution;
+  \item Pilot declares the business-container save path before creating output;
+  \item Pilot creates a draft artifact preview record;
+  \item Pilot shows artifact type, path, hash and status;
+  \item Pilot exposes open, download, receipt and replay controls;
+  \item Pilot captures approve, reject, revise, stop, retry and continue feedback as governed events;
+  \item Pilot does not expose live external action buttons by default.
+\end{itemize}
+
+\subsection{Artifact Path Rule}
+
+All generated user-usable artifacts MUST be scoped under the business container.
+
+\begin{verbatim}
+business/<business_id>/missions/<mission_id>/runs/<run_id>/artifacts/<artifact_name>
+\end{verbatim}
+
+\subsection{Feedback Rule}
+
+Feedback MUST be captured as a governed feedback event.
+
+Feedback MUST NOT silently mutate:
+
+\begin{itemize}
+  \item live memory;
+  \item reusable templates;
+  \item provider state;
+  \item reputation.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20p_pilot_frontend_interaction_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21a_pilot_cockpit_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21b_pilot_cockpit_frontend_mount_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21c_pilot_mission_composer_artifact_preview_lock.py
+\end{verbatim}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{Pilot may prepare and display an artifact preview, but it MUST NOT escape the business container, expose credentials, call raw tools, or convert feedback into live memory/template/provider/reputation mutation without the governed approval chain.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21C-PILOT-MISSION-COMPOSER-ARTIFACT-PREVIEW
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

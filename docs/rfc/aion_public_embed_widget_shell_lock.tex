@@ -1,0 +1,210 @@
+\section{Phase 12B --- Public Website Embed Widget Shell v0}
+\label{sec:aion-public-embed-widget-shell-v0}
+
+\subsection{Status}
+
+Phase 12B locks the first frontend-visible public website embed widget shell.
+
+\begin{quote}
+\textbf{Status: LOCKED --- pending validation, focused suite membership, commit, push, and manual frontend smoke test.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 12A created the backend Public Website Intent Gateway preview.
+
+Phase 12B adds the first visible frontend shell for the future public website embed layer.
+
+The shell is a preview-only UI surface for showing how website forms, buttons, and embedded chat widgets will connect to the guarded AION Gateway.
+
+This phase does not submit live website requests. It does not mount a production embed script. It does not create a booking, live job, payment, escrow, fund release, PHO movement, wallet requirement, or external message.
+
+\subsection{Implemented Surface}
+
+The implementation is appended to:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+The renderer is:
+
+\begin{verbatim}
+renderAionPublicEmbedWidgetShellV0
+\end{verbatim}
+
+The browser export is:
+
+\begin{verbatim}
+window.renderAionPublicEmbedWidgetShellV0
+\end{verbatim}
+
+The duplicate install guard is:
+
+\begin{verbatim}
+window.__aionPublicEmbedWidgetShellV0Installed
+\end{verbatim}
+
+The lock marker is:
+
+\begin{verbatim}
+data-aion-lock="public-embed-widget-shell-v0"
+\end{verbatim}
+
+\subsection{Supported Preview Surfaces}
+
+The shell lists the future public website surfaces:
+
+\begin{itemize}
+  \item \texttt{embed\_script\_preview}
+  \item \texttt{website\_form\_widget\_preview}
+  \item \texttt{website\_button\_widget\_preview}
+  \item \texttt{embedded\_chat\_widget\_preview}
+\end{itemize}
+
+These are frontend preview surfaces only.
+
+\subsection{Gateway Mapping}
+
+The shell documents the intended human-to-machine mapping:
+
+\begin{verbatim}
+human form -> NormalizedInboundIntent
+widget request -> MachineCartRequest
+gateway preview -> public_intent_gateway
+\end{verbatim}
+
+This keeps the human website layer aligned with the same machine-readable Gateway contracts used by the A2A layer.
+
+\subsection{Required Guards}
+
+The preview shell marks the following guards as required:
+
+\begin{itemize}
+  \item tenant/business key validation,
+  \item signed request validation,
+  \item rate limiting,
+  \item abuse protection,
+  \item human review.
+\end{itemize}
+
+These guards must be enforced before any public write route becomes live.
+
+\subsection{Safety Boundary}
+
+The Public Website Embed Widget Shell MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item expose an unauthenticated public write route.
+\end{itemize}
+
+The locked safety flags include:
+
+\begin{verbatim}
+preview_only = true
+would_create_booking = false
+would_create_live_job = false
+would_execute_goal_engine = false
+would_bypass_human_review = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_send_external_messages = false
+unauthenticated_public_write_route_exposed = false
+\end{verbatim}
+
+\subsection{Frontend Smoke Test Required}
+
+This phase creates a frontend-visible renderer.
+
+After automated validation, the running frontend should be manually checked to confirm:
+
+\begin{itemize}
+  \item the renderer is available on \texttt{window.renderAionPublicEmbedWidgetShellV0},
+  \item the widget shell renders without JavaScript errors,
+  \item the shell displays the four preview surfaces,
+  \item no live action button is visible,
+  \item no booking, job, payment, escrow, or message action is available.
+\end{itemize}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_public_embed_widget_shell_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_public_embed_widget_shell_lock_doc.py
+\end{verbatim}
+
+Desktop syntax validation:
+
+\begin{verbatim}
+node -c desktop/mac/src/app.js
+\end{verbatim}
+
+Focused suite validation:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PUBLIC-EMBED-WIDGET-SHELL-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
+
+
+\subsection{Frontend Smoke Confirmation}
+
+The Phase 12B frontend smoke test was manually confirmed in the running AION desktop app.
+
+The browser console returned:
+
+\begin{verbatim}
+typeof window.renderAionPublicEmbedWidgetShellV0
+"function"
+\end{verbatim}
+
+The widget was mounted manually with:
+
+\begin{verbatim}
+document.body.insertAdjacentHTML(
+  "afterbegin",
+  window.renderAionPublicEmbedWidgetShellV0({
+    business_id: "home_fixed",
+    business_name: "Home Fixed",
+    vertical_key: "home_repair"
+  })
+)
+\end{verbatim}
+
+The DOM check returned:
+
+\begin{verbatim}
+document.querySelector('[data-aion-lock="public-embed-widget-shell-v0"]') !== null
+true
+\end{verbatim}
+
+The mounted preview showed the public website gateway shell with preview-only widget surfaces, tenant key requirement, signed request requirement, rate limiting requirement, human review requirement, and the no-booking/no-payment/no-escrow/no-external-message safety boundary.
+
+This confirms the renderer is available and mountable. It does not yet mean the widget is permanently mounted into the app. Permanent placement should be handled by a later visible render/mount phase.

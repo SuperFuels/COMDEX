@@ -1,0 +1,96 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.40: Full Chess Real Lichess Network Move Sender Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.40 defines the guarded real Lichess network move sender.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can now execute the guarded Bot API move send path when explicitly enabled.}
+\end{quote}
+
+\section{Purpose}
+
+This lock adds the final network sender boundary for Lichess Bot API move posting.
+
+The sender prepares and, when explicitly authorised, posts:
+
+\begin{verbatim}
+POST https://lichess.org/api/bot/game/{gameId}/move/{move}
+\end{verbatim}
+
+\section{Required Guards}
+
+The sender MUST NOT post unless:
+
+\begin{verbatim}
+dry_run == false
+token_present == true
+game_id_present == true
+allow_network == true
+live_enable == true
+\end{verbatim}
+
+\section{Required Evidence}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{sender\_mode};
+  \item \texttt{request};
+  \item \texttt{selected\_bestmove};
+  \item \texttt{selected\_policy};
+  \item \texttt{send\_allowed};
+  \item \texttt{send\_attempted};
+  \item \texttt{send\_success};
+  \item \texttt{block\_reason};
+  \item \texttt{http\_status};
+  \item \texttt{network\_call\_performed};
+  \item \texttt{real\_send\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Token Boundary}
+
+The token MUST be loaded from:
+
+\begin{verbatim}
+LICHESS_BOT_TOKEN
+\end{verbatim}
+
+The token MUST NOT be printed raw or committed.
+
+\section{Test Boundary}
+
+Tests mock network sending.
+
+The test suite MUST NOT depend on live Lichess availability.
+
+\section{Runtime Boundary}
+
+This kernel is capable of real network sending when called with explicit live parameters.
+
+It does not automatically join games, accept challenges, stream events, or play a full game loop.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B40-FULL-CHESS-REAL-LICHESS-NETWORK-MOVE-SENDER-KERNEL-LOCK\\
+Status: LOCKED --- guarded real Lichess network move sender implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

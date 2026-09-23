@@ -1,0 +1,86 @@
+\section{Pilot Selective Proof Rail}
+\label{sec:pilot-mobile-selective-proof}
+
+The unified Pilot product reuses GlyphChain as an optional tamper-evident proof
+rail, not as a store for private life or business data and not as a payment rail.
+The authoritative message, task, file, contact, calendar and memory records remain
+inside the customer-controlled mother brain.  A proof commitment can demonstrate
+that a bounded event occurred without disclosing the event content.
+
+\subsection{Versioned commitment model}
+
+The protocol \texttt{pilot.selective-proof-rail.v1} defines five event classes:
+authorization, delivery, acceptance, outcome and deletion.  A public commitment is
+limited by construction to a version, commitment identifier, opaque object
+reference, canonical scope hash, policy version, timestamp, bounded outcome,
+source-receipt hash and optional links to an earlier commitment.  The mother signs
+this exact projection with its Ed25519 device identity.
+
+The opaque object reference is derived from the local identifier rather than
+publishing that identifier.  Message text, voice recordings, files, names, contact
+routes, private memory, calendar details, location, credentials, account tokens and
+payment information are not accepted fields in the public structure.  The supplied
+mother-private record is hashed canonically and is never copied into the proof-rail
+state.
+
+\subsection{Task lifecycle integration}
+
+For a structured Pilot-to-Pilot task, the sender mother emits an authorization
+commitment after exact phone approval and a delivery commitment after constructing
+the encrypted recipient-mother packet.  The recipient mother emits a separate
+acceptance or decline commitment from its signed response receipt.  Completion,
+failure, expiry and other terminal task outcomes can create outcome commitments.
+
+These commitments do not redefine application state.  Delivery means delivery to
+the recipient mother, not human reading.  Acceptance requires the recipient's
+signed action.  No proof may convert a pending action into a sent, accepted, paid or
+completed claim.  The encrypted task packet and its ordinary signed receipts remain
+the operational authority.
+
+\subsection{Idempotency, correction and deletion}
+
+Every emission requires a bounded idempotency key.  Repeating the same operation
+returns the original commitment; reusing the key for different content is rejected.
+Corrections append a new commitment linked through \texttt{correction\_of} and
+\texttt{previous\_commitment\_id}; history is not rewritten.
+
+When an authorized private source record is deleted, Pilot can append a deletion
+tombstone linked to the earlier proof.  The non-identifying historical hash may
+remain immutable, while the private record and any ability to reproduce its content
+are removed under the customer's retention policy.  Pilot must explain this
+distinction before deletion rather than implying that an already published hash can
+be erased.
+
+\subsection{Verification and availability policy}
+
+An authorized mother verifies a local source record by recomputing its canonical
+hash and checking the mother signature over the public commitment.  Any change to
+the private receipt or signed commitment fails verification.  Verification without
+the private source can establish commitment integrity but cannot reconstruct or
+disclose the source content.
+
+Proof publication has three explicit policies.  \emph{Local only} keeps the signed
+commitment on the mother.  \emph{Best effort} continues the permitted application
+operation and marks publication pending when GlyphChain is unavailable.
+\emph{Required} fails closed before claiming publication.  Application health,
+chain health and pending-publication count are reported separately, preventing a
+chain outage from being confused with message or task delivery.
+
+\subsection{Reuse of the existing GlyphChain foundation}
+
+The adapter maps the allowlisted Pilot commitment to the existing AION evidence
+proof envelope and commit/lookup store.  Only the privacy-safe projection enters
+that envelope.  The existing canonical codec, commitment verification and receipt
+mechanism are reused; wallet, PHO, token, payment and escrow features are neither
+required nor enabled.  Every returned safety record explicitly reports those
+economic functions as false.
+
+\subsection{Verification evidence}
+
+Automated tests cover allowlist inspection, absence of private strings, duplicate
+emission, malicious idempotency-key reuse, modified private receipts, modified
+signed commitments, append-only correction, deletion tombstones, offline
+best-effort behavior, required-publication failure and the existing GlyphChain
+adapter.  An end-to-end two-mother task test produces authorization, delivery and
+acceptance commitments while confirming that the task title is absent from both
+proof stores.  No wallet, balance, token transfer, payment or escrow is created.

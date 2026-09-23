@@ -1,0 +1,74 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.11 --- Local Concept-Guided Game Loop Preview}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.11 introduces a local-only concept-guided game loop preview.
+
+This phase consumes the Phase 22E.10 concept-guided move re-ranking output and applies it across a deterministic multi-ply local chess loop.
+
+\section{Loop Contract}
+
+For each ply, the kernel emits:
+
+\begin{itemize}[leftmargin=*]
+  \item ply index;
+  \item FEN before the move;
+  \item side to move;
+  \item selected move;
+  \item legal move flag;
+  \item original strategic selected move;
+  \item selected move changed by re-rank flag;
+  \item applied concept count;
+  \item concept bias score total;
+  \item positional score before;
+  \item positional score after;
+  \item positional delta;
+  \item concept-guided trace hash;
+  \item ply trace hash.
+\end{itemize}
+
+\section{Technical Position}
+
+This phase proves that concept-guided re-ranking can operate across a local multi-ply preview loop.
+
+It does not send moves to live Lichess. This is a no live Lichess phase.
+
+Live-play wiring is reserved for a later phase after deterministic local loop behaviour is locked.
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, human move scoring, or live Lichess move sending.
+
+It is deterministic local concept-guided multi-ply preview over legal chess moves.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e11_full_chess_local_concept_guided_game_loop_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e11_full_chess_local_concept_guided_game_loop_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E11-FULL-CHESS-LOCAL-CONCEPT-GUIDED-GAME-LOOP\\
+Status: LOCKED --- deterministic local concept-guided game loop preview implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

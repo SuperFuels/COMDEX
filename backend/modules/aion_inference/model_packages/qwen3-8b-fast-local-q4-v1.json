@@ -1,0 +1,29 @@
+{
+  "schema_version": "aion.local-model-package.v1",
+  "model_id": "qwen3-8b-fast-local-q4",
+  "version": "1",
+  "display_name": "Qwen 3 8B Fast Local (Q4, bounded)",
+  "storage": {
+    "warehouse_manifest_relative_path": "TessarisModelPackages/qwen3-8b-fast-local/warehouse-manifest.v1.json",
+    "warehouse_manifest_sha256": "291fb27d0f03431d30f1b9a5a174fb4adca92d3067d9780472d14fdff3aebf32",
+    "source_shards": [{
+      "name": "Qwen_Qwen3-8B-Q4_K_M.gguf",
+      "bytes": 5027784224,
+      "sha256": "54fffa050078e984116639c83dfb64b5aa6d4cd474e018b076777c632bbccccd"
+    }]
+  },
+  "runtime_profile": {
+    "mode": "full_exact", "engine": "llama.cpp", "adapter": "openai_compatible_bounded_chat.v1",
+    "threads": 6, "context_size": 4096, "parallel_slots": 1, "max_output_tokens": 320,
+    "minimum_internal_free_bytes": 2147483648, "disk_reserve_bytes": 1073741824,
+    "endpoint": "http://127.0.0.1:8897", "network_fallback": false, "tool_execution": false,
+    "finance_arithmetic": "verified_tessaris_tools_required",
+    "chat_template_kwargs": {"enable_thinking": false}
+  },
+  "compatibility": {"architectures": ["arm64"], "minimum_memory_bytes": 16000000000},
+  "speed_claim": {
+    "status": "owner_approved_bounded",
+    "measured_tokens_per_second": {"minimum": 15.8, "maximum": 19.3},
+    "known_boundary": "Multi-step VAT arithmetic failed acceptance; Finance arithmetic must use verified Tessaris tools."
+  }
+}

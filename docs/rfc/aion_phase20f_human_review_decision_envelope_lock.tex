@@ -1,0 +1,116 @@
+\section{Phase 20F --- Human Review Decision Envelope v0}
+\label{sec:phase20f-human-review-decision-envelope-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- human review decision envelope added for AION-LRM recommendations.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20F turns the reasoning recommendation card into a governed human review decision envelope.
+
+The envelope allows the operator-facing layer to record one of three preview-only decisions:
+
+\begin{verbatim}
+approve_preview
+reject
+request_more_evidence
+\end{verbatim}
+
+The decision envelope does not grant live execution permission.
+
+\subsection{Implemented Module}
+
+\begin{verbatim}
+backend/modules/aion_lrm/human_review_decision_envelope.py
+\end{verbatim}
+
+The module exposes:
+
+\begin{verbatim}
+HUMAN_REVIEW_DECISION_ENVELOPE_VERSION
+ALLOWED_DECISIONS
+build_human_review_decision_envelope
+build_default_home_fixed_human_review_decision_envelope
+\end{verbatim}
+
+\subsection{Decision Contract}
+
+The envelope records:
+
+\begin{itemize}
+  \item business id;
+  \item recommendation card hash;
+  \item recommendation summary hash;
+  \item human review decision;
+  \item reviewer id;
+  \item reviewer note;
+  \item requested evidence;
+  \item blocked live actions;
+  \item deterministic envelope hash;
+  \item deterministic summary hash.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+Phase 20F is preview-only.
+
+Even \texttt{approve\_preview} only approves continuation to the next preview or review stage.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a booking;
+  \item create a payment;
+  \item create escrow;
+  \item send an external message;
+  \item write live chain data;
+  \item execute a workflow;
+  \item grant live permission.
+\end{itemize}
+
+\subsection{Private Reasoning Boundary}
+
+The decision envelope MUST NOT expose private chain-of-thought, hidden reasoning, credentials, access tokens, API keys, passwords, or secrets.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20f_human_review_decision_envelope_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_human_review_decision_envelope_lock_doc.py
+
+python -m compileall backend/modules/aion_lrm
+\end{verbatim}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+Phase 20F
+Human Review Decision Envelope
+approve_preview
+reject
+request_more_evidence
+recommendation card
+preview-only
+human review
+private chain-of-thought
+no booking
+no payment
+no escrow
+no external message
+no live chain
+Tessaris AI
+Kevin Robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20F-HUMAN-REVIEW-DECISION-ENVELOPE-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

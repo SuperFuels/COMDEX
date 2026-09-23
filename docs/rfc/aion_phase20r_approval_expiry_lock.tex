@@ -1,0 +1,259 @@
+\section{AION Phase 20R --- Approval Expiry Handling}
+\label{sec:aion-phase20r-approval-expiry}
+
+\subsection{Status}
+
+Phase 20R locks approval expiry behaviour for checkpointed AION Pilot actions.
+
+\begin{quote}
+\textbf{Status: LOCKED --- expired approvals cannot execute, pending payloads are invalidated, and fresh approval is required.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20F separates mission approval from exact checkpoint approval.
+
+Phase 20Y binds checkpoint approval to an exact canonical payload hash.
+
+Phase 20R adds the time boundary: an approval may be valid only within a fixed expiry window.
+
+\begin{quote}
+\textbf{An approval is valid only for the exact payload and only while the approval window is still active.}
+\end{quote}
+
+\subsection{Expiry Rule}
+
+If a checkpoint approval has an expiry timestamp and the current time is greater than that timestamp, the approval is expired.
+
+Expired approvals MUST NOT execute.
+
+\subsection{Runtime Pause}
+
+When approval expires, the runtime MUST transition to:
+
+\begin{verbatim}
+paused_at_checkpoint
+\end{verbatim}
+
+and emit:
+
+\begin{verbatim}
+approval_expired
+\end{verbatim}
+
+\subsection{Pending Payload Invalidation}
+
+An expired approval invalidates the pending action payload.
+
+The runtime MUST return:
+
+\begin{verbatim}
+pending_payload_valid: false
+requires_fresh_approval: true
+reason: expired_approval_invalidates_pending_action_payload
+\end{verbatim}
+
+\subsection{Changed Payload Handling}
+
+If a payload changes before expiry, the approval is invalid because approval applies to the exact payload only.
+
+The runtime MUST return:
+
+\begin{verbatim}
+event_type: approval_payload_changed
+requires_fresh_approval: true
+\end{verbatim}
+
+\subsection{Expiry Precedence}
+
+If a payload is both expired and changed, expiry is reported first.
+
+The payload still requires fresh approval.
+
+\subsection{Boardroom Notice}
+
+The Boardroom notice MUST include:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item checkpoint ID;
+  \item step ID;
+  \item action type;
+  \item event type;
+  \item approval valid flag;
+  \item requires fresh approval flag;
+  \item user explanation;
+  \item payload changed flag;
+  \item approval expired flag;
+  \item controls enabled flag.
+\end{itemize}
+
+When approval is invalid, Boardroom controls MUST be disabled.
+
+\subsection{User-Facing Explanation}
+
+The user-facing explanation MUST state that approval applies to the exact message or payload only.
+
+If the approval expired, the explanation MUST state that fresh approval is required.
+
+\subsection{Decision Hash}
+
+Every expiry decision MUST emit:
+
+\begin{verbatim}
+decision_hash: sha256:<digest>
+\end{verbatim}
+
+The decision hash binds:
+
+\begin{itemize}
+  \item approved payload hash;
+  \item current payload hash;
+  \item expiry state;
+  \item payload changed state;
+  \item runtime state;
+  \item event type;
+  \item fresh approval requirement.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20R-APPROVAL-EXPIRY-HANDLING
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
+
+\subsection{Phase 20R.1 --- Atomic Time Anchoring and Temporal Decision Hash Closure}
+\label{subsec:aion-phase20r1-atomic-time-anchor}
+
+\subsubsection{Status}
+
+Phase 20R.1 hardens approval expiry against local clock skew, mid-step clock resampling, and temporal TOCTOU drift.
+
+\begin{quote}
+\textbf{Status: LOCKED --- approval expiry checks MUST use one immutable evaluation timestamp across the entire checkpoint validation frame.}
+\end{quote}
+
+\subsubsection{Atomic Time Anchoring Invariant}
+
+To prevent temporal race conditions and clock-drift exploitation during verification, the execution engine MUST sample a single validation timestamp $T_{\mathrm{eval}}$ at the absolute boundary of checkpoint entry.
+
+The evaluation logic for an approval with expiry threshold $T_{\mathrm{expiry}}$ is:
+
+\begin{equation}
+\mathrm{Assert}\; T_{\mathrm{eval}} \le T_{\mathrm{expiry}}
+\end{equation}
+
+The sampled value $T_{\mathrm{eval}}$ MUST remain static across all downstream assertions, including:
+
+\begin{itemize}
+  \item primitive normalisation;
+  \item payload comparison;
+  \item expiry comparison;
+  \item checkpoint token verification;
+  \item Boardroom notice generation;
+  \item decision hash generation.
+\end{itemize}
+
+The runtime MUST NOT re-sample the system clock mid-step.
+
+\subsubsection{Immutable Time Anchor}
+
+The checkpoint validation frame MUST carry an immutable time anchor:
+
+\begin{verbatim}
+schema_version: aion.approval_time_anchor.v0
+time_source: monotonic_or_trusted_reference
+t_eval: <timestamp>
+immutable_within_checkpoint: true
+time_anchor_hash: sha256:<digest>
+\end{verbatim}
+
+If the time anchor is missing or mutable, the expiry decision MUST fail closed.
+
+\subsubsection{Temporal Decision Hash Formula Closure}
+
+The decision hash $\mathcal{D}_{\mathrm{hash}}$ MUST explicitly bind the temporal parameter state:
+
+\begin{equation}
+\mathcal{D}_{\mathrm{hash}}
+=
+\mathrm{SHA256}
+(
+H_{\mathrm{approved\_payload}}
+\parallel
+H_{\mathrm{current\_payload}}
+\parallel
+T_{\mathrm{eval}}
+\parallel
+\mathrm{StateFlags}
+\parallel
+\mathtt{CheckpointID}
+)
+\end{equation}
+
+The state flags include:
+
+\begin{itemize}
+  \item \texttt{payload\_changed}
+  \item \texttt{approval\_expired}
+  \item \texttt{runtime\_state}
+  \item \texttt{event\_type}
+\end{itemize}
+
+Any alteration to the evaluation timestamp or internal boolean states MUST change the decision hash.
+
+\subsubsection{Clock Resampling Rejection}
+
+If the runtime detects that the checkpoint entry anchor and runtime anchor differ, the runtime MUST treat the checkpoint frame as invalid.
+
+This prevents local clock skew, virtualization drift, or delayed worker execution from extending an expired approval.
+
+\subsubsection{Validation Coverage}
+
+Phase 20R.1 tests prove:
+
+\begin{itemize}
+  \item time anchors are deterministic and immutable;
+  \item the anchor drives expiry without clock resampling;
+  \item temporal decision hashes change when the time anchor changes;
+  \item mutable or missing time anchors are rejected;
+  \item mid-frame time anchor resampling is detected.
+\end{itemize}
+
+\subsubsection{Security Invariant}
+
+\begin{quote}
+\textbf{A checkpoint expiry decision is made against one immutable evaluation time. AION Pilot may not re-check, rewind, or extend time inside the same checkpoint execution boundary.}
+\end{quote}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20R1-ATOMIC-TIME-ANCHOR-TEMPORAL-DECISION-HASH
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

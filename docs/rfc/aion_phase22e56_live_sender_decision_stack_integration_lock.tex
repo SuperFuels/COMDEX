@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.56 --- Live Sender Decision Stack Integration}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Live Sender Integration.
+
+Phase 22E.56 integrates the new decision stack into the live one-move sender.
+
+The sender now routes the selected move through:
+
+\begin{itemize}
+  \item Phase 22E.52 critical-threat hygiene and queen-intrusion trap policy;
+  \item Phase 22E.54 opponent reply probability and tactical exposure guard;
+  \item Phase 22E.55 Monte Carlo search skeleton and self-play policy-value seed.
+\end{itemize}
+
+\section{Level 8 Gate}
+
+The live sender gate permits controlled live-posting for Levels 2, 3 and 8 only.
+
+\begin{verbatim}
+target_level in {2, 3, 8}
+\end{verbatim}
+
+\section{Level-8 Failure Addressed}
+
+The Level-8 sparring run exposed \texttt{h2h4} escaping under \texttt{center\_control} while AION was tactically exposed.
+
+Phase 22E.56 proves that the live sender path now blocks this pattern before posting.
+
+\section{Boundary}
+
+This integration does not grant autonomous live authority by itself.
+
+The sender still posts only when all live gates are explicitly true:
+
+\begin{itemize}
+  \item live environment enabled;
+  \item token present;
+  \item explicit live authorization;
+  \item human operator confirmed;
+  \item live stream confirmed;
+  \item one-move gate enabled;
+  \item live sender enabled;
+  \item real posting allowed;
+  \item selected move legal.
+\end{itemize}
+
+The integrated stack does not call Stockfish, does not use LLM move judgement and does not use Lichess analysis.
+
+\section{Validation}
+
+Expected validation command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e56_live_sender_decision_stack_integration_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e56_live_sender_decision_stack_integration_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E56-LIVE-SENDER-DECISION-STACK-INTEGRATION\\
+Status: LOCKED --- live sender integrates 22E.54 and 22E.55 decision stack\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

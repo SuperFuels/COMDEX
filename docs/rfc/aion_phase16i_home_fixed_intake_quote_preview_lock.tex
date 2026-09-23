@@ -1,0 +1,41 @@
+\section{AION Phase 16I --- Home Fixed Intake and Quote Preview Lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 16I makes the founder demo visibly understandable by adding a realistic Home Fixed customer-intake packet and a Machine Cart quote preview.
+
+\subsection{Locked Behaviour}
+
+The Boardroom founder demo MUST display a realistic Home Fixed website/widget request.
+
+The visible packet MUST include:
+
+\begin{itemize}
+  \item customer request text,
+  \item detected service,
+  \item location,
+  \item urgency,
+  \item channel,
+  \item A2A route,
+  \item Machine Cart quote preview,
+  \item side-effect guards.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The preview MUST NOT create a booking, payment, escrow, external message, or live chain write.
+
+Human review remains required before any external action.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase16i_home_fixed_intake_quote_preview_lock.py
+\end{verbatim}
+
+Lock ID: AION-PHASE16I-HOME-FIXED-INTAKE-QUOTE-PREVIEW
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson.

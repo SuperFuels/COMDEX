@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.20: Full Chess Board State Mutation Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.20 defines the AION Full Chess Board State Mutation Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can apply a move to an actual 8x8 chess board state and verify the mutation.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.20 moves from deterministic scenario reasoning into actual board-before to board-after mutation.
+
+\section{Board Mutation Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{board\_before};
+  \item \texttt{board\_after};
+  \item \texttt{move};
+  \item \texttt{origin\_cleared};
+  \item \texttt{target\_occupied\_by\_moved\_piece};
+  \item \texttt{captured\_piece\_removed};
+  \item \texttt{piece\_count\_before};
+  \item \texttt{piece\_count\_after};
+  \item \texttt{board\_hash\_before};
+  \item \texttt{board\_hash\_after};
+  \item \texttt{board\_hash\_changed};
+  \item \texttt{king\_safe\_after\_move};
+  \item \texttt{mutation\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates deterministic real board-state mutation on an 8x8 chess board. It does not yet implement full legal chess, castling, en passant, promotion, checkmate, stalemate, exhaustive search, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B20-FULL-CHESS-BOARD-STATE-MUTATION-KERNEL-LOCK\\
+Status: LOCKED --- full chess board state mutation kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

@@ -1,0 +1,112 @@
+\section{AION Phase 20I.2 --- Boardroom Replay Event Synchronization and Human-in-the-Loop Visual Anchors}
+\label{sec:aion-phase20i2-boardroom-replay-sync}
+
+\subsection{Status}
+
+Phase 20I.2 converts cross-mission ledger consensus into deterministic Boardroom replay events.
+
+\begin{quote}
+\textbf{Status: LOCKED --- replay events, replay timelines, visual anchors, human-in-the-loop markers, and Boardroom replay packets are validated.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20I.1 produced deterministic consensus snapshots and cache eviction proofs. Phase 20I.2 turns those hashes into replayable Boardroom UI packets.
+
+The Boardroom MUST be able to render the same mission timeline every time from the same proof state.
+
+\subsection{Replay Event Contract}
+
+Each replay event MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item event type;
+  \item event index;
+  \item source hash;
+  \item consensus hash;
+  \item visual anchor type;
+  \item payload;
+  \item event hash.
+\end{itemize}
+
+Replay event hashes MUST be deterministic.
+
+\subsection{Timeline Synchronization}
+
+A replay timeline MUST order events by:
+
+\begin{verbatim}
+(event_index, event_hash)
+\end{verbatim}
+
+The timeline MUST block replay if:
+
+\begin{itemize}
+  \item an event hash does not match its body;
+  \item event indexes are duplicated;
+  \item mission ID, run ID or business ID does not match;
+  \item the timeline contains malformed event state.
+\end{itemize}
+
+\subsection{Visual Anchors}
+
+A visual anchor links a replay event to a Boardroom UI surface.
+
+Valid visual anchor types include:
+
+\begin{itemize}
+  \item \texttt{boardroom\_step\_card};
+  \item \texttt{approval\_card};
+  \item \texttt{human\_task\_card};
+  \item \texttt{staged\_action\_preview};
+  \item \texttt{receipt\_card};
+  \item \texttt{blocked\_action\_panel};
+  \item \texttt{timeline\_marker};
+  \item \texttt{proof\_replay\_link}.
+\end{itemize}
+
+\subsection{Human-in-the-Loop Markers}
+
+Human-in-the-loop markers MUST be emitted for:
+
+\begin{itemize}
+  \item approval required;
+  \item human task required;
+  \item human review required;
+  \item blocked for safety.
+\end{itemize}
+
+Each marker MUST bind to an event hash and an approval or task hash.
+
+\subsection{Boardroom Replay Packet}
+
+The Boardroom replay packet MUST bind:
+
+\begin{itemize}
+  \item timeline hash;
+  \item consensus hash;
+  \item proof hash;
+  \item visual anchor hashes;
+  \item packet state;
+  \item packet hash.
+\end{itemize}
+
+A packet MUST be blocked if any visual anchor references an event that does not exist in the timeline.
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{Boardroom replay is not a live runtime. It is a deterministic projection of proof state. Replay may show actions, approvals, receipts and blocked paths, but it MUST NOT execute tools or mutate live provider state.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20I2-BOARDROOM-REPLAY-EVENT-SYNCHRONIZATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

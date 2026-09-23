@@ -1,0 +1,122 @@
+\section{Phase 9B --- Boardroom Parallel Twin Live Payload Wiring v0}
+\label{sec:aion-boardroom-parallel-twin-live-payload-v0}
+
+\subsection{Status}
+
+Phase 9B locks the first internal payload wiring for the Boardroom Parallel Twin visibility surface.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Boardroom Parallel Twin payload suite passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 9A added a safe visual placeholder.
+
+Phase 9B connects that visibility concept to a deterministic internal payload built from the Home Fixed vertical dry-run.
+
+This remains internal and preview-only. It does not expose a public A2A route, execute the Goal Engine, create bookings, send messages, create payments, create escrow, require a wallet, or move money.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/boardroom_parallel_twin_payload.py
+\end{verbatim}
+
+The module defines:
+
+\begin{itemize}
+  \item \texttt{BOARDROOM\_PARALLEL\_TWIN\_PAYLOAD\_VERSION}
+  \item \texttt{BoardroomParallelTwinPayload}
+  \item \texttt{build\_boardroom\_parallel\_twin\_payload}
+  \item \texttt{build\_boardroom\_parallel\_twin\_summary}
+\end{itemize}
+
+The payload version is:
+
+\begin{verbatim}
+aion.boardroom_parallel_twin_payload.v0.1
+\end{verbatim}
+
+\subsection{Payload Sections}
+
+The Boardroom Parallel Twin payload includes:
+
+\begin{itemize}
+  \item \texttt{business\_id}
+  \item \texttt{business\_name}
+  \item \texttt{vertical\_key}
+  \item \texttt{machine\_catalog}
+  \item \texttt{machine\_cart}
+  \item \texttt{quote\_preview}
+  \item \texttt{fulfilment\_job\_preview}
+  \item \texttt{settlement\_readiness}
+  \item \texttt{proof\_receipt}
+  \item \texttt{exception\_recovery}
+  \item \texttt{machine\_trace\_preview}
+  \item \texttt{safety}
+  \item \texttt{payload\_hash}
+\end{itemize}
+
+\subsection{Home Fixed Binding}
+
+The payload is bound to the Home Fixed vertical testbed.
+
+The default identity is:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+\end{verbatim}
+
+The payload is built from the existing Home Fixed dry-run flow.
+
+\subsection{Hashing Rule}
+
+The \texttt{payload\_hash} is deterministic and derived from stable JSON:
+
+\begin{verbatim}
+json.dumps(payload, sort_keys=True, separators=(",", ":"))
+hashlib.sha256(...)
+\end{verbatim}
+
+Changing the job identity or any payload section MUST change the \texttt{payload\_hash}.
+
+\subsection{Safety Boundary}
+
+The payload safety contract states:
+
+\begin{itemize}
+  \item \texttt{visibility\_only = true}
+  \item \texttt{human\_review\_required = true}
+  \item \texttt{autonomous\_execution\_allowed = false}
+  \item \texttt{would\_execute\_workflow = false}
+  \item \texttt{would\_create\_booking = false}
+  \item \texttt{would\_move\_money = false}
+  \item \texttt{would\_move\_pho = false}
+  \item \texttt{would\_require\_wallet = false}
+  \item \texttt{would\_create\_payment = false}
+  \item \texttt{would\_create\_escrow = false}
+  \item \texttt{would\_send\_external\_message = false}
+  \item \texttt{public\_a2a\_route\_exposed = false}
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_live_payload_lock.py
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-BOARDROOM-PARALLEL-TWIN-LIVE-PAYLOAD-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

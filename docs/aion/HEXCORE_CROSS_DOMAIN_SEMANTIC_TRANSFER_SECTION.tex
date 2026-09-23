@@ -1,0 +1,70 @@
+\section{Cross-Domain Open Semantic Transfer}
+\label{sec:cross-domain-semantic-transfer}
+
+The successor to open literary relation memory tested whether retained semantic
+operators transferred to unfamiliar technical, scientific, and historical
+material.  The frozen sources were official Python documentation, NASA climate
+questions, and the United States National Archives' constitutional questions.
+The task supplied no domain ontology or relation vocabulary.  Four questions
+per source were authored by the corresponding publisher rather than by the
+benchmark implementation.
+
+The governed pipeline was
+\[
+\begin{aligned}
+\text{official source}
+&\rightarrow \text{open semantic proposals}
+\rightarrow \text{span/hash verification} \\
+&\rightarrow \text{canonical transfer audit}
+\rightarrow \text{persistent memory} \\
+&\rightarrow \text{restart}
+\rightarrow \text{memory-only answer}.
+\end{aligned}
+\]
+Language-model output remained proposal-only.  HexCore verified every retained
+span, preserved the source checksum, distinguished reported statements from
+verified truth, rejected admitted near-match ontology mappings, and retained
+sole promotion authority through CAU.
+
+\begin{table}[htbp]
+\centering
+\caption{Sealed cross-domain semantic-transfer results.}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Domains & 3 \\
+Externally authored delayed questions & 12 \\
+Delayed memory-only accuracy & $91.67\%$ \\
+Weakest-domain accuracy & $75.00\%$ \\
+Invented concepts / grounded relations & $46 / 52$ \\
+Reported arguments & 15 \\
+Defensible prior-relation reuses & 10 \\
+Mapping and provenance coverage & $100\%$ \\
+Unsupported-question abstention & $100\%$ \\
+Source rereads after restart & 0 \\
+Unsafe knowledge commitments & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+The transferred operators included causal, containment, applicability, and
+general association relations.  Reuse occurred in two unfamiliar domains.  No
+historical predicate was forced into the retained ontology merely to satisfy a
+metric.  One historical answer cited the correct memory but failed the declared
+lexical-overlap threshold and remained counted as an error.
+
+A bounded software-documentation bridge also used retained Python evidence to
+explain why a proposed repair requires executable tests: an interface
+description cannot establish that an implementation satisfies its behavioural
+contract.  This output did not authorize a patch; hidden execution, adversarial
+security checks, and CAU remained authoritative.
+
+The procedure
+\texttt{procedure\_cross\_domain\_semantic\_transfer\_58eae51b7d20}
+was promoted and survived process reconstruction with zero relearning.  Fourteen
+focused semantic-memory and repair tests passed.  Public questions and ingested
+answers do not constitute contamination-proof independent evaluation.  The
+next gate requires independently authored delayed questions and documentation-
+guided, menu-free multi-file repair on hidden repositories under a matched
+no-memory control.

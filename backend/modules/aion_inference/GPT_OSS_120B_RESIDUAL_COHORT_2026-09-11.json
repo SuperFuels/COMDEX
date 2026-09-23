@@ -1,0 +1,54 @@
+{
+  "schema": "aion.gptoss-120b-residual-cohort.v1",
+  "frozen_at": "2026-09-11",
+  "model": "GPT-OSS 120B Q4_K_M/MXFP4",
+  "purpose": "Disjoint prompt-family contract for the authorized compact residual expert compiler.",
+  "contains_personal_or_customer_data": false,
+  "selection_rule": "Architecture and hyperparameters may use training families; thresholds and stopping may use development; blind families remain excluded until the candidate and gates are frozen.",
+  "capture_layers": [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 35],
+  "families": [
+    {
+      "family_id": "arithmetic-train-v1",
+      "role": "training",
+      "prompt_token_ids": [200006, 1428, 200008, 4827, 382, 220, 1422, 118583, 656, 220, 1860, 30, 200007, 200006, 173781],
+      "source_evidence": "results/aion_gptoss_120b_arithmetic_exact_no_accidental_early_exit_48token_2pass_gate_20260911.json",
+      "source_evidence_sha256": "6c92d01b787671e7c18606135fe8b09d0f342f7b01704a571857d1dc64a101b4"
+    },
+    {
+      "family_id": "extraction-train-v1",
+      "role": "training",
+      "prompt_token_ids": [200006, 1428, 200008, 33282, 290, 36161, 2086, 326, 3609, 591, 25, 65156, 355, 12, 12204, 11, 3609, 30454, 220, 32630, 13, 1434, 13, 200007, 200006, 173781],
+      "source_evidence": "results/aion_gptoss_120b_unrestricted_exact_extraction_96token_2pass_teacher_20260911.json",
+      "source_evidence_sha256": "0f1e47dcd1c62e482e00404b7b89adfc7ca95f119aa8238f76f5ae583dc6081f"
+    },
+    {
+      "family_id": "reasoning-development-v1",
+      "role": "development",
+      "prompt_token_ids": [200006, 1428, 200008, 10930, 1001, 21872, 45379, 4436, 9342, 7845, 19854, 316, 261, 3291, 2413, 13, 200007, 200006, 173781],
+      "source_evidence": "results/aion_gptoss_120b_early_exit_diagnostic_explanation_29pos_20260911.json",
+      "source_evidence_sha256": "c327a1200e4a4d1fdb56adbf3a58d3f6b3f9dbc229e0b3a5786576bedb27dcac"
+    },
+    {
+      "family_id": "business-blind-v1",
+      "role": "blind_holdout",
+      "prompt_token_ids": [200006, 1428, 200008, 32, 9100, 885, 7155, 18153, 220, 702, 4, 2049, 8959, 25478, 13213, 13, 7317, 290, 1577, 1920, 21793, 481, 1481, 36665, 13, 200007, 200006, 173781],
+      "source_evidence": "results/aion_gptoss_120b_early_exit_diagnostic_business_38pos_20260911.json",
+      "source_evidence_sha256": "efc6786c003b035a6288ce0035ae84f64deb3b5073b91973c045aedc3d05dc2d"
+    },
+    {
+      "family_id": "writing-blind-v1",
+      "role": "blind_holdout",
+      "synthetic_prompt": "Draft a concise professional email to a supplier requesting an updated delivery date and explaining that the delay affects a customer order.",
+      "prompt_token_ids": [200006, 1428, 200008, 68439, 261, 82463, 5937, 3719, 316, 261, 25577, 57246, 448, 8489, 8676, 3521, 326, 45379, 484, 290, 13155, 33780, 261, 5989, 2569, 13, 200007, 200006, 173781],
+      "tokenization": "model-declared chat template via header-only sparse GGUF shell",
+      "warehouse_manifest_sha256": "dfc85d22c833d3c25a6caf3575a40cb3964656b336c98b5873b94faa3dacc2c3"
+    }
+  ],
+  "promotion_contract": {
+    "teacher": "unrestricted original four-expert GPT-OSS 120B path",
+    "candidate_label": "quality-track compact residual correction",
+    "required_families": ["arithmetic", "extraction", "reasoning", "business", "writing"],
+    "required_properties": ["internal repeatability", "semantic parity", "bounded memory", "measured speed and traffic", "exact fallback outside validated region"],
+    "prohibited_claim": "The residual candidate must never be described as bit-exact unrestricted GPT-OSS 120B."
+  }
+}

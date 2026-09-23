@@ -15,14 +15,16 @@
     "kd": 0.04
   },
   "metrics": {
-    "entropy_cycle_mean": 8.00599489387453,
-    "entropy_drift_mean": 9.201438522528822e-05,
-    "mutual_information_asymmetry": 0.13947774398695087,
-    "arrow_direction": "Forward"
+    "entropy_cycle_mean": 8.005993503321456,
+    "entropy_drift_mean": 9.215803744607361e-05,
+    "mutual_information_asymmetry": 0.13956328704215912,
+    "arrow_direction": "Forward",
+    "cycles": 4
   },
   "classification": "\u23f3 Emergent Arrow of Time Detected",
   "files": {
     "entropy_plot": "backend/modules/knowledge/HAEV_H2_EntropyPerCycle.png"
   },
-  "timestamp": "2026-01-08T15:44Z"
+  "seed": 0,
+  "timestamp": "2026-03-14T17:19Z"
 }

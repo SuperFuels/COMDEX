@@ -1,0 +1,79 @@
+\section{Phase 20A --- Mission Contract v0}
+\label{sec:phase20a-mission-contract-v0}
+
+\subsection{Status}
+
+Phase 20A defines the first locked backend contract for AION Mission Mode.
+
+\begin{quote}
+\textbf{AION Mission Mode = checkpointed autonomy with proof, Boardroom visibility, and guarded execution lanes.}
+\end{quote}
+
+The Mission Contract is the deterministic permission envelope for a mission. It does not execute tools, send messages, create bookings, take payments, deploy assets, mutate reputation, or write to a live chain.
+
+\subsection{Purpose}
+
+The contract allows a broad objective to be converted into a bounded mission. It records the mission goal, business context, autonomy lanes, blocked lanes, human checkpoints, approval-required actions, runtime limits, proof requirements, replay requirements, ETS preview status, and privacy/compliance flags.
+
+\subsection{Locked Fields}
+
+The v0 contract includes:
+
+\begin{itemize}
+  \item \texttt{mission\_id}
+  \item \texttt{mission\_goal}
+  \item \texttt{business\_id}
+  \item \texttt{creator\_id}
+  \item \texttt{agent\_mode}
+  \item \texttt{allowed\_autonomy\_lanes}
+  \item \texttt{hard\_blocked\_lanes}
+  \item \texttt{human\_checkpoints}
+  \item \texttt{approval\_required\_actions}
+  \item \texttt{max\_runtime\_seconds}
+  \item \texttt{max\_tool\_calls}
+  \item \texttt{max\_cost}
+  \item \texttt{proof\_required}
+  \item \texttt{replay\_required}
+  \item \texttt{ets\_enabled}
+  \item \texttt{data\_retention\_policy}
+  \item \texttt{external\_communication\_consent\_required}
+  \item \texttt{proof\_sharing\_enabled}
+  \item \texttt{mission\_hash}
+\end{itemize}
+
+\subsection{Safety Lock}
+
+The v0 contract explicitly disables live side effects:
+
+\begin{itemize}
+  \item no live external writes;
+  \item no live payments;
+  \item no live bookings;
+  \item no live deployments;
+  \item no live reputation mutation;
+  \item no live chain writes.
+\end{itemize}
+
+\subsection{Hashing}
+
+The contract hash is deterministic. It is computed from canonical JSON using sorted keys and compact separators.
+
+\begin{quote}
+A changed checkpoint, changed approval-required action, changed lane boundary, changed retention policy, or changed mission goal MUST change the mission hash.
+\end{quote}
+
+\subsection{Validation}
+
+Focused validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PHASE20A-MISSION-CONTRACT-V0 \\
+Status: LOCKED \\
+Maintainer: Tessaris AI \\
+Author: Kevin Robinson

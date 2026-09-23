@@ -1,0 +1,25 @@
+{
+  "schema_version": "aion.qwen30b.release-acceptance.v1",
+  "evaluated_at": "2026-09-19",
+  "model_id": "qwen3-30b-a3b-aion-resident-q2",
+  "hardware": {"device": "18 GB Apple unified-memory Mac", "runtime": "llama.cpp Metal"},
+  "q2_candidate": {
+    "path": "/Users/kevinrobinson/AION-Artifact-Archive/2026-09-13-small-model-master/qwen/q2-experts/Qwen3-30B-A3B-Q2_EXPERTS.gguf",
+    "bytes": 10511131840,
+    "sha256": "7b1165eef9a868954a3fc9bdc31e3f454a04ebd86b14040945074c99edce5bac",
+    "acceptance_cohort": "aion.int8_general_semantic_tasks.v1",
+    "passed": 6,
+    "total": 8,
+    "failure_modes": ["gross_margin_percent returned 38.79 instead of 38.69", "unit conversion returned gram where the requested structured value was g"],
+    "observed_generated_tokens_per_second": 40,
+    "decision": "REJECTED_NOT_SELECTABLE"
+  },
+  "q4_control": {
+    "path": "/Users/kevinrobinson/AION-Artifact-Archive/2026-09-13-small-model-master/qwen/q4-reference/Qwen3-30B-A3B-Q4_K_M.gguf",
+    "bytes": 18253668224,
+    "sha256": "0d003f6662faee786ed5da3e31b29c978de5ae5d275c8794c606a7f3c01aa8f5",
+    "result": "Metal out-of-memory; every cohort request returned HTTP 500",
+    "decision": "DEVICE_INCOMPATIBLE"
+  },
+  "release_rule": "A Qwen package becomes selectable only after its exact model payload, reviewed template, native-tool harness and full structured cohort pass on the target device."
+}

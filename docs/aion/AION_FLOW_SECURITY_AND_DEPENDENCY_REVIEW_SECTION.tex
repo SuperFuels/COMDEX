@@ -1,0 +1,97 @@
+\section{AION Flow Threat Model, Adversarial Security and Dependency Review}
+\label{sec:aion-flow-threat-model}
+
+This section records completion of the formal review required by \texttt{AFLOW-1107}. It is
+intended to be appended to the existing AION and Pilot technical document. Completion of the
+review does not mean that AION Flow is penetration-tested or ready for public enterprise
+exposure. The review identifies the remaining release gates explicitly.
+
+\subsection{Security objective and protected assets}
+
+AION Flow allows a customer to assemble replaceable models, evidence sources, harnesses, compute
+targets and business capabilities. None of those components may acquire authority merely by being
+placed on the canvas. The customer-controlled AION brain remains the authority, memory, policy,
+verification and receipt boundary.
+
+Protected assets include the Business Map, private memory, files, Visual Vault credentials,
+provider tokens, endpoint details, canonical membership, workspace boundaries, exact approvals,
+workflow revisions, execution receipts, learning evidence, residency rules, compute budgets,
+publisher identities and update packages.
+
+The desktop canvas, phone interface, browser request, workflow JSON, encrypted import, template,
+model output, retrieved evidence, provider response and connector payload are all treated as
+untrusted. A model response is never accepted as proof of identity, authority, execution or
+success.
+
+\subsection{Principal threats and controls}
+
+The analysis covers tenant and role forgery, oversized or malformed graphs, revision races,
+encrypted import abuse, embedded credentials, template substitution, approval replay, prompt and
+model injection, data exfiltration, false execution claims and compromised dependencies.
+
+Production graph qualification now applies hard limits to nesting depth, item count, scalar size,
+encoded size, node count and edge count before canonical hashing or persistence. Node and edge
+records must have valid types and safe scoped identifiers. Revision commits use both optimistic
+base-revision checks and an inter-process exclusive lock before atomic replacement, preventing two
+local writers from both accepting the same revision.
+
+Encrypted transfer accepts only the declared AION Flow schema, scrypt profile and AES-256-GCM
+cipher. It validates Base64 strictly, bounds salt, nonce, ciphertext and plaintext sizes, requires a
+minimum password length, authenticates the header and compares the recovered graph hash without a
+content-dependent early exit. Import restores neither permissions nor execution authority.
+
+Signed templates now reject recursively nested password, token, authorization, private-key and
+API-key fields in addition to literal vault references and redaction markers. Customer bindings
+remain outside the signed package as opaque Visual Vault references. Immutable versions,
+publisher signatures, pinning, rollback, quarantine and revocation remain enforced.
+
+\subsection{Adversarial verification}
+
+Automated tests prove fail-closed handling of malformed node and edge records, invalid graph
+collections, unsafe identifiers, excessive nesting, cyclic structures, oversized scalar content,
+dangling edges, duplicate identities, stale revisions, cross-workspace access and forged role
+claims. Transfer tests reject unsupported encryption headers, invalid Base64, oversized ciphertext
+and weak import passwords. Template tests reject secret-shaped fields at arbitrary graph depth.
+
+These tests supplement rather than replace independent penetration testing. Provider-specific
+prompt-injection corpora, distributed concurrency, connector receipt falsification and sustained
+resource-exhaustion testing remain part of production qualification.
+
+\subsection{Dependency review and remediation}
+
+The desktop production and build dependency audit reports no known advisories after upgrading
+\texttt{electron-builder} from version 24.13.3 to 26.15.3 and regenerating its lock. The minimal
+Python product lock also reports no known advisories after upgrading FastAPI, Starlette, Click,
+IDNA, \texttt{python-dotenv} and \texttt{python-multipart}.
+
+The wider backend manifest was upgraded across the principal network, cryptography, HTTP, image,
+PDF and rendering packages. Two upstream areas do not yet have a complete patched route within the
+current dependency family: the ECDSA implementation used transitively by legacy JWT support and a
+WeasyPrint advisory. They must be isolated from untrusted verification or rendering inputs, or
+replaced, before an exposed enterprise release.
+
+The all-purpose research environment is expressly not the production bill of materials. It also
+contains large machine-learning and document toolchains with independent advisories. Customer
+packages must install a minimal hashed product lock plus selected feature extras; they must never
+clone the developer environment.
+
+\subsection{Release gates}
+
+The review establishes five mandatory gates. First, the current API remains loopback-only and must
+not be exposed directly to a VPN, public listener or customer network. Second, remote or multi-user
+consequential execution remains disabled until preparation, approval, execution, run control,
+evaluation and template lifecycle endpoints all bind a signed device session to canonical
+organisation authority and persisted customer policy. Third, the development fallback encryption
+key must be replaced during installation and production startup must fail when a secure key is
+absent. Fourth, release engineering must generate a signed software bill of materials and minimal
+hashed lock while isolating or replacing the remaining ECDSA and rendering paths. Fifth, an
+independent penetration, secrets, licence and update-signature review is required before enterprise
+field deployment. Sixth, the macOS package must be signed and notarized with a suitable Developer
+ID Application identity; the local qualification package built successfully but remained unsigned.
+
+Accordingly, \texttt{AFLOW-1107} is complete as a formal threat and dependency review with
+implemented input hardening. It is not a security certification. The later security-remediation and
+load-qualification section records closure of the signed-session, persisted-policy, customer-key,
+minimal-lock, signed-SBOM and sustained-load engineering gates. Independent accessibility,
+regulatory, penetration and representative field qualification under \texttt{AFLOW-1109} remains
+open and cannot be waived by a model, template or canvas policy.

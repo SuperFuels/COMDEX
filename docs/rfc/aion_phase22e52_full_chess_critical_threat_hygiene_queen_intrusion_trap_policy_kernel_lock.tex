@@ -1,0 +1,73 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.52 --- Critical Threat Hygiene and Queen Intrusion Trap Policy}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.52 extends threat hygiene beyond \texttt{initiative\_pressure} and adds a queen-intrusion policy for king-safety and critical-threat positions.
+
+\section{Failure Source}
+
+Phase 22E.51 showed that \texttt{h2h4} was blocked under \texttt{initiative\_pressure}, but later escaped under \texttt{neutralise\_critical\_threat}.
+
+It also showed repeated queen intrusion around the white king.
+
+\section{Rule}
+
+Under \texttt{neutralise\_critical\_threat} or \texttt{king\_safety}, AION SHOULD reject non-critical wing-pawn moves and SHOULD prioritise queen capture, queen trap, queen expulsion, check, or threat removal.
+
+\section{Live Stack Position}
+
+\begin{verbatim}
+22E.38 -- Live one-move sender
+  -> 22E.52 -- Critical Threat Hygiene and Queen Intrusion Trap Policy
+    -> 22E.50 -- King Safety Threat-Removal Policy
+      -> 22E.49 -- Initiative Hygiene Guard
+        -> 22E.48 -- Promotion Safety / Queen Survival Guard
+          -> 22E.46 -- Dynamic Intent Switching & Plan Strength Evaluation
+            -> 22E.44 -- Proactive Intent Primacy & Plan Enforcement
+              -> 22E.43 -- Anti-Shuffling / Endgame Conversion Guard
+                -> 22E.42 -- Passed Pawn Intent Scope Guard
+                  -> 22E.41 -- Queen-First Promotion Guard
+                    -> 22E.37 -- Intent-Driven Strategic Well
+\end{verbatim}
+
+\section{Evidence Fields}
+
+\begin{verbatim}
+critical_threat_hygiene_checked
+wing_pawn_lunge_detected
+wing_pawn_lunge_blocked
+queen_intrusion_detected
+queen_intrusion_square
+queen_capture_available
+queen_trap_or_expel_available
+queen_intrusion_override_applied
+threat_hygiene_override_applied
+threat_hygiene_reason
+\end{verbatim}
+
+\section{Boundary}
+
+This kernel does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E52-FULL-CHESS-CRITICAL-THREAT-HYGIENE-QUEEN-INTRUSION-TRAP-POLICY\\
+Status: LOCKED --- critical-threat hygiene and queen-intrusion policy implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

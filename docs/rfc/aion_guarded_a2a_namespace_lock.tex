@@ -1,0 +1,148 @@
+\section{Phase 11A --- Guarded A2A API Namespace v0}
+\label{sec:aion-guarded-a2a-api-namespace-v0}
+
+\subsection{Status}
+
+Phase 11A locks the first guarded A2A API namespace preview for AION External Agent API work.
+
+\begin{quote}
+\textbf{Status: LOCKED --- guarded A2A namespace tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+The purpose of this lock is to define the external-agent-facing A2A namespace before any public route is exposed.
+
+The namespace is preview-only, guarded, deterministic, schema-versioned, and requires future API-key or signed-agent authentication.
+
+No public A2A route is exposed by this lock.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/a2a_api.py
+\end{verbatim}
+
+The module defines:
+
+\begin{itemize}
+  \item \texttt{A2AEndpointPreview},
+  \item \texttt{build\_a2a\_endpoint\_preview},
+  \item \texttt{build\_guarded\_a2a\_namespace\_preview},
+  \item \texttt{build\_a2a\_namespace\_summary}.
+\end{itemize}
+
+The exported contract version is:
+
+\begin{verbatim}
+aion.a2a_api.v0.1
+\end{verbatim}
+
+\subsection{Namespace}
+
+The reserved namespace is:
+
+\begin{verbatim}
+/api/aion/a2a/*
+\end{verbatim}
+
+This is a guarded preview contract only. It is not yet mounted as a public route.
+
+\subsection{Preview Endpoints}
+
+The locked preview endpoint vocabulary is:
+
+\begin{itemize}
+  \item \texttt{business\_capabilities}
+  \item \texttt{business\_machine\_catalog}
+  \item \texttt{business\_availability}
+  \item \texttt{machine\_cart\_quote\_request\_preview}
+  \item \texttt{job\_request\_preview}
+  \item \texttt{job\_trace}
+  \item \texttt{job\_evidence}
+  \item \texttt{settlement\_readiness}
+  \item \texttt{proof\_commitment}
+  \item \texttt{proof\_receipt}
+  \item \texttt{trust\_summary}
+\end{itemize}
+
+\subsection{HTTP Method Preview}
+
+The namespace preview records deterministic method intent:
+
+\begin{itemize}
+  \item read endpoints use \texttt{GET},
+  \item quote and job request previews use \texttt{POST}.
+\end{itemize}
+
+\subsection{Authentication Boundary}
+
+The preview requires future guarded authentication:
+
+\begin{verbatim}
+auth_mode = api_key_or_signed_agent_preview
+requires_auth = true
+\end{verbatim}
+
+This phase does not yet implement production authentication. It locks the requirement and response contract.
+
+\subsection{Determinism}
+
+All namespace and endpoint previews are schema-versioned and deterministic.
+
+The namespace payload includes:
+
+\begin{verbatim}
+namespace_hash
+\end{verbatim}
+
+Endpoint previews include:
+
+\begin{verbatim}
+response_hash
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+The guarded A2A namespace preview MUST NOT:
+
+\begin{itemize}
+  \item expose a public route,
+  \item create a booking,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages.
+\end{itemize}
+
+Unsupported endpoints MUST be blocked.
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_guarded_a2a_namespace_lock.py
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GUARDED-A2A-NAMESPACE-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

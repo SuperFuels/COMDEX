@@ -1,0 +1,8 @@
+{
+  "schema_version": "aion.business_map_signature.v1",
+  "artifact": "supplier_payment_controls.v1.json",
+  "artifact_sha256": "f29f19ed450b55705970f721b8d728837aca8f02c2047a0f5738fee34399288e",
+  "algorithm": "Ed25519",
+  "key_id": "ed25519:sha256:06fa1fec295ce9636b15ae145181db7b67a8f80477dbb95fe365b1be0cb4a210",
+  "signature_base64": "rnuNSW4WFdYQ5AmwI2d0wPeovRW7yjCo7K0RO47wG9fL1wCllv1YSkPsOAWMfWc96lWEWrUwK8eFtEjedpXqCA=="
+}

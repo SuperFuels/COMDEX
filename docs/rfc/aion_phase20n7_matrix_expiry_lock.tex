@@ -1,0 +1,102 @@
+\section{AION Phase 20N.7 --- Expiry Management and Stale Matrix Revocation}
+\label{sec:aion-phase20n7-expiry-management-stale-matrix-revocation}
+
+\subsection{Status}
+
+Phase 20N.7 locks Expiry Management and Stale Matrix Revocation.
+
+\begin{quote}
+\textbf{Status: LOCKED --- plan, sub-plan, profile and budget matrices may expire or become stale and must be re-approved before execution continues.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20R handles exact checkpoint payload approval expiry.
+
+Phase 20N.7 handles plan-level matrix freshness.
+
+AION MUST prevent stale mission plans, stale sub-plans, stale profile applications, and stale budget contracts from mounting into runtime execution.
+
+\subsection{Freshness Record}
+
+Every matrix freshness record MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item matrix ID;
+  \item matrix type;
+  \item matrix hash;
+  \item parent matrix hash where applicable;
+  \item profile application hash where applicable;
+  \item budget hash where applicable;
+  \item issued time;
+  \item TTL seconds;
+  \item expiry time;
+  \item revocation state;
+  \item freshness record hash.
+\end{itemize}
+
+\subsection{Freshness Evaluation}
+
+Before runtime mount, AION MUST evaluate whether the matrix is:
+
+\begin{itemize}
+  \item expired;
+  \item revoked;
+  \item changed;
+  \item stale because parent matrix changed;
+  \item stale because profile application changed;
+  \item stale because budget changed.
+\end{itemize}
+
+If stale, AION MUST return:
+
+\begin{verbatim}
+runtime_mount_allowed: false
+mission_state: waiting_human_review
+requires_matrix_reapproval: true
+\end{verbatim}
+
+\subsection{Security Rule}
+
+A stale plan, sub-plan, profile application or budget contract MUST NOT mount into runtime.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n5_delegation_profiles_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n6_autonomy_budget_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n7_matrix_expiry_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20N7-EXPIRY-MANAGEMENT-STALE-MATRIX-REVOCATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

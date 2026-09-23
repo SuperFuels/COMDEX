@@ -16,8 +16,10 @@ Features:
 import random
 import math
 import time
+import json
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Mapping
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -136,16 +138,9 @@ class PlanningEngine:
             "Execute each and reflect on outcome"
         ])
 
-        # 🎲 Shuffle with entropy-weighted temperature
-        randomness = min(1.0, max(0.0, self.temperature - 0.8))
-        if randomness > 0:
-            random.shuffle(plan)
-            if randomness > 0.3:
-                # optional insertion of creative step
-                plan.insert(
-                    random.randint(0, len(plan) - 1),
-                    "Run harmonic reflection before execution"
-                )
+        # Dependency order is authoritative.  Resonance may be logged as an
+        # advisory signal, but it must never shuffle causal plan steps.
+        plan = list(plan)
 
         self.active_plan = plan
         self.last_generated = datetime.now()
@@ -178,6 +173,59 @@ class PlanningEngine:
         print(f"[Θ🧭] Planning resonance -> SQI={sqi:.3f}, ΔΦ={delta_phi:.3f}, T={self.temperature:.2f}")
         return self.active_plan
 
+    def generate_governed_plan(
+        self,
+        goal: Mapping[str, Any] | str,
+        capability_decision: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Compile a broad objective into a proposal-only dependency plan."""
+        from backend.modules.hexcore.governed_cognitive_contract import (
+            CognitiveActionContract,
+            canonical_hash,
+            utc_now,
+        )
+
+        goal_map = dict(goal) if isinstance(goal, Mapping) else {"objective": str(goal)}
+        objective = str(goal_map.get("objective") or goal_map.get("goal") or "").strip()
+        capability = dict(capability_decision or goal_map.get("capability_decision") or {})
+        steps = capability.get("action_contract") or [
+            "interpret objective and define success",
+            "retrieve evidence and identify knowledge gaps",
+            "decompose dependencies and alternatives",
+            "select reversible tools and actions",
+            "verify outcomes against success criteria",
+            "reflect, retain or revise",
+        ]
+        normalized_steps = []
+        prior = None
+        for index, raw in enumerate(steps):
+            if isinstance(raw, Mapping):
+                description = str(raw.get("description") or raw.get("step") or raw.get("action") or raw)
+            else:
+                description = str(raw)
+            step_id = f"step_{index + 1}_{canonical_hash([objective, description])[:8]}"
+            normalized_steps.append({
+                "step_id": step_id,
+                "description": description,
+                "depends_on": [prior] if prior else [],
+                "status": "proposed",
+                "execution_authority": False,
+            })
+            prior = step_id
+        contract = CognitiveActionContract.from_mapping({
+            **goal_map,
+            "objective": objective,
+            "capability_decision": capability,
+        })
+        return contract.proposal(
+            plan_id="plan_" + canonical_hash([objective, normalized_steps])[:20],
+            planned_at=utc_now(),
+            steps=normalized_steps,
+            success_criteria=list(goal_map.get("success_criteria") or []),
+            alternatives=list(goal_map.get("alternatives") or []),
+            technology_proposal=capability.get("technology_proposal"),
+        )
+
     # ------------------------------------------------------------
     def get_current_plan(self):
         return self.active_plan
@@ -194,15 +242,17 @@ class PlanningEngine:
         adjusted_entropy = max(0, min(1, entropy + jitter))
 
         timestamp = datetime.now().isoformat()
-        print(f"[PLANNING] Executing step (T={self.temperature:.2f}, E={adjusted_entropy:.2f}): {step}")
+        print(f"[PLANNING] Yielding proposed step (T={self.temperature:.2f}, E={adjusted_entropy:.2f}): {step}")
 
         self.memory.store("plan_step", {
-            "type": "planning_step",
+            "type": "planning_step_proposal",
             "goal": self.current_goal or "unspecified",
             "step": step,
             "entropy": adjusted_entropy,
             "temperature": self.temperature,
-            "timestamp": timestamp
+            "timestamp": timestamp,
+            "proposal_only": True,
+            "executed": False,
         })
 
         return step

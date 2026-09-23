@@ -1,0 +1,78 @@
+AION Goal Engine Provider Capability Manifest Lock
+
+Status: LOCKED
+
+Purpose:
+
+The provider capability manifest is the canonical disclosure layer for AION Managed-Agent provider routing.
+
+Canonical schema:
+
+aion.business.provider_capability_manifest.v1
+
+Canonical trace type:
+
+provider_capability_manifest
+
+Required providers:
+
+local
+openai
+anthropic
+
+Required capability flags:
+
+supports_long_running_sessions
+supports_checkpoint_resume
+supports_sandboxed_execution
+supports_outcome_evaluation
+supports_memory_dreaming
+supports_multi_agent_orchestration
+
+Required runtime limits:
+
+max_tokens
+max_cost_per_task
+network
+external_writes
+
+Required degradation fields:
+
+degradation_mode
+fallback_provider
+disclosure
+
+Safety invariants:
+
+external_writes_require_approval = true
+business_state_mutations_require_human_review = true
+provider_disclosure_required_in_ui = true
+
+Local provider rule:
+
+local provider is local_only.
+local external_writes are blocked.
+local can support drafting, summarization, classification, and analysis.
+local is not allowed to mutate business state directly.
+
+Cloud provider rule:
+
+openai and anthropic may support reasoning, planning, drafting, analysis, summarization, and multi-agent orchestration.
+cloud external writes require approval.
+business state mutation still requires guarded container write and human review.
+
+Routing rule:
+
+ProviderRouter MUST check provider capability before routing.
+Unsupported provider capability MUST fail closed with provider_capability_not_supported.
+Router payloads MUST include capability_manifest_checked when capability routing rejects a provider.
+
+Boardroom rule:
+
+Boardroom MUST expose provider_capability_manifest for operator visibility.
+Boardroom UI may render provider disclosure, but MUST NOT use provider manifest as storage.
+
+Lock ID: AION-GOAL-ENGINE-PROVIDER-CAPABILITY-MANIFEST-V1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson

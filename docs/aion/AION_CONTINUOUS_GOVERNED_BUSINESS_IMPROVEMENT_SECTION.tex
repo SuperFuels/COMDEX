@@ -1,0 +1,77 @@
+\section{Continuous Governed Business Improvement}
+\label{sec:aion-governed-business-improvement}
+
+AION is intended to learn how a particular business operates, but learning cannot be allowed to
+become an invisible expansion of authority.  The continuous-improvement layer therefore separates
+what a person said, what they corrected, what was actually attempted, what an independent authority
+verified, and what change may safely be promoted.  A model response and a conversation transcript
+are not outcome evidence.
+
+\subsection{Separate Evidence Rails}
+
+Owner corrections and verified outcomes use different owner-controlled ledgers.  A correction
+records its identifier, task class, target reference, actor, corrected-value hash and optional
+conversation-reference hash.  It does not copy the conversation or grant authority.  A verified
+outcome records the route, procedure, score, observation time and independent authority reference.
+This prevents a frequently repeated statement from being mistaken for repeated real-world success.
+
+\subsection{Task-Specific, Time-Bounded Preferences}
+
+Route and procedure performance is grouped by task class.  Invoice matching, sales forecasting and
+customer-support triage therefore learn independently.  A route becomes preferred only after at
+least three fresh verified outcomes.  Candidates are ranked by measured score, evidence count and
+recency.  Every preference has a validity limit; after that time it returns
+\emph{stale revalidation required} and supplies no preferred route until refreshed by evidence.
+
+This distinction is important when a provider changes a model, an application changes its interface,
+or the business changes its process.  Yesterday's successful route is useful evidence, but it is not
+permanent authority.
+
+\subsection{Automation Is Proposed, Not Assumed}
+
+AION may propose automation only after repeated high-quality verified outcomes from the same
+preferred route and procedure.  Mixed success across unrelated routes does not satisfy the gate.
+The proposal binds the task class, route, procedure and evidence hashes into one proposal hash.
+The owner must approve that exact proposal.  Even after approval its state is
+\emph{approved but unactivated}: execution authority must still come from the relevant capability
+and organisational policy.  This keeps behavioural convenience separate from permission.
+
+\subsection{Licensed and Consented Dataset Curation}
+
+The dataset registry accepts only approved licences such as customer-owned, consented internal,
+CC0, CC BY 4.0, Apache 2.0 or MIT material.  A consent reference and at least one permitted purpose
+are required.  Fields resembling passwords, keys, tokens, payment-card data, salary or medical data
+are rejected until redacted upstream.  The registry retains source and consent hashes, record count,
+content hash, licence and purposes; raw records are not copied into the registry.  Revocation makes
+the dataset ineligible for new releases.
+
+\subsection{Reviewed and Reversible Model Releases}
+
+Fine-tuning, distillation and learned adapters are release processes, not background mutations.
+Each candidate binds a release identifier, base model, eligible dataset identifiers, training method,
+human reviewer and rollback target.  It begins inactive and requires evaluation.
+
+Promotion requires both a passing retention cohort after a real minimum elapsed period and a passing
+unfamiliar-transfer cohort whose evidence is source-disjoint from training.  A failed required cohort
+blocks promotion.  When promoted, the prior rollback target is retained and the change is entered in
+the customer change view.  This mechanism can govern local, customer-cloud or replaceable provider
+models without making any model the owner of AION's memory or authority.
+
+\subsection{Customer Inspection and Reversal}
+
+The customer change view shows the change type, accountable actor, time, reason, detail hash,
+reversibility and exact reverse action.  Supported reversals can disable an approved automation or
+roll a model release back to its declared predecessor.  Reversal is itself attributed to the owner
+and cannot be replayed silently.
+
+\subsection{Qualification Boundary}
+
+Automated tests verify correction/outcome separation, fresh-evidence thresholds, stale preference
+expiry, exact automation approval, dataset licensing and redaction, revocation, reviewed releases,
+elapsed retention, source-disjoint transfer and customer reversal.  This layer governs whether a
+change may be admitted.  It does not claim to provide a production GPU training service, create
+licensed datasets automatically or replace independent customer-domain evaluation.  Those artefacts
+and authorities must be connected and qualified in the customer's own environment.
+
+The result is a business brain that can improve continuously while remaining inspectable, reversible
+and owned by the customer.

@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21W: Adversarial Moving Hazard / Predator Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21W defines the AION Adversarial Moving Hazard / Predator Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can predict a moving predator's future interception path and avoid it before impact.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 21W extends fixed hazard lookahead into adversarial moving danger.
+
+\section{Loop Contract}
+
+The locked loop is:
+
+\[
+agent\_state + predator\_state
+\rightarrow future\_rollout
+\rightarrow predicted\_intercept
+\rightarrow route\_change
+\rightarrow before\_impact\_avoidance.
+\]
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{shallow\_first\_action};
+  \item \texttt{deep\_first\_action};
+  \item \texttt{lookahead\_changed\_action};
+  \item \texttt{predator\_intercepts\_predicted\_for\_shallow\_action};
+  \item \texttt{predator\_intercepts\_predicted\_for\_deep\_action};
+  \item \texttt{predator\_avoided\_before\_impact};
+  \item \texttt{execution\_trace};
+  \item \texttt{uses\_adversarial\_moving\_hazard};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational adversarial lookahead. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21W-ADVERSARIAL-MOVING-PREDATOR-KERNEL-LOCK\\
+Status: LOCKED --- adversarial moving predator kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

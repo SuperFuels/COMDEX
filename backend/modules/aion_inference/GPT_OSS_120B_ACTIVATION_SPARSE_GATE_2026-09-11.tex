@@ -1,0 +1,34 @@
+% Standalone append-only section for the AION GPT-OSS 120B technical record.
+\section{Activation-Sparse Expert-Column Gate}
+\label{sec:gptoss120b-activation-sparse-20260911}
+
+The dominant physical problem remains expert-weight traffic.  A changed-model
+microgate therefore tested whether low-magnitude coordinates in the 2,880-value
+expert input could be zeroed, allowing a future column-sparse kernel to avoid the
+corresponding columns of the gate and up projections.  The unrestricted route,
+four original experts, original gates, packed MXFP4 weights, biases, and residual
+were preserved.  Only the expert input was sparsified.  The down projection was
+correctly charged as dense, so the projected total expert-weight fraction was
+$(1+2r)/3$ for retained coordinate fraction $r$.
+
+Sixteen frozen real layer/position captures were evaluated.  The predeclared
+advance gate required at least 1.5$\times$ projected traffic reduction in every
+capture, p95 layer-output relative $L_2$ error no greater than 0.02, and p95
+expert-contribution error no greater than 0.15.  No candidate passed.
+
+Retaining 75\% of input absolute mass kept approximately 43.77\% of coordinates
+at median and projected 1.5997$\times$ median traffic reduction (1.5865$\times$
+worst case), but p95 output and contribution errors were 0.0991 and 0.3203.
+Retaining 90\% reduced the errors to 0.0401 and 0.1349, but traffic reduction
+fell to 1.3187$\times$ median and 1.3075$\times$ worst case.  Retaining 95\%
+reached 0.0227 output error and 0.0788 contribution error for only
+1.2084$\times$ median traffic reduction.  At 99\%, numerical error passed
+comfortably (0.00786/0.02377) but the projected gain was only 1.0842$\times$.
+
+Decision: \texttt{STOP\_ACTIVATION\_SPARSE\_COLUMNS}.  The input energy is too
+widely distributed: enough coordinates can be removed for a meaningful traffic
+gain only by exceeding the numerical gate, while numerically safe sparsity cannot
+repay the indexing and irregular-kernel cost.  No sparse kernel or compact column
+store will be built from this result, and no token-speed or semantic-quality claim
+is made.  The evidence canonical SHA-256 is
+\texttt{8dbbf6e5da48487da213bff21ee74f879f77e0f92801977621a74f648111c49b}.

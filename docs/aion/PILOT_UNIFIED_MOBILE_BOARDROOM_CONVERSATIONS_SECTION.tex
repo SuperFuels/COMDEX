@@ -1,0 +1,37 @@
+\section{Governed Boardroom and Department Pilot Conversations}
+\label{sec:pilot-mobile-boardroom-conversations}
+\raggedright
+
+The unified phone can now converse with the Pilot belonging to an accepted Workspace or
+Boardroom without copying the organisation's memory into a separate mobile chat system.  Each
+turn is signed by the trusted phone, validated against its current capability lease, and then
+checked against the selected person's active organisation membership.  The membership must
+grant either \texttt{workspace.conversation} or the exact departmental conversation scope.
+
+The Workspace Gateway forwards only the bounded question, organisation reference, department,
+and active persona to the registered provider.  The provider remains the source of truth.  A
+reply must contain a non-empty structured turn, fit within the mobile response limit, and state
+that no external write occurred.  A provider response claiming that it changed an organisation
+record is rejected rather than shown as a completed action.
+
+Finance conversations reuse the existing permanent Finance Pilot service.  That service assembles
+canonical financial, operating, and department-intelligence context, retains a hash-linked local
+conversation, labels evidence and reliability, and routes cognition through the provider-neutral
+business model router.  If model compute is unavailable it returns a deterministic grounded
+financial summary rather than inventing an answer.
+
+The remaining departments presently have governed work queues but do not all have equivalent
+free-form specialist conversation engines.  Their mobile adapter therefore returns a bounded
+summary of recorded work for the selected department.  If no evidence exists, Pilot says so
+explicitly.  This prevents a polished mobile interface from overstating the underlying business
+intelligence.
+
+The Spaces interface lets an accepted member choose Boardroom, Sales, Marketing, Finance,
+Operations, Support, or People and ask a question.  The returned card displays the response,
+reliability, and the fact that no external action was claimed.  Conversation access stops on the
+next request when a membership is suspended, revoked, or expired.
+
+Automated tests verify exact departmental scoping, rejection of cross-department access,
+normalisation and hashing of the question, read-only provider enforcement, Finance-service reuse,
+and honest insufficient-evidence behaviour.  The optimized mobile application compiles and
+statically generates the Pilot route.  This closes \texttt{MOB-0607}.

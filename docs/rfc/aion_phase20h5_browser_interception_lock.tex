@@ -1,0 +1,175 @@
+\section{AION Phase 20H.5 --- Browser Worker Interception Rules and DOM/Network Mutation Whitelist}
+\label{sec:aion-phase20h5-browser-worker-interception-rules}
+
+\subsection{Status}
+
+Phase 20H.5 locks browser worker interception rules.
+
+\begin{quote}
+\textbf{Status: LOCKED --- browser network requests, navigation, DOM mutations, popups, downloads, iframes, and scripts are intercepted before runtime side effects.}
+\end{quote}
+
+\subsection{Purpose}
+
+Browser workers MUST NOT be allowed to perform hidden or background side effects outside the staged browser state contract.
+
+Phase 20H.5 defines the interception policy used to prevent:
+
+\begin{itemize}
+  \item off-domain network requests;
+  \item unapproved mutating HTTP requests;
+  \item unsafe navigation and redirect chains;
+  \item dangerous DOM mutations;
+  \item unapproved popups;
+  \item unapproved downloads;
+  \item unapproved iframes;
+  \item unapproved script resources.
+\end{itemize}
+
+\subsection{Interception Policy}
+
+Every browser interception policy MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item provider;
+  \item browser worker ID;
+  \item browser session hash;
+  \item allowed domains;
+  \item allowed iframe domains;
+  \item allowed script domains;
+  \item download permission;
+  \item popup permission;
+  \item mutating method permission;
+  \item policy hash.
+\end{itemize}
+
+\subsection{Network Request Rule}
+
+Safe HTTP methods are:
+
+\begin{verbatim}
+GET
+HEAD
+OPTIONS
+\end{verbatim}
+
+Mutating HTTP methods are:
+
+\begin{verbatim}
+POST
+PUT
+PATCH
+DELETE
+\end{verbatim}
+
+Mutating HTTP methods MUST be blocked unless policy explicitly permits mutating methods and an approval hash is present.
+
+\subsection{Navigation Rule}
+
+Navigation MUST remain within allowed domains.
+
+If the target URL or any redirect chain item leaves the allowed domain list, navigation MUST be blocked.
+
+\subsection{DOM Mutation Rule}
+
+Safe staged DOM mutations MAY include:
+
+\begin{itemize}
+  \item reading text;
+  \item reading attributes;
+  \item focus;
+  \item scroll;
+  \item staged input fill;
+  \item staged option select;
+  \item staged checkbox change;
+  \item screenshot capture.
+\end{itemize}
+
+Dangerous DOM mutations MUST be blocked in this phase, including:
+
+\begin{itemize}
+  \item submit clicks;
+  \item payment clicks;
+  \item publish clicks;
+  \item deploy clicks;
+  \item send clicks;
+  \item booking clicks;
+  \item identity uploads;
+  \item legal uploads;
+  \item downloads;
+  \item popups;
+  \item script injection;
+  \item iframe creation.
+\end{itemize}
+
+\subsection{Popup and Download Rule}
+
+Popups and downloads MUST be blocked unless explicitly allowed by policy and scoped to an allowed domain.
+
+\subsection{Iframe and Script Rule}
+
+Iframe and script resources MUST be loaded only from their explicit allowlists.
+
+A resource URL outside the relevant allowlist MUST be blocked.
+
+\subsection{Interception Summary}
+
+Browser interception summaries MUST report:
+
+\begin{itemize}
+  \item allowed count;
+  \item blocked count;
+  \item blocked reasons;
+  \item interception hashes;
+  \item runtime state;
+  \item summary hash.
+\end{itemize}
+
+If any interception is blocked, the browser worker runtime state MUST become \texttt{blocked\_for\_safety}.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n5_delegation_profiles_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n6_autonomy_budget_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n7_matrix_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h1_external_tool_gateway_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h2_provider_context_isolation_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h3_browser_worker_sandbox_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h4_browser_staged_state_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20h5_browser_interception_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20H5-BROWSER-WORKER-INTERCEPTION-RULES
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

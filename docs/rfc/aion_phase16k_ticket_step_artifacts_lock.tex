@@ -1,0 +1,45 @@
+\section{Phase 16K --- Ticket Step Artifacts}
+\label{sec:phase16k-ticket-step-artifacts}
+
+\subsection{Status}
+
+Phase 16K makes every founder-demo ticket step visibly produce an artifact.
+
+\begin{quote}
+\textbf{Status: LOCKED --- every ticket step renders a visible artifact panel.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 16J introduced the ticket run, but the visible panel still depended on older action-level state.
+Phase 16K binds the artifact panel directly to the active ticket step.
+
+The following steps now produce visible outputs:
+
+\begin{verbatim}
+website_widget_request
+public_intent_gateway
+guard_envelope
+agentmap_route
+machine_cart_quote_preview
+human_review_handoff
+proof_receipt
+boardroom_replay
+\end{verbatim}
+
+\subsection{Safety Contract}
+
+Every artifact remains preview-only and repeats the compact safety boundary:
+
+\begin{verbatim}
+No booking · No payment · No escrow · No external message · No live chain write
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE16K-TICKET-STEP-ARTIFACTS
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

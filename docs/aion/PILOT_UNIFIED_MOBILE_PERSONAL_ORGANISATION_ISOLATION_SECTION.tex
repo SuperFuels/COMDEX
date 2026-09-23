@@ -1,0 +1,30 @@
+\section{Personal and Organisation Isolation}
+\label{sec:pilot-mobile-personal-organisation-isolation}
+\raggedright
+
+Pilot now enforces an explicit security boundary between a person's Personal Pilot and every
+employer, client, Workspace, and Boardroom.  Organisation membership controls organisation data
+only.  Even an owner or member administrator cannot use that role to read the participant's
+private memory, tasks, calendar, children, home devices, location, contacts, or payment routes.
+
+The Workspace Gateway accepts only a fixed catalogue of organisation surface names.  A request for
+a Personal Pilot surface is rejected before a provider is called.  In addition, all provider
+projections pass through a recursive boundary check.  A response containing reserved Personal
+namespaces---including private identity, personal memory, private calendar, personal tasks,
+guardian-controlled children, household location, home devices, or payment methods---is rejected
+instead of relying on the mobile interface to hide it.
+
+Personal Pilot uses a separate possession-bound authority path.  Its phone certificate names one
+private persona, and each operation requires its own Personal capability.  Workspace member or
+administrator scopes cannot satisfy that check.  The private projection independently filters
+other adults and permits a guardian to see only explicitly linked child profiles.
+
+This separation is structural rather than a user-interface convention.  Switching the visible app
+from Personal to Workspace does not merge repositories, leases, or query authority.  Revoking an
+organisation membership leaves Personal Pilot intact; revoking the private phone terminates its
+Personal access regardless of any organisation role the person still holds.
+
+Automated evidence includes wrong-person phone signatures, filtered other-adult records,
+unsupported Personal surface requests through the Workspace Gateway, and a deliberately malicious
+provider payload containing Personal memory.  All are rejected.  Forty-two combined Workspace and
+Personal authority tests pass.  This closes \texttt{MOB-0612}.

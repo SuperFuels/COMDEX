@@ -1,0 +1,169 @@
+\section{AION Phase 20V --- Deterministic System Interceptor / Kernel Guard}
+\label{sec:aion-phase20v-kernel-guard}
+
+\subsection{Status}
+
+Phase 20V introduces the deterministic execution interceptor between the autonomy classifier and the future Mission Runtime.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Kernel Guard v0 validates action payloads before runtime mount.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Kernel Guard prevents an unsafe action from entering the Mission Runtime merely because an advisory planner or earlier layer labelled it as safe.
+
+The guard treats all planner and classifier labels as advisory until the final payload is inspected against the hard restricted-action registry.
+
+\subsection{Restricted Action Registry}
+
+The guard maintains a deterministic restricted-action registry covering:
+
+\begin{itemize}
+  \item external communication actions;
+  \item payment and escrow actions;
+  \item booking and dispatch actions;
+  \item live deployment actions;
+  \item raw terminal execution;
+  \item live reputation or memory mutation.
+\end{itemize}
+
+Any restricted action is overridden to \texttt{checkpoint\_required} or \texttt{forbidden} before runtime mount.
+
+\subsection{Payload Runtime Flag Scan}
+
+The guard recursively scans payloads for runtime flags such as:
+
+\begin{itemize}
+  \item \texttt{live\_execution\_enabled};
+  \item \texttt{external\_writes\_enabled};
+  \item \texttt{payment\_enabled};
+  \item \texttt{booking\_enabled};
+  \item \texttt{deployment\_enabled};
+  \item \texttt{reputation\_mutation\_enabled};
+  \item \texttt{raw\_terminal\_exec}.
+\end{itemize}
+
+If such a flag is detected, the action is marked \texttt{forbidden}.
+
+\subsection{Boardroom Alert Contract}
+
+Any override, checkpoint, block, or forbidden decision MUST produce a Boardroom alert describing:
+
+\begin{itemize}
+  \item action type;
+  \item final decision;
+  \item reason;
+  \item guard hash.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20V-KERNEL-GUARD-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
+
+\subsection{Phase 20V.1 --- Restricted Action Registry Canonicalisation}
+
+\subsubsection{Status}
+
+Phase 20V.1 hardens the Kernel Guard restricted-action registry lookup.
+
+This phase prevents action-name evasion attacks where a restricted action attempts to bypass the registry by changing case, hyphenation, Unicode whitespace, or hidden zero-width characters.
+
+\begin{quote}
+\textbf{Status: LOCKED --- restricted action names MUST be canonicalised before registry lookup.}
+\end{quote}
+
+\subsubsection{Canonical Action-Type Lookup}
+
+The Kernel Guard MUST canonicalise every incoming \texttt{action\_type} before checking it against the restricted-action registry.
+
+The action-type canonicalisation routine MUST:
+
+\begin{enumerate}
+  \item force all characters to lowercase;
+  \item transform hyphens into underscores;
+  \item strip all whitespace, including Unicode whitespace;
+  \item strip zero-width characters including \texttt{U+200B}, \texttt{U+200C}, \texttt{U+200D}, and \texttt{U+FEFF}.
+\end{enumerate}
+
+The following variants MUST all resolve to:
+
+\begin{verbatim}
+send_email_live
+\end{verbatim}
+
+\begin{verbatim}
+send_Email_live
+send-email-live
+send_​email_live
+\end{verbatim}
+
+If the canonicalised action type matches any element in the restricted-action registry, the Kernel Guard MUST apply the protective override immediately.
+
+\subsubsection{Registry Bypass Rule}
+
+A restricted action cannot become safe because its name is formatted differently.
+
+For example:
+
+\begin{verbatim}
+{
+  "action_type": "send-email-live",
+  "decision": "safe_autonomous"
+}
+\end{verbatim}
+
+MUST be treated exactly like:
+
+\begin{verbatim}
+{
+  "action_type": "send_email_live",
+  "decision": "safe_autonomous"
+}
+\end{verbatim}
+
+and MUST return:
+
+\begin{verbatim}
+final_decision: checkpoint_required
+runtime_mount_allowed: false
+requires_checkpoint: true
+reason: kernel_restricted_action_override
+\end{verbatim}
+
+\subsubsection{Phase 20V.1 Validation}
+
+Additional tests prove:
+
+\begin{itemize}
+  \item case-mutated restricted actions are blocked;
+  \item hyphenated restricted actions are blocked;
+  \item zero-width-space restricted actions are blocked;
+  \item Unicode-whitespace restricted financial actions are blocked;
+  \item canonicalised action type is used for registry lookup.
+\end{itemize}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20V1-KERNEL-GUARD-ACTION-CANONICALISATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

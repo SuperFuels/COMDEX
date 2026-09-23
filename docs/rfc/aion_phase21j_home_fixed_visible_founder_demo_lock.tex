@@ -1,0 +1,91 @@
+\section{Phase 21J --- Home Fixed Visible Founder Demo}
+\label{sec:aion-phase21j-home-fixed-visible-founder-demo}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21J defines the visible Home Fixed founder demo for AION Pilot.
+
+\subsection{Purpose}
+
+The demo proves that AION Pilot can visibly perform useful safe work while stopping before risky live actions.
+
+\subsection{Visible Demo Work}
+
+AION Pilot may autonomously prepare:
+
+\begin{itemize}
+  \item brand copy draft;
+  \item website preview draft;
+  \item social post draft;
+  \item local SEO plan draft;
+  \item proof and replay preview.
+\end{itemize}
+
+\subsection{Blocked Live Actions}
+
+The demo MUST block:
+
+\begin{itemize}
+  \item domain purchase;
+  \item production deployment;
+  \item public Facebook post;
+  \item Google ad spend;
+  \item payment creation;
+  \item booking creation;
+  \item escrow creation;
+  \item external message send;
+  \item reputation mutation.
+\end{itemize}
+
+\subsection{Artifact Boundary}
+
+All demo artifacts MUST be saved inside:
+
+\begin{verbatim}
+business/home-fixed/
+\end{verbatim}
+
+Artifacts MUST remain in draft preview status unless the existing approval chain later authorizes a change.
+
+\subsection{Visible Proof Surfaces}
+
+The demo MUST expose:
+
+\begin{itemize}
+  \item artifact hash;
+  \item receipt hash;
+  \item proof hash;
+  \item replay hash;
+  \item ETS preview hash;
+  \item timeline hash.
+\end{itemize}
+
+\subsection{Required Message}
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21j_home_fixed_visible_founder_demo_lock.py
+\end{verbatim}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{The Home Fixed founder demo may show autonomous safe work, artifacts, receipts, proof, replay, ETS preview and blocked actions, but it MUST NOT create payments, bookings, escrow, external messages, public posts, deployments, ad spend or reputation mutation without the existing AION approval chain.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21J-HOME-FIXED-VISIBLE-FOUNDER-DEMO
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,48 @@
+\section{AION Goal Engine Outcome Metrics Layer Lock}
+\label{sec:aion-goal-engine-outcome-metrics-layer-lock}
+
+\subsection{Status}
+
+The AION Goal Engine now exposes dry-run previews for experiment-result evidence and variant outcome scoring.
+
+\begin{quote}
+\textbf{Status: LOCKED --- outcome metrics layer v1.}
+\end{quote}
+
+\subsection{Canonical Trace Blocks}
+
+The canonical trace blocks are:
+
+\begin{verbatim}
+experiment_result_evidence_preview
+variant_outcome_score_preview
+\end{verbatim}
+
+The experiment-result evidence preview checks whether variants have measurable support before any result can be treated as meaningful.
+
+The variant outcome score preview ranks variants for operator visibility only.
+
+\subsection{Safety Invariants}
+
+\begin{verbatim}
+dry_run_only = true
+winner_declared = false
+loser_stopped = false
+would_execute = false
+would_write_external = false
+would_grant_permission = false
+human_review_required_before_winner_activation
+\end{verbatim}
+
+A completed workflow MUST NOT be treated as a successful outcome unless valid evidence exists.
+
+Variant ranking MUST NOT activate a winning variant or stop a losing variant without guarded execution and human review.
+
+\subsection{Lock Footer}
+
+\begin{quote}
+Lock ID: AION-GOAL-ENGINE-OUTCOME-METRICS-LAYER-V1\\
+Status: LOCKED\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson
+\end{quote}

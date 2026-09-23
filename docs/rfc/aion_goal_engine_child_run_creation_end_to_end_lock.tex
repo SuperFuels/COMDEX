@@ -1,0 +1,186 @@
+\section{AION Goal Engine Guarded Child-Run Creation End-to-End Lock}
+\label{sec:aion-goal-engine-child-run-creation-end-to-end-lock}
+
+\subsection{Status}
+
+The guarded child-run creation chain is locked end-to-end.
+
+\begin{quote}
+\textbf{Status: LOCKED --- guarded child-run E2E chain passing.}
+\end{quote}
+
+Validation commands:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_goal_engine_child_run_creation_end_to_end_lock.py
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_goal_engine_guarded_child_run_creation_request.py \
+  backend/tests/workflow_capsules/test_goal_engine_human_approved_child_run_creation_action.py \
+  backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge.py \
+  backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge_preview_bundle_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_child_run_creation_end_to_end_lock.py
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Current locked results:
+
+\begin{verbatim}
+5 passed
+27 passed
+494 passed
+\end{verbatim}
+
+\subsection{Purpose}
+
+This lock proves that AION can transform a guarded child-agent handoff into a visible, review-only child-run creation packet without directly creating a Workflow Capsule run, executing a child agent, writing externally, mutating business state, or granting permissions.
+
+The locked chain is:
+
+\begin{verbatim}
+guarded_child_agent_execution_handoff
+  -> guarded_child_run_creation_request
+  -> human_approved_child_run_creation_action
+  -> runtime_seed
+  -> child_run_executor_bridge_packet
+  -> child_run_executor_bridge_runtime_summary
+  -> GoalEnginePreviewBundle
+\end{verbatim}
+
+\subsection{Canonical Contracts}
+
+The guarded request is identified by:
+
+\begin{verbatim}
+schema_version = aion.goal_engine.guarded_child_run_creation_request.v1
+trace_type     = guarded_child_run_creation_request
+approval_gate  = child_run_creation_review
+status         = waiting_approval
+\end{verbatim}
+
+The human-approved action is identified by:
+
+\begin{verbatim}
+schema_version = aion.goal_engine.human_approved_child_run_creation_action.v1
+trace_type     = human_approved_child_run_creation_action
+status         = approved_for_child_run_creation
+\end{verbatim}
+
+The executor bridge packet is identified by:
+
+\begin{verbatim}
+schema_version = aion.goal_engine.child_run_executor_bridge.v1
+trace_type     = child_run_executor_bridge_packet
+status         = ready_for_workflow_runtime
+\end{verbatim}
+
+\subsection{Runtime Seed Requirement}
+
+The \texttt{runtime\_seed} field is the canonical handoff boundary between human approval and Workflow Capsule runtime creation.
+
+The executor bridge MUST trust only canonical identifiers inside \texttt{runtime\_seed}. Outer action fields are provenance only and MUST NOT be used as trusted runtime creation inputs.
+
+Required \texttt{runtime\_seed} fields include:
+
+\begin{verbatim}
+workflow_id
+run_id
+parent_goal_id
+child_goal_id
+child_agent_id
+child_glyph_id
+created_by
+requires_runtime_executor
+external_writes_allowed
+business_mutation_allowed
+source_request_schema_version
+source_request_trace_type
+\end{verbatim}
+
+The legacy \texttt{child\_run\_seed} field MAY remain present for compatibility, display, and older preview consumers, but it is not the canonical executor input. The canonical runtime bridge MUST use \texttt{runtime\_seed}.
+
+\subsection{Safety Invariants}
+
+The guarded child-run E2E chain MUST remain review-only until an explicit runtime executor consumes the approved bridge packet.
+
+The chain MUST NOT:
+
+\begin{itemize}
+  \item execute a child agent directly;
+  \item create a Workflow Capsule run directly from the parent preview path;
+  \item write to external systems;
+  \item mutate business containers;
+  \item mutate parent goals;
+  \item mutate child goals;
+  \item grant permissions;
+  \item bypass the human approval boundary.
+\end{itemize}
+
+The canonical safety flags are:
+
+\begin{verbatim}
+dry_run = true
+visibility_only = true
+execution_allowed = false
+writes_allowed = false
+child_run_created = false
+autonomous_execution = false
+external_writes_allowed = false
+business_mutation_allowed = false
+creates_external_side_effects = false
+\end{verbatim}
+
+\subsection{Preview Bundle Visibility}
+
+The Goal Engine preview bundle MUST expose child-run executor bridge packets through a runtime summary.
+
+Expected summary fields include:
+
+\begin{verbatim}
+trace_type = child_run_executor_bridge_runtime_summary
+bridge_packet_count
+workflow_run_creation_allowed_count
+blocked_bridge_packet_count
+child_run_executor_bridge_packets
+workflow_run_creation_bridge_packets
+dry_run_only
+would_execute
+would_write_external
+would_grant_permission
+would_mutate_business_state
+requires_existing_workflow_runtime
+\end{verbatim}
+
+This guarantees Boardroom and inspector surfaces can display the approved child-run bridge packet without triggering execution.
+
+\subsection{Locked Failure Modes}
+
+The chain MUST block when:
+
+\begin{itemize}
+  \item the guarded request is invalid;
+  \item the request is missing required parent or child goal identifiers;
+  \item the request is missing target workflow or child-run identifiers;
+  \item the human approval decision is not \texttt{approved};
+  \item the reviewer is missing;
+  \item \texttt{runtime\_seed} is missing;
+  \item \texttt{runtime\_seed.workflow\_id} is missing;
+  \item \texttt{runtime\_seed.run\_id} is missing.
+\end{itemize}
+
+\subsection{Implementation Notes}
+
+The important implementation lesson from this lock is:
+
+\begin{quote}
+The request must expose \texttt{child\_run\_creation\_request\_valid}; the approved action must expose canonical \texttt{runtime\_seed}; and the executor bridge must trust only \texttt{runtime\_seed}.
+\end{quote}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GOAL-ENGINE-CHILD-RUN-CREATION-E2E-v1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

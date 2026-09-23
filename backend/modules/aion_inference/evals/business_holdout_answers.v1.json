@@ -1,0 +1,33 @@
+{
+  "schema_version": "aion.business_holdout_answers.v1",
+  "answers": {
+    "calc-v-01":{"expected":"196"},
+    "calc-v-02":{"expected":"221"},
+    "calc-v-03":{"expected":"91.26"},
+    "calc-v-04":{"expected":"225"},
+    "quote-v-01":{"expected_total":"775.20"},
+    "quote-v-02":{"expected_total":"236.25"},
+    "quote-v-03":{"expected_total":"5747.50"},
+    "quote-v-04":{"expected_total":"155.15"},
+    "policy-v-01":{"expected_controls":6},
+    "policy-v-02":{"expected_controls":6},
+    "policy-v-03":{"expected_controls":6},
+    "policy-v-04":{"expected_controls":6},
+    "extract-v-01":{"supplier_name":"Harbor Fasteners Oy","invoice_reference":"HF-812","payment_amount":"EUR 732.60"},
+    "extract-v-02":{"supplier_name":"Maple Works Inc","invoice_reference":"MW-55","payment_amount":"USD 1840.00"},
+    "extract-v-03":{"supplier_name":"Lumen Verde SA","invoice_reference":"LV-903","payment_amount":"GBP 219.45"},
+    "extract-v-04":{"supplier_name":"Nordic Cable AB","invoice_reference":"NC-1207","payment_amount":"SEK 9850.00"},
+    "draft-v-01":{"terms":["Iris","survey","complete","Thursday"]},
+    "draft-v-02":{"terms":["Jamal","parts","ordered","Monday"]},
+    "draft-v-03":{"terms":["Keira","estimate","ready","Tuesday"]},
+    "draft-v-04":{"terms":["Luis","visit","confirmed","Friday"]},
+    "plan-v-01":{"ordered_terms":["inspect","record","schedule"]},
+    "plan-v-02":{"ordered_terms":["compare","check","approve"]},
+    "plan-v-03":{"ordered_terms":["collect","reconcile","archive"]},
+    "plan-v-04":{"ordered_terms":["assess","document","escalate"]},
+    "code-v-01":{"expected":"253"},
+    "code-v-02":{"expected":"15"},
+    "code-v-03":{"expected":"45"},
+    "code-v-04":{"expected":"105"}
+  }
+}

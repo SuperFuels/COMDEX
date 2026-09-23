@@ -1,0 +1,98 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.60 --- Opponent Response Beam Planner}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.60 adds an opponent response beam planner for full chess.
+
+The purpose is to let AION ask:
+
+\begin{quote}
+If I make this move, how can the opponent ruin the plan?
+\end{quote}
+
+before final collapse and live sender posting.
+
+\section{System Connection}
+
+This is not a duplicate chess-only beam system.
+
+The kernel converts chess reply candidates into canonical SQI beam packets and sends them through \texttt{SQIBeamKernel.propagate()}.
+
+It also emits:
+
+\begin{itemize}
+  \item a QQC-compatible control packet;
+  \item a HexCore-compatible field packet;
+  \item a container evidence record using the existing BeamLine event shape.
+\end{itemize}
+
+\section{Beam Types}
+
+The kernel classifies opponent replies into response beams such as:
+
+\begin{itemize}
+  \item mate;
+  \item check;
+  \item capture;
+  \item queen attack;
+  \item king attack;
+  \item plan blocker;
+  \item pawn break;
+  \item development;
+  \item normal reply.
+\end{itemize}
+
+\section{Scoring}
+
+Each beam emits:
+
+\begin{itemize}
+  \item danger score;
+  \item plan damage score;
+  \item material risk score;
+  \item king-safety risk score;
+  \item tempo score;
+  \item total beam score;
+  \item SQI coherence;
+  \item SQI phase;
+  \item SQI amplitude.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not post moves.
+
+It does not call Stockfish, does not use Lichess analysis and does not use LLM move judgement.
+
+\section{Validation}
+
+Expected validation command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e60_full_chess_opponent_response_beam_planner_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e60_full_chess_opponent_response_beam_planner_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E60-FULL-CHESS-OPPONENT-RESPONSE-BEAM-PLANNER\\
+Status: LOCKED --- SQI/QQC/HexCore-connected opponent response beam planner added\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

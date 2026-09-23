@@ -1,0 +1,16 @@
+Workflow UI 95% restore point
+
+Date: 2026-06-26 approx 23:23
+State:
+- Workflow canvas mostly restored.
+- Sidebar visible.
+- Header visible.
+- Workflow tabbar visible again.
+- Remaining work should be small alignment/polish only.
+- Do not restore earlier broken native-tabbar attempts.
+
+Restore file:
+desktop/mac/src/app.js.LOCKED_95_PERCENT_WORKFLOW_UI_RESTORE_POINT.bak
+
+Restore command:
+cp desktop/mac/src/app.js.LOCKED_95_PERCENT_WORKFLOW_UI_RESTORE_POINT.bak desktop/mac/src/app.js

@@ -1,0 +1,50 @@
+% Append-only technical-record section. Requires amsmath, booktabs, hyperref.
+\section{Top-Three Original Experts Plus a Compact Fourth Expert}
+\label{sec:gptoss120b-top3-q2-fourth}
+
+The first direct bridge toward the three-expert operating point retained the
+three strongest routed experts in their original MXFP4 representation and
+requantized only the lowest-gate fourth expert to directly executable Q2\_0.
+The unrestricted router, all four expert identities, original gates, biases,
+SwiGLU-OAI function, expert order, and residual addition remained unchanged.
+This is a changed-weight quality-track experiment with exact MXFP4 fallback.
+
+The candidate was evaluated on all 21 available layer-12 activations in the
+opened reasoning development family.  It was not trained on these activations,
+and the business and writing cohorts remained blind.
+
+\begin{table}[ht]
+\centering
+\caption{Top-three MXFP4 plus fourth-expert Q2\_0 layer gate.}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Quantity & Result \\
+\midrule
+Real layer routes & 21 \\
+Weight reduction across four routed experts & $1.1333\times$ \\
+Median native calculation speedup & $1.0746\times$ \\
+Median relative layer-output error & 0.092199 \\
+p95 relative layer-output error & 0.123597 \\
+Median relative expert-contribution error & 0.284484 \\
+p95 relative expert-contribution error & 0.519400 \\
+Layer-output argmax equality & 21/21 \\
+Required p95 layer-output error & $\leq 0.02$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The decision is \texttt{STOP\_COMPACT\_EXPERTS}.  Compacting only the fourth
+expert was materially narrower than the previously stopped all-expert and
+top-one-original/three-compact experiments, but the fourth expert's quantization
+error still propagated into a 0.123597 p95 layer-output error.  The measured
+$1.0746\times$ compute gain and $1.1333\times$ weight reduction are also far too
+small to approach the required 3--6 tokens/s bridge.
+
+This result independently agrees with the stopped learned top-three residual,
+whose family-held-out p95 error was approximately 0.10.  Plain low-bit
+requantization and the existing small residual predictors therefore do not
+preserve the lowest-gate expert's consequential information.  No full-model
+integration or token-rate claim is permitted.
+
+The canonical report SHA-256 is
+\texttt{d229869b07b49a2aef58853bc8cf5b6fa656bea0a1070520c86640b9e264ab6f}.

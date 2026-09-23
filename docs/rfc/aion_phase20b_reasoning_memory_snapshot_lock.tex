@@ -1,0 +1,129 @@
+\section{Phase 20B --- AION Reasoning Memory Snapshot v0}
+\label{sec:phase20b-aion-reasoning-memory-snapshot-v0}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- AION-LRM reasoning memory snapshot preview implemented and targeted tests passing.}
+
+\subsection{Purpose}
+
+Phase 20B adds the first AION-LRM memory layer above the governed reasoning packet.
+
+The purpose is to preserve structured operational context from a reasoning packet without storing private chain-of-thought, hidden reasoning, credentials, secrets, or live execution authority.
+
+The snapshot is a deterministic, preview-only, human-review-gated memory object.
+
+\subsection{Implemented Module}
+
+\begin{verbatim}
+backend/modules/aion_lrm/reasoning_memory_snapshot.py
+\end{verbatim}
+
+\subsection{Locked Memory Context}
+
+The snapshot captures the following structured context slots:
+
+\begin{verbatim}
+website_intake
+commercial_ticket
+workflow_context
+agentmap_context
+boardroom_context
+proof_context
+ets_context
+\end{verbatim}
+
+These slots allow AION to remember the operational state of a request across website intake, commercial ticketing, workflow preview, AgentMap discovery, Boardroom review, proof, and ETS preview.
+
+\subsection{Deterministic Hash Contract}
+
+The snapshot emits deterministic replay anchors:
+
+\begin{verbatim}
+source_packet_hash
+snapshot_hash
+summary_hash
+\end{verbatim}
+
+The same input packet MUST produce the same snapshot hash.
+
+Meaningful context changes MUST alter the snapshot hash.
+
+Runtime randomness, wall-clock timestamps, credentials, hidden reasoning, and private chain-of-thought MUST NOT be used as identity anchors.
+
+\subsection{Privacy Boundary}
+
+The snapshot MUST NOT store:
+
+\begin{itemize}
+  \item private chain-of-thought,
+  \item hidden reasoning,
+  \item scratchpad content,
+  \item credentials,
+  \item access tokens,
+  \item refresh tokens,
+  \item API keys,
+  \item passwords,
+  \item authorization headers,
+  \item live execution authority.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+Phase 20B is preview-only.
+
+It MUST NOT create:
+
+\begin{itemize}
+  \item bookings,
+  \item payments,
+  \item escrow,
+  \item external messages,
+  \item live chain writes,
+  \item live workflow execution.
+\end{itemize}
+
+Human review remains required.
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+AION Reasoning Memory Snapshot
+website_intake
+commercial_ticket
+workflow_context
+agentmap_context
+boardroom_context
+proof_context
+ets_context
+snapshot_hash
+summary_hash
+preview-only
+human review
+no booking
+no payment
+no escrow
+no external message
+no live chain
+Tessaris AI
+Kevin Robinson
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20b_reasoning_memory_snapshot_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_reasoning_memory_snapshot_lock_doc.py
+
+python -m compileall backend/modules/aion_lrm
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20B-REASONING-MEMORY-SNAPSHOT-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

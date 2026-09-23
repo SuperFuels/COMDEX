@@ -1,0 +1,127 @@
+\section{AION Goal Engine Child-Run Executor Bridge Preview-Bundle Attachment Lock}
+\label{sec:aion-goal-engine-child-run-executor-bridge-preview-bundle-attachment-lock}
+
+\subsection{Status}
+
+The Goal Engine preview bundle now exposes child-run executor bridge packets through the canonical dry-run and Boardroom-visible preview-bundle carrier.
+
+\begin{quote}
+\textbf{Status: LOCKED --- focused Goal Engine lock suite passing with 472 tests.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Validation result:
+
+\begin{verbatim}
+472 passed
+\end{verbatim}
+
+\subsection{Purpose}
+
+This lock makes the child-run executor bridge visible to the dry-run and Boardroom surfaces without allowing autonomous execution.
+
+The bridge packet remains a guarded handoff packet for the existing Workflow Capsule runtime. It is not itself an executor. It does not create workflow runs, write externally, mutate business state, or grant permissions.
+
+\subsection{Canonical Preview-Bundle Fields}
+
+The canonical runtime summary is exposed under:
+
+\begin{verbatim}
+child_run_executor_bridge_runtime_summary
+\end{verbatim}
+
+The compatibility alias is exposed under:
+
+\begin{verbatim}
+workflow_run_creation_bridge_runtime_summary
+\end{verbatim}
+
+The packet list is exposed under:
+
+\begin{verbatim}
+child_run_executor_bridge_packets
+workflow_run_creation_bridge_packets
+\end{verbatim}
+
+The same fields are also mirrored into:
+
+\begin{verbatim}
+machine_trace
+\end{verbatim}
+
+This allows Boardroom, dry-run result renderers, and replay tooling to inspect approved child-run creation packets without depending on the runtime executor directly.
+
+\subsection{Runtime Summary Contract}
+
+The runtime summary uses schema version:
+
+\begin{verbatim}
+aion.goal_engine.child_run_executor_bridge_runtime_summary.v1
+\end{verbatim}
+
+and trace type:
+
+\begin{verbatim}
+child_run_executor_bridge_runtime_summary
+\end{verbatim}
+
+It MUST include:
+
+\begin{itemize}
+  \item \texttt{bridge\_packet\_count}
+  \item \texttt{workflow\_run\_creation\_allowed\_count}
+  \item \texttt{blocked\_bridge\_packet\_count}
+  \item \texttt{child\_run\_executor\_bridge\_packets}
+  \item \texttt{workflow\_run\_creation\_bridge\_packets}
+  \item \texttt{dry\_run\_only}
+  \item \texttt{would\_execute}
+  \item \texttt{would\_write\_external}
+  \item \texttt{would\_grant\_permission}
+  \item \texttt{would\_mutate\_business\_state}
+  \item \texttt{requires\_existing\_workflow\_runtime}
+\end{itemize}
+
+\subsection{Safety Invariants}
+
+The preview-bundle attachment MUST preserve the following invariants:
+
+\begin{verbatim}
+dry_run_only = true
+would_execute = false
+would_write_external = false
+would_grant_permission = false
+would_mutate_business_state = false
+\end{verbatim}
+
+\begin{itemize}
+  \item \texttt{dry\_run\_only = true}
+  \item \texttt{would\_execute = false}
+  \item \texttt{would\_write\_external = false}
+  \item \texttt{would\_grant\_permission = false}
+  \item \texttt{would\_mutate\_business\_state = false}
+\end{itemize}
+
+The preview bundle MAY show that a Workflow Capsule runtime can consume a packet, but it MUST NOT execute that packet.
+
+\subsection{Locked Files}
+
+\begin{verbatim}
+backend/modules/aion/goal_engine/preview_bundle.py
+backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge_preview_bundle_attachment.py
+docs/rfc/aion_goal_engine_child_run_executor_bridge_preview_bundle_attachment_lock.tex
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-CHILD-RUN-EXECUTOR-BRIDGE-PREVIEW-BUNDLE-ATTACHMENT-v1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

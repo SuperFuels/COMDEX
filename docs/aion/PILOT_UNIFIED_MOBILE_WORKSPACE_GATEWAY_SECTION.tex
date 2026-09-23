@@ -1,0 +1,64 @@
+\section{Provider-Independent Workspace Gateway}
+\label{sec:pilot-mobile-workspace-gateway}
+
+Pilot's mobile Workspace and Boardroom modes use a provider-independent gateway rather
+than copying the business platform into the phone.  The authoritative Boardroom,
+customer-selected workspace service, or later enterprise system retains its records.
+The mobile application receives only a bounded projection that the active membership
+permits.
+
+\subsection{Architecture}
+
+The gateway has three explicit inputs: a registered provider adapter, a canonical
+workspace binding, and an independently issued membership.  A provider adapter exposes
+only workspace discovery, workspace description, and named read surfaces.  The gateway
+normalizes each provider workspace into the shared \texttt{SpaceRef} contract and binds
+it to an opaque provider reference.  It does not persist the provider's dashboards,
+files, decisions, agents, or business records.
+
+When a phone requests a surface, the gateway performs the following sequence:
+
+\begin{enumerate}
+  \item identify the person from the signed phone session;
+  \item resolve the exact membership identifier supplied by that session;
+  \item reject a missing, suspended, expired, cross-person, or unbound membership;
+  \item require either the named scope, such as
+        \texttt{workspace.files.read}, or the bounded general
+        \texttt{workspace.read} scope;
+  \item request only the named surface from the registered provider;
+  \item validate the returned shape and size;
+  \item return the provider revision, retrieval time, projection hash, and an explicit
+        statement that the provider remains the source of truth.
+\end{enumerate}
+
+The first supported surface vocabulary is deliberately small: overview, briefings,
+departments, agents, dashboards, files, packages, and decisions.  Unknown surfaces fail
+closed.  The gateway limits provider count, membership count, scope count, workspace
+discovery results, and projected response size to prevent an adapter from converting a
+mobile request into unbounded enumeration.
+
+\subsection{Isolation and replaceability}
+
+A person can hold memberships in multiple unrelated workspaces.  Each request names one
+membership and consequently one space and provider reference.  Authority from one client
+cannot be reused for another client, and a workspace administrator receives no implied
+access to the participant's Personal Pilot.  Provider adapters are replaceable: the same
+mobile contracts can project the existing AION Boardroom, a customer-hosted workspace,
+or a future enterprise integration without changing the application identity model.
+
+The gateway does not infer permission from provider visibility and does not manufacture
+membership during discovery.  Discovery creates only a binding.  Membership issuance,
+invitations, signed manifests, expiry, role changes, and revocation are separate governed
+stages.  This separation prevents a visible workspace or a permissive upstream API from
+silently becoming mobile authority.
+
+\subsection{Verification}
+
+Automated acceptance tests prove that a valid member can retrieve a permitted Boardroom
+projection, file-only membership cannot read briefings, unsupported surfaces never reach
+the provider, wrong-person and suspended memberships are denied, expired memberships are
+denied, and two client workspaces remain isolated.  The tests also confirm that results
+identify the owning provider as the source of truth and carry a deterministic projection
+hash.  This closes \texttt{MOB-0601}; signed workspace manifests are introduced by the
+next build task.
+

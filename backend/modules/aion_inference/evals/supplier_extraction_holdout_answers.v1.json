@@ -1,0 +1,21 @@
+{
+  "schema_version":"aion.supplier_extraction_holdout_answers.v1",
+  "answers":{
+    "seh-v-01":{"supplier_name":"Cedar Labs BV","invoice_reference":"CL-442","payment_amount":"EUR 640.25"},
+    "seh-v-02":{"supplier_name":"Amber Field Ltd","invoice_reference":"AF-9012","payment_amount":"GBP 77.30"},
+    "seh-v-03":{"supplier_name":"Pino Norte SL","invoice_reference":"PN-73","payment_amount":"EUR 2180.00"},
+    "seh-v-04":{"supplier_name":"Delta Forge Inc","invoice_reference":"DF-118","payment_amount":"USD 905.44"},
+    "seh-v-05":{"supplier_name":"Kestrel Timber GmbH","invoice_reference":"KT-220","payment_amount":"GBP 331.19"},
+    "seh-v-06":{"supplier_name":"Orbital Paper SA","invoice_reference":"ORB-5521","payment_amount":"EUR 12005.70"},
+    "seh-v-07":{"supplier_name":"Sierra Azul Servicios","invoice_reference":"SA-88","payment_amount":"EUR 499.95"},
+    "seh-v-08":{"supplier_name":"Frost Line AB","invoice_reference":"FL-670","payment_amount":"SEK 7620.10"},
+    "seh-v-09":{"supplier_name":"Pine & Reed Limited","invoice_reference":"PR-410","payment_amount":"GBP 54.80"},
+    "seh-v-10":{"supplier_name":"Brisa Solar SL","invoice_reference":"BS-909","payment_amount":"EUR 1440.00"},
+    "seh-v-11":{"supplier_name":"Copper Trail BV","invoice_reference":"CT-64","payment_amount":"USD 308.12"},
+    "seh-v-12":{"supplier_name":"Norr Data AB","invoice_reference":"ND-301","payment_amount":"SEK 990.50"},
+    "seh-v-13":{"supplier_name":"Green Mill SAS","invoice_reference":"GM-725","payment_amount":"EUR 875.00"},
+    "seh-v-14":{"supplier_name":"Red Oxide LLC","invoice_reference":"RX-8801","payment_amount":"USD 42000.99"},
+    "seh-v-15":{"supplier_name":"West Lake PLC","invoice_reference":"WL-92","payment_amount":"GBP 126.40"},
+    "seh-v-16":{"supplier_name":"Valle Blanco SA","invoice_reference":"VB-771","payment_amount":"EUR 6875.35"}
+  }
+}

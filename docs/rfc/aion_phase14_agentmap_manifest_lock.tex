@@ -1,0 +1,130 @@
+\section{Phase 14A --- AgentMap Machine Metadata Manifest Lock}
+\label{sec:phase14-agentmap-manifest-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- AgentMap machine metadata manifest v0 is implemented with deterministic hashing and preview-only safety boundaries.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 14 introduces the machine-readable discovery layer for AION business twins.
+
+The AgentMap is the machine-facing equivalent of a website sitemap. A sitemap exposes human website structure to crawlers. An AgentMap exposes safe business capabilities, metadata, adapters, and discovery endpoints to external agents.
+
+\subsection{Locked Contract}
+
+The Phase 14A manifest MUST expose:
+
+\begin{itemize}
+  \item \texttt{agentmap\_version}
+  \item \texttt{business\_id}
+  \item \texttt{business\_name}
+  \item \texttt{vertical\_key}
+  \item \texttt{human\_seo\_metadata}
+  \item \texttt{machine\_a2a\_metadata}
+  \item \texttt{capabilities}
+  \item \texttt{availability}
+  \item \texttt{accepted\_protocols}
+  \item \texttt{authentication}
+  \item \texttt{metadata\_hash}
+  \item \texttt{agentmap\_hash}
+\end{itemize}
+
+Human SEO metadata and machine A2A metadata MUST remain separate.
+
+\subsection{Safety Boundary}
+
+AgentMap generation is discovery-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create bookings;
+  \item capture payments;
+  \item release escrow;
+  \item send email, SMS, WhatsApp, or social posts;
+  \item dispatch jobs;
+  \item perform live chain writes.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_manifest_lock.py
+\end{verbatim}
+
+
+
+\subsection{AgentMap Hash Contract}
+
+The generated machine manifest MUST expose an \texttt{agentmap\_hash} field.
+
+The \texttt{agentmap\_hash} is the deterministic integrity checksum for the public AgentMap read model. It MUST be derived only from canonical machine metadata, capability declarations, adapter declarations, safety flags, schema references, and routing identifiers. It MUST NOT depend on runtime randomness, wall-clock timestamps, live provider state, payment state, booking state, or mutable UI state.
+
+
+
+\subsection{AgentMap Hash Contract}
+
+The AgentMap manifest MUST expose a deterministic \texttt{agentmap_hash}.
+
+The \texttt{agentmap_hash} MUST be computed from canonical AgentMap payload content and MUST NOT depend on runtime randomness, wall-clock timestamps, live provider state, payment state, booking state, external message state, or mutable UI state.
+
+The \texttt{agentmap_hash} is a replay, audit, discovery, and future verification anchor only. It MUST NOT grant permission, create bookings, move money, send messages, execute workflows, or publish a public route.
+
+
+
+\subsection{Required Machine Metadata Terms}
+
+The Phase 14 AgentMap manifest MUST keep \texttt{human_seo_metadata} separate from \texttt{machine_metadata}.
+
+The \texttt{human_seo_metadata} block is for human-facing website metadata such as title and meta description.
+
+The \texttt{machine_metadata} block is for agent-facing capability, protocol, authentication, availability, safety, proof, and route metadata.
+
+The manifest MUST expose \texttt{agentmap_hash}, \texttt{preview_only}, and \texttt{human_review_required} as explicit contract fields.
+
+
+
+\subsection{Human SEO and Machine A2A Metadata Boundary}
+
+The AgentMap manifest MUST keep \texttt{human_seo_metadata} separate from \texttt{machine_a2a_metadata}.
+
+The \texttt{human_seo_metadata} block is for human-facing website metadata such as title, meta description, and website display context.
+
+The \texttt{machine_a2a_metadata} block is for agent-facing capability, protocol, authentication, availability, safety, proof, route, and adapter metadata.
+
+The manifest MUST also expose \texttt{machine_metadata} where needed as a compatibility alias or summary for machine-readable discovery.
+
+The manifest MUST expose \texttt{agentmap_hash}, \texttt{preview_only}, and \texttt{human_review_required} as explicit contract fields.
+
+The \texttt{agentmap_hash} is a replay, audit, discovery, and future verification anchor only. It MUST NOT grant permission, create bookings, move money, send messages, execute workflows, or publish a public route.
+
+
+
+\subsection{Accepted Protocol Metadata}
+
+The AgentMap manifest MUST expose \texttt{accepted_protocols} as part of the machine-readable discovery contract.
+
+The \texttt{accepted_protocols} field tells external agents which preview protocol families the business supports, such as AION A2A preview, machine cart preview, proof receipt preview, and future AgentMap discovery preview.
+
+The \texttt{accepted_protocols} field is metadata only. It MUST NOT enable live negotiation, live booking, payment execution, escrow creation, external messaging, or public status polling.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PHASE14-AGENTMAP-MANIFEST-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
+
+
+\subsection{Deterministic Metadata Hash}
+
+The AgentMap manifest MUST expose a stable \texttt{metadata\_hash} / \texttt{metadata_hash} value for deterministic discovery and replay.
+
+The hash is computed from the canonical machine metadata payload and MUST NOT depend on runtime randomness, wall-clock timestamps, live provider state, payment state, booking state, or mutable UI state.

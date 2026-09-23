@@ -1,0 +1,99 @@
+\section{Persona-Bound Shared Television Workspaces}
+\label{sec:pilot-shared-tv-workspace}
+
+Pilot Fabric 0.48 converts the television from a permanently shared household
+surface into a temporarily acquired personal workspace.  A person's trusted
+phone acts as the possession factor.  The television never stores the phone's
+private key, raw private memory, service credentials, document contents, or
+payment information.
+
+\subsection{Workspace Acquisition}
+
+The user selects a Pilot identity on the private phone and signs a one-time
+Ed25519 acquisition payload containing the persona identifier, trusted-device
+identifier, purpose, and nonce.  The mother brain verifies the signature
+against the previously enrolled public key and rejects reused nonces.  A
+successful acquisition creates one exclusive shared-screen lease containing:
+
+\begin{itemize}
+  \item the active persona and trusted-device identifiers;
+  \item the display name permitted on the shared screen;
+  \item activation and last-activity timestamps;
+  \item a five-minute inactivity deadline; and
+  \item an explicit prohibition on displaying private details by default.
+\end{itemize}
+
+Only one live lease may exist for a television workspace.  A second household
+member cannot silently replace the current user.  They must wait for expiry or
+for the current user to release the screen.  Once free, the next trusted phone
+may acquire it with its own signed payload.
+
+\subsection{Inactivity Lock and Explicit Release}
+
+Accepted television speech and private-controller interactions renew the
+lease for five minutes.  Passive video playback, ambient speech, page polling,
+and mere proximity do not constitute authority.  When the deadline expires,
+the mother brain returns a locked snapshot and withholds persona-specific
+workspace data.
+
+The user may say ``Pilot, log me out of the TV'' or press the phone control
+labelled ``Log this person out of the TV''.  Phone release uses a separately
+signed Ed25519 payload.  Release removes only the shared-screen lease; it does
+not delete the identity, tasks, messages, memories, consents, or device key.
+Lost-device revocation and account recovery also invalidate relevant active
+sessions.
+
+\subsection{Locked and Acquired Home Surfaces}
+
+The locked television retains public household experiences such as Games, AI
+TV, AI Learning, AI Shopping, and God View.  It displays no personal task
+titles, calendar entries, files, messages, or Boardroom material.  It instead
+instructs the user to acquire the screen from a trusted phone.
+
+After acquisition, the home surface clearly names the active person and adds
+five principal workspace tiles:
+
+\begin{description}
+  \item[Tasks] Persona-bound lists, reminders, delegated requests, and safe
+  aggregate counts.
+  \item[Calendar] The active person's schedule and separately approved event
+  proposals.
+  \item[Business] The AION Boardroom and business workspace, subject to an
+  additional business-container login and its own authorization policy.
+  \item[Files] Persona-authorized documents and saved assets; discovery of a
+  filename does not imply permission to open its contents.
+  \item[IoT] Household device discovery, connection state, permissions, rooms,
+  and governed controls.
+\end{description}
+
+The television shows only bounded summaries until the user deliberately opens
+a tile.  Business authentication, provider OAuth, document authority, and IoT
+control leases remain separate capabilities; acquiring the screen cannot
+silently grant them.
+
+\subsection{Enforced Privacy Boundary}
+
+The phone interface previously allowed a persona name to be selected before
+performing an inbox operation.  Version 0.48 makes selection insufficient:
+the selected persona must also hold the current signed television lease.
+Private memory inspection, correction, export, deletion, service-consent
+changes, task creation, task completion, reminders, and agent messages fail
+closed when the requesting persona is not active.  When no lease exists, the
+companion snapshot no longer defaults to the first household identity's
+private export.
+
+Shared-screen task enquiries disclose counts rather than private titles.  A
+spoken request such as ``Pilot, show my task list'' may state the number of open
+or awaiting tasks, while the detailed list remains on the trusted phone unless
+the product later provides a deliberate, short-lived reveal control.
+
+\subsection{Current Boundary and Next Work}
+
+The exclusive lease, timeout, signed release, privacy gates, home tiles, and
+voice logout are locally operational.  The Calendar, Business, Files, and IoT
+tiles are capability entry points rather than claims that every external
+provider is connected.  Production completion still requires native phone
+biometric attestation, per-tile authorization screens, real Boardroom session
+authentication, authorized file-provider adapters, calendar OAuth, and
+multi-television field qualification.
+

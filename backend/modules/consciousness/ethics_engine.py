@@ -32,7 +32,8 @@ SOUL_LAW_PATH = "backend/modules/hexcore/soul_laws.yaml"
 class EthicsEngine:
     """
     Evaluates AION's intended actions against core soul laws.
-    Supports override key for Kevin Robinson.
+    Records owner authorization without allowing it to erase safety, consent,
+    evidence, or legal constraints.
     Tracks violations and emits resonance feedback events.
     """
 
@@ -63,10 +64,10 @@ class EthicsEngine:
             "confidence": 1.0,
         }
 
-        # ✅ Override by Kevin
+        # Owner authorization establishes scope; it is not a bypass around a
+        # block law.  The evaluation therefore continues normally.
         if override_key and override_key == KEVIN_MASTER_KEY:
-            report["result"] = "🛡️ OVERRIDE APPROVED by Kevin Robinson"
-            return report
+            report["owner_authorization_recorded"] = True
 
         # --- Law matching
         for law in self.laws:
@@ -108,6 +109,39 @@ class EthicsEngine:
             self.violation_log.append(report)
 
         return report
+
+    def evaluate_action(self, action: dict) -> dict:
+        """Structured fail-closed action review for the canonical runtime."""
+        description = str(action.get("objective") or action.get("description") or action.get("action") or "")
+        report = self.evaluate(description, override_key=str(action.get("override_key") or ""))
+        reasons = list(report.get("violations") or [])
+        capability = action.get("capability_decision") or {}
+        if isinstance(capability, dict):
+            capability = capability.get("decision") or capability.get("action")
+        if capability in {"learn_then_execute", "clarify", "blocked", "unknown", None}:
+            reasons.append("capability_not_ready")
+        if action.get("requires_consent") and not action.get("consent_granted"):
+            reasons.append("required_consent_missing")
+        risk = str(action.get("risk_tier") or "low").lower()
+        if risk in {"high", "critical"} and action.get("approval_policy") != "human_approved":
+            reasons.append("high_risk_human_approval_missing")
+        blocked = any("VETOED" in str(item) for item in reasons)
+        allowed = not blocked and not {
+            "capability_not_ready", "required_consent_missing",
+            "high_risk_human_approval_missing",
+        }.intersection(reasons)
+        report.update({
+            "allowed": allowed,
+            "decision": "allow_proposal" if allowed else "deny_or_escalate",
+            "reasons": reasons,
+            "proposal_only": True,
+            "owner_authorization_is_not_safety_bypass": True,
+        })
+        return report
+
+    def evaluate_alignment(self, action_description: str) -> float:
+        """Compatibility score; callers must not treat it as authority."""
+        return float(self.evaluate(action_description).get("confidence", 0.0))
 
     # ------------------------------------------------------------
     def evaluate_mutation_text(self, mutation_text: str) -> dict:

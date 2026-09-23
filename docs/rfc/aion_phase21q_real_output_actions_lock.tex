@@ -1,0 +1,93 @@
+\section{Phase 21Q --- Real Output Actions}
+\label{sec:aion-phase21q-real-output-actions}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21Q makes the Pilot result buttons useful while keeping them preview-only.
+
+\subsection{Purpose}
+
+The Pilot dashboard showed result buttons:
+
+\begin{itemize}
+  \item Open output;
+  \item Download output;
+  \item View receipt.
+\end{itemize}
+
+Before this phase, those buttons were visible but did not expose useful output behavior.
+
+\subsection{Output Actions}
+
+\subsubsection{Open Output}
+
+Open output MUST display a readable preview panel for the generated draft output.
+
+The preview content MAY vary by task type, including:
+
+\begin{itemize}
+  \item growth or social plan;
+  \item spreadsheet draft;
+  \item website preview plan;
+  \item advertising campaign preview;
+  \item document draft;
+  \item generic draft output.
+\end{itemize}
+
+\subsubsection{Download Output}
+
+Download output MUST prepare a draft preview file for the user.
+
+The download MUST be local and preview-only.
+
+\subsubsection{View Receipt}
+
+View receipt MUST display a readable receipt containing:
+
+\begin{itemize}
+  \item task;
+  \item task type;
+  \item output type;
+  \item blocked actions;
+  \item artifact hash;
+  \item receipt hash;
+  \item replay hash;
+  \item proof hash;
+  \item safety message.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+Phase 21Q MUST NOT execute live external actions.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item send messages or emails;
+  \item post publicly;
+  \item deploy;
+  \item spend money;
+  \item book or dispatch;
+  \item create escrow;
+  \item mutate reputation;
+  \item expose credentials;
+  \item call raw tools.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21q_real_output_actions_ui_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21Q-REAL-OUTPUT-ACTIONS
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "aion.business_map_trust_anchors.v1",
+  "anchors": [
+    {
+      "key_id": "ed25519:sha256:06fa1fec295ce9636b15ae145181db7b67a8f80477dbb95fe365b1be0cb4a210",
+      "algorithm": "Ed25519",
+      "public_key_base64": "VCm+Ocx1iUDdNEmjjGotyct07Li6X8CtSSo+2a8WheA=",
+      "trust_scope": "local Boardroom Business Map prototype cartridges",
+      "identity_assurance": "operator-installed prototype trust anchor; not an external identity attestation"
+    }
+  ]
+}

@@ -1,0 +1,323 @@
+.pilot-team-panel {
+  margin: 0 0 20px;
+  padding: 20px;
+  border: 1px solid rgba(68, 88, 112, .28);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(250, 248, 241, .98), rgba(238, 244, 241, .96));
+  color: #17222e;
+  box-shadow: 0 14px 34px rgba(24, 38, 54, .08);
+}
+.pilot-team-overlay {
+  position: fixed;
+  z-index: 1200;
+  top: 116px;
+  right: 0;
+  bottom: 0;
+  left: 50px;
+  box-sizing: border-box;
+  margin: 0;
+  overflow: auto;
+  border-radius: 0;
+  background: #f5f8fa;
+  box-shadow: 0 -8px 30px rgba(24, 38, 54, .12);
+}
+.pilot-team-header-toggle-host {
+  position: absolute !important;
+  top: 50% !important;
+  right: 18px !important;
+  transform: translateY(-50%) !important;
+  z-index: 3 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  height: 30px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+.pilot-team-header-toggle-host [data-pilot-team-header-toggle] {
+  height: 28px !important;
+  min-width: 126px !important;
+  padding: 0 14px !important;
+  border: 1px solid rgba(31,31,31,.28) !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #1f1f1f !important;
+  font: 800 10px/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+}
+.pilot-team-header-toggle-host [data-pilot-team-header-toggle]:hover,
+.pilot-team-header-toggle-host [data-pilot-team-header-toggle]:focus-visible {
+  border-color: #0f766e;
+  color: #0f766e;
+  outline: 2px solid rgba(15,118,110,.18);
+  outline-offset: 2px;
+}
+.pilot-team-heading,
+.pilot-team-actions,
+.pilot-capsule-card header,
+.pilot-capsule-card footer,
+.pilot-department-computer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pilot-team-heading h2 { margin: 4px 0 6px; font-size: 24px; }
+.pilot-team-heading p,
+.pilot-team-workbench p { margin: 0; color: #607080; line-height: 1.45; }
+.pilot-team-actions { flex-wrap: wrap; }
+.pilot-team-actions button,
+.pilot-capsule-card button,
+.pilot-team-workbench button,
+.pilot-department-computer button {
+  border: 1px solid rgba(40, 71, 93, .25);
+  border-radius: 10px;
+  background: #fff;
+  color: #203546;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+.pilot-team-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+.pilot-team-metrics article {
+  padding: 13px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.78);
+  border: 1px solid rgba(52, 78, 96, .14);
+}
+.pilot-team-metrics strong { display: block; font-size: 21px; }
+.pilot-team-metrics span { display: block; margin-top: 3px; font-size: 11px; color: #687786; text-transform: uppercase; }
+.pilot-capsule-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.pilot-capsule-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 14px;
+  border: 1px solid rgba(49, 76, 94, .15);
+  border-radius: 13px;
+  background: rgba(255,255,255,.72);
+}
+.pilot-capsule-card header span { font-weight: 800; text-transform: capitalize; }
+.pilot-capsule-card header b { font-size: 10px; text-transform: uppercase; color: #1e7258; }
+.pilot-capsule-card header b.human { color: #9b5b17; }
+.pilot-capsule-card p { margin: 10px 0 3px; font-size: 12px; color: #5e6e7a; }
+.pilot-capsule-card small { display: block; margin-bottom: 12px; color: #7d8992; }
+.pilot-capsule-activity {
+  display: grid;
+  min-height: 58px;
+  gap: 3px;
+  margin: 0 0 10px;
+  padding: 9px 10px;
+  border: 1px solid rgba(49, 76, 94, .14);
+  border-radius: 9px;
+  background: rgba(244, 247, 248, .88);
+}
+.pilot-capsule-activity b { font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: #71808b; }
+.pilot-capsule-activity span { font-size: 11px; line-height: 1.35; color: #596a77; }
+.pilot-capsule-activity.active { border-color: rgba(30, 114, 88, .28); background: rgba(232, 245, 239, .8); }
+.pilot-capsule-activity.active b { color: #1e7258; }
+.pilot-capsule-card > footer { margin-top: auto; }
+.pilot-capsule-card > footer button { min-width: 0; flex: 1; }
+.pilot-capsule-teaching {
+  display: grid;
+  gap: 7px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(49, 76, 94, .16);
+}
+.pilot-capsule-teaching > strong { min-height: 34px; font-size: 13px; line-height: 1.25; }
+.pilot-capsule-teaching input,
+.pilot-capsule-teaching button {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(49, 76, 94, .22);
+  border-radius: 8px;
+  background: #fff;
+  color: #1c2f3d;
+  padding: 9px;
+}
+.pilot-capsule-teaching button { font-weight: 800; }
+.pilot-capsule-teaching button:disabled { cursor: not-allowed; opacity: .5; }
+.pilot-team-workbench {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+.pilot-team-workbench.pilot-mission-workbench { grid-template-columns: 1fr; }
+.pilot-team-workbench > section {
+  padding: 16px;
+  border: 1px solid rgba(49, 76, 94, .16);
+  border-radius: 14px;
+  background: rgba(255,255,255,.74);
+}
+.pilot-team-workbench h3 { margin: 5px 0 12px; }
+.pilot-team-fields { display: grid; grid-template-columns: 145px 1fr 1fr; gap: 8px; }
+.pilot-team-fields input,
+.pilot-team-fields select,
+.pilot-team-workbench textarea {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(49, 76, 94, .22);
+  border-radius: 9px;
+  background: #fff;
+  padding: 10px;
+  color: #1c2f3d;
+}
+.pilot-team-workbench textarea { min-height: 72px; resize: vertical; }
+.pilot-team-workbench button { margin-top: 12px; }
+.pilot-routine-builder {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid rgba(49, 76, 94, .16);
+  border-radius: 14px;
+  background: rgba(255,255,255,.74);
+}
+.pilot-routine-builder h3 { margin: 5px 0 12px; }
+.pilot-routine-builder p { margin: 10px 0 0; color: #607080; line-height: 1.45; }
+.pilot-routine-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 8px;
+}
+.pilot-workflow-routine-fields {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(220px, 1.4fr) minmax(170px, 1fr) minmax(180px, 1fr) auto;
+  gap: 8px;
+  align-items: stretch;
+}
+.pilot-workflow-routine-fields > input,
+.pilot-workflow-routine-fields > select,
+.pilot-workflow-routine-fields > button,
+.pilot-workflow-interval input,
+.pilot-workflow-interval select {
+  box-sizing: border-box;
+  min-width: 0;
+  border: 1px solid rgba(49, 76, 94, .22);
+  border-radius: 9px;
+  background: #fff;
+  padding: 10px;
+  color: #1c2f3d;
+}
+.pilot-workflow-routine-fields > button { cursor: pointer; font-weight: 700; }
+.pilot-workflow-interval { display: grid; grid-template-columns: 72px 1fr; gap: 6px; }
+.pilot-routine-fields input,
+.pilot-routine-fields select,
+.pilot-routine-fields button {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(49, 76, 94, .22);
+  border-radius: 9px;
+  background: #fff;
+  padding: 10px;
+  color: #1c2f3d;
+}
+.pilot-routine-fields button { cursor: pointer; font-weight: 700; }
+.pilot-routine-interval {
+  display: grid;
+  grid-template-columns: auto 72px minmax(92px, 1fr);
+  gap: 6px;
+  align-items: center;
+  border: 1px solid rgba(49, 76, 94, .22);
+  border-radius: 9px;
+  background: #fff;
+  padding-left: 10px;
+  color: #607080;
+}
+.pilot-routine-interval input,
+.pilot-routine-interval select { border: 0; border-left: 1px solid rgba(49, 76, 94, .14); border-radius: 0; }
+.pilot-routine-output-instructions { grid-column: span 2; }
+.pilot-routine-access-summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(49, 76, 94, .13);
+  border-radius: 10px;
+  background: rgba(246, 249, 247, .94);
+  color: #425866;
+}
+.pilot-routine-access-summary small { grid-column: 2; color: #74828c; }
+.pilot-team-receipt { font-size: 11px; color: #557064; }
+.pilot-mission-list { margin-top: 16px; display: grid; gap: 8px; }
+.pilot-mission-row {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid rgba(49, 76, 94, .15);
+  border-radius: 12px;
+  background: rgba(255,255,255,.7);
+}
+.pilot-mission-row div { display: grid; gap: 4px; }
+.pilot-mission-row .pilot-skill-details { flex: 1 1 360px; min-width: 220px; }
+.pilot-skill-details label { display: grid; gap: 5px; color: #536774; font-size: 11px; font-weight: 700; }
+.pilot-skill-details input,
+.pilot-skill-details textarea {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(49, 76, 94, .22);
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px 10px;
+  color: #1c2f3d;
+  font: inherit;
+}
+.pilot-skill-details textarea { min-height: 62px; resize: vertical; }
+.pilot-mission-row p { margin: 3px 0; color: #536774; line-height: 1.4; }
+.pilot-mission-row .pilot-mission-reason { color: #985b1d; }
+.pilot-assignment-chips { display: flex !important; flex-wrap: wrap; gap: 5px !important; margin-top: 4px; }
+.pilot-assignment-chips span { padding: 4px 6px; border-radius: 999px; background: #eef3f3; color: #49606a; font-size: 10px; }
+.pilot-mission-row small { color: #6e7c87; }
+.pilot-mission-row footer { display: flex; gap: 7px; flex-wrap: wrap; }
+.pilot-mission-row button {
+  border: 1px solid rgba(40, 71, 93, .22);
+  border-radius: 8px;
+  background: #fff;
+  color: #203546;
+  padding: 7px 9px;
+  cursor: pointer;
+}
+.pilot-mission-row .pilot-skill-delete { color: #8b3e36; border-color: rgba(139, 62, 54, .28); }
+.pilot-team-message { margin: 12px 0; padding: 10px 12px; border-radius: 10px; background: #e8f5ef; color: #1f624c; }
+.pilot-team-message.error { background: #fff0ed; color: #963f33; }
+.pilot-team-empty { padding: 18px; border: 1px dashed rgba(49, 76, 94, .28); border-radius: 12px; color: #687786; }
+.pilot-department-computer {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(57, 92, 113, .2);
+  border-radius: 12px;
+  background: rgba(246, 249, 247, .94);
+}
+.pilot-department-computer div { display: grid; gap: 2px; margin-right: auto; }
+.pilot-department-computer span { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #6a7a86; }
+.pilot-department-computer small { color: #74828c; }
+@media (max-width: 900px) {
+  .pilot-team-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pilot-capsule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pilot-team-workbench { grid-template-columns: 1fr; }
+  .pilot-team-fields { grid-template-columns: 1fr; }
+  .pilot-routine-fields { grid-template-columns: 1fr 1fr; }
+  .pilot-team-heading { align-items: flex-start; flex-direction: column; }
+}
+@media (max-width: 560px) {
+  .pilot-capsule-grid { grid-template-columns: 1fr; }
+  .pilot-routine-fields { grid-template-columns: 1fr; }
+  .pilot-workflow-routine-fields { grid-template-columns: 1fr; }
+}

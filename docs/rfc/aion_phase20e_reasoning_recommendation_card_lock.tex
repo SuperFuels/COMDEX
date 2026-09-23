@@ -1,0 +1,144 @@
+\section{Phase 20E --- Reasoning Recommendation Card v0}
+\label{sec:phase20e-reasoning-recommendation-card-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- reasoning recommendation card preview added for governed Boardroom recommendations.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20E turns the AION LRM reasoning replay chain into a clear Boardroom-facing recommendation card.
+
+Phase 20A created the governed reasoning packet.
+
+Phase 20B created the reasoning memory snapshot.
+
+Phase 20C created the reasoning replay trace.
+
+Phase 20D exposed the replay trace as a Boardroom-visible panel.
+
+Phase 20E now creates the operator-facing recommendation surface that explains what AION recommends, why it recommends it, what evidence supports it, what blockers remain, and what human review is required.
+
+\subsection{Implemented Module}
+
+\begin{verbatim}
+backend/modules/aion_lrm/reasoning_recommendation_card.py
+\end{verbatim}
+
+The module exposes:
+
+\begin{verbatim}
+REASONING_RECOMMENDATION_CARD_VERSION
+build_reasoning_recommendation_card
+build_default_home_fixed_reasoning_recommendation_card
+\end{verbatim}
+
+\subsection{Recommendation Contract}
+
+The recommendation card includes:
+
+\begin{itemize}
+  \item recommendation id,
+  \item recommendation label,
+  \item requested recommendation,
+  \item confidence,
+  \item recommended next step,
+  \item operator action,
+  \item execution status,
+  \item evidence support,
+  \item blockers,
+  \item safety flags,
+  \item deterministic card hash,
+  \item deterministic summary hash.
+\end{itemize}
+
+The default Home Fixed recommendation is:
+
+\begin{quote}
+Proceed to human review with guarded workflow preview.
+\end{quote}
+
+\subsection{Evidence and Proof Linkage}
+
+The recommendation card links back to:
+
+\begin{itemize}
+  \item governed reasoning packet hash,
+  \item memory snapshot hash,
+  \item replay trace hash,
+  \item Boardroom replay panel hash,
+  \item evidence hashes,
+  \item proof hashes,
+  \item context hashes.
+\end{itemize}
+
+The recommendation is therefore not a free-floating answer. It is anchored to the governed packet, memory snapshot, replay trace, and proof/evidence context.
+
+\subsection{Private Reasoning Boundary}
+
+The recommendation card MUST NOT expose private chain-of-thought, hidden reasoning, credentials, access tokens, API keys, passwords, or secrets.
+
+The card may expose policy booleans proving that private reasoning and credentials were not exposed.
+
+\subsection{Safety Boundary}
+
+The recommendation card is preview-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item grant permission,
+  \item create a booking,
+  \item create a payment,
+  \item create escrow,
+  \item send an external message,
+  \item execute a workflow,
+  \item write live chain data,
+  \item bypass human review.
+\end{itemize}
+
+The card may recommend that a human operator reviews a workflow preview, but it cannot approve or perform the action itself.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20e_reasoning_recommendation_card_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_reasoning_recommendation_card_lock_doc.py
+
+python -m compileall backend/modules/aion_lrm
+\end{verbatim}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+Phase 20E
+Reasoning Recommendation Card
+governed packet
+memory snapshot
+replay trace
+evidence
+proof
+context hashes
+private chain-of-thought
+preview-only
+human review
+no booking
+no payment
+no escrow
+no external message
+no live chain
+Tessaris AI
+Kevin Robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20E-REASONING-RECOMMENDATION-CARD-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

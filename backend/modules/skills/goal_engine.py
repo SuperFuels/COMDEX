@@ -1,16 +1,8 @@
-#!/usr/bin/env python3
+# backend/modules/skills/goal_engine.py
 """
-🎯 GoalEngine - Phase 55 Resonant Convergence Edition (Unified)
-──────────────────────────────────────────────────────────────
-Integrates goals, awareness traces, and milestones with:
-  * Resonant Memory Cache (RMC) coupling
-  * GSI-weighted prioritization
-  * Tessaris + Photon Language triggers
-  * Auto-healing persistence + entropy decay
-  * Knowledge-Graph + WebSocket broadcasting
-  * Shared persistence across StrategyPlanner + GoalTaskManager
+Goal engine (skills/goal_engine).
 
-IMPORTANT (Dev sanity):
+IMPORTANT (sanity):
   - This module MUST NOT start background heartbeat loops on import by default.
   - Enable resonance/heartbeat explicitly via env vars:
       GLYPH_GOAL_ENGINE_RESONANCE=1          # enable resonance subsystem
@@ -61,15 +53,21 @@ def get_goal_engine_kg_writer():
 
 
 # ============================================================
-# ⚙️ Persistent Paths (Unified)
+# ⚙️ Persistent Paths (LOCAL SAFE) — NO /workspaces
 # ============================================================
-DEFAULT_GOAL_FILE = Path(
-    os.getenv("GLYPH_GOAL_FILE", "/workspaces/COMDEX/data/goals/goal_engine_data.json")
-)
-DEFAULT_LOG_FILE = Path(
-    os.getenv("GLYPH_GOAL_LOG_FILE", "/workspaces/COMDEX/data/goals/goal_skill_log.json")
-)
-DEFAULT_GOAL_FILE.parent.mkdir(parents=True, exist_ok=True)
+def _repo_root() -> Path:
+    # goal_engine.py -> backend/modules/skills/goal_engine.py
+    return Path(__file__).resolve().parents[3]
+
+
+DATA_ROOT = Path(os.getenv("TESSARIS_DATA_ROOT", str(_repo_root() / "data"))).resolve()
+GOALS_DIR = DATA_ROOT / "goals"
+DEFAULT_GOAL_FILE = GOALS_DIR / "goals.json"
+
+# Keep log next to the goal file by default
+DEFAULT_LOG_FILE = GOALS_DIR / "goal_skill_log.json"
+
+GOALS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _utc_now_iso() -> str:
@@ -135,6 +133,14 @@ class GoalEngine:
         self._last_goal_save_ts = 0.0
         self._last_broadcast_ts = 0.0
 
+        # ---------------------------------------------------------
+        # 🆕 FIELD / REWARD STATE (ADDITIVE ONLY; NON-BREAKING)
+        # ---------------------------------------------------------
+        self._last_field_state: Optional[Dict[str, Any]] = None
+        self._last_field_reward: float = 0.0
+        self._last_goal_suggestions: List[str] = []
+        self._last_reinforcement_event: Optional[Dict[str, Any]] = None
+
         if self.resonance_enabled:
             try:
                 self.rmc = ResonantMemoryCache()
@@ -144,7 +150,10 @@ class GoalEngine:
                 if self._autostart_resonance:
                     self.start_resonance()
                 else:
-                    log.info("🧠 GoalEngine resonance enabled (heartbeat NOT started; set GLYPH_GOAL_ENGINE_AUTOSTART=1 to autostart).")
+                    log.info(
+                        "🧠 GoalEngine resonance enabled (heartbeat NOT started; set "
+                        "GLYPH_GOAL_ENGINE_AUTOSTART=1 to autostart)."
+                    )
             except Exception as e:
                 # Never crash app on init
                 self.rmc = None
@@ -176,7 +185,6 @@ class GoalEngine:
         if hb is None or not self._heartbeat_started:
             return
         try:
-            # ResonanceHeartbeat may or may not expose stop(); be defensive.
             stop_fn = getattr(hb, "stop", None)
             if callable(stop_fn):
                 stop_fn()
@@ -200,13 +208,12 @@ class GoalEngine:
     def load_goals(self):
         try:
             if self.goal_file.exists():
-                with self.goal_file.open("r") as f:
+                with self.goal_file.open("r", encoding="utf-8") as f:
                     data = json.load(f)
                 self.goals = data.get("goals", []) or []
                 self.completed = data.get("completed", []) or []
                 log.info(f"📂 Loaded {len(self.goals)} goals from {self.goal_file}")
             else:
-                # Do NOT auto-create or save on missing file (prevents spam on fresh boots)
                 self.goals, self.completed = [], []
                 log.info(f"ℹ️ No goal file at {self.goal_file} (starting empty).")
         except Exception as e:
@@ -224,7 +231,7 @@ class GoalEngine:
             if not force and not self.goals:
                 return
             self.goal_file.parent.mkdir(parents=True, exist_ok=True)
-            with self.goal_file.open("w") as f:
+            with self.goal_file.open("w", encoding="utf-8") as f:
                 json.dump({"goals": self.goals, "completed": self.completed}, f, indent=2)
         except Exception as e:
             log.warning(f"⚠️ Failed to save goals: {e}")
@@ -232,7 +239,7 @@ class GoalEngine:
     def load_log(self):
         try:
             if self.log_file.exists():
-                with self.log_file.open("r") as f:
+                with self.log_file.open("r", encoding="utf-8") as f:
                     self.log = json.load(f)
             else:
                 self.log = []
@@ -242,7 +249,7 @@ class GoalEngine:
     def save_log(self):
         try:
             self.log_file.parent.mkdir(parents=True, exist_ok=True)
-            with self.log_file.open("w") as f:
+            with self.log_file.open("w", encoding="utf-8") as f:
                 json.dump(self.log, f, indent=2)
         except Exception as e:
             log.warning(f"⚠️ Failed to save goal log: {e}")
@@ -260,6 +267,24 @@ class GoalEngine:
         ]
         actives.sort(key=lambda g: g.get("priority", 0), reverse=True)
         return actives
+
+    def select_governed_goal(self) -> Optional[Dict[str, Any]]:
+        """Select work by explicit authority and verified dependency state."""
+        candidates = []
+        for goal in self.get_active_goals():
+            approval = str(goal.get("approval_policy") or "proposal_only")
+            if approval not in {"proposal_only", "autonomous_allowed", "human_approved", "human_approval_required"}:
+                continue
+            score = float(goal.get("priority") or 0.0)
+            score += 1.0 if approval in {"autonomous_allowed", "human_approved"} else 0.0
+            score += 0.6 if goal.get("next_outcome_due") or goal.get("deadline") else 0.0
+            score += 0.4 if goal.get("blocks_other_goals") else 0.0
+            score -= 0.8 if goal.get("status") in {"blocked", "waiting_authority"} else 0.0
+            candidates.append((score, goal))
+        if not candidates:
+            return None
+        _, selected = max(candidates, key=lambda row: (row[0], str(row[1].get("name") or "")))
+        return {**selected, "selection_authority": "goal_contract_and_verified_dependencies"}
 
     def mark_complete(self, goal_name, **meta):
         for g in self.goals:
@@ -341,6 +366,229 @@ class GoalEngine:
         return goal
 
     # ---------------------------------------------------------
+    # 🆕 FIELD TELEMETRY → GOALS (ADDITIVE; NON-BREAKING)
+    # ---------------------------------------------------------
+    def ingest_field_state(self, telemetry: Dict[str, Any], auto_assign: bool = False) -> List[str]:
+        """
+        Convert field telemetry into goal suggestions.
+
+        This is additive and non-breaking:
+          - caches field telemetry
+          - suggests goal names
+          - only assigns goals if auto_assign=True
+        """
+        try:
+            telemetry = dict(telemetry or {})
+            self._last_field_state = telemetry
+
+            coherence = float(telemetry.get("coherence", 0.5))
+            delta_phi = float(telemetry.get("delta_phi", 0.0))
+            drift = abs(delta_phi)
+            entropy = float(telemetry.get("entropy", telemetry.get("psi", 0.5)))
+            self_awareness = float(telemetry.get("self_awareness", 0.5))
+            global_coherence = float(
+                telemetry.get(
+                    "global_coherence",
+                    telemetry.get("global_coherence_score", coherence),
+                )
+            )
+
+            suggested_goals: List[str] = []
+
+            # Core field stability triggers
+            if drift > 0.20:
+                suggested_goals.append("reduce_drift")
+
+            if coherence < 0.50:
+                suggested_goals.append("increase_coherence")
+
+            if entropy > 0.75:
+                suggested_goals.append("reduce_entropy")
+
+            if self_awareness < 0.25:
+                suggested_goals.append("increase_self_awareness")
+
+            if global_coherence < 0.45:
+                suggested_goals.append("restore_global_coherence")
+
+            # de-dup while preserving order
+            seen = set()
+            deduped: List[str] = []
+            for g in suggested_goals:
+                if g not in seen:
+                    deduped.append(g)
+                    seen.add(g)
+
+            self._last_goal_suggestions = deduped
+
+            if auto_assign:
+                existing_names = {g.get("name") for g in self.goals}
+                for goal_name in deduped:
+                    if goal_name in existing_names:
+                        continue
+
+                    description = {
+                        "reduce_drift": "Reduce field drift and stabilize resonance transitions.",
+                        "increase_coherence": "Increase field coherence and improve symbolic alignment.",
+                        "reduce_entropy": "Lower field entropy and damp unstable symbolic variance.",
+                        "increase_self_awareness": "Improve internal awareness coupling and self-alignment.",
+                        "restore_global_coherence": "Recover global coherence across symbolic and field layers.",
+                    }.get(goal_name, goal_name.replace("_", " ").capitalize())
+
+                    try:
+                        self.assign_goal(
+                            {
+                                "name": goal_name,
+                                "description": description,
+                                "priority": 1.0,
+                                "reward": 1.0,
+                                "dependencies": [],
+                                "created_at": _utc_now_iso(),
+                                "origin": "field_feedback",
+                                "tags": ["field", "telemetry", "homeostasis"],
+                            }
+                        )
+                    except Exception as e:
+                        log.warning(f"⚠️ Failed to auto-assign field goal '{goal_name}': {e}")
+
+            return deduped
+
+        except Exception as e:
+            log.debug(f"[GoalEngine] ingest_field_state failed: {e}")
+            return []
+
+    # ---------------------------------------------------------
+    # 🆕 FIELD REWARD / REINFORCEMENT (ADDITIVE; NON-BREAKING)
+    # ---------------------------------------------------------
+    def compute_field_reward(self, telemetry: Dict[str, Any]) -> float:
+        """
+        Reward heuristic from field telemetry.
+
+        Positive reward:
+          - higher coherence
+          - higher self awareness
+          - lower drift
+          - lower entropy
+
+        Returns bounded float in [-1.0, 1.0].
+        """
+        try:
+            telemetry = dict(telemetry or {})
+            coherence = float(telemetry.get("coherence", 0.5))
+            drift = abs(float(telemetry.get("delta_phi", 0.0)))
+            entropy = float(telemetry.get("entropy", telemetry.get("psi", 0.5)))
+            self_awareness = float(telemetry.get("self_awareness", 0.5))
+
+            reward = (0.45 * coherence) + (0.25 * self_awareness) - (0.20 * drift) - (0.10 * entropy)
+            reward = max(-1.0, min(1.0, round(reward, 4)))
+            self._last_field_reward = reward
+            return reward
+        except Exception as e:
+            log.debug(f"[GoalEngine] reward calc failed: {e}")
+            self._last_field_reward = 0.0
+            return 0.0
+
+    def apply_field_reward(
+        self,
+        telemetry: Dict[str, Any],
+        goal_names: Optional[List[str]] = None,
+        *,
+        persist: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Apply a simple reinforcement step to matching goals.
+
+        Non-breaking:
+          - only updates priority/reward fields on existing goals
+          - does nothing if no matching goals exist
+        """
+        try:
+            reward = self.compute_field_reward(telemetry)
+            target_names = list(goal_names or self._last_goal_suggestions or [])
+            updated: List[Dict[str, Any]] = []
+
+            if not target_names:
+                event = {
+                    "timestamp": _utc_now_iso(),
+                    "reward": reward,
+                    "updated_goals": [],
+                    "reason": "no_target_goals",
+                    "type": "field_reinforcement",
+                }
+                self._last_reinforcement_event = event
+                return event
+
+            target_name_set = set(target_names)
+            for g in self.goals:
+                gname = g.get("name")
+                if gname not in target_name_set:
+                    continue
+
+                current_priority = float(g.get("priority", 1.0))
+                current_reward = float(g.get("reward", 1.0))
+
+                # gentle bounded updates to avoid breaking existing behavior
+                new_priority = max(0.1, min(10.0, round(current_priority + (reward * 0.25), 3)))
+                new_reward = max(0.0, min(10.0, round(current_reward + (reward * 0.25), 3)))
+
+                g["priority"] = new_priority
+                g["reward"] = new_reward
+                g["last_field_reward"] = reward
+                g["last_reinforced_at"] = _utc_now_iso()
+
+                updated.append(
+                    {
+                        "name": gname,
+                        "priority_before": current_priority,
+                        "priority_after": new_priority,
+                        "reward_before": current_reward,
+                        "reward_after": new_reward,
+                    }
+                )
+
+            if updated and persist:
+                self.save_goals(force=True)
+
+            event = {
+                "timestamp": _utc_now_iso(),
+                "reward": reward,
+                "updated_goals": updated,
+                "reason": "field_reinforcement",
+                "type": "field_reinforcement",
+            }
+            self._last_reinforcement_event = event
+            self.log.append(event)
+            self.save_log()
+            return event
+
+        except Exception as e:
+            log.debug(f"[GoalEngine] apply_field_reward failed: {e}")
+            event = {
+                "timestamp": _utc_now_iso(),
+                "reward": 0.0,
+                "updated_goals": [],
+                "reason": f"error:{e}",
+                "type": "field_reinforcement",
+            }
+            self._last_reinforcement_event = event
+            return event
+
+    # ---------------------------------------------------------
+    # 🆕 READ-ONLY ACCESSORS (ADDITIVE; NON-BREAKING)
+    # ---------------------------------------------------------
+    def get_last_field_state(self) -> Optional[Dict[str, Any]]:
+        return self._last_field_state
+
+    def get_last_field_reward(self) -> float:
+        return float(self._last_field_reward)
+
+    def get_last_goal_suggestions(self) -> List[str]:
+        return list(self._last_goal_suggestions)
+
+    def get_last_reinforcement_event(self) -> Optional[Dict[str, Any]]:
+        return self._last_reinforcement_event
+
+    # ---------------------------------------------------------
     # ⚛ Resonance Feedback Loop
     # ---------------------------------------------------------
     def _on_heartbeat(self, pulse: dict):
@@ -366,7 +614,7 @@ class GoalEngine:
                 self.rmc.push_sample(rho=coherence, entropy=entropy, sqi=sqi, delta=delta)
 
                 now = time.time()
-                if now - self._last_rmc_save_ts >= 10.0:  # throttle
+                if now - self._last_rmc_save_ts >= 10.0:
                     self._last_rmc_save_ts = now
                     try:
                         self.rmc.save()
@@ -380,7 +628,7 @@ class GoalEngine:
                     g["priority"] = max(0.1, round(pr * (1.0 - (entropy * 0.02)), 3))
 
                 now = time.time()
-                if now - self._last_goal_save_ts >= 15.0:  # throttle
+                if now - self._last_goal_save_ts >= 15.0:
                     self._last_goal_save_ts = now
                     self.save_goals(force=True)
 
@@ -393,13 +641,10 @@ class GoalEngine:
                         "event": "goal_resonance_update",
                         "data": {"entropy": entropy, "sqi": sqi, "goal_count": len(self.goals)},
                     }
-
-                    # If we're already inside a running loop, schedule it.
                     try:
                         loop = asyncio.get_running_loop()
                         loop.create_task(self._broadcast_ws(ws_payload))
                     except RuntimeError:
-                        # No running loop here; best-effort: skip (don’t create new loops/threads).
                         pass
 
         except Exception as e:
@@ -418,8 +663,6 @@ class GoalEngine:
 GOALS = GoalEngine()
 
 if __name__ == "__main__":
-    # If you explicitly want heartbeat in CLI runs:
-    #   GLYPH_GOAL_ENGINE_RESONANCE=1 GLYPH_GOAL_ENGINE_AUTOSTART=1 python goal_engine.py
     print("🎯 Active Goals:")
     for g in GOALS.get_active_goals():
         print(f"- {g.get('name')} (priority={g.get('priority')}, reward={g.get('reward')})")

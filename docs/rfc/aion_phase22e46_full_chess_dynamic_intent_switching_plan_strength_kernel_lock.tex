@@ -1,0 +1,92 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.46 --- Dynamic Intent Switching \& Plan Strength Evaluation}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.46 adds dynamic intent switching and plan strength evaluation to the live chess stack.
+
+The purpose is to stop AION from staying inside a stale plan after the board state has changed.
+
+\section{Problem}
+
+The Phase 22E.45 live win proved that AION can win a live Level-2 game by mate.
+
+However, the game also showed that AION can remain inside \texttt{initiative\_pressure} after the opening, even when the position may require:
+
+\begin{itemize}
+  \item simplification while ahead;
+  \item direct king safety response;
+  \item opponent plan disruption;
+  \item sharper conversion policy;
+  \item a transition from development to attack.
+\end{itemize}
+
+\section{Rule}
+
+AION SHOULD keep the current intent only while the plan remains strong.
+
+AION SHOULD switch intent when:
+
+\begin{itemize}
+  \item development is complete and \texttt{rapid\_development} should become \texttt{initiative\_pressure};
+  \item material advantage is high enough to justify \texttt{simplify\_when\_ahead};
+  \item king safety pressure requires \texttt{king\_safety};
+  \item opponent threat pressure requires \texttt{neutralise\_critical\_threat};
+  \item the active plan falls below the plan strength threshold.
+\end{itemize}
+
+\section{Scored Signals}
+
+The kernel records:
+
+\begin{verbatim}
+previous_active_intent
+active_intent
+plan_strength_score
+intent_switch_applied
+intent_switch_reason
+opponent_threat_pressure
+material_delta_cp
+development_complete
+king_safety_pressure
+\end{verbatim}
+
+\section{Live Stack Position}
+
+The new live stack is:
+
+\begin{verbatim}
+22E.38 -- Live one-move sender
+  -> 22E.46 -- Dynamic Intent Switching & Plan Strength Evaluation
+    -> 22E.44 -- Proactive Intent Primacy & Plan Enforcement
+      -> 22E.43 -- Anti-Shuffling / Endgame Conversion Guard
+        -> 22E.42 -- Passed Pawn Intent Scope Guard
+          -> 22E.41 -- Queen-First Promotion Guard
+            -> 22E.37 -- Intent-Driven Strategic Well
+\end{verbatim}
+
+\section{Boundary}
+
+This kernel does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E46-FULL-CHESS-DYNAMIC-INTENT-SWITCHING-PLAN-STRENGTH\\
+Status: LOCKED --- dynamic intent switching and plan strength evaluation implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

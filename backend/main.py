@@ -45,6 +45,12 @@ os.environ.setdefault("TESSARIS_DATA_ROOT", DATA_DIR)
 os.environ.setdefault("DATA_ROOT", DATA_DIR)
 
 from fastapi import FastAPI, APIRouter, Request, HTTPException, WebSocket, WebSocketDisconnect
+from backend.api.workflow_architect_router import router as workflow_architect_router
+from backend.api.vault_router import router as vault_router
+from backend.api.boardroom_provider_router import router as boardroom_provider_router
+from backend.api.aion_inference_router import router as aion_inference_router
+from backend.api import workflow_capsule_router
+from backend.api import workflow_glyph_router
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
@@ -247,6 +253,21 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.router.redirect_slashes = False
+
+app.include_router(workflow_capsule_router.router)
+app.include_router(workflow_glyph_router.router)
+app.include_router(workflow_architect_router)
+app.include_router(vault_router)
+app.include_router(boardroom_provider_router)
+app.include_router(aion_inference_router)
+
+RUNTIME_DIR = Path(".runtime").resolve()
+
+app.mount(
+    "/runtime",
+    StaticFiles(directory=str(RUNTIME_DIR)),
+    name="runtime",
+)
 
 @app.get("/health", tags=["Health"])
 def health_check():
@@ -500,6 +521,135 @@ _TRACE_SUBSCRIBED = False
 # Start GHX telemetry poller on app startup (feeds /resonance)
 # ============================================================
 
+
+# ---------------------------------------------------------------------
+# Aion workflow canvas persistence
+# ---------------------------------------------------------------------
+try:
+    from backend.modules.aion_workflow.workflow_glyph_repository import WorkflowGlyphRepository
+    from backend.modules.aion_workflow.workflow_dry_run import dry_run_workflow_glyph
+    from backend.modules.aion_workflow.workflow_approval_repository import WorkflowApprovalRepository
+    from backend.modules.aion_workflow.workflow_resume import resume_workflow_after_approval
+except Exception:
+    WorkflowGlyphRepository = None
+    dry_run_workflow_glyph = None
+    WorkflowApprovalRepository = None
+    resume_workflow_after_approval = None
+
+
+@app.post("/api/aion/workflows/save")
+async def api_aion_workflows_save(payload: dict):
+    if WorkflowGlyphRepository is None:
+        return {"ok": False, "error": "WorkflowGlyphRepository unavailable"}
+
+    repo = WorkflowGlyphRepository()
+    try:
+        return repo.save(payload)
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+
+
+@app.get("/api/aion/workflows/{business_container}/{workflow_id}")
+async def api_aion_workflows_get(business_container: str, workflow_id: str):
+    if WorkflowGlyphRepository is None:
+        return {"ok": False, "error": "WorkflowGlyphRepository unavailable"}
+
+    repo = WorkflowGlyphRepository()
+    record = repo.load(business_container, workflow_id)
+    if record is None:
+        return {"ok": False, "error": "Workflow not found"}
+    return {"ok": True, "workflow": record}
+
+
+@app.post("/api/aion/workflows/{business_container}/{workflow_id}/dry-run")
+async def api_aion_workflows_dry_run(business_container: str, workflow_id: str):
+    if WorkflowGlyphRepository is None or dry_run_workflow_glyph is None:
+        return {"ok": False, "error": "Workflow dry-run unavailable"}
+
+    repo = WorkflowGlyphRepository()
+    record = repo.load(business_container, workflow_id)
+    if record is None:
+        return {"ok": False, "error": "Workflow not found"}
+
+    try:
+        return dry_run_workflow_glyph(workflow_record=record)
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+
+
+@app.post("/api/aion/workflows/{business_container}/{workflow_id}/approvals/{approval_id}/approve")
+async def api_aion_workflows_approval_approve(
+    business_container: str,
+    workflow_id: str,
+    approval_id: str,
+    payload: dict | None = None,
+):
+    if WorkflowApprovalRepository is None:
+        return {"ok": False, "error": "WorkflowApprovalRepository unavailable"}
+
+    repo = WorkflowApprovalRepository()
+    try:
+        record = repo.decide(
+            business_container=business_container,
+            workflow_id=workflow_id,
+            approval_id=approval_id,
+            decision="approved",
+            reason=(payload or {}).get("reason", ""),
+        )
+        return {"ok": True, "approval": record}
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+
+
+@app.post("/api/aion/workflows/{business_container}/{workflow_id}/approvals/{approval_id}/reject")
+async def api_aion_workflows_approval_reject(
+    business_container: str,
+    workflow_id: str,
+    approval_id: str,
+    payload: dict | None = None,
+):
+    if WorkflowApprovalRepository is None:
+        return {"ok": False, "error": "WorkflowApprovalRepository unavailable"}
+
+    repo = WorkflowApprovalRepository()
+    try:
+        record = repo.decide(
+            business_container=business_container,
+            workflow_id=workflow_id,
+            approval_id=approval_id,
+            decision="rejected",
+            reason=(payload or {}).get("reason", ""),
+        )
+        return {"ok": True, "approval": record}
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+
+
+@app.post("/api/aion/workflows/{business_container}/{workflow_id}/approvals/{approval_id}/resume")
+async def api_aion_workflows_approval_resume(
+    business_container: str,
+    workflow_id: str,
+    approval_id: str,
+):
+    if WorkflowGlyphRepository is None or resume_workflow_after_approval is None:
+        return {"ok": False, "error": "Workflow resume unavailable"}
+
+    repo = WorkflowGlyphRepository()
+    record = repo.load(business_container, workflow_id)
+    if record is None:
+        return {"ok": False, "error": "Workflow not found"}
+
+    try:
+        return resume_workflow_after_approval(
+            workflow_record=record,
+            approval_id=approval_id,
+        )
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+
+
+
+
 @app.on_event("startup")
 async def _start_ghx_telemetry():
     try:
@@ -556,6 +706,7 @@ async def custom_redoc():
     return get_redoc_html(openapi_url="/openapi.json", title=f"{app.title} ReDoc")
 
 # ── CORS
+# ── CORS
 from fastapi.responses import Response
 
 ENV = (os.getenv("ENV") or "development").lower()
@@ -572,14 +723,11 @@ ENABLE_DUAL_HEARTBEAT   = _truthy("AION_ENABLE_DUAL_HEARTBEAT", True)
 ENABLE_BOOT_LOADER      = _truthy("AION_ENABLE_BOOT_LOADER", True)
 
 if ALLOW_ALL:
-    # Debug: open to any origin; cannot use credentials with "*"/fully-open regex.
+    # Debug: open to any origin; cannot use credentials with "*" / fully-open regex.
     allow_origins = []
     allow_origin_regex = r"^https?://.*$"
     allow_credentials = False
 else:
-    # Allow common local dev hosts + your production domains
-    # Allow common local dev hosts + prod site + vercel
-    # Allow common local dev hosts + your deployed frontends
     allow_origins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
@@ -592,10 +740,10 @@ else:
         "https://comdex-fawn.vercel.app",
         "https://comdex-kevins-projects-e296122e.vercel.app",
 
-        # Firebase / web.app (your screenshot)
+        # Firebase / web.app
         "https://swift-area-459514-d1.web.app",
 
-        # Your custom domain
+        # Custom domain
         "https://tessaris.ai",
         "https://www.tessaris.ai",
     ]
@@ -609,16 +757,16 @@ else:
 
     allow_credentials = True
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=allow_origins,
-        allow_origin_regex=allow_origin_regex,
-        allow_credentials=allow_credentials,
-        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["*"],
-        expose_headers=["*"],
-        max_age=86400,
-    )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allow_origins,
+    allow_origin_regex=allow_origin_regex,
+    allow_credentials=allow_credentials,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=86400,
+)
 
 # Optional: explicit preflight for /api/glyphnet/tx (router is prefixed with /api/glyphnet)
 from backend.modules.glyphnet.glyphnet_router import router as glyphnet_router
@@ -935,6 +1083,21 @@ from backend.api.aion import router as aion_router
 from backend.api.wirepack_api import router as wirepack_router
 from backend.routes.aion_conversation_orchestrator import router as aion_conversation_orchestrator_router
 from backend.api.ws import router as ws_router
+from backend.modules.aion_business.api.role_api import router as aion_business_role_router
+from backend.modules.aion_business.api.audit_api import router as aion_business_audit_router
+from backend.modules.aion_business.api.external_specialist_api import router as aion_business_external_specialist_router
+from backend.modules.aion_business.api.external_work_order_api import router as aion_business_external_work_order_router
+from backend.modules.aion_business.api.boardroom_api import router as aion_business_boardroom_router
+from backend.modules.aion_business.api.commercial_adoption_api import router as aion_commercial_adoption_router
+from backend.modules.aion.api.local_llm_api import router as local_llm_router
+from backend.api.business_runtime_router import router as business_runtime_router
+from backend.api.local_node_router import router as local_node_router
+from backend.modules.aion_business.api.container_bindings_api import router as aion_business_container_bindings_router
+from backend.modules.aion_business.api.browser_skills_api import router as aion_business_browser_skills_router
+
+from backend.modules.aion_business.api.brand_foundation_api import (
+    router as aion_business_brand_foundation_router,
+)
 # from backend.modules.aion_demo.demo_bridge import router as aion_demo_router
 from backend.modules.chain_sim.chain_sim_routes import (
     router as chain_sim_router,
@@ -942,6 +1105,30 @@ from backend.modules.chain_sim.chain_sim_routes import (
     chain_sim_async_shutdown,
     chain_sim_replay_startup,
 )
+from backend.modules.aion_business.api.founder_review_api import (
+    router as aion_business_founder_review_router,
+)
+from backend.modules.aion_business.api.topology_api import router as aion_business_topology_router
+from backend.modules.aion_business.api.learning_api import router as aion_business_learning_router
+from backend.modules.aion_business.api.task_api import router as aion_business_task_router
+from backend.modules.aion_business.api.workflow_api import router as aion_business_workflow_router
+from backend.modules.aion_business.api.workflow_file_cabinet_api import router as aion_business_workflow_file_cabinet_router
+from backend.modules.aion_business.api.business_twin_data_api import router as aion_business_twin_data_router
+from backend.modules.aion_business.api.finance_integrations_api import router as aion_finance_integrations_router
+from backend.modules.aion_business.api.department_pilot_api import router as aion_department_pilot_router
+from backend.modules.aion_business.api.organization_authority_api import router as aion_organization_authority_router
+from backend.modules.aion_business.api.finance_inbox_api import router as aion_finance_inbox_router
+from backend.modules.aion_business.api.finance_bookkeeping_api import router as aion_finance_bookkeeping_router
+from backend.modules.aion_business.api.finance_sales_api import router as aion_finance_sales_router
+from backend.modules.aion_business.api.sales_revenue_api import router as aion_sales_revenue_router
+from backend.modules.aion_business.api.sales_completion_api import router as aion_sales_completion_router
+from backend.modules.aion_business.api.pilot_scheduled_work_api import router as aion_pilot_scheduled_work_router
+from backend.modules.aion_business.api.pilot_operating_team_api import router as aion_pilot_operating_team_router
+from backend.modules.aion_business.api.work_schedule_api import router as aion_work_schedule_router
+from backend.modules.aion_business.api.medium_business_operating_api import router as aion_medium_business_operating_router
+from backend.modules.aion_business.api.support_case_api import router as aion_support_case_router
+from backend.modules.aion_business.api.marketing_creative_api import router as aion_marketing_creative_router
+from backend.modules.aion_business.api.marketing_connections_api import router as aion_marketing_connections_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -1192,11 +1379,45 @@ app.include_router(aion_proof_of_life_router)
 app.include_router(aion_akg_demo_router)
 app.include_router(aion_mirror_router)
 app.include_router(aion_homeostasis_alias_router)
+app.include_router(aion_business_learning_router)
+app.include_router(aion_business_task_router)
+app.include_router(aion_business_workflow_router)
+app.include_router(aion_business_workflow_file_cabinet_router)
+app.include_router(aion_business_twin_data_router)
+app.include_router(aion_finance_integrations_router)
+app.include_router(aion_department_pilot_router)
+app.include_router(aion_organization_authority_router)
+app.include_router(aion_finance_inbox_router)
+app.include_router(aion_finance_bookkeeping_router)
+app.include_router(aion_finance_sales_router)
+app.include_router(aion_sales_revenue_router)
+app.include_router(aion_sales_completion_router)
+app.include_router(aion_pilot_scheduled_work_router)
+app.include_router(aion_pilot_operating_team_router)
+app.include_router(aion_work_schedule_router)
+app.include_router(aion_medium_business_operating_router)
+app.include_router(aion_support_case_router)
+app.include_router(aion_marketing_creative_router)
+app.include_router(aion_marketing_connections_router)
+app.include_router(aion_business_role_router)
+app.include_router(aion_business_audit_router)
+app.include_router(aion_business_founder_review_router)
+app.include_router(aion_business_external_specialist_router)
+app.include_router(aion_business_external_work_order_router)
+app.include_router(aion_business_topology_router)
+app.include_router(aion_business_boardroom_router)
+app.include_router(aion_commercial_adoption_router)
 # app.include_router(aion_dashboard_router)
 app.include_router(aion_cognitive_router)
 app.include_router(aion_router, prefix="/api/aion", tags=["AION"])
 app.include_router(aion_conversation_orchestrator_router, prefix="/api/aion")
 app.include_router(ws_router) 
+app.include_router(local_llm_router)
+app.include_router(business_runtime_router)
+app.include_router(local_node_router)
+app.include_router(aion_business_container_bindings_router)
+app.include_router(aion_business_brand_foundation_router)
+app.include_router(aion_business_browser_skills_router)
 # app.include_router(aion_demo_router, prefix="/aion-demo")
 register_voice_events(app)
 
@@ -1500,6 +1721,67 @@ async def proxy_control(ws: WebSocket):
     await _ws_proxy(ws, "ws://127.0.0.1:8004/ws/control", "Control")
 
 # ── 21) Run via Uvicorn when executed directly
+
+# AION O3B: preview-safe business endpoint fallbacks for desktop demo runtime.
+# These endpoints are read-only and exist to prevent 404 console noise during the
+# founder demo when the desktop UI asks for registered business preview metadata.
+@app.get("/api/aion/business/brand-foundation/{business_id}")
+def aion_business_brand_foundation_preview_endpoint(business_id: str):
+    safe_business_id = str(business_id or "business_not_registered").strip() or "business_not_registered"
+    safe_name = safe_business_id.replace("_", " ").replace("-", " ").title()
+
+    return {
+        "schema_version": "aion.business_brand_foundation_preview.v1",
+        "status": "preview_ready",
+        "business_id": safe_business_id,
+        "business_name": safe_name,
+        "identity_source": "registered_business_information_or_business_container",
+        "brand_foundation": {
+            "positioning": "Registered business preview foundation.",
+            "tone": "professional",
+            "audience": "customers and operators",
+            "preview_only": True,
+        },
+        "safety_profile": {
+            "preview_only": True,
+            "read_only": True,
+            "no_live_side_effects": True,
+            "no_booking_created": True,
+            "no_payment_created": True,
+            "no_customer_message_sent": True,
+        },
+    }
+
+
+@app.get("/api/aion/business/boardroom/{business_id}")
+def aion_business_boardroom_preview_endpoint(business_id: str):
+    safe_business_id = str(business_id or "business_not_registered").strip() or "business_not_registered"
+    safe_name = safe_business_id.replace("_", " ").replace("-", " ").title()
+
+    return {
+        "schema_version": "aion.business_boardroom_preview.v1",
+        "status": "preview_ready",
+        "business_id": safe_business_id,
+        "business_name": safe_name,
+        "identity_source": "registered_business_information_or_business_container",
+        "boardroom": {
+            "mode": "preview",
+            "central_pilot": "existing_central_pilot",
+            "department_pilots": ["marketing", "sales", "finance", "operations", "support", "hr"],
+            "goal_loop_preview_ready": True,
+            "preview_only": True,
+        },
+        "safety_profile": {
+            "preview_only": True,
+            "read_only": True,
+            "no_live_side_effects": True,
+            "no_booking_created": True,
+            "no_payment_created": True,
+            "no_customer_message_sent": True,
+        },
+    }
+
+
 if __name__ == "__main__":
     uvicorn.run(
         "backend.main:app",
@@ -1603,3 +1885,196 @@ def verify_snapshot(steps: int = 1024, dt_ms: int = 16, spec_version: str = "v1"
 
     append_ledger(cert)
     return cert
+
+
+# BEGIN AION O19K ELEVENLABS VOICE BRIDGE LOCK
+# Safe backend TTS bridge for AION onboarding voice.
+# - API key stays server-side.
+# - Frontend never receives ELEVENLABS_API_KEY.
+# - Browser speechSynthesis remains frontend fallback.
+import json as _aion_o19k_json
+import os as _aion_o19k_os
+import urllib.error as _aion_o19k_urllib_error
+import urllib.request as _aion_o19k_urllib_request
+from backend.modules.aion_voice.api import router as aion_voice_router
+
+try:
+    from fastapi import Request as _AionO19KFastAPIRequest
+    from fastapi import Response as _AionO19KFastAPIResponse
+except Exception:  # pragma: no cover
+    _AionO19KFastAPIRequest = None
+    _AionO19KFastAPIResponse = None
+
+
+_AION_O19K_DEFAULT_ELEVENLABS_VOICE_ID = "onwK4e9ZLuTAKqWW03F9"
+_AION_O19K_DEFAULT_ELEVENLABS_MODEL_ID = "eleven_multilingual_v2"
+
+
+def _aion_o19k_env(name: str, default: str = "") -> str:
+    """Read env first, then common local env files without printing secrets."""
+    value = _aion_o19k_os.getenv(name)
+    if value:
+        return value.strip().strip('"').strip("'")
+
+    for env_path in (
+        "env.local",
+        ".env",
+        ".env.local",
+        "backend/env.local",
+        "backend/.env",
+        "backend/.env.local",
+        "desktop/mac/env.local",
+        "desktop/mac/.env",
+        "desktop/mac/.env.local",
+    ):
+        try:
+            p = _aion_o19k_os.path.abspath(env_path)
+            if not _aion_o19k_os.path.exists(p):
+                continue
+            with open(p, "r", encoding="utf-8") as handle:
+                for raw in handle:
+                    line = raw.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    key, val = line.split("=", 1)
+                    if key.strip() == name:
+                        return val.strip().strip('"').strip("'")
+        except Exception:
+            continue
+
+    return default
+
+
+def _aion_o19k_json_response(payload: dict, status_code: int = 200):
+    return _AionO19KFastAPIResponse(
+        content=_aion_o19k_json.dumps(payload),
+        status_code=status_code,
+        media_type="application/json",
+    )
+
+
+if "app" in globals() and _AionO19KFastAPIRequest is not None and _AionO19KFastAPIResponse is not None:
+    @app.post("/api/aion/voice/tts/legacy-elevenlabs-disabled")
+    async def aion_o19k_elevenlabs_voice_tts(request: _AionO19KFastAPIRequest):
+        body = await request.json()
+        text = str(body.get("text") or "").strip()
+
+        if not text:
+            return _aion_o19k_json_response({
+                "ok": False,
+                "provider": "elevenlabs",
+                "fallback": "browser_speech",
+                "reason": "missing_text",
+            }, 400)
+
+        # Keep requests sane for onboarding voice. Long scripts can be chunked later.
+        text = text[:4200]
+
+        api_key = _aion_o19k_env("ELEVENLABS_API_KEY", "")
+        voice_id = str(
+            body.get("voice_id")
+            or _aion_o19k_env("AION_ELEVENLABS_VOICE_ID", "")
+            or _aion_o19k_env("ELEVENLABS_VOICE_ID", "")
+            or _AION_O19K_DEFAULT_ELEVENLABS_VOICE_ID
+        ).strip()
+
+        model_id = str(
+            body.get("model_id")
+            or _aion_o19k_env("ELEVENLABS_MODEL_ID", "")
+            or _AION_O19K_DEFAULT_ELEVENLABS_MODEL_ID
+        ).strip()
+
+        if not api_key:
+            return _aion_o19k_json_response({
+                "ok": False,
+                "provider": "elevenlabs",
+                "fallback": "browser_speech",
+                "reason": "missing_ELEVENLABS_API_KEY",
+                "voice_id": voice_id,
+                "model_id": model_id,
+            }, 503)
+
+        payload = {
+            "text": text,
+            "model_id": model_id,
+            "voice_settings": {
+                "stability": float(body.get("stability", 0.48)),
+                "similarity_boost": float(body.get("similarity_boost", 0.82)),
+                "style": float(body.get("style", 0.18)),
+                "use_speaker_boost": bool(body.get("use_speaker_boost", True)),
+            },
+        }
+
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+        req = _aion_o19k_urllib_request.Request(
+            url,
+            data=_aion_o19k_json.dumps(payload).encode("utf-8"),
+            method="POST",
+            headers={
+                "xi-api-key": api_key,
+                "accept": "audio/mpeg",
+                "content-type": "application/json",
+            },
+        )
+
+        try:
+            with _aion_o19k_urllib_request.urlopen(req, timeout=45) as response:
+                audio = response.read()
+
+            return _AionO19KFastAPIResponse(
+                content=audio,
+                media_type="audio/mpeg",
+                headers={
+                    "x-aion-voice-provider": "elevenlabs",
+                    "x-aion-voice-id": voice_id,
+                    "x-aion-voice-model": model_id,
+                },
+            )
+
+        except _aion_o19k_urllib_error.HTTPError as error:
+            try:
+                detail = error.read().decode("utf-8", errors="ignore")[:500]
+            except Exception:
+                detail = ""
+            return _aion_o19k_json_response({
+                "ok": False,
+                "provider": "elevenlabs",
+                "fallback": "browser_speech",
+                "reason": "elevenlabs_http_error",
+                "status": int(getattr(error, "code", 500) or 500),
+                "detail": detail,
+                "voice_id": voice_id,
+                "model_id": model_id,
+            }, 502)
+
+        except Exception as error:
+            return _aion_o19k_json_response({
+                "ok": False,
+                "provider": "elevenlabs",
+                "fallback": "browser_speech",
+                "reason": "elevenlabs_request_failed",
+                "detail": str(error)[:500],
+                "voice_id": voice_id,
+                "model_id": model_id,
+            }, 502)
+
+    print("[AION] O19K legacy ElevenLabs voice bridge disabled; local voice router owns /api/aion/voice/tts")
+# END AION O19K ELEVENLABS VOICE BRIDGE LOCK
+
+# AION O21A/O21B local-first voice provider router
+# Keep the new provider router authoritative even if an older ElevenLabs-only
+# route was registered earlier in this file.
+AION_VOICE_PROVIDER_ROUTE_PATHS = {
+    "/api/aion/voice/tts",
+    "/api/aion/voice/stt",
+    "/api/aion/voice/providers",
+}
+try:
+    app.router.routes = [
+        route
+        for route in app.router.routes
+        if getattr(route, "path", None) not in AION_VOICE_PROVIDER_ROUTE_PATHS
+    ]
+except Exception:
+    pass
+app.include_router(aion_voice_router)

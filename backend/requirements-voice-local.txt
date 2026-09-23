@@ -1,0 +1,14 @@
+# AION O21 local-first voice stack
+#
+# Install only when ready to run local voice models:
+#   python -m pip install -r backend/requirements-voice-local.txt
+#
+# TTS:
+kokoro
+soundfile
+
+# STT:
+faster-whisper
+
+# FastAPI multipart upload support for /api/aion/voice/stt:
+python-multipart

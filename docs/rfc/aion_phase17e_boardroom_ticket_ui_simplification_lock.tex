@@ -1,0 +1,57 @@
+\section{Phase 17E --- Boardroom Ticket UI Simplification}
+\label{sec:aion-phase17e-boardroom-ticket-ui-simplification}
+
+\subsection{Status}
+
+Phase 17E simplifies the Boardroom website-intake view into a single business ticket card.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Boardroom website intake ticket card added.}
+\end{quote}
+
+\subsection{Purpose}
+
+The previous founder-demo controls were useful for proving internal routing, but they were too crowded for a real business workflow.
+
+Phase 17E introduces one primary visible ticket card for website enquiries. The card shows the customer request, detected service, location, urgency, source, suggested workflow, and current workflow status.
+
+\subsection{Visible Contract}
+
+The Boardroom MUST show:
+
+\begin{itemize}
+  \item new website enquiry;
+  \item customer;
+  \item service;
+  \item location;
+  \item urgency;
+  \item source;
+  \item suggested workflow;
+  \item workflow status;
+  \item primary action: run workflow preview;
+  \item secondary actions: approve next action and request more information;
+  \item a technical trace drawer;
+  \item one compact safety line.
+\end{itemize}
+
+\subsection{Safety Contract}
+
+The UI still preserves the guarded preview contract:
+
+\begin{itemize}
+  \item no booking created;
+  \item no payment created;
+  \item no escrow created;
+  \item no external message sent;
+  \item no live chain write;
+  \item human review required.
+\end{itemize}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE17E-BOARDROOM-TICKET-UI-SIMPLIFICATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,84 @@
+\section{AION Goal Engine Sprint 1 Gate Lock}
+\label{sec:aion-goal-engine-sprint1-gate-lock}
+
+\subsection{Status}
+
+Sprint 1 is defined as the contracts, Workflow Canvas UI nodes, dry-run visibility, Boardroom trace alignment, and safety badge baseline required before deeper runtime consolidation.
+
+This gate does not mean the full Goal Engine is complete.
+
+It means the first visible and testable foundation is now present.
+
+\begin{quote}
+\textbf{Status: SPRINT 1 GATE --- contracts and visible dry-run foundation locked.}
+\end{quote}
+
+\subsection{Locked Scope}
+
+Sprint 1 covers the following:
+
+\begin{itemize}
+  \item Goal Engine contract files exist as first-class backend modules.
+  \item Goal Engine nodes are visible through the Workflow Canvas / Architect picker path.
+  \item Goal Engine inspector fields are visible.
+  \item Goal Engine dry-run preview bundle is visible.
+  \item Goal Engine step trace rows are visible.
+  \item Goal Engine Boardroom preview state is visible.
+  \item Manifest, step trace, and Boardroom trace are protected against drift.
+  \item Goal Engine canvas safety badges are visible for safety, budget, red-team, checkpoint, and evidence states.
+  \item Master Glyph Canvas is deprecated as a separate canvas mode.
+  \item Glyph workflows are managed through the Glyph Library modal and opened inside the main Workflow Canvas tab model.
+\end{itemize}
+
+\subsection{Strategic Meaning}
+
+This sprint establishes the core rule:
+
+\begin{quote}
+\textbf{The Workflow Canvas is where capability is built. The Boardroom is where trust is explained.}
+\end{quote}
+
+The system is not yet the external Agent-to-Agent interface.
+
+The current sprint is the internal execution and proof foundation required before exposing a machine-facing API to outside agents.
+
+\subsection{Execution Boundary}
+
+Sprint 1 remains dry-run-first.
+
+The system may preview, explain, score, warn, and trace Goal Engine behaviour.
+
+It must not silently grant permissions, bypass approvals, increase budgets, write externally, or execute unbounded loops.
+
+\subsection{A2A Deferral}
+
+The Agent-to-Agent layer is intentionally deferred until the following are stable:
+
+\begin{itemize}
+  \item canonical preview bundle,
+  \item canonical Goal Engine contracts,
+  \item stable Boardroom trace,
+  \item stable evidence references,
+  \item stable checkpoint/resume semantics,
+  \item stable outcome scoring,
+  \item stable policy and safety visibility.
+\end{itemize}
+
+\subsection{Next Phase}
+
+The next phase after this gate is Sprint 2:
+
+\begin{quote}
+\textbf{Goal-aware dry-run runtime consolidation.}
+\end{quote}
+
+Sprint 2 should reduce appended patching, consolidate dry-run bridge logic, and move toward clean first-class runtime modules.
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-SPRINT-1-GATE-LOCK-V1
+Status: SPRINT GATE LOCK
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,305 @@
+\section{Customer-Owned Model Hosting and Compute Deployment}
+\label{sec:aion-model-hosting-compute-deployment}
+
+\subsection{Purpose and ownership principle}
+
+The user owns the AION brain and chooses where the models providing its
+computational intelligence run.  AION is not inseparable from any particular
+language model, cloud provider, hardware vendor, or inference engine.  The
+customer's identity, memory, business map, policy, permissions, learned
+procedures, and outcome history remain under customer control even when a
+remote model supplies additional computation.
+
+The central ownership rule is:
+
+\begin{quote}
+The AION brain is the persistent intelligence and authority system.  A model is
+replaceable cognitive compute used by that brain for a bounded task.
+\end{quote}
+
+This separation allows a household or organisation to begin with a modest local
+model, add private cloud capacity when needed, use an external premium provider
+for selected work, and replace any of those components without losing what AION
+has learned.
+
+\subsection{Primary deployment configurations}
+
+\subsubsection{Everything local}
+
+In the fully local configuration, the AION brain and a suitably sized
+open-weight model run on the customer's personal computer, workstation, or home
+or business server.  The operating path is:
+
+\[
+\text{Pilot}
+\rightarrow \text{AION brain}
+\rightarrow \text{local model}
+\rightarrow \text{AION verification}
+\rightarrow \text{Pilot or governed action}.
+\]
+
+This configuration requires no model API and can keep all working data on the
+customer's machine.  After the hardware has been acquired, the marginal cost of
+ordinary inference may be low, although electricity, maintenance, and hardware
+depreciation still exist.  Capacity is limited by processor speed, accelerator
+availability, memory, model size, and the number of concurrent users.
+
+The fully local configuration is appropriate for households, sole traders,
+small teams, sensitive offline work, and environments in which internet access
+is unavailable or prohibited.  AION must remain genuinely useful in this mode;
+cloud access may improve quality or speed but must not be the sole source of
+core intelligence.
+
+\subsubsection{Customer-owned cloud compute}
+
+In the customer-owned cloud configuration, AION may remain on a local mother
+brain or run inside infrastructure controlled by the customer's organisation.
+The customer deploys an approved model to its own account with a cloud,
+infrastructure, or confidential-compute provider.  Examples include a private
+AWS, Google Cloud, or Azure environment, NVIDIA infrastructure, Prem, or another
+qualified provider.
+
+The logical path is:
+
+\[
+\begin{split}
+\text{Pilot}
+&\rightarrow \text{customer's AION brain} \\
+&\rightarrow \text{minimum permitted task context} \\
+&\rightarrow \text{customer's private model endpoint} \\
+&\rightarrow \text{structured result} \\
+&\rightarrow \text{AION validation, policy, and execution}.
+\end{split}
+\]
+
+The model may run on a rented GPU instance, a managed container, a private
+inference cluster, or customer-owned hardware.  Deployment may use an NVIDIA
+NIM container, a Tessaris-qualified model package, or another compatible
+inference server.  AION stores the endpoint configuration and credentials in
+the customer's private vault and calls the endpoint only when policy permits
+the disclosure and the task requires the additional capacity.
+
+The remote model returns a proposed answer, classification, plan, extraction,
+comparison, or tool instruction.  It does not inherit authority over the
+business and cannot directly rewrite canonical memory, grant permissions, or
+perform consequential actions merely because it produced a response.
+
+For stronger isolation, the AION brain, business data, retrieval services, and
+model endpoint may all run inside the same customer-controlled virtual private
+cloud.  In that arrangement, authorised business context can remain inside the
+customer's network boundary.  Customer-owned cloud deployment does not by
+itself guarantee privacy: identity controls, network isolation, encryption,
+logging, retention, administrator access, backups, and regional processing must
+also be configured and verified.
+
+\subsubsection{External model API}
+
+In the external-provider configuration, the user supplies credentials for an
+approved service such as Gemini, OpenAI, Anthropic, or another compatible
+provider.  The operating path is:
+
+\[
+\text{Pilot}
+\rightarrow \text{AION disclosure policy}
+\rightarrow \text{external model API}
+\rightarrow \text{result}
+\rightarrow \text{AION verification}.
+\]
+
+This option is convenient because the customer need not administer GPU
+infrastructure.  However, the permitted request context is transmitted to the
+selected third party.  Before transmission, AION must apply the customer's
+data-classification, purpose, residency, retention, provider, and cost policies.
+Where the disclosure is material, the user must be shown what category of data
+will leave the customer boundary, which provider will receive it, and why that
+provider was selected.
+
+External APIs are optional quality or capacity providers rather than roots of
+AION identity or memory.  Provider failure, quota exhaustion, key removal, or a
+commercial change must cause a policy-compliant fallback or an honest
+limitation; it must not corrupt the customer brain.
+
+\subsection{What the customer downloads}
+
+The initial Tessaris package should contain or install the following components:
+
+\begin{itemize}
+  \item the AION brain and governed learning runtime;
+  \item the Personal Pilot, Workspace, and Boardroom interfaces permitted by
+        the selected edition;
+  \item identity, possession, permissions, delegation, and approval controls;
+  \item encrypted memory and the permission-aware business map;
+  \item the model, evidence, capability, and compute router;
+  \item a small local model appropriate for the detected hardware, or a guided
+        installer for that model;
+  \item connectors for optional private compute and external providers;
+  \item capability packages for files, communications, business systems, and
+        authorised devices;
+  \item health monitoring, signed updates, automatic recovery, and rollback;
+  \item encrypted backup, verified restore, complete export, and migration
+        controls.
+\end{itemize}
+
+The customer does not necessarily download a very large model to a laptop.
+During setup, AION profiles the available processor, memory, accelerator,
+storage, power constraints, and expected workload.  It then explains the
+appropriate options in non-technical language.  A representative prompt is:
+
+\begin{quote}
+This computer can comfortably run a small local model for everyday private
+work.  Larger business analysis will be faster with additional private compute.
+Would you like to connect infrastructure in an account you control?
+\end{quote}
+
+If the customer selects AWS, Google Cloud, Azure, NVIDIA, Prem, or another
+qualified target, a guided deployment creates or identifies the model endpoint
+within that account and registers it with AION.  Provider credentials remain in
+the customer-controlled vault.  The television, phone, and ordinary device
+nodes never receive raw cloud secrets.
+
+\subsection{Component and authority separation}
+
+The architecture separates durable customer state from replaceable compute:
+
+\begin{description}
+  \item[AION brain.] Owns memory, the business map, policy, authority, learning,
+        and routing inside the customer-controlled environment.
+  \item[Model.] Performs bounded language, reasoning, extraction, visual, or
+        other computation locally, in customer cloud, or through an optional
+        provider.
+  \item[Harness.] Prepares tasks, supplies tools, constrains outputs, and
+        evaluates behavior as a signed AION capability package.
+  \item[Pilot.] Provides conversation, presentation, approval, and control on
+        a phone, television, desktop, browser, or authorised device.
+  \item[Connectors.] Access authorised files, services, business systems, and
+        devices through customer-controlled or explicitly approved boundaries.
+  \item[Receipts.] Record proposals, approvals, routes, executions, evidence,
+        and outcomes inside the customer's AION brain.
+\end{description}
+
+A model adapter may propose content but may not grant itself a capability,
+select a private identity, bypass approval, or write unverified statements into
+canonical organisational memory.  A capability harness may constrain and use a
+model but remains subject to the same identity, policy, evidence, and audit
+boundaries as every other AION component.
+
+This arrangement allows the customer to stop using one model or infrastructure
+supplier, connect a later Chinese, European, American, or internally developed
+model, and retain the accumulated organisational intelligence.
+
+\subsection{Governed remote-compute sequence}
+
+When AION uses a remote model, the complete operating sequence is:
+
+\begin{enumerate}
+  \item identify the requesting person, active space, organisation, role, and
+        current possession authority;
+  \item determine the requested outcome and required capability;
+  \item retrieve only information the person and task are authorised to use;
+  \item minimise, redact, or replace unnecessary sensitive information;
+  \item calculate permitted routes using quality, privacy, residency, latency,
+        cost, energy, context, health, and historical performance;
+  \item disclose the minimum permitted working context to the selected endpoint;
+  \item require a structured response matching the capability contract;
+  \item validate structure, claims, citations, constraints, and tool arguments;
+  \item convert acceptable output into a governed answer or action proposal;
+  \item request possession-bound private approval for consequential work;
+  \item execute through a separately authorised connector or device capability;
+  \item verify the external result and create an execution receipt;
+  \item record bounded outcome evidence for future route selection and learning.
+\end{enumerate}
+
+This sequence prevents a model response from being confused with a completed
+business action.  A statement such as ``the email was sent'' or ``the event was
+booked'' is not accepted until the authorised provider or device returns a
+verifiable receipt.
+
+\subsection{Illustrative business operation}
+
+Consider a business owner who asks:
+
+\begin{quote}
+Pilot, analyse why sales fell in southern Spain and prepare a recovery plan.
+\end{quote}
+
+AION first identifies the owner and the active organisation.  It retrieves only
+the authorised sales, marketing, location, customer, and regional evidence.  It
+removes information which is unnecessary for the analysis and assesses whether
+the local model meets the task's required quality and context threshold.  If the
+local route is insufficient, AION may select a qualified model running in the
+company's AWS, Google Cloud, NVIDIA, Prem, or other private environment.
+
+The selected model receives a bounded working package and returns a structured
+analysis rather than control of the underlying systems.  AION checks the claims
+against authorised records, marks unresolved uncertainty, and presents a
+verified briefing.  It may prepare proposed actions for Sales, Marketing,
+Finance, and Operations, but it executes nothing until the relevant people
+approve the exact scopes.  Later outcomes are compared with the plan so that
+AION can learn whether the selected model, evidence route, and procedure were
+effective.
+
+\subsection{Routing and fallback requirements}
+
+The default routing order is:
+
+\begin{enumerate}
+  \item deterministic local capability;
+  \item existing AION knowledge, memory, and learned procedures;
+  \item a qualified local model;
+  \item free or public evidence acquisition;
+  \item a customer-configured low-cost provider;
+  \item a customer-owned private compute endpoint;
+  \item an optional specialist or premium frontier provider;
+  \item human review or an honest limitation.
+\end{enumerate}
+
+This is a policy order rather than a blind sequence.  A high-sensitivity request
+may prohibit all external providers; a long-context but low-sensitivity task may
+prefer customer cloud compute; a safety-critical decision may require both
+specialist evidence and human review.  A fallback may never cross a privacy,
+residency, authority, or spending boundary simply because the preferred model
+failed.
+
+\subsection{Deployment acceptance tests}
+
+The deployment system is not complete until it passes the following exercises:
+
+\begin{enumerate}
+  \item \textbf{Air-gapped operation:} Pilot, AION memory, the business map, and
+        core local capabilities remain useful with the network disabled.
+  \item \textbf{No-paid-AI operation:} the system completes representative work
+        using local models and permitted public evidence without a premium API.
+  \item \textbf{Private-compute operation:} a customer-owned endpoint processes
+        a bounded task and returns a contract-valid result without obtaining
+        canonical write authority.
+  \item \textbf{Premium-provider operation:} an optional provider is used only
+        for an eligible request and the disclosure and cost appear in the route
+        receipt.
+  \item \textbf{Provider-removal operation:} all external provider credentials
+        are removed, the AION brain restarts, and identity, memory, business map,
+        tasks, policies, evaluations, and receipts remain intact.
+  \item \textbf{Model-replacement operation:} a new qualified model is attached
+        and continues through the same provider-neutral capability contracts.
+  \item \textbf{Migration operation:} the customer moves from a local machine to
+        customer cloud or another owned host without creating a second writable
+        brain or losing provenance.
+  \item \textbf{Boundary operation:} a model-generated instruction attempting to
+        grant authority, reveal inaccessible context, or bypass approval fails
+        closed and produces an audit event.
+\end{enumerate}
+
+\subsection{Strategic conclusion}
+
+Cloud or GPU infrastructure performs selected calculations and returns bounded
+results, but AION remains the brain, governor, memory, and operator.  Remote
+compute should be treated like a temporary specialist: it receives only the
+information required for the authorised assignment, returns work for review,
+and does not take ownership of the organisation.
+
+The decisive portability proof is therefore:
+
+\begin{quote}
+A customer can remove every model provider, preserve the complete AION brain,
+connect a qualified replacement, and continue operating without rebuilding the
+organisation's memory, authority, workflows, or business map.
+\end{quote}

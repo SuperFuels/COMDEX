@@ -1,0 +1,92 @@
+\section{Phase 20P --- AION Pilot Frontend Interaction Layer}
+\label{sec:aion-phase20p-pilot-frontend-interaction}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- Pilot frontend interaction contract installed.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20P defines the missing founder-visible Pilot surface.
+
+The locked backend phases prove that AION Pilot can plan, gate, sandbox, receipt, replay and block unsafe actions. Phase 20P defines the frontend interaction contract required to make that visible to the user.
+
+\subsection{Required UI Surfaces}
+
+AION Pilot MUST expose:
+
+\begin{itemize}
+  \item a Pilot entry point in the Boardroom;
+  \item a mission composer;
+  \item a plan review surface;
+  \item a visible Pilot stream with actions, receipts and statuses;
+  \item an artifact panel;
+  \item a business-container file view;
+  \item feedback controls;
+  \item blocked-action explanations;
+  \item a mission canvas or mission map;
+  \item proof, replay and receipt links.
+\end{itemize}
+
+\subsection{Artifact Placement Rule}
+
+If Pilot creates a PDF, document, spreadsheet, image, site preview or other usable output, it MUST save that output inside the selected business container.
+
+The UI MUST show the artifact path.
+
+\subsection{Example Mission}
+
+For a user request such as:
+
+\begin{quote}
+Build me a PDF document with X data.
+\end{quote}
+
+AION Pilot MUST:
+
+\begin{enumerate}
+  \item create a mission;
+  \item show the plan;
+  \item generate the document through safe internal tooling;
+  \item save the output inside the business container;
+  \item show the artifact card;
+  \item show the output path;
+  \item show receipt/proof/replay;
+  \item allow approve, reject, revise, stop, retry or continue.
+\end{enumerate}
+
+\subsection{Safety Invariant}
+
+\begin{quote}
+\textbf{Pilot UI may show plans, artifacts, receipts and previews, but it MUST NOT expose raw credentials, raw tool buttons or live external action buttons without exact approval.}
+\end{quote}
+
+\subsection{Required Product Message}
+
+\begin{quote}
+\textbf{AION completed safe work autonomously and stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Literal Safety Message}
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20p_pilot_frontend_interaction_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20P-PILOT-FRONTEND-INTERACTION-LAYER
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

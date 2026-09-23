@@ -1,0 +1,713 @@
+% ============================================================================
+% AION Seven-Day Open-Mission Compounding Programme
+% Standalone technical record prepared 8 August 2026.
+% ============================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{aionblue}{RGB}{18,72,120}
+\definecolor{aiongreen}{RGB}{25,105,62}
+\definecolor{aionred}{RGB}{155,35,35}
+\newcommand{\pass}{\textcolor{aiongreen}{\textbf{PASS}}}
+\newcommand{\closed}{\textcolor{aionred}{\textbf{CLOSED}}}
+\newcommand{\codepath}[1]{\path{#1}}
+\newcommand{\hashvalue}[2]{\texttt{\footnotesize #1\allowbreak#2}}
+\newcommand{\displayhash}[2]{%
+  \begin{center}\scriptsize\ttfamily #1\\#2\end{center}}
+\renewcommand{\arraystretch}{1.18}
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.25em}
+\setlist[enumerate]{leftmargin=1.7em,itemsep=0.3em}
+
+\title{\textbf{AION Seven-Day Open-Mission Compounding Programme}\\
+\large Frozen Protocol, Matched Ablations, Delayed Authority, Repair, Retention,
+Operations, and Verdict Criteria}
+\author{AION / COMDEX Technical Record}
+\date{Campaign initiated 8 August 2026\\Document snapshot: 8 August 2026, Europe/Madrid}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Purpose and Research Question}
+\label{sec:purpose}
+
+The seven-day open-mission programme marks a deliberate change in AION's
+development strategy.  Technical AGA v1 is frozen as a completed technical
+baseline.  The programme no longer treats additional internal project counts,
+curriculum receipts, or repeated passes in the same task family as evidence of
+increasing generality.  Its purpose is to test whether AION's governed memory,
+repair, retention, authority separation, and accumulated experience produce a
+measurable advantage over the same underlying proposer without those
+mechanisms.
+
+The primary research question is:
+\begin{quote}
+After controlling the proposer, tools, and action budget, does full AION solve
+unfamiliar consequential missions more successfully or more efficiently than
+proposer-only, cold, no-memory, and no-repair controls; and are any gains
+retained after sources close and confirmed by later independent outcomes?
+\end{quote}
+
+The intended compounding chain is
+\begin{equation}
+\begin{aligned}
+\text{unfamiliar mission}
+&\rightarrow \text{frozen success contract}
+\rightarrow \text{matched five-arm execution} \\
+&\rightarrow \text{independent later consequence}
+\rightarrow \text{failure attribution} \\
+&\rightarrow \text{governed repair or abstention}
+\rightarrow \text{source closure} \\
+&\rightarrow \text{seven-day protected transfer}
+\rightarrow \text{harder next mission}.
+\end{aligned}
+\label{eq:compounding-chain}
+\end{equation}
+
+This is a path-to-evidence experiment, not an automatic AGI declaration.  The
+campaign contract explicitly fixes \texttt{agi\_claim\_authorized} to false.
+
+\section{Frozen Campaign Contract}
+\label{sec:contract}
+
+The governor created an immutable campaign contract before matched execution.
+The live contract is summarized in Table~\ref{tab:contract}.
+
+\begin{table}[htbp]
+\centering
+\caption{Frozen seven-day campaign contract.}
+\label{tab:contract}
+\begin{tabularx}{\textwidth}{@{}p{4.2cm}X@{}}
+\toprule
+Field & Frozen value \\
+\midrule
+Campaign identifier & \codepath{aion_seven_day_open_mission_moonshot_202608} \\
+Schema & \codepath{aion.hexcore.open_mission_compounding.v1} \\
+Objective & Measure whether governed accumulated experience improves verified
+performance on unfamiliar real missions under declining scaffolding. \\
+Start & 8 August 2026, 19:26:28 UTC (21:26:28 CEST) \\
+Nominal end & 15 August 2026, 19:26:28 UTC (21:26:28 CEST) \\
+Duration & 604,800 seconds (seven days) \\
+Fixed proposer & \codepath{ollama:qwen3:1.7b@local} \\
+Action budget & 40 actions per arm per cohort \\
+Contract SHA-256 &
+\hashvalue{dddddbea7ac14ce13f288629d31050e6}{103e82a373053c17755f42ba0c789cd4} \\
+Tool-manifest SHA-256 &
+\hashvalue{5e8c8074dedcae99606d670ac16e059c}{799ec93a9e4a939295869b46c78a3a85} \\
+Unsafe/false promotion budget & Zero \\
+Technical AGA v1 & Frozen; not repeatedly re-earned during this campaign \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The lane allocation is defined as 70\% software and systems missions, 20\%
+open research or changing public-data missions, and 10\% human-grounded work.
+This is a target distribution, not evidence that all three lanes have already
+executed.  Human-grounded work still requires genuine external authority.
+
+The contract is hash-bound.  Once authorized, a different proposer, tool
+manifest, budget, or contract body cannot silently replace it.  Mission packets
+are also hashed after precommitment and cannot be mutated without rejection.
+
+\section{What the Five Experimental Arms Mean}
+\label{sec:arms}
+
+Each eligible cohort compares five versions under the same proposer identity,
+tool-manifest hash, action budget, mission packet, and evaluator.  Only the
+declared AION mechanism changes.
+
+\begin{table}[htbp]
+\centering
+\caption{Matched experimental arms.}
+\label{tab:arms}
+\begin{tabularx}{\textwidth}{@{}p{3.5cm}p{2.3cm}p{2.3cm}X@{}}
+\toprule
+Arm & Retained memory & Repair loop & Interpretation \\
+\midrule
+Full AION & Enabled & Enabled & Complete governed apprentice and the principal treatment arm. \\
+Proposer-only & Disabled & Disabled & The same language-model proposer without HexCore memory, repair, or promotion machinery. \\
+AION without memory & Disabled & Enabled & Measures whether retained experience reduces search, actions, or failure. \\
+AION without repair & Enabled & Disabled & Measures the contribution of failure-driven correction. \\
+Cold AION & No accumulated experience & No previously earned advantage & Restart-like control for the value of accumulated competence. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The ablation is eligible only when proposer identity, tool-manifest hash, and
+action budget all match the mission's frozen arm conditions.  A stronger model
+cannot be substituted into one arm.  A result with mismatched parity, the wrong
+authority, the wrong mission hash, or any unsafe action is retained for audit
+but cannot count as a verified success.
+
+For outcome receipt $r$, eligibility is
+\begin{equation}
+E(r)=P(r)\land A(r)\land C(r)\land S(r),
+\label{eq:eligibility}
+\end{equation}
+where $P$ is cohort parity, $A$ is evaluator-authority validity, $C$ is
+precommitment validity, and $S$ means zero unsafe actions.  Verified success is
+therefore
+\begin{equation}
+V(r)=\operatorname{success}(r)\land E(r).
+\label{eq:verified-success}
+\end{equation}
+
+\section{Mission Contract and Lifecycle}
+\label{sec:mission-lifecycle}
+
+Every mission must declare, before execution:
+\begin{itemize}
+    \item a unique mission identifier and authorized lane;
+    \item an explicit objective;
+    \item an evaluator that is not AION, the proposal component, or self;
+    \item a success contract frozen before execution;
+    \item a source policy that permits a genuine closed-source retention test;
+    \item a risk class and bounded execution environment;
+    \item the fixed proposer and matched arm conditions; and
+    \item a mission hash binding the above fields.
+\end{itemize}
+
+The lifecycle is
+\begin{enumerate}
+    \item \textbf{Register and freeze.}  The governor validates the mission and
+          freezes the success criteria before AION sees an outcome.
+    \item \textbf{Execute matched arms.}  The executor runs each arm under its
+          identical budget and tool boundary.
+    \item \textbf{Reveal independent authority.}  Hidden integration tests,
+          an append-only later ledger row, or another declared authority
+          produces the consequence.
+    \item \textbf{Record receipts.}  The governor verifies parity, authority,
+          precommitment, safety, success, work, actions, and intervention.
+    \item \textbf{Close sources.}  Training or solution sources become
+          unavailable and the seven-day retention clock begins.
+    \item \textbf{Confirm repair later.}  A repair is credited only after a
+          separate later authority confirms its consequence.
+    \item \textbf{Run protected retention.}  After seven elapsed days, AION
+          must transfer the method without reopening the original source.
+    \item \textbf{Escalate.}  The next mission should remove scaffolding,
+          change the schema or environment, increase horizon, or introduce a
+          new authority family.
+\end{enumerate}
+
+\section{Implemented Mission Authorities}
+\label{sec:authorities}
+
+\subsection{Answer-hidden polyglot systems fault}
+
+The first completed software/systems cohort uses a disposable transactional
+event service.  A malformed JSON event stops a Node consumer.  The mission
+requires valid events to continue, invalid evidence to remain available for
+audit, the active path not to encounter the same invalid event repeatedly, and
+no network or dynamic execution.
+
+The candidate strategies are:
+\begin{itemize}
+    \item accept the event and continue;
+    \item discard the unreadable event; or
+    \item validate, quarantine, preserve, remove from the active path, and
+          continue safely.
+\end{itemize}
+
+The evaluator, not the proposer, owns the SQLite state, quarantine evidence,
+continuity checks, and Node-consumer result.  Only the third method satisfies
+both safe continuation and evidence preservation.  Full AION reached the
+verified method in two total investigation actions; the no-memory arm required
+four.  Proposer-only and cold AION failed this cohort.
+
+This cohort establishes real matched-execution plumbing and a measurable
+memory effect.  It is still one induced, answer-hidden systems family and does
+not by itself establish broad open-world intelligence.
+
+\subsection{Rolling later-public-change authority}
+
+The open-research loop observes an append-only Arena v15 ledger containing
+changes in monitored public sources.  At cursor $t$, each arm sees only history
+up to $t$ and freezes a prediction for row $t+1$.  The next row is not visible
+when the prediction commitment is hashed.
+
+For prediction set $P$ and later observed change set $O$, the independent
+score is Jaccard similarity,
+\begin{equation}
+J(P,O)=\frac{|P\cap O|}{|P\cup O|},
+\label{eq:jaccard}
+\end{equation}
+with the empty-union case scored as one.  The present success threshold is
+$J\geq 0.5$, and the revealed Arena row must also report safe outcomes,
+successful execution, and a successful transaction.
+
+The first completed public cohort froze cursor 105 before row 106 existed.
+Row 106 later revealed \codepath{open_meteo_madrid}; its outcome hash was:
+\displayhash{7ee18bc176baed4379f13493e8fe47c2}{285b1fb7e739549b1af8116b1f65f4d2}
+Full AION and the no-memory/no-repair arms scored $0.5$; proposer-only and cold
+AION scored $1/3$ and failed the $0.5$ contract.  Immediately after scoring,
+the executor froze a new commitment at cursor 106:
+\displayhash{d0ba39ef8edafca6b8a3531049d90661}{bb2e2c1205b6f1336a8792ac49478c16}
+
+The no-gap commitment rule matters.  After a row is revealed and scored, the
+executor creates the next commitment before another future row is available.
+This prevents retrospective prediction and keeps the later row genuinely
+unseen.
+
+\subsection{Precommitted repository-repair mission}
+
+The campaign also registers a repository mission requiring diagnosis and
+repair of an unfamiliar persistence failure, hidden public and private CI,
+zero regression, zero unsafe actions, source closure, and later transfer.
+At the document snapshot this mission is precommitted but not yet a completed
+cohort.  Its existence must not be reported as a success.
+
+\section{Retention Protocol}
+\label{sec:retention}
+
+Source closure is a distinct state transition.  When a mission's learning
+source closes, the governor records
+\begin{equation}
+t_{\mathrm{due}}=t_{\mathrm{close}}+7\ \mathrm{days}.
+\end{equation}
+An early pass cannot mature.  A pass that accesses the original source cannot
+mature.  A retention receipt is verified only if
+\begin{equation}
+R=\mathbf{1}\!\left[
+t\geq t_{\mathrm{due}}
+\land A_{\mathrm{retention}}
+\land \mathrm{pass}
+\land \neg\mathrm{sourceAccessed}
+\right].
+\label{eq:retention}
+\end{equation}
+
+The first protected test is due on 15 August 2026 at approximately 21:49 CEST,
+about 23 minutes after the nominal campaign end.  The first public-change
+cohort's retention is due at approximately 22:44 CEST.  Therefore the final
+honest campaign verdict must be issued after the applicable protected tests,
+not exactly when the seven-day execution timer ends.
+
+The retained challenge should be renamed or structurally altered, use no
+training replay, and record relearning actions explicitly.  Passing the same
+literal example from memory is weaker evidence than reconstructing and applying
+the method to a source-disjoint transfer.
+
+\section{Repair Protocol}
+\label{sec:repair}
+
+The campaign accepts two fault classes:
+\begin{description}
+    \item[Natural:] a real dependency, CI, API, schema, protocol, or operational
+          change not created to provide an answer;
+    \item[Induced but answer-hidden:] a fault transparently committed before
+          solver execution whose answer is not placed in proposer context.
+\end{description}
+
+An induced fault is eligible only if it was committed before solver start.
+Every repair additionally requires a later independent confirmation and a
+confirmation authority that is not AION, self, or the proposal component:
+\begin{equation}
+Q=F_{\mathrm{precommitted}}\land C_{\mathrm{later}}
+\land A_{\mathrm{external}}.
+\label{eq:repair}
+\end{equation}
+
+At the document snapshot, campaign-level confirmed repairs are zero.  This is
+not a curriculum regression: older Technical AGA evidence contains confirmed
+natural repairs, but the new open-mission programme intentionally starts its
+own repair count at zero.  Repair advantage remains untested because full AION
+and AION-without-repair have so far produced the same success count.  A future
+mission must force a meaningful repair opportunity; otherwise this ablation
+cannot answer its research question.
+
+\section{Metrics and Claim Gates}
+\label{sec:metrics}
+
+For arm $a$ with $n_a$ eligible outcomes, success rate is
+\begin{equation}
+S_a=\frac{1}{n_a}\sum_{i=1}^{n_a}V(r_i).
+\end{equation}
+Because autonomous arms often require zero human intervention, intervention
+ratios may be undefined.  The current primary efficiency measure is verified
+work per investigation action:
+\begin{equation}
+\eta_a=\frac{\sum_i W_i}{\sum_i A_i},
+\end{equation}
+where $W_i$ is evaluator-verified work and $A_i$ is investigation actions.
+The matched advantage is
+\begin{equation}
+G=\frac{\eta_{\mathrm{full}}}{\eta_{\mathrm{proposer}}}.
+\label{eq:gain}
+\end{equation}
+
+The narrow numerical 10$\times$ gate opens only if
+\begin{equation}
+G\geq 10
+\quad\land\quad
+S_{\mathrm{full}}\geq S_{\mathrm{proposer}}.
+\label{eq:tenx}
+\end{equation}
+Even that gate is not sufficient for a strong intelligence claim.  A credible
+10$\times$ result must also survive multiple unfamiliar mission families,
+retention, repair, safety, and external reproduction.  One ratio from one
+repeated pattern is not an order-of-magnitude general-intelligence result.
+
+\subsection{Live baseline at document creation}
+
+\begin{table}[htbp]
+\centering
+\caption{Initial matched evidence after two completed cohorts.}
+\label{tab:initial-results}
+\begin{tabularx}{\textwidth}{@{}Xrrrr@{}}
+\toprule
+Arm & Successes & Outcomes & Actions & Work/action \\
+\midrule
+Full AION & 2 & 2 & 3 & 0.500 \\
+Proposer-only & 0 & 2 & 3 & 0.111 \\
+AION without memory & 2 & 2 & 5 & 0.300 \\
+AION without repair & 2 & 2 & 3 & 0.500 \\
+Cold AION & 0 & 2 & 3 & 0.111 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+At this snapshot, $G=4.5$.  Full AION is 2/2 while proposer-only and cold AION
+are 0/2.  Memory has reduced cumulative investigation actions from five to
+three relative to the no-memory arm.  The 10$\times$ gate remains \closed,
+retention is not mature, confirmed campaign repair is zero, and false or unsafe
+promotions are zero.  The correct interpretation is ``strong early signal,
+insufficient breadth and elapsed evidence.''
+
+\section{Authority Separation and Safety}
+\label{sec:safety}
+
+The programme separates five roles:
+\begin{enumerate}
+    \item the proposer suggests an action or prediction;
+    \item the executor performs bounded work;
+    \item the evaluator owns the success consequence;
+    \item the governor validates and records eligibility; and
+    \item the dashboard reports but cannot promote.
+\end{enumerate}
+
+No proposal can self-grade.  The governor rejects mismatched proposers, tools,
+budgets, mission hashes, and authorities.  Unsafe results cannot become
+verified successes.  Writes use atomic temporary-file replacement; process
+locks prevent duplicate service owners; immutable commitments and SHA-256
+receipts preserve auditability.
+
+The campaign permits read-only public data and disposable local sandboxes.  It
+does not authorize customer, Pilot, Boardroom, production, financial,
+communication, or human-facing actions.  This isolation allows the background
+intelligence programme to continue while commercial work proceeds separately.
+
+\section{Operational Services and Reboot Persistence}
+\label{sec:operations}
+
+The macOS LaunchAgent owns the heartbeat supervisor.  The supervisor starts,
+monitors, and restarts the campaign services after failure or reboot.
+
+\begin{table}[htbp]
+\centering
+\caption{Focused learning services.}
+\label{tab:services}
+\begin{tabularx}{\textwidth}{@{}p{3.5cm}X@{}}
+\toprule
+Service & Responsibility \\
+\midrule
+General apprentice & Continues governed broad competency work in the background. \\
+North-Star registry & Rebuilds and reports evidence-backed capability status. \\
+Mastery curriculum & Selects and rotates current curriculum work without blocking the moonshot. \\
+Open-mission governor & Owns the frozen contract, mission ledger, receipts, retention queue, repair receipts, and claim gates. \\
+Matched mission executor & Runs the five arms, scores public-change commitments, and executes due retention challenges. \\
+Arena v15 campaign & Appends later public-world observations used as independent forecast authority. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The matched executor normally wakes every 900 seconds.  Arena v15 normally
+adds an observation every 7,200 seconds.  The governor publishes a fresh
+snapshot every 30 seconds.  A concurrency defect discovered during restart
+testing allowed an old in-memory governor instance briefly to publish a stale
+summary after the executor wrote newer evidence.  The publisher now reloads
+the authoritative state file before every refresh.  No evidence was lost, and
+the 2/2, 4.5$\times$ snapshot remained stable across later refreshes.
+
+The persistent service list is registered in
+\codepath{backend/AION/system/aion_heartbeat.py}.  The Arena service is under
+the same reboot-safe supervisor as the executor so a pending forecast cannot
+wait forever on a public ledger that failed to return after reboot.
+
+\section{Focused Dashboard}
+\label{sec:dashboard}
+
+The default dashboard is now a moonshot control panel rather than a historical
+inventory.  It shows:
+\begin{itemize}
+    \item whether the six focused learning services are active;
+    \item curriculum-ledger health and refresh age;
+    \item completed versus registered cohorts and campaign end time;
+    \item success, eligible outcomes, and investigation actions for all arms;
+    \item the current matched efficiency ratio and honest 10$\times$ state;
+    \item source-closed retention count and next due time;
+    \item confirmed campaign repairs and false/unsafe promotions;
+    \item the current frozen public cursor and commitment; and
+    \item Technical AGA 10/10 and Full AGA 10/11 as a fixed baseline, not the
+          current target.
+\end{itemize}
+
+Legacy project totals, old robotics receipts, long competency listings, and
+historical internal procedures are hidden from the default view because they do
+not answer whether the present campaign is compounding.  They are preserved,
+not deleted, and remain available with the \codepath{--full} option.
+
+The live dashboard launcher is
+\begin{center}
+\codepath{scripts/open_aion_learning_dashboard.command}.
+\end{center}
+
+\section{Expected Seven-Day Progression}
+\label{sec:timeline}
+
+\begin{longtable}{@{}p{2.4cm}p{5.1cm}p{7.1cm}@{}}
+\caption{Expected campaign progression and honest interpretation.}
+\label{tab:timeline}\\
+\toprule
+Period & Expected work & Required interpretation \\
+\midrule
+\endfirsthead
+\toprule
+Period & Expected work & Required interpretation \\
+\midrule
+\endhead
+Hours 0--12 & Verify persistence, run first matched systems cohort, freeze first later-public commitment. & Plumbing proof only; do not infer generality. \\
+Day 1--2 & Accumulate independently revealed public outcomes; execute repository/schema/protocol faults; create genuine repair opportunities. & Check whether full AION remains ahead under novelty.  If every arm passes, increase difficulty. \\
+Day 2--4 & Remove documentation and scaffolding, change schemas, extend mission duration, introduce different evaluator families. & Look for memory and repair separation, not raw mission count. \\
+Day 4--6 & Repeat weakest-domain missions with harder variants; examine intervention, action cost, regression, abstention, and restart recovery. & Generation-later evidence should improve relative to generation one without weakening safety. \\
+Day 7 & Complete execution window, freeze all pending receipts, run every mature protected challenge. & The nominal end is not the final verdict if retention matures later. \\
+After 21:49 CEST, 15 August & Run first seven-day source-closed transfer; later run the public cohort retention due around 22:44. & Only mature, source-disjoint, independently scored receipts may support the final verdict. \\
+\bottomrule
+\end{longtable}
+
+Every six to twelve hours, the operator should ask:
+\begin{itemize}
+    \item Is full AION ahead on genuinely new work, or only on a repeated task?
+    \item Did memory reduce actions, duration, failures, or intervention?
+    \item Did a repair opportunity occur, and did no-repair behave differently?
+    \item Are all arms passing, indicating that the mission is too easy?
+    \item Are all arms failing, indicating a broken executor or excessive difficulty?
+    \item Has the ratio remained flat for two checkpoints?  If so, what limiting
+          mechanism must change immediately?
+    \item Are there any false promotions, unsafe actions, stale cursors, or
+          missing independent authorities?
+\end{itemize}
+
+\section{End-State Verdicts}
+\label{sec:verdicts}
+
+\subsection{Minimum operational pass}
+
+The programme is operationally successful if it completes without stale
+services or corrupted evidence, every receipt remains authority-valid, no
+unsafe or false promotion occurs, and due retention challenges execute at the
+correct time.  This validates the measurement system, not necessarily AION's
+intelligence advantage.
+
+\subsection{``OK'' intelligence result}
+
+An acceptable substantive result would contain approximately 10--20
+independently scored matched cohorts across several mission families, with:
+\begin{itemize}
+    \item full AION consistently above proposer-only and cold AION;
+    \item a repeatable memory advantage on unfamiliar missions;
+    \item at least one independently confirmed repair advantage;
+    \item one or more mature source-closed transfers;
+    \item no success regression and no unsafe or false promotion;
+    \item an efficiency advantage that remains approximately 2--5$\times$
+          after more evidence; and
+    \item enough mission diversity to rule out a single-template trick.
+\end{itemize}
+
+This would support the statement that AION contributes persistent,
+independently measurable value beyond its underlying proposer.  It would be a
+credible architecture result, but not an AGI claim.
+
+\subsection{``Fucking wow'' result}
+
+An exceptional result requires convergence of several forms of evidence:
+\begin{itemize}
+    \item full AION repeatedly succeeds where proposer-only, cold AION, and the
+          relevant ablation fail;
+    \item the effect survives software, systems, changing public data, and at
+          least one genuinely different authority family;
+    \item the matched efficiency advantage reaches or exceeds 10$\times$
+          without sacrificing success or safety;
+    \item no-memory falls progressively behind, demonstrating that experience
+          is accumulating rather than merely wrapping the proposer;
+    \item a natural or honestly induced answer-hidden failure triggers a
+          repair whose later consequence passes while no-repair fails;
+    \item after seven days and source closure, AION reconstructs and applies the
+          method to a renamed or structurally changed challenge with no replay;
+    \item later missions become longer and harder while human intervention and
+          investigation cost decline;
+    \item generation three decisively exceeds generation one on AION's initial
+          weak area without regression elsewhere; and
+    \item an independent administrator can reproduce the frozen comparison.
+\end{itemize}
+
+That package would justify the claim that AION is not merely wrapping a
+language model: it is accumulating persistent competence, using it to
+outperform the same model without its architecture, repairing itself after
+failure, and retaining improvements across time and changed situations.
+
+\subsection{Flat or negative result}
+
+The programme must also preserve a scientifically honest failure verdict.  If
+full AION does not separate from the controls, if the gain disappears under
+novel missions, if no-memory is equivalent, if repair remains untested, or if
+retention fails, the correct conclusion is that the current implementation is
+a sophisticated curriculum or orchestration engine whose compounding advantage
+has not yet been demonstrated.  That result should change the limiting
+mechanism, not trigger more farming of easy internal receipts.
+
+\section{Known Limitations and Required Corrections}
+\label{sec:limitations}
+
+The following limitations are authoritative at this snapshot:
+\begin{enumerate}
+    \item \textbf{Small sample.}  Two completed cohorts are insufficient for a
+          robust performance claim.
+    \item \textbf{Narrow rolling loop.}  Repeated public-source forecasting is
+          a real delayed-outcome experiment but remains one mission family.
+          Repetition alone cannot demonstrate generality.
+    \item \textbf{Repair not separated.}  Full and no-repair are currently 2/2;
+          confirmed campaign repairs remain zero.
+    \item \textbf{Retention immature.}  No new campaign retention receipt can
+          honestly pass before its seven-day boundary.
+    \item \textbf{Human-grounded lane absent.}  Full AGA remains 10/11 because
+          independent multi-rater social/creative authority is unavailable.
+    \item \textbf{Internal operation.}  The current cohort evidence is locally
+          reproducible but not yet externally administered.
+    \item \textbf{Fixed small proposer.}  The fixed local proposer is valuable
+          for clean attribution, but conclusions apply first to this cohort and
+          should later be repeated with another frozen proposer.
+    \item \textbf{Ratio sensitivity.}  Early efficiency ratios can change
+          sharply with a small denominator.  The 4.5$\times$ value must not be
+          presented without its sample size.
+\end{enumerate}
+
+The highest-priority technical correction is mission diversity.  The generator
+must produce new repository, CI, dependency, schema, protocol, and public-data
+problems, not merely new cursors in the same forecasting template.  Difficulty
+should increase by removing help, changing structure, lengthening the horizon,
+and requiring transfer---not just by increasing the number of nearly identical
+examples.
+
+\section{Artifact and Evidence Map}
+\label{sec:artifacts}
+
+\begin{longtable}{@{}p{5.2cm}p{9.6cm}@{}}
+\caption{Primary implementation and evidence artifacts.}
+\label{tab:artifacts}\\
+\toprule
+Artifact & Responsibility \\
+\midrule
+\endfirsthead
+\toprule
+Artifact & Responsibility \\
+\midrule
+\endhead
+\codepath{backend/modules/hexcore/open_mission_compounding_governor.py} & Frozen contract, mission registration, parity and authority checks, outcome receipts, repair and retention gates, metrics, and snapshots. \\
+\codepath{backend/modules/hexcore/open_mission_compounding_executor.py} & Disposable polyglot evaluator, five-arm execution, rolling public prediction commitments, later-row scoring, and due retention execution. \\
+\codepath{backend/AION/system/aion_open_mission_compounding_service.py} & Persistent governor/inbox service and fresh-state snapshot publication. \\
+\codepath{backend/AION/system/aion_open_mission_executor_service.py} & Persistent bounded executor, no-gap next commitment, periodic scoring, and error ledger. \\
+\codepath{backend/AION/system/aion_long_duration_real_outcome_campaign_service.py} & Persistent Arena v15 independent observation authority. \\
+\codepath{backend/AION/system/aion_heartbeat.py} & Reboot-safe supervision and failed-process restart. \\
+\codepath{backend/AION/system/aion_development_dashboard.py} & Focused read-only campaign dashboard; archived view available with \codepath{--full}. \\
+\codepath{scripts/start_aion_seven_day_moonshot.py} & Initial contract and mission precommitment. \\
+\codepath{scripts/open_aion_learning_dashboard.command} & Visible Terminal launcher for the focused dashboard. \\
+\codepath{backend/modules/hexcore/data/open_mission_compounding/state.json} & Authoritative campaign state, missions, outcomes, retention receipts, and repair receipts. \\
+\codepath{backend/modules/hexcore/data/open_mission_compounding/public_change_pending.json} & Current unseen-row prediction commitment. \\
+\codepath{results/aion_open_mission_compounding_status.json} & Current human- and machine-readable campaign summary. \\
+\codepath{results/aion_open_mission_executor_status.json} & Latest executor, public-change, and retention cycle status. \\
+\codepath{results/aion_open_mission_polyglot_cohort_v1.json} & First answer-hidden systems cohort evidence. \\
+\codepath{results/aion_open_mission_public_change_cursor_105.json} & First completed later-public-outcome matched receipt. \\
+\codepath{results/hexcore_long_duration_campaign_v15_ledger.jsonl} & Append-only independent observation ledger. \\
+\codepath{backend/tests/test_open_mission_compounding_governor.py} & Contract immutability, self-grading rejection, parity, 10$\times$, retention, repair, and ablation tests. \\
+\bottomrule
+\end{longtable}
+
+\section{Verification and Continuation Procedure}
+\label{sec:continuation}
+
+At the restart snapshot, all six focused learning services were active and 14
+focused dashboard, governor, and AGA-registry checks passed.  The core test
+command is:
+\begin{verbatim}
+.venv/bin/pytest -q \
+  backend/tests/test_aion_development_dashboard.py \
+  backend/tests/test_open_mission_compounding_governor.py \
+  backend/tests/test_autonomous_general_apprentice_evidence_registry.py
+\end{verbatim}
+
+To reopen the focused dashboard, execute:
+\begin{verbatim}
+open scripts/open_aion_learning_dashboard.command
+\end{verbatim}
+or run the module directly:
+\begin{verbatim}
+.venv/bin/python -m backend.AION.system.aion_development_dashboard \
+  --repo-root /Users/kevinrobinson/dev/COMDEX
+\end{verbatim}
+Append \codepath{--full} only when historical engineering evidence is required.
+
+When resuming this programme after interruption:
+\begin{enumerate}
+    \item inspect the heartbeat state and confirm the six focused processes;
+    \item compare the pending public cursor with the Arena ledger row count;
+    \item confirm that the pending commitment predates the revealed row;
+    \item inspect governor and executor status for errors or stale timestamps;
+    \item verify that completed-arm parity, mission hashes, evaluator authority,
+          and unsafe-action counts remain valid;
+    \item run focused tests before changing campaign logic;
+    \item preserve the frozen campaign contract and existing receipts;
+    \item add genuinely new mission families rather than rewriting old mission
+          outcomes; and
+    \item defer the final verdict until all due protected retention tests have
+          matured and executed.
+\end{enumerate}
+
+\section{Final Epistemic Boundary}
+\label{sec:boundary}
+
+Technical AGA 10/10 remains an important frozen result: AION has demonstrated
+the technical apprenticeship machinery required by that protocol.  Full AGA
+remains 10/11 because independent human-grounded social/creative authority has
+not been supplied.  Neither result is equivalent to demonstrated AGI.
+
+The seven-day programme asks a harder and more useful question: does the full
+architecture compound under unfamiliar work, real consequences, matched
+controls, source closure, and time?  The current 2/2 versus 0/2 separation and
+4.5$\times$ work-per-action ratio are promising first evidence.  They remain
+an early baseline until breadth, repair, retention, longer horizons, and
+external reproduction are present.
+
+The governing publication rule is therefore:
+\begin{quote}
+Report exactly what the independent receipts establish.  Keep every larger
+claim closed until diverse, delayed, source-disjoint, safe, and reproducible
+evidence forces it open.
+\end{quote}
+
+\end{document}

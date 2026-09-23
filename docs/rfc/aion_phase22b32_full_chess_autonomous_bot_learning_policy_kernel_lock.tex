@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.32: Full Chess Autonomous Bot Learning Policy Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.32 defines the AION Full Chess Autonomous Bot Learning Policy Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can select chess moves autonomously and improve from game outcomes without human approval.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.32 removes human approval from the chess bot move-selection path.
+
+AION SHOULD play, record results, reinforce successful strategies, penalise losing strategies, and improve over repeated sessions.
+
+\section{Autonomous Learning Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{autonomous\_mode\_enabled};
+  \item \texttt{human\_approval\_required};
+  \item \texttt{legal\_move\_required};
+  \item \texttt{network\_guard\_required};
+  \item \texttt{token\_guard\_required};
+  \item \texttt{selected\_bestmove};
+  \item \texttt{selected\_policy};
+  \item \texttt{learning\_game\_count};
+  \item \texttt{completed\_learning\_game\_count};
+  \item \texttt{win\_or\_stable\_count};
+  \item \texttt{loss\_or\_penalty\_count};
+  \item \texttt{reinforcement\_update\_count};
+  \item \texttt{penalty\_update\_count};
+  \item \texttt{initial\_strategy\_strength};
+  \item \texttt{final\_strategy\_strength};
+  \item \texttt{strategy\_improvement\_delta};
+  \item \texttt{learning\_games};
+  \item \texttt{autonomous\_learning\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Safety Boundary}
+
+Human approval is not required for chess move selection.
+
+However, the following guards MUST remain:
+
+\begin{itemize}
+  \item legal UCI move-shape validation;
+  \item token handling without exposing secrets;
+  \item network execution control;
+  \item bounded execution mode;
+  \item trace hash emission.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates an autonomous chess bot learning policy for AION. It does not yet perform live network writes, claim official rating, prove engine-strength play, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B32-FULL-CHESS-AUTONOMOUS-BOT-LEARNING-POLICY-KERNEL-LOCK\\
+Status: LOCKED --- full chess autonomous bot learning policy kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

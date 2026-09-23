@@ -1,0 +1,172 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.51 --- Live Level-3 Rematch Validation Result}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.51 validates the repaired Level-3 live chess stack after Phases 22E.48--22E.50.
+
+The run tested the live sender stack:
+
+\begin{verbatim}
+22E.50 -> 22E.49 -> 22E.48 -> 22E.46 -> 22E.44
+-> 22E.43 -> 22E.42 -> 22E.41 -> 22E.37
+\end{verbatim}
+
+\section{Live Result}
+
+\begin{verbatim}
+Game ID: N9shJvss
+Full ID: N9shJvssijzU
+Target level: 3
+AION colour: white
+Final status: mate
+Final winner: black
+Final ply count: 58
+AION move count: 29
+Move send OK count: 29
+Post-400 recovery count: 0
+Trace hash: cf9da67e1e20dc8d450c0cde57c92f91bc34a50b10309f9f638c07513fabe7ad
+\end{verbatim}
+
+\section{Technical Validation}
+
+The run was technically valid.
+
+\begin{itemize}
+  \item The Level-3 challenge was created.
+  \item The run was not dry-run.
+  \item Network execution was enabled.
+  \item AION posted 29 legal live moves.
+  \item No post-400 recovery was required.
+  \item A trace hash was produced.
+\end{itemize}
+
+\section{Positive Evidence}
+
+Phase 22E.49 successfully blocked an early wing-pawn drift.
+
+\begin{verbatim}
+AION move index: 7
+Active intent: initiative_pressure
+Base well selected move: h2h4
+Final selected move: g5f6
+Selected source: initiative_hygiene_guard
+\end{verbatim}
+
+This confirms that the initiative hygiene guard is active when the active intent is \texttt{initiative\_pressure}.
+
+Phase 22E.50 also activated several times during king-safety mode.
+
+\begin{verbatim}
+selected_source: king_safety_threat_removal_policy
+\end{verbatim}
+
+\section{Remaining Failure Map}
+
+\subsection{Critical Threat Mode Still Allows Wing-Pawn Drift}
+
+AION later played:
+
+\begin{verbatim}
+h2h4
+\end{verbatim}
+
+under:
+
+\begin{verbatim}
+active_intent: neutralise_critical_threat
+selected_source: dynamic_intent_switching_plan_strength
+\end{verbatim}
+
+This means Phase 22E.49 is too narrow. Wing-pawn hygiene MUST also apply during \texttt{neutralise\_critical\_threat} unless the move captures, checks, blocks mate, removes an attacker, or creates a forcing threat.
+
+\subsection{Queen Intrusion Was Not Prioritised Enough}
+
+Black queen intrusion occurred repeatedly:
+
+\begin{verbatim}
+g6g2
+g2h1
+h1g1
+g1e3
+e3c3
+c3e5
+e5e3
+e3c3
+c3a1
+a1d1
+d1d2
+d2c1
+c1f4
+f4f3
+f3g3
+\end{verbatim}
+
+AION responded with movement and partial threat handling, but did not consistently trap, trade, block, or expel the queen.
+
+\subsection{King Safety Still Became Survival-Only}
+
+Although Phase 22E.50 activated, the late game still contained king movement patterns:
+
+\begin{verbatim}
+e1f1
+f1g2
+g2h1
+h1h2
+h2g1
+g1f1
+\end{verbatim}
+
+The policy improved threat-removal selection, but it still needs queen-intrusion specific priority.
+
+\section{Conclusion}
+
+Phase 22E.51 validates that the repaired stack runs live at Level 3 and that the new guards activate.
+
+It does not validate Level-3 strength.
+
+The next repair MUST target queen intrusion and critical-threat hygiene.
+
+\section{Next Phase}
+
+The recommended next phase is:
+
+\begin{verbatim}
+22E.52 -- Critical Threat Hygiene and Queen Intrusion Trap Policy
+\end{verbatim}
+
+This phase SHOULD:
+
+\begin{itemize}
+  \item extend wing-pawn hygiene beyond \texttt{initiative\_pressure};
+  \item prioritise trapping, trading, or expelling invading queens;
+  \item reject passive king movement if queen intrusion remains unresolved;
+  \item score queen proximity to king as a hard tactical hazard;
+  \item prevent \texttt{neutralise\_critical\_threat} from selecting non-critical pawn moves.
+\end{itemize}
+
+\section{Boundary}
+
+This review is evidence-only. It does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E51-LIVE-LEVEL3-REMATCH-VALIDATION-RESULT\\
+Status: LOCKED --- Level-3 live validation result recorded\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

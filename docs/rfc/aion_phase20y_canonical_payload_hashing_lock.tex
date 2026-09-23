@@ -1,0 +1,241 @@
+\section{AION Phase 20Y --- Canonical Payload Hashing}
+\label{sec:aion-phase20y-canonical-payload-hashing}
+
+\subsection{Status}
+
+Phase 20Y locks canonical checkpoint payload hashing.
+
+\begin{quote}
+\textbf{Status: LOCKED --- checkpoint payload identity is canonical, deterministic, and recalculated immediately before execution.}
+\end{quote}
+
+\subsection{Purpose}
+
+Checkpoint approval is only safe if the human approves the exact payload that will later be executed.
+
+Phase 20Y ensures that checkpoint payloads are represented by deterministic canonical hashes and that any post-approval edit invalidates the approval.
+
+\begin{quote}
+\textbf{An approval belongs to one exact payload hash only.}
+\end{quote}
+
+\subsection{Canonical JSON Rule}
+
+Checkpoint payloads MUST be canonicalised using:
+
+\begin{verbatim}
+json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+\end{verbatim}
+
+This removes non-semantic key-order and whitespace differences from the hash calculation.
+
+\subsection{Payload Hash}
+
+The payload hash MUST be:
+
+\begin{verbatim}
+sha256:<digest>
+\end{verbatim}
+
+computed over canonical JSON.
+
+\subsection{Payload Hash Record}
+
+A payload hash record MUST include:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item checkpoint ID;
+  \item step ID;
+  \item action type;
+  \item payload hash;
+  \item canonical payload;
+  \item hash algorithm;
+  \item schema version.
+\end{itemize}
+
+\subsection{Execution-Time Recalculation}
+
+Immediately before execution, the runtime MUST recalculate the payload hash from the current payload.
+
+If:
+
+\begin{equation}
+H_{\mathrm{approved\_payload}}
+\neq
+H_{\mathrm{current\_payload}}
+\end{equation}
+
+then execution MUST be blocked.
+
+\subsection{Edited Payload Invalidation}
+
+If a payload changes after approval, the runtime MUST return:
+
+\begin{verbatim}
+approval_valid: false
+requires_fresh_approval: true
+reason: payload_changed_after_approval
+\end{verbatim}
+
+\subsection{Validation Hash}
+
+Every execution-time payload validation MUST emit a deterministic validation hash binding:
+
+\begin{itemize}
+  \item approved payload hash;
+  \item current payload hash;
+  \item payload unchanged decision;
+  \item execution allowed decision;
+  \item reason.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20Y-CANONICAL-PAYLOAD-HASHING
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
+
+\subsection{Phase 20Y.1 --- Numeric Primitive Normalisation and Validation Hash Closure}
+\label{subsec:aion-phase20y1-numeric-normalisation-validation-hash}
+
+\subsubsection{Status}
+
+Phase 20Y.1 hardens canonical payload hashing against primitive representation drift.
+
+\begin{quote}
+\textbf{Status: LOCKED --- payload primitives MUST be normalised before canonical hashing, and validation hashes MUST bind both approved and current payload states.}
+\end{quote}
+
+\subsubsection{Numeric Typing and Encoding Normalisation Invariant}
+
+To prevent non-semantic floating-point representation variance, integer-to-float promotion, or Unicode escape manipulation from causing false approval invalidation or semantic bypassing, the payload engine MUST run a data normaliser before serialization.
+
+The normaliser MUST apply recursively across the payload object graph:
+
+\begin{itemize}
+  \item dictionaries are traversed deterministically;
+  \item lists are traversed recursively;
+  \item strings are normalised to canonical Unicode form;
+  \item booleans and null values are preserved;
+  \item integers are preserved;
+  \item integral floats such as \texttt{100.0} are normalised to \texttt{100};
+  \item non-integral floats are normalised to a fixed precision bound.
+\end{itemize}
+
+Formally:
+
+\begin{equation}
+\mathrm{NormalizePrimitives}(Payload)
+\longrightarrow
+Payload_{\mathrm{normalised}}
+\end{equation}
+
+The compact JSON serializer MUST consume only the normalised structural layout.
+
+\subsubsection{Primitive Representation Drift}
+
+The following payloads MUST hash identically after normalisation:
+
+\begin{verbatim}
+{"max_limit": 100}
+{"max_limit": 100.0}
+\end{verbatim}
+
+The following Unicode-equivalent strings MUST hash identically after normalisation:
+
+\begin{verbatim}
+"Café"
+"Cafe\u0301"
+\end{verbatim}
+
+\subsubsection{Validation Hash Formula Closure}
+
+The validation hash acts as a proof record that execution-time validation occurred before an operational block was allowed or blocked.
+
+The validation hash is defined as:
+
+\begin{equation}
+\mathcal{V}_{\mathrm{hash}}
+=
+\mathrm{SHA256}
+(
+H_{\mathrm{approved\_payload}}
+\parallel
+H_{\mathrm{current\_payload}}
+\parallel
+\mathrm{DecisionFlags}
+\parallel
+\texttt{StepID}
+)
+\end{equation}
+
+The decision flags include:
+
+\begin{itemize}
+  \item \texttt{payload\_unchanged}
+  \item \texttt{execution\_allowed}
+  \item \texttt{reason}
+\end{itemize}
+
+\subsubsection{Execution Boundary Rule}
+
+Immediately before a checkpointed action executes, the runtime MUST:
+
+\begin{enumerate}
+  \item normalise the current payload primitives;
+  \item canonicalise the normalised payload;
+  \item calculate the current payload hash;
+  \item compare it to the approved payload hash;
+  \item emit the validation hash closure;
+  \item block execution if the hashes differ.
+\end{enumerate}
+
+\subsubsection{Validation Coverage}
+
+Phase 20Y.1 tests prove:
+
+\begin{itemize}
+  \item integral floats and integers hash identically;
+  \item floating precision is deterministic;
+  \item Unicode-equivalent strings hash identically;
+  \item normalised execution validation allows equivalent integer/float payloads;
+  \item validation hash closure changes when decision state changes.
+\end{itemize}
+
+\subsubsection{Security Invariant}
+
+\begin{quote}
+\textbf{AION Pilot checkpoint payload hashing is based on canonical structure, not unstable runtime formatting. Meaningful edits invalidate approval; non-semantic primitive representation drift does not.}
+\end{quote}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20Y1-NUMERIC-PRIMITIVE-NORMALISATION-VALIDATION-HASH-CLOSURE
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

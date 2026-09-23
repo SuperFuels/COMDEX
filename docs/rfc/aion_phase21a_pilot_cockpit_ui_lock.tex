@@ -1,0 +1,67 @@
+\section{Phase 21A --- Pilot Cockpit UI Contract}
+\label{sec:aion-phase21a-pilot-cockpit-ui-contract}
+
+\subsection{Status}
+
+Phase 21A installs the first visible Pilot cockpit contract.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Pilot cockpit read-model contract installed.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Pilot cockpit makes AION Pilot visible to the user.
+
+It shows the mission stream, plan state, generated artifacts, approval cards, blocked actions, feedback controls, proof, replay, receipts and ETS preview.
+
+\subsection{Non-Execution Rule}
+
+The cockpit is a read model.
+
+It MAY show plans, files, previews, blocked actions and approval payloads.
+
+It MUST NOT execute raw tools, submit payments, deploy production, send external messages, create bookings, create escrow, publish posts or mutate live reputation.
+
+\subsection{Artifact Visibility}
+
+Generated artifacts MUST show:
+
+\begin{itemize}
+  \item artifact type;
+  \item business container path;
+  \item mission identifier;
+  \item run identifier;
+  \item step identifier;
+  \item artifact hash;
+  \item draft or preview status.
+\end{itemize}
+
+\subsection{Feedback Boundary}
+
+User feedback MUST be captured as governed feedback events.
+
+Feedback MUST NOT silently mutate live memory, reusable templates, provider state or reputation.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20p_pilot_frontend_interaction_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21a_pilot_cockpit_ui_lock.py
+\end{verbatim}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{The Pilot cockpit is an operating surface, not an execution bypass. It may display plans, streams, files, approvals, feedback, proof and replay, but it MUST NOT mutate external systems or live memory without the existing AION approval chain.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21A-PILOT-COCKPIT-UI-CONTRACT
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

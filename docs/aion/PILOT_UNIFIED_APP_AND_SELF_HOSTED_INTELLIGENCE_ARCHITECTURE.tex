@@ -1,0 +1,902 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=23mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{listings}
+\emergencystretch=3em
+
+\definecolor{pilotnavy}{HTML}{0B1F3A}
+\definecolor{pilotblue}{HTML}{1769D2}
+\definecolor{pilotteal}{HTML}{087A78}
+\definecolor{pilotgreen}{HTML}{16834A}
+\definecolor{pilotamber}{HTML}{B56A00}
+\definecolor{pilotred}{HTML}{C52F46}
+\definecolor{pilotpale}{HTML}{F3F7FC}
+
+\newcommand{\Pilot}{\textbf{Pilot}}
+\newcommand{\AION}{\textbf{AION Device Fabric}}
+\newcommand{\Boardroom}{\textbf{Boardroom}}
+\newcommand{\decision}[1]{%
+  \par\medskip\noindent
+  \colorbox{pilotblue!9}{\parbox{0.94\linewidth}{\textbf{Decided approach.} #1}}%
+  \par\medskip}
+\newcommand{\boundary}[1]{%
+  \par\medskip\noindent
+  \colorbox{pilotamber!10}{\parbox{0.94\linewidth}{\textbf{Boundary.} #1}}%
+  \par\medskip}
+\newcommand{\term}[1]{\textbf{#1}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Pilot Unified Product Architecture}
+\fancyhead[R]{\small Tessaris / AION}
+\fancyfoot[L]{\small Product and technical decision record}
+\fancyfoot[R]{\small Page \thepage\ of \pageref{LastPage}}
+\setlength{\headheight}{14pt}
+
+\lstdefinestyle{pilotcode}{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{pilotpale},
+  frame=single,
+  rulecolor=\color{pilotblue!25},
+  breaklines=true,
+  columns=fullflexible,
+  showstringspaces=false,
+  keepspaces=true
+}
+
+\title{\textbf{Pilot Unified Application and Self-Hosted Intelligence Architecture}\\[5pt]
+\large Bridging Personal Pilot, External Workspaces, Boardroom, Television, Mobile, and Desktop}
+\author{Tessaris / AION Product and Technical Record}
+\date{2 September 2026\\Decision record and implementation specification}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document records the decided architecture for turning Personal Pilot,
+external workspaces, Boardroom, the television experience, and the AION Device
+Fabric into one coherent product.  The central proposition is one personally
+owned Pilot identity, one familiar mobile application, and multiple strictly
+separated spaces.  The user's intelligence and operational data run primarily
+on a mother brain selected and controlled by the user or organisation.  Mobile,
+television, browser, desktop, and connected devices are governed surfaces of
+that intelligence rather than independent copies of it.  A person may be a
+private user, household member, employee, freelancer, accountant, adviser,
+director, business owner, or several of these at once.  Access is granted by
+explicit role and capability, and data is never merged merely because the same
+person participates in several spaces.
+
+This is both a product decision record and a technical implementation target.
+It distinguishes the already substantial Boardroom and Pilot foundations from
+the unified application, networking, packaging, and production security work
+that remains.  It does not claim that the native mobile application, invisible
+remote tunnel, production relay, or multi-host migration system is already
+complete.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Executive Decision}
+
+Pilot will be delivered as one product with three principal modes:
+
+\begin{enumerate}[leftmargin=*]
+  \item \term{Personal}: a private life assistant, communication centre,
+        action centre, memory, service gateway, and household intelligence.
+  \item \term{Workspaces}: bounded participation in an employer's, client's,
+        project team's, or professional body's governed operating environment.
+  \item \term{Boardroom}: the full organisational command environment for a
+        person who owns, directs, administers, or is formally appointed to a
+        business governance role.
+\end{enumerate}
+
+The user should experience a single, simple conversation with Pilot.  Swiping
+or selecting a space changes the available context, shortcuts, permissions,
+agents, records, and actions; it does not create a different application or a
+different identity.
+
+\decision{Build the Pilot Unified App next.  Do not independently complete a
+second mobile product for Boardroom or continue expanding the television home
+page as a separate architecture.  First establish the shared identity,
+workspace, message, action, approval, receipt, and connection contracts.  Then
+make mobile, television, browser, and desktop clients of those contracts.}
+
+\subsection{Product status at this decision point}
+
+The following percentages are planning estimates supplied during product
+review, not automated completion measurements:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{36mm}p{24mm}X@{}}
+\toprule
+Area & Estimated maturity & Interpretation \\
+\midrule
+Boardroom & approximately 90\% & Broad business features and operating model exist; unified identity, mobile review, external workspace participation, and production packaging remain. \\
+Personal Pilot & approximately 50\% & Core identity, tasks, messages, calendar, approvals, television, and service boundaries exist; the complete consumer experience and real connected-service qualification remain. \\
+Unified mobile app & concept stage & Interactive design direction exists, but no production iOS/Android application, app-store release, background connection, or hardware-backed identity has been claimed. \\
+Television surface & functional proof & A strong adoption and room-scale interface exists; it must become a client of the same person-and-space manifest rather than a separate dashboard implementation. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Unified Product Model}
+
+\subsection{One person, many spaces, different authority}
+
+The canonical model is:
+
+\begin{lstlisting}[style=pilotcode]
+Person
+  +-- Personal Pilot
+  +-- Household space
+  +-- Employer workspace
+  +-- Client A / Marketing workspace
+  +-- Client B / Accounts workspace
+  +-- Advisory-board seat
+  +-- Owned Boardroom (only when applicable)
+\end{lstlisting}
+
+A person does not require a business of their own to use the professional
+capabilities.  They may be an employee, self-employed specialist, temporary
+contractor, accountant, auditor, lawyer, adviser, supplier, finance approver,
+board member, or non-executive director.  The organisation invites the person's
+Pilot identity into a precisely scoped workspace and grants a signed,
+revocable, expiring capability lease.
+
+\decision{``Boardroom user'' must never be synonymous with ``business owner.''
+Boardroom is the organisation's governed environment.  A workspace is the
+bounded view and authority through which another person or their Pilot
+participates in that environment.}
+
+\subsection{Space types}
+
+\begin{longtable}{@{}>{\bfseries}p{28mm}p{49mm}p{76mm}@{}}
+\toprule
+Space & Principal owner & Typical contents and authority \\
+\midrule
+\endhead
+Personal & Individual & Private messages, memory, contacts, tasks, reminders, calendar, shopping, services, devices, television, files, preferences, and approvals. \\
+Household & Consenting members or guardians & Shared lists, chores, home devices, deliveries, family logistics, child-safe activities, and explicitly shared memory. \\
+External workspace & Organisation & Only the projects, files, agents, budgets, conversations, and approvals granted to the person's role. \\
+Owned Boardroom & Organisation under the person's administration & Full business dashboards, agents, departments, evidence, decisions, configuration, roles, and governance subject to organisational policy. \\
+Temporary engagement & Inviting organisation & Time-bounded access for an auditor, accountant, consultant, adviser, supplier, or project participant. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Role examples}
+
+Roles are packages of capabilities, constraints, approval limits, and data
+views rather than decorative titles.  Example roles include employee,
+freelancer, marketing specialist, finance reviewer, accountant, auditor,
+consultant, legal adviser, supplier, support operator, director, and temporary
+project participant.
+
+A freelance marketing specialist may be allowed to view an approved marketing
+plan, use selected brand assets, speak with the marketing agents, submit
+campaign proposals, upload deliverables, and see a bounded campaign budget.
+They must not thereby receive access to payroll, banking, legal disputes,
+shareholder discussion, or unrelated Boardroom deliberation.
+
+\section{One Intelligence Across Three Primary Surfaces}
+
+\subsection{Mobile: the private everyday control centre}
+
+The mobile application is the primary personal identity, communication,
+approval, and action surface.  It should be as understandable as a mainstream
+messaging application.  It is not a compressed desktop Boardroom.
+
+Its responsibilities are:
+
+\begin{itemize}[leftmargin=*]
+  \item conversation with Personal Pilot and authorised workspace Pilots;
+  \item human and Pilot-to-Pilot messages;
+  \item task, reminder, calendar, shopping, booking, and service-action cards;
+  \item review, delegation, acceptance, rejection, correction, and approval;
+  \item private identity, connected-service, memory, and permission control;
+  \item secure control of television and other nearby AION Fabric devices;
+  \item background notification and continuation when the person leaves home.
+\end{itemize}
+
+\subsection{Television: the shared room-scale surface}
+
+The television is the adoption surface and communal display.  It is suited to
+entertainment, learning, games, live companion intelligence, household status,
+large-screen research, presentations, and deliberately opened work.  It is not
+the default location for credentials, private messages, payment details, or
+irreversible approvals.
+
+The paired phone proves the active person.  The television then receives a
+short-lived display session containing only the tiles and data that person may
+show in the room.  Inactivity, explicit logout, device departure, phone
+revocation, or lease expiry removes the private workspace.
+
+\subsection{Desktop and browser: creation and detailed operation}
+
+The desktop remains the correct surface for:
+
+\begin{itemize}[leftmargin=*]
+  \item creating a business and configuring its Boardroom;
+  \item designing departments, agents, policies, workflows, and integrations;
+  \item detailed financial, operational, marketing, sales, support, and people work;
+  \item high-density dashboards, document production, evidence inspection, and administration;
+  \item server setup, migration, recovery, update, and advanced security controls.
+\end{itemize}
+
+The browser can be a secure client of the user's mother brain, but visiting
+Tessaris must not silently move the person's operational data into a
+Tessaris-owned cloud account.
+
+\decision{Mobile is for communication, situational awareness, review,
+delegation, and approval.  Desktop is for setup and deep work.  Television is
+for shared presence, large-screen interaction, and deliberately opened
+content.}
+
+\section{Mobile Information Architecture}
+
+\subsection{Persistent product shell}
+
+The mobile app maintains five destinations across Personal, Workspace, and
+Boardroom modes:
+
+\begin{enumerate}[leftmargin=*]
+  \item \term{Pilot}: the main conversation, current objectives, and contextual suggestions.
+  \item \term{Inbox}: human messages, Pilot-to-Pilot requests, provider messages, and workspace communications.
+  \item \term{Actions}: tasks, reminders, approvals, calendar proposals, purchases, bookings, and completed receipts.
+  \item \term{Spaces}: Personal, Household, employers, clients, projects, advisory seats, and owned Boardrooms.
+  \item \term{Me}: identity, devices, server, accounts, memory, recovery, security, and permission management.
+\end{enumerate}
+
+The conversation composer remains in the same place in every mode.  Its active
+space is always visible.  A consequential request must show which person,
+organisation, account, service, and authority will be used before execution.
+
+\subsection{Personal shortcut row}
+
+The Personal mode may expose a compact, horizontally scrollable row containing
+Calendar, Tasks, Devices, Chats, Games, Television, Learning, Shopping, Files,
+and other installed capabilities.  These are entrances to contextual panels,
+not permanent sections in one long controller page.
+
+\subsection{Workspace and Boardroom shortcut rows}
+
+An external workspace exposes only the functions granted to that role.  An
+owned or administered Boardroom may expose Boardroom, Sales, Marketing,
+Finance, Operations, Support, People, Products, Files, and Pilot.
+
+The Boardroom mobile experience concentrates on:
+
+\begin{itemize}[leftmargin=*]
+  \item concise departmental dashboards;
+  \item exceptions and changes since the last review;
+  \item decisions requiring the person's authority;
+  \item work ready to approve, reject, correct, or delegate;
+  \item conversations with the Boardroom and departmental Pilots;
+  \item verified receipts after an approved action;
+  \item explicit escalation to the desktop for complex configuration or deep work.
+\end{itemize}
+
+\boundary{The mobile Boardroom must not attempt to reproduce every desktop
+table, form, configuration panel, or business-building workflow.  Its value is
+fast comprehension and governed intervention.}
+
+\section{The Workspace Gateway}
+
+Boardroom is integrated through a common workspace gateway rather than copied
+into Personal Pilot or patched directly into the television.
+
+\begin{lstlisting}[style=pilotcode]
+Unified Pilot identity
+        |
+Workspace gateway
+        +-- Personal Pilot
+        +-- Household
+        +-- External organisation workspace
+        +-- Temporary professional engagement
+        +-- Owned / administered Boardroom
+\end{lstlisting}
+
+The gateway resolves the active person, space, role, capabilities, data scope,
+approval policy, service accounts, and presentation surface.  It returns a
+signed space manifest to the client.  The client does not infer access from
+which buttons happen to be visible.
+
+\subsection{Signed workspace lease}
+
+A workspace lease should contain at least:
+
+\begin{itemize}[leftmargin=*]
+  \item issuer organisation and target Pilot identity;
+  \item workspace, role, and policy version;
+  \item allowed read, propose, delegate, approve, execute, and administer capabilities;
+  \item monetary, data, time, and recipient constraints;
+  \item permitted service adapters and evidence classes;
+  \item issue, activation, expiry, renewal, and revocation data;
+  \item device or channel restrictions where appropriate;
+  \item nonce, sequence, signature, and audit reference.
+\end{itemize}
+
+\subsection{Professional accountability}
+
+Pilot may prepare work for an accountant, auditor, lawyer, finance approver, or
+director, but it must not represent model output as licensed human approval.
+Where professional or corporate accountability is required, the named human
+must inspect and sign the exact artefact or decision.  The resulting receipt
+identifies the human authority, workspace, evidence hash, action, time, and
+provider result.
+
+\section{User- and Organisation-Owned Intelligence}
+
+\subsection{Mother brain principle}
+
+The mother brain is the authoritative runtime for cognition, memory, policy,
+identity, service credentials, action coordination, and audit.  It may run on:
+
+\begin{itemize}[leftmargin=*]
+  \item a supported Mac, Windows computer, or Linux computer;
+  \item a NAS or home server;
+  \item a dedicated Pilot appliance;
+  \item the user's own virtual private server;
+  \item a business-controlled private cloud or on-premises server;
+  \item a selected third-party provider under the user's account;
+  \item a hybrid design with a private primary and an encrypted availability node.
+\end{itemize}
+
+\decision{Tessaris distributes and updates the software but does not become the
+default owner of the customer's memory, documents, credentials, operational
+database, or Boardroom evidence.}
+
+\subsection{Deployment profiles}
+
+\begin{longtable}{@{}>{\bfseries}p{27mm}p{40mm}p{45mm}p{36mm}@{}}
+\toprule
+Profile & Best suited to & Advantages & Principal trade-offs \\
+\midrule
+Home local & Families and privacy-conscious individuals & Local data, local device access, low recurring infrastructure cost & Availability depends on home power, network, and maintenance \\
+Dedicated appliance & Non-technical households & Predictable installation, hardware, recovery, and support & Hardware purchase and product-support obligation \\
+Personal VPS & Technical individuals and mobile users & Continuous availability and user-controlled server account & Remote device access may require a home gateway; user pays provider \\
+Business on-premises & Cautious or regulated organisations & Direct infrastructure control, internal identity integration, local evidence & Requires professional administration and support \\
+Business private cloud & Distributed organisations & Availability, scaling, managed infrastructure options & Cloud cost, configuration, jurisdiction, and provider dependency \\
+Hybrid & Households or businesses needing local control and continuity & Local-first device access plus remote availability & Replication, key management, and conflict recovery are more complex \\
+\bottomrule
+\end{longtable}
+
+\subsection{Simple and advanced setup}
+
+Most users should see only:
+
+\begin{center}
+\textbf{Install Pilot} $\rightarrow$ \textbf{Connect my phone} $\rightarrow$
+\textbf{Choose what Pilot may access} $\rightarrow$ \textbf{Start}
+\end{center}
+
+Advanced users and organisations may inspect or configure host location,
+encryption keys, backup target, retention, model packs, relay policy, network
+routes, log export, update channel, service scopes, and disaster recovery.
+These controls must exist without becoming mandatory onboarding screens for an
+ordinary user.
+
+\section{Secure Connection Architecture}
+
+\subsection{Product language}
+
+The user action is \emph{Connect to my Pilot}, not \emph{configure a VPN}.
+An encrypted private network may implement the connection, but its complexity
+belongs below the product surface.
+
+\subsection{Pairing flow}
+
+\begin{enumerate}[leftmargin=*]
+  \item The mother brain creates a short-lived, single-use pairing challenge.
+  \item A trusted local surface displays a QR code and human-verifiable code.
+  \item The phone creates a device key in platform-protected storage.
+  \item The phone and mother authenticate the challenge and establish each
+        other's public identity.
+  \item The mother issues a revocable device certificate and bounded initial lease.
+  \item The phone confirms the server fingerprint and recovery options.
+  \item Local and remote connection paths are tested without exposing service secrets.
+  \item The event is recorded in the owner-visible device and audit registers.
+\end{enumerate}
+
+\subsection{Connection selection}
+
+\begin{lstlisting}[style=pilotcode]
+1. Direct local connection over the trusted home/business network
+2. Direct encrypted peer-to-peer connection across the Internet
+3. End-to-end encrypted relay when NAT/firewall traversal fails
+4. Honest offline state with queued local work where safe
+\end{lstlisting}
+
+The mother brain remains the trust anchor.  A relay forwards opaque encrypted
+traffic and must not possess the content-encryption keys.  Connection discovery
+may be operated by Tessaris, self-hosted, or supplied by another provider.
+
+\subsection{Role of tessaris.ai}
+
+The public site may provide software distribution, documentation, account and
+licence management, optional connection rendezvous, update metadata, and a
+secure web client bootstrap.  The intended web sequence is:
+
+\begin{enumerate}[leftmargin=*]
+  \item visit Tessaris and choose \emph{Connect to my Pilot};
+  \item authenticate the personal device;
+  \item select a registered mother brain;
+  \item negotiate an encrypted session with that mother brain;
+  \item load the authorised interface and data from the user's environment.
+\end{enumerate}
+
+The web domain must not be treated as permission to centralise customer data.
+The browser client must verify the target mother identity and active space.
+
+\subsection{Implementation progression}
+
+The first production-capable release may use a proven WireGuard- or
+Tailscale-style private network while the native Pilot application owns the
+identity and user experience.  A later embedded tunnel may remove the separate
+network application and account.  Any replacement must match or exceed the
+tested security, roaming, key rotation, revocation, and recovery properties of
+the initial system.
+
+\section{Identity, Authority, and Privacy Boundaries}
+
+\subsection{Identity layers}
+
+Pilot separates:
+
+\begin{itemize}[leftmargin=*]
+  \item person identity;
+  \item device possession;
+  \item biometric or operating-system approval;
+  \item mother-brain identity;
+  \item household membership;
+  \item organisation membership;
+  \item role and capability lease;
+  \item active presentation session;
+  \item service-account consent.
+\end{itemize}
+
+Possession of one layer does not imply all others.  For example, control of a
+television remote does not establish a private identity, and membership in a
+marketing workspace does not grant access to the whole Boardroom.
+
+\subsection{Data ownership}
+
+The individual owns Personal Pilot data.  The organisation owns its Boardroom
+and workspace records.  A shared household owns only those objects explicitly
+created or moved into the household scope.  Service providers retain whatever
+records their own terms and systems require; Pilot stores references and
+normalised receipts without copying secrets unnecessarily.
+
+\subsection{Cross-space transfer}
+
+Moving information between spaces is an explicit, inspectable operation:
+
+\begin{quote}
+``Send this personal travel receipt to my company expenses.''
+\end{quote}
+
+Pilot displays the source, destination, exact payload, retention consequence,
+and intended recipient before transferring it.  It records a receipt in both
+spaces without manufacturing a hidden shared memory.
+
+\boundary{The Boardroom cannot silently read personal messages, calendars,
+household history, other clients, private files, or personal memory.  Personal
+Pilot cannot copy organisational evidence or expose it on a television merely
+because the same person can access both spaces.}
+
+\subsection{Availability without calendar disclosure}
+
+Where a workspace needs scheduling information, Personal Pilot may answer a
+bounded question such as \emph{available} or \emph{unavailable} for a proposed
+period.  It does not disclose private event names, participants, locations, or
+notes unless the person explicitly authorises that disclosure.
+
+\section{Unified Communication and Action Protocol}
+
+\subsection{Canonical flow}
+
+\begin{lstlisting}[style=pilotcode]
+Request made
+  -> person and active space resolved
+  -> intent classified and policy checked
+  -> exact action proposal prepared
+  -> missing private details collected privately
+  -> approval requested when required
+  -> recipient or provider receives the action
+  -> result independently verified
+  -> receipt returned to the sender and correct space
+\end{lstlisting}
+
+\subsection{Message and action types}
+
+The unified stream carries typed objects rather than undifferentiated text:
+
+\begin{itemize}[leftmargin=*]
+  \item human message;
+  \item Pilot-to-Pilot message;
+  \item task proposal, acceptance, decline, snooze, and completion;
+  \item reminder and location-aware reminder proposal;
+  \item calendar create, reschedule, cancel, and availability proposal;
+  \item document review and comment request;
+  \item Boardroom decision or professional sign-off request;
+  \item email, messaging, or call draft;
+  \item purchase, booking, or service-action proposal;
+  \item device-control request;
+  \item emergency or priority communication;
+  \item progress, failure, correction, and verified completion receipt.
+\end{itemize}
+
+Every object carries a sender, intended recipient, originating space, allowed
+destination, privacy label, creation time, expiry where appropriate, state,
+policy decision, and audit reference.
+
+\subsection{Pilot recipient and non-Pilot recipient}
+
+If the recipient has Pilot, the request arrives as a structured object in the
+recipient's own mother brain and inbox.  The recipient's Pilot can explain,
+schedule, negotiate, decline, or request clarification within its authority.
+
+If the recipient does not have Pilot, the sender may approve a delivery through
+an officially authorised email, SMS, WhatsApp-equivalent, share link, or other
+adapter.  The system must distinguish \texttt{prepared}, \texttt{approved},
+\texttt{submitted}, \texttt{delivered}, \texttt{accepted}, and
+\texttt{completed}.  It must not claim a message or task was received merely
+because a model generated it.
+
+\subsection{Representative journeys}
+
+\begin{itemize}[leftmargin=*]
+  \item ``Send Becca a task to collect the dry cleaning.''
+  \item ``Email James and ask for the revised proposal.''
+  \item ``Tell my marketing freelancer to review this campaign.''
+  \item ``If they have not replied tomorrow, remind me.''
+  \item ``Move this message into the Acme marketing workspace.''
+  \item ``Show the proposal on the television, but keep the financial appendix private.''
+  \item ``Ask Finance Pilot for the strongest objection before I approve this.''
+\end{itemize}
+
+\section{Boardroom and External Workspace Integration}
+
+\subsection{Boardroom as a capability provider}
+
+Boardroom exposes agents, departments, dashboards, projects, files, evidence,
+decisions, approvals, and messages through the workspace gateway.  The unified
+app consumes these resources according to the active workspace lease.  It does
+not duplicate the Boardroom database or reimplement the organisation's policy.
+
+\subsection{Mobile Boardroom behaviour}
+
+The mobile Boardroom opens with:
+
+\begin{itemize}[leftmargin=*]
+  \item a visible organisation and role;
+  \item compact department navigation;
+  \item a concise status briefing;
+  \item a small number of meaningful operational indicators;
+  \item exceptions, decisions, approvals, and delegated work;
+  \item a persistent Boardroom Pilot conversation composer.
+\end{itemize}
+
+Selecting Sales, Marketing, Finance, Operations, Support, People, Products, or
+Files changes the evidence and departmental Pilot context.  It does not grant
+new authority.  Complex setup or detailed work offers an explicit
+\emph{Continue on desktop} action.
+
+\subsection{External participant flow}
+
+\begin{enumerate}[leftmargin=*]
+  \item An authorised organisation member invites a person's Pilot identity.
+  \item The invitation declares the organisation, role, requested capabilities,
+        data classes, duration, and approving authority.
+  \item The individual reviews and accepts the invitation privately.
+  \item Both mother brains record the relationship and signed workspace lease.
+  \item The workspace appears in the person's Spaces view.
+  \item Work is requested, delivered, reviewed, and receipted through the
+        organisation's policy boundary.
+  \item Expiry, role change, project completion, or revocation removes access
+        without deleting the person's unrelated Pilot identity.
+\end{enumerate}
+
+\section{Television Integration}
+
+The television home page is rebuilt as a client of the same signed surface
+manifest.  The manifest may expose Personal Pilot, Tasks, Calendar, Messages,
+Files, Games, AI TV, Learning, Shopping, Home/IoT, Workspace, and Boardroom.
+Only capabilities authorised for the active person and safe for a shared screen
+are rendered.
+
+\subsection{Taking control}
+
+\begin{enumerate}[leftmargin=*]
+  \item A trusted phone discovers or selects the television.
+  \item The phone proves device possession and active person.
+  \item The mother checks household/device trust and issues a short-lived
+        television presentation lease.
+  \item The television displays the person's name, active space, expiry, and
+        permitted tiles.
+  \item Consequential approval remains on the private phone.
+  \item Explicit logout, inactivity, departure, phone revocation, or lease
+        expiry clears the private screen state.
+\end{enumerate}
+
+\subsection{Shared-screen minimisation}
+
+The television normally receives counts, summaries, redacted titles, or a
+deliberately opened artefact.  It does not receive reusable private keys,
+service tokens, complete private inboxes, payment credentials, or unrestricted
+Boardroom memory.
+
+\section{Core Domain Contracts}
+
+The following provider-independent objects should be versioned before large
+client implementation begins:
+
+\begin{longtable}{@{}>{\bfseries}p{33mm}p{120mm}@{}}
+\toprule
+Object & Minimum purpose \\
+\midrule
+Person identity & Stable human-controlled identifier, display claims, guardian relationship where applicable, recovery and revocation state. \\
+Device identity & Public key, platform, possession proof, trust state, capabilities, last-seen evidence, and revocation. \\
+Space & Personal, household, workspace, temporary engagement, or Boardroom ownership and policy anchor. \\
+Membership & Person-to-space relationship, role, start, expiry, invitation, acceptance, and revocation. \\
+Capability lease & Signed authority, constraints, sequence, expiry, policy version, issuer, subject, and permitted surfaces. \\
+Conversation & Participants, owning space, message sequence, privacy, retention, and continuation state. \\
+Action proposal & Exact requested change, risk, evidence, missing fields, approval requirements, and expiry. \\
+Approval & Person, trusted device, exact proposal hash, biometric/OS assertion where available, time, and result. \\
+Receipt & Submission, provider response, independent verification, correction, and final state without provider secrets. \\
+Surface manifest & Active person, device, space, permitted modules, redaction rules, expiry, and signature. \\
+Memory item & Owner, scope, provenance, confidence, retention, correction, export, and deletion controls. \\
+Service connection & Persona or organisation owner, provider, scopes, credential reference, consent, health, and revocation. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Minimum state language}
+
+Clients and agents should share precise states such as
+\texttt{draft}, \texttt{needs\_details}, \texttt{awaiting\_approval},
+\texttt{approved}, \texttt{submitted}, \texttt{delivered},
+\texttt{awaiting\_recipient\_acceptance}, \texttt{accepted},
+\texttt{declined}, \texttt{completed}, \texttt{failed},
+\texttt{cancelled}, and \texttt{expired}.  Interfaces may translate these into
+plain language but must not collapse them into a misleading success state.
+
+\section{Security and Threat Model}
+
+\subsection{Principal threats}
+
+The design must explicitly test:
+
+\begin{itemize}[leftmargin=*]
+  \item stolen or replaced phone;
+  \item malicious QR code or mother-brain impersonation;
+  \item replayed invitation, lease, activation, or approval;
+  \item compromised relay or connection-discovery service;
+  \item cross-space data leakage and confused-deputy actions;
+  \item malicious workspace administrator requesting excessive access;
+  \item prompt injection from messages, files, web pages, or Boardroom evidence;
+  \item service-token theft and excessive OAuth scope;
+  \item household member using an unattended television session;
+  \item lost server, failed update, corrupt database, or unavailable home network;
+  \item a model presenting an unverified action as completed;
+  \item abusive contact, child-safety, harassment, and emergency misuse.
+\end{itemize}
+
+\subsection{Required controls}
+
+\begin{itemize}[leftmargin=*]
+  \item platform-protected device keys and signed, short-lived challenges;
+  \item certificate pinning or equivalent verified mother-brain identity;
+  \item least-privilege, expiring, revocable capability leases;
+  \item independent Personal, Household, Workspace, and Boardroom encryption and policy domains;
+  \item explicit private approval for consequential actions;
+  \item separate service credentials by person or organisation;
+  \item end-to-end encryption across any relay;
+  \item redacted audit records and inspectable action receipts;
+  \item safe cancellation, timeout, replay protection, and idempotency;
+  \item encrypted backup, tested recovery, key rotation, and lost-device revocation;
+  \item no model access to raw keys, passwords, card numbers, or unrestricted tokens.
+\end{itemize}
+
+\section{Operations, Updates, Migration, and Recovery}
+
+Self-hosting is credible only if ordinary people can operate it.  The runtime
+must provide:
+
+\begin{itemize}[leftmargin=*]
+  \item guided installation with no terminal requirement;
+  \item health monitoring and non-technical explanations;
+  \item signed updates, staged activation, health verification, and rollback;
+  \item automatic restart and bounded recovery after power or network loss;
+  \item encrypted backup with owner-visible status;
+  \item export, selective deletion, and complete mother migration;
+  \item lost-phone, lost-server, and compromised-key recovery;
+  \item a redacted support bundle that excludes memories, credentials, and private message bodies;
+  \item a compatibility report covering host, network, devices, and provider adapters.
+\end{itemize}
+
+Migration must transfer encrypted user-owned state to a new authorised mother,
+rotate the active endpoint and relevant keys, verify the new instance, and
+retire the old authority.  It must not silently create two writable primaries.
+
+\section{Adoption and Network Effects}
+
+The television remains the visible acquisition wedge.  The unified mobile app
+creates daily utility, and workspace invitations create professional adoption.
+
+\begin{enumerate}[leftmargin=*]
+  \item A household installs Pilot for the television, games, learning, or live intelligence.
+  \item The paired phone becomes useful for tasks, messages, reminders, approvals, and continuation.
+  \item A person sends a useful task, result, or request to another person.
+  \item A business invites an employee, freelancer, accountant, or adviser into a workspace.
+  \item The invited person installs Pilot to collaborate without surrendering their personal identity.
+  \item They discover that the same privately owned Pilot can manage their personal life and other workspaces.
+  \item They may later create a household, workspace, or Boardroom of their own.
+\end{enumerate}
+
+\decision{The viral loop is utility, not advertising: a real task, decision,
+message, Moment, family request, or professional invitation gives another
+person a reason to connect.}
+
+\section{Implementation Programme}
+
+\subsection{Phase A: canonical contracts}
+
+Version the Person, Device, Space, Membership, Capability Lease, Conversation,
+Action, Approval, Receipt, Surface Manifest, Memory, and Service Connection
+schemas.  Implement policy tests before UI integration.
+
+\subsection{Phase B: unified app shell}
+
+Build the Personal/Workspace/Boardroom switcher; Pilot, Inbox, Actions, Spaces,
+and Me navigation; contextual shortcut rows; conversation composer; action
+cards; and clear active-person, active-space, and connection-state indicators.
+
+\subsection{Phase C: secure pairing and remote access}
+
+Implement QR pairing, device keys, certificates, local discovery, direct remote
+connection, encrypted relay fallback, key rotation, revocation, and recovery.
+
+\subsection{Phase D: unified communication loop}
+
+Implement structured Pilot-to-Pilot messaging, recipient acceptance, task and
+calendar conversion, provider fallbacks, follow-up reminders, delivery states,
+and receipts.
+
+\subsection{Phase E: Personal Pilot integration}
+
+Connect personal identity, memory, tasks, calendar, contacts, service accounts,
+household, television, devices, saved items, shopping, booking, and files.
+
+\subsection{Phase F: Boardroom and workspace integration}
+
+Expose Boardroom functions through the workspace gateway.  Implement invitation,
+role, lease, departmental briefing, review, delegation, approval, professional
+sign-off, and desktop continuation.
+
+\subsection{Phase G: television convergence}
+
+Replace hard-coded television tiles with the signed surface manifest.  Verify
+private takeover, timeout, logout, redaction, personal and workspace views, and
+phone-only approval.
+
+\subsection{Phase H: production clients and distribution}
+
+Package signed native iOS and Android clients, secure browser access, desktop
+clients, server installers, update and rollback, diagnostics, backup, and
+migration.  Complete clean-machine and ordinary-user field qualification.
+
+\section{Acceptance Programme}
+
+The unified bridge is not complete until all of the following journeys pass
+with independent evidence:
+
+\begin{enumerate}[leftmargin=*]
+  \item A new household installs a mother brain and pairs a phone without using a terminal.
+  \item The phone works locally, leaves Wi-Fi, reconnects remotely, and returns without losing identity or duplicating an action.
+  \item A user switches between Personal, external Workspace, and owned Boardroom without cross-space leakage.
+  \item Personal Pilot sends a structured task to another Pilot; the recipient accepts; both see consistent state and receipts.
+  \item A non-Pilot recipient receives an approved provider message, and the sender sees an honest delivery state.
+  \item An organisation invites a freelancer with marketing-only authority; forbidden Finance and People data remain inaccessible.
+  \item An accountant receives a bounded review package, signs an exact result, and loses access when the engagement expires.
+  \item A Boardroom owner reviews a dashboard, delegates a task, approves a decision privately, and receives provider verification.
+  \item A phone activates a television workspace; private content stays redacted; inactivity and explicit logout clear the session.
+  \item A lost phone is revoked and cannot reconnect, approve, activate a television, or renew a workspace lease.
+  \item A mother brain is backed up, migrated, verified, and the old writable authority is retired.
+  \item A failed update rolls back without losing identity, messages, tasks, permissions, or audit continuity.
+\end{enumerate}
+
+\section{Non-Goals and Honest Boundaries}
+
+This phase does not require:
+
+\begin{itemize}[leftmargin=*]
+  \item reproducing full desktop Boardroom administration on mobile;
+  \item forcing every user to understand VPNs, certificates, ports, or server administration;
+  \item moving customer memory and business evidence into a Tessaris-owned central cloud;
+  \item allowing an LLM to invent permissions, select a private identity, or execute outside a signed lease;
+  \item claiming biometric identity until a signed native client and hardware-backed proof are field-qualified;
+  \item claiming message delivery, professional approval, purchase, booking, or device action without a verified external receipt;
+  \item merging a person's Personal Pilot memory with employer or client data;
+  \item treating a visible mobile button as proof that the underlying capability exists.
+\end{itemize}
+
+\section{Final Product Definition}
+
+\begin{center}
+\large\textbf{One personally owned Pilot identity that can securely enter many
+homes, teams, projects, and Boardrooms without merging their data or confusing
+their authority.}
+\end{center}
+
+The television gets Pilot into the home and demonstrates immediate value.  The
+mobile application turns Pilot into an everyday communication and action
+system.  Personal Pilot builds trust and continuity.  External workspaces let
+employees and specialists participate safely in other organisations.
+Boardroom provides the complete governed business environment.  Desktop and
+browser clients support detailed creation and operation.  The user- or
+organisation-selected mother brain preserves ownership of intelligence and
+data across all of them.
+
+\appendix
+\section{Initial Product Screen Contract}
+
+\subsection{Personal mode}
+
+Header: Pilot identity and active Personal space.  Shortcut row: Calendar,
+Tasks, Devices, Chats, Games, Television, Learning, Shopping, and Files.
+Stream: conversations, action cards, household requests, provider results, and
+receipts.  Composer: \emph{Ask Pilot anything}.  Bottom navigation: Pilot,
+Inbox, Actions, Spaces, and Me.
+
+\subsection{External workspace mode}
+
+Header: organisation, workspace, and role.  Shortcut row: only granted
+functions.  Stream: work requests, messages, reviews, deadlines, delegated
+actions, and receipts.  Composer: active workspace Pilot.  Personal messages
+and other client data are absent.
+
+\subsection{Boardroom mode}
+
+Header: organisation, active Boardroom role, and connection state.  Shortcut
+row: Boardroom, Sales, Marketing, Finance, Operations, Support, People,
+Products, Files, and Pilot as permitted.  Stream: briefing, exceptions,
+decisions, approvals, delegations, and receipts.  Detailed configuration offers
+desktop continuation.
+
+\section{Decision Register}
+
+\begin{longtable}{@{}>{\bfseries}p{32mm}p{121mm}@{}}
+\toprule
+Decision & Recorded outcome \\
+\midrule
+Product structure & One Pilot product with Personal, Workspace, and Boardroom modes. \\
+Primary mobile model & Messaging-simple conversation plus structured action cards, not a miniature desktop. \\
+Boardroom mobile role & Review, briefing, delegation, approval, and intervention; setup and deep work remain desktop-first. \\
+Identity & One person may participate in many spaces with different authority. \\
+External work & Employees, freelancers, advisers, accountants, auditors, directors, and suppliers use bounded workspaces. \\
+Hosting & User- or organisation-selected mother brain; local, appliance, private server, private cloud, or hybrid. \\
+Tessaris cloud role & Distribution, optional rendezvous/relay, updates, and web bootstrap; not default ownership of customer intelligence or data. \\
+Remote connection & Local direct first, encrypted peer-to-peer second, end-to-end encrypted relay fallback. \\
+Television & Shared room-scale client using short-lived person-and-space manifests. \\
+Data transfer & Explicit, inspectable, receipted cross-space action; no hidden memory merging. \\
+Execution & Model output proposes; policy, private authority, provider adapter, verification, and receipt determine completion. \\
+Next programme & Pilot Unified App -- Identity, Spaces, Inbox, Actions, secure connection, then Personal/Boardroom/TV integration. \\
+\bottomrule
+\end{longtable}
+
+\end{document}

@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.38: Full Chess Lichess Dry-Run Game Replay Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.38 defines the AION Full Chess Lichess Dry-Run Game Replay Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can replay Lichess-style game events offline and prepare dry-run move payloads.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.38 replays a Lichess-style game stream offline before live bot enablement.
+
+The kernel detects AION's turn, selects a knowledge-guided move, and prepares a dry-run bot move payload.
+
+\section{Replay Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{replay\_mode};
+  \item \texttt{dry\_run};
+  \item \texttt{network\_call\_performed};
+  \item \texttt{human\_approval\_required};
+  \item \texttt{event\_count};
+  \item \texttt{replayed\_event\_count};
+  \item \texttt{game\_id};
+  \item \texttt{aion\_colour};
+  \item \texttt{aion\_turn\_detected};
+  \item \texttt{selected\_bestmove};
+  \item \texttt{selected\_policy};
+  \item \texttt{prepared\_move\_url};
+  \item \texttt{would\_post\_move};
+  \item \texttt{replay\_events};
+  \item \texttt{replay\_decision};
+  \item \texttt{dry\_run\_replay\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates offline Lichess dry-run replay only.
+
+It does not perform live network calls, post moves to Lichess, claim official rating, prove grandmaster-strength play, Stockfish-level calculation, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B38-FULL-CHESS-LICHESS-DRY-RUN-GAME-REPLAY-KERNEL-LOCK\\
+Status: LOCKED --- full chess Lichess dry-run game replay kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

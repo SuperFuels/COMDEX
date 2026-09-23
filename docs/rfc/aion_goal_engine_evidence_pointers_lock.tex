@@ -1,0 +1,56 @@
+\section{AION Goal Engine Evidence Pointers Lock}
+\label{sec:aion-goal-engine-evidence-pointers-lock}
+
+\subsection{Status}
+
+The AION Goal Engine now exposes canonical evidence pointers for future external evidence sources.
+
+\begin{quote}
+\textbf{Status: LOCKED --- evidence pointer v1.}
+\end{quote}
+
+\subsection{Canonical Trace Block}
+
+\begin{verbatim}
+evidence_pointer_preview
+schema_version = aion.goal_engine.evidence_pointer.v1
+reference_pointer
+evidence_hash
+\end{verbatim}
+
+Evidence pointers are normalized references. They do not fetch, read, mutate, or verify external systems.
+
+\subsection{Supported Pointer Types}
+
+\begin{verbatim}
+gmail_reply
+crm_lead
+utm_click
+booking
+payment
+revenue
+screenshot
+file
+manual
+\end{verbatim}
+
+\subsection{Safety Invariants}
+
+\begin{verbatim}
+dry_run_only = true
+resolved = false
+would_read_external = false
+would_write_external = false
+would_grant_permission = false
+\end{verbatim}
+
+Evidence pointers MAY identify where evidence can be resolved later, but MUST NOT resolve evidence without an approved connector/runtime path.
+
+\subsection{Lock Footer}
+
+\begin{quote}
+Lock ID: AION-GOAL-ENGINE-EVIDENCE-POINTERS-V1\\
+Status: LOCKED\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson
+\end{quote}

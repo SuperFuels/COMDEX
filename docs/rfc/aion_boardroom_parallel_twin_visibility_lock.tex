@@ -1,0 +1,105 @@
+\section{Phase 9A --- Boardroom Parallel Twin Visibility v0}
+\label{sec:aion-boardroom-parallel-twin-visibility-v0}
+
+\subsection{Status}
+
+This lock starts the Boardroom visibility phase for the AION Parallel Business Infrastructure.
+
+\begin{quote}
+\textbf{Status: LOCKED --- UI visibility lock pending implementation.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 9A brings the newly locked Gateway and Home Fixed vertical contracts into the human Boardroom surface.
+
+The Boardroom must allow the founder/operator to see the same operational state that the machine-facing A2A layer will later expose to external agents.
+
+The goal is visibility and control only. This phase MUST NOT add live autonomous execution.
+
+\subsection{Required Boardroom Panels}
+
+The Boardroom should expose the following panels or sections:
+
+\begin{itemize}
+  \item Parallel Twin panel,
+  \item Machine Catalog panel,
+  \item Machine Cart preview panel,
+  \item Quote Preview panel,
+  \item Fulfilment Job preview panel,
+  \item Evidence preview panel,
+  \item Settlement Readiness panel,
+  \item GlyphChain Proof Receipt panel,
+  \item Proof Verification panel,
+  \item Exception Recovery panel,
+  \item Machine Trace panel,
+  \item Home Fixed Vertical Testbed panel.
+\end{itemize}
+
+\subsection{Machine Trace Alignment}
+
+The Machine Trace panel should show the compact internal A2A view that external consumer agents will eventually inspect.
+
+It should include:
+
+\begin{itemize}
+  \item business identifier,
+  \item job identifier,
+  \item current job stage,
+  \item provider assignment state,
+  \item quote state,
+  \item evidence state,
+  \item settlement readiness state,
+  \item proof receipt state,
+  \item exception state,
+  \item blocked reasons,
+  \item human review requirement.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The Boardroom visibility layer MUST NOT:
+
+\begin{itemize}
+  \item create a live booking,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages,
+  \item expose a public A2A route.
+\end{itemize}
+
+No live execute button may be added until a guarded approval path exists.
+
+\subsection{Validation}
+
+Validation result:
+
+\begin{verbatim}
+Phase 9A UI lock passing; focused suite membership required before commit.
+\end{verbatim}
+
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_visibility_ui_lock.py
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-BOARDROOM-PARALLEL-TWIN-VISIBILITY-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
+
+
+\subsection{FulfilmentJob Preview}
+
+The Boardroom Parallel Twin visibility surface includes the \texttt{FulfilmentJob} preview as the operational record connecting catalog, cart, quote, evidence, settlement readiness, proof receipt, exception recovery, and machine trace state.

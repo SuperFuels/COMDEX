@@ -88,20 +88,20 @@ try:
 except Exception as _e:
     _cau_state = None
     logger.warning(
-        f"[CEE-Playback] CAU authority not available; learning will be allowed by default. err={_e}"
+        f"[CEE-Playback] CAU authority not available; learning is denied by default. err={_e}"
     )
 
 
 def _cau_status(goal: str = "maintain_coherence") -> dict:
     """
     Returns CAU dict (must include allow_learn).
-    Safe fallback = allow learn (soft-fail) to avoid breaking playback.
+    Safe fallback = deny learning. Playback may continue, but mutation may not.
     """
     if _cau_state is None:
         return {
             "t": time.time(),
-            "allow_learn": True,
-            "deny_reason": None,
+            "allow_learn": False,
+            "deny_reason": "cau_import_failed",
             "adr_active": False,
             "cooldown_s": 0,
             "S": None,
@@ -117,10 +117,10 @@ def _cau_status(goal: str = "maintain_coherence") -> dict:
             st.setdefault("source", "CAU:get_authority_state")
             st.setdefault("t", time.time())
             return st
-        logger.warning("[CEE-Playback] CAU returned unexpected shape; allowing learn (soft-fail).")
+        logger.warning("[CEE-Playback] CAU returned unexpected shape; denying learn (fail-closed).")
         return {
             "t": time.time(),
-            "allow_learn": True,
+            "allow_learn": False,
             "deny_reason": "cau_bad_shape",
             "adr_active": False,
             "cooldown_s": 0,
@@ -131,10 +131,10 @@ def _cau_status(goal: str = "maintain_coherence") -> dict:
             "source": "CAU_BAD_SHAPE",
         }
     except Exception as e:
-        logger.warning(f"[CEE-Playback] CAU compute failed; allowing learn. err={e}")
+        logger.warning(f"[CEE-Playback] CAU compute failed; denying learn. err={e}")
         return {
             "t": time.time(),
-            "allow_learn": True,
+            "allow_learn": False,
             "deny_reason": "cau_compute_failed",
             "adr_active": False,
             "cooldown_s": 0,
@@ -148,7 +148,7 @@ def _cau_status(goal: str = "maintain_coherence") -> dict:
 
 def _cau_allow(goal: str = "maintain_coherence") -> Tuple[bool, dict]:
     st = _cau_status(goal=goal)
-    return bool(st.get("allow_learn", True)), st
+    return bool(st.get("allow_learn", False)), st
 
 
 def get_cognitive_status(goal: str = "maintain_coherence") -> dict:
@@ -768,7 +768,7 @@ class CEEPlayback:
 
                 rho, Ibar, sqi = _norm_resonance(resonance)
 
-                allow = bool(cau_snap.get("allow_learn", True)) if isinstance(cau_snap, dict) else True
+                allow = bool(cau_snap.get("allow_learn", False)) if isinstance(cau_snap, dict) else False
                 cau = cau_snap or {}
 
                 if allow:
@@ -824,7 +824,7 @@ class CEEPlayback:
                     rho, Ibar, sqi = _norm_resonance(resonance)
 
                     # use the per-turn CAU snapshot
-                    allow = bool(cau_snap.get("allow_learn", True)) if isinstance(cau_snap, dict) else True
+                    allow = bool(cau_snap.get("allow_learn", False)) if isinstance(cau_snap, dict) else False
                     cau = cau_snap or {}
 
                     if allow:

@@ -1,0 +1,148 @@
+\section{Unified Sovereign Intelligence Contract}
+\label{sec:unified-sovereign-intelligence-contract}
+
+This section records completion of Sovereign Business Brain roadmap tasks
+\texttt{SBB-0301}--\texttt{SBB-0308}.  AION now has one provider-neutral routing
+boundary for deterministic capabilities, retrieval, evidence services, local and
+remote models, and agent harnesses.  A model remains replaceable compute: it does
+not become the customer brain, own memory, grant permission or execute a business
+action by itself.
+
+\subsection{Portable contract family}
+
+The contract family is published as portable JSON Schema and as typed runtime
+models.  It contains four primary envelopes:
+
+\begin{description}
+  \item[Intelligence Request] identifies the customer brain, idempotent request,
+  task class, permitted input, required capabilities, output schema, route budget,
+  disclosure policy and final delivery target.
+  \item[Intelligence Response] returns a structured result, chosen adapter,
+  normalized attempts, delivery status and Intelligence Route Receipt.
+  \item[Stream Event] provides ordered accepted, attempt, fallback, delivery and
+  completion events without copying the original prompt into routing telemetry.
+  \item[Adapter Manifest] describes an adapter's kind, location, provider, model,
+  capabilities, destination, residency, supported data classification and expected
+  quality, cost, latency and energy.
+\end{description}
+
+All five adapter kinds---\texttt{capability}, \texttt{model}, \texttt{retrieval},
+\texttt{evidence} and \texttt{agent\_harness}---use this same boundary.  Consequently,
+an open model on the customer laptop, a model in the customer's private cloud, a
+public evidence service and an optional premium API can be substituted without
+moving the canonical business brain.
+
+\subsection{Governed routing sequence}
+
+\begin{verbatim}
+Pilot / Boardroom request
+        |
+        v
+AION identity + task + schema validation
+        |
+        v
+Context-size and route-budget admission
+        |
+        v
+Candidate capability check
+        |
+        +-- local adapter -----------------------------+
+        |                                              |
+        +-- customer cloud / external API              |
+              disclosure + destination + residency    |
+              field minimisation                      |
+                                                       v
+                                      structured output validation
+                                                       |
+                                      quality / usage verification
+                                                       |
+                                      Pilot presentation OR
+                                      governed capability authority
+                                                       |
+                                      hash-only route receipt
+\end{verbatim}
+
+The caller supplies an ordered candidate list.  The router evaluates it
+deterministically and cannot add an undeclared provider.  A fallback therefore
+cannot escape the customer's privacy, residency or cost policy simply because a
+preferred model failed.
+
+\subsection{External disclosure and context minimisation}
+
+Local adapters may receive the admitted local request.  A customer-cloud or external
+adapter is rejected unless external disclosure is enabled and its exact destination
+and residency occur in the request's allowlists.  The request must also name the
+fields that may leave the brain.  A separate request copy is constructed for the
+external adapter containing only those named top-level fields; all other local input
+is removed before the adapter callable is invoked.
+
+The manifest additionally declares the highest data classification the destination
+may receive.  Public, internal, confidential and restricted data are ordered, and a
+route is ineligible when the request classification exceeds the adapter's declared
+limit.  These checks happen before network-capable code receives the request.
+
+\subsection{Multi-dimensional budgets}
+
+Each request carries maximum context bytes, financial cost, latency, energy and
+attempt count together with a minimum acceptable quality.  Estimated adapter use is
+checked before an attempt.  Reported use and structured-output quality are checked
+afterward.  A cheap but inadequate result cannot satisfy a high-quality request, and
+a powerful provider cannot be selected when its cost, location or disclosure exceeds
+the owner's boundary.
+
+The budget is a route authority rather than a reporting hint.  Context overflow fails
+before execution.  Ineligible candidates are recorded as skipped with a machine-readable
+reason.  Attempts stop at the declared ceiling.
+
+\subsection{Health, fallback and idempotency}
+
+Adapter success resets its failure counter.  Repeated failures open a persisted
+circuit for a bounded cooling period, preventing a broken provider from being called
+for every subsequent request.  The router then evaluates the next candidate under
+the same original disclosure and budget rules.
+
+The request identifier is an idempotency key.  Replaying the identical request returns
+the recorded response without calling the adapter or delivery sink again.  Reusing the
+identifier with changed content fails closed.  This protects both paid inference and
+consequential downstream capabilities from accidental duplicate execution.
+
+\subsection{Receipts without prompt retention}
+
+Every terminal outcome emits an Intelligence Route Receipt containing request and
+result hashes, normalized route attempts, disclosure policy and budget.  It explicitly
+records that raw prompts and raw results are not retained in the receipt.  When a
+Sovereign Brain boundary is supplied, the receipt is placed in its canonical receipt
+store under a content-derived identifier.  This makes routing auditable without
+turning telemetry into a second store of private conversations.
+
+\subsection{Presentation and action separation}
+
+A successful result has two possible destinations.  A Pilot presentation sink may
+format the structured output for an authorized phone, television, desktop or browser.
+A consequential result must instead enter a governed capability sink.  That path
+requires both an exact capability identifier and an approval receipt; absence of
+either authority fails delivery.  The router passes a proposal to the capability
+authority but cannot manufacture permission, bypass the capability policy or claim
+that an external action succeeded.
+
+This preserves the core sequence:
+
+\begin{center}
+\textbf{understand $\rightarrow$ route $\rightarrow$ validate $\rightarrow$ approve
+$\rightarrow$ execute $\rightarrow$ verify $\rightarrow$ learn.}
+\end{center}
+
+\subsection{Verification and release record}
+
+Automated verification covers schema publication, every adapter kind and local Pilot
+delivery.  It also covers private cloud disclosure, destination and residency controls,
+removal of undeclared fields, resource budgets, output checking and persistent circuits.
+Further tests prove fallback containment, idempotent replay, changed request rejection,
+approved capability delivery, ordered streaming events and receipt persistence without
+raw content.
+
+The implementation is packaged in AION Sovereign Brain Bootstrap~0.6.0 and Pilot
+Fabric~0.58.0.  It does not silently migrate every historical direct model call; those
+call sites can now be moved behind this canonical contract incrementally.  The next
+roadmap phase is the signed model catalogue and qualification system, which decides
+which concrete models are eligible to register as adapters.

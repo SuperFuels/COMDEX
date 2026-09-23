@@ -1,0 +1,105 @@
+\section{Pilot Games and Learning: Verified Play and Local Education}
+
+Pilot Fabric 0.46.0 completes the locally enforceable portion of master-list
+Section~8.  The release treats cloud gaming and children's learning as two governed
+experiences rather than as links to third-party pages.  Both experiences remain useful
+without a paid language-model API, and both distinguish observed facts from assumptions.
+
+\subsection{Governed cloud-gaming state machine}
+
+The \texttt{GovernedGamingExperience} service persists a bounded local record for each
+gaming attempt.  Its principal states are
+\begin{center}
+\texttt{provider\_surface\_prepared} $\rightarrow$
+\texttt{provider\_surface\_observed} $\rightarrow$
+\texttt{search\_results\_observed} $\rightarrow$
+\texttt{title\_observed} $\rightarrow$
+\texttt{stream\_ready\_observed} $\rightarrow$
+\texttt{playing\_verified}.
+\end{center}
+Opening GeForce NOW therefore does not prove that its page appeared; a search does not
+prove that a game launched; and a game title does not prove that a stream is ready or
+playing.  The final playing state requires signed provider or device evidence after a
+verified title and stream-readiness observation.  This prevents the television UI or a
+language model from manufacturing a successful-play claim from URL delivery alone.
+
+Provider sign-in remains provider-controlled.  Pilot opens only the allowlisted official
+origin, prefers QR or device-code handoff, never stores a password in gaming state, and
+never exposes credentials to a device node.  CAPTCHA, terms, multi-factor authentication
+and the final sign-in decision remain owner actions.  The existing private keyboard is
+ephemeral; a real password must be entered only through the trusted HTTPS controller or
+the provider's own device flow.
+
+\subsection{Controller qualification}
+
+The private phone surface uses the browser Gamepad API, when available, to inspect
+advertised axes and buttons.  Pilot maps these observations onto bounded profiles:
+standard gamepad, LG mobile gamepad, keyboard and pointer, navigation-only TV remote, or
+unknown.  Advertisement alone produces
+\texttt{advertised\_not\_field\_verified}.  A compatible input mode is marked verified
+only after an actual button or axis event is observed.  Navigation-only devices are not
+reported as gameplay-ready.
+
+Controller identifiers are hashed in the audit record.  Raw button histories are not
+used as behavioural profiles.  A device can be re-qualified after browser, television,
+controller or firmware changes.
+
+\subsection{Private game shortcuts and continuation}
+
+A saved-game shortcut can be created only from a provider title that has been independently
+observed.  The shortcut is persona-bound and stores the provider, verified title and an
+optional provider content identifier.  It contains no provider credential or entitlement.
+The command ``Pilot, continue my game'' prepares the last private shortcut and reopens the
+official provider surface; it deliberately reports \texttt{prepared\_not\_playing} until
+fresh readiness and playback evidence arrive.  Different household personas do not see or
+continue one another's private shortcuts.
+
+\subsection{Expanded local curriculum}
+
+The learning engine now uses schema \texttt{aion.education.v2}.  It supports the age bands
+6--7, 8--9 and 10--12; foundation, developing and challenge difficulty; and Spanish,
+mathematics and science subjects.  Spanish includes a larger word set, adaptive weak-item
+selection and deeper conversation rounds.  Mathematics and science use deterministic,
+offline activities that do not require web access or paid inference.
+
+Each round contains an original code-generated SVG illustration with alternative text.
+These local vectors replace emoji-only teaching and introduce no third-party copyright or
+tracking dependency.  Correctness is expressed with text, symbols and colour together.
+The television interface supports directional focus, visible prompts, spoken prompts and
+reduced-motion rendering.
+
+\subsection{Local pronunciation and child-safe retention}
+
+Pronunciation scoring consumes an on-device speech transcript, normalizes case and
+diacritics, and combines sequence similarity with expected-word coverage.  The child sees
+an encouraging score band and retry guidance.  Pilot retains only the card identifier,
+numeric score, band and time.  Raw audio and recognized words are discarded and are not
+written to the learner file or audit ledger.  No cloud model is required.
+
+\subsection{Guardian-private progress and corrections}
+
+Progress reports are available only on the persona-bound private phone.  They show
+attempts, accuracy, pronunciation average, curriculum settings and low-mastery activities.
+A guardian can attach a bounded practice correction; the record contains a one-way persona
+hash rather than the private identifier.  Shared-TV speech cannot inspect or alter these
+reports.  Learner profiles are local aliases, not child accounts, advertising identities
+or externally addressable profiles.
+
+\subsection{Safety and assurance boundary}
+
+The local technical review verifies keyboard and directional focus, visible and spoken
+prompts, colour-independent feedback, disabled open chat, disabled external links,
+disabled purchases, no adverts and no child raw-voice retention.  This does not substitute
+for independent pedagogy, accessibility and child-safety assessment.  Those consumer
+claims, together with provider telemetry and hardware-matrix field qualification, remain
+in the Section~8 blocker register.
+
+\subsection{Verification}
+
+Automated checks cover state separation, signed-playing requirements, controller
+qualification, persona isolation, shortcut preconditions, subject and difficulty routing,
+original vector output, transcript non-retention and guardian authorization.  The full
+Fabric suite must pass before the release archive is built.  Tests never claim a real
+GeForce stream, a real controller model or an externally reviewed curriculum without the
+corresponding field evidence.
+

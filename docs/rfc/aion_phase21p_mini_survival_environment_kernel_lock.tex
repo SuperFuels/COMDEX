@@ -1,0 +1,79 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21P: Mini Survival Environment Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21P defines the AION Mini Survival Environment Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can operate inside a minimal survival world with energy, food, hazards, prediction before action, policy update, and persistent survival memory.}
+\end{quote}
+
+\section{Purpose}
+
+The purpose of this phase is to introduce the first internal survival game after strategy, prediction, rule extraction, and failed-rule repair have been established.
+
+\section{World Contract}
+
+The first survival world contains:
+
+\begin{itemize}
+  \item small grid;
+  \item energy counter;
+  \item food cells;
+  \item hazard cells;
+  \item limited actions;
+  \item prediction before movement;
+  \item survival score;
+  \item persistent policy memory.
+\end{itemize}
+
+\section{Loop Contract}
+
+The locked loop is:
+
+\[
+state \rightarrow predict \rightarrow act \rightarrow energy\_change
+\rightarrow survive/fail \rightarrow policy\_update \rightarrow persist.
+\]
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{ticks\_run};
+  \item \texttt{survived};
+  \item \texttt{survival\_score};
+  \item \texttt{final\_energy};
+  \item \texttt{food\_collected};
+  \item \texttt{hazards\_hit};
+  \item \texttt{prediction\_error\_delta};
+  \item \texttt{final\_policy};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates a minimal operational survival loop. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21P-MINI-SURVIVAL-ENVIRONMENT-KERNEL-LOCK\\
+Status: LOCKED --- mini survival environment kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

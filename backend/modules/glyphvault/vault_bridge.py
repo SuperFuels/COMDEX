@@ -82,9 +82,10 @@ def get_container_snapshot_id(container_id: str) -> str:
 # ==============================
 
 from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
+from backend.modules.glyphvault.key_manager import get_encryption_key
 from backend.modules.consciousness.state_manager import state_manager  # ✅ Singleton instance
 
-vault_manager = ContainerVaultManager(encryption_key=b"0" * 32)  # Dev-safe key
+vault_manager = ContainerVaultManager(encryption_key=get_encryption_key())
 
 def load_container_by_id(container_id: str) -> Dict[str, Any]:
     """

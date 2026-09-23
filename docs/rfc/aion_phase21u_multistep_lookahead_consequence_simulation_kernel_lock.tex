@@ -1,0 +1,79 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21U: Multi-Step Lookahead and Consequence Simulation Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21U defines the AION Multi-Step Lookahead and Consequence Simulation Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can simulate multiple possible future paths, detect delayed danger, and avoid a future hazard before impact.}
+\end{quote}
+
+\section{Purpose}
+
+Earlier survival phases proved learning after outcome. Phase 21U adds thinking ahead.
+
+The key distinction is:
+
+\[
+act \rightarrow harm \rightarrow learn
+\]
+
+versus:
+
+\[
+simulate\_future \rightarrow predict\_danger \rightarrow avoid\_before\_impact.
+\]
+
+\section{Loop Contract}
+
+The locked loop is:
+
+\[
+current\_state \rightarrow candidate\_actions
+\rightarrow future\_rollouts \rightarrow risk/reward\_score
+\rightarrow chosen\_action.
+\]
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{shallow\_depth};
+  \item \texttt{deep\_depth};
+  \item \texttt{shallow\_first\_action};
+  \item \texttt{deep\_first\_action};
+  \item \texttt{lookahead\_changed\_action};
+  \item \texttt{avoided\_future\_hazard\_before\_impact};
+  \item \texttt{deep\_candidates};
+  \item \texttt{execution\_trace};
+  \item \texttt{uses\_multistep\_lookahead};
+  \item \texttt{uses\_consequence\_simulation};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational future simulation and before-impact avoidance. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21U-MULTISTEP-LOOKAHEAD-CONSEQUENCE-SIMULATION-KERNEL-LOCK\\
+Status: LOCKED --- multi-step lookahead and consequence simulation kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

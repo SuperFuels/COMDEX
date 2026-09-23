@@ -1,0 +1,73 @@
+\section{Grouped Contextual Mobile Panels}
+\label{sec:pilot-mobile-contextual-panels}
+
+The unified Pilot phone interface now presents one working context at a time.  This
+completes mobile task \texttt{MOB-0212} without removing any Personal, Workspace or
+Boardroom capability.  The change replaces the earlier cumulative controller stream,
+in which tools, inbox items, action cards and connection settings could remain visible
+in one long page, with a small routing shell whose visible body is determined by the
+active product mode, bottom-navigation destination and selected tool.
+
+\subsection{Interaction model}
+
+The user first chooses Personal, Workspace or Boardroom.  Within Pilot, a grouped
+selector exposes the complete signed shortcut manifest.  Personal tools are grouped
+as Everyday, Home and experiences, and Private life; Workspace tools are grouped as
+Assignment and Resources; Boardroom tools are grouped as Business and People and
+resources.  Four high-frequency Personal controls---TV, Tasks, Calendar and
+Devices---remain directly reachable without opening the selector.
+
+Selecting a tool replaces the overview with that tool's panel.  A visible ``Close
+tool'' control returns to the relevant mode overview.  Selecting Inbox, Actions,
+Spaces or Me clears the former tool selection before rendering the new destination.
+Consequently private Memory or Guardian controls cannot remain underneath an Inbox or
+connection screen, and generic cards are shown only in the Pilot overview or Actions
+context.
+
+The persistent Pilot composer and primary navigation remain available independently
+of the selected panel.  This preserves the product's conversational centre while
+preventing advanced controls from becoming a permanently expanded settings page.
+
+\subsection{Deterministic rendering boundary}
+
+Let $m$ be the active product mode, $n$ the active primary-navigation destination and
+$t$ the optional selected tool.  The visible capability panel is
+\[
+  P(m,n,t)=
+  \left\{\begin{array}{ll}
+    \mathrm{Tool}(m,t), & n=\texttt{Pilot}\ \land\ t\neq\emptyset,\\
+    \mathrm{Overview}(m), & n=\texttt{Pilot}\ \land\ t=\emptyset,\\
+    \mathrm{Destination}(n), & n\in\{\texttt{Inbox},\texttt{Actions},
+      \texttt{Spaces},\texttt{Me}\}.
+  \end{array}\right.
+\]
+Changing mode resets $n$ to \texttt{Pilot} and clears $t$.  Leaving Pilot clears $t$.
+Each sensitive Personal panel additionally requires a valid phone connection and the
+existing mother-brain capability check; hiding or revealing a panel never grants
+authority.
+
+\subsection{Security and privacy properties}
+
+The restructuring is a presentation change over existing governed endpoints.  It
+does not move credentials, memory, contact data, messages or business records into
+the browser.  The mother brain continues to validate identity, lease, scope, exact
+approval and execution authority.  The client does not infer capability from a
+visible option, and a stale selected tool cannot survive a transition into another
+primary context.
+
+The selector is populated from the signed surface manifest rather than a household-
+specific hard-coded menu.  The same shell therefore remains suitable for an owner,
+employee, freelancer, child or Boardroom member while showing only the tools supplied
+for that person's active space.
+
+\subsection{Verification and remaining field gate}
+
+Automated checks confirm grouped selector semantics, manifest-defined option groups,
+context isolation, Memory and Guardian isolation, overview-card boundaries and direct
+access to TV, Tasks, Calendar and Devices.  The optimized mobile production build
+type-checks and renders the revised shell successfully.
+
+Formal Stage~2 closure still requires \texttt{MOB-0216}: representative small and
+large iPhone and Android viewport testing with real touch, dynamic type and assistive
+technology.  That device-field evidence is deliberately left open and must not be
+inferred from browser compilation or source-level tests.

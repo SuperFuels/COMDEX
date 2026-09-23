@@ -1,0 +1,450 @@
+% ============================================================================
+% AION dual-track practical and embodied apprenticeship
+% Requires: amsmath, amssymb, booktabs, tabularx, array, enumitem, hyperref
+% ============================================================================
+
+\section{Dual-Track Practical and Embodied Apprenticeship}
+\label{sec:dual-track-embodied-apprenticeship}
+
+\subsection{Strategic motivation}
+
+Mastering a computer game is not, by itself, an adequate test of physical
+intelligence.  A high game score can result from policy memorisation, reward
+exploitation, or competence in artificial game mechanics without producing a
+transferable model of objects, motion, contact, occlusion, or delayed physical
+consequences.  The AION programme therefore treats games as a possible later
+test of long-horizon agency, while making governed physical apprenticeship the
+primary objective.
+
+The desired physical learning cycle is
+\begin{equation}
+\label{eq:embodied-governed-cycle}
+\text{predict}
+\rightarrow \text{commit}
+\rightarrow \text{act}
+\rightarrow \text{observe}
+\rightarrow \text{compare}
+\rightarrow \text{revise}
+\rightarrow \text{retain}.
+\end{equation}
+The learner should acquire reusable models of space, topology, velocity,
+acceleration, gravity, momentum, inertia, friction, collision, joint
+constraints, occlusion, object permanence, support, reachability, affordances,
+energy, stability, and delayed consequence.  These models should be retained
+as executable, provenance-bound procedures rather than as final answers or
+simulator-specific controller weights alone.
+
+To prevent the physical programme from displacing useful intellectual
+development, AION now uses a fixed portfolio allocation:
+\begin{equation}
+\label{eq:seventy-thirty-allocation}
+\mathcal{B}_{\mathrm{total}}
+=0.70\,\mathcal{B}_{\mathrm{practical}}
++0.30\,\mathcal{B}_{\mathrm{embodied}}.
+\end{equation}
+The practical lane continues autonomous apprenticeship in software and systems,
+AI and computer-science research, mathematics, scientific investigation,
+business and product development, financial and evidence-based decision
+making, natural-language research, and owner-valued projects with later
+consequences.  The embodied lane supplies continuous-time, spatial, visual,
+causal, and sensorimotor experience that cannot be obtained from documents
+alone.
+
+\subsection{Hybrid deployment architecture}
+
+The intended architecture is hybrid rather than cloud-resident.  AION's
+cognitive runtime, North-Star goals, curriculum, functional memory, HexCore
+verification, and Cognitive Authority Unit (CAU) remain local.  Expensive
+NVIDIA simulation and proposal models are external tools whose outputs do not
+possess truth authority:
+\begin{equation}
+\label{eq:hybrid-embodied-architecture}
+\begin{aligned}
+\text{AION local runtime}
+&\rightarrow \text{construct bounded experiment}\nonumber\\
+&\rightarrow \text{execute through local or cloud authority}\nonumber\\
+&\rightarrow \text{receive observation and consequence}\nonumber\\
+&\rightarrow \text{diagnose and learn locally}\nonumber\\
+&\rightarrow \text{retain governed procedural skill}.
+\end{aligned}
+\end{equation}
+
+\begin{table}[htbp]
+\centering
+\caption{Planned placement of the embodied-intelligence stack.}
+\label{tab:embodied-platform-placement}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X
+                                  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Component} & \textbf{Execution location and role} \\
+\midrule
+AION cognition, goals, HexCore, and CAU & Local Mac; persistent control and final authority \\
+Functional Glyph Lexicon and skill capsules & Local Mac; compressed procedural retention \\
+MuJoCo & Local Mac; rapid physics, identification, control, and regression authority \\
+Isaac Sim and Isaac Lab & NVIDIA Linux cloud GPU; high-fidelity and parallel robotics \\
+Habitat and PARTNR & Local or cloud, subject to configuration; navigation and household collaboration \\
+Cosmos Predict/Reason & Cloud challenger; proposes outcomes and criticisms but cannot verify them \\
+GR00T & Cloud teacher and matched baseline; never the AION champion controller by default \\
+Physical device & Local hardware after simulator-disjoint transfer \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+This separation is epistemically important.  Cosmos may predict a future visual
+state, but independently executed physics decides whether the prediction is
+correct.  Similarly, GR00T may generate demonstrations or a teacher policy, but
+success performed by GR00T is not credited as learned AION competence.  Isaac
+Sim and Isaac Lab require an NVIDIA-oriented Windows/Linux and CUDA environment
+and are therefore cloud escalation targets rather than native Apple-silicon
+workloads.\footnote{NVIDIA Isaac Sim system requirements:
+\url{https://docs.isaacsim.omniverse.nvidia.com/latest/installation/requirements.html}.}
+MuJoCo was selected as the immediate local authority because it is portable and
+supports contact-rich dynamics, state estimation, system identification, and
+robotics control.\footnote{MuJoCo project: \url{https://mujoco.org/}.}
+
+\subsection{Simulator-neutral authority contract}
+
+Every backend is required to implement the same conceptual interface:
+\begin{equation}
+\label{eq:simulator-neutral-contract}
+\mathcal{A}_{\mathrm{embodied}}
+=\langle O, U, C, Y, S, \Pi \rangle,
+\end{equation}
+where $O$ is the permitted observation, $U$ is a bounded action schema, $C$ is
+a pre-action commitment, $Y$ is the independently produced consequence, $S$
+is the safety state, and $\Pi$ is immutable provenance.  During visual
+evaluation, privileged position, velocity, mass, gravity, damping, joint state,
+and stage identifiers remain inside the authority.  A malformed action,
+missing precommitment, unsafe authority expansion, or ungroundable observation
+fails closed.
+
+Environment families vary gravity, mass, damping, geometry, morphology,
+lighting, camera placement, motor response, sensor delay, noise, object
+placement, and target structure.  A result is promoted only if the learned
+method succeeds in sealed worlds, improves over matched cold controls, rejects
+adversarial actions, preserves safety, and reconstructs after restart.
+
+\subsection{Stage I: governed 70/30 portfolio and numerical MuJoCo learning}
+
+The first stage instantiated ten committed missions: seven practical and three
+embodied.  The practical objectives covered secure software, public-data
+investigation, formal reasoning, evidence synthesis, product and business
+planning, security review, and integrated construction.  Inclusion in the
+portfolio did not award competency.  AION found one mission immediately ready
+for governed execution and routed nine through further learning.  It selected
+the secure-service mission and identified product/project management as its
+weakest blocking capability.
+
+The physical lane installed MuJoCo~3.11.0 locally and learned an
+\texttt{intervene\_identify\_predict\_control} procedure from hidden dynamics.
+AION inferred gravity and actuator response through experiments, learned a
+controller, transferred it across six sealed gravity--mass--damping worlds, and
+abstained in a physically impossible actuator regime.  The CAU promoted
+\texttt{procedure\_simulator\_neutral\_mujoco\_embodied\_apprenticeship\_v1}.
+
+\begin{table}[htbp]
+\centering
+\caption{Stage I simulator-neutral physical-learning result.}
+\label{tab:mujoco-numeric-result}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Measure} & \textbf{Result} \\
+\midrule
+Sealed transfer success & $6/6$ \\
+Fixed cold-controller success & $0/6$ \\
+Pre-action commitments & $2{,}880$ \\
+Malformed or malicious actions rejected & $5/5$ \\
+Unsafe learned worlds & $0$ \\
+Impossible physical world & Correct abstention \\
+Focused verification & $11/11$ tests \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This stage established local physical learning, but the learner still consumed
+numerical observations.  It therefore served as an execution and authority
+foundation rather than evidence of visual physical intelligence.
+
+\subsection{Stage II: RGB belief-state reconstruction and planning}
+
+The next stage removed simulator position, velocity, gravity, mass, and damping
+from the learner's observation.  The promoted
+\texttt{procedure\_rgb\_belief\_state\_mujoco\_planning\_v2} operates through
+the following chain:
+\begin{equation}
+\label{eq:rgb-belief-chain}
+\begin{aligned}
+\text{RGB frames}
+&\rightarrow \text{discover controllable pixels}\nonumber\\
+&\rightarrow \text{reconstruct motion and velocity}\nonumber\\
+&\rightarrow \text{learn action-conditioned visual dynamics}\nonumber\\
+&\rightarrow \text{invent diagnostic probes}\nonumber\\
+&\rightarrow \text{plan ten steps ahead}\nonumber\\
+&\rightarrow \text{act, stabilise, and retain}.
+\end{aligned}
+\end{equation}
+
+Early challengers reached target regions but failed to stop safely; another
+trusted a biased physical estimate and crossed a safety boundary.  AION then
+introduced six short visual thrust probes and selected the action producing
+minimum vertical drift.  This inferred the effective hover action without
+reading hidden gravity or mass and corrected the controller across changed
+cameras and dynamics.
+
+\begin{table}[htbp]
+\centering
+\caption{Stage II RGB-only belief-state result.}
+\label{tab:rgb-belief-result}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Measure} & \textbf{Result} \\
+\midrule
+Numerical state exposed & $0$ \\
+Sealed RGB-only success & $4/4$ \\
+Matched reactive cold control & $0/4$ \\
+Body morphologies & $3$ \\
+Camera configurations & $4$ \\
+Dynamics configurations & $4$ \\
+Pre-action commitments & $709$ \\
+Unsafe learned worlds & $0$ \\
+Low-contrast out-of-distribution case & Correct abstention \\
+Restart retention & Passed \\
+Focused verification & $13/13$ tests \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Stage III: causal contact, occlusion, and stored skill composition}
+
+Stage III tested whether the previous result had become reusable procedural
+memory.  The new learner refuses to operate unless HexCore reconstructs the
+prior RGB champion, verifies its digest, and confirms the required visual
+intervention, recurrent-state, and commit-before-action invariants.  It does
+not silently recreate a missing parent.
+
+No entity colour, morphology, or semantic role is supplied.  AION discovers
+three roles from visual consequences:
+\begin{enumerate}[leftmargin=*]
+  \item the entity that moves under direct action is the controlled object;
+  \item an initially static entity that moves only after collision is the
+        passive payload; and
+  \item the remaining static entity is a non-physical target.
+\end{enumerate}
+The payload hypothesis receives credit only when an intervention transfers
+motion to the candidate while the target remains stationary.  During control,
+an opaque band removes the payload from the RGB stream.  AION propagates a
+recurrent position--velocity belief, reduces authority under uncertainty, and
+corrects the belief when the object reappears.
+
+The promoted
+\texttt{procedure\_rgb\_contact\_occlusion\_skill\_composition\_v3} is stored
+as a digest-pinned executable skill capsule.  The capsule contains the parent
+identity and digest, purpose, typed inputs, invariants, investigation and
+control method, failure signals, belief horizon, bounded controller
+parameters, verification digest, and promotion identity.  It stores how to
+perform and verify the skill rather than the final object coordinates.
+
+\begin{table}[htbp]
+\centering
+\caption{Stage III causal-contact and persistent-skill result.}
+\label{tab:rgb-contact-result}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Measure} & \textbf{Result} \\
+\midrule
+Sealed unfamiliar worlds & $4$ \\
+Learned success & $4/4$ \\
+Cold-controller success & $0/4$ \\
+Morphology pairs & $4$ \\
+Movement directions & $2$ \\
+Occlusion recovery & $4/4$ \\
+Pre-action commitments & $1{,}225$ \\
+Malformed or malicious actions rejected & $5/5$ \\
+Unsafe worlds & $0$ \\
+Numerical state exposed & $0$ \\
+Parent, capsule, and champion reconstruction & Passed \\
+Focused verification & $17/17$ tests \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two challengers were rejected before promotion.  The first occluded the payload
+in the initial frame and therefore made honest role discovery impossible.  The
+second grounded every object but stopped several pixels before the physical
+success envelope.  The final cohort exposes all entities initially, introduces
+occlusion only after grounding, and removes the premature controller dead zone.
+
+\subsection{Stage IV: articulated topology and sequential objectives}
+
+The fourth stage composed the retained contact/occlusion capsule into a
+qualitatively different task: controlling a two-joint chain through three
+changing target states.  Four visual landmarks are present, but their roles are
+not named.  Independent action interventions and invariant-distance evidence
+support the learned topology
+\begin{equation}
+\label{eq:articulated-topology}
+\text{static base}
+\rightarrow \text{moving elbow}
+\rightarrow \text{moving endpoint},
+\qquad
+\text{independent active target}.
+\end{equation}
+The base--elbow and elbow--endpoint distances remain invariant under both
+actions.  This enables role discovery even when actuator coupling causes both
+moving landmarks to respond.  From this topology, AION constructs a
+configuration-dependent visual Jacobian, updates it from subsequent outcomes,
+tracks the endpoint through occlusion, and detects target transitions from RGB
+rather than from an exposed stage number.
+
+The development process rejected three invalid or inadequate challengers:
+\begin{enumerate}[leftmargin=*]
+  \item endpoint-only identification produced nearly collinear action effects;
+  \item an authority accidentally interpreted joint limits in degrees rather
+        than radians, invalidating the resulting dynamics; and
+  \item two third-stage visual targets were themselves hidden by the occluder.
+\end{enumerate}
+The first failure caused representation expansion to multi-landmark topology.
+The second caused explicit radian configuration and complete cohort rerun.  The
+third preserved endpoint occlusion while relocating the visual instruction
+outside the opaque region.
+
+The final
+\texttt{procedure\_rgb\_articulated\_sequence\_skill\_v4} passed the complete
+sealed tournament and was retained as another parent-dependent executable skill
+capsule.
+
+\begin{table}[htbp]
+\centering
+\caption{Stage IV articulated RGB sequence result.}
+\label{tab:rgb-articulated-result}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Measure} & \textbf{Result} \\
+\midrule
+Unfamiliar articulated worlds & $4$ \\
+Three-target sequences completed & $4/4$ \\
+Cold periodic controller & $0/4$ \\
+Controlled joints & $2$ \\
+RGB-only observation & $100\%$ \\
+Visual topology discovery & Passed \\
+Online visual-model adaptation & $4/4$ \\
+Occlusion recovery & $4/4$ \\
+Pre-action commitments & $1{,}082$ \\
+Malformed actions rejected & $4/4$ \\
+Unsafe worlds & $0$ \\
+Parent, capsule, and champion reconstruction & Passed \\
+Focused verification & $20/20$ tests \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Accumulated physical skill hierarchy}
+
+The significant result is not any isolated success rate.  The retained asset
+has grown from a single-body controller into recursively composed procedural
+machinery:
+\begin{equation}
+\label{eq:accumulated-physical-skill-chain}
+\begin{aligned}
+\text{intervention-grounded RGB tracking}
+&\rightarrow \text{recurrent visual belief}\nonumber\\
+&\rightarrow \text{contact causality}\nonumber\\
+&\rightarrow \text{passive-object control}\nonumber\\
+&\rightarrow \text{occlusion recovery}\nonumber\\
+&\rightarrow \text{articulated topology}\nonumber\\
+&\rightarrow \text{sequential objectives}.
+\end{aligned}
+\end{equation}
+Every child capsule names and hashes its parent, carries executable invariants
+and failure signals, and is reconstructed after restart.  If ancestry is
+missing or altered, execution fails closed.  The physical learner therefore
+accumulates governed methods rather than merely preserving reports, final
+answers, or successful trajectories.
+
+This is genuine bounded self-learning: AION performs interventions, estimates
+latent dynamics, constructs diagnostics, rejects failed controllers, revises
+representations, transfers methods, and stores successful procedures.  It is
+not fully self-originated learning: developers still specify the broad task
+families, safe action surfaces, learning meta-algorithms, and evaluator
+authorities.  None of these internal stages establishes unrestricted robotics,
+autonomous general intelligence, or real-world hardware competence.
+
+\subsection{Scale-up decision and Embodied Expedition}
+
+The local embodied foundation gate is now complete through articulated,
+partially observable, sequential RGB control.  The programme is consequently
+moving from foundation construction to simulator-disjoint scale rather than
+adding more MuJoCo variants.
+
+\begin{table}[htbp]
+\centering
+\caption{Current programme position after the articulated local gate.}
+\label{tab:embodied-programme-position}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X
+                                  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Track} & \textbf{Current position} \\
+\midrule
+Practical general intelligence & Running continuously through the $70\%$ apprenticeship allocation \\
+Local embodied apprenticeship & Foundation complete; articulated sequence gate passed \\
+Cloud and simulator-disjoint escalation & Ready to begin \\
+Physical hardware & Deferred until simulator-disjoint transfer is stable \\
+Stored procedural learning & Operational and recursively composed \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The next execution sequence is:
+\begin{enumerate}[leftmargin=*]
+  \item package the simulator-neutral observation, action, commitment, outcome,
+        and skill-capsule contract for Isaac Lab;
+  \item run the retained principles under NVIDIA-owned physics while preserving
+        MuJoCo as a local regression authority;
+  \item introduce contact-rich object manipulation rather than another reaching
+        benchmark;
+  \item add Habitat/PARTNR navigation, rearrangement, and collaborative
+        household tasks;\footnote{Habitat: \url{https://aihabitat.org/habitat3/};
+        PARTNR: \url{https://aihabitat.org/partnr/}.}
+  \item evaluate Cosmos as a proposal/critic and GR00T as a teacher/baseline
+        under matched budgets; and
+  \item attempt one modest simulation-to-real transfer using a bounded robot
+        arm, rover, or camera-controlled actuator.
+\end{enumerate}
+
+The eventual integrated challenge is the \emph{AION Embodied Expedition}.  AION
+receives a broad natural-language objective, permitted sensors, a previously
+unseen environment, a bounded robot body, a tool budget, and safety constraints.
+It must explore, build a spatial model, invent object and affordance categories,
+perform diagnostic interventions, learn missing locomotion and manipulation
+skills, recover from changed conditions, retain useful procedures, and transfer
+them to a changed station, robot, and physical regime.  The integrated
+capability target is
+\begin{equation}
+\label{eq:embodied-expedition-integration}
+\begin{aligned}
+&\text{natural-language mission}
++\text{situational executive}
++\text{functional memory}\nonumber\\
+&\quad+\text{causal experiment invention}
++\text{visual belief state}
++\text{long-horizon planning}\nonumber\\
+&\quad+\text{metacognition}
++\text{private repair}
++\text{continual learning}.
+\end{aligned}
+\end{equation}
+
+Promotion must report unseen-environment success, weakest physical regime,
+prediction calibration, intervention efficiency, unexpected-dynamics recovery,
+cross-embodiment transfer, delayed reconstruction, functional-memory ablation,
+matched GR00T or reinforcement-learning baselines, unsafe actions, and justified
+abstentions.  Minecraft or MineDojo may later evaluate exploration, resource
+management, crafting, and long-horizon curriculum invention, but artificial
+game physics cannot substitute for independent contact and dynamics
+authorities.\footnote{MineDojo:
+\url{https://research.nvidia.com/labs/srl/publication/fan-2022-mine-dojo/}.}
+
+The resulting architecture keeps the cloud as a replaceable experimental tool,
+not AION's brain.  AION can discontinue GPU use while retaining every method
+that survived independent physical execution, adversarial criticism, CAU
+promotion, and delayed reconstruction.

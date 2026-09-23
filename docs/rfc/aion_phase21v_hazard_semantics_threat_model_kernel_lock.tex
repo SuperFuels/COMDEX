@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21V: Hazard Semantics and Threat Model Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21V defines the AION Hazard Semantics and Threat Model Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can classify hazards by type, target, horizon, evidence, confidence, and severity.}
+\end{quote}
+
+\section{Purpose}
+
+Earlier phases treated hazards as negative cells. Phase 21V gives danger meaning.
+
+A hazard is not merely an object or position. It is a context-specific threat model.
+
+\section{Loop Contract}
+
+The locked loop is:
+
+\[
+entity \rightarrow context \rightarrow threat\_type
+\rightarrow danger\_target \rightarrow danger\_horizon
+\rightarrow evidence \rightarrow semantic\_avoidance.
+\]
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{threats\_identified};
+  \item \texttt{hazard\_type};
+  \item \texttt{danger\_target};
+  \item \texttt{danger\_horizon};
+  \item \texttt{severity};
+  \item \texttt{confidence};
+  \item \texttt{evidence};
+  \item \texttt{explanation};
+  \item \texttt{avoided\_semantic\_threat};
+  \item \texttt{uses\_hazard\_semantics};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational hazard semantics and threat modelling. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21V-HAZARD-SEMANTICS-THREAT-MODEL-KERNEL-LOCK\\
+Status: LOCKED --- hazard semantics and threat model kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

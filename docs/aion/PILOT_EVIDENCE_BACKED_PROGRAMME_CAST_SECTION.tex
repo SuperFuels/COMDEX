@@ -1,0 +1,126 @@
+% Append-only section fragment. Paste below the preceding section in the master document.
+% This fragment intentionally contains no preamble and no document boundaries.
+
+\section{Evidence-Backed Programme Cast Companion}
+\label{sec:programme-cast-companion}
+
+Pilot Fabric 0.42 begins the next Live Companion expansion by answering programme
+cast and character questions from verified public evidence. The capability is
+designed around a strict distinction: knowing the cast of a verified programme is
+not the same as identifying a person visible in the current scene.
+
+\subsection{User Capability}
+
+The initial conversational interface supports three request classes:
+
+\begin{description}
+  \item[Programme cast] Requests such as ``Pilot, who is in this?'' and
+        ``Pilot, show me the cast'' return a bounded list of main cast members and
+        their characters.
+  \item[Exact character] A request such as ``Pilot, who plays Queen Elizabeth II?''
+        returns an actor only when the character name has one exact normalized match
+        in the verified cast evidence.
+  \item[Visible actor] A request such as ``Pilot, who is that actor?'' receives the
+        explicit statement that Pilot cannot identify the person currently visible.
+        Pilot then offers the verified main cast as a useful, non-biometric alternative.
+\end{description}
+
+The short answer is spoken without leaving the programme. The private phone shows
+up to eight cast entries, the programme title, attribution and the safety boundary.
+
+\subsection{Evidence Pipeline}
+
+The runtime uses the following deterministic sequence:
+
+\begin{enumerate}
+  \item The voice parser maps the bounded request to the
+        \texttt{programme\_cast} intent.
+  \item The television gateway observes permitted device state without changing
+        application, input or playback.
+  \item The multi-frame perception timeline supplies the current stable programme
+        title and its identity provenance.
+  \item If the existing provider metadata contains one exact TVmaze catalogue
+        identifier, that identifier is reused.
+  \item Otherwise, Pilot performs a bounded title search and accepts an identifier
+        only when exactly one result has the same normalized title.
+  \item Pilot requests the TVmaze main-cast endpoint for that exact programme.
+  \item Person and character names are normalized into a bounded evidence record.
+  \item The answer is produced deterministically from that record; no language
+        model is required to recall or invent cast information.
+\end{enumerate}
+
+The TVmaze main-cast endpoint orders results by the importance derived from the
+number of character appearances. Pilot treats this as a programme-level cast list,
+not proof that any member appears in the current episode, frame or scene.
+
+\subsection{No-Face-Guessing Boundary}
+
+This capability does not run face detection, facial recognition, face embeddings,
+biometric matching, celebrity recognition or visual person search. It does not
+compare the television image with public photographs. The response record always
+contains explicit false values for \texttt{face\_recognition\_used} and
+\texttt{visible\_person\_identified}.
+
+Consequently, ``who is that actor?'' is interpreted as a request for assistance,
+not authority to identify the visible individual. Pilot says that it cannot identify
+the person and lists the verified cast. A future product may let the owner select a
+character name or inspect permitted episode credits, but it must preserve the same
+prohibition on ungrounded face identity.
+
+\subsection{Character Matching}
+
+Character names are Unicode-normalized, stripped of punctuation and compared in a
+case-insensitive exact form. Substring or fuzzy similarity is not sufficient. If no
+exact character exists, Pilot states that it could not verify the requested role.
+This prevents a similarly named character from being silently mapped to the wrong
+actor.
+
+\subsection{Caching, Limits and Attribution}
+
+Public cast responses are limited to 500 kilobytes and a ten-second request timeout.
+Pilot processes at most forty upstream cast rows, retains at most twenty normalized
+entries and projects no more than twelve into the evidence record. The private phone
+shows no more than eight.
+
+Cast evidence is cached on the mother brain for twenty-four hours. The cache is
+limited to fifty programme identifiers and uses owner-only file permissions. Oldest
+entries are discarded when the bound is exceeded. Each record retains the source
+URL and the attribution ``Cast data: TVmaze (CC BY-SA)''. Production redistribution
+must continue to respect TVmaze attribution and share-alike requirements.
+
+\subsection{Privacy and Playback Preservation}
+
+The public request contains only the exact catalogue identifier or a stable text
+title needed to establish that identifier. Pilot sends no source pixels, face data,
+audio, subtitles, provider credentials, household account identifiers, viewing
+history or private persona data. Protected programme media is neither copied nor
+replaced. The television remains on its existing surface throughout the operation.
+
+The audit receipt records the lookup identifier, programme title, catalogue
+identifier, question class, identity route and evidence hash. It explicitly records
+that face recognition was not used, visible-person identity was not established and
+playback was preserved.
+
+\subsection{Failure Behaviour}
+
+Pilot fails closed when no programme title exists, the title is not stable, the
+catalogue search is ambiguous, the catalogue cannot be reached, the response exceeds
+its size bound, the cast record is empty or an exact character is absent. A failed
+lookup never falls through to model memory, web-image matching or a guessed answer.
+
+\subsection{Verification}
+
+Automated tests cover verified cast retrieval, reuse of an existing exact catalogue
+identifier, twenty-four-hour cache reuse, exact character matching, visible-actor
+refusal language, the absence of face-recognition claims, playback preservation,
+failure without a stable programme identity and deterministic voice routing. Pilot
+Fabric 0.42 passes 314 automated Fabric tests.
+
+\subsection{Remaining Live Companion Work}
+
+This closes the first cast-lookup capability but not the complete Live Companion
+section. Remaining work includes broader person credits, episode-specific guest
+cast, evidence-backed filming locations and original sources, culturally specific
+references, child-friendly reading levels, accessibility summaries, permitted
+subtitle projection, richer authenticated live-event adapters and native compact
+overlays where a television platform grants the required authority.

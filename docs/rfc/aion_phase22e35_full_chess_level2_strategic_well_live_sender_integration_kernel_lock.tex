@@ -1,0 +1,73 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.35 --- Strategic Regression Well Live Level-2 Sender Integration}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.35 integrates the Phase 22E.34 Strategic Regression Well Optimiser into the live Level-2 sender path.
+
+The phase emits a sender-ready envelope for the live sender, but does not POST to Lichess.
+
+\section{Contract}
+
+The integration kernel MUST consume the Strategic Regression Well Optimiser.
+
+It MUST check:
+
+\begin{itemize}[leftmargin=*]
+  \item selected move legality;
+  \item \texttt{safe\_to\_send};
+  \item human confirmation;
+  \item live stream confirmation;
+  \item one-move gate status;
+  \item live post authorization flag.
+\end{itemize}
+
+The kernel MUST emit:
+
+\begin{verbatim}
+sender_envelope
+safe_to_send
+live_post_allowed
+live_post_attempted
+live_post_succeeded
+sender_mode
+\end{verbatim}
+
+Phase 22E.35 MUST NOT perform the live POST itself. It only prepares the live sender envelope.
+
+\section{Boundary}
+
+This phase does not POST to Lichess.
+
+This phase does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e35_full_chess_level2_strategic_well_live_sender_integration_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e35_full_chess_level2_strategic_well_live_sender_integration_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E35-FULL-CHESS-LEVEL2-STRATEGIC-WELL-LIVE-SENDER-INTEGRATION\\
+Status: LOCKED --- Strategic Regression Well integrated into live Level-2 sender envelope\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

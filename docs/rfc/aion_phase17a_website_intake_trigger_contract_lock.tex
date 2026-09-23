@@ -1,0 +1,79 @@
+\section{Phase 17A --- Website Intake Trigger Contract}
+\label{sec:aion-phase17a-website-intake-trigger-contract}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 17A defines the canonical website intake trigger contract for AION business website enquiries.
+
+\subsection{Purpose}
+
+The contract converts a human website enquiry into a guarded AION trigger event.
+
+The canonical event type is:
+
+\begin{verbatim}
+website_intake.trigger.created
+\end{verbatim}
+
+This is the first real integration layer between an existing business website form and the AION workflow/ticket system.
+
+\subsection{Required Payload Fields}
+
+A website intake trigger MUST include:
+
+\begin{itemize}
+  \item \texttt{trigger\_id}
+  \item \texttt{business\_id}
+  \item \texttt{source}
+  \item \texttt{channel}
+  \item \texttt{customer}
+  \item \texttt{request}
+  \item \texttt{workflow\_trigger}
+  \item \texttt{guards}
+  \item \texttt{created\_at}
+\end{itemize}
+
+\subsection{Home Fixed Fixture}
+
+The locked Home Fixed fixture represents a realistic website enquiry:
+
+\begin{quote}
+Hi, I need a leaking pergola roof repaired in Arboleas. Water is coming through near the wall after rain.
+\end{quote}
+
+The detected service is \texttt{Pergola / roof repair}; the location is \texttt{Arboleas, Almería}; the urgency is \texttt{Medium / rain-related}; and the workflow target is \texttt{home\_fixed\_new\_enquiry}.
+
+\subsection{Safety Contract}
+
+Website intake triggers MUST be preview-safe by default.
+
+The following fields MUST remain false at intake creation time:
+
+\begin{itemize}
+  \item \texttt{booking\_created}
+  \item \texttt{payment\_created}
+  \item \texttt{escrow\_created}
+  \item \texttt{external\_message\_sent}
+  \item \texttt{live\_chain\_write}
+  \item \texttt{live\_execution\_allowed}
+\end{itemize}
+
+The trigger MUST also require human review and MUST remain preview-only until a later approval layer explicitly changes execution mode.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase17a_website_intake_trigger_contract_lock.py
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE17A-WEBSITE-INTAKE-TRIGGER-CONTRACT
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,74 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.31: Full Chess Guarded Live Move Execution Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.31 defines the AION Full Chess Guarded Live Move Execution Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can validate a live move request and block live writes by default.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.31 defines the execution safety boundary before any real online chess move write.
+
+\section{Guarded Execution Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{execution\_mode};
+  \item \texttt{request};
+  \item \texttt{guard\_decision};
+  \item \texttt{prepared\_request};
+  \item \texttt{would\_post\_move};
+  \item \texttt{network\_call\_performed};
+  \item \texttt{live\_write\_blocked};
+  \item \texttt{dry\_run\_preview\_emitted};
+  \item \texttt{selected\_bestmove};
+  \item \texttt{game\_id};
+  \item \texttt{guarded\_execution\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Safety Boundary}
+
+The live write path MUST remain blocked unless all guards pass:
+
+\begin{itemize}
+  \item valid UCI move shape;
+  \item valid Lichess bot move endpoint;
+  \item valid HTTP method;
+  \item token present but never exposed;
+  \item network explicitly allowed;
+  \item dry-run disabled;
+  \item human approval satisfied where required.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates guarded live move execution for the AION chess scaffold. It does not yet perform a real Lichess POST, enter live games autonomously, expose OAuth secrets, claim official rating, prove engine-strength play, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B31-FULL-CHESS-GUARDED-LIVE-MOVE-EXECUTION-KERNEL-LOCK\\
+Status: LOCKED --- full chess guarded live move execution kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

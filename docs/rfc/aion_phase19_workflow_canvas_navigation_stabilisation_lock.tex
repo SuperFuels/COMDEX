@@ -1,0 +1,148 @@
+\section{Phase 19 --- Workflow Canvas and Navigation Stabilisation Lock}
+\label{sec:phase19-workflow-canvas-navigation-stabilisation-lock}
+
+\subsection{Status}
+
+Phase 19 locks the Workflow Canvas stabilisation layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- canvas persistence, workflow tabs, navigation cleanup, canvas notes, and custom function editor covered by focused tests.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 19 stabilises the workflow canvas so it behaves like a real editable business automation surface rather than a fragile demo canvas.
+
+The lock covers:
+
+\begin{itemize}
+  \item edited glyph workflows persist after render churn and tab switches;
+  \item the main workflow graph and opened glyph workflow graphs remain isolated;
+  \item workflow tabs support new workflows without leaking graph state;
+  \item workflow navigation chrome only appears where it belongs;
+  \item sticky notes behave as canvas documentation text boxes, not executable nodes;
+  \item custom function nodes expose a tailored dry-run code editor.
+\end{itemize}
+
+\subsection{Locked Contracts}
+
+\subsubsection{19A --- Canvas Persistence}
+
+Opened glyph workflow edits MUST persist by glyph code.
+
+The renderer MUST keep these state slots separate:
+
+\begin{verbatim}
+window.__aionWorkflowMainGraph
+window.__aionOpenedGlyphWorkflowGraph
+window.__aionOpenedGlyphWorkflowGraphsByCode
+\end{verbatim}
+
+A glyph workflow tab MUST NOT overwrite the main workflow graph.
+
+A main workflow save MUST NOT overwrite an opened glyph workflow graph.
+
+\subsubsection{19B --- Workflow Tabs}
+
+The Workflow Canvas MUST support multiple main workflow tabs.
+
+The UI MUST expose a plus control for creating a new workflow canvas.
+
+Each workflow tab MUST have isolated state, including:
+
+\begin{itemize}
+  \item workflow id;
+  \item workflow name;
+  \item node list;
+  \item edge list;
+  \item dirty/saved state.
+\end{itemize}
+
+Closing or switching tabs MUST NOT leak node or edge state into glyph workflow tabs.
+
+\subsubsection{19C --- Navigation Cleanup}
+
+The workflow tab bar MUST only be visible on the Workflow Canvas.
+
+The collapsed left sidebar MUST NOT overlap the workflow logo/header.
+
+Sidebar icons MUST remain styled and readable.
+
+The empty ``Orchestrated Glyphs'' footer/panel MUST be hidden unless relevant child glyph data exists.
+
+\subsubsection{19D --- Canvas Notes and Documentation}
+
+Canvas notes MUST render as editable documentation text boxes, not normal executable nodes.
+
+Sticky notes MUST be:
+
+\begin{itemize}
+  \item draggable;
+  \item closable;
+  \item fixed-width but height-expanding with content;
+  \item persisted with the workflow;
+  \item included in trace/export metadata;
+  \item non-executable.
+\end{itemize}
+
+Sticky notes MUST NOT create workflow edges, ports, dry-run steps, live actions, bookings, payments, emails, or external writes.
+
+\subsubsection{19E --- Custom Function Node Editor}
+
+Custom function nodes MUST open a tailored editor instead of a generic parameter panel.
+
+The editor MUST expose:
+
+\begin{itemize}
+  \item language;
+  \item code;
+  \item input schema;
+  \item output schema;
+  \item safety mode.
+\end{itemize}
+
+Custom function nodes MUST remain dry-run only.
+
+The editor MUST store code/configuration only. It MUST NOT evaluate code, execute code, or enable external writes.
+
+\subsection{Safety Contract}
+
+Phase 19 is UI/state stabilisation only.
+
+It MUST NOT create:
+
+\begin{itemize}
+  \item bookings;
+  \item payments;
+  \item escrow contracts;
+  \item external messages;
+  \item live chain writes;
+  \item live code execution.
+\end{itemize}
+
+\subsection{Validation Commands}
+
+\begin{verbatim}
+node --check desktop/mac/src/app.js
+
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase19a_glyph_edit_persistence_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase19b_workflow_plus_tabs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase19c_navigation_cleanup_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase19d_canvas_notes_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase19e_custom_function_editor_lock.py \
+  backend/tests/workflow_capsules/test_clean_glyph_workflow_tab_graph_lock.py \
+  backend/tests/workflow_capsules/test_master_glyph_open_workflow_tab_isolation_ui_lock.py \
+  backend/tests/workflow_capsules/test_workflow_tab_active_graph_isolation_ui_lock.py \
+  backend/tests/workflow_capsules/test_master_glyph_canvas_consolidated_into_workflow_ui_lock.py \
+  backend/tests/workflow_capsules/test_workflow_left_sidebar_icons_tooltips_ui_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{quote}
+Lock ID: AION-PHASE19-WORKFLOW-CANVAS-NAV-STABILISATION \\
+Status: LOCKED \\
+Maintainer: Tessaris AI \\
+Author: Kevin Robinson
+\end{quote}

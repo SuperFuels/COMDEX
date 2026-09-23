@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://schemas/sovereign-brain/v1",
+  "title": "AION Sovereign Brain schema bundle",
+  "$defs": {
+    "brainIdentity": {
+      "type": "object",
+      "required": ["schema_version", "kind", "brain_id", "owner_id", "public_key_fingerprint", "canonical_stores"],
+      "properties": {
+        "schema_version": {"const": "aion.sovereign_brain.v1"},
+        "kind": {"const": "brain_identity"},
+        "brain_id": {"type": "string", "minLength": 1},
+        "owner_id": {"type": "string", "minLength": 1},
+        "public_key_fingerprint": {"type": "string", "minLength": 1},
+        "canonical_stores": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "brainExport": {
+      "type": "object",
+      "required": ["schema_version", "kind", "brain_id", "stores", "manifest_hash"],
+      "properties": {
+        "kind": {"const": "brain_export"},
+        "brain_id": {"type": "string"},
+        "stores": {"type": "object"},
+        "manifest_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "provider_credentials_included": {"const": false}
+      }
+    },
+    "businessMap": {
+      "type": "object",
+      "required": ["schema_version", "kind", "brain_id", "nodes", "edges", "content_hash"],
+      "properties": {
+        "kind": {"const": "business_map"},
+        "nodes": {"type": "array"},
+        "edges": {"type": "array"},
+        "content_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "intelligenceRouteReceipt": {
+      "type": "object",
+      "required": ["schema_version", "kind", "brain_id", "request_hash", "result_hash", "route", "disclosure", "budget"],
+      "properties": {
+        "kind": {"const": "intelligence_route_receipt"},
+        "request_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "result_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "raw_prompt_retained": {"const": false},
+        "raw_result_retained": {"const": false}
+      }
+    }
+  }
+}

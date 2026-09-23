@@ -1,0 +1,62 @@
+% Append-only LaTeX section for the AION GPT-OSS 120B technical record.
+% Required packages in the parent document: booktabs, amsmath.
+
+\section{AtomSheet Residual Calculator-Cell Certification Gate}
+\label{sec:gptoss120b-atomsheet-residual-cell}
+
+\subsection{Hypothesis and boundary}
+
+An AtomSheet cell cannot create an additional physical memory channel on the
+M3 Pro.  CPU and GPU share unified memory, and software allocations are
+ultimately served by the same hardware memory fabric.  The testable software
+analogue is a resident calculator cell: three original selected experts are
+executed, while a small learned function attempts to reproduce the fourth
+expert's contribution.  A failed or uncertified cell must fall back to the
+original fourth expert.
+
+This is a changed-arithmetic quality track.  It does not claim bitwise
+equivalence to unrestricted GPT-OSS 120B and may advance only through frozen
+development and blind semantic gates.
+
+\subsection{Frozen data and compact calculator}
+
+The hash-bound dataset contained 705 real layer-position observations.
+Arithmetic and extraction families were assigned to training; separate
+synthetic families remained calibration and numerical holdouts; a 21-position
+real reasoning trajectory at layer 12 was frozen as the semantic holdout.
+No prompt text, personal data or customer data was included.
+
+The selected calculator retained three original experts and used a 64-unit
+nonlinear correction network for the omitted fourth expert.  The cartridge was
+2,079,893 bytes and evaluated in approximately 0.040~ms median.  It was fitted
+only on the arithmetic and extraction families.
+
+\subsection{Unseen reasoning result}
+
+On the 21-position unseen reasoning family, median relative layer-output error
+was 0.06693, p95 was 0.09465 and maximum error was 0.10122.  The declared
+acceptance ceiling was 0.02.  Zero of 21 positions met that ceiling.
+
+This was evaluated first as an oracle certification bound.  The oracle is
+allowed to inspect the true error after calculating the omitted original
+expert; a deployable selector would have less information.  Because even this
+optimistic oracle found no admissible position, no confidence model can give
+the present cartridge useful safe coverage on the tested reasoning family.
+The exact fallback rate would be 100\%, producing no expert-traffic saving.
+
+Decision: \texttt{STOP\_RESIDUAL\_CELL\_NO\_SAFE\_COVERAGE}.  The compact
+calculator is extremely fast but does not yet reproduce the expert accurately
+enough to function as an expert-layer replacement.  Building a confidence
+selector for it would merely add overhead while always selecting fallback.
+
+\subsection{Architectural conclusion}
+
+The practical AtomSheet memory-cell role remains orchestration: cells can map
+layer, expert, token and residency; coordinate parallel reads, decompression
+and verification; place bytes into the reusable route arena; and direct one
+bandwidth-safe fused calculation.  The arena is already the concrete prepared
+memory-cell implementation.  A calculator cell can reduce work only after a
+new expert-specific function representation demonstrates non-zero held-out
+oracle coverage.  Logical cell multiplicity alone cannot increase physical
+memory bandwidth.
+

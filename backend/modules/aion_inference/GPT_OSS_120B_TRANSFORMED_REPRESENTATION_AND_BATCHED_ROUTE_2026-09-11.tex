@@ -1,0 +1,152 @@
+% Append-only section for the AION GPT-OSS 120B technical record.
+% Requires: amsmath, booktabs, hyperref.
+
+\section{Transformed Expert Representations and a Virtual Batched Route}
+\label{sec:gptoss120b-transformed-representation-batched-route}
+
+\subsection{Purpose and evidence boundary}
+
+The exact unrestricted GPT-OSS 120B frontier remained approximately
+$1.725$ token/s on the frozen arithmetic family and $1.829$ token/s on the
+frozen extraction family.  Reaching 30 token/s therefore required a further
+factor of approximately $16.4$ over the faster exact result.  Earlier work had
+already shown that ordinary cache enlargement, conventional Metal execution,
+component staging, activation sparsity, and unverified route restriction could
+not supply that factor.  The experiments in this section consequently asked
+two different questions:
+
+\begin{enumerate}
+  \item Can the actual expert weights be represented with substantially fewer
+        bytes while preserving their action on unseen activations?
+  \item Can the four original experts be evaluated more efficiently without
+        changing their identities or values?
+\end{enumerate}
+
+All transformed-weight experiments are explicitly quality-track experiments.
+No transformed representation is called exact, and no microbenchmark rate is
+reported as generated-token throughput.
+
+\subsection{Shared MXFP4 product dictionary}
+
+A 256-entry dictionary was trained over actual MXFP4 code subvectors from a
+training-only set of expert weights.  Held-out routed experts and held-out real
+activations were then reconstructed and evaluated through the original packed
+expert arithmetic.  Three subvector widths were tested.  The dictionary index
+stream provided strong projected compression, but the functional error was far
+above the predeclared gates.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}rrrrr@{}}
+\toprule
+Codes/subvector & Projected reduction & Output rel. $L_2$ p50 & p95 & Contribution rel. $L_2$ p95 \\
+\midrule
+16 & $5.664\times$ & 0.1853 & 0.4772 & 1.1043 \\
+ 8 & $3.400\times$ & 0.1323 & 0.3454 & 0.8259 \\
+ 4 & $1.889\times$ & 0.0786 & 0.1802 & 0.4383 \\
+\bottomrule
+\end{tabular}
+\caption{Held-out product-dictionary microgate.  Required limits were output
+relative $L_2\leq0.02$ and contribution relative $L_2\leq0.15$.}
+\end{table}
+
+All three candidates were stopped.  Reducing the subvector width improved
+fidelity monotonically, but the best tested case still exceeded the output
+limit by $9.0\times$ at p95 and the contribution limit by $2.9\times$.
+The result rejects this shared dictionary as a sufficient standalone encoding;
+it does not reject dictionaries combined with a separately verified residual.
+
+The canonical evidence digests were
+\texttt{794ad38b4126cdde3ba036a4aedbdb6a6855ef23517aa0a4edf53a06286bf301},
+\texttt{a62684887514ba310dcbdd8aecd36e2b74548221a083d66340d7b01e7243e0ab},
+and
+\texttt{ebc7e99ec56f8b17c97709ff59378cd34c0f2f5a6d814e5cee549e493f660306}.
+
+\subsection{Direct factorisation of an actual routed expert}
+
+The gate, up, and down matrices of layer 15, expert 33 were dequantised from
+their original MXFP4 representation and independently approximated using
+truncated randomised singular-value decomposition.  Factorisation was performed
+without reference to the evaluation activations.  Float16 factors, the original
+biases, and the original SwiGLU-OAI non-linearity were evaluated on two frozen
+real activations on which that expert had actually been selected.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+Rank & Weight reduction & Maximum output rel. $L_2$ & Output argmax equal \\
+\midrule
+32  & $11.953\times$ & 1.0841 & no \\
+64  & $5.977\times$  & 1.0918 & no \\
+128 & $2.988\times$  & 1.0755 & yes \\
+\bottomrule
+\end{tabular}
+\caption{Actual-matrix factorisation result.  Advancement required at least
+$5\times$ reduction, maximum output relative $L_2\leq0.02$, and equal argmax.}
+\end{table}
+
+The singular spectra explain the failure.  At rank 128, only 28.60\% of the
+gate matrix energy, 23.12\% of the up matrix energy, and 32.07\% of the down
+matrix energy were captured.  The matrices are not sufficiently low-rank in
+their original basis for this representation to be useful at the required
+compression.  The branch was stopped.  Its canonical evidence digest is
+\texttt{cd70271586b1ffd8e7055f791c309068f5302284a6d468a9d2e2d8fd6818346f}.
+
+\subsection{Four-expert batched CPU execution}
+
+The next probe retained all four selected experts and their original MXFP4
+weights.  Instead of constructing twelve independent matrix operations---gate,
+up, and down for each of four experts---the candidate stacked the four experts
+along a batch dimension and issued three batched matrix operations.  It then
+applied the original gates and combined the four outputs.
+
+Under the actual 8~GiB protected-pool pressure, a contiguous pre-staged route
+reduced median four-expert arithmetic from 1.0921~ms to 0.6701~ms, a
+$1.630\times$ kernel speedup.  Relative output error was
+$4.35\times10^{-8}$ and the output argmax was unchanged.  The outputs were not
+bitwise identical because the batched graph changed floating-point accumulation
+order.  This is therefore a high-fidelity quality-track result, not an exact
+result.  The canonical evidence digest is
+\texttt{2f732a778f6acb2662f45d98316d1900124f280a9ea8aeed6069bc0b4f1fa39a}.
+
+\subsection{Copy-free virtual route arena}
+
+Pre-staging a contiguous route by copying approximately 52.9~MB per layer would
+reintroduce the resident-memory traffic removed by earlier AION work.  A second
+probe therefore reserved one virtual address range and mapped the independently
+stored component files into page-padded expert slots.  GGML was presented with
+the resulting strided three-dimensional tensor; no user-space expert-weight
+copy was performed.
+
+The mapping operation cost 1.373~ms for the complete four-expert route.  Once
+mapped, median arithmetic was 0.7125~ms versus 0.7862~ms for the serial control,
+a $1.104\times$ p50 improvement.  More importantly, p95 fell from 4.2497~ms to
+1.2648~ms, a $3.36\times$ tail-latency improvement.  Relative output error was
+again $4.35\times10^{-8}$ with equal argmax, but not bitwise equality.  The
+canonical evidence digest is
+\texttt{8b6b3b9434f30c3fdda951a83d33b09b924223ab85b6284922c38988c34298be}.
+
+This proves a useful systems mechanism: independently addressable warehouse
+objects can be exposed to a batched compute kernel as one logical tensor without
+physically copying the weights.  The one-route mapping cost is small relative
+to the current full-token time, but the measured p50 arithmetic gain is not yet
+large enough to imply an order-of-magnitude generated-token improvement.
+
+\subsection{Decision and next gate}
+
+The product dictionary and direct low-rank factorisation branches are stopped.
+The virtual batched route is retained as a composable quality-track candidate.
+It must next be integrated behind an explicit runtime switch and tested over
+all 36 layers and multiple generated tokens.  Promotion requires frozen semantic
+quality, internal repeatability, bounded memory, lower p50 and p95 token latency,
+and measured end-to-end improvement after charging route mapping.  The exact
+unrestricted implementation remains the control and is unchanged.
+
+The central physical conclusion remains unchanged: batching can reduce
+arithmetic overhead and tail latency, but the 30 token/s North Star still
+requires a large reduction in expert bytes delivered per accepted token.  The
+next representation candidate must therefore combine a compact transformed
+expert form with a directly executable kernel, or eliminate expert evaluations
+through a quality-gated mechanism whose failures fall back safely to the
+unrestricted warehouse path.

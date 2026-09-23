@@ -1,0 +1,132 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\begin{document}
+
+\section{Phase 14D --- AgentMap Live Verification Preview Lock}
+\label{sec:phase14-agentmap-live-verification-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- AgentMap live verification preview v0 is implemented as a deterministic, read-only, preview-only install verification model.}
+\end{quote}
+
+\subsection{Purpose}
+
+The AgentMap live verification preview provides a Google Analytics-style verification flow for machine-readable business discovery.
+
+A business owner needs to know whether their AgentMap is installed, reachable, schema-valid, and hash-consistent. This lock provides the backend preview model for that verification without making a live network request and without mounting a public route.
+
+The verification preview checks the expected canonical path and well-known path:
+
+\begin{verbatim}
+/agentmap.json
+/.well-known/agentmap.json
+\end{verbatim}
+
+It also verifies that the observed payload exposes required machine-readable fields such as \texttt{agentmap\_hash}, machine metadata, accepted protocols, and safety profile metadata.
+
+\subsection{Contract Fields}
+
+The verification preview exposes:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{verification\_version}
+  \item \texttt{status}
+  \item \texttt{business\_id}
+  \item \texttt{business\_name}
+  \item \texttt{vertical\_key}
+  \item \texttt{install\_targets}
+  \item \texttt{observed}
+  \item \texttt{expected}
+  \item \texttt{schema\_checks}
+  \item \texttt{checks}
+  \item \texttt{safety\_profile}
+  \item \texttt{verified}
+  \item \texttt{verification\_hash}
+  \item \texttt{summary\_hash}
+\end{itemize}
+
+The \texttt{verification\_hash} is a deterministic replay and audit anchor. It MUST be derived from canonical verification payload content and MUST NOT depend on runtime randomness, wall-clock timestamps, live provider state, payment state, booking state, escrow state, message state, or mutable UI state.
+
+The preview also preserves the existing \texttt{agentmap\_hash} and endpoint \texttt{summary\_hash} contract.
+
+\subsection{Safety Boundary}
+
+AgentMap live verification is preview-only and read-only.
+
+It MUST NOT perform:
+
+\begin{itemize}[leftmargin=*]
+  \item no live booking;
+  \item no payment;
+  \item no escrow;
+  \item no dispatch;
+  \item no external message;
+  \item no live chain write;
+  \item no public route mounting;
+  \item no provider call;
+  \item no autonomous workflow execution.
+\end{itemize}
+
+The verification preview MAY report whether the AgentMap appears valid, but it MUST NOT grant permission for live execution.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m py_compile backend/modules/aion_gateway/agentmap_live_verification.py
+
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_live_verification_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_live_verification_lock_doc.py
+
+bash scripts/run_goal_engine_focused_lock_suite.sh
+
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+
+
+\subsection{Raw Contract Terms}
+
+For lock-test visibility and machine-readable contract clarity, the raw field and safety terms are:
+
+\begin{verbatim}
+agentmap live verification
+verification_hash
+agentmap_hash
+summary_hash
+canonical path
+well-known path
+preview-only
+read-only
+human review
+no live booking
+no payment
+no escrow
+no dispatch
+no external message
+no live chain
+lock id:
+status:
+maintainer: tessaris ai
+author: kevin robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\bigskip
+\noindent\textbf{Lock ID:} AION-PHASE14-AGENTMAP-LIVE-VERIFICATION-PREVIEW-v0.1\\
+\textbf{Status:} LOCKED\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson
+
+\end{document}

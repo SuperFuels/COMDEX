@@ -1,0 +1,74 @@
+\section{Sovereign Offline Installation and Local Intelligence}
+
+\subsection{Purpose and completed reference platform}
+
+The downloadable AION brain must remain useful when no paid model account, cloud account or
+network connection is available. The first qualified reference implementation is the Apple
+Silicon macOS package, version~0.15.0. It is a sealed bundle rather than a thin downloader: after
+the archive has been obtained, first-run installation, brain creation and the included useful
+intelligence proof require no network access.
+
+This closes task \texttt{SBB-0108} for the macOS arm64 reference platform. It does not claim that
+the unsigned developer archive is a consumer installer, nor that Windows and Linux have completed
+equivalent clean-machine qualification. Platform signing, notarisation, native service
+registration and the remaining operating-system matrix continue under \texttt{SBB-0101}.
+
+\subsection{Sealed package contents}
+
+The offline package contains the AION first-run and sovereign-brain code, a relocatable
+CPython~3.13 runtime, an exact binary dependency wheelhouse, the arm64 Ollama runtime and the Gemma
+3 1B model. The model manifest and every referenced model blob are included. Python and Ollama
+licence texts are carried in the package; the model licence is retained as the licence layer named
+by its Ollama manifest.
+
+The Python distribution is fetched only by the controlled release builder from a pinned official
+release URL and accepted only when its published SHA-256 digest matches. Runtime dependencies are
+locked to exact versions and downloaded as macOS arm64 Python~3.13 wheels during release assembly.
+The customer setup command installs only from this local wheelhouse by using
+\texttt{--no-index}; it cannot silently resolve a newer dependency from the Internet.
+
+\subsection{Integrity and repeatable first run}
+
+Release assembly records the path, byte length and SHA-256 digest of every packaged file in an
+offline integrity manifest. The setup command runs the bundled verifier before creating the
+environment. Missing, changed and unexpected package files fail closed. Python bytecode caches
+are removed before sealing and bytecode writes are disabled in the launchers so merely starting
+the bundled interpreter cannot mutate the verified release. Runtime-created virtual-environment
+and diagnostic files are kept outside the sealed file set.
+
+After verification, the bundled Python creates an isolated local environment and installs the
+locked wheels. The setup service binds only to loopback. It creates the owner and mother
+identity, encrypted local vault, identity, memory, business-map, policy, capability and receipt
+stores, hardware profile, local model plan and supervisor state. The business-map store points to
+the canonical Boardroom \texttt{BusinessMapContainer}; no competing map or sample company is
+created.
+
+\subsection{Provider-free intelligence proof}
+
+The proof launcher removes the supported OpenAI, Gemini and Anthropic environment keys, sets
+Ollama to no-cloud mode and binds it to a dedicated loopback port. It uses the model directory
+inside the extracted package and a bounded context and output size. The test submits a meeting
+note and requires a JSON result containing a summary and exactly two actionable tasks. The result
+is structurally validated outside the model and reports that no paid API was used.
+
+On the qualified machine the extracted package successfully produced a concise meeting summary
+and the tasks ``Inspect stock count'' and ``Prepare supplier comparison''. This is a useful
+operation rather than a model-presence check. Under heavy concurrent memory pressure the launcher
+uses the conservative CPU route and permits a long cold-start window; this protects the running
+AION learning services rather than terminating them to make the benchmark appear faster.
+
+\subsection{Qualification evidence and limitations}
+
+The final archive passed five focused packaging tests, a full 1,718-file integrity scan, isolated
+wheel installation, import of the sovereign setup runtime outside the development checkout, and a
+real loopback setup request. That request created a new encrypted, provider-free brain and
+confirmed the canonical Boardroom source of truth. The bundled local model and runtime were also
+executed from an extracted package without using a system Python installation.
+
+The current archive is approximately one gigabyte because it deliberately carries its runtime,
+dependencies and model. It remains an unsigned developer preview. Consumer release requires an
+Apple-signed and notarised installer, a production update trust anchor, launchd registration and
+qualification on clean supported Macs. Equivalent Windows and Linux/server bundles must be built
+and independently exercised before offline support is claimed for those platforms. Larger local
+models and customer-owned cloud compute remain optional interchangeable tools; the customer's
+identity, memory, Business Map, permissions and receipts remain in the AION brain.

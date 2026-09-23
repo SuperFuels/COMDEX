@@ -1,0 +1,104 @@
+\section{AION Flow: Models, Compute, Harnesses, Evidence and Deliberation}
+\label{sec:aion-flow-intelligence-runtime}
+
+This section records the implementation of AION Flow Stages 2--6.  The work extends the existing
+Glyph workflow canvas; it does not create a separate automation product.  A workflow can now
+compose replaceable model computation while the customer's AION brain remains the source of
+identity, memory, business meaning, policy, authority, execution and learning.
+
+\subsection{Provider-neutral model catalogue}
+
+Each model version is represented by an issuer-signed immutable manifest.  The manifest records
+the artefact hash and byte size, source and licence terms, commercial-use and attribution rules,
+compatible inference adapters and hardware, modalities, context window, structured-output and
+tool support, languages, domain strengths, and estimated latency, cost and energy.  Registration
+verifies the issuer, signature and canonical hash.  Altered versions, missing artefacts, incompatible
+hardware, revoked models and commercially incompatible licences fail closed.
+
+Model lifecycle states are explicit: \texttt{experimental}, \texttt{qualified}, \texttt{blocked},
+\texttt{unavailable} and \texttt{deprecated}.  Qualification is evidence-driven and cannot be
+manually asserted through the lifecycle control.  Availability and deprecation changes are signed
+by the manifest issuer.  A bounded editor preflight exposes compatibility, capabilities, licence,
+latency, cost and energy, but no credential or customer content.
+
+Adapters presently share one governed request boundary for local llama.cpp, Ollama, private
+OpenAI-compatible endpoints, NVIDIA NIM, Prem-compatible infrastructure, and optional Gemini,
+OpenAI and Anthropic services.  Provider-specific transport code is below the AION contract and
+does not enter the workflow definition.
+
+\subsection{Opaque model and endpoint bindings}
+
+Secrets are stored in the encrypted mother-brain vault.  A canvas stores only a stable reference of
+the form \texttt{vault://model/binding-name}.  Rotation changes the encrypted secret behind that
+reference, so every workflow continues to operate without editing.  Revocation makes resolution
+fail closed.  Defence-in-depth redaction removes secret-shaped keys and values from canvas state,
+autosave, logs, previews, receipts and exports.  Connectivity checks return only status, latency and
+an error class; model-list bodies and authentication material are discarded.
+
+The remaining Stage 2 interface task is a complete trusted Node Editor picker for creating and
+choosing those opaque bindings.  The secure binding authority exists, but raw secret entry must not
+be added to an ordinary remotely reachable canvas route.
+
+\subsection{Replaceable compute and customer-owned hosting}
+
+Compute targets include the mother brain, another local AION node, a customer server, private
+OpenAI-compatible infrastructure, customer-owned AWS, Google Cloud or Azure environments,
+NVIDIA NIM, Prem-compatible infrastructure, and optional external providers.  The target record
+includes region, residency, accelerator, memory and network policy.  Network policy is limited to
+offline, private-only, allow-listed egress or deny-by-default operation.
+
+Runtime ceilings cover spend, elapsed time, energy and concurrency.  Health state records capacity,
+in-flight work, queue depth, request count, circuit-breaker state and scale-to-zero state without
+customer prompts.  Deployment recipes are customer-owned, use private ingress, deny egress by
+default, run as non-root with a read-only root filesystem, and reference vault secrets rather than
+embedding them.  A migration contract proves that changing compute does not migrate or replace the
+brain identity, Business Map, policy, user interface or workflow graph.
+
+\subsection{Signed harnesses and minimum context}
+
+A harness is versioned independently of every model.  Its signed manifest contains instructions,
+input and output schemas, examples, declared tools and a department or industry domain pack.  A
+harness is forbidden from containing a model identity, provider credential or customer brain.
+Operators can compare versions, select them per route and roll back without changing the model.
+
+Before a harness runs, AION establishes the active person, organisation, workspace, role, space and
+purpose.  It then assembles only explicitly included and permitted memory or Business Map paths.
+Paths can be excluded, redacted or reduced to a structural summary.  An unauthorized path aborts
+assembly.  The preflight lists the exact fields, data classes, destination and encryption state for
+every downstream node.  Harness tools receive a narrow grant; undeclared file, network or action
+access is rejected.
+
+\subsection{Evidence and deterministic validation}
+
+The evidence engine accepts authorized file, email, calendar, CRM, accounting and database
+retrievers, plus public-web evidence retrievers.  Each document retains source identity, kind, URI,
+observation and retrieval times, source class, quality score and content hash.  Retrieved evidence is
+kept structurally separate from model interpretation.
+
+Evidence packs map each claim to exact source identifiers and preserve confidence as uncertainty,
+not fact.  The engine detects missing, stale, low-quality and contradictory evidence.  Deterministic
+validators cover JSON schemas and calculations, with registered policy and business-rule validators
+using the same receipt format.  Retrieval count, content size, cache life and freshness are bounded.
+Source revocation propagates into cached records and prevents reacquisition under the revoked source
+identity.  Missing required evidence disables downstream execution.
+
+\subsection{Bounded deliberation}
+
+AION may run several candidate routes in parallel, then apply independent critic, red-team and
+assumption checks.  Candidate identity includes provider, model and harness so independence can be
+measured rather than assumed.  Deterministic validity and evidence status are applied before any
+model ranking or vote.  Eligible candidates are compared on correctness, evidence coverage and
+quality.
+
+Refinement loops have explicit success criteria and maximum iterations, tokens, time, cost and
+energy.  Repetition and oscillation terminate the loop.  Close disagreement, unresolved evidence
+or a high-consequence task requires human arbitration.  The review package preserves the proposed
+winner, dissenting candidates, criticism, uncertainty and budget use.  Agreement never grants
+execution authority: action still returns to AION policy, approval, capability execution,
+verification and receipt.
+
+\subsection{Verification status}
+
+The focused model, compute, binding, harness, evidence, deliberation, compiler and existing-canvas
+suite passes 59 tests.  The JavaScript source passes syntax validation.  No live Pilot, television or
+learning process was restarted while completing this work.

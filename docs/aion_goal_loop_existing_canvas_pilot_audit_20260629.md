@@ -1,0 +1,1301 @@
+# AION Goal Loop — Existing Canvas + Pilot Audit
+
+Purpose: locate existing Workflow Canvas, Pilot, goal, approval, evidence and persistence surfaces before adding Goal Loop Canvas.
+
+
+## Workflow Canvas / Builder Terms
+
+- line 3057: `   * Reuse the existing Workflow Canvas left-rail visual language instead of`
+- line 3343: `/* AION PATCH: Phase 25K Workflow Canvas no dead sidebar column */`
+- line 3350: `/* AION PATCH: Phase 25K Workflow Canvas sidebar position fix */`
+- line 3356: `/* AION PATCH: Phase 25K Workflow Canvas final left offset lock */`
+- line 3565: `  const nodeTypeCounts = {};`
+- line 3567: `    const key = node?.node_type || "unknown";`
+- line 3568: `    nodeTypeCounts[key] = (nodeTypeCounts[key] || 0) + 1;`
+- line 3571: `  const typeEntries = Object.entries(nodeTypeCounts);`
+- line 4959: `/* AION KINDLE SOFT INK CANVAS LOCK: safe workflow canvas / train agent styling */`
+- line 4960: `function installAionWorkflowCanvasKindleSoftInkStyles() {`
+- line 4961: `  if (document.getElementById("aion-workflow-canvas-kindle-soft-ink-styles")) return;`
+- line 4964: `  style.id = "aion-workflow-canvas-kindle-soft-ink-styles";`
+- line 4970: `  - Do NOT paint .aion-workflow-canvas-viewport as a big paper square.`
+- line 4971: `  - Do NOT add borders/backgrounds to .aion-workflow-node-card / node bodies.`
+- line 4975: `html body .aion-workflow-canvas-shell,`
+- line 4982: `html body .aion-workflow-canvas,`
+- line 4983: `html body .aion-workflow-canvas-viewport,`
+- line 4984: `html body .aion-workflow-canvas-stage,`
+- line 4985: `html body .aion-workflow-canvas-content,`
+- line 4995: `html body .aion-workflow-canvas {`
+- line 5005: `html body [data-aion-workflow-node-id] strong,`
+- line 5006: `html body [data-aion-workflow-node-id] h3,`
+- line 5007: `html body [data-aion-workflow-node-id] .aion-workflow-node-title {`
+- line 5011: `html body [data-aion-workflow-node-id] p,`
+- line 5012: `html body [data-aion-workflow-node-id] small,`
+- line 5013: `html body [data-aion-workflow-node-id] .muted,`
+- line 5014: `html body [data-aion-workflow-node-id] .aion-workflow-node-meta {`
+- line 5019: `html body [data-aion-workflow-node-id] .aion-workflow-node-card {`
+- line 5026: `html body [data-aion-workflow-node-id].selected,`
+- line 5027: `html body .aion-canvas-node[data-aion-workflow-node-id].aion-canvas-node-selected {`
+- line 5100: `html body .aion-workflow-canvas,`
+- line 5101: `html body .aion-workflow-canvas-viewport,`
+- line 5102: `html body .aion-workflow-canvas-stage,`
+- line 5103: `html body .aion-workflow-canvas-content,`
+- line 5117: `html body .aion-workflow-canvas-viewport,`
+- line 5118: `html body .aion-workflow-canvas-stage,`
+- line 5119: `html body .aion-workflow-canvas-content {`
+- line 5125: `html body [data-aion-workflow-node-id],`
+- line 5126: `html body [data-aion-workflow-node-id] .aion-workflow-node-card,`
+- line 5127: `html body [data-aion-workflow-node-id] .aion-workflow-node-visual,`
+- line 5128: `html body [data-aion-workflow-node-id] .aion-workflow-node-square {`
+- line 5137: `installAionWorkflowCanvasKindleSoftInkStyles();`
+- line 13081: `        node_type: "mission_plan_safe_step",`
+- line 15510: `    if (isWorkflowRoute && typeof window.__aionRenderWorkflowCanvasTabs === "function") {`
+- line 15512: `        window.__aionRenderWorkflowCanvasTabs();`
+- line 15527: `   * The workflow tab strip is allowed only on the workflow canvas page.`
+- line 16094: `        ${renderAionWorkflowCanvasPanel({ workflows, loading })}`
+- line 18465: `const AION_WORKFLOW_DRAFT_STORAGE_KEY = "aion.workflow_builder.current_draft.v1";`
+- line 18575: `function normaliseAionWorkflowNodeToGlyphStep(node, index = 0) {`
+- line 18633: `    node_type: String(node?.type || "Action"),`
+- line 18660: `function orderAionWorkflowNodesForGlyph(graph) {`
+- line 18789: `function compileAionWorkflowGraphToGlyph(graph) {`
+- line 18791: `  const orderedNodes = orderAionWorkflowNodesForGlyph(safeGraph);`
+- line 18793: `    normaliseAionWorkflowNodeToGlyphStep(node, index),`
+- line 18858: `  target.compiled_glyph = compileAionWorkflowGraphToGlyph(target);`
+- line 18916: `  const activeTab = String(window.__aionActiveWorkflowTab || "").toLowerCase();`
+- line 18925: `      window.__aionOpenedGlyphWorkflowGraphsByCode &&`
+- line 18926: `      typeof window.__aionOpenedGlyphWorkflowGraphsByCode === "object"`
+- line 18927: `        ? window.__aionOpenedGlyphWorkflowGraphsByCode`
+- line 18934: `      window.__aionOpenedGlyphWorkflowGraph;`
+- line 18938: `      window.__aionOpenedGlyphWorkflowGraph = glyphGraph;`
+- line 18939: `      window.__aionWorkflowGraph = glyphGraph;`
+- line 18948: `    window.__aionWorkflowGraph = window.__aionWorkflowMainGraph;`
+- line 18952: `  if (window.__aionWorkflowGraph && typeof window.__aionWorkflowGraph === "object") {`
+- line 18953: `    window.__aionWorkflowMainGraph = window.__aionWorkflowGraph;`
+- line 18954: `    return stripAionWorkflowSyntheticChooseNode(window.__aionWorkflowGraph);`
+- line 18967: `      window.__aionWorkflowGraph = window.__aionWorkflowMainGraph;`
+- line 18975: `  window.__aionWorkflowGraph = window.__aionWorkflowMainGraph;`
+- line 18983: `    safeGraph.compiled_glyph || compileAionWorkflowGraphToGlyph(safeGraph);`
+- line 18999: `      schema_version: "aion.workflow_canvas_layout.v1",`
+- line 19051: `  window.__aionWorkflowGraph = {`
+- line 19063: `  compileAndAttachAionWorkflowGlyph(window.__aionWorkflowGraph);`
+- line 19075: `    .querySelectorAll("[data-aion-workflow-node-config-input]")`
+- line 19077: `      const nodeId = input.getAttribute("data-aion-workflow-node-id");`
+- line 19078: `      const key = input.getAttribute("data-aion-workflow-node-config-input");`
+- line 19091: `  window["__aionWorkflowGraph"] = graph;`
+- line 19099: `  const activeTab = String(window.__aionActiveWorkflowTab || "").toLowerCase();`
+- line 19107: `    activeTab === "glyph" && window.__aionOpenedGlyphWorkflowGraph`
+- line 19108: `      ? window.__aionOpenedGlyphWorkflowGraph`
+- line 19121: `    window.__aionOpenedGlyphWorkflowGraphsByCode =`
+- line 19122: `      window.__aionOpenedGlyphWorkflowGraphsByCode &&`
+- line 19123: `      typeof window.__aionOpenedGlyphWorkflowGraphsByCode === "object"`
+- line 19124: `        ? window.__aionOpenedGlyphWorkflowGraphsByCode`
+- line 19127: `    window.__aionOpenedGlyphWorkflowGraphsByCode[activeGlyphCode] = compactGraph;`
+- line 19128: `    window.__aionOpenedGlyphWorkflowGraph = compactGraph;`
+- line 19129: `    window.__aionWorkflowGraph = compactGraph;`
+- line 19134: `  window.__aionWorkflowGraph = compactGraph;`
+- line 19154: `  window["__aionWorkflowGraph"] = graph;`
+- line 19161: `  const compiled = safeGraph?.compiled_glyph || compileAionWorkflowGraphToGlyph(safeGraph);`
+- line 19231: `  window.__aionWorkflowGraph = loadedGraph;`
+- line 19244: `      window.__aionWorkflowGraph?.business_container ||`
+- line 19248: `      window.__aionWorkflowGraph?.workflow_id ||`
+- line 19282: `  const compiledGlyph = safeGraph.compiled_glyph || compileAionWorkflowGraphToGlyph(safeGraph);`
+- line 19368: `    safeGraph?.compiled_glyph || compileAionWorkflowGraphToGlyph(safeGraph);`
+- line 19420: `      : window.__aionWorkflowGraph || {};`
+- line 19509: `function renderAionMasterGlyphCanvasNode(item, index = 0) {`
+- line 19592: `        Stage to workflow canvas`
+- line 19598: `function renderAionMasterGlyphCanvasPanel() {`
+- line 19602: `   * Reusable glyph workflows now live inside the normal Workflow Canvas via:`
+- line 19622: `  function getCurrentWorkflowGraphForMasterGlyphStage() {`
+- line 19630: `    window["__aionWorkflowGraph"] = window["__aionWorkflowGraph"] || {`
+- line 19638: `    return window["__aionWorkflowGraph"];`
+- line 19661: `  function stageMasterGlyphToWorkflowCanvas(workflowId) {`
+- line 19677: `    const graph = getCurrentWorkflowGraphForMasterGlyphStage();`
+- line 19730: `    window["__aionWorkflowGraph"] = graph;`
+- line 19754: `  window.__stageAionMasterGlyphToWorkflowCanvas = stageMasterGlyphToWorkflowCanvas;`
+- line 19788: `      stageMasterGlyphToWorkflowCanvas(stage.getAttribute("data-workflow-id"));`
+- line 19933: `function buildAionWorkflowCanvasCapsulePayload(graph) {`
+- line 19951: `  const canvasNodes = nodes.map((node, index) => {`
+- line 19988: `  const canvasEdges = edges.map((edge, index) => ({`
+- line 20000: `      "Canvas-built workflow capsule generated from the Aion desktop workflow canvas.",`
+- line 20004: `    allowed_use_cases: ["Compile and save a visual workflow canvas as a Workflow Capsule."],`
+- line 20007: `        canvasNodes.flatMap((node) =>`
+- line 20018: `    nodes: canvasNodes,`
+- line 20019: `    edges: canvasEdges,`
+- line 20023: `async function saveAionWorkflowCanvasAsCapsule(graph) {`
+- line 20031: `  const canvas = buildAionWorkflowCanvasCapsulePayload(safeGraph);`
+- line 20064: `  window.__aionWorkflowGraph = safeGraph;`
+- line 20074: `  const compiled = graph?.compiled_glyph || compileAionWorkflowGraphToGlyph(graph);`
+- line 20153: `   AI Architect Canvas Node Builder`
+- line 20154: `   Separate AI build canvas, not the main workflow canvas.`
+- line 20270: `function renderAionArchitectNodeCanvas() {`
+- line 21304: `  if (!window.__aionWorkflowGraph) {`
+- line 21305: `    window.__aionWorkflowGraph = {`
+- line 21314: `  const graph = window.__aionWorkflowGraph;`
+- line 21887: `function renderAionArchitectCanvasMode() {`
+- line 21899: `              <div class="aion-workflow-subtle-meta">Aion workflow builder · local draft</div>`
+- line 21977: `    typeof renderAionArchitectNodeCanvas === "function"`
+- line 21978: `      ? renderAionArchitectNodeCanvas()`
+- line 21979: `      : typeof renderAionArchitectRealCanvas === "function"`
+- line 21980: `        ? renderAionArchitectRealCanvas()`
+- line 22010: `            <div class="aion-workflow-subtle-meta">Aion workflow builder · local draft</div>`
+- line 22037: `function renderWorkflowArchitectNodeEditorModal() {`
+- line 22039: `    return renderAionArchitectCanvasMode();`
+- line 22476: `   AION Unified Workflow Canvas Builder Modes - Phase 1`
+- line 22491: `function renderAionUnifiedCanvasBuilderControls() {`
+- line 22554: `          Aion will turn this into dry-run workflow nodes. You can then edit each node manually.`
+- line 22800: `  if (!window.__aionWorkflowGraph) {`
+- line 22801: `    window.__aionWorkflowGraph = getAionWorkflowDraftState();`
+- line 22804: `  const graph = window.__aionWorkflowGraph || {};`
+- line 22850: `  window["__aionWorkflowGraph"] = graph;`
+- line 22879: `      : window.__aionWorkflowGraph) || {};`
+- line 22936: `      : window.__aionWorkflowGraph) || {};`
+- line 23150: `  window.__aionWorkflowGraph = {`
+- line 23178: `      compileAndAttachAionWorkflowGlyph(window.__aionWorkflowGraph);`
+- line 23371: `      : window.__aionWorkflowGraph) || {};`
+- line 23542: `      <!-- LOCK: preserved Workflow Canvas mode button. Not Master Glyph Canvas. -->`
+- line 23547: `        title="Workflow Canvas"`
+- line 23548: `        aria-label="Workflow Canvas"`
+- line 23550: `        Workflow Canvas`
+- line 23567: `function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {}) {`
+- line 23569: `    return renderAionArchitectCanvasMode();`
+- line 23574: `  window["__aionWorkflowGraph"] = graph;`
+- line 24169: `          class="aion-canvas-node aion-canvas-node-${escapeHtml(node.tone)} ${selectedNode && node.id === selectedNode.id ? "aion-canvas-node-selected" : ""} ${isBranchNode ? "aion-canvas-node-branch" : ""}"`
+- line 24171: `          data-aion-workflow-node-id="${escapeHtml(node.id)}"`
+- line 24179: `          <div class="aion-canvas-node-top">`
+- line 24180: `            <div class="aion-canvas-node-icon">${escapeHtml(node.icon)}</div>`
+- line 24181: `            <span class="aion-canvas-node-type">${escapeHtml(node.type)}</span>`
+- line 24183: `          <div class="aion-canvas-node-title">${escapeHtml(node.title)}</div>`
+- line 24184: `          <div class="aion-canvas-node-meta">${escapeHtml(node.meta)}</div>`
+- line 24185: `          <div class="aion-canvas-node-status">`
+- line 24368: `        typeof getAionWorkflowNodePorts === "function"`
+- line 24369: `          ? getAionWorkflowNodePorts(node)`
+- line 24395: `  const AION_CANVAS_NODE_BOX = 118;`
+- line 24396: `  const AION_CANVAS_NODE_RADIUS = AION_CANVAS_NODE_BOX / 2;`
+- line 24402: `    const centerX = x + AION_CANVAS_NODE_RADIUS;`
+- line 24403: `    const centerY = y + AION_CANVAS_NODE_RADIUS;`
+- line 24407: `        x: centerX - AION_CANVAS_NODE_RADIUS,`
+- line 24415: `        y: centerY - AION_CANVAS_NODE_RADIUS,`
+- line 24422: `        y: centerY + AION_CANVAS_NODE_RADIUS,`
+- line 24427: `      x: centerX + AION_CANVAS_NODE_RADIUS,`
+- line 24473: `    const centerX = x + AION_CANVAS_NODE_RADIUS;`
+- line 24474: `    const centerY = y + AION_CANVAS_NODE_RADIUS;`
+- line 24511: `        y: y + AION_CANVAS_NODE_RADIUS - 7 + offset + portButtonCenter,`
+- line 24517: `        x: x + AION_CANVAS_NODE_BOX + 7 + portButtonCenter,`
+- line 24518: `        y: y + AION_CANVAS_NODE_RADIUS - 7 + offset + portButtonCenter,`
+- line 24525: `        y: centerY - AION_CANVAS_NODE_RADIUS,`
+- line 24532: `        y: centerY + AION_CANVAS_NODE_RADIUS,`
+- line 24547: `    const fromCenterX = Number(fromNode.x || 0) + AION_CANVAS_NODE_RADIUS;`
+- line 24548: `    const toCenterX = Number(toNode.x || 0) + AION_CANVAS_NODE_RADIUS;`
+- ... +1187 more
+
+## Existing Goal / Goal Engine Terms
+
+- line 6: `  workflowGoal: "",`
+- line 1625: `    brandGoals: ["brandGoals", "brand_goals", "strategy"],`
+- line 1833: `    ["brandMap.brandGoals.objective", "Brand Goals · Primary goal"],`
+- line 1834: `    ["brandMap.brandGoals.funnelGoal", "Brand Goals · Funnel goal"],`
+- line 1835: `    ["brandMap.brandGoals.campaignNotes", "Brand Goals · Campaign / growth notes"],`
+- line 2152: `      source.primary_goal ||`
+- line 2155: `      foundation.primary_goal ||`
+- line 2192: `    ["Primary goal", draft.primary_goal],`
+- line 2272: `  const goals = getBrandMapSection("brandGoals");`
+- line 2373: `                    id: "brandGoalsObjectiveInput",`
+- line 2376: `                    path: "brandMap.brandGoals.objective",`
+- line 2380: `                    id: "brandGoalsFunnelGoalInput",`
+- line 2383: `                    path: "brandMap.brandGoals.funnelGoal",`
+- line 2387: `                    id: "brandGoalsNotesInput",`
+- line 2390: `                    path: "brandMap.brandGoals.campaignNotes",`
+- line 5462: `function getAionGoalEngineVisibleBoardroomSourceV1(snapshot = {}) {`
+- line 5474: `    runtime.goal_engine_preview_bundle,`
+- line 5476: `    runtime.goal_engine,`
+- line 5478: `    summary.goal_engine_preview_bundle,`
+- line 5480: `    summary.goal_engine,`
+- line 5482: `    snapshot.goal_engine_preview_bundle,`
+- line 5484: `    snapshot.goal_engine,`
+- line 5493: `      candidate.goal_engine_goal_runtime_summary ||`
+- line 5495: `      candidate.goal_engine_checkpoint_runtime_summary ||`
+- line 5497: `      candidate.goal_engine_resume_revalidation_summary ||`
+- line 5499: `      candidate.goal_engine_experiment_runtime_summary ||`
+- line 5501: `      candidate.goal_engine_orchestrator_runtime_summary ||`
+- line 5503: `      candidate.goal_engine_decomposition_runtime_summary`
+- line 5512: `function buildAionGoalEngineVisibleDemoPayloadV1() {`
+- line 5514: `    schema_version: "aion.goal_engine.evidence_pointer.v1",`
+- line 5530: `    schema_version: "aion.goal_engine.experiment_result_evidence.v1",`
+- line 5549: `    schema_version: "aion.goal_engine.variant_outcome_score.v1",`
+- line 5598: `    schema_version: "aion.goal_engine.memory_runtime_summary.v1",`
+- line 5627: `        supports_outcome_evaluation: false,`
+- line 5646: `        supports_outcome_evaluation: true,`
+- line 5666: `        supports_outcome_evaluation: true,`
+- line 5688: `    schema_version: "aion.business.goal_engine_container_projection.v1",`
+- line 5689: `    trace_type: "goal_engine_container_projection",`
+- line 5705: `    schema_version: "aion_goal_engine_boardroom_runtime_preview_v1",`
+- line 5706: `    trace_type: "goal_engine_boardroom_runtime_preview",`
+- line 5710: `    goal_engine_container_projection: demoContainerProjection,`
+- line 5716: `      schema_version: "aion.goal_engine.orchestrator_parent_child_aggregation.v1",`
+- line 5717: `      runtime: "aion_goal_engine",`
+- line 5719: `      parent_goal_id: "goal_visible_demo",`
+- line 5720: `      parent_goal_status: "derived_preview",`
+- line 5744: `      would_mutate_parent_goal: false,`
+- line 5750: `        schema_version: "aion.goal_engine.orchestrator_parent_child_aggregation.v1",`
+- line 5751: `        runtime: "aion_goal_engine",`
+- line 5753: `        parent_goal_id: "goal_visible_demo",`
+- line 5754: `        parent_goal_status: "derived_preview",`
+- line 5778: `        would_mutate_parent_goal: false,`
+- line 5792: `      schema_version: "aion.goal_engine.goal_runtime_summary.v1",`
+- line 5842: `      schema_version: "aion.goal_engine.checkpoint_runtime_summary.v1",`
+- line 5869: `      schema_version: "aion.goal_engine.resume_revalidation_summary.v1",`
+- line 5879: `        "parent_goal_no_longer_required",`
+- line 5893: `            "parent_goal_no_longer_required",`
+- line 5901: `      schema_version: "aion.goal_engine.experiment_runtime_summary.v1",`
+- line 5928: `      schema_version: "aion.goal_engine.orchestrator_runtime_summary.v1",`
+- line 5953: `      schema_version: "aion.goal_engine.goal_decomposition_runtime_summary.v1",`
+- line 5962: `          parent_goal_id: "goal_visible_demo",`
+- line 5974: `function renderAionGoalEngineDecompositionSummaryV1(source = {}) {`
+- line 5978: `    source.goal_engine_decomposition_runtime_summary ||`
+- line 5980: `    machineTrace.goal_engine_decomposition_runtime_summary ||`
+- line 5990: `    Array.isArray(source.child_goal_previews) ? source.child_goal_previews :`
+- line 5993: `    Array.isArray(machineTrace.child_goal_previews) ? machineTrace.child_goal_previews :`
+- line 5996: `    Array.isArray(summary.child_goal_previews) ? summary.child_goal_previews :`
+- line 6000: `    <div class="aion-boardroom-runtime-summary" data-aion-goal-engine-decomposition-summary="true">`
+- line 6014: `                <span>parent_goal_id=${item.parent_goal_id || "-"} · decomposition_strategy=${item.decomposition_strategy || "-"}</span>`
+- line 6083: `function renderAionGoalEngineContainerProjectionV1(snapshot = {}) {`
+- line 6085: `    snapshot.goal_engine_container_projection ||`
+- line 6086: `    snapshot.runtime?.goal_engine_container_projection ||`
+- line 6087: `    snapshot.summary?.goal_engine_container_projection ||`
+- line 6090: `  if (!projection || typeof projection !== "object" || projection.trace_type !== "goal_engine_container_projection") {`
+- line 6095: `    <div class="panel large-panel aion-goal-engine-container-projection" data-aion-goal-engine-container-projection="true">`
+- line 6096: `      <div class="panel-title">Persistent Goal Engine State</div>`
+- line 6122: `function renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot = {}) {`
+- line 6123: `  const realSource = getAionGoalEngineVisibleBoardroomSourceV1(snapshot);`
+- line 6125: `  const source = hasRealPayload ? realSource : buildAionGoalEngineVisibleDemoPayloadV1();`
+- line 6128: `    typeof renderAionGoalEngineOutcomeEvidenceSummaryV1 === "function"`
+- line 6129: `      ? renderAionGoalEngineOutcomeEvidenceSummaryV1(source.goal_runtime_summary || source)`
+- line 6131: `    typeof renderAionGoalEngineCheckpointSummaryV1 === "function"`
+- line 6132: `      ? renderAionGoalEngineCheckpointSummaryV1(source)`
+- line 6134: `    typeof renderAionGoalEngineResumeRevalidationSummaryV1 === "function"`
+- line 6135: `      ? renderAionGoalEngineResumeRevalidationSummaryV1(source)`
+- line 6137: `    typeof renderAionGoalEngineExperimentRuntimeSummaryV1 === "function"`
+- line 6138: `      ? renderAionGoalEngineExperimentRuntimeSummaryV1(source)`
+- line 6140: `    typeof renderAionGoalEngineOrchestratorSummaryV1 === "function"`
+- line 6141: `      ? renderAionGoalEngineOrchestratorSummaryV1(source)`
+- line 6143: `    renderAionGoalEngineDecompositionSummaryV1(source),`
+- line 6149: `    <div class="panel large-panel aion-goal-engine-visible-boardroom-panels" data-aion-goal-engine-visible-boardroom-panels="true">`
+- line 6150: `      <div class="panel-title">Goal Engine Runtime Preview</div>`
+- line 6152: `        ${hasRealPayload ? "Live payload from Boardroom runtime snapshot." : "Demo payload visible until backend Boardroom snapshot includes Goal Engine summaries."}`
+- line 6156: `        typeof renderAionGoalEngineBoardroomVisibilityMountAuditV1 === "function"`
+- line 6157: `          ? renderAionGoalEngineBoardroomVisibilityMountAuditV1(source)`
+- line 6866: `          <small class="muted">Goal Engine, provider, AXO/ETS and trust diagnostics are tucked away here.</small>`
+- line 6871: `        ${renderAionGoalEngineContainerProjectionV1(snapshot)}`
+- line 6873: `        ${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}`
+- line 20715: `      group: "Goal Engine",`
+- line 20716: `      group_id: "goal_engine",`
+- line 20719: `        { id: "goal_engine.goal", label: "Goal", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.goal", description: "Define a measurable goal. Dry-run only; grants no permission." },`
+- line 20720: `        { id: "goal_engine.experiment", label: "Experiment", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.experiment", description: "Test a safe hypothesis against a goal. Dry-run only." },`
+- line 20721: `        { id: "goal_engine.loop", label: "Loop", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.loop", description: "Bounded loop with kill switch and no unbounded execution. Dry-run only." },`
+- line 20722: `        { id: "goal_engine.outcome_evaluation", label: "Outcome evaluation", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.outcome_evaluation", description: "Evaluate quality, metric delta, cost, confidence, and evid`
+- line 20723: `        { id: "goal_engine.reflect_learn", label: "Reflect / learn", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.reflect_learn", description: "Advisory reflection only. Learning grants no permission." },`
+- line 20724: `        { id: "goal_engine.state_delta_accumulator", label: "State delta accumulator", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.state_delta_accumulator", description: "Accumulate bounded state deltas for loop co`
+- line 20725: `        { id: "goal_engine.environment_revalidation", label: "Environment revalidation", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.environment_revalidation", description: "Re-check approval, vault, connectors, pa`
+- line 23700: `        <button class="aion-picker-row" data-aion-workflow-create-trigger="evaluation" type="button">`
+- line 23703: `            <strong>Evaluation run</strong>`
+- line 23712: `        <div class="aion-picker-section-title">Goal Engine</div>`
+- line 23714: `        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_goal" type="button">`
+- line 23722: `        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_experiment" type="button">`
+- line 23730: `        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_loop" type="button">`
+- line 23738: `        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_outcome_evaluation" type="button">`
+- line 23741: `            <strong>Outcome evaluation</strong>`
+- line 23746: `        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_reflect_learn" type="button">`
+- line 23754: `        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_state_delta_accumulator" type="button">`
+- line 23762: `        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_environment_revalidation" type="button">`
+- line 29753: `  const primaryGoal = foundation.primary_goal || "improve business performance";`
+- line 31074: `    ["primary_goal", "Primary goal"],`
+- line 31156: `    primary_goal: "get_more_leads",`
+- line 43480: `        typeof window.__resolveAionGoalEngineWorkflowActionAlias === "function"`
+- line 43481: `          ? window.__resolveAionGoalEngineWorkflowActionAlias(rawActionType)`
+- line 45308: `    const workflowGoal = String(goalInput.value || "");`
+- line 45313: `      workflowGoal,`
+- line 45322: `      workflowGoal,`
+- line 45337: `      workflowGoal: current.workflowGoal || "",`
+- line 46186: `      workflowGoal: (window.__syncedArchitectInput || {}).workflowGoal,`
+- line 47662: `        typeof window.__resolveAionGoalEngineWorkflowActionAlias === "function"`
+- line 47663: `          ? window.__resolveAionGoalEngineWorkflowActionAlias(rawActionType)`
+- line 54759: `/* AION PATCH: Goal Engine dry-run Manifest UI v1 */`
+- line 54760: `function getAionGoalEngineManifestFromDryRunResultV1(result) {`
+- line 54764: `    result.goal_engine_manifest ||`
+- line 54765: `    result.goalEngineManifest ||`
+- line 54778: `    payload?.goal_engine_manifest ||`
+- line 54779: `    payload?.goalEngineManifest ||`
+- line 54789: `function renderAionGoalEngineManifestPanelV1(result) {`
+- line 54790: `  const manifest = getAionGoalEngineManifestFromDryRunResultV1(result);`
+- line 54807: `  const outcomeNodes = asList(manifest.outcome_evaluation_nodes || manifest.outcomes);`
+- line 54815: `      class="aion-goal-engine-manifest-panel"`
+- line 54816: `      data-aion-goal-engine-manifest-panel="true"`
+- line 54829: `          <div class="eyebrow">Goal Engine</div>`
+- line 54845: `          <div class="metric-value">${esc(manifest.runtime || "aion_goal_engine")}</div>`
+- line 54895: `        <summary>Advanced Goal Engine manifest payload</summary>`
+- line 54903: `/* AION PATCH: Goal Engine dry-run Boardroom Trace UI v1 */`
+- line 54904: `function getAionGoalEngineBoardroomTraceFromDryRunResultV1(result) {`
+- line 54908: `    result.goal_engine_boardroom_trace ||`
+- line 54909: `    result.goalEngineBoardroomTrace ||`
+- line 54922: `    payload?.goal_engine_boardroom_trace ||`
+- line 54923: `    payload?.goalEngineBoardroomTrace ||`
+- line 54933: `function renderAionGoalEngineBoardroomTracePanelV1(result) {`
+- line 54934: `  const trace = getAionGoalEngineBoardroomTraceFromDryRunResultV1(result);`
+- line 54979: `      class="aion-goal-engine-boardroom-trace-panel"`
+- line 54980: `      data-aion-goal-engine-boardroom-trace-panel="true"`
+- line 54993: `          <div class="eyebrow">Goal Engine</div>`
+- line 55009: `          <div class="metric-value">${esc(trace.runtime || "aion_goal_engine")}</div>`
+- line 55084: `        <summary>Advanced Goal Engine trace payload</summary>`
+- line 83895: `/* AION PATCH: Goal Engine workflow picker action aliases v1 */`
+- line 83896: `(function installAionGoalEngineWorkflowPickerAliasesV1() {`
+- line 83897: `  const PATCH_ID = "aion-goal-engine-workflow-picker-aliases-v1";`
+- line 83901: `  window.__aionGoalEngineWorkflowActionAliases = {`
+- ... +728 more
+
+## Pilot / Mission Mode / Department Pilot Terms
+
+- line 87: `    APPROVALS: "approvals",`
+- line 200: `      "Aion uses its own isolated browser profile, logins, downloads, permissions, replay, and audit trail.",`
+- line 214: `      "Aion can use a browser/profile you explicitly connect. Useful when you are already logged in, but it needs tighter approval gates.",`
+- line 219: `      "Approval required before risky actions",`
+- line 228: `  "No payment, delete, send, or final submit without approval.",`
+- line 242: `    approvalRequired: existing.approvalRequired !== false,`
+- line 378: `            <div class="metric-label">Approval</div>`
+- line 379: `            <div class="metric-note">${bridge.approvalRequired ? "Required before risky actions" : "Not required"}</div>`
+- line 469: `        "aion.proof_receipt.preview",`
+- line 1628: `    brandMission: ["brandMission", "brand_mission"],`
+- line 1839: `    ["brandMap.brandMission.statement", "Brand Mission"],`
+- line 1888: `    ["brandMap.governance.approvalRules", "Governance · Approval rules"],`
+- line 2259: `        Live actions remain approval-bound.`
+- line 2275: `  const mission = getBrandMapSection("brandMission");`
+- line 2426: `                "5. Brand Mission",`
+- line 2430: `                    id: "brandMissionInput",`
+- line 2431: `                    label: "Mission",`
+- line 2432: `                    value: mission.statement ?? mission.mission ?? "",`
+- line 2433: `                    path: "brandMap.brandMission.statement",`
+- line 2796: `                "Hard rules, approval rules, compliance notes, and publishing boundaries.",`
+- line 2807: `                    id: "brandGovernanceApprovalInput",`
+- line 2808: `                    label: "Approval rules",`
+- line 2809: `                    value: governance.approvalRules,`
+- line 2810: `                    path: "brandMap.governance.approvalRules",`
+- line 2812: `                    placeholder: "All public posts require approval\nEscalate uncertain claims\nHuman reviews final calendar publish",`
+- line 2853: `  const waiting = state.runs.filter((x) => x.status === "waiting_approval").length;`
+- line 2861: `function getApprovalCounts() {`
+- line 2862: `  const pending = state.approvals.filter((x) => x.status === "pending").length;`
+- line 2863: `  const approved = state.approvals.filter((x) => x.status === "approved").length;`
+- line 2864: `  const rejected = state.approvals.filter((x) => x.status === "rejected").length;`
+- line 3162: `              Boardroom documents, function plans, evidence, receipts and workflow artifacts should be indexed here from the relevant business container. This page reuses the existing File Cabinet drawer instead of creating a second loose f`
+- line 3197: `              <div class="list-item-sub">Saved meeting packets, context, council outputs, approvals and evidence links.</div>`
+- line 3204: `              <div class="list-item-title">Evidence & Receipts</div>`
+- line 3205: `              <div class="list-item-sub">Proof receipts, task evidence, approvals and safe queue traces.</div>`
+- line 3394: `function renderApprovals() {`
+- line 3395: `  if (!state.approvals.length) {`
+- line 3396: `    return `<div class="empty-state">No approvals recorded.</div>`;`
+- line 3401: `      ${state.approvals`
+- line 3405: `          (approval) => ``
+- line 3407: `              <div class="list-item-title">${escapeHtml(approval.title || "Approval")}</div>`
+- line 3408: `              <div class="list-item-sub">${escapeHtml(approval.id)}</div>`
+- line 3410: `                ${renderStatusBadge(approval.status)}`
+- line 3411: `                <span class="badge">Dept: ${escapeHtml(approval.department_key || "—")}</span>`
+- line 3414: `                Run: ${escapeHtml(approval.run_id || approval.queue_item_id || "—")}`
+- line 3495: `                  <span>Pending approvals</span>`
+- line 3496: `                  <strong>${escapeHtml(dept.pending_approvals ?? 0)}</strong>`
+- line 3681: `  const approvals = summary.approvals || {};`
+- line 3694: `  const approvalsSub = `Approved ${approvals.approved ?? 0} · Rejected ${approvals.rejected ?? 0}`;`
+- line 3735: `            "Approvals",`
+- line 3736: `            approvals.pending ?? 0,`
+- line 3737: `            approvalsSub,`
+- line 3907: `function renderMarketingApprovalCard(item) {`
+- line 3908: `  const approvalId = escapeHtml(item?.id || "");`
+- line 3928: `      <div class="list-item-title">${escapeHtml(item?.title || "Approval")}</div>`
+- line 3947: `      <div class="marketing-approval-actions">`
+- line 3950: `          data-approval-id="${approvalId}"`
+- line 3958: `          data-approval-id="${approvalId}"`
+- line 4038: `function renderCompactResolvedApprovals(items, expanded = false) {`
+- line 4039: `  const approvals = Array.isArray(items) ? items : [];`
+- line 4040: `  const visible = expanded ? approvals : approvals.slice(0, 5);`
+- line 4042: `  if (!approvals.length) {`
+- line 4043: `    return `<div class="empty-state">No resolved approvals yet.</div>`;`
+- line 4097: `        approvals.length > 5`
+- line 4102: `                data-marketing-approvals-expand="${expanded ? "less" : "more"}"`
+- line 4104: `                ${expanded ? "Show less" : `Show more (${approvals.length - 5} more)`}`
+- line 4113: `function getDepartmentApprovals(departmentKey) {`
+- line 4115: `  const approvals = Array.isArray(state.approvals) ? state.approvals : [];`
+- line 4117: `  return approvals`
+- line 4134: `function getApprovalStatusCounts(items) {`
+- line 4135: `  const approvals = Array.isArray(items) ? items : [];`
+- line 4137: `    total: approvals.length,`
+- line 4138: `    pending: approvals.filter((item) => item?.status === "pending").length,`
+- line 4139: `    approved: approvals.filter((item) => item?.status === "approved").length,`
+- line 4140: `    rejected: approvals.filter((item) => item?.status === "rejected").length,`
+- line 4154: `function renderDepartmentApprovalsSurface(departmentKey, selectedAgentCard) {`
+- line 4156: `  const approvals = getDepartmentApprovals(departmentKey);`
+- line 4157: `  const counts = getApprovalStatusCounts(approvals);`
+- line 4165: `          selectedAgentCard?.label || "Department approval history",`
+- line 4168: `          "Total approvals",`
+- line 4170: `          "All recorded approval events",`
+- line 4185: `        <div class="panel-title">${escapeHtml(departmentLabel)} Approval History</div>`
+- line 4188: `          approvals.length`
+- line 4191: `                ${approvals.map((item) => {`
+- line 4200: `                    : item?.title || "Approval";`
+- line 4274: `            : `<div class="empty-state">No approval history for ${escapeHtml(`
+- line 4347: `  const marketingApprovals = (Array.isArray(state.approvals) ? state.approvals : [])`
+- line 4363: `  const pendingApprovals = marketingApprovals.filter(`
+- line 4367: `  const resolvedApprovals = marketingApprovals.filter((item) => {`
+- line 4376: `    waitingApproval: marketingRuns.filter(`
+- line 4377: `      (run) => run?.status === "waiting_approval",`
+- line 4384: `  const latestPendingApproval = pendingApprovals[0] || null;`
+- line 4412: `  const pendingApprovalsHtml = pendingApprovals.length`
+- line 4413: `    ? `<div class="list-wrap">${pendingApprovals`
+- line 4414: `        .map((item) => renderMarketingApprovalCard(item))`
+- line 4416: `    : `<div class="empty-state">No pending approvals right now.</div>`;`
+- line 4423: `  const resolvedApprovalsHtml = renderCompactResolvedApprovals(`
+- line 4424: `    resolvedApprovals,`
+- line 4425: `    !!state.marketingResolvedApprovalsExpanded,`
+- line 4454: `            "Awaiting approval",`
+- line 4455: `            counts.waitingApproval,`
+- line 4456: `            latestPendingApproval`
+- line 4459: `                    latestPendingApproval?.requested_at ||`
+- line 4460: `                      latestPendingApproval?.created_at,`
+- line 4463: `              : "Pending approval queue",`
+- line 4471: `            "Resolved approvals",`
+- line 4472: `            resolvedApprovals.length,`
+- line 4631: `            <div class="panel-title">Pending approvals</div>`
+- line 4632: `            ${pendingApprovalsHtml}`
+- line 4643: `            <div class="panel-title">Resolved approvals</div>`
+- line 4644: `            ${resolvedApprovalsHtml}`
+- line 5247: `  const approvals = safeArray(runtime.approvals);`
+- line 5250: `  const waitingApproval = runs.filter((run) => run?.status === "waiting_approval").length;`
+- line 5252: `  const pendingApprovals = approvals.filter((item) => item?.status === "pending").length;`
+- line 5259: `        ${renderBoardroomMetricCard("Waiting approval", waitingApproval, "Run pipeline blocked")}`
+- line 5261: `        ${renderBoardroomMetricCard("Pending approvals", pendingApprovals, "Decision queue")}`
+- line 5268: `function getWorkflowCapsuleApprovalsForBoardroom(runtimeApprovals = []) {`
+- line 5269: `  const localItems = Array.isArray(runtimeApprovals) ? runtimeApprovals : [];`
+- line 5270: `  const extraItems = Array.isArray(state.workflowCapsuleApprovals)`
+- line 5271: `    ? state.workflowCapsuleApprovals`
+- line 5280: `        schema.includes("workflow_capsule_approval") ||`
+- line 5293: `function renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals = []) {`
+- line 5294: `  const items = getWorkflowCapsuleApprovalsForBoardroom(runtimeApprovals);`
+- line 5298: `    <div class="panel large-panel" data-boardroom-workflow-capsule-approvals="true">`
+- line 5299: `      <div class="panel-title">Workflow Capsule Approvals</div>`
+- line 5306: `                const approvalId = String(item?.approval_id || item?.id || "");`
+- line 5309: `                const permissionDecision =`
+- line 5310: `                  item?.permission_decision ||`
+- line 5311: `                  payload?.permission_decision ||`
+- line 5312: `                  meta?.permission_decision ||`
+- line 5313: `                  "request_approval";`
+- line 5331: `                  <div class="list-item" data-workflow-capsule-approval-card="true">`
+- line 5334: `                        <div class="list-item-title">${escapeHtml(item?.display_name || item?.title || "Workflow Capsule Approval")}</div>`
+- line 5341: `                      <span class="badge">approval_id: ${escapeHtml(approvalId)}</span>`
+- line 5342: `                      <span class="badge">permission_decision: ${escapeHtml(permissionDecision)}</span>`
+- line 5352: `                      Dry-run preview: external write is blocked until guarded approval resume.`
+- line 5355: `                    <div class="marketing-approval-actions">`
+- line 5359: `                        data-workflow-capsule-approval-action="approve"`
+- line 5360: `                        data-workflow-capsule-approval-id="${escapeHtml(approvalId)}"`
+- line 5369: `                        data-workflow-capsule-approval-action="reject"`
+- line 5370: `                        data-workflow-capsule-approval-id="${escapeHtml(approvalId)}"`
+- line 5381: `          : `<div class="empty-state">No pending workflow capsule approvals.</div>``
+- line 5387: `async function handleBoardroomWorkflowCapsuleApprovalAction(approvalId, action) {`
+- line 5388: `  const safeApprovalId = String(approvalId || "").trim();`
+- line 5391: `  if (!safeApprovalId || !["approve", "reject"].includes(safeAction)) {`
+- line 5404: `    `${apiBase}/api/workflow-capsules/approvals/${encodeURIComponent(safeApprovalId)}/${decisionPath}`,`
+- line 5423: `      `${apiBase}/api/workflow-capsules/approvals/${encodeURIComponent(safeApprovalId)}/resume`,`
+- line 5513: `  const demoEvidencePointer = {`
+- line 5514: `    schema_version: "aion.goal_engine.evidence_pointer.v1",`
+- line 5515: `    trace_type: "evidence_pointer_preview",`
+- line 5516: `    evidence_type: "manual_confirmation",`
+- line 5518: `    reference_pointer: "manual://boardroom/demo/evidence-001",`
+- line 5519: `    evidence_hash: "b9f2d54d4d5a5f4a8f9c1d7a3e8f0b8b5c6a0e1f2d3c4b5a6978877665544332",`
+- line 5526: `    would_grant_permission: false,`
+- line 5529: `  const demoExperimentEvidence = {`
+- line 5530: `    schema_version: "aion.goal_engine.experiment_result_evidence.v1",`
+- line 5531: `    trace_type: "experiment_result_evidence_preview",`
+- line 5536: `    variant_evidence_count: {`
+- line 5540: `    all_variants_have_evidence: true,`
+- line 5545: `    would_grant_permission: false,`
+- line 5562: `        evidence_count: 2,`
+- line 5569: `        evidence_count: 1,`
+- line 5576: `    would_grant_permission: false,`
+- line 5610: `    blocked_reasons: ["memory_writes_remain_dry_run_only_until_guarded_approval"],`
+- line 5612: `    would_grant_permission: false,`
+- line 5652: `          external_writes: "approval_required",`
+- line 5672: `          external_writes: "approval_required",`
+- line 5680: `      external_writes_require_approval: true,`
+- line 5682: `      local_provider_does_not_grant_permission: true,`
+- line 5699: `    evidence_count: 2,`
+- line 5700: `    verified_evidence_count: 1,`
+- line 5724: `        waiting_approval: 1,`
+- line 5729: `        { agent_id: "agent_reviewer", role: "reviewer", glyph_code: "RV-001", status: "waiting_approval" },`
+- line 5735: `      waiting_approval_count: 1,`
+- line 5739: `      aggregate_blocked_reasons: ["child_approval_required", "child_blocked_or_failed"],`
+- line 5745: `      would_grant_permission: false,`
+- line 5758: `          waiting_approval: 1,`
+- line 5763: `          { agent_id: "agent_reviewer", role: "reviewer", glyph_code: "RV-001", status: "waiting_approval" },`
+- line 5769: `        waiting_approval_count: 1,`
+- line 5773: `        aggregate_blocked_reasons: ["child_approval_required", "child_blocked_or_failed"],`
+- line 5779: `        would_grant_permission: false,`
+- ... +2409 more
+
+## Function Map: Canvas / Workflow / Goal / Pilot
+
+- line 142: `createAionWorkflowIdCompatV1`
+- line 232: `getBrowserWorkflowBridgeState`
+- line 250: `renderBrowserWorkflowModeCard`
+- line 280: `renderBrowserWorkflowBridgePanel`
+- line 2861: `getApprovalCounts`
+- line 3394: `renderApprovals`
+- line 3907: `renderMarketingApprovalCard`
+- line 4038: `renderCompactResolvedApprovals`
+- line 4113: `getDepartmentApprovals`
+- line 4134: `getApprovalStatusCounts`
+- line 4154: `renderDepartmentApprovalsSurface`
+- line 4960: `installAionWorkflowCanvasKindleSoftInkStyles`
+- line 5268: `getWorkflowCapsuleApprovalsForBoardroom`
+- line 5293: `renderBoardroomWorkflowCapsuleApprovalQueue`
+- line 5387: `handleBoardroomWorkflowCapsuleApprovalAction`
+- line 5462: `getAionGoalEngineVisibleBoardroomSourceV1`
+- line 5512: `buildAionGoalEngineVisibleDemoPayloadV1`
+- line 5974: `renderAionGoalEngineDecompositionSummaryV1`
+- line 6083: `renderAionGoalEngineContainerProjectionV1`
+- line 6122: `renderAionGoalEngineVisibleBoardroomPanelsV1`
+- line 6927: `getBoardroomWorkflowWidgetPreviewPayload`
+- line 7076: `renderBoardroomWorkflowWebsiteFormCard`
+- line 7128: `handleBoardroomWorkflowWidgetPreviewAction`
+- line 7304: `__deprecatedPhase16Duplicate_6158_renderBoardroomWorkflowWidgetPanel`
+- line 7552: `__deprecatedPhase16Duplicate_6406_renderBoardroomWorkflowWidgetPanel`
+- line 7655: `renderBoardroomWorkflowWidgetPanel`
+- line 7927: `renderBoardroomDepartmentIntelligencePanel`
+- line 8326: `renderLocalNodeSurface`
+- line 8855: `getAionPilotFrontendInteractionState`
+- line 8881: `createAionPilotFrontendDraftMission`
+- line 8989: `renderAionPilotFrontendStreamEvents`
+- line 9018: `classifyAionPilotUniversalTask`
+- line 9251: `buildAionCentralApprovalRequiredActionPlan`
+- line 9293: `buildAionCentralPilotExecutionQueueProposal`
+- line 9383: `readAionCentralPilotStorageObject`
+- line 9394: `writeAionCentralPilotStorageObject`
+- line 9421: `getAionCentralPilotQueue`
+- line 9433: `saveAionCentralPilotQueue`
+- line 9477: `buildAionCentralApprovedPilotQueue`
+- line 9511: `getAionCentralPilotNextApprovedTask`
+- line 9519: `runAionCentralPilotApprovedTask`
+- line 9759: `buildAionPilotUniversalPlan`
+- line 9797: `buildAionPilotWorkPackage`
+- line 9973: `getAionPilotHumanApprovalStages`
+- line 9983: `getAionPilotHumanApprovalStageKey`
+- line 9991: `toggleAionPilotHumanApprovalStage`
+- line 10018: `renderAionPilotHumanApprovalChecklist`
+- line 10075: `normaliseAionPilotFollowOnLabel`
+- line 10082: `getAionPilotLatestOutputText`
+- line 10089: `classifyAionPilotFollowOnWorkItem`
+- line 10125: `getAionPilotFollowOnApprovalStages`
+- line 10135: `getAionPilotFollowOnWorkKey`
+- line 10143: `toggleAionPilotFollowOnApprovalStage`
+- line 10170: `deriveAionPilotFollowOnWorkItems`
+- line 10245: `classifyAionPilotApprovalRequirementMode`
+- line 10284: `getAionPilotPendingApprovalDrafts`
+- line 10294: `buildAionPilotApprovalDraftOutput`
+- line 10323: `getAionPilotFollowOnWorkQueue`
+- line 10358: `getAionPilotCompletedFollowOnWork`
+- line 10368: `getAionPilotNextExecutableFollowOnWorkItem`
+- line 10423: `buildAionPilotFollowOnTaskDraftOutput`
+- line 10627: `toggleAionPilotFollowOnQueueExpanded`
+- line 10653: `renderAionPilotFollowOnWorkQueue`
+- line 10811: `renderAionPilotWorkPackageCard`
+- line 10866: `normaliseAionPilotPreviewText`
+- line 10870: `renderAionPilotReasoningMiniStatus`
+- line 10889: `closeAionPilotStepOutput`
+- line 10910: `renderAionPilotStepCheckpointCard`
+- line 10930: `getAionPilotCommandBarContext`
+- line 10967: `activateAionPilotRevisionCommandContext`
+- line 11003: `getAionPilotCommandBarPlaceholder`
+- line 11018: `getAionPilotCommandBarValue`
+- line 11028: `getAionPilotCommandButtonLabel`
+- line 11042: `buildAionPilotRevisionDraftOutput`
+- line 11072: `getAionPilotLatestEditableOutput`
+- line 11078: `getAionPilotLatestEditableOutputText`
+- line 11094: `applyAionPilotPrecisePlaceholderRevisionLine`
+- line 11120: `applyAionPilotSimpleMissionThreadRevision`
+- line 11389: `applyAionPilotCommandBarRevisionIfActive`
+- line 11508: `renderAionPilotDepartmentQueueSummary`
+- line 11599: `renderAionPilotSimpleTaskStream`
+- line 11671: `renderAionPilotAdvancedTechnicalDetails`
+- line 11795: `renderAionLrmPilotContextReadonlyCard`
+- line 11861: `getAionPilotOutputPreparedLabel`
+- line 11872: `getAionPilotOutputPreparedDetail`
+- line 11908: `buildAionPilotMarketingPlanDraft`
+- line 11980: `buildAionPilotBusinessPlanDraft`
+- line 12067: `getAionPilotOutputPreviewText`
+- line 12226: `getAionPilotReceiptPreview`
+- line 12253: `openAionPilotOutputPreview`
+- line 12267: `viewAionPilotReceiptPreview`
+- line 12280: `downloadAionPilotOutputPreview`
+- line 12316: `renderAionPilotOutputPanel`
+- line 12336: `closeAionPilotOutputPanel`
+- line 12351: `appendAionPilotStreamEvent`
+- line 12378: `getAionPilotStepOutputTitle`
+- line 12391: `buildAionPilotPriorityStepOutput`
+- line 12474: `approveAionPilotMissionContract`
+- line 12540: `reviseAionPilotMissionContract`
+- line 12559: `cancelAionPilotMissionContract`
+- line 12581: `getAionPilotTaskSubject`
+- line 12598: `buildAionPilotDocumentDraft`
+- line 12692: `buildAionPilotGeneratedOutput`
+- line 12704: `getAionPilotResolvedGeneratedOutput`
+- line 12724: `getAionPilotStepOutputs`
+- line 12734: `appendAionPilotStepOutput`
+- line 12768: `renderAionPilotTrackedDraftLine`
+- line 12788: `renderAionPilotTrackedDraftText`
+- line 12795: `cleanAionPilotTrackedDraftText`
+- line 12808: `cleanAionPilotTrackedDraftOutput`
+- line 12841: `renderAionPilotStepOutputCards`
+- line 12871: `openAionPilotStepOutput`
+- line 12895: `getAionPilotMissionPreviewUrl`
+- line 12899: `getAionPilotExecuteSafeStepUrl`
+- line 12904: `normaliseAionPilotMissionPreviewQueues`
+- line 12917: `applyAionPilotMissionPreviewQueuesToState`
+- line 12931: `getAionPilotWorkPackageDraftStepsForBackend`
+- line 12947: `getAionPilotCurrentMissionDraftText`
+- line 12958: `getAionPilotAvailableVaultRequirements`
+- line 12982: `getAionPilotApprovalStagePayload`
+- line 13000: `buildAionPilotMissionPreviewPayload`
+- line 13041: `applyAionPilotMissionPreviewPayload`
+- line 13144: `fetchAionPilotMissionPreviewIntoPilotState`
+- line 13187: `normaliseAionPilotMissionMapNodeTitle`
+- line 13199: `buildAionPilotExecuteSafeStepPayload`
+- line 13225: `fetchAionPilotExecuteSafeStep`
+- line 13240: `executeAndAppendAionPilotMissionMapStepOutput`
+- line 13437: `runAionPilotSafeWorkPreview`
+- line 13698: `getAionPilotCockpitSnapshot`
+- line 13747: `renderAionPilotCockpitPanel`
+- line 13751: `installAionPilotCockpitStyles`
+- line 15735: `getRunApprovalItems`
+- line 15762: `getPendingApprovalForRun`
+- line 15771: `getLatestApprovalForRun`
+- line 15811: `isTeachAionDebugWorkflow`
+- line 15829: `getVisibleTeachAionWorkflows`
+- line 16935: `formatTeachAionApprovalMode`
+- line 17096: `validateTeachAionWorkflowDraft`
+- line 17227: `compileStepBuilderDraftToGenericWorkflow`
+- line 18270: `normaliseBrowserWorkflowStep`
+- line 18469: `getAionWorkflowOrderedNodesForGlyph`
+- line 18557: `getAionWorkflowBusinessContainerId`
+- line 18575: `normaliseAionWorkflowNodeToGlyphStep`
+- line 18644: `isAionWorkflowSyntheticChooseNode`
+- line 18660: `orderAionWorkflowNodesForGlyph`
+- line 18726: `collectAionWorkflowRequiredConnectors`
+- line 18742: `collectAionWorkflowBoardroomEvents`
+- line 18770: `inferAionWorkflowRiskTier`
+- line 18789: `compileAionWorkflowGraphToGlyph`
+- line 18855: `compileAndAttachAionWorkflowGlyph`
+- line 18864: `getDefaultAionWorkflowDraftState`
+- line 18875: `stripAionWorkflowSyntheticChooseNode`
+- line 18909: `getAionWorkflowDraftState`
+- line 18980: `buildAionWorkflowSavePayload`
+- line 19021: `getAionWorkflowPendingNodeConfig`
+- line 19026: `setAionWorkflowPendingNodeConfig`
+- line 19036: `applyAionWorkflowPendingNodeConfig`
+- line 19070: `syncAionWorkflowInspectorInputsToGraph`
+- line 19098: `persistAionWorkflowDraftState`
+- line 19148: `markAionWorkflowDraftDirty`
+- line 19159: `getAionWorkflowSaveStatus`
+- line 19188: `loadAionWorkflowFromBusinessContainer`
+- line 19237: `maybeLoadAionWorkflowFromBusinessContainerOnce`
+- line 19280: `saveAionWorkflowToBusinessContainer`
+- line 19342: `getAionWorkflowGlyphCapsuleRegistry`
+- line 19352: `persistAionWorkflowGlyphCapsuleRegistry`
+- line 19365: `upsertAionWorkflowGlyphCapsuleRegistryItem`
+- line 19411: `listAionWorkflowGlyphCapsules`
+- line 19416: `getAionWorkflowGlyphLibraryBusinessContainer`
+- line 19429: `normaliseAionWorkflowGlyphLibraryItem`
+- line 19453: `listAionWorkflowGlyphLibraryItems`
+- line 19462: `summariseAionWorkflowGlyphSchema`
+- line 19474: `listAionMasterGlyphCanvasItems`
+- line 19509: `renderAionMasterGlyphCanvasNode`
+- line 19598: `renderAionMasterGlyphCanvasPanel`
+- line 19610: `installAionMasterGlyphCanvasControls`
+- line 19622: `getCurrentWorkflowGraphForMasterGlyphStage`
+- line 19641: `findMasterGlyphCanvasItem`
+- line 19661: `stageMasterGlyphToWorkflowCanvas`
+- line 19795: `renderAionWorkflowGlyphLibraryLauncher`
+- line 19808: `renderAionWorkflowGlyphLibraryDrawer`
+- line 19882: `installAionWorkflowGlyphLibraryDrawerControls`
+- line 19906: `findAionWorkflowGlyphCapsule`
+- line 19923: `slugifyAionWorkflowPart`
+- line 19933: `buildAionWorkflowCanvasCapsulePayload`
+- line 20023: `saveAionWorkflowCanvasAsCapsule`
+- line 20070: `renderAionWorkflowGlyphDebugExecutionPanel`
+- line 20102: `getWorkflowArchitectProviderCopy`
+- line 20120: `getWorkflowArchitectResultErrors`
+- line 20135: `getWorkflowArchitectResultWarnings`
+- line 20157: `getAionArchitectCanvasState`
+- line 20189: `setAionArchitectCanvasState`
+- line 20270: `renderAionArchitectNodeCanvas`
+- line 20743: `getAionUnifiedRealNodeFromModule`
+- line 21292: `addAionUnifiedRealNodeFromModule`
+- line 21887: `renderAionArchitectCanvasMode`
+- line 22037: `renderWorkflowArchitectNodeEditorModal`
+- line 22454: `renderAionWorkflowDryRunTraceFloatingDock`
+- line 22491: `renderAionUnifiedCanvasBuilderControls`
+- line 22546: `renderAionUnifiedDescribeWorkflowPanel`
+- line 22799: `appendAionUnifiedSuggestedStepsToMainWorkflow`
+- line 22866: `getAionWorkflowFileCabinetState`
+- line 22875: `getAionWorkflowFileCabinetItems`
+- line 23070: `findAionCabinetNode`
+- line 23079: `removeAionCabinetNode`
+- line 23129: `addAionCabinetWorkflow`
+- line 23241: `getAionCabinetNodeBadge`
+- line 23264: `renderAionFileCabinetNode`
+- line 23362: `renderAionWorkflowFileCabinetDrawer`
+- line 23456: `renderAionWorkflowFloatingToolbar`
+- line 23567: `renderAionWorkflowCanvasPanel`
+- line 26925: `compileBrowserSkillChainToGenericWorkflow`
+- line 27849: `renderTrainTaskApprovalCard`
+- line 27994: `renderOperationsAgentGenericWorkflowCard`
+- line 28043: `renderOperationsAgentWorkflowCard`
+- line 28354: `renderRunApprovalHistory`
+- line 29124: `getDepartmentPendingApprovals`
+- line 29301: `normaliseAionDepartmentPilotKey`
+- line 29307: `getAionDepartmentPilotProfile`
+- line 29317: `getAionDepartmentPilotLedgerEntry`
+- line 29326: `getAionDepartmentPilotStatus`
+- line 29331: `getAionDepartmentPilotBoardroomSummary`
+- line 29336: `renderAionDepartmentPilotMissingList`
+- line 29358: `renderAionDepartmentScopedPilotSurface`
+- line 29495: `applyAionDepartmentPilotAction`
+- line 29635: `getAionDepartmentPilotDiscoveryTemplate`
+- line 29645: `getAionDepartmentLedgerEntry`
+- line 29654: `normaliseAionDepartmentPilotStatus`
+- line 29665: `getAionDepartmentPilotCompletion`
+- line 29682: `collectAionDepartmentPilotDiscoveryFromForm`
+- line 29707: `saveAionDepartmentPilotDiscovery`
+- line 29738: `buildAionDepartmentPilotPlanDraft`
+- line 29815: `buildAionDepartmentPilotSafeTaskQueue`
+- line 29857: `renderAionDepartmentPilotDiscoveryPanel`
+- line 29930: `renderAionDepartmentPilotPlanPanel`
+- line 29966: `renderAionDepartmentPilotSafeQueuePanel`
+- line 30001: `renderAionDepartmentPilotLedgerSyncPanel`
+- line 30023: `renderAionDepartmentPilotPhase25CPanel`
+- line 30085: `normaliseAionDepartmentIntelligenceEntryEarlyCompatV1`
+- line 30122: `getAionDepartmentIntelligence`
+- line 30132: `setAionDepartmentIntelligence`
+- line 30142: `getAionDepartmentLedgerEntry`
+- line 30150: `updateAionDepartmentIntelligence`
+- line 30183: `getAionDepartmentIntelligenceEarlyCompatV1`
+- line 30193: `setAionDepartmentIntelligenceEarlyCompatV1`
+- line 30201: `updateAionDepartmentIntelligenceEarlyCompatV1`
+- line 30217: `getAionDepartmentLedgerEntryEarlyCompatV1`
+- line 30239: `getAionDepartmentPilotApprovalState`
+- line 30253: `approveAionDepartmentPilotPlan`
+- line 30302: `getAionDepartmentPilotApprovedTaskQueue`
+- line 30309: `getAionDepartmentPilotNextSafeTask`
+- line 30318: `runAionDepartmentPilotNextSafeTask`
+- line 30436: `renderAionDepartmentPilotPhase25DPanel`
+- line 30542: `getAionDepartmentResultEvidenceStatus`
+- line 35307: `renderAionDepartmentPilotPhase25EPanel`
+- line 35435: `getAionDepartmentPilotSpecialistPlaybook`
+- line 35448: `buildAionDepartmentPilotSpecialistDraft`
+- line 35518: `buildAionDepartmentPilotSpecialistSafeQueue`
+- line 35563: `renderAionDepartmentPilotPhase25FPanel`
+- line 37015: `normaliseAionPilotMarketingWorkspaceText`
+- ... +537 more
+
+## Existing Backend Service Files Likely Relevant
+
+- `backend/api/workflow_architect_router.py`
+- `backend/api/workflow_capsule_router.py`
+- `backend/api/workflow_glyph_router.py`
+- `backend/modules/aion/domain_goal_engine.py`
+- `backend/modules/aion/goal_engine/__init__.py`
+- `backend/modules/aion/goal_engine/boardroom_trace.py`
+- `backend/modules/aion/goal_engine/checkpointing.py`
+- `backend/modules/aion/goal_engine/contracts.py`
+- `backend/modules/aion/goal_engine/decomposition.py`
+- `backend/modules/aion/goal_engine/dry_run.py`
+- `backend/modules/aion/goal_engine/evidence_sources.py`
+- `backend/modules/aion/goal_engine/experiment_policy.py`
+- `backend/modules/aion/goal_engine/memory_model.py`
+- `backend/modules/aion/goal_engine/orchestrator.py`
+- `backend/modules/aion/goal_engine/outcome_scoring.py`
+- `backend/modules/aion/goal_engine/preview_bundle.py`
+- `backend/modules/aion/goal_engine/registry.py`
+- `backend/modules/aion/goal_engine/reproducibility.py`
+- `backend/modules/aion/goal_engine/resume_revalidation.py`
+- `backend/modules/aion/goal_handler.py`
+- `backend/modules/aion/goal_protocol.py`
+- `backend/modules/aion_agents/contracts/approval_request.py`
+- `backend/modules/aion_agents/contracts/workflow_definition.py`
+- `backend/modules/aion_agents/contracts/workflow_run.py`
+- `backend/modules/aion_agents/runtime/approval_request.py`
+- `backend/modules/aion_agents/runtime/approval_request_repository.py`
+- `backend/modules/aion_agents/runtime/workflow_definition.py`
+- `backend/modules/aion_agents/runtime/workflow_definition_repository.py`
+- `backend/modules/aion_agents/runtime/workflow_execution_runtime.py`
+- `backend/modules/aion_agents/runtime/workflow_run.py`
+- `backend/modules/aion_agents/runtime/workflow_run_repository.py`
+- `backend/modules/aion_business/api/workflow_api.py`
+- `backend/modules/aion_business/api/workflow_file_cabinet_api.py`
+- `backend/modules/aion_business/contracts/business_containers.py`
+- `backend/modules/aion_business/contracts/workflows.py`
+- `backend/modules/aion_business/runtime/business_container_repository.py`
+- `backend/modules/aion_business/runtime/business_container_service.py`
+- `backend/modules/aion_business/runtime/workflow_file_cabinet_repository.py`
+- `backend/modules/aion_business/workflows/__init__.py`
+- `backend/modules/aion_business/workflows/campaign_planning.py`
+- `backend/modules/aion_business/workflows/review_queue.py`
+- `backend/modules/aion_business/workflows/weekly_founder_review.py`
+- `backend/modules/aion_cognition/goal_transitions.py`
+- `backend/modules/aion_equities/pilot_company_seed.py`
+- `backend/modules/aion_equities/pilot_pre_earnings_runtime.py`
+- `backend/modules/aion_games/full_chess_goal_biased_strategic_search_kernel.py`
+- `backend/modules/aion_games/full_chess_level2_live_post_game_evidence_review_kernel.py`
+- `backend/modules/aion_gateway/a2a_job_evidence_settlement.py`
+- `backend/modules/aion_gateway/a2a_proof_receipt.py`
+- `backend/modules/aion_gateway/evidence.py`
+- `backend/modules/aion_language/goal_evaluator.py`
+- `backend/modules/aion_language/goal_motivation_calibrator.py`
+- `backend/modules/aion_language/goal_reinforcement.py`
+- `backend/modules/aion_lrm/evidence_gap_envelope.py`
+- `backend/modules/aion_lrm/evidence_satisfaction_envelope.py`
+- `backend/modules/aion_photon/goal_engine.py`
+- `backend/modules/aion_photon/goal_reasoning_alignment.py`
+- `backend/modules/aion_website_intake/workflow_trigger_bridge.py`
+- `backend/modules/aion_workflow/__init__.py`
+- `backend/modules/aion_workflow/contracts_workflow_glyph.py`
+- `backend/modules/aion_workflow/workflow_approval_repository.py`
+- `backend/modules/aion_workflow/workflow_dry_run.py`
+- `backend/modules/aion_workflow/workflow_glyph_compiler.py`
+- `backend/modules/aion_workflow/workflow_glyph_repository.py`
+- `backend/modules/aion_workflow/workflow_resume.py`
+- `backend/modules/business_agents/workflows/content_draft_workflow.py`
+- `backend/modules/business_runtime/approval_runtime.py`
+- `backend/modules/business_runtime/connector_permissions.py`
+- `backend/modules/business_runtime/contracts_approval.py`
+- `backend/modules/business_runtime/contracts_workflow.py`
+- `backend/modules/business_runtime/workflow_repository.py`
+- `backend/modules/business_runtime/workflow_runtime.py`
+- `backend/modules/chain_sim/aion_proof_receipts.py`
+- `backend/modules/codex/codex_autopilot.py`
+- `backend/modules/consciousness/goal_task_manager.py`
+- `backend/modules/dna_chain/dna_autopilot.py`
+- `backend/modules/knowledge_graph/indexes/goal_index.py`
+- `backend/modules/local_node/local_approval_store.py`
+- `backend/modules/local_node/tests/test_local_node_approval_path.py`
+- `backend/modules/local_node/train_task_approval_store.py`
+- `backend/modules/local_node/workflow_runner_host.py`
+- `backend/modules/photon_pay/photon_receipt.py`
+- `backend/modules/skills/goal_auto_runner.py`
+- `backend/modules/skills/goal_engine.py`
+- `backend/modules/skills/goal_runner.py`
+- `backend/modules/skills/goal_runner_service.py`
+- `backend/modules/skills/goal_scheduler.py`
+- `backend/modules/skills/goal_scheduler_loop.py`
+- `backend/modules/skills/goal_scheduler_service.py`
+- `backend/modules/skills/goal_tracker.py`
+- `backend/modules/skills/import_boot_goals.py`
+- `backend/modules/skills/milestone_goal_integration.py`
+- `backend/modules/skills/test_goal_tracker.py`
+- `backend/modules/symbolic/hst/goal_vector_field.py`
+- `backend/modules/visualization/quantum_field_canvas_api.py`
+- `backend/modules/wallet/wallet_receipts_routes.py`
+- `backend/modules/workflow_capsules/__init__.py`
+- `backend/modules/workflow_capsules/approval/__init__.py`
+- `backend/modules/workflow_capsules/approval/workflow_capsule_approval_store.py`
+- `backend/modules/workflow_capsules/architect/__init__.py`
+- `backend/modules/workflow_capsules/architect/build_pack.py`
+- `backend/modules/workflow_capsules/architect/builder_spec.py`
+- `backend/modules/workflow_capsules/architect/graph_compiler.py`
+- `backend/modules/workflow_capsules/architect/local_gemma_provider_adapter.py`
+- `backend/modules/workflow_capsules/architect/node_registry.py`
+- `backend/modules/workflow_capsules/architect/openai_provider_adapter.py`
+- `backend/modules/workflow_capsules/architect/provider_adapter.py`
+- `backend/modules/workflow_capsules/architect/provider_orchestrator.py`
+- `backend/modules/workflow_capsules/architect/repair_loop.py`
+- `backend/modules/workflow_capsules/architect/review_runner.py`
+- `backend/modules/workflow_capsules/architect/spec_validator.py`
+- `backend/modules/workflow_capsules/call_workflow_glyph_runtime.py`
+- `backend/modules/workflow_capsules/call_workflow_glyph_validation.py`
+- `backend/modules/workflow_capsules/canvas/__init__.py`
+- `backend/modules/workflow_capsules/canvas/canvas_workflow_compiler.py`
+- `backend/modules/workflow_capsules/connectors/__init__.py`
+- `backend/modules/workflow_capsules/connectors/contracts.py`
+- `backend/modules/workflow_capsules/connectors/providers/__init__.py`
+- `backend/modules/workflow_capsules/connectors/providers/gmail_connector.py`
+- `backend/modules/workflow_capsules/connectors/providers/gmail_local_node_bridge.py`
+- `backend/modules/workflow_capsules/connectors/vault/__init__.py`
+- `backend/modules/workflow_capsules/connectors/vault/connector_vault_resolver.py`
+- `backend/modules/workflow_capsules/connectors/workflow_connector_adapter.py`
+- `backend/modules/workflow_capsules/execution/__init__.py`
+- `backend/modules/workflow_capsules/execution/goal_engine_child_run_creation_bridge.py`
+- `backend/modules/workflow_capsules/execution/goal_engine_dry_run_bridge.py`
+- `backend/modules/workflow_capsules/execution/workflow_capsule_dry_run.py`
+- `backend/modules/workflow_capsules/execution/workflow_capsule_expander.py`
+- `backend/modules/workflow_capsules/execution/workflow_capsule_policy.py`
+- `backend/modules/workflow_capsules/execution/workflow_capsule_runner.py`
+- `backend/modules/workflow_capsules/execution/workflow_capsule_trace.py`
+- `backend/modules/workflow_capsules/foundations/__init__.py`
+- `backend/modules/workflow_capsules/foundations/workflow_capsule_schema.py`
+- `backend/modules/workflow_capsules/global_registry/__init__.py`
+- `backend/modules/workflow_capsules/global_registry/global_pattern_materializer.py`
+- `backend/modules/workflow_capsules/global_registry/global_registry_store.py`
+- `backend/modules/workflow_capsules/global_registry/industry_pack_schema.py`
+- `backend/modules/workflow_capsules/global_registry/local_binding_schema.py`
+- `backend/modules/workflow_capsules/glyph_store/__init__.py`
+- `backend/modules/workflow_capsules/glyph_store/seed_universal_glyphs.py`
+- `backend/modules/workflow_capsules/glyph_store/workflow_glyph_repository.py`
+- `backend/modules/workflow_capsules/glyph_store/workflow_glyph_schema.py`
+- `backend/modules/workflow_capsules/habits/__init__.py`
+- `backend/modules/workflow_capsules/habits/habit_capsule_registry.py`
+- `backend/modules/workflow_capsules/habits/habit_capsule_repository.py`
+- `backend/modules/workflow_capsules/habits/habit_capsule_schema.py`
+- `backend/modules/workflow_capsules/habits/habit_promotion_engine.py`
+- `backend/modules/workflow_capsules/orchestration/__init__.py`
+- `backend/modules/workflow_capsules/orchestration/workflow_intent_resolver.py`
+- `backend/modules/workflow_capsules/permissions/__init__.py`
+- `backend/modules/workflow_capsules/permissions/permission_evaluator.py`
+- `backend/modules/workflow_capsules/permissions/permission_modes.py`
+- `backend/modules/workflow_capsules/permissions/permission_policy.py`
+- `backend/modules/workflow_capsules/permissions/workflow_step_permission.py`
+- `backend/modules/workflow_capsules/registry/__init__.py`
+- `backend/modules/workflow_capsules/registry/workflow_glyph_registry.py`
+- `backend/modules/workflow_capsules/repository/__init__.py`
+- `backend/modules/workflow_capsules/repository/workflow_capsule_repository.py`
+- `backend/modules/workflow_capsules/resonance/__init__.py`
+- `backend/modules/workflow_capsules/resonance/workflow_capsule_feedback.py`
+- `backend/routes/aion_goals.py`
+- `backend/services/aion_mission_mode/__init__.py`
+- `backend/services/aion_mission_mode/agent_reputation_demo_narrative.py`
+- `backend/services/aion_mission_mode/approval_expiry.py`
+- `backend/services/aion_mission_mode/approval_lattice.py`
+- `backend/services/aion_mission_mode/autonomy_budget.py`
+- `backend/services/aion_mission_mode/autonomy_lane_classifier.py`
+- `backend/services/aion_mission_mode/boardroom_mission_control_contract.py`
+- `backend/services/aion_mission_mode/boardroom_replay_sync.py`
+- `backend/services/aion_mission_mode/boardroom_session_artifacts.py`
+- `backend/services/aion_mission_mode/browser_interception_rules.py`
+- `backend/services/aion_mission_mode/browser_staged_state.py`
+- `backend/services/aion_mission_mode/browser_worker_sandbox.py`
+- `backend/services/aion_mission_mode/business_container_artifacts.py`
+- `backend/services/aion_mission_mode/business_context_mission_map.py`
+- `backend/services/aion_mission_mode/business_foundation_llm_extractor.py`
+- `backend/services/aion_mission_mode/business_function_router.py`
+- `backend/services/aion_mission_mode/canonical_payload_hashing.py`
+- `backend/services/aion_mission_mode/capability_receipts.py`
+- `backend/services/aion_mission_mode/cost_drift_commercial_safety.py`
+- `backend/services/aion_mission_mode/cross_mission_memory_boundary.py`
+- `backend/services/aion_mission_mode/cross_mission_state_ledger.py`
+- `backend/services/aion_mission_mode/delegation_profiles.py`
+- `backend/services/aion_mission_mode/department_artifact_persistence.py`
+- `backend/services/aion_mission_mode/department_capability_map.py`
+- `backend/services/aion_mission_mode/department_execution_queue.py`
+- `backend/services/aion_mission_mode/external_callback_signaling_isolation.py`
+- `backend/services/aion_mission_mode/external_tool_gateway.py`
+- `backend/services/aion_mission_mode/home_fixed_founder_demo.py`
+- `backend/services/aion_mission_mode/home_fixed_visible_founder_demo.py`
+- `backend/services/aion_mission_mode/human_task_cards.py`
+- `backend/services/aion_mission_mode/kernel_guard.py`
+- `backend/services/aion_mission_mode/live_mission_timeline.py`
+- `backend/services/aion_mission_mode/llm_planner_adapter.py`
+- `backend/services/aion_mission_mode/lrm_pilot_context_payload_adapter.py`
+- `backend/services/aion_mission_mode/marketing_department_pack.py`
+- `backend/services/aion_mission_mode/matrix_expiry_revocation.py`
+- `backend/services/aion_mission_mode/mission_approval.py`
+- `backend/services/aion_mission_mode/mission_contract.py`
+- `backend/services/aion_mission_mode/mission_contract_integrity.py`
+- `backend/services/aion_mission_mode/mission_diff_payload_escrow.py`
+- `backend/services/aion_mission_mode/mission_failure_recovery.py`
+- `backend/services/aion_mission_mode/mission_outcome_ets_preview.py`
+- `backend/services/aion_mission_mode/mission_plan_approval_matrix.py`
+- `backend/services/aion_mission_mode/mission_planner.py`
+- `backend/services/aion_mission_mode/mission_runtime.py`
+- `backend/services/aion_mission_mode/mission_templates.py`
+- `backend/services/aion_mission_mode/multi_agent_mission_orchestration.py`
+- `backend/services/aion_mission_mode/multi_model_planning_arbiter.py`
+- `backend/services/aion_mission_mode/pilot_artifact_builder_runtime.py`
+- `backend/services/aion_mission_mode/pilot_blocked_action_panel.py`
+- `backend/services/aion_mission_mode/pilot_capability_adapter.py`
+- `backend/services/aion_mission_mode/pilot_cockpit_frontend_mount.py`
+- `backend/services/aion_mission_mode/pilot_cockpit_ui_contract.py`
+- `backend/services/aion_mission_mode/pilot_document_pdf_mission_demo.py`
+- `backend/services/aion_mission_mode/pilot_feedback_controls.py`
+- `backend/services/aion_mission_mode/pilot_filesystem_container_view.py`
+- `backend/services/aion_mission_mode/pilot_frontend_interaction.py`
+- `backend/services/aion_mission_mode/pilot_mission_composer_artifact_preview.py`
+- `backend/services/aion_mission_mode/pilot_mission_map_view.py`
+- `backend/services/aion_mission_mode/pilot_native_runtime.py`
+- `backend/services/aion_mission_mode/pilot_safe_step_executor.py`
+- `backend/services/aion_mission_mode/pilot_tool_approval_cards.py`
+- `backend/services/aion_mission_mode/pilot_tool_execution_queue.py`
+- `backend/services/aion_mission_mode/plan_diff_subplan_governance.py`
+- `backend/services/aion_mission_mode/provider_context_isolation.py`
+- `backend/services/aion_mission_mode/provider_webhook_signature_verification.py`
+- `backend/services/aion_mission_mode/self_repair_runtime.py`
+- `backend/services/aion_mission_mode/session_vfs.py`
+- `backend/services/aion_mission_mode/small_business_foundation.py`
+- `backend/services/aion_mission_mode/small_business_foundation_approval.py`
+- `backend/services/aion_mission_mode/template_learning_proposal.py`
+- `backend/services/aion_mission_mode/website_foundation_extractor.py`
+- `backend/services/aion_mission_mode/website_scan_usage_gate.py`
+
+## Existing Tests Likely Relevant
+
+- `backend/tests/comdex/test_codex_goal_mutation.py`
+- `backend/tests/glyphos_wirepack_v26_receipt_chain_integrity_benchmark.py`
+- `backend/tests/glyphos_wirepack_v41_receipt_gated_queries_benchmark.py`
+- `backend/tests/goal_reasoning_alignment_test.py`
+- `backend/tests/test_aion_equities_pilot_company_seed.py`
+- `backend/tests/test_aion_equities_pilot_pre_earnings_runtime.py`
+- `backend/tests/test_aion_workflow_glyph_contract.py`
+- `backend/tests/test_chain_sim_receipts_roots_persisted.py`
+- `backend/tests/test_denial_explanation_goal_gate.py`
+- `backend/tests/test_goal_engine_field_hooks.py`
+- `backend/tests/test_goal_transition_contradiction.py`
+- `backend/tests/test_goal_transition_log_data_root.py`
+- `backend/tests/test_goal_transition_log_jsonl.py`
+- `backend/tests/test_goal_transition_repeated_errors.py`
+- `backend/tests/test_resonant_goal_clusters.py`
+- `backend/tests/test_resonant_goal_task_manager.py`
+- `backend/tests/test_self_state_denial_goal_tokens.py`
+- `backend/tests/test_v26_receipt_chain_integrity_locks.py`
+- `backend/tests/test_v41_receipt_gated_queries_locks.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_availability_quote_lock.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_availability_quote_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_capabilities_catalog_lock.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_capabilities_catalog_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_handshake_preview_lock.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_handshake_preview_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_job_evidence_settlement_lock.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_job_evidence_settlement_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_job_request_trace_lock.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_job_request_trace_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_proof_receipt_lock.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_proof_receipt_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_trust_summary_endpoint_lock.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_trust_summary_endpoint_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_well_known_discovery_lock.py`
+- `backend/tests/workflow_capsules/test_aion_a2a_well_known_discovery_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_agent_channels_lock.py`
+- `backend/tests/workflow_capsules/test_aion_agent_channels_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_compact_metrics_lock.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_founder_override_preview_controls_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_founder_override_preview_controls_ui_lock.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_frontend_manual_smoke_confirmation_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_operator_presence_compact_lock.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_live_payload_lock.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_live_payload_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_no_shell_takeover_ui_lock.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_panel_polish_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_panel_polish_ui_lock.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_payload_bridge_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_payload_bridge_ui_lock.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_payload_mount_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_payload_mount_ui_lock.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_visibility_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_visibility_ui_lock.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_visible_render_path_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_visible_render_path_ui_lock.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_trust_summary_visibility_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_boardroom_trust_summary_visibility_ui_lock.py`
+- `backend/tests/workflow_capsules/test_aion_desktop_packaging_hygiene_lock.py`
+- `backend/tests/workflow_capsules/test_aion_exception_recovery_loops_lock.py`
+- `backend/tests/workflow_capsules/test_aion_exception_recovery_loops_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_a2a_contract_schemas_lock.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_a2a_contract_schemas_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_evidence_proof_hash_lock.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_evidence_proof_hash_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_fulfilment_job_core_lock.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_fulfilment_job_core_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_fulfilment_job_core_preview.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_fulfilment_job_core_preview_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_commit_lock.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_commit_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_commit_store_lock.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_commit_store_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_receipt_lookup_lock.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_receipt_lookup_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_machine_a2a_trace_lock.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_machine_a2a_trace_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_normalized_inbound_intent.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_normalized_inbound_intent_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_settlement_readiness_lock.py`
+- `backend/tests/workflow_capsules/test_aion_gateway_settlement_readiness_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_goal_engine_sprint1_completion_lock.py`
+- `backend/tests/workflow_capsules/test_aion_goal_engine_sprint1_gate_lock.py`
+- `backend/tests/workflow_capsules/test_aion_goal_engine_sprint2_outcome_evidence_lock.py`
+- `backend/tests/workflow_capsules/test_aion_goal_engine_sprint3_checkpoint_resume_lock.py`
+- `backend/tests/workflow_capsules/test_aion_goal_engine_sprint4_experiment_runtime_lock.py`
+- `backend/tests/workflow_capsules/test_aion_goal_engine_sprint5_orchestrator_runtime_lock.py`
+- `backend/tests/workflow_capsules/test_aion_guarded_a2a_namespace_lock.py`
+- `backend/tests/workflow_capsules/test_aion_guarded_a2a_namespace_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_home_fixed_vertical_testbed_lock.py`
+- `backend/tests/workflow_capsules/test_aion_home_fixed_vertical_testbed_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_kindle_soft_ink_permanent_theme_lock.py`
+- `backend/tests/workflow_capsules/test_aion_machine_cart_quote_handshake_lock.py`
+- `backend/tests/workflow_capsules/test_aion_machine_cart_quote_handshake_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_managed_agent_build_plan_lock.py`
+- `backend/tests/workflow_capsules/test_aion_parallel_business_catalog_lock.py`
+- `backend/tests/workflow_capsules/test_aion_parallel_business_catalog_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_parallel_discovery_metadata_lock.py`
+- `backend/tests/workflow_capsules/test_aion_parallel_discovery_metadata_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_boardroom_ui_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_boardroom_ui_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_dynamic_pricing_hash_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_dynamic_pricing_hash_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_glyphchain_proof_receipt_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_glyphchain_proof_receipt_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_home_fixed_vertical_workflow_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_home_fixed_vertical_workflow_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_machine_metadata_deterministic_hash_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_machine_metadata_deterministic_hash_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_negotiation_boundary_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_negotiation_boundary_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_no_booking_side_effect_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_no_booking_side_effect_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_no_escrow_side_effect_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_no_escrow_side_effect_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_no_external_message_send_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_no_external_message_send_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_no_payment_coupling_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_no_payment_coupling_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_no_public_route_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_no_public_route_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_public_gateway_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_public_gateway_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_trace_drift_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_trace_drift_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_trust_reputation_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_trust_reputation_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_universal_vertical_adapter_compatibility_regression_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase13_universal_vertical_adapter_compatibility_regression_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_dashboard_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_dashboard_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_discovery_endpoint_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_discovery_endpoint_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_actions_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_duplicate_cleanup_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_export_options_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_functional_wiring_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_visibility_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_human_review_simulation_bridge_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_human_review_simulation_bridge_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_live_verification_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_live_verification_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_manifest_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_manifest_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_payload_normalisation_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_single_canonical_frontend_panel_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_synthetic_agent_simulation_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_agentmap_synthetic_agent_simulation_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_universal_vertical_adapter_contract_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase14_universal_vertical_adapter_contract_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase15_axo_anti_gaming_trust_rule_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase15_axo_ets_consolidation_closeout_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase15_axo_ets_contract_foundation_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase15_axo_readiness_dashboard_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase15_ets_agentmap_preview_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase15_human_review_decision_preview_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase15_trusted_feedback_acceptance_preview_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase16_boardroom_advanced_runtime_drawer_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase16_boardroom_front_page_simplification_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase16c_founder_demo_ux_polish_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase16d_founder_demo_ux_hardening_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase16e_founder_demo_action_wiring_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase16f_founder_demo_loop_functional_hero_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase16g_boardroom_renderer_consolidation_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase16h_founder_demo_visible_outputs_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase16i_home_fixed_intake_quote_preview_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase16j_founder_demo_ticket_run_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase16k_ticket_step_artifacts_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17a_website_intake_trigger_contract_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17b_home_fixed_website_adapter_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17c_public_intake_endpoint_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17d_workflow_trigger_bridge_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17e_boardroom_ticket_ui_simplification_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17f_business_website_intake_installation_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17f_website_intake_installation_panel_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17g_gmail_vault_intake_connector_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17g_home_fixed_live_test_actions_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17h_functional_website_intake_actions_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17i_visible_intake_button_actions_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17j_vault_boardroom_gmail_bridge_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17k_real_vault_gmail_ux_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17l_simple_vault_connector_fallback_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17l_simplified_vault_connector_ui_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17m_final_vault_connect_ux_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17n_gmail_oauth_success_refresh_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17s_boardroom_enquiries_feed_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17t_clickable_enquiry_rows_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase17u_remove_old_dummy_enquiry_card_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase18_a2a_commercial_ticket_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase18_backend_contracts_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase18_preview_api_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase19a_glyph_edit_persistence_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase19b_workflow_plus_tabs_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase19c_navigation_cleanup_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase19d_canvas_notes_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase19e3_custom_function_sandbox_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase19e5_custom_function_policy_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase19e_custom_function_editor_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20_lrm_closeout_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20a_reasoning_packet_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20a_reasoning_packet_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20b_reasoning_memory_snapshot_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20b_reasoning_memory_snapshot_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20c_reasoning_replay_trace_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20c_reasoning_replay_trace_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20d_reasoning_replay_boardroom_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20d_reasoning_replay_boardroom_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20e_reasoning_recommendation_card_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20e_reasoning_recommendation_card_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase20f_human_review_decision_envelope_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20f_human_review_decision_envelope_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20g1_boardroom_mission_control_contract_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20g2_live_mission_timeline_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20g_evidence_gap_envelope_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20g_evidence_gap_envelope_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase20h1_external_tool_gateway_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20h2_provider_context_isolation_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20h3_browser_worker_sandbox_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20h4_browser_staged_state_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20h5_browser_interception_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20h6_external_callback_signaling_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20h7_provider_signature_verification_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20h8_cost_drift_commercial_safety_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20h9_capability_receipts_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20h_evidence_satisfaction_envelope_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20h_evidence_satisfaction_envelope_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase20i1_cross_mission_state_ledger_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20i2_boardroom_replay_sync_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20i3_mission_outcome_ets_preview_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20i_lrm_end_to_end_decision_loop_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20i_lrm_end_to_end_decision_loop_lock_doc.py`
+- `backend/tests/workflow_capsules/test_aion_phase20j_home_fixed_founder_demo_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20k1_multi_model_planning_arbiter_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20k_llm_planner_adapter_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20m_multi_agent_orchestration_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20n5_delegation_profiles_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20n6_autonomy_budget_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20n7_matrix_expiry_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20o_template_learning_proposal_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20p_pilot_frontend_interaction_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20u1_reputation_demo_narrative_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py`
+- `backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py`
+- ... +728 more

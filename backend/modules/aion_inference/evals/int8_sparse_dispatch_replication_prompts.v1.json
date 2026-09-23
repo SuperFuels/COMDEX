@@ -1,0 +1,37 @@
+{
+  "schema_version": "aion.prompt_manifest.v1",
+  "prompts": [
+    {
+      "family": "scientific_reasoning",
+      "prompt": "Explain how a coastal wetland reduces flood risk for a nearby town. Give at least twelve numbered mechanisms or planning implications, distinguish immediate effects from long-term effects, and identify measurements that would test each important claim."
+    },
+    {
+      "family": "software_debugging",
+      "prompt": "A local application becomes slow only after running for several hours, while restart temporarily fixes it. Produce a detailed diagnostic sequence with at least twelve steps covering memory, file handles, queues, caches, logs, reproduction, instrumentation, rollback and proof that a fix worked."
+    },
+    {
+      "family": "financial_controls",
+      "prompt": "Design a low-cost monthly financial control process for a small organisation. Include at least twelve numbered controls covering invoices, approvals, bank reconciliation, cash forecasting, access separation, exceptions, evidence retention and escalation, with a success measure for each."
+    },
+    {
+      "family": "education_design",
+      "prompt": "Create a twelve-part learning plan that teaches a beginner how to reason with percentages, ratios and uncertainty. For every part, explain the concept, give a practical exercise, name a common mistake, and define a simple mastery check."
+    },
+    {
+      "family": "logistics_planning",
+      "prompt": "A regional food distributor experiences late deliveries and excessive spoilage. Give a detailed twelve-step improvement plan covering demand forecasting, routing, loading, temperature evidence, supplier timing, exceptions, customer communication and measurable operational outcomes."
+    },
+    {
+      "family": "document_governance",
+      "prompt": "Explain how a small professional firm should govern important documents without expensive enterprise software. Provide at least twelve numbered practices covering naming, versions, permissions, approvals, retention, deletion, backups, restoration tests, audit evidence and incident response."
+    },
+    {
+      "family": "product_analysis",
+      "prompt": "A company is deciding whether to launch a subscription version of an existing product. Build a structured analysis with at least twelve numbered considerations covering customer evidence, pricing, churn, support, migration, unit economics, experiments, failure criteria and reversible decisions."
+    },
+    {
+      "family": "systems_explanation",
+      "prompt": "Explain why a fast processor can still wait on a slow storage device when running a large model. Give at least twelve numbered points covering capacity, bandwidth, latency, parallelism, caching, data layout, conversion, synchronization, measurement and safe optimization choices."
+    }
+  ]
+}

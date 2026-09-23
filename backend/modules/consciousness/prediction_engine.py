@@ -54,10 +54,17 @@ def get_prediction_kg_writer():
         return None
 
 try:
-    from backend.modules.tessaris.tessaris_engine import TessarisEngine
-    from backend.modules.dream_core import DreamCore
+    from backend.modules.hexcore.memory_engine import MemoryEngine
 except ImportError:
-    MemoryEngine, TessarisEngine, DreamCore = None, None, None
+    MemoryEngine = None
+try:
+    from backend.modules.tessaris.tessaris_engine import TessarisEngine
+except ImportError:
+    TessarisEngine = None
+try:
+    from backend.modules.aion.dream_core import DreamCore
+except ImportError:
+    DreamCore = None
 
 DNA_SWITCH.register(__file__)
 
@@ -66,7 +73,7 @@ def get_estimate_codex_cost():
     from backend.modules.codex.codex_executor import estimate_codex_cost
     return estimate_codex_cost
 
-class PredictionEngine:
+class PredictionEngineBase:
     def __init__(self, container_id: str = "global", memory_engine=None, tessaris_engine=None, dream_core=None):
         log.info("[PredictionEngine] Initialized - ready for feasibility assessments.")
         self.container_id = container_id
@@ -117,19 +124,37 @@ class PredictionEngine:
 
     def assess_feasibility(self, goal: Union[str, dict]) -> float:
         """
-        Returns a pseudo-probabilistic feasibility score (0-1)
-        based on symbolic goal complexity and random harmonics.
+        Return a deterministic evidence-readiness estimate.
+
+        This is an advisory estimate, never execution authority.  Capability
+        gaps, missing verification, unresolved ambiguity and risk reduce the
+        score; longer wording does not randomly change the answer.
         """
         if not goal:
             return 0.0
-
-        goal_text = goal if isinstance(goal, str) else str(goal)
-        complexity = min(len(goal_text) / 64.0, 1.0)  # heuristic: long goals = harder
-        base_resonance = 1.0 - (complexity * 0.5)
-        noise = random.uniform(-0.1, 0.1)
-
-        feasibility = max(0.0, min(1.0, base_resonance + noise))
-        log.info(f"[PredictionEngine] Feasibility({goal_text}) = {feasibility:.3f}")
+        data = goal if isinstance(goal, dict) else {"objective": str(goal)}
+        objective = str(data.get("objective") or data.get("goal") or "").strip()
+        capability = data.get("capability_decision") or {}
+        if isinstance(capability, dict):
+            capability = capability.get("decision") or capability.get("action")
+        base = {
+            "execute": 0.86,
+            "execute_with_strong_verification": 0.68,
+            "learn_then_execute": 0.30,
+            "clarify": 0.18,
+            "blocked": 0.08,
+        }.get(str(capability), 0.52)
+        if len(objective.split()) < 3:
+            base -= 0.12
+        if data.get("verification_plan"):
+            base += 0.07
+        if data.get("evidence_refs"):
+            base += 0.05
+        base -= min(0.24, 0.06 * len(data.get("unresolved_questions") or []))
+        if str(data.get("risk_tier") or "low").lower() in {"high", "critical"}:
+            base -= 0.12
+        feasibility = round(max(0.0, min(1.0, base)), 3)
+        log.info("[PredictionEngine] deterministic feasibility=%s objective=%s", feasibility, objective)
         return feasibility
 
     def _run_prediction_on_ast(self, ast_or_raw: dict) -> dict:
@@ -478,7 +503,13 @@ from backend.modules.symbolic.hst.hst_injection_utils import inject_hst_to_conta
 
 from backend.modules.codex.codex_metrics import record_sqi_score_event  # ✅ add this at the top with other imports
 
-class PredictionEngine:
+# Compatibility names used by the container pipeline.  The original file
+# accidentally hid these helpers inside an overwritten class definition.
+detects_conflicting_predicts = PredictionEngineBase.detects_conflicting_predicts
+extract_prediction_path = PredictionEngineBase.extract_prediction_path
+score_predictive_path = PredictionEngineBase.score_predictive_path
+
+class PredictionEngine(PredictionEngineBase):
     logger = logging.getLogger(__name__) 
     ...
 
@@ -1273,24 +1304,12 @@ def run_prediction_on_container(container: Dict[str, Any]) -> Dict[str, Any]:
 def run_prediction_on_ast(ast_or_raw: dict) -> dict:
     return get_prediction_engine()._run_prediction_on_ast(ast_or_raw)
 
-import random, logging
+import logging
 log = logging.getLogger(__name__)
 
 def assess_feasibility(self, goal):
-    """
-    Returns a pseudo-probabilistic feasibility score (0-1)
-    based on symbolic goal complexity and random harmonics.
-    """
-    if not goal:
-        return 0.0
-
-    goal_text = goal if isinstance(goal, str) else str(goal)
-    complexity = min(len(goal_text) / 64.0, 1.0)  # heuristic: longer = harder
-    base_resonance = 1.0 - (complexity * 0.5)
-    noise = random.uniform(-0.1, 0.1)
-    feasibility = max(0.0, min(1.0, base_resonance + noise))
-    log.info(f"[PredictionEngine] Feasibility({goal_text}) = {feasibility:.3f}")
-    return feasibility
+    """Compatibility wrapper around the deterministic base implementation."""
+    return PredictionEngineBase.assess_feasibility(self, goal)
 
 # Attach dynamically if missing
 try:

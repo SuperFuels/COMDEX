@@ -1,0 +1,297 @@
+% ============================================================================
+% AION Autonomous Mastery Runtime
+% Compile-ready section. Requires: amsmath, amssymb, booktabs, tabularx, array, url.
+% ============================================================================
+
+\section{Open Diagnosis and the Autonomous Mastery Runtime}
+\label{sec:aion-autonomous-mastery-runtime}
+
+This development stage removed two important forms of development-authored
+scaffolding from AION's canonical cognitive runtime.  First, a failed action no
+longer requires an evaluator to supply a clean label identifying whether the
+cause was a false assumption, a poor decision, execution failure, misleading
+evidence, environmental change, or missing authority.  Second, a broad learning
+mission no longer needs to be expressed using the retained five-specialist
+vocabulary or accompanied by a complete capability graph.
+
+Two procedures were internally promoted:
+\begin{itemize}
+    \item \path{procedure_open_diagnostic_experiment_invention_v1}; and
+    \item \path{procedure_autonomous_mastery_runtime_v1}.
+\end{itemize}
+Together they implement the persistent chain
+\begin{equation}
+\begin{aligned}
+\text{owner mission}
+&\rightarrow \text{learning-target induction}
+\rightarrow \text{specialist invention} \\
+&\rightarrow \text{dependency graph}
+\rightarrow \text{weakest ready capability}
+\rightarrow \text{curriculum} \\
+&\rightarrow \text{pre-action criticism}
+\rightarrow \text{committed action}
+\rightarrow \text{outcome} \\
+&\rightarrow \text{open diagnosis}
+\rightarrow \text{reflection or private repair}
+\rightarrow \text{transfer test} \\
+&\rightarrow \text{retention}
+\rightarrow \text{persistent mastery update}.
+\end{aligned}
+\label{eq:autonomous-mastery-loop}
+\end{equation}
+
+This extends the existing canonical runtime rather than introducing a competing
+goal or cognition loop.  HexCore continues to govern action, independently
+revealed consequences determine success, and the Cognitive Authority Unit
+(CAU) remains the promotion authority.
+
+\subsection{Self-Generated Pre-Action Criticism}
+\label{subsec:self-generated-criticism}
+
+Earlier metacognitive review could evaluate counterfactuals and alternative
+actions supplied by a planner.  The new controller also detects when a
+consequential action contains no meaningful opposition.  For each material
+assumption $a_i$, it constructs the unverified counterfactual
+\begin{equation}
+c_i: \quad \neg a_i,
+\end{equation}
+and asks which observable consequence would distinguish $a_i$ from
+$\neg a_i$.  If no explicit assumption exists, it constructs the generic
+opposition that the action may execute correctly while failing to achieve the
+intended outcome.  Each resulting information action is marked
+proposal-only, reversible, low risk, and dependent on an independent outcome.
+
+The generated criticism is not accepted as truth.  Its purpose is to expose an
+untested assumption or missing discriminator before consequential commitment.
+The mechanism was evaluated on software, research, causal, physical, and
+planning decisions.  All five generated independent counterfactual questions
+and information actions without a language-model call.
+
+\begin{table}[htbp]
+\centering
+\caption{Self-generated pre-action criticism results.}
+\label{tab:self-generated-criticism}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Consequential decision families & 5 \\
+Counterfactual sets generated & 5/5 \\
+Information-action sets generated & 5/5 \\
+Actions granted independent authority & 0 \\
+LLM calls & 0 \\
+Unsafe executions & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Open Diagnostic Experiment Invention}
+\label{subsec:open-diagnostic-invention}
+
+When an observed failure has several plausible causes, AION retains a live
+hypothesis set
+\begin{equation}
+\mathcal{H}=\{h_1,\ldots,h_n\}
+\end{equation}
+rather than forcing an immediate label.  Each safe observation contract $q$
+contains a read-only operation, an independent authority, an action cost
+$C(q)$, and the observation predicted by every $h_i$.  The induced partition
+of the live hypotheses has entropy
+\begin{equation}
+I(q)=-\sum_{v\in V_q}p(v)\log_2 p(v),
+\end{equation}
+where $V_q$ is the set of distinct predicted observations.  AION selects
+\begin{equation}
+q^{\star}=\arg\max_{q\in\mathcal{Q}_{\mathrm{safe}}}
+\frac{I(q)}{C(q)}.
+\label{eq:diagnostic-information-value}
+\end{equation}
+The selected experiment and hypothesis set are SHA-256 committed before the
+outcome authority reveals a result.  Hypotheses inconsistent with that result
+are removed and the process repeats.  If no safe informative observation
+remains while more than one hypothesis survives, AION abstains.
+
+Six sealed cases covered assumption, decision-model, execution, evidence,
+environment, and authority failures.  Surface channel names were changed in
+every case, preventing memorisation of one fixed diagnostic sequence.
+
+\begin{table}[htbp]
+\centering
+\caption{Open diagnostic experiment-invention results.}
+\label{tab:open-diagnostic-results}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Ambiguous failure cases & 6 \\
+Correctly resolved origins & 6/6 \\
+Diagnostic accuracy & 100\% \\
+Mean diagnostic actions & 2.667 \\
+Unsafe diagnostic actions & 0 \\
+Forced diagnoses without sufficient evidence & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The mechanism therefore changes post-action reflection from passive labelling
+into active causal discrimination:
+\begin{equation}
+\text{poor outcome}
+\rightarrow \text{competing causes}
+\rightarrow \text{diagnostic intervention}
+\rightarrow \text{evidence-bound lesson}.
+\end{equation}
+
+\subsection{Open Learning-Target and Specialist-Contract Invention}
+\label{subsec:open-specialist-contracts}
+
+The mastery compiler receives a broad owner objective, permitted outcome
+authorities, and an action budget.  It identifies explicit learning targets but
+does not infer a terminal purpose from arbitrary nouns.  If the objective does
+not state what is to be learned or mastered, it requests clarification.  If no
+independent outcome authority is available, it returns a needs-authority state.
+
+For every resolved target $t$, AION invents target-specific contracts for four
+generic mastery functions:
+\begin{equation}
+E_t \prec P_t \prec T_t \prec R_t,
+\label{eq:mastery-contract-chain}
+\end{equation}
+where $E_t$ denotes evidence-model construction, $P_t$ deliberate practice,
+$T_t$ source-disjoint transfer, and $R_t$ delayed retention.  Each specialist
+contract declares:
+\begin{equation}
+S_t=(I,O,D,A,V),
+\end{equation}
+where $I$ and $O$ are its typed inputs and outputs, $D$ is its prerequisite set,
+$A$ is the accepted outcome authority, and $V$ is the verification contract.
+Every contract remains proposal-only.
+
+For objectives containing several targets, an additional integration contract
+depends on all target-level retention nodes.  A topological check rejects a
+cyclic or unresolved graph before mission authorization.
+
+The sealed mission contained four targets:
+\begin{enumerate}
+    \item Rust systems engineering;
+    \item accessible user-interface design;
+    \item evidence-grounded financial-market analysis; and
+    \item bioacoustic event classification.
+\end{enumerate}
+The fourth target was intentionally outside the retained five-domain specialist
+vocabulary.  The compiler produced four contracts per target plus one
+cross-target integration contract, giving 17 invented specialists.
+
+\subsection{Persistent Weakness-Driven Mastery Control}
+\label{subsec:persistent-mastery-control}
+
+For mission $M$ and capability $c$, AION retains attempts $n_c$, verified
+successes $s_c$, transfer successes $t_c$, mean score $\bar{x}_c$, completed
+task identifiers, and the Wilson lower-confidence estimate
+\begin{equation}
+\ell_c=
+\frac{
+\hat{p}_c+\frac{z^2}{2n_c}
+-z\sqrt{\frac{\hat{p}_c(1-\hat{p}_c)}{n_c}+\frac{z^2}{4n_c^2}}
+}{1+\frac{z^2}{n_c}},
+\qquad
+\hat{p}_c=\frac{s_c}{n_c},\quad z=1.96.
+\label{eq:mastery-confidence}
+\end{equation}
+Only dependency-ready, unmastered capabilities are eligible.  The next target
+maximises strategic weakness,
+\begin{equation}
+c^{\star}=\arg\max_{c\in\mathcal{U}(M)}
+w_c(1-\ell_c),
+\end{equation}
+where $w_c$ gives additional value to transfer and integration contracts.
+
+Candidate learning methods are compositions of generic epistemic operators
+rather than per-domain answer strings.  Only independently verified outcomes
+update method ordering.  A successful method in one target can therefore
+reduce the number of evaluations required for a later target, while the later
+target must still pass its own authority and transfer contract.
+
+\begin{table}[htbp]
+\centering
+\caption{Autonomous Mastery Runtime sealed results.}
+\label{tab:autonomous-mastery-results}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Owner learning targets induced & 4 \\
+Specialist contracts invented & 17 \\
+Capability contracts completed & 17/17 \\
+Independently verified outcomes & 34/34 \\
+Attempt reduction versus cold composition & 56.86\% \\
+Terminal-objective mutations & 0 \\
+Unsafe live writes & 0 \\
+Restart retention & 100\% \\
+Duplicate tasks after completed-mission restart & 0 \\
+Focused integrated regression tests & 29/29 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+An initial restart audit exposed a reporting defect: a completed mission
+correctly generated no new tasks, but the summary divided by an empty list of
+new attempts.  The state machine had preserved the right cognition; the audit
+layer had not handled a zero-work restart.  The calculation was replaced with
+the retained outcome receipts, and a regression test now verifies that a
+completed mission retains exactly 34 outcomes and creates no duplicate work.
+
+\subsection{Canonical Runtime Integration and Authority Boundary}
+\label{subsec:mastery-runtime-integration}
+
+The canonical runtime now exposes
+\path{compile_and_authorize_mastery_mission}.  Compilation and authorization
+are deliberately separate operations.  By default, the compiler returns an
+invented graph as a proposal.  An authorized caller must explicitly set the
+authorization boundary, after which the terminal objective hash is immutable:
+\begin{equation}
+H_M=\operatorname{SHA256}(\text{terminal objective}),
+\qquad
+H_M^{(t+1)}=H_M^{(t)}.
+\label{eq:immutable-owner-objective}
+\end{equation}
+AION may invent instrumental goals, curricula, tools, diagnostic experiments,
+specialists, and dependency structures serving $H_M$.  It cannot silently
+replace $H_M$ or authorize its own terminal mission.
+
+Post-action reflection is also connected to open diagnosis.  When a critic
+reports ambiguity and supplies competing predictive models plus safe
+observation contracts, the canonical runtime retains the proposed diagnostic
+experiment.  When no informative safe contract exists, the result remains an
+abstention rather than becoming a guessed lesson.
+
+At completion of this cycle, the canonical cognitive runtime, continuous
+real-outcome learner, and Arena v15 long-duration campaign remained active.
+The verified trajectory manifest contained 139 committed artifacts, including
+106 verified positives and 21 verified negatives, with zero procedure-split
+leakage.
+
+\subsection{Claim Boundary and Real-Apprenticeship Gate}
+
+This result establishes a persistent semi-autonomous mastery \emph{control
+architecture}.  It does not establish that AION has already mastered Rust,
+interface design, finance, or bioacoustics.  The generic four-phase mastery
+scaffold, sealed method-property authority, diagnostic prediction contracts,
+and learning-target grammar remain engineered.
+
+The next decisive stage is real apprenticeship.  An owner-authorized target
+must be connected to authoritative resources, actual compilers or applications,
+unfamiliar projects, and independently revealed execution, user, market-data,
+or sensor consequences.  A credible mastery record must then demonstrate:
+\begin{enumerate}
+    \item curriculum and experiment generation without a supplied exercise list;
+    \item repeated successful work rather than one demonstration;
+    \item source-disjoint transfer to unfamiliar projects;
+    \item delayed retention without rereading or outcome replay;
+    \item correct active diagnosis of naturally occurring failures;
+    \item no serious regression of protected capabilities; and
+    \item explicit abstention or owner escalation outside delegated authority.
+\end{enumerate}
+Only those real consequences can change the claim from ``AION can organise and
+govern autonomous mastery'' to ``AION acquired deep transferable competence in
+a real subject.''

@@ -1,0 +1,64 @@
+\section{Phase 21W --- Permanent Fax Terminal AION Workspace Skin}
+\label{sec:aion-phase21w-permanent-fax-terminal-workspace-skin}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21W makes the fax/terminal style permanent across Pilot and the workflow canvas.
+
+\subsection{Purpose}
+
+The temporary Phase 21V design test established a preferred minimal mission-stream style.
+
+Phase 21W makes that design permanent and extends it to the workflow canvas so the AION workspace has a consistent visual language.
+
+\subsection{Design Rules}
+
+The AION workspace SHOULD use:
+
+\begin{itemize}
+  \item white or near-white page background;
+  \item monospace terminal/fax typography;
+  \item thin dark-blue separators;
+  \item blue default action controls;
+  \item green positive/proceed controls;
+  \item yellow caution/revise controls;
+  \item red stop/danger controls;
+  \item square low-decoration panels and nodes.
+\end{itemize}
+
+\subsection{Workflow Canvas Rule}
+
+The workflow canvas MUST receive the same visual skin as Pilot:
+
+\begin{itemize}
+  \item white background;
+  \item fax/terminal header treatment;
+  \item square node cards;
+  \item no cream canvas background;
+  \item no heavy decorative shadows;
+  \item consistent blue/green/yellow/red button language.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+This phase is presentation-only.
+
+It MUST NOT grant execution authority, expose credentials, expose private reasoning, call raw tools, send messages, post publicly, deploy, spend money, book, dispatch, escrow or mutate reputation.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21w_permanent_fax_terminal_workspace_skin_ui_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21W-PERMANENT-FAX-TERMINAL-WORKSPACE-SKIN
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

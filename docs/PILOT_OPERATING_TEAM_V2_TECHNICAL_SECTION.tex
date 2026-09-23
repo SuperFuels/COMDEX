@@ -1,0 +1,319 @@
+% Drop-in section for the Tessaris Pilot / COO Mission Layer technical handover.
+% Compatible with the handover preamble dated 19 September 2026.
+% Uses hyperref (for \path), enumitem and longtable from that document.
+
+\section{Native Pilot Operating Team v2}
+\label{sec:pilot-operating-team-v2}
+
+\subsection{Scope and architectural decision}
+
+Pilot Operating Team v2 implements the persistent-coworker pattern natively in
+AION.  It does not embed, call, vendor, or take a runtime dependency on
+OpenBot.  Grok Bot and OpenBot were treated only as comparative product and
+architecture references.  AG-UI compatibility remains a deferred adapter
+option; it is not part of the canonical internal runtime.
+
+The governing separation is:
+\begin{itemize}[leftmargin=*]
+\item the released model selected in the Vault interprets requests, reasons,
+plans, and summarises;
+\item the COO coordinates bounded missions and Department Pilot assignments;
+\item Department Pilots own work within their registered departmental
+capabilities;
+\item AION owns identity, durable state, capability admission, computer access,
+approval, execution boundaries, evidence, receipts, and audit.
+\end{itemize}
+No provider or model name is embedded in the operating-team service.  The
+workspace contract reports \texttt{model\_selection=vault\_selected}; therefore
+Qwen, GPT-OSS, a connected hosted model, or another accepted model can be
+selected without changing the operating-team contracts.
+
+\subsection{Recovered Train Agent foundation}
+
+The earlier Train Agent system was located rather than replaced.  It already
+contained an Electron isolated browser, follow-the-cursor/capture-next-click
+recording, semantic selector capture, password masking, a browser skill
+library, a chain builder, and an n8n-style visual workflow architect.  Its main
+limitation was that compiled browser chains ended in dry-run notifications;
+there was no governed semantic replay path.
+
+Version 2 retains those surfaces and adds a durable operating-team service,
+semantic demonstration contracts, validation, routines, computer capsules,
+mission control, completion packs, scoped memory, worker registration,
+templates, and a hash-chained audit.  The existing visual workflow architect
+remains available beneath the new Train Agent panel.
+
+\subsection{Runtime components}
+
+\begin{longtable}{p{.24\linewidth}p{.70\linewidth}}
+\textbf{Component} & \textbf{Responsibility}\\ \hline
+Operating-team service & Durable domain service in
+\path{pilot_operating_team_service.py} for capsules, demonstrated skills,
+routines, missions, completion packs, memory, workers, templates, preflight
+decisions, and audit verification.\\
+FastAPI router & API surface in \path{pilot_operating_team_api.py}, rooted at
+\path{/api/aion/business/pilot-team}.  Converts domain errors into explicit
+HTTP 403, 404, or 422 responses.\\
+Train Agent UI & Train Agent and Department Pilot surfaces in
+\path{pilot_operating_team_ui.js} for setup, viewing, takeover,
+demonstrations, routines, mission controls, workers, templates, and
+completion-pack summaries.\\
+Desktop styles & Responsive presentation in
+\path{pilot_operating_team.css} for the Train Agent workbench and compact
+Department Computer bar.\\
+Electron bridge & Trusted desktop bridge in \path{electron/main.js} and
+\path{preload.js} for opening the isolated browser, recorder control, event
+forwarding, profile selection, and validation-only semantic replay.\\
+Browser wrapper & \path{electron/isolated-browser.html} binds a durable
+Electron partition before navigation and resolves semantic targets inside the
+webview.\\
+\end{longtable}
+
+The router is registered in both \texttt{backend/desktop\_app.py} and
+\texttt{backend/main.py}.  The desktop scheduler invokes both the earlier
+scheduled-work service and \texttt{run\_due\_routines()}, so the new generalized
+routines do not replace existing scheduled work.
+
+\subsection{Durable workspace layout}
+
+Operating-team data is stored beneath the business-container root at:
+\begin{center}\small
+\path{<business-containers>/<workspace>/pilot/operating_team/}
+\end{center}
+The runtime creates separate directories for capsules, department workspaces,
+skills, routines, routine runs, missions, completion packs, memory, worker
+nodes, and templates.  Each department workspace contains scoped files,
+artifacts, and downloads directories.
+
+JSON records are written via a temporary sibling and atomic replacement.  A
+process-wide re-entrant lock serializes writes in this service.  This protects
+against partial local writes, but it is not a distributed transaction system;
+multiple backend processes must not write the same workspace without a future
+shared lock or database transaction layer.
+
+\subsection{Department Computer Capsules}
+
+Bootstrap creates capsules for COO, Finance, People, Sales, Marketing, Support,
+Products \& Services, and Operations.  Each capsule records:
+\begin{itemize}[leftmargin=*]
+\item a stable capsule and department identity;
+\item a distinct persistent Electron browser profile;
+\item a department workspace path;
+\item controller state and controller identity;
+\item deny-unregistered-destination network policy;
+\item department-grant-only connector policy;
+\item capsule- and mission-scoped filesystem policy;
+\item hidden model secrets and mandatory exact approval for external writes.
+\end{itemize}
+
+Electron maps the profile identifier to a partition named
+\texttt{persist:<profile-id>}.  Cookies and authenticated sessions are
+therefore separated by department.  The current desktop implementation uses
+one visible isolated-browser window and switches that window between durable
+department profiles; it does not run eight simultaneous virtual desktops.
+
+The user can watch work, take control, and return control to the Department
+Pilot.  A transfer changes \texttt{control\_state}, current and previous
+controller identifiers, reason, timestamp, record hash, and audit history.
+Passwords, passkeys, one-time codes, and CAPTCHA work remain human operations
+and are not copied into model context.
+
+\subsection{Teach by demonstration v2}
+
+Starting a teaching session opens the selected Department Computer and enables
+the recovered recorder.  Recorded browser events are compiled into a semantic
+skill rather than a literal mouse macro.  Each step contains an operation,
+semantic target, runtime input reference, readiness wait, validation rule,
+approval flag, and capture time.  The skill also records its intended outcome,
+owning department, source systems, required inputs, failure policy, and
+approval boundaries.
+
+Typed field contents are not embedded in the stored semantic step.  Password,
+token, secret, payment-card, and file fields are masked by the recorder; the
+service also recursively redacts known secret keys.  Input steps refer to a
+runtime input instead of retaining the demonstrated value.
+
+The compiler normalises all of the historical approval representations:
+\texttt{approval\_required}, \texttt{requires\_approval}, an
+\texttt{approval\_required} safety classification, and known consequential
+operations.  This corrects an inherited mismatch in which the old recorder
+emitted \texttt{requires\_approval} while the first v2 compiler read only
+\texttt{approval\_required}.  Send, submit, delete, purchase, publish, upload,
+and explicit approval-checkpoint steps are consequently preserved as mandatory
+approval boundaries.
+
+New skills begin as \texttt{draft/not\_tested}.  Publication requires all four
+checks to pass: safe inputs, resolved selectors, verified outputs, and verified
+approval stops.  Train Agent performs selector validation in the isolated
+browser and asks the founder to confirm the expected result in a safe account.
+Revalidation does not silently publish a failed or partially checked skill.
+
+\subsection{Semantic replay and live-execution boundary}
+
+The desktop bridge currently admits semantic replay only in
+\texttt{dry\_run} mode.  It validates that selectors parse, targets exist, and
+targets are visible.  The Electron main process rejects a renderer request for
+\texttt{mode=live} with
+\texttt{live\_execution\_requires\_backend\_gateway}.
+
+This restriction is intentional.  A renderer-provided approval identifier or
+hash is not proof of authority.  Autonomous live replay must be admitted by the
+server-side External Tool Gateway, bound to the exact current payload, checked
+for expiry and capability authority, and completed through an executor that
+returns evidence and a receipt.  The existing AION queue and approval-card
+layers deliberately stop at \texttt{waiting\_live\_executor}; this work does
+not introduce a second or less-governed executor.  Human takeover can be used
+for live browser work now.  Model-driven live side effects remain fail-closed
+until the governed executor connection is implemented and tested.
+
+\subsection{Generalised routines and event triggers}
+
+A routine belongs to one Department Pilot and uses exactly one trigger:
+\begin{enumerate}[leftmargin=*]
+\item a schedule expressed as an interval in minutes; or
+\item a business event containing an event type and optional exact field
+matches.
+\end{enumerate}
+It also records an authorised input source, expected result, approval policy,
+stale-data policy, no-data policy, counters, test state, enabled state, and
+trigger-instance idempotency.
+
+Routines are created disabled.  Enabling is refused until the founder-reviewed
+safe test confirms current inputs, output format, audit coverage, approval
+stops, and explicit failure states.  An event delivery is deduplicated using
+its trigger-instance identifier.  A due schedule or matching event creates a
+bounded COO mission and delegates one typed assignment to the owning
+department.  It does not execute an external side effect directly.
+
+The current scheduler supports interval schedules with a minimum effective
+interval of five minutes.  Calendar expressions, missed-run backfill,
+distributed scheduler election, and timezone-specific wall-clock recurrence
+are not yet implemented and must not be inferred from the stored timezone
+field.
+
+\subsection{COO mission room and in-flight control}
+
+A mission is an outcome contract containing founder constraints, requested
+deliverables, owner, state, revision, assignments, and an append-only timeline.
+Delegations identify the department, outcome, delegating identity, dependency
+references, and handoff depth.  The service caps handoff depth at four and
+parallel assignment fan-out at eight to prevent uncontrolled agent loops.
+
+Supported controls are start, pause, resume, stop, complete, fail, and
+redirect.  Redirect appends a new instruction and revision without deleting
+completed history.  Train Agent currently exposes create, pause, resume,
+redirect, and stop.  Department execution remains governed by registered
+capabilities and does not inherit authority merely because the COO delegated
+the work.
+
+\subsection{Completion packs, memory, and evidence}
+
+A completion pack is hash-bound to the corresponding mission version.  It
+separates verified facts and source authorities, assumptions, completed
+actions, approvals still waiting, unresolved questions, and artifacts.  This
+prevents a prepared draft or intended action from being presented as an
+executed result.
+
+Memory is divided into authoritative facts, approved preferences, reusable
+procedures, and temporary mission context.  An authoritative fact requires a
+named source authority.  Temporary context requires a mission identifier.
+Every record states that the selected model may not mutate it directly.  These
+checks are application-level authority checks; callers must still be
+authenticated by the surrounding desktop/session boundary.
+
+\subsection{Worker nodes and reusable templates}
+
+An optional user-owned worker record contains a stable node identifier,
+availability, explicit capabilities, restricted outbound policy, and an
+inability to bypass approvals.  A heartbeat can report only a subset of the
+capabilities previously registered by the founder.  Attempts to self-add a
+capability are rejected.  The present implementation provides registration,
+status, and least-authority heartbeat contracts; it does not yet implement a
+remote work lease, remote executor, or automatic delivery queue.
+
+Skill, routine, and Pilot configurations can be saved as sanitized templates.
+Templates never copy credentials, browser sessions, conversation history, or
+authoritative business memory.  A skill template creates a fresh draft that
+must be validated again.  A routine template creates a disabled,
+\texttt{not\_tested} routine.  A Pilot template reproduces policy configuration
+through normal workspace bootstrap rather than copying a browser profile.
+
+\subsection{Action preflight and audit integrity}
+
+The action preflight records initiator identity and kind, department, action
+type, target, redacted payload, registered-capability decision, approval
+requirement, and canonical payload hash.  Sending, publishing, purchasing,
+payments, deletion, overwrite, permission changes, production changes, and
+legal acceptance require exact approval.  An unregistered capability is
+denied even when the action would otherwise be read-only.
+
+Audit events are appended as JSON Lines.  If $E_i$ is event $i$, the chain is
+formed conceptually as
+\[
+ h_i = H(E_i, h_{i-1}), \qquad h_0 = \texttt{GENESIS}.
+\]
+The verifier recalculates each canonical event hash and checks every previous
+hash reference.  Writes are serialized before the head is updated.  This is a
+tamper-evident local chain, not a cryptographically signed or externally
+anchored ledger.  A privileged attacker able to rewrite the complete audit and
+head files could reconstruct a new chain; higher-assurance deployments should
+periodically anchor heads outside the host.
+
+\subsection{API summary}
+
+The native router provides endpoints for workspace bootstrap and inspection,
+capsule control transfer, demonstration creation and validation, routine
+creation/testing/enablement, event dispatch, due-run dispatch, mission
+creation/delegation/control, completion packs, scoped memory, worker
+registration and heartbeat, template save and instantiation, action preflight,
+and audit verification.
+
+The router itself does not introduce a new public authentication mechanism.
+It is designed for the local desktop backend and must remain loopback-only or
+be mounted behind AION's existing signed desktop-session and device-pairing
+controls.  It must not be exposed directly to a LAN or public interface based
+only on caller-supplied strings such as \texttt{person:founder}.
+
+\subsection{Verification and operational notes}
+
+The focused implementation suite contains 17 passing tests covering capsule
+isolation, takeover and return, secret-free demonstration compilation,
+approval-boundary preservation, skill publication, routine admission,
+event deduplication, scheduled dispatch, mission controls, completion packs,
+memory authority, preflight denial, worker least authority, template reuse,
+and the desktop contract.  Python compilation, Electron and Train Agent
+JavaScript syntax checks, inline isolated-browser parsing, and scoped diff
+checks also passed.
+
+The repository's pytest environment can remain active during final garbage
+collection after printing the complete pass summary and writing
+\path{docs/rfc/theorems_results.md}.  During this work it was interrupted only
+after the full result had been emitted.  This shutdown delay is test-harness
+behaviour, not a failing Pilot test.
+
+After changing Python sources, restart the desktop backend.  After changing
+Electron or desktop JavaScript, rebuild the desktop package.  Preserve the
+substantial unrelated working-tree changes; this implementation was not
+committed automatically.
+
+\subsection{Non-regression requirements}
+
+\begin{itemize}[leftmargin=*]
+\item Do not replace Vault model selection with a fixed Qwen, GPT-OSS, or hosted
+provider identifier.
+\item Do not expose browser partitions, credentials, tokens, typed secrets, or
+authoritative memory to the selected model.
+\item Do not interpret a renderer-supplied approval hash as authority.
+\item Do not enable an untested routine or publish an incompletely validated
+demonstrated skill.
+\item Do not allow a worker heartbeat, template, routine, or COO delegation to
+grant a capability that the founder did not register.
+\item Do not describe queued, drafted, or approval-waiting work as completed.
+\item Do not expose the Pilot operating-team API without the existing signed
+session or equivalent authenticated local boundary.
+\item Do not claim simultaneous department virtual machines, cron scheduling,
+remote worker execution, externally anchored audit, or autonomous live browser
+execution until those facilities are separately implemented and verified.
+\item Do not introduce an OpenBot dependency.  Keep any future AG-UI support as
+an optional boundary adapter around AION's canonical contracts.
+\end{itemize}

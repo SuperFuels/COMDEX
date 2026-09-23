@@ -1,0 +1,39 @@
+% Append-only technical-record section. Requires amsmath, booktabs, hyperref.
+\section{Expert Atlas as a Consequence Selector}
+\label{sec:gptoss120b-atlas-consequence-selector}
+
+The stopped local Taylor Atlas was given one final, distinct role.  Its
+approximate vectors were not injected into GPT-OSS 120B.  Instead, AION used
+them only to estimate whether omitting a suffix of the unrestricted top-four
+route would be harmless.  Every retained contribution was still calculated by
+the corresponding original MXFP4 expert, and the unrestricted four-expert path
+remained the fallback.
+
+Threshold selection used 22 frozen extraction positions at layer 12.  The
+selected threshold was then applied once to 21 unseen reasoning positions.
+Business and writing remained blind.  The required bound was relative
+layer-output error no greater than 0.02.
+
+An initial report was invalidated because its p95-only selection rule hid one
+failure in the small 22-position cohort.  That rule selected 0.05 even though
+one extraction position had 0.038425 relative error.  The invalid report is
+preserved with an \texttt{INVALID} sidecar and is not evidence.  The corrected
+protocol requires the maximum selection-cohort error to pass the 0.02 limit.
+
+Under the corrected rule, the selected threshold was 0.0025.  It retained all
+four original experts at all 22 extraction positions and all 21 unseen
+reasoning positions.  The outputs were consequently exact, but estimated
+expert-traffic reduction was exactly $1.00\times$.  A threshold of 0.05 would
+have removed one expert at six of 21 reasoning positions, but its reasoning
+p95 error was 0.073344 and its maximum error was 0.077207, for only a
+$1.0769\times$ estimated traffic reduction.
+
+The decision is \texttt{STOP\_ATLAS\_CONSEQUENCE\_SELECTOR}.  The compact atlas
+cannot reliably certify its own approximation error outside the family on
+which its threshold is selected.  It must therefore not control expert
+omission in the runtime.  This result closes the current activation-function
+Atlas family without weakening the exact fallback or opening the final blind
+cohorts.
+
+The corrected canonical report SHA-256 is
+\texttt{b99857a46125ffc047ef3060091b80bc415b7da8df2271c1b3e617b1243683f5}.

@@ -1,0 +1,147 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{microtype}
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,urlcolor=blue!65!black}
+\setlist{nosep,leftmargin=*}
+
+\title{Pilot Fabric 0.29\\Verified Entertainment Execution}
+\author{Tessaris}
+\date{30 August 2026}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Pilot Fabric 0.29 turns an entertainment result into a governed television
+attempt without confusing discovery, subscription access, provider opening, or
+actual playback.  The feature is intentionally designed around the following
+non-equivalence:
+
+\begin{quote}
+A catalogue result is not an entitlement; opening a provider is not playback;
+and a shared television is not a private identity boundary.
+\end{quote}
+
+The practical user flow is: search across services, select an exact provider
+route on the private phone, confirm the title and provider, open that route on
+the paired television, and inspect the returned evidence state.  A previously
+verified route can later be prepared for continuation by the same persona.
+
+\section{Execution state model}
+
+\begin{longtable}{p{0.28\linewidth}p{0.64\linewidth}}
+\toprule
+\textbf{State} & \textbf{Meaning} \\
+\midrule
+\endhead
+\nolinkurl{awaiting_private_confirmation} & An exact official route has been
+canonicalized and bound to one persona, but no TV action is authorized. \\
+\nolinkurl{approved_for_device_attempt} & The active private phone confirmed
+that exact title and provider.  Entitlement and playback remain unknown. \\
+\nolinkurl{provider_open_verified} & A signed webOS action receipt and observed
+foreground effect show that the provider route opened. \\
+\nolinkurl{playback_verified} & Separate evidence explicitly contains both the
+content title and an active playing state. \\
+\nolinkurl{device_attempt_unverified} & The requested attempt did not produce
+sufficient device evidence and no success is claimed. \\
+\bottomrule
+\end{longtable}
+
+\section{Official-route policy}
+
+The mother brain parses every candidate with a fixed fail-closed validator.
+Only credential-free HTTPS routes using the normal TLS port are considered.
+The current allow-list accepts:
+
+\begin{itemize}
+  \item numeric Netflix \texttt{/title/ID} routes;
+  \item YouTube \texttt{/watch?v=ID} and \texttt{youtu.be/ID} video routes;
+  \item Prime Video exact \texttt{/detail/} routes; and
+  \item Disney+ exact movie, series, or video routes.
+\end{itemize}
+
+Search pages, result lists, catalogue aggregators, fragments, embedded usernames
+or passwords, arbitrary hosts, non-standard ports, and ambiguous provider pages
+are rejected.  Accepted links are canonicalized and hashed.  Route hashes enter
+the audit record; raw URLs do not enter the shared audit ledger.
+
+\section{Persona and permission boundary}
+
+Every prepared execution contains a \texttt{persona\_id}.  Reading,
+confirming, executing, or continuing that route requires the same identity.
+The shared TV cannot select a person's watch history.  Private confirmation does
+not grant a reusable standing authority: continuation creates a new
+\texttt{awaiting\_private\_confirmation} record.
+
+The device attempt additionally requires an enrolled LG gateway, the existing
+webOS pairing, and the signed
+\texttt{companion.webos.app.launch} capability.  Netflix uses the bounded
+numeric-title launch contract already verified on the LG installation.  Other
+providers use the public-URL browser boundary after official-route validation.
+
+\section{Entitlement and playback honesty}
+
+Pilot records entitlement as
+\texttt{unknown\_until\_provider\_confirms}.  The existence of a provider URL,
+an installed app, or a signed-in browser session cannot prove that this household
+subscribes to or may play a particular title.  Future authorized account adapters
+may supply that evidence without exposing credentials to the TV node.
+
+Likewise, a successful app launch produces only
+\texttt{provider\_open\_verified}.  The general LG gateway currently exposes a
+foreground application but not a universal protected-content title and playback
+position API.  Therefore the preview does not invent playback success.  A future
+receipt may set \texttt{playback\_verified} only when an authenticated provider
+or permitted device observation supplies both the exact title and
+\texttt{playing=true}.
+
+\section{Private-phone experience}
+
+The private controller presents evidence-labelled entertainment results and a
+\emph{Prepare official route} action.  Unsupported results fail visibly.  An
+eligible route shows the provider, title, entitlement state, provider-open state,
+and playback state before displaying \emph{Confirm and open this exact route}.
+The controller also offers \emph{Prepare continue watching} when that persona
+has a previous verified route.  It never labels a search result or provider-open
+receipt as successful playback.
+
+\section{Stored record and audit receipt}
+
+The private mother-local record includes an execution identifier, persona,
+title, provider, route kind, provider content identifier, canonical route hash,
+state, entitlement label, device receipt identifier, observed foreground app,
+and two independent booleans for provider opening and playback.  The file is
+written atomically with owner-only permissions.
+
+Audits contain identifiers, provider, route hash, state, device receipt, and the
+two verification booleans.  They explicitly record that the raw URL was omitted.
+No provider password, cookie, token, card information, or protected programme
+media is stored or transmitted by this subsystem.
+
+\section{Verification}
+
+The automated suite covers official route classification, canonicalization,
+rejection of HTTP, credentials, search pages, catalogue aggregators and arbitrary
+hosts, cross-persona confirmation denial, confirmation without false playback,
+provider-open receipt handling, explicit playback evidence, and persona-bound
+continuation.  These tests complement the wider Fabric audit-chain, capability,
+phone-controller, and webOS gateway tests.
+
+\section{Known limits and next work}
+
+This stage provides verified route execution, not universal streaming account
+integration.  Remaining work includes authorized provider-session adapters,
+current regional entitlement checks, protected playback-position telemetry,
+profile-aware deep links, household watchlists and reminders, and the universal
+observe--act--observe--verify navigation layer.  Until those interfaces supply
+evidence, Pilot deliberately reports only what the television actually proves.
+
+\end{document}

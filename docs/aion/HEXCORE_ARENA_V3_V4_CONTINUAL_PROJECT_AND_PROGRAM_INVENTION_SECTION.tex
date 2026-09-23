@@ -1,0 +1,442 @@
+% ============================================================================
+% AION HexCore: Arena v3--v4 continual projects and experiment-program invention
+% Standalone section fragment for inclusion in the main AION paper.
+% Requires: amsmath, array.
+% ============================================================================
+
+\section{Continual Project Adaptation and Open Experiment-Program Invention}
+\label{sec:arena-v3-v4}
+
+Arena v3 and Arena v4 extend the open-world control plane from evidence
+acquisition into persistent, consequence-bearing action.  Arena v3 tests
+whether verified experience can improve behaviour across changing projects.
+Arena v4 removes the supplied menu of complete actions and requires AION to
+compose typed experiment programs from smaller safe primitives.  Both phases
+retain the central authority invariant:
+\begin{equation}
+\begin{aligned}
+\text{proposal or synthesized program}
+&\not\Rightarrow \text{accepted capability}, \\
+\text{execution, withheld outcomes, and CAU}
+&\Rightarrow \text{promotion authority}.
+\end{aligned}
+\label{eq:arena-v3-v4-authority}
+\end{equation}
+
+The internally promoted procedures are
+\begin{center}
+{\footnotesize\texttt{procedure\_long\_running\_changing\_project\_arena\_v3\_f948c2272b31}},
+\end{center}
+and
+\begin{center}
+{\footnotesize\texttt{procedure\_open\_experiment\_program\_arena\_v4\_7b66f2843ca9}}.
+\end{center}
+Their respective parents are the promoted Arena v2 evidence-acquisition
+procedure and the promoted Arena v3 changing-project procedure.
+
+
+\subsection{Arena v3: long-running changing projects}
+\label{subsec:arena-v3}
+
+\subsubsection{Research question}
+
+Arena v3 asks whether AION can retain and improve an investigation policy when
+outcomes arrive only after action commitment, the governing rule changes during
+the project, process reconstruction occurs after every milestone, accumulated
+memory may help or mislead, actions have explicit costs, and some regimes may
+lie outside every available model.
+
+The control loop is
+\begin{equation}
+\begin{split}
+\text{broad project objective}
+&\rightarrow \text{typed parameter proposal} \\
+&\rightarrow \text{pre-execution safety gate} \\
+&\rightarrow \text{isolated experiment} \\
+&\rightarrow \text{delayed independent outcome} \\
+&\rightarrow \text{failure signature or model criticism} \\
+&\rightarrow \text{retained repair memory} \\
+&\rightarrow \text{costed stability monitor} \\
+&\rightarrow \text{revision or continuation} \\
+&\rightarrow \text{checkpoint and process reconstruction} \\
+&\rightarrow \text{retention, ablation, and CAU gates}.
+\end{split}
+\label{eq:arena-v3-loop}
+\end{equation}
+
+The controller does not receive the hidden regime label.  Before an outcome is
+revealed, each executed action records a cryptographic commitment to that
+regime.  This separates action selection from retrospective knowledge of the
+answer.
+
+
+\subsubsection{Executed outcome surfaces}
+
+Four distinct project surfaces were exercised:
+\begin{description}
+  \item[Software execution.] An isolated Python subprocess transforms event
+  records.  The withheld interface changes from first-occurrence
+  deduplication to canonical latest-value serialization.
+
+  \item[Database execution.] A SQLite database is constructed inside a
+  disposable workspace.  The independently checked integrity requirement
+  changes from unique event identifiers to referential integrity.  Invalid
+  writes must be rejected transactionally without erasing committed records.
+
+  \item[Sensor reasoning.] A CSV observation stream is evaluated against a
+  withheld continuous reference.  The noise process changes from distributed
+  low-amplitude noise to impulsive outliers, requiring a transition from mean
+  filtering to robust median filtering under an absolute error ceiling.
+
+  \item[Document world modelling.] A disk-backed dependency manifest records
+  evidence, analysis, report, and verification artifacts.  The required stale
+  set changes from direct propagation to transitive propagation after an
+  upstream revision.
+\end{description}
+
+Every subprocess, database, trace, and dependency graph is confined to a
+temporary workspace.  The live repository is read-only for this arena.
+
+
+\subsubsection{Continual generations and outcome memory}
+
+Development outcomes constructed a provenance-bearing mapping from project
+family and raw failure signature to a verified repair.  The mapping was tested
+on renamed sealed projects rather than the development instances.  Three
+governed generations separated memory and routing effects:
+
+\begin{center}
+\small
+\begin{tabular}{|c|>{\raggedright\arraybackslash}p{5.6cm}|c|c|}
+\hline
+\textbf{Generation} & \textbf{Policy} & \textbf{Project success} & \textbf{Mean action cost} \\
+\hline
+0 & No accumulated outcome memory & $100\%$ & $11.00$ \\
+\hline
+1 & Outcome memory without conditional routing & $100\%$ & $8.50$ \\
+\hline
+2 & Outcome memory plus costed stability routing & $100\%$ & $2.75$ \\
+\hline
+\end{tabular}
+\end{center}
+
+The relative reductions were
+\begin{equation}
+1-\frac{2.75}{11.00}=75.00\%,
+\qquad
+1-\frac{2.75}{8.50}=67.65\%.
+\label{eq:arena-v3-cost-reductions}
+\end{equation}
+These gains were reproduced across three independent execution seeds.  The
+costed monitor preserves a currently verified policy while outcomes remain
+stable, detects a change when the monitor fails, records the new failure
+signature, and activates a previously verified repair only when needed.
+
+
+\subsubsection{Component ablations}
+
+Each ablation received the same four sealed projects and project budgets.
+
+\begin{center}
+\small
+\begin{tabular}{|p{4.4cm}|c|c|}
+\hline
+\textbf{System} & \textbf{Project success} & \textbf{Mean action cost} \\
+\hline
+Complete Arena v3 & $100\%$ & $2.75$ \\
+\hline
+No accumulated memory & $100\%$ & $11.00$ \\
+\hline
+Memory without router & $100\%$ & $8.50$ \\
+\hline
+No causal change response & $0\%$ & $4.00$ \\
+\hline
+Proposal substrate only & $0\%$ & $4.00$ \\
+\hline
+\end{tabular}
+\end{center}
+
+The no-memory control succeeds only by repeating experiments.  Memory without
+routing remains correct but revalidates indiscriminately.  Removing causal
+change response or relying on the first substrate proposal prevents complete
+project success.  Thus accumulated outcome memory, conditional routing, and
+change-sensitive world modelling make distinct measurable contributions.
+
+
+\subsubsection{Falsification, safety, and unknown-model criticism}
+
+Four malicious candidates requested dynamic execution, network access,
+destructive SQL, or live-path traversal.  All four were blocked before
+execution.  No unsafe action ran and no live repository file changed.
+
+An additional out-of-distribution sensor regime was not expressible by any
+retained filter model.  After all candidates failed independent verification,
+AION recorded
+\begin{center}
+\texttt{EVENT\_OUTSIDE\_AVAILABLE\_ACTION\_MODEL\_FAMILY}
+\end{center}
+and abstained instead of selecting the least-bad known model.
+
+
+\subsubsection{Arena v3 promotion results}
+
+\begin{center}
+\small
+\begin{tabular}{|>{\raggedright\arraybackslash}p{6.6cm}|c|}
+\hline
+\textbf{Measure} & \textbf{Result} \\
+\hline
+Projects / sealed projects & $8/4$ \\
+Capability families / delayed outcome types & $4/4$ \\
+Continual generations / independent seeds & $3/3$ \\
+Full project and weakest-family success & $100\%/100\%$ \\
+Mid-project change detection & $100\%$ \\
+Cost reduction versus no memory & $75.00\%$ \\
+Cost reduction versus memory without routing & $67.65\%$ \\
+Backward retention & $100\%$ \\
+Forced restart recovery & $16/16$ \\
+Malicious candidates rejected & $4/4$ \\
+Unknown-regime abstention & passed \\
+Unsafe executions / live writes & $0/0$ \\
+Restart relearning & $0$ \\
+\hline
+\end{tabular}
+\end{center}
+
+The full sealed run reconstructed the process after every milestone: four
+projects times four milestones produced sixteen forced reconstructions.  The
+project states, champion, outcome memory, and development competence survived
+without replay.
+
+
+\subsection{Arena v4: open experiment-program composition}
+\label{subsec:arena-v4}
+
+Arena v3 still selected complete parameters from a finite action menu.  Arena
+v4 removes that menu.  It asks whether verified experience can teach AION how
+to construct a new typed action program while preserving outcome authority,
+active falsification, intervention efficiency, transfer, security, persistence,
+and explicit criticism of the available representation.
+
+
+\subsubsection{Synthesis and verification architecture}
+
+The Arena v4 pipeline is
+\begin{equation}
+\begin{split}
+\text{broad outcome contract}
+&\rightarrow \text{safe typed primitive grammar} \\
+&\rightarrow \text{single- and multi-primitive candidates} \\
+&\rightarrow \text{maximum-disagreement experiment} \\
+&\rightarrow \text{outcome reveal after query commitment} \\
+&\rightarrow \text{candidate elimination by counterexample} \\
+&\rightarrow \text{minimum-complexity survivor} \\
+&\rightarrow \text{sealed post-selection verification} \\
+&\rightarrow \text{governed adapter execution} \\
+&\rightarrow \text{motif retention or abstention} \\
+&\rightarrow \text{CAU promotion or rejection}.
+\end{split}
+\label{eq:arena-v4-synthesis}
+\end{equation}
+
+For survivor set $\mathcal{H}$ and candidate experiment $x$, the active
+falsification policy selects
+\begin{equation}
+x^{*}
+=
+\arg\min_{x}
+\max_{y}
+\left|
+\left\{h\in\mathcal{H}:h(x)=y\right\}
+\right|,
+\label{eq:arena-v4-disagreement}
+\end{equation}
+thereby minimizing the largest remaining outcome partition.  The environment,
+not the proposed program, supplies the outcome.
+
+
+\subsubsection{Typed primitive grammars}
+
+The compiler operated over four typed grammars:
+
+\begin{center}
+\small
+\begin{tabular}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{5.0cm}|>{\raggedright\arraybackslash}p{4.2cm}|}
+\hline
+\textbf{Surface} & \textbf{Representative primitives} & \textbf{Constructed role} \\
+\hline
+Software & first-by-key, last-by-key, key ordering & event-normalization pipeline \\
+\hline
+Database & basic table, uniqueness, foreign-key constraint & executable integrity schema \\
+\hline
+Sensor & raw, mean window, median window, clipping, lag & robust observation pipeline \\
+\hline
+Documents & direct dependents, transitive closure, global invalidation & revision-propagation procedure \\
+\hline
+\end{tabular}
+\end{center}
+
+Complete solutions were not supplied as named actions.  Programs were composed
+from the primitives, including the two-stage software program
+\begin{equation}
+\texttt{last\_by\_key}
+\rightarrow
+\texttt{sort\_key}.
+\label{eq:arena-v4-compound-program}
+\end{equation}
+A synthesized program could execute only if a verified lowering contract
+connected it to a governed Python, SQLite, sensor, or document adapter.
+
+
+\subsubsection{Negative result and dual accounting}
+
+The first Arena v4 challenger recovered and executed every correct program but
+required exactly as many environmental queries as cold synthesis.  It therefore
+failed the transfer-efficiency gate and was rejected.
+
+The corrected design introduced dual accounting:
+\begin{enumerate}
+  \item a retained motif receives one real environmental confirmation;
+  \item the program is selected before a source-disjoint property suite is
+        revealed;
+  \item post-selection verification is reported separately and cannot be
+        described as a free environmental intervention; and
+  \item failed confirmation or failed sealed verification triggers fallback or
+        rejection.
+\end{enumerate}
+
+This preserves the authority of independent verification while allowing prior
+experience to reduce real-world intervention cost.
+
+
+\subsubsection{Arena v4 sealed results}
+
+Eight sealed synthesis worlds covered initial and changed regimes for all four
+surfaces.  Evaluation was repeated under three independent seeds.
+
+\begin{center}
+\small
+\begin{tabular}{|p{6.6cm}|c|}
+\hline
+\textbf{Measure} & \textbf{Result} \\
+\hline
+Development / sealed worlds & $8/8$ \\
+Outcome families & $4$ \\
+Program recovery accuracy & $100\%$ \\
+Governed execution success & $100\%$ \\
+Weakest-family / three-seed floor & $100\%/100\%$ \\
+Mean environmental queries, cold synthesis & $1.75$ \\
+Mean environmental queries, retained motifs & $1.00$ \\
+Environmental-query reduction & $42.86\%$ \\
+Active counterexamples & $34$ \\
+Compound programs invented & $1$ \\
+Malicious programs rejected & $4/4$ \\
+Unsafe execution / live writes & $0/0$ \\
+Restart relearning & $0$ \\
+\hline
+\end{tabular}
+\end{center}
+
+The intervention reduction is
+\begin{equation}
+1-\frac{1.00}{1.75}=42.86\%.
+\label{eq:arena-v4-query-reduction}
+\end{equation}
+The development and out-of-distribution cohorts generated thirty-four concrete
+counterexamples.  The retained motif library improved which experiment AION
+performed first but never bypassed the outcome verifier.
+
+
+\subsubsection{Complete-grammar criticism and security}
+
+The OOD sensor world used a nonlinear sine response not expressible by the raw,
+smoothing, clipping, or lag primitives.  The retained median-filter motif failed
+confirmation, synthesis failed the withheld property suite, and no program was
+retained.  This demonstrates criticism of the complete available grammar; it
+does not demonstrate unrestricted primitive invention.
+
+Programs requesting dynamic execution, network access, filesystem writing, or
+authority override were outside every permitted grammar.  All four were
+rejected before execution.  Neural or language proposals cannot add a primitive
+to the authority grammar, decide an outcome, reveal sealed properties, lower a
+program through an unverified adapter, modify the live repository, or approve
+their own promotion.
+
+
+\subsection{Combined capability interpretation}
+\label{subsec:arena-v3-v4-interpretation}
+
+Together, the two promotions establish the following bounded chain:
+\begin{equation}
+\begin{split}
+\text{verified project outcomes}
+&\rightarrow \text{retained repair and primitive motifs} \\
+&\rightarrow \text{newly composed experiment program} \\
+&\rightarrow \text{active counterexample search} \\
+&\rightarrow \text{fewer real interventions} \\
+&\rightarrow \text{governed execution} \\
+&\rightarrow \text{change-sensitive adaptation} \\
+&\rightarrow \text{persistent transferable skill}.
+\end{split}
+\label{eq:arena-v3-v4-combined-chain}
+\end{equation}
+
+Arena v3 shows that verified experience changes future project behaviour and
+reduces repeated investigation.  Arena v4 moves one level deeper: verified
+experience changes how AION constructs the action itself.  The result is a
+bounded form of continual project adaptation and experiment-program invention,
+not evidence of unrestricted general intelligence.
+
+
+\subsection{Authority and claim boundary}
+\label{subsec:arena-v3-v4-boundary}
+
+The following components remain engineered:
+\begin{itemize}
+  \item objectives and project families;
+  \item primitive vocabularies and type systems;
+  \item candidate-program depth;
+  \item interpreters and adapter lowerings;
+  \item outcome cases and sealed evaluators;
+  \item controlled sensor traces; and
+  \item internal benchmark administration.
+\end{itemize}
+
+Several gates remain explicitly unpassed: natural multimodal semantic
+grounding; independently judged social and creative work; substrate
+comparison; long projects against independently changing systems; and external
+administration.  The reported $100\%$ internal results therefore describe only
+the declared sealed cohorts.  They do not establish AGI, unrestricted
+autonomy, general software engineering, or independent certification.
+
+
+\subsection{Next primitive-invention and external-outcome contract}
+\label{subsec:arena-v5-contract}
+
+The next decisive stage must remove further scaffolding rather than add another
+closed grammar exercise:
+\begin{enumerate}
+  \item detect systematic residuals that no retained primitive grammar can
+        express;
+  \item synthesize a private primitive implementation in a sandbox;
+  \item generate algebraic, behavioral, security, and adversarial
+        counterexamples;
+  \item admit the primitive only after positive transfer to source-disjoint
+        projects and independent outcomes;
+  \item connect long-running projects to externally maintained repository
+        tests, databases, delayed public observations, and controlled
+        applications;
+  \item introduce natural images, diagrams, tables, and text with deliberate
+        cross-modal contradiction;
+  \item use several independent human judges for commonsense, social, and
+        creative objectives while retaining disagreement;
+  \item run many continual generations with forward-transfer, forgetting,
+        calibration, complexity, and retirement/revival measurements;
+  \item compare replaceable proposal substrates under identical evidence,
+        action, compute, outcome, and CAU budgets; and
+  \item submit final portfolios, outcomes, and scoring to an external
+        administrator.
+\end{enumerate}
+
+Future internal work should be rejected unless it directly removes one of
+these boundaries or produces independently reproducible transfer.

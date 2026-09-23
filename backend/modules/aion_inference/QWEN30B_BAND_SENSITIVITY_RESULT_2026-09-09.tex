@@ -1,0 +1,75 @@
+% Append-only technical-record section. Requires amsmath and booktabs.
+\section{Qwen3-30B-A3B Expert-Precision Band Sensitivity}
+\label{sec:qwen30b-band-sensitivity}
+
+\subsection{Purpose and predeclaration}
+
+The unsuccessful edge-layer heuristic in
+Section~\ref{sec:qwen30b-q2q3-edge} showed that mixed precision could improve
+one quality instrument while regressing another.  A second experiment therefore
+screened the 48 transformer layers as six independent eight-layer bands.  In
+each candidate, exactly one band's gate, up, and down expert tensors used
+Q3\_K; the remaining expert tensors used Q2\_K; and non-expert tensors retained
+the Q4\_K\_M base policy.
+
+The plan, band order, gates, and selection rule were fixed before screening.
+The plan's SHA-256 is
+\texttt{90ddbde0c57add79285989d2d7b34562d5e8d4b23f719d9b00a9b9b08f3b5e7c}.
+A band was sensitivity-positive only if it achieved at least 7/8 strict and
+7/8 semantic on the frozen structured cohort, 8/8 parseable and repeatable,
+at least 11/12 on the frozen multiple-choice cohort, full Metal residency, and
+at least 50 tokens/s on the smoke test.  Gates were not changed after results
+were observed.
+
+\subsection{Results}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+Band & Layers & Structured strict & MCQ & Decision \\
+\midrule
+B0 & 0--7   & 6/8 & 10/12 & fail \\
+B1 & 8--15  & 6/8 & 11/12 & fail \\
+B2 & 16--23 & 7/8 & 10/12 & fail \\
+B3 & 24--31 & not run & not run & Metal OOM \\
+B4 & 32--39 & not run & not run & Metal OOM \\
+B5 & 40--47 & 7/8 & 9/12  & fail \\
+\bottomrule
+\end{tabular}
+\caption{Independent eight-layer Q3\_K expert-restoration screen.}
+\end{table}
+
+B0, B1, B2, and B5 produced parseable, repeated structured outputs.  B0's
+narrow smoke rate was 59.10 generated tokens/s.  B2 and B5 improved the
+structured instrument to 7/8 strict and 8/8 semantic, but they regressed the
+multiple-choice control to 10/12 and 9/12 respectively.  B1 preserved the Q2
+control's 11/12 multiple-choice result but failed to improve the structured
+strict score.  Thus no tested band passed both quality instruments.
+
+B3 and B4 encountered Metal command-buffer out-of-memory errors during model
+initialisation.  B4 failed repeatedly, including with one service slot, a
+512-token context, batch 128, and microbatch 64.  These failures are valid for
+the measured conditions, but the ordered screen was itself memory-intensive;
+temporal memory pressure is therefore a confound and the failures must not be
+attributed solely to layer position.
+
+\subsection{Decision}
+
+No band was promoted and no combined mixed-precision model was authorised.
+The result demonstrates that expert precision has non-monotonic,
+task-dependent effects: the same allocation can repair structured behaviour
+while damaging reasoning questions.  Combining individually failing bands
+would not be sensitivity-guided; it would be a new speculative search.
+
+The proven selective-Q2 candidate consequently remains the resident model.
+Further changed-weight work should use finer tensor-family or per-layer
+sensitivity only if it can be screened inside the physical memory boundary.
+Otherwise, the higher-value path is system-level AION routing, verified
+AtomSheets, and cold-start reduction, whose gains do not depend on pretending
+that a small frozen quality set proves general capability.
+
+The canonical result is
+\texttt{qwen3-30b-a3b-band-sensitivity-result-v1.json}, SHA-256
+\texttt{d05d7dbf00c573c9164f3460477274b2a6b8c3204d97c4d5129db1bdfabf621a}.

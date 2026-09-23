@@ -65,11 +65,30 @@ def validate_payload(
     log.debug("Validated payload for schema=%s version=%s", schema_name, version or REGISTRY.default_version)
 
 
-def validate_or_false(schema_name: str, payload: dict, *, version: Optional[str] = None) -> bool:
-    """Boolean helper for non-throwing validation checks."""
+def validate_or_false(schema_name: str, payload: dict, version: str | None = None) -> bool:
+    """
+    Validate payload against a known schema.
+    Returns False on any validation error.
+
+    HARDEN:
+      - If schema_name is unknown, fail-open quietly (return False, no warning)
+        because some stores may pass schema names that aren't registered in this pack yet.
+    """
     try:
-        validate_payload(schema_name, payload, version=version)
-        return True
+        return validate_payload(schema_name, payload, version=version)
+    except SchemaValidationError:
+        return False
     except Exception as e:
-        log.warning("Validation failed for schema=%s: %s", schema_name, e)
+        msg = str(e)
+
+        # ✅ Unknown schema -> quiet fail-open
+        if "Unknown schema name" in msg:
+            return False
+
+        # everything else: keep the warning
+        log.warning(
+            'Validation failed for schema=%s: %r',
+            schema_name,
+            msg,
+        )
         return False

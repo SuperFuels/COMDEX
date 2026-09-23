@@ -1,0 +1,63 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.43 --- Anti-Shuffling / Endgame Conversion Guard}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.43 prevents repeated rook or piece shuffling in endgame conversion positions.
+
+The Phase 22E.39 live draw exposed repeated endgame movement such as:
+
+\begin{verbatim}
+b7b8
+b8b7
+b7a7
+a7b7
+\end{verbatim}
+
+These moves maintained legality but did not force conversion.
+
+\section{Rule}
+
+If a selected move repeats a recent move, reverses a recent move, or cycles through repeated squares without capture, check, promotion, or pawn progress, AION MUST treat the move as a shuffle.
+
+If a deterministic legal conversion alternative exists, AION SHOULD replace the shuffle with that alternative.
+
+\section{Latest Upgrade Summary}
+
+The current live chess correction chain is now:
+
+\begin{verbatim}
+22E.39 -- Full Live Level-2 Strategic Well Rematch
+22E.40 -- Strategic Well Live Post-Game Review
+22E.41 -- Queen-First Promotion Guard
+22E.42 -- Passed Pawn Intent Scope Guard
+22E.43 -- Anti-Shuffling / Endgame Conversion Guard
+\end{verbatim}
+
+This means AION now corrects opening drift, detects live-game failure modes, prefers queen promotion, scopes passed-pawn intent, and blocks repeated endgame shuffling.
+
+\section{Boundary}
+
+This guard does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E43-FULL-CHESS-ANTI-SHUFFLING-ENDGAME-CONVERSION-GUARD\\
+Status: LOCKED --- anti-shuffling endgame conversion guard implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

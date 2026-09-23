@@ -356,6 +356,19 @@ class StateManager:
         self.context[key] = value
         print(f"[STATE] Context updated: {key} = {value}")
 
+    def record_cognitive_state(self, record: Dict[str, Any]) -> Dict[str, Any]:
+        """Persist a bounded canonical snapshot, not an execution claim."""
+        snapshot = {
+            "record_hash": record.get("record_hash"),
+            "deliberation_id": record.get("deliberation_id"),
+            "objective": record.get("objective"),
+            "disposition": record.get("disposition"),
+            "proposal_only": bool(record.get("proposal_only", True)),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        self.state["canonical_cognition"] = snapshot
+        return snapshot
+
     # ──────────────────────────────
     # ✅ Secure Container Load + Gates
     # ──────────────────────────────

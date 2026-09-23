@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.1 --- Full Chess Positional Strategy Features Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.1 introduces deterministic positional strategy features for the AION chess stack.
+
+The purpose is to move beyond tactical SQI failure patching and create a reusable feature layer for future strategic search, goal bias, plan formation, and post-game strategic review.
+
+\section{Locked Features}
+
+The kernel extracts:
+
+\begin{itemize}[leftmargin=*]
+  \item material balance;
+  \item king safety;
+  \item centre control;
+  \item development;
+  \item piece activity;
+  \item pawn structure;
+  \item rook activity;
+  \item queen safety;
+  \item passed pawn score;
+  \item weak square penalty;
+  \item repetition risk;
+  \item invasion risk;
+  \item promotion danger.
+\end{itemize}
+
+\section{Runtime Contract}
+
+The kernel emits a deterministic positional score, a feature summary, feature weights, a trace hash, and persisted feature policy memory.
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+It is a deterministic local feature extractor.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e1_full_chess_positional_strategy_features_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e1_full_chess_positional_strategy_features_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E1-FULL-CHESS-POSITIONAL-STRATEGY-FEATURES-KERNEL\\
+Status: LOCKED --- deterministic positional strategy feature extraction implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

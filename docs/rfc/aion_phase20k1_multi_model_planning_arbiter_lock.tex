@@ -1,0 +1,161 @@
+\section{AION Phase 20K.1 --- Dynamic Multi-Model Planning Arbiter}
+\label{sec:aion-phase20k1-multi-model-planning-arbiter}
+
+\subsection{Status}
+
+Phase 20K.1 defines the Dynamic Multi-Model Planning Arbiter.
+
+\begin{quote}
+\textbf{Status: LOCKED --- deterministic arbitration layer for comparing, merging and constraining multiple LLM planner proposals.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20K locked the LLM Planner Adapter v0. Phase 20K.1 extends that boundary by allowing AION to receive multiple independent structured planner proposals and produce one deterministic AION-owned merged plan proposal.
+
+The arbiter MAY compare proposals from:
+
+\begin{itemize}
+  \item \texttt{gemma\_local};
+  \item \texttt{openai\_frontier};
+  \item \texttt{mock\_planner}.
+\end{itemize}
+
+The arbiter MUST NOT grant any model execution authority.
+
+\subsection{Core Rule}
+
+Planner proposals are advisory.
+
+AION MAY use multiple models to improve plan coverage, but AION MUST compile the final plan through deterministic safety contracts.
+
+\begin{quote}
+\textbf{Models may disagree. AION arbitrates. AION does not delegate runtime authority to the models.}
+\end{quote}
+
+\subsection{Arbiter Responsibilities}
+
+The arbiter MUST:
+
+\begin{itemize}
+  \item normalise each planner proposal;
+  \item reject unsupported planner providers;
+  \item recursively reject direct-execution fields;
+  \item compare planner step sets;
+  \item compute similarity between proposals;
+  \item reject low-similarity planner outputs;
+  \item merge missing useful steps;
+  \item preserve stricter safety controls;
+  \item force risky actions to approval or human task modes;
+  \item emit deterministic arbiter hashes;
+  \item compile to a mission contract requiring plan matrix review.
+\end{itemize}
+
+\subsection{Forbidden Planner Fields}
+
+The arbiter MUST reject proposals containing:
+
+\begin{verbatim}
+execute_now
+raw_tool_call
+tool_call
+browser_submit
+payment_submit
+deploy_now
+publish_now
+send_now
+create_booking_now
+mutate_memory_now
+write_reputation_now
+\end{verbatim}
+
+\subsection{Risk Override Rules}
+
+The arbiter MUST force the following actions to \texttt{human\_approval\_required}:
+
+\begin{verbatim}
+buy_domain
+pay_for_hosting
+deploy_to_production
+connect_dns
+publish_facebook_post
+send_email_campaign
+send_whatsapp_message
+start_ad_campaign
+take_payment
+create_booking
+submit_legal_document
+submit_identity_document
+live_customer_message
+\end{verbatim}
+
+The arbiter MUST force the following actions to \texttt{human\_task\_required}:
+
+\begin{verbatim}
+create_real_facebook_account
+create_google_business_profile
+verify_phone_number
+upload_identity_document
+answer_verification_call
+take_real_job_photos
+sign_legal_document
+provide_provider_access
+\end{verbatim}
+
+\subsection{Consensus Similarity}
+
+The arbiter compares step sets using deterministic step keys.
+
+The comparison output includes:
+
+\begin{verbatim}
+shared_step_keys
+primary_only_step_keys
+secondary_only_step_keys
+jaccard_similarity
+comparison_hash
+\end{verbatim}
+
+If the similarity score is below the configured threshold, the arbiter MUST reject the merged plan.
+
+\subsection{Merged Output Contract}
+
+The arbiter output MUST declare:
+
+\begin{verbatim}
+arbiter_output_type: deterministic_multi_model_plan_proposal
+planner_labels_advisory_only: true
+model_may_execute: false
+model_may_call_raw_tools: false
+model_may_mutate_runtime: false
+requires_aion_compilation: true
+compiled_contract_state: requires_plan_matrix_review
+must_pass_plan_approval_matrix: true
+must_pass_approval_lattice: true
+must_pass_autonomy_budget: true
+must_pass_expiry_revocation: true
+must_pass_external_tool_gateway: true
+live_external_side_effects_allowed: false
+\end{verbatim}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{Multi-model planning improves coverage, not authority. Any merged plan remains advisory until AION compiles it through plan review, lattice resolution, autonomy budget checks, expiry checks and the external tool gateway.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20k1_multi_model_planning_arbiter_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20K1-DYNAMIC-MULTI-MODEL-PLANNING-ARBITER
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

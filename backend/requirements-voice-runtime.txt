@@ -1,0 +1,8 @@
+# AION O22 voice runtime requirements
+# Use Python 3.12 for the packaged voice runtime.
+# Do not rely on the main backend Python 3.13/3.14 environment for local voice.
+
+soundfile
+faster-whisper
+python-multipart
+kokoro

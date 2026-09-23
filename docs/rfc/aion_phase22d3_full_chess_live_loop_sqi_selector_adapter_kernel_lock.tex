@@ -1,0 +1,90 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22D.3: Full Chess Live Loop SQI Selector Adapter Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22D.3 connects the live-loop move source to the Phase 22D.2 SQI-guided selector.
+
+\begin{quote}
+\textbf{Status: LOCKED --- live loop SQI selector adapter implemented and tested.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22D.2 made SQI-adjusted scoring the active local selector.
+
+Phase 22D.3 makes that selector live-loop compatible.
+
+\section{Kernel Location}
+
+\begin{verbatim}
+backend/modules/aion_games/full_chess_live_loop_sqi_selector_adapter_kernel.py
+\end{verbatim}
+
+\section{Adapter Contract}
+
+The adapter MUST:
+
+\begin{itemize}
+  \item accept live board state as moves or FEN;
+  \item determine whether it is AION's turn;
+  \item call the Phase 22D.2 SQI-guided selector when it is AION's turn;
+  \item emit no move when it is not AION's turn;
+  \item emit no move from terminal positions;
+  \item prove the selected move is legal;
+  \item preserve SQI trace and selection trace hashes;
+  \item run in dry-run mode by default;
+  \item avoid sending live Lichess moves in this phase.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use:
+
+\begin{itemize}
+  \item Stockfish;
+  \item external chess engines;
+  \item cloud engines;
+  \item Lichess analysis;
+  \item LLM move judgement;
+  \item human move scoring.
+\end{itemize}
+
+\section{Runtime Memory}
+
+\begin{verbatim}
+data/aion_games/full_chess_live_loop_sqi_selector_adapter_memory.json
+\end{verbatim}
+
+This file is runtime live-loop SQI adapter telemetry and SHOULD NOT be committed unless explicitly promoted.
+
+\section{Next Step}
+
+The next phase SHOULD run or prepare the guarded live Lichess level 2 game using the SQI-guided live adapter.
+
+\begin{verbatim}
+22D.4 -- Live Lichess Autoplay v2 Uses SQI-Guided Selector
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22D3-FULL-CHESS-LIVE-LOOP-SQI-SELECTOR-ADAPTER-KERNEL-LOCK\\
+Status: LOCKED --- live loop SQI selector adapter implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

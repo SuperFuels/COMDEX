@@ -1,0 +1,96 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22D.5: Real Lichess Level 2 SQI Autoplay Runner Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22D.5 creates the real Lichess level 2 SQI autoplay runner.
+
+\begin{quote}
+\textbf{Status: LOCKED --- real level 2 SQI autoplay runner implemented and tested in dry-run mode.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22D.4 prepared the guarded SQI autoplay path.
+
+Phase 22D.5 creates the real runner capable of creating a Lichess Stockfish level 2 game when live authority is explicitly granted.
+
+\section{Kernel Location}
+
+\begin{verbatim}
+backend/modules/aion_games/full_chess_real_lichess_level2_sqi_autoplay_runner_kernel.py
+\end{verbatim}
+
+\section{Live Gate Contract}
+
+The runner MUST NOT create a live game unless all live gates are satisfied:
+
+\begin{itemize}
+  \item \texttt{dry\_run = false};
+  \item \texttt{network\_enabled = true};
+  \item \texttt{LICHESS\_BOT\_TOKEN} is present;
+  \item \texttt{AION\_LICHESS\_LIVE=1};
+  \item opponent level is exactly 2.
+\end{itemize}
+
+\section{Runner Contract}
+
+The runner MUST:
+
+\begin{itemize}
+  \item target Lichess Stockfish level 2;
+  \item use the Phase 22D.3 live-loop SQI adapter;
+  \item use the Phase 22D.2 SQI-guided move selector;
+  \item preserve SQI trace, selection trace, adapter trace and runner trace hashes;
+  \item prove the selected opening move is legal;
+  \item remain dry-run by default;
+  \item avoid network calls during lock tests.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use local Stockfish, cloud engines, external chess engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+It also does not create bookings, payments, escrow, chain writes, or non-Lichess external messages.
+
+\section{Runtime Memory}
+
+\begin{verbatim}
+data/aion_games/full_chess_real_lichess_level2_sqi_autoplay_runner_memory.json
+\end{verbatim}
+
+This file is runtime runner telemetry and SHOULD NOT be committed unless explicitly promoted.
+
+\section{Next Step}
+
+The next operational step MAY run the live runner with explicit live authority.
+
+\begin{verbatim}
+AION_LICHESS_LIVE=1
+LICHESS_BOT_TOKEN=<token>
+dry_run=false
+network_enabled=true
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22D5-REAL-LICHESS-LEVEL2-SQI-AUTOPLAY-RUNNER-KERNEL-LOCK\\
+Status: LOCKED --- real level 2 SQI autoplay runner implemented and tested in dry-run mode\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

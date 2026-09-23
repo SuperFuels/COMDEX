@@ -1,0 +1,137 @@
+\section{Phase 14G --- AgentMap Dashboard / Generate Button Preview Lock}
+\label{sec:phase14-agentmap-dashboard-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- AgentMap dashboard / Generate button preview v0 is implemented as a deterministic, preview-only backend contract for the frontend machine discovery surface.}
+
+\subsection{Purpose}
+
+Phase 14G exposes the locked AgentMap backend flow as a frontend-ready dashboard payload.
+
+The dashboard payload is the contract that the UI can use to render a \texttt{Generate AgentMap} button, Machine Discovery settings panel, AgentMap preview, validation status, deterministic \texttt{agentmap\_hash}, copy actions, download action, install tag, regenerate action, live verification preview, and end-to-end simulation preview.
+
+This lock does not publish a public route and does not write a self-hosted file. It only proves the frontend surface can be driven by deterministic backend state.
+
+\subsection{Dashboard Contract}
+
+The dashboard preview MUST expose:
+
+\begin{itemize}
+  \item \texttt{Generate AgentMap} action.
+  \item Machine Discovery settings readiness.
+  \item AgentMap preview before publish.
+  \item AgentMap validation status.
+  \item Deterministic \texttt{agentmap\_hash}.
+  \item Deterministic \texttt{endpoint\_hash}.
+  \item Deterministic \texttt{verification\_hash}.
+  \item Deterministic \texttt{simulation\_hash}.
+  \item Deterministic \texttt{dashboard\_hash}.
+  \item Deterministic \texttt{summary\_hash}.
+  \item Copy AgentMap URL action.
+  \item Download \texttt{agentmap.json} action.
+  \item Copy website install tag action.
+  \item Hosted \texttt{/agentmap.json} path.
+  \item Self-hosted \texttt{/.well-known/agentmap.json} path.
+  \item Regenerate AgentMap action.
+  \item Live verification preview action.
+  \item E2E synthetic agent simulation preview action.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The dashboard is preview-only and read-only.
+
+It MUST NOT create bookings.
+
+It MUST NOT create payments.
+
+It MUST NOT create escrow.
+
+It MUST NOT dispatch jobs.
+
+It MUST NOT send external messages.
+
+It MUST NOT write live chain data.
+
+It MUST NOT mutate public routes.
+
+It MUST NOT write a self-hosted website file.
+
+It MUST keep human review required before live execution.
+
+\subsection{Frontend Meaning}
+
+The frontend can now render an AgentMap dashboard from a deterministic payload.
+
+The intended user-facing flow is:
+
+\begin{quote}
+Open Machine Discovery panel $\rightarrow$ click Generate AgentMap $\rightarrow$ preview \texttt{agentmap.json} $\rightarrow$ verify \texttt{agentmap\_hash} $\rightarrow$ copy URL or install tag $\rightarrow$ run live verification preview $\rightarrow$ run synthetic E2E agent simulation $\rightarrow$ halt at human review.
+\end{quote}
+
+\subsection{Locked Files}
+
+\begin{verbatim}
+backend/modules/aion_gateway/agentmap_dashboard.py
+backend/tests/workflow_capsules/test_aion_phase14_agentmap_dashboard_lock.py
+backend/tests/workflow_capsules/test_aion_phase14_agentmap_dashboard_lock_doc.py
+docs/rfc/aion_phase14_agentmap_dashboard_lock.tex
+scripts/run_goal_engine_focused_lock_suite.sh
+backend/modules/aion_gateway/__init__.py
+\end{verbatim}
+
+\subsection{Validation Commands}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_dashboard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_dashboard_lock_doc.py
+
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+agentmap dashboard
+generate agentmap
+machine discovery
+agentmap_hash
+dashboard_hash
+summary_hash
+copy agentmap url
+download agentmap.json
+copy website install tag
+regenerate agentmap
+preview-only
+read-only
+human review
+no booking
+no payment
+no escrow
+no dispatch
+no external message
+no live chain
+\end{verbatim}
+
+
+
+\subsection{Raw Lock Footer Terms}
+
+For lock-test visibility, the raw footer terms are:
+
+\begin{verbatim}
+lock id:
+status:
+maintainer: tessaris ai
+author: kevin robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\textbf{Lock ID:} AION-PHASE14-AGENTMAP-DASHBOARD-v0.1\\
+\textbf{Status:} LOCKED\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson
+

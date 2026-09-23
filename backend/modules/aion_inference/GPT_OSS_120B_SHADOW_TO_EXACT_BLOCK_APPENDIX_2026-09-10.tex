@@ -1,0 +1,261 @@
+% Append-only LaTeX fragment for the AION GPT-OSS 120B technical record.
+% Intended to be inserted before \end{document} in the existing record.
+% Requires only packages already used by the parent technical record.
+
+\section{From Governed Shadow Experts to Exact Multi-Token Block Execution}
+\label{sec:shadow-to-exact-block-20260910}
+
+\subsection{Scope, authorization, and unchanged claim boundary}
+
+This section records the work performed after the frozen Shadow Expert
+readiness corpus was established.  The user authorized local training of
+derived numerical weights using model-generated captures that contain no
+prompt text and no personal or customer data.  Promotion was divided into
+staged traffic-reduction rungs: greater than 1.10$\times$ for an experimental
+advance, at least 2$\times$ for a useful result, and at least 10$\times$ for a
+breakthrough result.  Numerical accuracy, confidence calibration, exact SD
+fallback, evidence hashing, and changed-arithmetic labelling were not relaxed.
+
+The honest sustained unrestricted GPT-OSS 120B generation rate remains
+approximately 0.103 tokens per second until an end-to-end candidate passes.
+No layer microbenchmark in this section is reported as a generated-token rate.
+
+\subsection{First authorized affine candidate}
+
+The first trained candidate was deliberately minimal: a 2,860-byte per-layer
+affine/polynomial cartridge.  It calculated in 0.0182~ms p50 and 0.0186~ms p95,
+demonstrating that a compact replacement could have negligible arithmetic and
+storage cost.  Accuracy failed decisively.  No layer passed calibration;
+numerical and semantic holdout p95 relative $L_2$ errors were 20.02 and 21.41,
+and projected traffic reduction remained 1.0$\times$.  Exact SD fallback was
+therefore required for every layer.  The decision was
+\texttt{STOP\_AFFINE\_BASELINE}.
+
+The report canonical SHA-256 is
+\texttt{c7ff59cb0b96bdb3ae3eeea67d5536f5c08f251113a9c81b8dbf5aaee0c1ee32};
+its identical local/SD file SHA-256 is
+\texttt{e443ba15b37dbfd273c0801ccb43b3314339de7e161dcf5f4659e51a6423aea5}.
+The isolated implementation commit is \texttt{85ebcc79}.  This result
+falsified the simple affine shortcut but did not falsify higher-capacity or
+route-conditioned alternatives.
+
+\subsection{Nonlinear, residual-subspace, and route-aware investigation}
+
+Four additional independent first-token families and two genuine eight-token
+KV-linked trajectories were added to training while the calibration and two
+holdout families remained frozen.  Both long trajectories repeated routes,
+final hidden states, and logits bitwise.  The resulting manifest binds 288
+verified targets, including 21 training states at every captured layer.  Its
+canonical/file SHA-256 values are
+\texttt{a2dfe446585f12466dba6decd210e195974759872410516e48f2240c960d5f3a}
+and
+\texttt{03b9384eafebd632bb7bb784454db2444918af8d28e1864d97b4736923e1a1e8}.
+
+Nonlinear RBF and multikernel models reduced the worst holdout p95 error from
+21.41 to 0.918, but no layer passed.  An impossible oracle projection, allowed
+to select the best combination from the complete training-residual span using
+the holdout target itself, still produced overall numerical and semantic p95
+errors of 0.663 and 0.808.  Global residual dictionaries were therefore
+falsified and stopped.  Layers 6 and 9 were narrow exceptions: their individual
+oracle errors were approximately 0.015--0.017, proving that their residuals
+could lie in the available span even though a safe coefficient predictor had
+not yet been found.  Oracle canonical SHA-256 is
+\texttt{f997d884eb821774e63004735b761734dd2a49df3f63cdd000f18507e7a53b28}.
+
+Adding the four unrestricted expert identities and gate strengths as an AION
+route Glyph materially improved layer 6.  Calibration relative $L_2$ reached
+0.0192; the two frozen unseen-family errors were 0.0282 and 0.0312.  Calculation
+cost was 0.0850~ms p50 and 0.1070~ms p95.  The hard 0.05 ceiling was preserved,
+but the 0.02 p95 gate was missed.  Replacing one of the 12 measured layers also
+projected only 1.0909$\times$ traffic reduction, below the strict
+$>1.10\times$ rung.  The decision was \texttt{STOP\_KERNEL\_BASELINE}, not
+promotion.  Canonical/file SHA-256 values are
+\texttt{9f1b12cf4ca4660d9031abd51b2f1124c2b362a16ac7cbc142f0293ac9d153fb}
+and
+\texttt{ef31a56cfac110d2fefabbdf1a8fe7e137e47cff26b8fa0a123e3238b37dcfa8}.
+
+A route-coverage audit identified the blocker.  The median held-out route
+shared only two of four experts with its closest training route; one of 24
+holdout rows had zero overlap, and only eight of 24 contained four experts that
+had all appeared somewhere in training.  Route-coverage canonical/file
+SHA-256 values are
+\texttt{6f0d2b505b88b3bcb6dff2012d9f253cabc115f1251775edc44233ccca38028c}
+and
+\texttt{89b00377375d69e6efbb384fc721fd6d8052ae35e11710eb4e9459727e5cd37a}.
+The isolated near-signal commit is \texttt{4f08bce4}.  Random corpus expansion
+and global residual dictionaries were stopped.
+
+\subsection{Assessment of the hologram, GHX, and QQC material}
+
+The earlier hologram material was re-examined against the physical 120B
+bottleneck.  A GHX crystal is presently a compact symbolic graph and metadata
+snapshot.  It can compress a reusable meaning or workflow motif, but it is not
+a lossless compressor for dense, high-entropy MXFP4 neural weights.  The QFC is
+primarily a visualization surface, while QQC supplies orchestration,
+verification, rollback, and repair.  The documented ``Hologram CPU'' is a small
+interpreter with synthetic beams rather than a replacement for the matrix
+arithmetic performed by GPT-OSS 120B.
+
+The useful hypothesis was therefore narrower: represent a layer route as a GHX
+crystal whose nodes are experts and whose values contain gates and a normalized
+router activation.  The crystal would recognize a route family, select a
+resident calculator, expose coverage and margin, and leave final authorization
+to a confidence gate with exact SD fallback.
+
+\subsection{GHX route-crystal falsification and retained selector}
+
+Because the earlier holdouts contributed to hypothesis formation, they were
+treated as development-only for this experiment.  The configuration was frozen
+before two new unrestricted synthetic-token families, 85001 and 95001, were
+captured.  Both complete two-pass 120B executions repeated their routes, final
+hidden states, and logits bitwise.
+
+The layer-6 numerical candidate calculated in 0.0190~ms p50.  It did not
+generalize: the two new relative $L_2$ errors were 0.0560 and 0.0736.  These
+exceeded the 0.02 p95 target and the 0.05 maximum.  A single substituted layer
+would also yield only 1.0909$\times$ projected traffic reduction.  The decision
+was \texttt{STOP\_GHX\_ROUTE\_CRYSTAL}.  Report canonical/file SHA-256 values
+are
+\texttt{562ed9cad0fb2c9a3f6fd6bbc0a7531c6a4a4d9e01efca532dc19c8a8ac43b87}
+and
+\texttt{207cdb9f1059ed517798a2fc4f0245ba2bdb2411f0d952dc24e2d07df303ea0b}.
+The SD evidence inventory SHA-256 is
+\texttt{f6c3ad2c2e83f195a27b78a0d7a1007f0cff5050c1c81012cff1ca509b31062c}.
+
+The inaccurate expert-output substitute is permanently ineligible.  The fast
+matching primitive was retained as a separate, hash-verified, non-authorizing
+selector.  It ranks candidate calculators and reports route coverage and score
+margin, but it cannot approve a neural substitution.  A 1,000-query check
+measured 0.0239~ms p50 and 0.0289~ms p95.  This preserves the useful GHX
+mechanism as control-plane infrastructure rather than misrepresenting it as
+weight compression.  Focused tests passed 5/5.  The isolated commit is
+\texttt{e1623c5c}.
+
+\subsection{Structured per-expert low-rank closure}
+
+The next candidate assigned a separate gate-weighted affine feature block to
+each of the 128 experts and represented the combined four-expert residual in a
+learned low-rank basis.  Hyperparameters were selected using grouped
+training-family cross-validation only; the calibration and holdout families
+did not participate in selection.  The candidate calculated in 0.0305~ms p50
+and 0.0343~ms p95, but accuracy failed: calibration relative $L_2$ was 0.1922
+at layer 6 and 0.3463 at layer 9.  No layer was accepted and projected traffic
+reduction remained 1.0$\times$.  The decision was
+\texttt{STOP\_PER\_EXPERT\_LOW\_RANK}.
+
+Report canonical/file SHA-256 values are
+\texttt{4c61233adde48fd804371073e798c818f40f46805200aa0e7a8c05088445a262}
+and
+\texttt{246c18e1e558b70d9f5c4f8d725fb72d3428a8b5abb01650b527d0e521a4a2e6}.
+The SD evidence inventory SHA-256 is
+\texttt{99acf071b3df6ea44977622b0b0f6e062f352a04feb7ab6ca18f93c0052aee68}.
+This closes small-data additive expert factorization on the present corpus.
+
+\subsection{Exact multi-token block hypothesis}
+
+The programme then returned to the exact track.  Instead of approximating an
+expert, several token positions are processed layer-major so that each exact
+expert is fetched once and serves every position that routes to it.  For a
+block of $B$ positions and $L$ layers, each selecting four experts, the ideal
+load-amortization factor measured from an exact route trace is
+\begin{equation}
+R_{\mathrm{load}} =
+\frac{4BL}{\displaystyle\sum_{\ell=1}^{L}
+\left|\bigcup_{b=1}^{B}\mathcal{E}_{b,\ell}\right|},
+\end{equation}
+where $\mathcal{E}_{b,\ell}$ is the four-expert route at position $b$ and
+layer $\ell$.
+
+Across two independent, bitwise-repeatable eight-position traces, the observed
+all-layer analytical bounds were 1.8611$\times$ and 1.9136$\times$.  At four
+positions the corresponding bounds were 1.3682$\times$ and 1.4656$\times$;
+at two positions they were 1.1755$\times$ and 1.2361$\times$.  The eight-token
+analytical report received
+\texttt{ADVANCE\_EXACT\_BLOCK\_PROTOTYPE}.  Its canonical/file SHA-256 values
+are
+\texttt{6b9a801146fbb15feaa8b41ba9e465d8923c56723f79fb1305bb05ae25481c45}
+and
+\texttt{e198aa323cb1fcca0fdbfb0afe2af0e902d5157bd8d4df3122c3dff1d42df420}.
+This was an analytical bound, not a measured runtime speedup.
+
+\subsection{Real SD-backed exact layer-12 block breakthrough}
+
+A real layer-12 runtime gate subsequently compared eight sequential exact
+routes with an exact union-loaded block.  The order was balanced across the two
+cases: sequential--union in the first and union--sequential in the second.
+Table~\ref{tab:exact-layer12-block} records the result.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{lrrr}
+\hline
+Metric & Case A & Case B & Median/maximum \\
+\hline
+Sequential expert faults & 32 & 32 & 32 \\
+Union expert faults & 13 & 16 & 14.5 \\
+Sequential compressed bytes & 406,652,530 & 406,691,010 & 406,671,770 \\
+Union compressed bytes & 165,199,233 & 203,340,349 & 184,269,791 \\
+Traffic reduction & 2.4616$\times$ & 2.0001$\times$ & 2.2308$\times$ \\
+Sequential wall time (s) & 0.3674 & 0.3593 & 0.3634 \\
+Union wall time (s) & 0.1482 & 0.1623 & 0.1553 \\
+Wall speedup & 2.4784$\times$ & 2.2137$\times$ & 2.3461$\times$ \\
+Exact outputs & 8/8 & 8/8 & 16/16 \\
+\hline
+\end{tabular}
+\caption{Real SD-backed exact layer-12 eight-position block execution.}
+\label{tab:exact-layer12-block}
+\end{table}
+
+All 16 union-loaded outputs were bit-for-bit identical to their previously
+captured exact outputs.  Peak live expert storage was 212,060,160 bytes,
+approximately 202.2~MiB and below the declared 512~MiB gate.  Compressed
+traffic improved by 2.4616$\times$ and 2.0001$\times$; wall time improved by
+2.4784$\times$ and 2.2137$\times$.  The median measured layer speedup was
+2.3461$\times$.  The decision was
+\texttt{ADVANCE\_EXACT\_BLOCK\_RUNTIME}.
+
+Runtime report canonical/file SHA-256 values are
+\texttt{e22f692a633aa269a4d0280e4db004d95f6466fbc4fb2c26c8f7351558e963f1}
+and
+\texttt{af978a55c128973beb5253f507fa2a7f1b615b37aaafb62389515ad891cb2f3e}.
+The SD evidence inventory SHA-256 is
+\texttt{a3182fe9c40c19e3594c13ff12b546b7986e2890dcb98508498e7161aaa92b2a}.
+Focused tests passed 9/9.  The isolated commit containing the stopped
+per-expert candidate, the analytical block gate, and the real exact block
+runtime is \texttt{11512ad1}.
+
+\paragraph{Measurement boundary.}
+This is a genuine exact layer-level speed and traffic result, but it is not yet
+an end-to-end generation result.  It excludes draft generation, speculative
+rejection, batched causal attention, output projection, and the remaining 35
+layers.  The filesystem cache was not independently purged and classified for
+this microgate; the balanced paired ratios are therefore evidence for reuse
+within this execution path, not a universal cold-SD latency claim.
+
+\subsection{Current architecture and next promotion gates}
+
+The resulting direction is an exact speculative block runtime:
+\begin{enumerate}
+  \item an already-resident smaller model drafts a bounded token block;
+  \item GPT-OSS 120B processes those positions layer-major with causal masking;
+  \item each layer loads the union of required exact experts once;
+  \item expert work is grouped across all assigned positions;
+  \item exact 120B logits accept matching draft tokens up to the first mismatch;
+  \item rejected or incomplete positions return to the authoritative exact path.
+\end{enumerate}
+
+The next gate is a complete two-position layer-major transformer pass including
+causal attention, all 36 MoE layers, final normalization, and teacher logits.
+It must preserve exact token and step-logit behaviour and remain inside the
+declared memory ceiling.  Only after two positions pass will the block expand
+to four and eight positions.  End-to-end reporting must include draft
+acceptance rate, accepted tokens per 120B verification pass, SD bytes per
+accepted token, time to first token, p50/p95 latency, peak memory, and genuine
+generated tokens per second.
+
+The strategic conclusion is precise: low-capacity learned substitutes have not
+yet generalized, whereas exact expert reuse across token positions has already
+produced a measured 2.3461$\times$ layer speedup.  Consequently, exact
+layer-major block execution is the promoted implementation path; the fast GHX
+selector remains available as non-authorizing control infrastructure only.

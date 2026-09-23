@@ -1,0 +1,99 @@
+\section{Local Voice Lifecycle, Privacy History and Quiet Mode}
+\label{sec:pilot-voice-lifecycle}
+
+Pilot Fabric 0.36 introduced the visible voice lifecycle. Pilot Fabric 0.39
+extends it with governed cancellation, start-anchored wake recognition,
+scheduled quiet hours and explicit private-phone push-to-talk. The system
+remains auditable without converting household speech into a behavioural log. The
+microphone node runs locally on the mother brain using the cached speech model;
+raw audio remains in a bounded ephemeral ring and is never written to the Fabric
+ledger.
+
+\subsection{Explicit State Machine}
+
+The service publishes the states \texttt{listening}, \texttt{hearing},
+\texttt{thinking}, \texttt{acting}, \texttt{speaking}, \texttt{completed},
+\texttt{error}, \texttt{sleeping} and \texttt{off}.  \texttt{Hearing} means
+that local energy detection has begun an utterance; it does not imply that Pilot
+accepted a command.  After transcription, speech without an accepted wake phrase
+returns to \texttt{listening} with the outcome class
+\texttt{background\_rejected}.  An accepted intent advances through reasoning,
+governed execution and response states.
+
+This distinction is presented live on the trusted dashboard.  It prevents an
+ambiguous ``online'' indicator from concealing whether Pilot is listening,
+reasoning, operating a capability or delivering a result.
+
+\subsection{Content-Free Activity History}
+
+A bounded in-memory deque retains recent state transitions.  An entry contains a
+state, a local timestamp, a short outcome class and two explicit false flags:
+\texttt{contains\_transcript} and \texttt{contains\_audio}.  It therefore
+supports privacy inspection and debugging without retaining what a person said.
+The diagnostic transcript window remains volatile and limited; it is not copied
+into the activity history, capability ledger or preference file.
+
+\subsection{Sleep and Microphone Closure}
+
+``Pilot, sleep'' closes the input stream, clears the audio ring, resets measured
+audio level and marks the service \texttt{sleeping}.  Because capture is closed,
+the service cannot hear a wake command while asleep.  Resumption requires the
+local dashboard or another separately authorized private control.  This is a
+physical privacy boundary rather than a software promise to ignore captured
+audio.
+
+\subsection{Quiet Mode and Local Voice Preferences}
+
+Quiet mode suppresses synthesized replies while leaving command governance,
+visual status and private-phone results active.  The owner can switch back to
+spoken replies from the local dashboard.  Voice names are restricted to a local
+allowlist and speech rate is clamped to 120--240 words per minute.  Preferences
+are saved under the mother runtime, never projected to the television or device
+nodes, and create a metadata-only audit event.
+
+Pilot Fabric 0.39 adds local quiet-hour schedules expressed as a bounded pair of
+24-hour wall-clock values. Schedules may cross midnight. An equal or incomplete
+pair is inactive, malformed values fail closed, and the schedule is never
+distributed to television nodes.
+
+\subsection{Wake Boundary and Background Rejection}
+
+The accepted wake phrase is anchored to the beginning of an utterance after an
+optional short greeting such as ``Hey''. A television sentence that mentions
+Pilot later in its dialogue therefore cannot activate a command. Bounded repairs
+remain for established local-recognition errors, but there is no general fuzzy
+match that can transform arbitrary programme audio into a wake event.
+
+\subsection{Governed Cancellation}
+
+``Pilot, cancel'' now propagates through the active television-agent task,
+conversation objective, autopilot plan, verified-navigation transaction and all
+reversible service proposals owned by the active persona. Waiting approvals are
+marked cancelled, pending steps are skipped and active identifiers are cleared.
+An external adapter in an uncertain in-flight state is deliberately not reported
+as cancelled; Pilot instead requires reconciliation. The audit entry contains
+layer names and counts rather than the raw utterance.
+
+\subsection{Private-Phone Push-to-Talk}
+
+The trusted HTTPS controller provides a hold-to-speak control. Pressing it is an
+explicit activation boundary, so the owner need not repeat the room wake word.
+The browser captures audio only while held and sends at most 3 MiB to the mother
+brain. The local Whisper model transcribes an owner-only temporary file; a
+\texttt{finally} boundary deletes it after both success and failure. Requests use
+the private-phone conversation channel and active persona rather than shared-TV
+memory.
+
+Ordinary unencrypted LAN pages cannot request the iPhone microphone. Push-to-talk
+therefore fails closed unless the owner opens and trusts the household HTTPS
+controller. A future signed native companion should replace manual browser
+certificate trust in the consumer release.
+
+\subsection{Verification and Remaining Production Boundary}
+
+The implementation is covered by 301 automated Fabric tests, including stateful
+cancellation across five subsystems, overnight quiet schedules, start-anchored
+wake rejection and immediate phone-audio deletion. This does not constitute
+real-room acoustic qualification. Full-duplex barge-in, platform-native echo
+cancellation, household preference profiles and accent, distance and
+accessibility matrices remain open until measured on supported hardware.

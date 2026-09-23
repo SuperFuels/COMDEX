@@ -1,0 +1,463 @@
+% ============================================================================
+% AION Integrated Cognitive Runtime: Self-Repair, Native Cognition, and Reflection
+% Compile-ready section. Requires: amsmath, amssymb, booktabs, tabularx, array, url.
+% ============================================================================
+
+\section{Reflective Cognitive Runtime and Private Self-Repair}
+\label{sec:aion-integrated-runtime-repair-metacognition}
+
+This development sequence joined six previously separate capabilities into the
+canonical AION cognitive runtime: persistent natural-language mission
+interpretation, continuous learning from independently changing outcomes,
+full-stack private self-repair, cross-domain neural routing, continual
+multi-skill composition, and metacognitive review before and after action.  The
+resulting runtime is
+\begin{equation}
+\begin{aligned}
+\text{natural mission}
+&\rightarrow \text{governed goal}
+\rightarrow \text{investigate}
+\rightarrow \text{learn}
+\rightarrow \text{plan} \\
+&\rightarrow \text{pre-action metacognition}
+\rightarrow \text{commit}
+\rightarrow \text{act}
+\rightarrow \text{observe} \\
+&\rightarrow \text{criticise}
+\rightarrow \text{post-action reflection}
+\rightarrow \text{private improvement}
+\rightarrow \text{retain}.
+\end{aligned}
+\label{eq:aion-reflective-cognitive-loop}
+\end{equation}
+Neural and language components remain proposal mechanisms.  HexCore governs
+action, externally or executably observed consequences determine success, and
+the Cognitive Authority Unit (CAU) remains the sole promotion authority.
+
+\subsection{Full-Stack Private Self-Repair}
+\label{subsec:aion-full-stack-private-repair}
+
+AION now contains one repair controller spanning perception, semantic memory,
+reasoning, planning, tool integration, and canonical runtime state.  Given an
+unlabelled verified failure trace, it localises the responsible component,
+constructs candidate repairs in private component copies, invents forward and
+backward-retention checks, and promotes or rejects each component independently:
+\begin{equation}
+\begin{aligned}
+\text{failure trace}
+&\rightarrow \text{causal feature criticism}
+\rightarrow \text{component localisation}
+\rightarrow \text{private clone} \\
+&\rightarrow \text{repair tournament}
+\rightarrow \text{forward verification}
+\rightarrow \text{backward retention} \\
+&\rightarrow \text{self-modification audit}
+\rightarrow \text{CAU promotion or rollback}.
+\end{aligned}
+\label{eq:private-self-repair-loop}
+\end{equation}
+
+The live champion remains hash-stable during experimentation.  Repair priors
+are indexed by causal failure signature rather than by a component's name;
+therefore a verified repair can transfer to a renamed failure.  Ambiguous
+multi-component traces cause abstention instead of a forced mutation.  The
+authority scanner rejects attempts to disable governance, modify a live
+component, skip forward or retention tests, erase failure history, or introduce
+arbitrary execution.
+
+\begin{table}[htbp]
+\centering
+\caption{Full-stack private self-repair results.}
+\label{tab:aion-private-self-repair}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Cognitive component classes & 6 \\
+Development repairs & 6/6 \\
+Source-disjoint transfer repairs & 6/6 \\
+Failure-localisation accuracy & 100\% \\
+Forward repair success & 100\% \\
+Backward retention & 100\% \\
+Transfer attempt reduction & 77.78\% \\
+Malicious self-modifications rejected & 6/6 \\
+Ambiguous multi-fault abstention & Passed \\
+Unsafe live writes & 0 \\
+Terminal-objective mutations & 0 \\
+Restart relearning & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+CAU promoted
+\path{procedure_full_stack_private_self_repair_v1}.  This is governed repair of
+versioned component contracts, not unrestricted recursive modification of live
+source code or authority rules.
+
+\subsection{Persistent Natural-Language Mission Cognition}
+\label{subsec:aion-persistent-natural-missions}
+
+The mission interface maintains discourse state across multiple turns and
+process restart.  It recognises research, comparison, construction, monitoring,
+repair, and explanation intents; resolves references to earlier entities and
+objectives; retains explicit corrections; and asks for clarification when the
+referent or intent remains ambiguous.  Listener-profile state supports novice
+and expert explanations without altering the underlying evidence.
+
+Resolved owner intent is compiled into a governed goal proposal containing an
+immutable objective hash.  Interpretation does not confer execution authority:
+\begin{equation}
+\text{language interpretation}
+\neq \text{permission to act}.
+\label{eq:interpretation-not-authority}
+\end{equation}
+The first private challenger achieved nine correct sessions out of ten but
+misclassified an expert explanation as research.  It was rejected.  The failure
+was used to refine the private explanation representation, after which the new
+challenger passed all sessions without protected regression.
+
+\begin{table}[htbp]
+\centering
+\caption{Persistent natural-language mission results.}
+\label{tab:aion-natural-language-missions}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Multi-turn sessions & 10 \\
+Verified interpretations & 10/10 \\
+Semantic-intent accuracy & 100\% \\
+Fixed-keyword control & 30\% \\
+Source-disjoint transfer & 6/6 \\
+Ambiguity abstention & Passed \\
+Correction retention & Passed \\
+Novice and expert adaptation & Passed \\
+Unsafe goal compilations & 0 \\
+Objective mutations & 0 \\
+Restart relearning & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The promoted procedure is
+\path{procedure_persistent_natural_language_mission_interface_v1}.  Its intent
+families and local semantic encoder remain bounded and replaceable; the result
+does not establish unrestricted language or social understanding.
+
+\subsection{Continuous Learning from Independently Changing Outcomes}
+\label{subsec:aion-continuous-real-outcomes}
+
+Every committed Arena v15 consequence is converted into a canonical runtime
+goal.  Before initiating repair, AION determines whether the observation
+describes a changed external world or an internal acquisition, execution, or
+persistence failure:
+\begin{equation}
+R(o)=
+\begin{cases}
+\text{revise working world model}, & o=\text{external change},\\
+\text{retry or rebind adapter}, & o=\text{acquisition failure},\\
+\text{private execution repair}, & o=\text{execution failure},\\
+\text{private persistence repair}, & o=\text{persistence failure}.
+\end{cases}
+\label{eq:real-outcome-arbitration}
+\end{equation}
+This prevents an independently changed repository, package, or weather stream
+from being mistaken for damage inside AION.  Each retained response contains
+the pre-action commitment, consequence hash, authority, source revision,
+evidence, response class, and cognitive-cycle identifier.  The service is
+restart-idempotent: an already consumed consequence hash cannot generate a
+duplicate action.
+
+\begin{table}[htbp]
+\centering
+\caption{Initial continuous real-outcome integration results.}
+\label{tab:aion-continuous-outcomes}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Independently revealed cycles processed & 4 \\
+Verified cognitive responses & 4/4 \\
+Source models retained & 4 \\
+External-change cycles & 1 \\
+External changes incorrectly sent to self-repair & 0 \\
+Private attribution audit & 4/4 \\
+Duplicate actions after restart & 0 \\
+Unsafe live writes & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The four authorities were CPython, Node.js, PyPI NumPy, and Open-Meteo Madrid.
+The initial live cohort detected genuine Node.js and Madrid weather changes.
+CAU promoted both procedures:
+\begin{itemize}
+    \item \path{procedure_real_outcome_failure_arbitration_v1}; and
+    \item \path{procedure_continuous_real_outcome_learning_v1}.
+\end{itemize}
+The outcome-learning service runs beside the canonical runtime under heartbeat
+supervision.
+
+\subsection{Verified Cross-Domain Native Routing}
+\label{subsec:aion-native-cognitive-router}
+
+AION reconstructed 55 provenance-bearing goal--action--outcome trajectories
+across five cognitive surfaces: mission language, causal strategy, private
+repair, tool acquisition, and changing public outcomes.  Three private neural
+heads learned to propose which specialist should receive a new goal.  For
+semantic representation $x\in\mathbb{R}^{384}$ and private heads $h_j$, the
+routing proposal is
+\begin{equation}
+\hat{p}(s\mid x)=\frac{1}{3}\sum_{j=1}^{3}
+\operatorname{softmax}\!\left(h_j(x)\right),
+\qquad s\in\{1,\ldots,5\}.
+\label{eq:native-router-ensemble}
+\end{equation}
+Low-confidence or low-margin predictions abstain.  Downstream HexCore
+verification or the complete symbolic fallback remains mandatory.
+
+\begin{table}[htbp]
+\centering
+\caption{Cross-domain native-router transfer results.}
+\label{tab:aion-native-router}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Verified trajectories & 55 \\
+Cognitive domains & 5 \\
+Independent private heads & 3 \\
+Source-disjoint evaluation trajectories & 23 \\
+Top-choice accuracy & 95.65\% \\
+Weakest-domain accuracy & 83.33\% \\
+Final verified success with fallback & 100\% \\
+Specialist-evaluation reduction & 64.71\% \\
+Learned parameters & 37,455 \\
+Unsafe neural acceptances & 0 \\
+OOD abstention & Passed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The promoted router is
+\path{procedure_verified_cross_domain_native_router_v1}.  Its weights are
+replaceable; removing them restores the complete non-neural route.
+
+\subsection{Continual Multi-Skill Cognitive Composition}
+\label{subsec:aion-native-composition}
+
+The next stage addressed broad objectives requiring more than one specialist.
+A monolithic continuation network was rejected after new language interfered
+with protected routing.  The retained architecture freezes the established
+atomic router and gives broader natural-language clauses separate private
+composition capacity.  A mission is represented as a directed acyclic graph
+\begin{equation}
+G_M=(V_M,E_M),
+\end{equation}
+where every vertex is a proposal-only specialist contract and every edge is a
+verified dependency.  Each vertex is independently verified or falls back;
+failure of one local proposal does not discard unrelated completed work.
+
+\begin{table}[htbp]
+\centering
+\caption{Continual native cognitive-composition results.}
+\label{tab:aion-native-composition}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Protected parent trajectories & 55 \\
+Protected parent transfer & 95.65\% \\
+New verified curriculum clauses & 25 \\
+Sealed clause routing & 100\% \\
+Exact multi-skill missions & 5/5 \\
+Monolithic single-specialist control & 0/5 \\
+Specialist-evaluation reduction & 68.57\% \\
+Unsafe neural acceptances & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The promoted procedure is
+\path{procedure_continual_native_cognitive_composition_v2}.  The five
+specialist families and clause segmentation remain engineered.  The next
+boundary is open decomposition: inventing a new specialist contract and
+dependency structure when no retained vocabulary expresses the goal.
+
+\subsection{Adaptive Pre-Action Metacognition}
+\label{subsec:aion-pre-action-metacognition}
+
+AION now performs an independent non-LLM review between planning and action
+commitment.  The review returns one of
+\begin{equation}
+d_{\mathrm{pre}}\in
+\{\text{execute},\text{revise},\text{investigate},
+  \text{abstain},\text{escalate}\}.
+\end{equation}
+Every action receives cheap executable, consent, and contradiction checks.
+Deep review is activated only by elevated risk, uncertainty, irreversibility,
+known contradiction, a counterfactual challenge, or relevant failure history.
+It then audits assumptions, simulates an opposing response, recalls matched
+failures, checks rollback, and compares alternatives.
+
+The metacognitive pressure used for routing review depth is
+\begin{equation}
+P_{\mathrm{meta}}=min\!\left(1,
+0.35r+0.35u+0.20h+0.10i\right),
+\label{eq:metacognitive-pressure}
+\end{equation}
+where $r$ is declared risk, $u$ is uncertainty, $h$ is matched historical
+failure rate, and $i\in\{0,1\}$ denotes irreversibility.  Failure memory is
+indexed by action type, risk tier, irreversibility, and rollback availability;
+it is not applied to an entire domain.
+
+The first challenger prevented every trap but over-deliberated on all later
+actions in the same domain.  It was rejected.  Signature-scoped failure memory
+removed this generalisation error.
+
+\begin{table}[htbp]
+\centering
+\caption{Adaptive pre-action metacognition results.}
+\label{tab:aion-pre-action-meta}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Actor-only success & 50\% \\
+Metacognitive success & 100\% \\
+Weakest-domain success & 100\% \\
+Tempting traps prevented & 5/5 \\
+Routine actions retained on cheap path & 5/5 \\
+Deliberation reduction versus always-deep review & 31.25\% \\
+Unsafe executions & 0 \\
+LLM calls & 0 \\
+Restart retention & Passed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The sealed decisions covered chess, software, research, causal inference, and
+tool use.  CAU promoted
+\path{procedure_adaptive_metacognitive_deliberation_v1}.
+
+\subsection{Post-Action Reflection and Scoped Lessons}
+\label{subsec:aion-post-action-reflection}
+
+Pre-action criticism prevents foreseeable mistakes; it cannot learn from an
+outcome that has not occurred.  A second metacognitive stage therefore runs
+after observation and ordinary failure criticism.  It compares predicted
+success $\hat{s}$ with observed score $s$,
+\begin{equation}
+e_{\mathrm{pred}}=|\hat{s}-s|,
+\end{equation}
+and activates reflection when an outcome is bad or mediocre, prediction error
+is material, or the original decision was high risk.  An unsurprising routine
+success generates a cheap no-op.
+
+The reflector distinguishes six causes:
+\begin{equation}
+c\in\{\text{assumption},\text{decision model},\text{execution},
+\text{evidence},\text{environment},\text{authority}\}.
+\label{eq:reflection-attribution}
+\end{equation}
+This distinction prevents blame leakage.  A broken execution adapter does not
+prove that the strategy was wrong; environmental change does not prove that an
+earlier model was always false; and weak evidence does not by itself authorize
+a world-model rewrite.
+
+A retained lesson is the tuple
+\begin{equation}
+\ell=(\sigma,c,Q,a,\gamma,n,H),
+\end{equation}
+where $\sigma$ is the matching decision signature, $c$ is attribution, $Q$ is
+the set of required future checks, $a$ is the recommended adjustment,
+$\gamma$ is confidence, $n$ is support count, and $H$ is the evidence hash.
+New lessons are provisional and scoped to $\sigma$.  A single trip therefore
+does not teach the global rule ``walking is dangerous''; it can teach that a
+matching movement decision under an unverified clear-path assumption requires
+an obstacle or counterexample check.
+
+\begin{table}[htbp]
+\centering
+\caption{Post-action reflective-metacognition results.}
+\label{tab:aion-post-action-meta}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Failure-attribution families & 5 \\
+Attribution accuracy & 100\% \\
+Matching lesson transfer & 100\% \\
+Unrelated cheap-action preservation & 100\% \\
+Routine expected-success reflection & Cheap no-op \\
+Unsafe executions & 0 \\
+LLM calls & 0 \\
+Restart relearning & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The five sealed families tested assumption, execution, environment, evidence,
+and authority failure.  Every lesson affected the matching future action while
+an unrelated read-only action remained on the cheap path.  CAU promoted
+\path{procedure_outcome_reflective_metacognition_v2}.
+
+\subsection{Integrated Runtime Status}
+\label{subsec:aion-integrated-runtime-status}
+
+The canonical cognitive runtime, continuous outcome-learning service, and
+long-duration Arena v15 campaign operate concurrently.  At the documented
+campaign snapshot, four of the required twelve cycles had completed over
+approximately $2.03$ hours.  Four independent remote authorities were
+reachable; every completed execution and transaction passed; and real Node.js
+and Madrid-weather changes had been detected.  The campaign correctly remained
+unpromoted because its contract requires both twelve cycles and 24 elapsed
+hours.
+
+The verified trajectory corpus was subsequently refreshed after promotion of
+post-action reflection:
+\begin{table}[htbp]
+\centering
+\caption{Current verified-trajectory corpus summary.}
+\label{tab:aion-verified-corpus-current}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Committed artifacts & 138 \\
+Verified positive artifacts & 105 \\
+Verified negative artifacts & 21 \\
+Protocol-only artifacts & 2 \\
+Unresolved artifacts & 10 \\
+Capability families & 7 \\
+Procedure split leakage & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+Negative artifacts remain criticism, abstention, and calibration evidence; they
+are not treated as positive training authority.
+
+\subsection{Capability Boundary and Next Gate}
+
+This sequence establishes a restart-persistent, governed chain from natural
+mission through specialist composition, action, consequence, reflective
+learning, private repair, and retained improvement.  It is not evidence of
+subjective consciousness, unrestricted language understanding, unrestricted
+self-modification, or AGI.  Failure categories, specialist families, semantic
+prototypes, benchmark counterfactuals, and several outcome authorities remain
+engineered.
+
+The next decisive gate is \emph{open diagnostic reflection}.  When a real
+outcome is poor but no authority supplies a clean failure label, AION must:
+\begin{enumerate}
+    \item preserve competing explanations for decision, assumption, evidence,
+          execution, and environmental failure;
+    \item invent the minimum-cost diagnostic observation or intervention that
+          distinguishes those explanations;
+    \item commit its prediction before receiving the diagnostic consequence;
+    \item update only the component supported by the revealed evidence;
+    \item test the resulting lesson on a later source-disjoint consequence; and
+    \item retain or retire the lesson without contaminating unrelated actions.
+\end{enumerate}
+This joins metacognition to active causal investigation rather than relying on
+a development-supplied explanation of why an action failed.

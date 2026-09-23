@@ -1,0 +1,57 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.4: Mini Chess Self-Play Learning Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.4 defines the AION Mini Chess Self-Play Learning Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can play repeated mini-games, learn from material loss, avoid repeated bad captures, preserve king safety, and reach a win condition.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.4 tests whether the mini-chess substrate can learn across repeated games.
+
+\section{Self-Play Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{episodes\_run};
+  \item \texttt{baseline\_result};
+  \item \texttt{final\_result};
+  \item \texttt{reward\_delta};
+  \item \texttt{policy\_improved};
+  \item \texttt{learned\_from\_loss};
+  \item \texttt{avoided\_repeated\_bad\_capture};
+  \item \texttt{win\_condition\_reached};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational mini-chess self-play learning. It does not prove full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B4-MINI-CHESS-SELF-PLAY-LEARNING-KERNEL-LOCK\\
+Status: LOCKED --- mini chess self-play learning kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

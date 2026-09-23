@@ -1,0 +1,79 @@
+\section{Phase 17B --- Home Fixed Website Adapter}
+\label{sec:aion-phase17b-home-fixed-website-adapter}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 17B defines the Home Fixed website adapter for converting real website form submissions into the canonical \texttt{website\_intake.trigger.created} contract.
+
+\subsection{Purpose}
+
+The adapter allows AION to connect to an existing business website form without forcing the business to rebuild its website.
+
+It supports:
+
+\begin{itemize}
+  \item simple contact forms;
+  \item custom enquiry forms;
+  \item multi-step form builders;
+  \item answer dictionaries;
+  \item form-builder field arrays.
+\end{itemize}
+
+\subsection{Normalised Fields}
+
+The adapter normalises the following values:
+
+\begin{itemize}
+  \item customer name;
+  \item phone or WhatsApp number;
+  \item email;
+  \item message or job description;
+  \item detected service;
+  \item location;
+  \item urgency;
+  \item source;
+  \item channel.
+\end{itemize}
+
+\subsection{Home Fixed Classification}
+
+The adapter includes a first locked Home Fixed classifier.
+
+For example, a request containing \texttt{pergola}, \texttt{roof}, \texttt{leak}, or \texttt{water} is mapped into a Home Fixed service category suitable for workflow selection.
+
+This is deliberately simple and deterministic at this phase. The classifier can later be replaced by the AION reasoning/provider layer, but the adapter contract remains stable.
+
+\subsection{Safety}
+
+The adapter MUST preserve the Phase 17A safety contract.
+
+At intake time it MUST NOT create:
+
+\begin{itemize}
+  \item a booking;
+  \item a payment;
+  \item escrow;
+  \item an external message;
+  \item a live chain write;
+  \item live execution.
+\end{itemize}
+
+It MUST create only a guarded preview trigger requiring human review.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase17b_home_fixed_website_adapter_lock.py
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE17B-HOME-FIXED-WEBSITE-ADAPTER
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

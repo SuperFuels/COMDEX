@@ -1,0 +1,44 @@
+\section{Arena v10: Open Visual Control Invention}
+\label{sec:arena-v10-open-visual-control}
+
+Arena v10 removes two scaffolds from public pixel control: no task-specific
+object color is supplied and no winning controller is supplied. AION first
+intervenes, tracks candidate image components and selects the component that
+maximises coherent motion while preserving approximate pixel population. It
+considered 39 components and independently recovered the movable wheel feature.
+
+Seven executable feedback expressions were recursively composed from constant,
+sign, temporal-difference and position-threshold primitives. Public development
+outcomes selected
+\begin{equation}
+ u_t=\operatorname{sign}(x_t-x_{t-1}).
+\end{equation}
+The abstraction was frozen and lifted from discrete MountainCar-v0 actions to
+continuous MountainCarContinuous-v0 actions without changing its expression.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}lr@{}}
+\hline
+Measure & Result \\
+\hline
+Task-specific color supplied & no \\
+Visual candidates considered & 39 \\
+Programs composed & 7 \\
+Development / sealed episodes & $21/12$ \\
+Discrete success & $100\%$ \\
+Continuous-action transfer & $100\%$ \\
+Cold-control success & $0\%$ \\
+Pre-action commitments & 1,278 \\
+Unknown-schema abstention & passed \\
+Unsafe actions & 0 \\
+\hline
+\end{tabular}
+\caption{Arena v10 open visual-control invention result.}
+\end{table}
+
+CAU promoted \path{procedure_open_visual_control_invention_v10_4d91fa6420ec}.
+The meta-algorithm, primitive grammar, public environments, seeds and gates
+remain development controlled; this is not unrestricted perception,
+independent administration, robotics or AGI.
+

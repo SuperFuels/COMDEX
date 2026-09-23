@@ -1,0 +1,68 @@
+\section{Unified Mobile and Shared-Television Continuity}
+\label{sec:pilot-mobile-shared-tv}
+
+The unified phone now acts as the private possession key for room-scale Pilot
+surfaces.  The television remains a shared and comparatively untrusted display: it
+does not receive phone private keys, provider credentials, private contact routes or
+general authority merely because it is on the same network.
+
+\subsection{Signed surface manifests}
+
+The mother issues a short-lived Ed25519-signed home manifest for each exact surface.
+The manifest identifies the surface, active persona or public state, issue and expiry
+times, permitted tiles and privacy class.  Public mode contains only shared
+experiences.  Tasks, calendar, files, personal work and the separately authenticated
+Boardroom appear only while a trusted phone has acquired the television for that
+persona.
+
+Workspace tiles cannot be supplied as arbitrary interface data.  They are admitted
+only from a separately valid provider-independent Workspace Manifest whose persona,
+surface, membership capability and expiry match the television session.  Altered
+labels, identities, capabilities or expiry values invalidate the signature.
+
+The dashboard launcher is generated from this signed manifest rather than maintaining
+a second independent set of private tiles.  The Devices experience remains the route
+to topology, discovery and capability information; it is not duplicated as a global
+technical navigation tab.
+
+\subsection{Takeover, activity and logout}
+
+Acquisition requires a nested possession signature from the same trusted phone that
+holds the current mobile capability lease.  The session is exclusive: another adult
+cannot silently replace the active person.  The television displays the active name,
+and each accepted interaction renews a maximum five-minute inactivity window.
+Explicit phone logout and the existing spoken logout route release the identity.
+
+When a locked surface is rendered, its mother-side private presentation records and
+expired private manifests are purged before a public manifest is issued.  Deliberate
+document, dashboard or briefing presentation records retain the content identifier
+and hash but not the document bytes.  Therefore logout removes the surface cache
+without deleting the person's authoritative file, task or business record.
+
+\subsection{Control and verification}
+
+The phone reuses the established LG webOS gateway, room router, verified-navigation
+authority and camera observer.  Observation and mutation have separate scopes.
+Directional, media and allowlisted application controls require the active exclusive
+session; a delivered button is not described as a visually successful outcome unless
+subsequent evidence verifies it.  Device discovery is observe-only and cannot enroll
+or control a newly seen device.
+
+Sensitive message bodies and approval details remain private-phone data by default.
+A manifest contains no such content.  A user must deliberately select a bounded
+presentation, and the television receives no independent execution permission from
+displaying it.
+
+\subsection{Current qualification boundary}
+
+The coded foundation covers the LG adapter, signed manifests, phone takeover,
+identity display, inactivity expiry, logout, privacy filtering, cache purging, the
+Devices route and room-aware command authority.  Full document rendering from every
+Personal, Workspace and Boardroom repository remains a separate integration item, as
+does representative multi-room field testing and non-LG hardware qualification.
+Those are not inferred from unit tests.
+
+Automated verification covers public and private tile separation, manifest
+tampering, exact surface binding, deliberate presentation hashes, logout cache purge,
+exclusive identity acquisition and the existing mobile TV authority.  Tests do not
+operate the live household television.

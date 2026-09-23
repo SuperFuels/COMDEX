@@ -1,0 +1,7 @@
+{
+  "status": "INVALID",
+  "reason": "The build correctly failed its BF16-to-FP16-to-BF16 lossless-roundtrip integrity gate. Some source BF16 values are not exactly representable in FP16. This pack must not be used as evidence of lossless source representation or as runtime input.",
+  "manifest_file_sha256": "09b1396383102bccae33262c89ad5c137dad330949b020b532631fe105bf5550",
+  "manifest_internal_sha256": "356297bd43cd2687304cbf3d3a431d98a5dfdc1946760ee59a0da1eaa8a351ab",
+  "corrective_action": "Build a new immutable pack whose integrity contract is exact equivalence to source tensors converted by the existing FP16 execution path. Preserve this failed build without overwrite."
+}

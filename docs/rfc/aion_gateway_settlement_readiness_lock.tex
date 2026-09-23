@@ -1,0 +1,206 @@
+\section{AION Gateway Settlement Readiness v0.1 Lock}
+\label{sec:aion-gateway-settlement-readiness-v01-lock}
+
+\subsection{Status}
+
+The AION Gateway Settlement Readiness layer is locked as a fiat-first, proof-ready settlement state projection.
+
+\begin{quote}
+\textbf{Status: LOCKED --- settlement readiness is proof-only in v0. It tracks fiat payment readiness without moving money, creating escrow, requiring wallets, or committing to GlyphChain.}
+\end{quote}
+
+\subsection{Purpose}
+
+Settlement Readiness records whether a fulfilment job is ready for payment, disputed, deposit-paid, or refund-recommended.
+
+It is not a payment system.
+
+It is not a crypto settlement system.
+
+It is not an escrow system.
+
+It is a deterministic state object that can later be included in a job proof hash and committed to GlyphChain as proof of process.
+
+\subsection{Implementation Files}
+
+\begin{verbatim}
+backend/modules/aion_gateway/settlement_readiness.py
+backend/modules/aion_gateway/__init__.py
+\end{verbatim}
+
+\subsection{Validation Files}
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_aion_gateway_settlement_readiness_lock.py
+docs/rfc/aion_gateway_settlement_readiness_lock.tex
+\end{verbatim}
+
+\subsection{Schema Version}
+
+\begin{verbatim}
+aion.gateway.settlement_readiness.v0.1
+\end{verbatim}
+
+\subsection{Lifecycle Fields}
+
+The Settlement Readiness object includes:
+
+\begin{itemize}
+  \item \texttt{job\_id}
+  \item \texttt{business\_id}
+  \item \texttt{state}
+  \item \texttt{payment\_requested}
+  \item \texttt{deposit\_paid}
+  \item \texttt{payment\_ready}
+  \item \texttt{disputed}
+  \item \texttt{refund\_recommended}
+  \item \texttt{payment\_mode}
+  \item \texttt{currency}
+  \item \texttt{quoted\_amount}
+  \item \texttt{deposit\_amount}
+  \item \texttt{final\_amount\_due}
+  \item \texttt{payment\_reference}
+  \item \texttt{fiat\_payment\_reference\_hash}
+  \item \texttt{settlement\_readiness\_hash}
+  \item \texttt{blocked\_reasons}
+  \item \texttt{proof\_ready}
+\end{itemize}
+
+\subsection{Allowed States}
+
+The allowed settlement states are:
+
+\begin{itemize}
+  \item \texttt{not\_requested}
+  \item \texttt{payment\_requested}
+  \item \texttt{deposit\_paid}
+  \item \texttt{payment\_ready}
+  \item \texttt{disputed}
+  \item \texttt{refund\_recommended}
+\end{itemize}
+
+\subsection{Fiat Payment Modes}
+
+The allowed payment modes are fiat-first:
+
+\begin{itemize}
+  \item \texttt{cash}
+  \item \texttt{bank\_transfer}
+  \item \texttt{card}
+  \item \texttt{stripe}
+  \item \texttt{revolut}
+  \item \texttt{invoice}
+  \item \texttt{paypal}
+  \item \texttt{other\_fiat}
+\end{itemize}
+
+The system MUST NOT require PHO, token, wallet, blockchain settlement, or escrow.
+
+\subsection{Hashing Rules}
+
+The fiat payment reference hash is created from:
+
+\begin{itemize}
+  \item schema version;
+  \item business identifier;
+  \item job identifier;
+  \item fiat payment reference;
+  \item payment mode;
+  \item amount;
+  \item currency.
+\end{itemize}
+
+The settlement readiness hash is created from the canonical settlement state.
+
+Both hashes use:
+
+\begin{verbatim}
+json.dumps(..., sort_keys=True, separators=(",", ":"))
+hashlib.sha256(...)
+\end{verbatim}
+
+Changing the fiat payment reference MUST change the \texttt{fiat\_payment\_reference\_hash}.
+
+Changing the settlement state MUST change the \texttt{settlement\_readiness\_hash}.
+
+\subsection{Safety Boundary}
+
+Settlement Readiness v0 MUST NOT:
+
+\begin{itemize}
+  \item move money;
+  \item create payments;
+  \item create escrow;
+  \item require PHO;
+  \item require a token;
+  \item require a wallet;
+  \item call a payment provider;
+  \item commit to GlyphChain;
+  \item grant permissions;
+  \item execute workflows;
+  \item expose public routes.
+\end{itemize}
+
+The locked runtime flags are:
+
+\begin{verbatim}
+dry_run_only = true
+would_move_money = false
+would_create_payment = false
+would_create_escrow = false
+would_commit_glyphchain = false
+requires_human_review = true
+\end{verbatim}
+
+\subsection{Relationship to GlyphChain}
+
+GlyphChain remains a proof/documentation rail, not a payment rail.
+
+Settlement Readiness may later be included in:
+
+\begin{verbatim}
+AION_SETTLEMENT_READINESS_PROOF_V1
+\end{verbatim}
+
+This lock does not commit to GlyphChain. It only prepares a stable proof-ready state.
+
+\subsection{Relationship to Machine A2A Trace}
+
+The Machine A2A trace may expose the settlement readiness state through:
+
+\begin{verbatim}
+settlement_readiness_state
+\end{verbatim}
+
+The trace is read/projection only and MUST NOT mutate settlement readiness.
+
+\subsection{Validation}
+
+Standalone validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_gateway_settlement_readiness_lock.py
+\end{verbatim}
+
+Focused suite validation:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GATEWAY-SETTLEMENT-READINESS-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

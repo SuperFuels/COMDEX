@@ -1,0 +1,148 @@
+\section{Phase 21E --- Read-only LRM Context Card in Existing Pilot Stream}
+\label{sec:phase21e-lrm-pilot-readonly-context-card-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- read-only AION-LRM context card mounted inside the existing Pilot stream.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 21E renders the Phase 21D loaded AION-LRM Pilot context inside the existing Pilot stream.
+
+It does not create a new Pilot surface.
+
+It does not redesign the Pilot cockpit.
+
+It only adds a read-only card that exposes the loaded LRM context, hashes, review state, evidence state, and visible stream events.
+
+\subsection{Implemented Frontend Surface}
+
+The live frontend file is:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+Phase 21E adds:
+
+\begin{verbatim}
+renderAionLrmPilotContextReadonlyCard
+\end{verbatim}
+
+The card is mounted inside:
+
+\begin{verbatim}
+renderAionPilotSimpleTaskStream
+\end{verbatim}
+
+It reads state from:
+
+\begin{verbatim}
+getAionPilotFrontendInteractionState
+\end{verbatim}
+
+\subsection{State Fields Read}
+
+The card reads preview-only state prepared by Phase 21D:
+
+\begin{verbatim}
+lrm_pilot_context_payload
+lrm_context_payload_hash
+lrm_context_summary_hash
+lrm_next_review_state
+lrm_loop_hash
+replay_hash
+proof_hash
+artifact_hash
+receipt_hash
+visible_stream_events
+\end{verbatim}
+
+\subsection{Rendered Information}
+
+The card renders:
+
+\begin{itemize}
+  \item LRM context load status;
+  \item next human review state;
+  \item evidence satisfaction state;
+  \item payload hash;
+  \item loop hash;
+  \item replay hash;
+  \item visible LRM stream events.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+Phase 21E is read-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item fetch data itself;
+  \item create a duplicate Pilot;
+  \item redesign the Pilot UI;
+  \item create a booking;
+  \item create a payment;
+  \item create escrow;
+  \item send an external message;
+  \item write live chain data;
+  \item execute workflow steps;
+  \item write business-container files;
+  \item expose private chain-of-thought;
+  \item expose hidden reasoning;
+  \item expose credentials.
+\end{itemize}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+Phase 21E
+Read-only LRM Context Card
+existing Pilot stream
+renderAionLrmPilotContextReadonlyCard
+renderAionPilotSimpleTaskStream
+getAionPilotFrontendInteractionState
+lrm_pilot_context_payload
+lrm_context_payload_hash
+lrm_next_review_state
+lrm_loop_hash
+visible_stream_events
+read-only
+no duplicate Pilot
+no UI redesign
+preview-only
+human review
+no booking
+no payment
+no escrow
+no external message
+no live chain
+no workflow execution
+no private chain-of-thought
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21e_lrm_pilot_readonly_context_card_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase21e_lrm_pilot_readonly_context_card_ui_lock_doc.py
+\end{verbatim}
+
+\subsection{Next Phase}
+
+The next phase SHOULD connect the same LRM context to the Boardroom dashboard as a projection-only panel.
+
+It MUST remain read-only.
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21E-LRM-PILOT-READONLY-CONTEXT-CARD-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

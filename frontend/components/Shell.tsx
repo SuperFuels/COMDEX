@@ -6,16 +6,20 @@ import { useRouter } from "next/router";
 import TabDock, { type TabDef } from "./TabDock";
 
 /**
- * Only show Launch + Glyph OS tabs.
- * (Everything else remains unchanged.)
+ * Main top nav tabs.
+ * Add new tabs here.
  */
 export const TABS: readonly TabDef[] = [
+  { key: "home", label: "Home", href: "/" },
   { key: "launch", label: "Launch", href: "/launch" },
   { key: "glyph", label: "Glyph OS", href: "/glyph" },
   { key: "compression", label: "Compression", href: "/compression" },
   { key: "symatics", label: "Symatics", href: "/symatics" },
   { key: "photon-algebra-demo", label: "Photon Algebra", href: "/photon-algebra-demo" },
   { key: "photon_binary", label: "Photon Binary", href: "/photon-binary" },
+
+  // ✅ NEW TAB
+  { key: "aion-business", label: "Aion Business", href: "/aion-business" },
 ];
 
 function normalizeKeyAgainstTabs(k: string | undefined, tabs: readonly TabDef[]) {
@@ -42,8 +46,7 @@ function getActiveKeyFromPath(pathname: string): string {
     .find((t) => t.href !== "/" && p.startsWith(t.href + "/"));
   if (nested) return nested.key;
 
-  // default to glyph (keeps previous behavior)
-  return "glyph";
+  return "home";
 }
 
 /** ✅ Tabs bar meant to be mounted inside the navbar (mobile scroll). */

@@ -1,0 +1,38 @@
+% Append-only technical-record section. Requires booktabs.
+\section{Mapped Indirect Multi-Expert Route Gate}
+
+The next exact-work candidate removed the charged 52.9\,MB route copy from the
+previous batched calculation.  Each of the four independently stored expert
+projections was virtually mapped into a single strided tensor.  GGML's indirect
+matrix operation then selected the four expert slices while sharing one input
+activation, rather than copying four experts into a new contiguous arena or
+replicating the input four times.  The original MXFP4 codes, biases, expert IDs
+and router gates were retained.
+
+On an initial favourable layer-0 observation the mapped indirect route was
+$1.300\times$ faster than the ordinary pointer graph.  This justified a
+predeclared three-route transfer at layers 0, 12 and 35.  The respective
+speedups were $1.1144\times$, $1.1033\times$ and $1.2473\times$, for a median
+of only $1.1144\times$.  Only the final route exceeded the $1.15\times$ narrow
+gate.  A thread sweep on that route did not reproduce the favourable result:
+four, eight and ten threads achieved $1.0548\times$, $1.0094\times$ and
+$0.8186\times$.  The candidate is therefore
+\texttt{NOT\_PROMOTED} as a general route mechanism.
+
+The indirect operation changed floating-point reduction order.  Relative
+$L_2$ disagreement with the ordinary CPU route was very small,
+$3.39\times10^{-8}$ to $4.28\times10^{-8}$, and every route retained the same
+output argmax, but outputs were not bitwise identical.  It consequently cannot
+enter the exact track.  The tiny numerical difference does not rescue the
+failed and unstable speed gate, so a costly full-model semantic run is not
+justified.
+
+The three transfer-report canonical hashes are
+\texttt{b8325682cd687ef4aff5d780ec933de84dadfcf4fec24b11650df16edf85175c},
+\texttt{200546e8b008bda9b4ad4399ab9fdc8c56e931c88a2fc95888d2a180acabff2e},
+and
+\texttt{9972d93287bd73c402a2c31a87450cc54b5a7d71fa83c2ada048f874fe68f597}.
+This establishes that virtual mapping successfully removes route preparation,
+but the remaining indirect-kernel gain is too small to bridge the measured
+120B gap.  The unrestricted exact frontier remains approximately
+1.72--1.83 tokens/s.

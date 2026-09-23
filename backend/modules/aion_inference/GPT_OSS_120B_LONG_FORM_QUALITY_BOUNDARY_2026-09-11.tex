@@ -1,0 +1,202 @@
+% Append-only section for the AION GPT-OSS 120B technical record.
+% Requires: amsmath, booktabs, tabularx, xcolor, hyperref.
+
+\section{Long-Form Quality Boundary and the Route to the Physical Ceiling}
+\label{sec:gptoss120b-long-quality-boundary}
+
+\subsection{Purpose and claim discipline}
+
+This section records the attempt to approach the measured fixed-top-1 physical
+ceiling of $28.6174$ generated tokens per second while retaining the useful
+behaviour of the unrestricted GPT-OSS 120B model.  Three quantities must remain
+separate:
+
+\begin{enumerate}
+  \item the unrestricted exact track, which evaluates all four router-selected
+        experts using the original weights and gates;
+  \item reduced-expert quality candidates, which intentionally change the
+        neural calculation and therefore require independent semantic gates;
+  \item the fixed-top-1 physical ceiling, which measures achievable execution
+        rate but has already failed quality.
+\end{enumerate}
+
+The $28.6174$ tokens/s observation therefore proves that the surrounding host,
+attention, router, vocabulary projection, and resident-expert machinery can
+operate near the 30 tokens/s target when only one expert is calculated.  It does
+\emph{not} prove that a useful GPT-OSS 120B completion can currently be produced
+at that rate.
+
+\subsection{Direct packed MXFP4 Metal experiment}
+
+A new direct Metal path was implemented for a real four-expert route.  The
+17-byte GGUF MXFP4 blocks were losslessly separated into their scale and value
+streams, then consumed without first expanding the weights to floating-point
+matrices.  One Metal command buffer fused the eight gate/up projections,
+SwiGLU, four down projections, and gate-weighted residual combination.
+
+Under an equal 512 MiB cache-displacement charge, the candidate achieved a
+speed ratio of only $0.6060\times$ relative to the hot CPU route---that is, it
+was approximately $1.65\times$ slower---and its output relative $L_2$ error was
+$0.01346$.  The declared gates required at least $1.15\times$ speed and at most
+$0.01$ relative error.  The branch is consequently preserved as
+\texttt{NOT\_PROMOTED}.  This falsifies the proposition that repacking alone,
+followed by an ordinary fused Metal dispatch, removes the dominant four-expert
+cost on this M3 Pro.
+
+\subsection{Layer-conditioned reduced-expert probes}
+
+Development traces from arithmetic and extraction prompts were used to test
+whether expert reduction could be confined to apparently insensitive layers.
+The runtime gained two controlled mechanisms: a per-layer top-1 confidence-gap
+plan and a temporal top-1/full-policy cycle.  All tests retained exact
+unrestricted prefill; only continuation expert calculation was changed.
+
+The resulting 96-position extraction experiments are summarized in
+Table~\ref{tab:gptoss120b-long-candidates}.  ``Exact prefix'' is the number of
+continuation tokens identical to the unrestricted teacher before the first
+divergence.  Rates are settled pass values, excluding the first continuation
+position.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabularx}{\linewidth}{Xrrrrl}
+    \toprule
+    Candidate & Exact prefix & Pass A & Pass B & Best & Decision \\
+              & (tokens) & \multicolumn{3}{c}{tokens/s} & \\
+    \midrule
+    Adaptive preserved mass $0.75$ & 23 & 6.659 & 5.816 & 6.659 & Not promoted \\
+    Cross-family gap plan           & 3  & 8.063 & 8.154 & 8.154 & Not promoted \\
+    Fixed top-1 on nine layers      & 2  & 12.305 & 11.539 & 12.305 & Not promoted \\
+    Temporal top-1 $3{:}1$ cycle    & 0  & 12.772 & 12.322 & 12.772 & Not promoted \\
+    Top-1 on two safest layers      & 0  & 12.627 & 8.551 & 12.627 & Not promoted \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Reduced-expert candidates on the same 26-token prompt and
+  70-token continuation window.  Every candidate was internally repeatable,
+  but each became repetitive, incomplete, or factually incorrect.}
+  \label{tab:gptoss120b-long-candidates}
+\end{table}
+
+The temporal experiment is especially informative.  Periodically inserting a
+fuller ``teacher'' step did not repair the preceding approximate hidden state
+and KV history.  Once an approximate token changes the causal path, later exact
+expert evaluation cannot retroactively restore the original trajectory.
+
+\subsection{Matched-length correction to the earlier quality claim}
+
+The preserved-mass $0.75$ candidate had appeared correct in a shorter window.
+On the matched 96-position test it produced 23 exact continuation tokens and
+then diverged, eventually entering a repeated ``Actually'' pattern.  Therefore
+the earlier short-window observation remains valid as a narrow result but is
+withdrawn as evidence of general long-form quality.  This is a test-depth
+correction, not a numerical failure hidden by a changed acceptance threshold.
+
+\subsection{Authoritative unrestricted teacher}
+
+The unrestricted four-expert model was then run twice through the same
+96-position protocol using the verified SD warehouse, 20 GiB persistent L2
+cartridge, and bounded 8 GiB memory workbench.  Expert routes, final hidden
+states, logits, and token IDs repeated bit-for-bit across both passes.  The
+completion correctly identified invoice \texttt{A-104}, calculated
+\texttt{EUR 287.50}, and began the requested JSON output.
+
+The corresponding long-generation rate was only $0.1766$ and $0.1892$
+settled tokens/s.  This supersedes neither of the previously measured exact
+short-window rates of $1.72455$ and $1.82858$ tokens/s; it establishes that
+those short-window rates do not generalize to this changing 70-token route.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{lrr}
+    \toprule
+    Exact teacher metric & Pass A & Pass B \\
+    \midrule
+    Settled continuation rate (tokens/s) & 0.1766 & 0.1892 \\
+    L2 decoded expert delivery (GiB)      & 132.18 & 133.96 \\
+    Compressed SD reads (GiB)             & 36.81 & 35.12 \\
+    SD fallbacks                          & 3,115 & 2,971 \\
+    Raw expert bytes materialized (GiB)   & 170.63 & 170.63 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Measured cost of the coherent, unrestricted long-generation
+  authority.  The continuing bottleneck is physical expert delivery, not the
+  attention or vocabulary head.}
+  \label{tab:gptoss120b-long-teacher}
+\end{table}
+
+\subsection{What is now proved}
+
+The experiment narrows the problem sharply:
+
+\begin{itemize}
+  \item The Mac runtime has a measured near-30 tokens/s physical path when one
+        resident expert is used per layer.
+  \item A reduced-expert path can traverse the full 120B backbone at more than
+        12 tokens/s, but the tested policies do not preserve long-form quality.
+  \item The unrestricted model remains coherent and bitwise repeatable, but a
+        changing long route can require roughly 35--37 GiB of compressed SD
+        traffic per pass and only reaches roughly 0.18 tokens/s.
+  \item A local confidence score, a layer label, or an occasional full step is
+        insufficient to predict whether omitted expert contributions will alter
+        the later causal trajectory.
+\end{itemize}
+
+It is consequently not honest to describe the present system as a usable
+120B model at either 12 or 28 tokens/s.  The quality-preserving frontier and
+the physical ceiling are both real, but they have not yet been joined.
+
+\subsection{Teacher-forced confidence-fallback bound}
+
+A pre-commit confidence gate was then tested as a possible bridge.  The
+preserved-mass $0.75$ candidate was evaluated at every continuation position
+while being forced to consume the exact teacher's preceding tokens.  This
+removed autoregressive contamination: every comparison asked independently
+whether the reduced-expert model would choose the same next token from the
+correct causal history.
+
+The candidate agreed at 51 of 70 positions, or 72.86\%, and disagreed at 19.
+Its teacher-forced traversal itself measured 11.093 tokens/s, compared with
+0.17697 tokens/s for the exact teacher over the same positions.  However, even
+an impossible perfect classifier that knew all unsafe positions before
+calculation would reach only 0.6525 tokens/s when measured candidate and exact
+position costs were composed.  A post-candidate oracle would reach 0.6444
+tokens/s.
+
+Output margin did not cleanly separate safe and unsafe decisions.  Catching
+all 19 unsafe positions required rejecting every candidate whose top-two logit
+margin was at most 1.4021.  That rule rejected 34 of 70 positions, including 15
+safe ones, and its optimistic measured upper bound was only 0.3574 tokens/s.
+Decision: \texttt{STOP\_CONFIDENCE\_FALLBACK\_AS\_NORTH\_STAR\_PATH}.  A
+confidence gate may still be a useful integrity mechanism, but it cannot
+approach the 28-token/s ceiling while exact fallback remains this expensive.
+The canonical evidence digest is
+\texttt{b74277faa908c958e65eb866ae8e82c28d78324fff20cee1bc6b148d95a27c2f}.
+
+\subsection{Required next architecture}
+
+Closing the gap now requires reducing the physical work while restoring the
+information carried by experts two through four.  The next candidate should be
+a \emph{verified residual expert compiler}: one normal resident expert supplies
+the main path, while a compact, directly computed correction represents only
+the consequential contribution of the omitted three experts.  A confidence
+gate must fall back to the unrestricted four-expert calculation whenever the
+correction cannot satisfy a frozen error bound.
+
+This is deliberately different from simply dropping experts.  It attempts to
+preserve their effect with much less weight traffic.  It must advance in three
+steps: real-layer output error, teacher-logit agreement over causal blocks, and
+only then blinded long-form semantic evaluation.  Any trained or injected
+neural correction remains a separately authorized quality track; no such
+training is claimed in this record.
+
+\subsection{Evidence binding}
+
+The consolidated evidence report has canonical SHA-256 digest
+\texttt{5ce870e9824818e400cd54aaf716786b2a4742d92356ed88ca74ebcd3927f5ea}.
+The authoritative exact teacher report has canonical digest
+\texttt{b097b721e3c0229f07cac7417b273802233db36f7683f296566dbaa505d4bd9c}.
+The stopped split-MXFP4 Metal gate has canonical digest
+\texttt{bb911e7a089011b954cc0b17a1013250a8c75a7a20faf5e98f3d722f0e764549}.
+Source reports and token arrays are retained; no failed run has been overwritten.

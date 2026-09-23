@@ -1,0 +1,61 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.18: Full Chess Self-Play Tournament Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.18 defines the AION Full Chess Self-Play Tournament Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can compare deterministic chess policies in a self-play tournament and select the learned policy as winner.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.18 extends self-play improvement into a deterministic policy tournament.
+
+\section{Tournament Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{policy\_count};
+  \item \texttt{match\_count};
+  \item \texttt{completed\_match\_count};
+  \item \texttt{learned\_policy\_win\_count};
+  \item \texttt{safe\_policy\_win\_count};
+  \item \texttt{greedy\_policy\_loss\_count};
+  \item \texttt{king\_exposure\_policy\_loss\_count};
+  \item \texttt{material\_loss\_policy\_loss\_count};
+  \item \texttt{tournament\_winner\_policy\_id};
+  \item \texttt{tournament\_winner\_strategy};
+  \item \texttt{tournament\_standings};
+  \item \texttt{tournament\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates deterministic full-board chess self-play tournament evaluation. It does not yet implement open-ended chess mastery, exhaustive chess search, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B18-FULL-CHESS-SELF-PLAY-TOURNAMENT-KERNEL-LOCK\\
+Status: LOCKED --- full chess self-play tournament kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

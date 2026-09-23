@@ -1,0 +1,138 @@
+% Append-only section fragment. Paste below the preceding section in the master document.
+% This fragment intentionally contains no preamble and no document boundaries.
+
+\section{Programme Identity and Public Catalogue Evidence}
+\label{sec:programme-identity-catalogue}
+
+Pilot Fabric 0.41 introduces a provider-independent programme-identity layer for
+production screen perception. The purpose of this layer is to identify a likely
+programme from permitted screen evidence without making the stronger and often
+incorrect claim that the programme is currently playing, available in the user's
+region, included in a subscription, or accessible by the household.
+
+\subsection{Operating Sequence}
+
+The programme-identity pipeline applies the following ordered process:
+
+\begin{enumerate}
+  \item An owner starts the visible Observer or submits a television photograph.
+  \item Apple Vision performs local OCR and classification on the mother device.
+  \item The source image is deleted immediately after local analysis.
+  \item The screen-fusion layer accepts title candidates only on a recognised
+        media surface such as Netflix, YouTube, or another media application.
+  \item Obvious controls, times, prices, URLs, profile prompts, and other interface
+        text are removed from the candidate set.
+  \item The multi-frame perception timeline requires the same OCR title to occur
+        in at least two distinct recent frames before treating it as stable.
+  \item A stable text-only candidate may be submitted to the bounded public
+        programme catalogue.
+  \item Pilot accepts the catalogue identity only when exactly one result has the
+        same normalized title. Ambiguous and approximate matches fail closed.
+  \item The phone controller displays the title, provenance, attribution, and the
+        separate catalogue, provider, and playback verification states.
+\end{enumerate}
+
+This ordering prevents a large piece of interface copy, a subtitle, an advert,
+or a single OCR error from becoming a silently asserted programme identity.
+
+\subsection{Evidence Classes and Trust Boundaries}
+
+Pilot does not collapse all metadata into one confidence score. It records four
+different identity sources:
+
+\begin{description}
+  \item[Signed provider adapter] A locally approved, persona-bound adapter has
+        signed normalized provider and playback facts. This is the only source
+        that can verify current playback.
+  \item[Official provider metadata] An official provider API has verified a
+        provider content record. This establishes metadata, not playback or
+        entitlement.
+  \item[Public programme catalogue] One strict exact title match has established
+        a public catalogue record. It does not establish the active application,
+        playback, availability, subscription, or household access.
+  \item[Repeated OCR] The same title has appeared in at least two distinct local
+        observations. This is stable screen evidence but remains provider-unverified.
+\end{description}
+
+The resulting programme record exposes separate Boolean fields for catalogue
+identity, provider verification, current playback, availability, and account
+entitlement. A true value in one field never promotes another field implicitly.
+
+\subsection{Public Catalogue Adapter}
+
+The initial public adapter uses the TVmaze search interface. Pilot sends only a
+bounded title string after local repetition has established it. Unicode accents
+and punctuation are normalized for exact comparison, but fuzzy similarity is not
+accepted as identity. If two catalogue entries share the same normalized title,
+Pilot reports an ambiguous match and leaves the title unverified.
+
+Successful and unsuccessful results are cached on the mother brain for twenty-four
+hours. The cache is limited to one hundred entries and is stored inside the
+owner-only runtime area. Network responses are limited to 500 kilobytes and a
+ten-second timeout. The retained record includes TVmaze attribution and a link to
+the public catalogue source. TVmaze data is used under its published CC BY-SA
+terms; the production product must preserve attribution and review share-alike
+obligations for any redistributed derivative dataset.
+
+\subsection{Privacy and Data Minimisation}
+
+No source photograph, video frame, raw audio, provider token, account identifier,
+profile name, viewing history, or credential is sent to the public catalogue.
+Only the repeated programme-title candidate is transmitted. Source pixels remain
+local and are deleted after analysis. The structured perception timeline retains
+at most twelve hashed frames, and a context transition prevents title evidence
+from leaking from one application or input into another.
+
+The public lookup is therefore an optional evidence-acquisition step rather than
+a cloud-vision dependency. When the Internet or catalogue is unavailable, repeated
+OCR remains useful and is clearly labelled as local observation rather than
+verified catalogue identity.
+
+\subsection{Runtime Integration}
+
+The implementation is divided into reusable components:
+
+\begin{itemize}
+  \item \texttt{ScreenUnderstandingFusion} extracts and ranks bounded OCR title
+        candidates on media surfaces.
+  \item \texttt{MultiFrameScreenPerception} requires repeated agreement, separates
+        evidence classes, and resets context after a verified surface transition.
+  \item \texttt{ProviderMetadataResolver} resolves official provider identifiers
+        and performs the strict public-catalogue lookup when repeated evidence exists.
+  \item \texttt{TrustedProviderTelemetry} independently verifies signed playback
+        and entitlement facts from explicitly approved adapters.
+  \item The private companion displays identity provenance, catalogue status,
+        playback status, attribution, uncertainty, and retained subtitle history.
+\end{itemize}
+
+The live capture path first considers explicit device playback metadata and the
+previous stable repeated-OCR result. It then resolves programme evidence and
+queries signed telemetry using the application-provider hint, ensuring that the
+generic catalogue adapter cannot accidentally replace Netflix, YouTube, or another
+provider identity in the trusted telemetry lookup.
+
+\subsection{Failure Behaviour}
+
+Pilot fails closed when the title is seen once, OCR confidence is too low, the
+surface is not a media surface, the response is too large, the catalogue is
+unavailable, no exact title exists, or several exact records exist. In each case
+the observation can remain visible as uncertain local evidence, but no provider,
+playback, subscription, or entitlement claim is created.
+
+\subsection{Verification}
+
+Automated verification covers official YouTube enrichment, provider identifiers,
+strict public-catalogue exact matching, ambiguous-title rejection, twenty-four-hour
+cache reuse, media-only OCR candidate extraction, interface-text rejection,
+multi-frame OCR stability, evidence-source priority, context-transition isolation,
+and the rule that a catalogue match cannot verify current playback. Pilot Fabric
+0.41 passes 310 automated Fabric tests.
+
+\subsection{Remaining Production Work}
+
+The reusable evidence contract is complete, but production coverage remains open.
+Pilot still requires authorized signed-in provider adapters, film and episode-level
+catalogues, programme-guide schedules, advertisement and live-event identity,
+permitted caption interfaces, and field qualification across television models,
+regions, languages, and application layouts. Those adapters must use the same
+separation between identity, playback, availability, and entitlement.

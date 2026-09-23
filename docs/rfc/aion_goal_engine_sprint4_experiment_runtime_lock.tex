@@ -1,0 +1,226 @@
+\section{AION Goal Engine Sprint 4 Experiment Runtime Lock}
+\label{sec:aion-goal-engine-sprint4-experiment-runtime-lock}
+
+\subsection{Status}
+
+Sprint 4 now has a locked experiment runtime policy layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- experiment policy contract, bounded experiment validation, canonical experiment runtime summary, dry-run bridge mirrors, and Boardroom visibility are passing.}
+\end{quote}
+
+\subsection{Locked Principle}
+
+Experiments MUST be bounded before they can participate in Goal Engine runtime planning.
+
+AION MUST NOT allow open-ended experiment plans.
+
+Experiment runtime remains dry-run/advisory only:
+
+\begin{itemize}
+  \item experiments do not execute;
+  \item variants are not launched externally;
+  \item no external writes are performed;
+  \item no permissions are granted;
+  \item premature convergence is explicitly blocked;
+  \item experiment policy visibility does not authorize execution.
+\end{itemize}
+
+\subsection{Experiment Policy Contract}
+
+Sprint 4 introduces the experiment policy contract.
+
+\begin{verbatim}
+EXPERIMENT_POLICY_SCHEMA_VERSION = "aion.goal_engine.experiment_policy.v1"
+\end{verbatim}
+
+The canonical contract is:
+
+\begin{verbatim}
+ExperimentPolicyContract
+\end{verbatim}
+
+Required policy fields include:
+
+\begin{itemize}
+  \item \texttt{experiment_id};
+  \item \texttt{goal_id};
+  \item \texttt{variants};
+  \item \texttt{metric};
+  \item \texttt{max_iterations};
+  \item \texttt{max_runtime_minutes};
+  \item \texttt{max_parallel_variants};
+  \item \texttt{exploration_factor};
+  \item \texttt{exploration_decay};
+  \item \texttt{min_exploration_floor};
+  \item \texttt{confidence_threshold}.
+\end{itemize}
+
+\subsection{Bounded Experiment Rules}
+
+A valid experiment MUST have:
+
+\begin{itemize}
+  \item at least two variants;
+  \item a metric;
+  \item positive \texttt{max_iterations};
+  \item positive \texttt{max_runtime_minutes};
+  \item valid exploration bounds;
+  \item valid confidence threshold.
+\end{itemize}
+
+The canonical blocked reason for an unbounded plan is:
+
+\begin{verbatim}
+unbounded_experiment_plan_blocked
+\end{verbatim}
+
+Other validation reasons include:
+
+\begin{verbatim}
+variants_required
+at_least_two_variants_required
+metric_required
+max_iterations_required
+max_runtime_minutes_required
+exploration_factor_out_of_range
+exploration_decay_out_of_range
+min_exploration_floor_out_of_range
+confidence_threshold_out_of_range
+max_parallel_variants_required
+\end{verbatim}
+
+\subsection{Premature Convergence}
+
+Experiment policy previews MUST expose:
+
+\begin{verbatim}
+premature_convergence_blocked = true
+\end{verbatim}
+
+This prevents AION from treating an early winning variant as final without the bounded experiment policy being satisfied.
+
+\subsection{Canonical Preview Bundle Ownership}
+
+The \texttt{GoalEnginePreviewBundle} remains the single source of truth.
+
+Sprint 4 adds:
+
+\begin{verbatim}
+experiment_runtime_summary
+\end{verbatim}
+
+The experiment runtime summary owns:
+
+\begin{itemize}
+  \item experiment count;
+  \item bounded experiment count;
+  \item unbounded experiment count;
+  \item variant count;
+  \item metric count;
+  \item blocked reasons;
+  \item experiment policy previews.
+\end{itemize}
+
+The canonical preview list is:
+
+\begin{verbatim}
+experiment_runtime_summary.experiment_policy_previews
+\end{verbatim}
+
+\subsection{Dry-Run Bridge Contract}
+
+The dry-run bridge MUST mirror the canonical experiment runtime summary.
+
+It MUST expose compatibility mirrors:
+
+\begin{verbatim}
+experiment_runtime_summary
+goal_engine_experiment_runtime_summary
+\end{verbatim}
+
+The bridge MUST NOT rebuild:
+
+\begin{itemize}
+  \item experiment policies;
+  \item experiment policy previews;
+  \item experiment runtime summaries;
+  \item experiment contracts.
+\end{itemize}
+
+The bridge may only copy canonical bundle payloads into legacy/UI-compatible fields.
+
+\subsection{Boardroom Visibility}
+
+The Boardroom UI now renders:
+
+\begin{itemize}
+  \item \texttt{Experiment Runtime Summary};
+  \item experiment count;
+  \item bounded experiment count;
+  \item unbounded experiment count;
+  \item variant count;
+  \item metric count;
+  \item unbounded experiment warnings;
+  \item premature convergence warnings;
+  \item exploration policy fields.
+\end{itemize}
+
+The Boardroom MUST show:
+
+\begin{verbatim}
+Unbounded experiment plan blocked
+Premature convergence blocked
+\end{verbatim}
+
+\subsection{Validation Commands}
+
+Sprint 4 experiment runtime validation commands:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_goal_engine_sprint4_experiment_policy_contract.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint4_preview_bundle_experiment_runtime_summary.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint4_bridge_experiment_runtime_summary_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_sprint4_boardroom_experiment_runtime_ui_lock.py
+\end{verbatim}
+
+Known passing subsets:
+
+\begin{verbatim}
+12 passed in 0.14s
+19 passed in 0.20s
+18 passed in 0.16s
+15 passed in 0.20s
+\end{verbatim}
+
+\subsection{Next Gate}
+
+The next runtime phase may continue into:
+
+\begin{itemize}
+  \item richer exploration decay calculations;
+  \item experiment-result evidence attachment;
+  \item variant outcome scoring;
+  \item Boardroom variant comparison;
+  \item multi-agent/multi-glyph orchestration.
+\end{itemize}
+
+Future work MUST NOT weaken:
+
+\begin{itemize}
+  \item bounded experiment policy;
+  \item no external writes;
+  \item dry-run-only safety;
+  \item premature convergence blocking;
+  \item canonical bundle ownership.
+\end{itemize}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-SPRINT-4-EXPERIMENT-RUNTIME-LOCK-V1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

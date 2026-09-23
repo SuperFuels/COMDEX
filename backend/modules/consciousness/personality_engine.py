@@ -74,24 +74,39 @@ class PersonalityProfile:
                 f.write(json.dumps(self.history[-1]) + "\n")
 
     # ------------------------------------------------------------
-    def adjust_trait(self, trait: str, delta: float, reason: str = "unspecified"):
-        """Adjust a single trait within [0, 1] bounds and log."""
+    def adjust_trait(self, trait: str, delta: float, reason: str = "unspecified",
+                     *, evidence_ref: str | None = None):
+        """Adjust advisory style within tight bounds and with provenance."""
         if trait not in self.traits:
             print(f"[⚠️] Unknown trait: {trait}")
             return
+        if not evidence_ref:
+            return {"changed": False, "reason": "verified_evidence_required", "trait": trait}
+        bounded_delta = max(-0.02, min(0.02, float(delta)))
         prev = self.traits[trait]
-        self.traits[trait] = max(0.0, min(1.0, prev + delta))
+        self.traits[trait] = max(0.0, min(1.0, prev + bounded_delta))
         entry = {
             "timestamp": datetime.utcnow().isoformat(),
             "trait": trait,
-            "delta": delta,
+            "delta": bounded_delta,
             "from": prev,
             "to": self.traits[trait],
-            "reason": reason
+            "reason": reason,
+            "evidence_ref": evidence_ref,
+            "authority": "communication_style_only",
         }
         self.history.append(entry)
         self._save()
         print(f"[🧠] Trait '{trait}' changed: {prev:.2f} -> {self.traits[trait]:.2f} ({reason})")
+        return {"changed": True, **entry}
+
+    def decision_influence(self) -> dict:
+        """Explicitly declare the personality authority boundary."""
+        return {
+            "allowed": ["tone", "explanation_depth", "presentation_style"],
+            "forbidden": ["goal_authority", "ethics_override", "execution_authority", "truth_promotion"],
+            "proposal_only": True,
+        }
 
     # ------------------------------------------------------------
     def resonant_trait_modulator(self, sqi_delta: float, mood_phase: str = "neutral"):

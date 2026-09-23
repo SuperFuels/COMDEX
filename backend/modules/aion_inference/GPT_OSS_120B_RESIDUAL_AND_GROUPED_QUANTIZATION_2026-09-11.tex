@@ -1,0 +1,106 @@
+% Append-only section for the AION GPT-OSS 120B technical record.
+% Requires: booktabs, amsmath.
+
+\section{Residual Dictionaries and Grouped Expert Quantisation}
+\label{sec:gptoss120b-residual-grouped-quantisation}
+
+\subsection{Charged batched-route preparation}
+
+The earlier contiguous four-expert batch reduced isolated arithmetic from
+1.0921~ms to 0.6701~ms.  A subsequent gate charged the preparation required
+when four existing cache objects are copied into that contiguous representation.
+Copying 52.9~MB per route cost 1.3145~ms at p50.  Combined preparation and
+calculation rose to 2.2475~ms versus 0.8753~ms for the unchanged serial route:
+the candidate was $2.57\times$ slower.  This copied form was stopped.  It does
+not invalidate the separately measured copy-free virtual mapping mechanism.
+The canonical digest was
+\texttt{92cb971bb67dc9ee1d599d1ae3c14e85b13fd8c49f1b407fe6febaf06f9e0028}.
+
+\subsection{Static exact residuals on the product dictionary}
+
+The shared 256-entry, 16-code product dictionary was augmented with a bitmap
+and exact original MXFP4 codes for the subvectors having the largest weight
+reconstruction error.  The purpose was to determine whether approximation
+error was concentrated in a small number of blocks.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+Exact residual fraction & Projected reduction & Output rel. $L_2$ p95 & Contribution rel. $L_2$ p95 \\
+\midrule
+10\% & $3.504\times$ & 0.4429 & 1.0728 \\
+25\% & $2.344\times$ & 0.3915 & 1.0452 \\
+50\% & $1.511\times$ & 0.2900 & 0.9312 \\
+\bottomrule
+\end{tabular}
+\caption{Static exact-residual dictionary results on four held-out routes.}
+\end{table}
+
+Even retaining half of all subvectors exactly left unacceptable error.  The
+error was therefore diffuse rather than concentrated in a small set of
+high-error code subvectors.  This branch was stopped.  Canonical digests were
+\texttt{785a333ecae4825d191f17d76fd82af8ae4b020c681c358acda25345b518579d},
+\texttt{3b5a49efef9e5db0be3f3d235c8af4e2f4f490fe71469d6cc93399229b62aee7},
+and
+\texttt{8b03bfc6dc0436fc388972552a8aba00f9eeb9410ecf0aab5b885eabb14397b8}.
+
+\subsection{Activation-addressed residual oracle}
+
+An intentionally optimistic oracle then ranked residual blocks by their true
+dot-product error against each held-out live activation.  Gate and up residuals
+were selected using the real router input; the down residual was selected using
+the candidate expert's computed SwiGLU hidden vector.  A deployable runtime
+could not know these rankings without a predictor or residual sketch, so a pass
+would establish only an existence bound.
+
+The oracle nevertheless failed.  Retaining 5\%, 10\%, and 25\% of exact blocks
+gave projected reductions of $4.331\times$, $3.598\times$, and $2.386\times$,
+but maximum output relative errors remained 0.3756, 0.3593, and 0.3052.
+The branch was stopped with canonical digest
+\texttt{285e4e89081d94ba7d5ea9092ce0ff0c6f95b3e24a68bb65ffd1219bcc48fafe}.
+
+\subsection{Directly executable GGML quantisation}
+
+Actual MXFP4 matrices were dequantised and requantised into formats already
+supported by native GGML CPU kernels.  Four held-out unrestricted routes were
+tested with the original expert identities, gates, biases, non-linearity and
+reduction order.
+
+Q2\_0 reduced expert weights by $1.889\times$ and improved median expert
+arithmetic by $1.349\times$, but produced 0.2930 p95 output relative error and
+1.2139 p95 contribution relative error.  It was stopped.
+
+The 2,880-wide matrices were then zero-padded to 3,072 so that grouped Q2\_K
+and Q3\_K formats could be used.  All-Q2\_K reduced weight bytes by
+$1.423\times$ and reached a $1.217\times$ arithmetic speedup in the mixed sweep,
+but p95 output error was 0.0924 and one held-out output argmax changed.  All-Q3\_K
+passed the numerical error boundary at 0.0460 p95 with equal argmax, but reduced
+bytes by only $1.087\times$ and slowed arithmetic by 18.8\%.  Neither advanced.
+
+Mixing Q2\_K and Q3\_K independently across gate, up, and down projections did
+not produce a configuration satisfying all gates.  The nearest mixed candidate,
+Q2\_K for the up projection and Q3\_K elsewhere, retained equal argmax and
+reduced bytes by $1.180\times$, but p95 output error was 0.0602 and arithmetic
+was 9.2\% slower.  The canonical digests for Q2\_0, padded Q2\_K, padded Q3\_K,
+and the mixed sweep were respectively
+\texttt{59cee777532eb6f3ec1c96ca2fa515f70494fa9d20836bcb00e0ea288d5af0cc},
+\texttt{890bb76d2df66c2cecc7cbc9a50910343cd29a1638d67ba850cbeef960a101a2},
+\texttt{18036fb213ad0dba30c2a56279fa6eea26894304c437a80d90f86c8ca5df2b00},
+and
+\texttt{b1939369def8b95713f0d64d8650d297225686e5d02b718f60edd94fe01bdc82}.
+
+\subsection{Conclusion}
+
+Neither dictionary residuals nor ordinary low-bit requantisation supplied a
+safe large multiplier.  The experiments show why: the expert computation is
+sensitive to broadly distributed weight information, and the format that
+preserved the declared numerical boundary saved too few bytes and ran more
+slowly.  These branches are stopped rather than promoted under a weaker gate.
+
+The copy-free virtual batched route remains a valid composable quality-track
+mechanism, particularly for tail latency, but the remaining 30 token/s gap must
+be attacked by reducing neural work---for example safely omitting, drafting, or
+verifying whole expert/layer evaluations---rather than by another minor encoding
+variation.  The exact unrestricted 1.725--1.829 token/s frontier remains the
+authoritative control.

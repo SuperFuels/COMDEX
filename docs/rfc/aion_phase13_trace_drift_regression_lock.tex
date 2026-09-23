@@ -1,0 +1,105 @@
+\section{Phase 13G --- Trace Drift Regression v0}
+\label{sec:aion-phase13g-trace-drift-regression-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- trace drift regression tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 13G locks regression coverage for trace drift across the public gateway,
+public embed, human handoff, machine trace, evidence, proof, and receipt layers.
+
+The purpose is to ensure that gateway preview contracts remain deterministic and
+that trace/proof identifiers do not silently drift through runtime randomness,
+wall-clock identifiers, or unstable request handling.
+
+\subsection{Scope}
+
+The regression covers the following gateway surfaces:
+
+\begin{itemize}
+  \item public widget request mapping,
+  \item public embed guard envelope,
+  \item public embed human review handoff,
+  \item machine trace preview contracts,
+  \item A2A job trace contracts,
+  \item A2A job evidence settlement contracts,
+  \item A2A proof receipt contracts,
+  \item GlyphChain proof commit contracts.
+\end{itemize}
+
+\subsection{Locked Invariants}
+
+The trace drift lock requires that trace-bearing gateway modules keep stable
+hash or trace terms present.
+
+The lock also checks that preview public/embed paths keep deterministic hash
+fields such as:
+
+\begin{itemize}
+  \item \texttt{request\_hash},
+  \item \texttt{normalized\_intent\_hash},
+  \item \texttt{machine\_cart\_request\_hash},
+  \item \texttt{review\_package\_hash},
+  \item \texttt{approval\_boundary\_hash},
+  \item \texttt{safety\_hash},
+  \item \texttt{response\_hash},
+  \item \texttt{summary\_hash}.
+\end{itemize}
+
+\subsection{Forbidden Drift Sources}
+
+The locked gateway trace surfaces MUST NOT introduce runtime-random trace
+identity generation through:
+
+\begin{itemize}
+  \item \texttt{uuid.uuid4},
+  \item \texttt{random.uuid},
+  \item \texttt{time.time()},
+  \item \texttt{datetime.now()},
+  \item \texttt{datetime.utcnow()},
+  \item \texttt{secrets.token}.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+This regression does not mount a public route and does not enable live action.
+
+The following side-effect boundaries remain locked:
+
+\begin{itemize}
+  \item \texttt{preview\_only = true},
+  \item \texttt{human\_review\_required = true},
+  \item \texttt{would\_create\_live\_job = false},
+  \item \texttt{would\_execute\_goal\_engine = false},
+  \item \texttt{would\_move\_money = false},
+  \item \texttt{would\_create\_payment = false},
+  \item \texttt{would\_create\_escrow = false},
+  \item \texttt{would\_release\_funds = false},
+  \item \texttt{would\_send\_external\_messages = false},
+  \item \texttt{unauthenticated\_public\_write\_route\_exposed = false}.
+\end{itemize}
+
+\subsection{Validation Commands}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase13_trace_drift_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_trace_drift_regression_lock_doc.py
+
+bash scripts/run_goal_engine_focused_lock_suite.sh
+
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13G-TRACE-DRIFT-REGRESSION-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -1,0 +1,159 @@
+\section{Phase 21G --- End-to-End Local Smoke Test}
+\label{sec:phase21g-lrm-pilot-boardroom-e2e-smoke-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- end-to-end local smoke test added for AION-LRM Pilot and Boardroom visibility path.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 21G locks the local smoke test proving that the AION-LRM context path works from backend API to frontend visibility surfaces.
+
+The tested path is:
+
+\begin{verbatim}
+local API endpoint
+→ frontend fetch bridge
+→ existing Pilot state
+→ Pilot readonly LRM context card
+→ Boardroom readonly LRM projection panel
+→ no live side effects
+\end{verbatim}
+
+\subsection{Backend API Source}
+
+The local API endpoint is:
+
+\begin{verbatim}
+/api/local-node/aion/lrm/pilot-context-preview
+\end{verbatim}
+
+It returns the Phase 21B payload exposed by Phase 21C.
+
+\subsection{Frontend Fetch Bridge}
+
+The frontend fetch bridge is implemented in:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+The bridge functions are:
+
+\begin{verbatim}
+getAionLrmPilotContextPreviewUrl
+fetchAionLrmPilotContextPreviewIntoPilotState
+applyAionLrmPilotContextPreviewPayload
+\end{verbatim}
+
+\subsection{Pilot Surface}
+
+The Pilot read-only LRM context card is:
+
+\begin{verbatim}
+renderAionLrmPilotContextReadonlyCard
+\end{verbatim}
+
+It is mounted inside the existing Pilot stream:
+
+\begin{verbatim}
+renderAionPilotSimpleTaskStream
+\end{verbatim}
+
+\subsection{Boardroom Surface}
+
+The Boardroom read-only projection panel is:
+
+\begin{verbatim}
+renderAionLrmBoardroomProjectionPanel
+\end{verbatim}
+
+It is mounted inside:
+
+\begin{verbatim}
+renderBoardroomDashboardView
+\end{verbatim}
+
+\subsection{Smoke Test Assertions}
+
+The Phase 21G smoke test verifies:
+
+\begin{itemize}
+  \item the API returns HTTP 200;
+  \item the payload type is \texttt{aion\_lrm\_pilot\_context\_payload};
+  \item the default business id is \texttt{home-fixed};
+  \item the default mission id is \texttt{pilot\_demo\_pdf\_mission};
+  \item the default mission run id is \texttt{pilot\_demo\_run\_preview};
+  \item the Pilot status is \texttt{return\_to\_human\_review};
+  \item the Boardroom status is \texttt{preview\_only};
+  \item the frontend bridge exists;
+  \item the bridge writes into existing Pilot state;
+  \item the Pilot read-only card is mounted;
+  \item the Boardroom projection panel is mounted;
+  \item no live side-effect controls are added.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+Phase 21G is a smoke test only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create bookings;
+  \item create payments;
+  \item create escrow;
+  \item send external messages;
+  \item write live chain data;
+  \item execute workflow steps;
+  \item write business-container files;
+  \item expose private chain-of-thought;
+  \item expose hidden reasoning;
+  \item expose credentials.
+\end{itemize}
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+Phase 21G
+End-to-End Local Smoke Test
+local API endpoint
+frontend fetch bridge
+existing Pilot state
+Pilot readonly LRM context card
+Boardroom readonly LRM projection panel
+/api/local-node/aion/lrm/pilot-context-preview
+getAionLrmPilotContextPreviewUrl
+fetchAionLrmPilotContextPreviewIntoPilotState
+applyAionLrmPilotContextPreviewPayload
+renderAionLrmPilotContextReadonlyCard
+renderAionLrmBoardroomProjectionPanel
+renderAionPilotSimpleTaskStream
+renderBoardroomDashboardView
+preview-only
+human review
+no booking
+no payment
+no escrow
+no external message
+no live chain
+no workflow execution
+no private chain-of-thought
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+scripts/run_aion_lrm_phase21g_smoke.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21G-LRM-PILOT-BOARDROOM-E2E-SMOKE-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

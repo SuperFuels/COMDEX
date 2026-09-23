@@ -1,0 +1,103 @@
+\section{Clean Customer Deployment and Complete Mother Migration}
+\label{sec:pilot-customer-deployment-migration}
+
+Pilot now turns the customer-ownership architecture into signed distributable and
+migration artifacts.  This completes coded tasks \texttt{MOB-1001},
+\texttt{MOB-1003} and \texttt{MOB-1007}.  A personal computer, household server,
+private VPS or business deployment remains owned by the customer; Tessaris need not
+receive a readable copy of its intelligence or data.
+
+\subsection{Clean deployment packages}
+
+The mother-ownership authority builds the same application source for four explicit
+profiles: personal computer, home server, private VPS and business.  The generated
+configuration selects a loopback or network binding appropriate to that profile and
+places writable memory under \texttt{customer-data} and credentials under
+\texttt{customer-secrets}.  Neither directory is included in the distributable.
+
+Packaging rejects symbolic links, over-large sources and an output nested inside its
+input.  It excludes runtime state, version-control state, build caches,
+\texttt{node\_modules}, environment files and filenames that imply passwords, tokens,
+API keys, cookies, credentials or private keys.  Every included application file has
+an exact byte count and SHA-256 digest.  The release contains the application,
+profile configuration, plain-language instructions and a launcher, plus an
+Ed25519-signed canonical manifest.  Verification rejects an altered signature,
+configuration or application file before installation is trusted.
+
+\subsection{Connect to my Pilot}
+
+The unified browser application already implements the customer-owned connection
+flow.  A user enters the HTTPS address displayed by their mother.  The browser reads
+the mother's well-known descriptor, verifies its signature and endpoint, compares
+human-readable trust words, and completes a six-digit local confirmation.  The phone
+creates and retains its own signing key and receives a persona-bound certificate and
+short-lived lease.  The flow connects to the selected customer mother directly; it
+does not authenticate through, or upload mother secrets to, a Tessaris account.
+
+After pairing, requests prefer the original local address, then a mother-signed
+customer remote endpoint, and finally an optional opaque encrypted relay.  Every
+candidate must prove the original mother identifier and key fingerprint.  A network
+failure may change transport; an application or policy denial may not.  This closes
+the coded browser-access task, while public DNS, certificates and firewall policy
+remain deployment-specific operator work.
+
+\subsection{Encrypted complete-mother migration}
+
+A migration export archives the operator-selected complete mother directory, records
+the path, byte count and digest of every file, then encrypts the archive with
+AES-256-GCM.  Its key is derived from a user passphrase using scrypt.  The encrypted
+backup is placed inside a two-file migration capsule with a signed manifest binding
+the source mother identifier and fingerprint, export identifier, creation time,
+encrypted payload digest and file count.
+
+Inspection verifies the source-mother signature and encrypted payload digest without
+decrypting customer content.  Restore verifies the passphrase and authenticated
+ciphertext, rejects unsafe archive paths, extracts the files, regenerates the
+manifest and compares it with the source record.  The receipt explicitly records
+that identity, permissions, messages and proof state were preserved.
+
+Migration does not silently make the destination writable.  The capsule records that
+the source primary must be released and the restored destination must acquire the
+existing signed single-primary lease.  This makes the cut-over visible and prevents
+a successful file copy from being confused with authority to run two writable
+mothers.  A physical two-host rehearsal and rollback exercise remains a production
+closure gate.
+
+\subsection{Customer-self-hosted opaque relay}
+
+Advanced users and businesses can run the reference relay as a separate TLS 1.2 or
+newer service in their own VPS or private cloud.  The service exposes health,
+signed-route registration, encrypted request submission and polling, encrypted
+response submission and retrieval, and a minimum operator status surface.  A route
+is registered only after verifying the issuing mother's descriptor signature.
+
+The relay holds no payload-decryption key.  Phone submission and mother polling use
+different high-entropy capabilities, stored by the queue as canonical hashes.  The
+service validates envelope structure, timestamp, expiry, nonce and ciphertext size;
+deduplicates request identifiers; bounds pending work per route; and applies a
+per-address request limit.  HTTPS responses disable caching, framing and content
+sniffing and enable HSTS.  The command-line entry point requires an operator-supplied
+certificate chain and private key, so Tessaris is not placed into the customer's
+network or certificate authority.
+
+The queue is deliberately ephemeral because relay envelopes live for at most two
+minutes and the mother remains authoritative.  A relay restart can require route
+re-registration and request retry under the existing idempotency contract; it cannot
+destroy customer memory or messages held by the mother.  A production operator may
+place multiple instances behind its own availability layer, but must not add readable
+logging of bodies, tokens or decrypted content.
+
+\subsection{Verification and remaining Stage 10 work}
+
+Automated tests build and verify all four deployment profiles, prove that private
+runtime and credential fixtures do not ship, restore identity, permission, message
+and proof fixtures byte-for-byte, reject a wrong migration passphrase, and retain the
+existing split-brain tests.  Live HTTPS tests exercise the customer-self-hosted relay
+through a complete encrypted request/response round trip and reject unsigned route
+registration.  The browser connection tests verify direct mother
+discovery, signed identity pinning, local confirmation, customer-owned direct-route
+failover and opaque-relay fallback.
+
+All coded Stage 10 tasks are now implemented.  Production installation, public
+certificate, firewall, relay-restart and two-host migration exercises remain field
+gates rather than being inferred from unit tests.

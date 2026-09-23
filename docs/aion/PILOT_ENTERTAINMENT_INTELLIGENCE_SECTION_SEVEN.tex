@@ -1,0 +1,87 @@
+\section{Pilot Entertainment Intelligence and Private Personalization}
+\label{sec:pilot-entertainment-intelligence}
+
+Pilot Fabric 0.45.0 completes the locally enforceable entertainment layer by joining
+evidence-labelled discovery, strict provider execution, signed playback facts and private
+personalization.  The design never equates a search result with availability, opening an
+application with playback, or household presence with permission to use another person's
+history.
+
+\subsection{Discovery, official routes and verified execution}
+
+Cross-service discovery labels each result with its source, region and current-evidence
+limitation.  Execution accepts only narrowly validated, credential-free HTTPS title or
+video routes for supported providers.  Search pages, catalogue pages, embedded credentials,
+fragments and unrecognized hosts fail closed.  The canonical route is bound to one private
+persona and requires a separate phone confirmation before any device attempt.
+
+A device receipt can establish that a provider or application opened; it cannot establish
+playback.  Playback requires explicit evidence of both the expected title and a playing
+state.  Signed provider telemetry is additionally bound to provider, persona, scope,
+timestamp and one-use nonce before it may establish content identity, position or
+entitlement.  Catalogue identity and household subscription remain separate facts.
+
+\subsection{Private history and watchlists}
+
+Viewing feedback spoken in a shared room creates an unassigned preference.  It remains in
+an awaiting-private-claim state until a phone persona accepts it.  The claimant may keep it
+private or deliberately share it with the household.  A private history entry cannot
+influence another persona or a shared recommendation.
+
+Watchlists follow the same policy.  Each item is owned by one persona and marked private or
+explicitly household-shared.  Snapshot queries return the active persona's private items
+plus deliberately shared items, never another person's private collection.  Duplicate
+title entries for one persona are replaced rather than multiplied.
+
+\subsection{Contextual recommendations without paid AI}
+
+The deterministic recommendation layer accepts provider-supplied candidates and explicit
+criteria: mood, maximum duration, time of day and who is present.  It can score a matching
+mood, late-evening duration and a provider-supplied family-safety label.  Watched,
+disliked and avoided titles are excluded only from the active persona's history or from
+history explicitly shared with the household.  Every candidate retains
+\emph{entitlement unknown until authenticated provider confirmation}.
+
+This ranking path requires no paid model.  Local or optional cloud intelligence may improve
+the explanation or candidate acquisition, but it cannot weaken privacy, evidence or
+entitlement rules.
+
+\subsection{Continue watching, reminders and room handoff}
+
+Continue watching uses the last provider route verified for the same persona and creates a
+new private confirmation.  Signed playback telemetry can restore title, state and position
+after restart only when its identity and scope match the execution.  Without that adapter,
+Pilot prepares the official route but does not claim the previous position was resumed.
+
+Episode reminders require exact provider, provider-content and episode metadata plus a
+future timestamp.  The initial reminder is stored in the persona's local private inbox and
+states that external push is not scheduled.  Native push requires a separately signed phone
+adapter and delivery receipt.
+
+Cross-room continuation reuses the television room and playback handoff contract.  It
+prepares a persona-bound destination action and requires destination verification.  It
+does not claim synchronized playback because two applications opened.
+
+\subsection{Provider health, sign-in recovery and sharing}
+
+Provider health records distinguish available, degraded, outage, sign-in-required and
+unknown states with source, authentication status and observation time.  Sign-in recovery
+opens an official provider surface for owner action.  Pilot does not inspect, copy or retain
+raw credentials.  Degraded and outage states suggest retry or another verified provider
+rather than performing blind navigation.
+
+Programme sending uses signed Pilot Moments and exact official links.  Protected programme
+media is not copied.  Provider-native sharing and recipient opening receipts remain
+adapter-gated.
+
+\subsection{Verification and remaining provider evidence}
+
+Automated tests cover strict route classification, confirmation and playback boundaries,
+signed telemetry reconciliation, persona isolation, private/shared watchlists, unassigned
+shared-room history, deterministic ranking, exact-metadata reminders and credential-free
+health recovery.  The locally enforceable Section 7 scope is complete.
+
+Real provider account adapters, native push, provider-native sharing, synchronized watch
+together and per-service model/region field matrices remain external closure evidence.
+They are recorded in the Section 7 blocker register and cannot be replaced by a successful
+search result, application launch or simulated provider response.

@@ -108,36 +108,36 @@ def _get_cau_state(goal: str | None = None) -> Dict[str, Any]:
                 maybe.setdefault("source", f"CAU:{name}")
                 return maybe
 
-        logger.warning("[CAU] cau_authority imported but no authority state function found; allowing learn (soft-fail).")
+        logger.warning("[CAU] Authority contract unavailable; denying learn (fail-closed).")
         return {
-            "allow_learn": True,
-            "deny_reason": None,
+            "allow_learn": False,
+            "deny_reason": "CAU_BAD_SHAPE",
             "S": None,
             "H": None,
             "Phi": None,
             "cooldown_s": 0,
             "adr_active": False,
             "goal": goal or CAU_DEFAULT_GOAL,
-            "source": "CAU_SOFT_FAIL_NO_FN",
+            "source": "CAU_FAIL_CLOSED_NO_FN",
         }
 
     except Exception as e:
-        logger.warning(f"[CAU] Could not import cau_authority ({e}); allowing learn (soft-fail).")
+        logger.warning(f"[CAU] Could not import cau_authority ({e}); denying learn (fail-closed).")
         return {
-            "allow_learn": True,
-            "deny_reason": None,
+            "allow_learn": False,
+            "deny_reason": "CAU_UNAVAILABLE",
             "S": None,
             "H": None,
             "Phi": None,
             "cooldown_s": 0,
             "adr_active": False,
             "goal": goal or CAU_DEFAULT_GOAL,
-            "source": "CAU_SOFT_FAIL_IMPORT",
+            "source": "CAU_FAIL_CLOSED_IMPORT",
         }
 
 def _cau_allow(goal: str | None = None) -> Tuple[bool, Dict[str, Any]]:
     st = _get_cau_state(goal=goal)
-    allow = bool(st.get("allow_learn", True))
+    allow = bool(st.get("allow_learn", False))
     return allow, st
 
 # ================================================================

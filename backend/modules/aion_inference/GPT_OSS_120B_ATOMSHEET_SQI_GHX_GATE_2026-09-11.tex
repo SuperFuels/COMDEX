@@ -1,0 +1,76 @@
+% Append-only technical-record section. Requires amsmath, booktabs, hyperref.
+\section{AtomSheet, SQI, and GHX Assistance Gate}
+\label{sec:gptoss120b-atomsheet-sqi-ghx}
+
+This experiment separated two propositions that must not be conflated:
+AtomSheets and SQI may prevent suitable tasks from reaching GPT-OSS 120B,
+whereas GHX activation addressing might reuse internal neural calculations.
+The former measures completed-task throughput; the latter could affect raw
+decoder work if safe matches exist.
+
+\subsection{GHX activation-addressed expert reuse}
+
+A layer-12 GHX bank was populated from the arithmetic family.  Each entry bound
+the layer, original expert identity, normalized real router activation, and the
+original expert's exact ungated MXFP4 output.  For extraction, SQI selected the
+nearest entry belonging to the same expert.  The current router gate was always
+preserved, and every miss executed the original expert.  Similarity thresholds
+were selected on extraction under a maximum relative layer-output error of
+0.02, then frozen for the unseen reasoning family.  Business and writing
+remained blind.
+
+There were zero exact activation-address matches.  The highest threshold that
+satisfied the extraction error gate was 0.975, but it reused zero of 88 expert
+calls.  Applied to reasoning, it reused zero of 84 expert calls.  Traffic
+reduction was therefore exactly $1.00\times$.  At threshold 0.95, three of 88
+extraction calls were reused, but maximum relative layer-output error rose to
+0.066585.  At threshold 0.85, six calls were reused and maximum error was
+0.067552.  More permissive thresholds reached up to $1.49\times$ estimated
+traffic reduction while producing errors as high as 0.345477.
+
+The decision is \texttt{STOP\_GHX\_ACTIVATION\_ADDRESS}.  GHX may safely reuse
+identical states created by repeated prefixes or deterministic workflows, but
+cosine-near activations from changing tokens are not interchangeable expert
+inputs.  No approximate contribution was injected into the model.
+
+The GHX canonical report SHA-256 is
+\texttt{2e2123447553dbad58fcb496109aa527428ba6299e261c77f7351099d7e82bd9}.
+
+\subsection{Governed AtomSheet and SQI task bypass}
+
+A fresh immutable run on the SD evidence volume exercised 12 declared gateway
+tasks.  Eight deterministic calculations or verified replays completed without
+a model call; four language or coding tasks were correctly deferred to a model.
+All routes were correct, all immediate answers were correct, every proof receipt
+verified, the trace chain verified, and every beam collapse used the declared
+highest-assurance-then-lowest-estimated-cost rule.
+
+\begin{table}[ht]
+\centering
+\caption{Fresh AtomSheet/SQI gateway result.}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Quantity & Result \\
+\midrule
+Declared tasks & 12 \\
+Completed without model & 8 \\
+Correctly deferred & 4 \\
+Model-call avoidance on fixture & 66.67\% \\
+Median gateway latency & 20.6725 ms \\
+p95 gateway latency & 32.1055 ms \\
+Maximum gateway latency & 32.1055 ms \\
+Integrity gates & all passed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This is a genuine AION system-level speed mechanism: qualifying work is solved
+in milliseconds rather than being decoded by the 120B model.  The 66.67\%
+figure describes only the declared deterministic fixture and is not claimed as
+a population-wide business workload percentage.  It also does not change the
+raw unrestricted GPT-OSS 120B decode frontier of approximately 1.72--1.83
+tokens/s.  AtomSheets increase successful tasks per unit time; they do not
+replace arbitrary neural reasoning.
+
+The SD-resident gateway report SHA-256 is
+\texttt{0c30a39d37595745b7b454b9010fc3ff3b4f63483b5eb1826664886c93f4927c}.

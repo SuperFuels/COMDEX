@@ -1,0 +1,87 @@
+\section{AION Phase 20G.2 --- Live Mission Timeline Contract}
+\label{sec:aion-phase20g2-live-mission-timeline-contract}
+
+\subsection{Status}
+
+Phase 20G.2 locks the Live Mission Timeline read model for Boardroom Mission Control.
+
+\begin{quote}
+\textbf{Status: LOCKED --- deterministic timeline events, event counts, approval waits, human task waits, blocked actions, receipt counts and read-only timeline safety checks are validated.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Live Mission Timeline allows the Boardroom to show mission progress without exposing any live execution surface.
+
+The timeline is a state projection over proof events, not a tool runner.
+
+\subsection{Timeline Event Contract}
+
+Each timeline event MUST include:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item sequence number;
+  \item event type;
+  \item step ID;
+  \item title;
+  \item summary;
+  \item state after the event;
+  \item source hash;
+  \item optional receipt hash;
+  \item optional approval hash;
+  \item optional human task hash;
+  \item optional blocked action hash;
+  \item event hash.
+\end{itemize}
+
+\subsection{Timeline Summary}
+
+The compiled timeline MUST expose:
+
+\begin{itemize}
+  \item event count;
+  \item completed step count;
+  \item approval wait count;
+  \item human task wait count;
+  \item blocked action count;
+  \item receipt count;
+  \item latest state;
+  \item timeline hash.
+\end{itemize}
+
+\subsection{Ordering Rule}
+
+Timeline events MUST be ordered by:
+
+\begin{verbatim}
+(sequence_number, event_hash)
+\end{verbatim}
+
+Duplicate sequence numbers MUST be rejected.
+
+\subsection{Non-Execution Rule}
+
+The timeline contract MUST set:
+
+\begin{verbatim}
+timeline_executes_tools: false
+timeline_mutates_provider_state: false
+\end{verbatim}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{The Boardroom timeline is a deterministic mission progress projection. It may show completed work, approvals, human tasks, receipts and blocked actions, but it MUST NOT execute tools or mutate provider state.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20G2-LIVE-MISSION-TIMELINE-CONTRACT
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

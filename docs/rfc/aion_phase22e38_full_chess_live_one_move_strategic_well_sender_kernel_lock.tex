@@ -1,0 +1,79 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.38 --- Live One-Move Strategic Well Sender}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.38 locks a live one-move sender that uses the Phase 22E.37 intent-driven Strategic Regression Well.
+
+This phase allows exactly one live move to be sent only when all live authorization gates are true.
+
+\section{Correction}
+
+The earlier Strategic Well envelope could select:
+
+\begin{verbatim}
+h2h4
+\end{verbatim}
+
+Phase 22E.37 corrected this to:
+
+\begin{verbatim}
+g1f3
+\end{verbatim}
+
+Phase 22E.38 consumes the corrected move path.
+
+\section{Live Gates}
+
+The sender MUST require:
+
+\begin{itemize}[leftmargin=*]
+  \item valid game id;
+  \item target level 2;
+  \item legal selected move;
+  \item explicit live send authorization;
+  \item human operator confirmation;
+  \item live game stream confirmation;
+  \item one-move gate enabled;
+  \item live sender enabled;
+  \item allow real post flag;
+  \item token present;
+  \item \texttt{AION\_LICHESS\_LIVE=1}.
+\end{itemize}
+
+\section{Boundary}
+
+This phase sends at most one move.
+
+It does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e38_full_chess_live_one_move_strategic_well_sender_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e38_full_chess_live_one_move_strategic_well_sender_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E38-FULL-CHESS-LIVE-ONE-MOVE-STRATEGIC-WELL-SENDER\\
+Status: LOCKED --- live one-move Strategic Well sender implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

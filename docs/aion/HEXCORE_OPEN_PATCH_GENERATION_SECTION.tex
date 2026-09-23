@@ -1,0 +1,59 @@
+\section{Open Patch Generation and Strict Behavioural Audit}
+\label{sec:open-patch-generation}
+
+HexCore was extended from finite repair-family selection to proposal-only open
+patch generation.  Given a natural issue, localized source and the deepest
+traceback site, a replaceable language substrate emits a bounded multi-edit
+replacement program.  Each candidate is applied only in a fresh sandbox and is
+accepted only after executable behavioural and regression verification:
+\[
+  (\text{issue},\text{source},\text{traceback})
+  \rightarrow \text{private patch proposal}
+  \rightarrow \text{sandbox execution}
+  \rightarrow \text{verified criticism}
+  \rightarrow \{\text{accept},\text{revise},\text{abstain}\}.
+\]
+The historical human patch is unavailable during generation.  The neural
+provider cannot write live files, approve a candidate, open hidden metadata or
+promote itself.
+
+The patch application layer accepts exact replacements and uniquely matched
+whitespace-reflowed replacements.  The latter is fail-closed: if token-level
+whitespace normalization identifies zero or more than one source region, the
+candidate is rejected before execution.  This removed an interface failure in
+which a semantically correct patch was rejected solely because a Python
+expression had been reflowed.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+Measure & Strict-audit result \\
+\hline
+Source-disjoint repositories & 3 \\
+Task-specific repair menus & 0 \\
+Verified repairs in latest complete cohort & $2/3$ \\
+Safe abstentions & 1 \\
+Unsafe acceptances & 0 \\
+Unsafe live writes & 0 \\
+Human-patch blindness during generation & 100\% \\
+Live-source integrity & 100\% \\
+\hline
+\end{tabular}
+\caption{Latest complete open-generation cohort under strengthened behavioural
+and regression checks.}
+\end{table}
+
+Marshmallow and pydicom passed on their first proposals.  The pvlib repair had
+passed in earlier audited attempts but did not reproduce in the latest complete
+cohort.  The gate was therefore rejected.  This is an important governance
+result: occasional success establishes that the capability exists, but does
+not establish a stable operational skill.  The next promotion contract requires
+at least ten hidden failures across five unrelated repositories and three
+languages, repeated-seed stability, source-disjoint transfer, self-invented
+falsification tests, and zero unsafe acceptance.
+
+The present result remains bounded.  Localization and behavioural verifier
+families are engineered, the cohort contains three public development issues,
+and pretraining contamination cannot be excluded.  It is not evidence of
+unrestricted software engineering, independent external certification or AGI.

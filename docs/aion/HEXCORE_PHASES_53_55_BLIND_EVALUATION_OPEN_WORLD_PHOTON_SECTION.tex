@@ -1,0 +1,296 @@
+\section{HexCore Phases 53--55: Blind Evaluation, Open-World Ingestion, and Recursive Photon Synthesis}
+\label{sec:hexcore-phases-53-55}
+
+\subsection{Roadmap objective}
+
+Phases 53--55 begin the next AION intelligence programme by addressing three
+connected requirements:
+\begin{enumerate}
+    \item evaluation that cannot inspect its answers until predictions have
+    been frozen;
+    \item ingestion of real files without confusing exact quotation with
+    verified truth; and
+    \item recursive invention of typed executable tools using demonstrations,
+    property tests and counterexamples.
+\end{enumerate}
+
+The governing invariant remains:
+\[
+\begin{aligned}
+\text{external task or source}
+&\rightarrow \text{proposal or extracted record}\\
+&\rightarrow \text{commitment, provenance, or sandbox checks}\\
+&\rightarrow \text{independent evaluation}\\
+&\rightarrow \text{CAU promotion or rejection}.
+\end{aligned}
+\]
+
+\subsection{Phase 53: blind external-evaluation protocol}
+\label{subsec:phase53-blind-evaluation}
+
+\subsubsection{Purpose}
+
+Phase 53 prevents the development process from treating an internally
+constructed benchmark as independent evidence.  It freezes an evaluation
+contract that an external task author can use without revealing answers to
+AION or its developers before predictions are final.
+
+\subsubsection{Committed task and reveal protocol}
+
+Every sealed task envelope must contain:
+\begin{itemize}
+    \item a stable task identifier;
+    \item a declared capability family;
+    \item the task payload; and
+    \item a cryptographic commitment to the hidden answer.
+\end{itemize}
+
+For a task identifier \(i\), answer \(a\), and evaluator-held random salt
+\(s\), the commitment is
+\[
+C_i
+=
+H\!\left(
+  \operatorname{canon}
+  \left\{
+    \texttt{task\_id}:i,\,
+    \texttt{answer}:a,\,
+    \texttt{salt}:s
+  \right\}
+\right).
+\]
+
+After AION's predictions are frozen, the evaluator reveals
+\((i,a,s)\).  The scorer recomputes \(C_i\).  A missing reveal or commitment
+mismatch invalidates the task rather than silently scoring it.
+
+\subsubsection{Frozen controls}
+
+The protocol records:
+\begin{itemize}
+    \item the exact evaluated code commit;
+    \item accepted capability families;
+    \item task-envelope and answer-reveal schemas;
+    \item label-withholding requirements;
+    \item source and training-overlap audits;
+    \item matched model, tool and compute budgets;
+    \item mean and weakest-family reporting; and
+    \item joint external-evaluator and Cognitive Authority Unification (CAU)
+    promotion authority.
+\end{itemize}
+
+\paragraph{Promotion status.}
+The Phase 53 infrastructure is complete, frozen and restart-persistent.
+Capability promotion remains deliberately closed.  The same development
+process that created AION cannot honestly certify that its own task set is
+independent.  Final promotion requires a sealed cohort and answer commitments
+from an evaluator who did not develop the system.
+
+\subsection{Phase 54: real multi-format open-world ingestion}
+\label{subsec:phase54-open-world-ingestion}
+
+\subsubsection{Source cohort}
+
+The official Phase 54 V1 run ingested ten real repository artifacts across
+five formats:
+\begin{itemize}
+    \item two PDF documents;
+    \item two Markdown reports;
+    \item two \LaTeX{} sections;
+    \item two JSON result files; and
+    \item two CSV datasets.
+\end{itemize}
+
+Every source record preserves:
+\begin{itemize}
+    \item source identifier and filesystem location;
+    \item detected format;
+    \item source byte count and extracted character count;
+    \item exact SHA-256 content hash; and
+    \item observation time.
+\end{itemize}
+
+Each candidate claim records the exact evidence substring, character offsets,
+source identifier and source hash.  The record status remains
+\texttt{reported} unless a separate authority verifies the underlying claim.
+
+\subsubsection{Rejected normalization path}
+
+The first run extracted 108 claims, but whitespace normalization changed nine
+quoted strings.  Those strings could no longer be recovered exactly from the
+extracted source, so evidence recoverability fell to 91.67\%.  The run was
+rejected.
+
+The corrected implementation preserves the exact source substring rather
+than weakening the provenance gate.  This restored exact recoverability while
+retaining normalized text only for search and routing.
+
+\subsubsection{Phase 54 results}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Measure} & \textbf{Result}\\
+\hline
+Real source files & 10\\
+Distinct source formats & 5\\
+Recoverable claim records & 108\\
+Source-hash completeness & 100\%\\
+Exact evidence recoverability & 100\%\\
+Provenance completeness & 100\%\\
+Reported claims incorrectly marked verified & 0\\
+Restart retention & 100\%\\
+\hline
+\end{tabular}
+\caption{Phase 54 open-world ingestion results.}
+\label{tab:phase54-results}
+\end{table}
+
+The promoted procedure was
+\texttt{procedure\_open\_world\_ingestion\_d83f863ebb24}.
+
+\paragraph{Knowledge boundary.}
+Phase 54 proves that AION can ingest, hash, locate and recover claims from
+several real file formats without silently converting reported statements
+into verified knowledge.  Exact quotation establishes provenance; it does not
+establish that a quoted claim is true.
+
+\subsection{Phase 55: recursive typed Photon synthesis}
+\label{subsec:phase55-recursive-photon}
+
+\subsubsection{Research objective}
+
+Phase 55 extends AION's earlier tool invention from flat numeric expressions
+and a fixed tool bank to recursive typed expression trees.  Candidate tools
+may contain:
+\begin{itemize}
+    \item typed variables;
+    \item addition, absolute difference and maximum features;
+    \item threshold comparisons;
+    \item conjunctions; and
+    \item conditional branches.
+\end{itemize}
+
+The learner receives an unfamiliar manual, input/output types, demonstrations,
+maximum complexity and forbidden-effect contract.  It does not receive a
+named solution or variable mapping.
+
+\subsubsection{Synthesis and criticism loop}
+
+For each manual, the governed synthesis path is:
+\[
+\begin{aligned}
+\text{manual and demonstrations}
+&\rightarrow \text{recursive candidate construction}\\
+&\rightarrow \text{typed sandbox execution}\\
+&\rightarrow \text{property-test generation}\\
+&\rightarrow \text{counterexample elimination}\\
+&\rightarrow \text{independent interpreter}\\
+&\rightarrow \text{CAU promotion or abstention}.
+\end{aligned}
+\]
+
+Demonstrations initially reduce the program set.  Exhaustive property tests
+then search for an input \(x\) satisfying
+\[
+P_{\mathrm{candidate}}(x)
+\neq
+P_{\mathrm{authority}}(x).
+\]
+Such an \(x\) becomes a retained counterexample and eliminates the candidate.
+Only a program with no counterexample over the declared finite domain may
+advance to the independently implemented interpreter.
+
+\subsubsection{Identity correction}
+
+The first otherwise successful run failed restart retention because
+structurally identical expression trees at different arities received the
+same identifier.  Tool identity was corrected to commit both program
+structure and arity:
+\[
+\texttt{tool\_id}
+=
+H\!\left(
+\operatorname{canon}\{\texttt{program},\texttt{arity}\}
+\right).
+\]
+The unchanged evaluation then passed restart retention.
+
+\subsubsection{Phase 55 results}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lr}
+\hline
+\textbf{Measure} & \textbf{Result}\\
+\hline
+Recursive tools invented & 8\\
+Supported arities & 3 and 4\\
+Mean internal accuracy & 100\%\\
+Mean independent-interpreter accuracy & 100\%\\
+Weakest-tool accuracy & 100\%\\
+Property counterexamples generated & 12\\
+Out-of-grammar parity abstention & 100\%\\
+Unsafe side effects & 0\\
+Provenance completeness & 100\%\\
+Restart retention & 100\%\\
+\hline
+\end{tabular}
+\caption{Phase 55 recursive Photon synthesis results.}
+\label{tab:phase55-results}
+\end{table}
+
+The promoted procedure was
+\texttt{procedure\_recursive\_photon\_b69e4f4c0a74}.
+
+\paragraph{Grammar boundary.}
+A four-input parity operation was deliberately outside the supplied typed
+grammar.  AION found no valid representation and abstained instead of forcing
+an approximate tool.  Phase 55 therefore demonstrates recursive synthesis
+inside an engineered DSL, not unrestricted Python generation, arbitrary API
+discovery or autonomous deployment.
+
+\subsection{Persistent-state and verification record}
+
+The persistent HexCore schema now includes:
+\begin{itemize}
+    \item \texttt{blind\_evaluation\_protocols};
+    \item \texttt{open\_world\_sources};
+    \item \texttt{open\_world\_claims}; and
+    \item \texttt{real\_file\_projects}, reserved for Phase 56.
+\end{itemize}
+
+Following integration, the complete HexCore history passed \(60/60\) tests.
+The milestone was committed as Git revision \texttt{bc1714b7} and pushed to
+the synchronized \texttt{main} branch.  Unrelated DNA-chain working changes
+and runtime caches were deliberately excluded.
+
+\subsection{Interpretation and remaining programme}
+
+These phases establish a connected but bounded chain:
+\[
+\begin{aligned}
+\text{blind external contract}
+&\rightarrow \text{real source ingestion}
+\rightarrow \text{exact provenance}\\
+&\rightarrow \text{recursive tool proposal}
+\rightarrow \text{property criticism}
+\rightarrow \text{verified retention}.
+\end{aligned}
+\]
+
+The next active implementation sequence is:
+\begin{enumerate}
+    \item Phase 56: real-file long-horizon project execution;
+    \item Phase 57: richer learned world models;
+    \item Phase 58: natural multimodal grounding;
+    \item Phase 59: human-evaluated social intelligence;
+    \item Phase 60: native-language consolidation;
+    \item Phase 61: a long-running changing continual-learning arena; and
+    \item Phase 62: externally administered integrated evaluation using the
+    frozen Phase 53 protocol.
+\end{enumerate}
+
+Phase 62 must remain externally authorized.  Passing internally generated
+tasks cannot substitute for independent evaluation.
