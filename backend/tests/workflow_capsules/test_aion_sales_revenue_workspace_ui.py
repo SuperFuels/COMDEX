@@ -26,6 +26,29 @@ def test_sales_revenue_workspace_is_loaded_and_replaces_placeholder_with_operati
     assert "new AbortController()" in sales
 
 
+def test_sales_command_centre_splits_persistent_chat_from_existing_workspace():
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    renderer = app.split("function renderSalesWorkspaceSurface", 1)[1].split(
+        "function renderOperationsWorkspaceSurface", 1
+    )[0]
+    assert "renderSalesPilotCommandCentre()" in renderer
+    assert "width:auto!important;max-width:none!important;min-width:0!important" in renderer
+    assert 'data-aion-sales-command-centre="true"' in renderer
+    assert 'data-aion-sales-split-handle="true"' in renderer
+    assert 'data-aion-sales-pilot-thread="true"' in renderer
+    assert 'data-aion-sales-pilot-form="true"' in renderer
+    assert 'data-aion-sales-workspace-pane="true"' in renderer
+    assert 'data-aion-sales-revenue-mount="true"' in renderer
+    assert "function renderAionSalesConversationTurn" in app
+    assert "function hydrateAionSalesConversation" in app
+    assert 'department_id: "sales"' in app
+    assert 'renderAionDatedConversationTurns(turns, renderAionSalesConversationTurn, "#0f766e")' in app
+    assert 'data-aion-sales-pilot-attach="true"' in renderer
+    assert 'data-aion-sales-pilot-voice="true"' in renderer
+    assert "function startAionSalesPilotDictation" in app
+    assert 'data-aion-sales-open-package="true"' in renderer
+
+
 def test_sales_ui_keeps_external_actions_exactly_approved_and_fail_closed():
     sales = (ROOT / "desktop/mac/src/aion_sales_revenue_workspace.js").read_text(encoding="utf-8")
     assert "This does not write to a calendar or notify the customer" in sales
@@ -330,12 +353,16 @@ def test_add_lead_and_add_deal_capture_the_required_customer_and_commercial_fiel
     assert "Create deal" in sales
 
 
-def test_main_sales_pilot_stays_above_sales_workspace_and_outside_customer_records():
+def test_main_sales_pilot_stays_beside_sales_workspace_and_outside_customer_records():
     sales = (ROOT / "desktop/mac/src/aion_sales_revenue_workspace.js").read_text(encoding="utf-8")
     app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
-    director_position = app.index('renderDepartmentCompactDirectorCard("sales")')
-    mount_position = app.index('data-aion-sales-revenue-mount="true"', director_position)
-    assert director_position < mount_position
+    command_centre = app.split("function renderSalesPilotCommandCentre", 1)[1].split(
+        "function renderOperationsWorkspaceSurface", 1
+    )[0]
+    pilot_position = command_centre.index('data-aion-sales-pilot-pane="true"')
+    workspace_position = command_centre.index('data-aion-sales-workspace-pane="true"')
+    mount_position = command_centre.index('data-aion-sales-revenue-mount="true"')
+    assert pilot_position < workspace_position < mount_position
     assert "document.querySelector('[data-aion-sales-revenue-mount=\"true\"]')" in sales
     assert "syncSalesWorkspaceChromeVisibility(anchor)" in sales
     assert "data-srw-customer-record-open" in sales

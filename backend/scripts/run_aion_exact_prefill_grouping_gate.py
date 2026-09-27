@@ -26,6 +26,15 @@ kernel void group_exact_by_expert(device const long* ids [[buffer(0)]],device co
  for(uint e=0;e<expert;e++)position+=uint(atomic_load_explicit(&counts[e],memory_order_relaxed));
  for(uint a=0;a<assignments;a++)if(ids[a]==long(expert)){
   batch_index[position]=int(a/8);batch_gates[position]=gates[a];position++;}}
+kernel void group_count_exact(device const long* ids [[buffer(0)]],device const half* gates [[buffer(1)]],
+ device int* counts [[buffer(2)]],device int* batch_index [[buffer(3)]],
+ device half* batch_gates [[buffer(4)]],constant uint& assignments [[buffer(5)]],
+ uint expert [[thread_index_in_threadgroup]]){threadgroup uint local_counts[40];
+ if(expert<40){uint count=0;for(uint a=0;a<assignments;a++)count+=ids[a]==long(expert);
+  local_counts[expert]=count;counts[expert]=int(count);}threadgroup_barrier(mem_flags::mem_threadgroup);
+ if(expert<40){uint position=0;for(uint e=0;e<expert;e++)position+=local_counts[e];
+  for(uint a=0;a<assignments;a++)if(ids[a]==long(expert)){batch_index[position]=int(a/8);
+   batch_gates[position]=gates[a];position++;}}}
 """
 
 
@@ -45,9 +54,8 @@ def main()->int:
  inputs=torch.randn((a.accuracy_batches,a.tokens,router.input_size),generator=g,dtype=torch.float16).to("mps")
  def candidate(value):
   logits=router.layer(value).float();top_logits,top_indices=logits.topk(8,dim=1);top_gates=torch.softmax(top_logits,dim=1).type_as(value)
-  flat_ids=top_indices.flatten();flat_gates=top_gates.flatten();lib.clear_counts(counts,threads=(40,1,1),group_size=(32,1,1))
-  lib.count_routes(flat_ids,counts,n,threads=(n,1,1),group_size=(32,1,1));lib.group_exact_by_expert(
-    flat_ids,flat_gates,counts,batch_index,batch_gates,n,threads=(40,1,1),group_size=(32,1,1));return batch_index,batch_gates,counts.tolist()
+  flat_ids=top_indices.flatten();flat_gates=top_gates.flatten();lib.group_count_exact(
+    flat_ids,flat_gates,counts,batch_index,batch_gates,n,threads=(64,1,1),group_size=(64,1,1));return batch_index,batch_gates,counts.tolist()
  exact_i=exact_s=exact_g=0
  with torch.inference_mode():
   for value in inputs:
@@ -66,7 +74,7 @@ def main()->int:
  fi=exact_i/a.accuracy_batches;fs=exact_s/a.accuracy_batches;fg=exact_g/a.accuracy_batches
  acceptance={"batch_index_exact_on_all_batches":fi==1,"expert_sizes_exact_on_all_batches":fs==1,"batch_gates_bit_exact_on_all_batches":fg==1,
              "p50_improved_at_least_10_percent":p50>=10,"p95_not_regressed":p95>=0}
- report={"schema_version":"aion.exact_prefill_grouping_gate.v2","track":"exact_route_and_gate_values","paths":{"model":str(model_path)},
+ report={"schema_version":"aion.exact_prefill_grouping_gate.v3","track":"exact_route_and_gate_values","paths":{"model":str(model_path)},
   "hashes":{"checkpoint_index":_sha256(checkpoint)},"layer":a.layer,"tokens":a.tokens,"accuracy_batches":a.accuracy_batches,
   "timing_samples":a.timing_samples,"seed":a.seed,"batch_index_exact_fraction":fi,"expert_size_exact_fraction":fs,"batch_gates_bit_exact_fraction":fg,
   "control":control,"candidate":cand,"p50_improvement_percent":p50,"p95_improvement_percent":p95,"shared_load":shared,"acceptance":acceptance,

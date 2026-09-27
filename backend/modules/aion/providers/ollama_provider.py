@@ -56,6 +56,7 @@ class OllamaProvider:
         model: Optional[str] = None,
         stream: bool = False,
         options: Optional[Dict[str, Any]] = None,
+        think: Optional[bool] = None,
     ) -> OllamaGenerateResult:
         resolved_model = model or self.model
         url = f"{self.base_url}/api/generate"
@@ -71,6 +72,8 @@ class OllamaProvider:
 
         if options:
             payload["options"] = options
+        if think is not None:
+            payload["think"] = think
 
         try:
             response = requests.post(url, json=payload, timeout=self.timeout_seconds)

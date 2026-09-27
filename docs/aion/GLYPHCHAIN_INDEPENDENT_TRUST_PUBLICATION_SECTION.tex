@@ -1,0 +1,229 @@
+% Compile-ready section. Requires: enumitem, tabularx, booktabs.
+
+\section{GlyphChain Independent Trust Publication and Clean-Device Verification}
+\label{sec:glyphchain-independent-trust-publication}
+
+\noindent\textbf{Status:} The immutable public trust-release builder, offline
+verifier pin gate, independent package verifier and bounded clean-device
+evidence exercise are implemented and locally verified.  Publication of the
+checkpoint package and its expected identifier through genuinely independent
+production channels, followed by execution on a separate clean device, remain
+production release gates.
+
+\subsection{Purpose and Trust Boundary}
+
+A quorum-finality certificate can prove that sufficient members of a stated
+validator set signed an exact GlyphChain ledger commitment.  It cannot prove by
+itself that the validator set is the legitimate GlyphChain set.  Similarly, a
+checkpoint file can contain its own mathematically correct identifier but cannot
+make that identifier trusted merely by declaring it.
+
+Tessaris therefore separates two publication objects:
+
+\begin{enumerate}[leftmargin=*]
+  \item the \emph{public trust-release package}, containing the normalized
+        validator checkpoint, the offline proof verifier and a digest-bound
+        release manifest; and
+  \item the \emph{independent checkpoint pin}, consisting of the expected
+        64-character checkpoint identifier obtained through a separately
+        controlled trusted channel.
+\end{enumerate}
+
+The checkpoint's claimed identifier necessarily appears inside the public
+package so that it can be identified and indexed.  That copy is informational,
+not authoritative.  Trust-anchored verification requires the user or operator
+to supply the same identifier independently.  A receipt, peer, checkpoint,
+release manifest or verifier package is never allowed to appoint its own trust
+anchor.
+
+Examples of acceptable channel separation include a versioned release asset
+combined with a pin published in an independently controlled transparency log,
+DNSSEC record, signed release announcement or separately administered status
+site.  Two paths backed by the same mutable storage account or deployment
+credential are not operationally independent.
+
+\subsection{Canonical Validator Checkpoint}
+
+The public checkpoint uses the schema
+\texttt{glyphchain.validator-set-checkpoint.v1}.  It contains only public
+protocol material:
+
+\begin{itemize}[leftmargin=*]
+  \item chain and network identifiers;
+  \item checkpoint epoch and effective height;
+  \item ordered validator identifiers, voting powers and Ed25519 public keys;
+  \item the canonical validator-set root; and
+  \item the canonical checkpoint identifier.
+\end{itemize}
+
+Validators are normalized and sorted by identifier.  Duplicate or empty
+identifiers, non-positive voting power, missing public keys, excessive
+membership, invalid network fields and unsupported schemas fail closed.  If
+(V) is the canonical ordered validator list, its root is
+
+\[
+  r_V = \operatorname{SHA256}(\operatorname{Canonical}(V)).
+\]
+
+For checkpoint body (C), excluding its final identifier but including
+(r_V), the checkpoint identifier is
+
+\[
+  i_C = \operatorname{SHA256}(\operatorname{Canonical}(C)).
+\]
+
+Any supplied root or identifier must match the recomputed value.  Downloaded
+checkpoint verification additionally requires either an expected checkpoint
+identifier or validator-set root obtained out of band; absence of both is an
+error rather than an integrity-only success.
+
+\subsection{Immutable Public Trust Release}
+
+The operator command
+\texttt{backend/scripts/build\_glyphchain\_trust\_release.py} creates a new,
+non-overwriting public release directory.  It refuses symbolic-link inputs and
+destinations, invalid release versions, malformed source-manifest digests,
+oversized inputs, non-canonical checkpoints and a verifier that lacks the
+independent-pin gate.  A pre-existing output directory is never replaced.
+
+The package contains exactly three files:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{File} & \textbf{Function} \\
+\midrule
+\texttt{validator-set.glyphchain-checkpoint} & Canonical public validator-set
+checkpoint; contains no private validator key. \\
+\texttt{tessaris-proof-verifier.html} & Network-free browser verifier for the
+document, device signature, signer commitments, transaction inclusion and
+quorum certificate. \\
+\texttt{TRUST\_RELEASE.json} & Release version, creation time, source release-
+manifest digest, checkpoint identity, file lengths, SHA--256 file digests,
+privacy statement, channel-separation warning and canonical manifest digest. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The manifest is written last.  An interrupted directory without that manifest
+is incomplete and cannot pass verification.  Verification requires an exact
+three-file set, rejects symbolic links and unexpected files, bounds every file,
+recomputes every digest, re-normalizes the checkpoint and compares it with the
+independently supplied pin.  It can additionally bind the package to the exact
+source release-manifest SHA--256 digest.
+
+The builder returns the checkpoint identifier as a \emph{candidate} for
+independent publication and explicitly marks it as not independently published.
+Creating the package and printing the candidate do not satisfy the production
+publication gate.
+
+\subsection{Offline Browser Verifier Pin Gate}
+
+The standalone browser verifier performs all operations locally and contains no
+network request path.  The user selects the \texttt{.tessaris-proof} receipt,
+exact signed text document, optional private evidence certificate and public
+checkpoint file.  Trust-anchored finality now requires a fifth input: the
+independently obtained checkpoint identifier.
+
+The verifier recomputes the checkpoint's validator-set root and checkpoint
+identifier.  Its displayed quorum state is constrained as follows:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Displayed state} & \textbf{Verified meaning} \\
+\midrule
+\texttt{SIGNATURES VALID -- TRUST ANCHOR NOT SUPPLIED} & Validator membership,
+votes and quorum are internally consistent, but no checkpoint was supplied. \\
+\texttt{CHECKPOINT VALID -- INDEPENDENT PIN NOT SUPPLIED} & The certificate and
+checkpoint agree and the checkpoint is internally canonical, but its authority
+has not been established independently. \\
+\texttt{TRUST-ANCHORED} & The certificate, public checkpoint and independently
+entered checkpoint identifier all bind to the same validator set and exact
+ledger evidence. \\
+\texttt{FAILED} & A document, signature, transaction, Merkle path, certificate,
+checkpoint or independent-pin comparison failed. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+An absent pin can therefore never produce the trust-anchored state.  A malformed
+pin or a mismatch between the independent pin and recomputed checkpoint
+identifier produces an explicit failure.
+
+\subsection{Bounded Clean-Device Evidence Exercise}
+
+The command
+\texttt{backend/scripts/run\_glyphchain\_clean\_device\_verification.py}
+automates the cryptographic exercise using only:
+
+\begin{itemize}[leftmargin=*]
+  \item the private \texttt{.tessaris-evidence.zip} supplied by a document party;
+  \item the independently downloaded public trust-release directory;
+  \item the checkpoint identifier obtained through the second trusted channel;
+        and
+  \item optionally, the expected source release-manifest digest.
+\end{itemize}
+
+The exercise does not contact the originating Tessaris installation, GlyphChain
+peer network or either publication channel.  It bounds compressed and expanded
+archive sizes and member count, rejects duplicate members, absolute paths,
+parent-directory traversal and backslash path ambiguity, and requires exactly
+one portable proof receipt plus \texttt{document.txt} and
+\texttt{evidence-certificate.json}.  Private signer records are used only in
+memory to recompute the commitment root.
+
+The following checks must all pass:
+
+\begin{enumerate}[leftmargin=*]
+  \item the document bytes reproduce the committed document digest;
+  \item the originating device's Ed25519 signature authenticates the receipt;
+  \item the private ordered signer records reproduce the public signer-
+        commitment root;
+  \item the canonical \texttt{DOCUMENT\_PROOF\_V1} transaction envelope
+        reproduces the declared transaction hash and identifier;
+  \item the Merkle inclusion path reconstructs the block transaction root;
+  \item the version-two quorum certificate binds the same transaction root,
+        ledger commitment, block, height, chain and network;
+  \item validator signatures meet the weighted two-thirds quorum threshold; and
+  \item the certificate validator root matches the checkpoint whose identifier
+        matches the independently supplied pin.
+\end{enumerate}
+
+The resulting owner-only JSON report is content-free.  It contains the evidence-
+package digest, a one-way proof-identifier commitment, trust-release identifiers,
+boolean verification results and hashes of any error labels.  It excludes the
+document text, signer names, email addresses and private certificate.  The
+canonical report carries its own SHA--256 digest, is created exclusively and is
+never allowed to overwrite an earlier exercise report.
+
+\subsection{Verified Local Behaviour and Remaining Release Gate}
+
+The focused regression verifies canonical checkpoint export, mandatory
+out-of-band pinning, wrong-pin rejection, immutable release construction,
+manifest and member tamper detection, unexpected-file rejection, source-
+manifest binding, symbolic-link refusal, offline-verifier enforcement,
+independent-pin user-interface gating, complete trust-anchored evidence-package
+verification, document-substitution detection, archive path-traversal rejection
+and tamper-evident content-free exercise reporting.  Nineteen focused checkpoint,
+trust-release, standalone-verifier and clean-device tests pass.
+
+These local tests prove that the tooling enforces the intended separation when
+given independently sourced inputs.  They do not prove that two production
+channels are independently administered or that a separate physical or virtual
+device successfully obtained them.  Production remains gated on:
+
+\begin{enumerate}[leftmargin=*]
+  \item publishing the immutable checkpoint release through the approved
+        versioned release channel;
+  \item publishing the expected checkpoint identifier through a genuinely
+        independent channel; and
+  \item running the implemented exercise on a clean device using those two live
+        sources and retaining its digest-bound report with the signed release
+        evidence.
+\end{enumerate}
+
+Successful trust-anchored verification proves cryptographic consistency of the
+supplied evidence against the independently pinned validator set.  It does not
+prove legal enforceability, qualified-electronic-signature status, signer
+identity beyond the configured policy or uninterrupted public availability.

@@ -1,0 +1,180 @@
+\section{GlyphChain release-gate hardening and reproducibility}
+\label{sec:glyphchain-release-gate-hardening}
+
+The exact-release evidence gate has been hardened so that role assignment,
+independence, time, input provenance and process isolation are machine-enforced
+rather than inferred from loosely typed configuration.  These controls address
+the difference between having thirty-four evidence entries and proving that each
+entry was validly produced, independently approved where required, and evaluated
+for the exact candidate under review.
+
+\subsection{Strict independence semantics}
+
+The trust-root inventory is JSON, where booleans and strings are distinct types.
+Independence is now recognised only when
+
+\begin{equation}
+  \texttt{independent} \equiv \mathrm{true}
+\end{equation}
+
+as the literal JSON boolean.  Values such as \texttt{"true"},
+\texttt{"false"}, $1$, non-empty objects and non-empty arrays do not grant
+independent authority.  This prevents the host language's general truth-value
+rules from turning malformed configuration into an elevated release role.
+
+Signer roles must likewise be supplied as an array.  A valid Ed25519 signature
+whose trust-root role field has the wrong type cannot satisfy any required role.
+Unknown role labels have no effect because a task accepts only its fixed required
+role set.
+
+\subsection{Complete separation-of-duties assignment}
+
+A task can require several roles, while a trusted signer may be authorised for
+more than one role.  A greedy ``first signer per role'' selection is insufficient:
+it can either reuse one person for multiple duties or reject a valid evidence set
+when another distinct assignment exists.
+
+For required roles $R=\{r_1,\ldots,r_n\}$ and verified signers $S$, Tessaris now
+constructs candidate edges
+
+\begin{equation}
+  E = \{(r,s)\mid r\in R,\ s\in S,\ r\in\operatorname{roles}(s)\}.
+\end{equation}
+
+The evaluator performs a bounded backtracking search for an injective assignment
+$f:R\rightarrow S$ such that $(r,f(r))\in E$ for every role.  Evidence passes
+separation of duties only when
+
+\begin{equation}
+  r_i \neq r_j \Longrightarrow f(r_i) \neq f(r_j).
+\end{equation}
+
+When independence is required, the selected assignment must additionally contain
+at least one signer whose trust root carries the literal independent boolean:
+
+\begin{equation}
+  \exists r\in R:\operatorname{independent}(f(r))=\mathrm{true}.
+\end{equation}
+
+The search is deliberately small and deterministic: a task has only its fixed
+role list and an evidence entry accepts at most eight attestations.  It therefore
+proves whether a valid assignment exists without introducing an unbounded matching
+surface.
+
+\subsection{Observation-time validation}
+
+Every production evidence body must provide a parseable ISO-8601 observation time
+with an explicit timezone.  Naive timestamps are rejected because they cannot be
+ordered reliably across operators and devices.  The value is normalised to UTC
+for comparison and must not occur after the evaluator's report time:
+
+\begin{equation}
+  t_{\mathrm{observed}} \leq t_{\mathrm{evaluation}}.
+\end{equation}
+
+Malformed and future timestamps leave the task open.  This prevents a pre-dated
+approval from being represented as evidence already observed for the candidate.
+If operational clocks differ, operators must correct or reconcile the signed
+evidence rather than silently applying an evaluator waiver.
+
+\subsection{Exact input provenance}
+
+The readiness report now commits to both complete inputs:
+
+\begin{align}
+  h_E &= \operatorname{SHA256}(\operatorname{canon}(E_{1\ldots n})), \\
+  h_T &= \operatorname{SHA256}(\operatorname{canon}(T)),
+\end{align}
+
+where $E_{1\ldots n}$ is the ordered evidence-entry sequence and $T$ is the
+configured trust-root map.  Every task result additionally records:
+
+\begin{itemize}
+  \item the canonical evidence-body SHA-256;
+  \item the canonical artifact-manifest SHA-256;
+  \item the number of retained artifact commitments; and
+  \item the signer identifiers present in the evidence entry.
+\end{itemize}
+
+These fields allow an auditor to reproduce the decision and detect substitution
+of the evidence inventory, trust-root set, body or artifact manifest.  Private
+Legal documents and private signing keys are not copied into the report.
+
+The readiness report also contains a SHA-256 integrity checksum over its decision
+fields.  This checksum detects accidental or unacknowledged modification when the
+expected report digest is retained separately, but it is not described as an
+independent digital signature.  Release authenticity derives from re-evaluating
+the underlying domain-separated Ed25519 attestations against the independently
+administered trust roots.  This distinction avoids overstating a self-hash as a
+trust anchor.
+
+\subsection{Inventory schema enforcement}
+
+The command-line release evaluator accepts only the versioned evidence-inventory
+and trust-root schemas.  The former must contain an array named
+\texttt{evidence\_entries}; the latter must contain an object named
+\texttt{trust\_roots}.  Missing, renamed, incorrectly typed or unsupported schema
+versions terminate evaluation before a report is written.
+
+This boundary prevents an empty result caused by a spelling error from being
+mistaken for a deliberately empty inventory and prevents a partially migrated
+trust file from being interpreted under the wrong policy version.
+
+\subsection{Side-effect-free release tooling}
+
+The release evaluator is a security-control utility and must not initialise the
+broader business runtime, geometry registries, desktop services or network state
+merely because its policy module is imported.  Runtime package exports are now
+loaded lazily.  Existing public exports remain available on first access, while
+the release module can be imported and its command-line help displayed without
+unrelated application startup, circular-import warnings or environment mutation.
+
+This isolation reduces the release tool's operational surface, makes failure
+output attributable to the evaluator itself and allows it to run in a minimal
+verification environment.
+
+\subsection{Signed-baseline file safety}
+
+The signed baseline generator is part of the release trust chain and now applies
+explicit filesystem controls.  Private attestation keys, tracked public trust
+anchors, verification inputs, manifest sources and report outputs reject symbolic
+links.  This prevents a release command from following an attacker-controlled link
+and reading, replacing or signing unintended bytes.
+
+New private keys and public trust anchors use exclusive creation.  A pre-existing
+destination is never silently replaced.  The private key is created with owner-only
+permissions and flushed to durable storage before use.  Baseline reports are
+written to a uniquely created file in the destination directory, flushed, assigned
+the intended public-read mode and atomically renamed over the preceding regular
+report.  The containing directory is then synchronised.  A crash therefore leaves
+either the previous complete report or the replacement complete report, rather
+than a partially written signed artefact.
+
+The source-manifest builder also rejects symbolic links among the explicitly
+versioned files and recursively collected GlyphChain sources.  Every manifest
+digest consequently represents bytes resident in the intended release tree rather
+than a target that can be redirected after review.  The signed report retains the
+ordered path-and-SHA--256 entry array as well as its aggregate digest and count, so
+an auditor can identify the exact files covered rather than trusting an opaque
+aggregate alone.  The core readiness evaluator, evidence and trust-root tools,
+baseline generator, regression tests and every GlyphChain Markdown and \LaTeX{}
+technical document are mandatory members.  A regression compares that mandatory
+set with the generated source inventory and fails if a release-decision component
+or a technical document is omitted.
+
+\subsection{Regression evidence and claim boundary}
+
+The focused regression set proves strict boolean independence, non-greedy distinct
+role assignment, malformed and future-time rejection, exact evidence/trust input
+binding, checklist-to-register equality and side-effect-free command-line import.
+Baseline regressions additionally prove private-key, public-key and report symlink
+refusal, preservation of the unintended target, atomic replacement and final file
+permissions.
+The broader retained GlyphChain and Legal suite is rerun before the signed baseline
+is replaced.
+
+These controls establish that the local evaluator can make a reproducible,
+fail-closed decision from supplied signed evidence.  They do not create the live
+provider events, independent reviews, qualified Legal approvals, multi-device
+observations or customer-pilot outcomes needed to satisfy the thirty-four external
+release gates.

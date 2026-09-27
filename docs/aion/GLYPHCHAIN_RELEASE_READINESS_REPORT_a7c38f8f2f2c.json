@@ -1,0 +1,820 @@
+{
+  "claim_boundary": "This evaluator verifies configured signatures, roles, independence flags, artifact digests and exact-release binding. It does not determine professional qualification, inspect an external system, or replace the human approvals named by each gate.",
+  "duplicate_task_ids": [],
+  "evidence_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "generated_at": "2026-09-27T00:28:36.514015Z",
+  "global_errors": [],
+  "passed_count": 0,
+  "passed_task_ids": [],
+  "preauthorization_ready": false,
+  "preauthorization_report_errors": [],
+  "preauthorization_report_sha256": null,
+  "preauthorization_report_validated": false,
+  "production_release_authorized": false,
+  "release_manifest_sha256": "a7c38f8f2f2ca17917054410ca5000ff51343fa73ea558e1b0ba5d27566bf4ee",
+  "report_sha256": "94fd565a6b6df6170595de594f1aae7a512f109704c913be55f23705648f15af",
+  "result": "BLOCKED_EXTERNAL_GATES",
+  "schema_version": "tessaris.glyphchain-legal-release-readiness.v1",
+  "task_count": 34,
+  "tasks": {
+    "LD-01": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Production Resend callback and authenticated live delivery",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:delivery_operator"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "resend_callback_configuration",
+        "resend_authenticated_delivery_event"
+      ],
+      "required_roles": [
+        "delivery_operator"
+      ],
+      "verified_role_signers": {},
+      "workstream": "live_delivery"
+    },
+    "LD-02": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Microsoft 365 scopes and Message Trace provisioned",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:delivery_operator"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "microsoft_scope_grant",
+        "exchange_trace_access_grant"
+      ],
+      "required_roles": [
+        "delivery_operator"
+      ],
+      "verified_role_signers": {},
+      "workstream": "live_delivery"
+    },
+    "LD-03": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Microsoft draft/send and exact recipient trace validated",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:delivery_operator"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "microsoft_draft_send_trace"
+      ],
+      "required_roles": [
+        "delivery_operator"
+      ],
+      "verified_role_signers": {},
+      "workstream": "live_delivery"
+    },
+    "LD-04": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Resend and Microsoft failure and retry cases exercised",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:delivery_operator"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "delivery_failure_retry_matrix"
+      ],
+      "required_roles": [
+        "delivery_operator"
+      ],
+      "verified_role_signers": {},
+      "workstream": "live_delivery"
+    },
+    "LD-05": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Production delivery qualification report reviewed",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:delivery_operator,security_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "production_delivery_qualification_report"
+      ],
+      "required_roles": [
+        "delivery_operator",
+        "security_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "live_delivery"
+    },
+    "LEGAL-01": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Qualified reviewers appointed",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:legal_product_owner,legal_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "qualified_reviewer_appointment"
+      ],
+      "required_roles": [
+        "legal_product_owner",
+        "legal_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "qualified_legal_content"
+    },
+    "LEGAL-02": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Customer agreements approved",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:legal_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "customer_agreement_qualified_approval"
+      ],
+      "required_roles": [
+        "legal_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "qualified_legal_content"
+    },
+    "LEGAL-03": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Supplier agreements approved",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:legal_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "supplier_agreement_qualified_approval"
+      ],
+      "required_roles": [
+        "legal_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "qualified_legal_content"
+    },
+    "LEGAL-04": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Contractor agreements approved",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:legal_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "contractor_agreement_qualified_approval"
+      ],
+      "required_roles": [
+        "legal_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "qualified_legal_content"
+    },
+    "LEGAL-05": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Employment documents approved",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:legal_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "employment_document_qualified_approval"
+      ],
+      "required_roles": [
+        "legal_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "qualified_legal_content"
+    },
+    "LEGAL-06": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Terms privacy and DPA wording approved",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:legal_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "terms_privacy_dpa_qualified_approval"
+      ],
+      "required_roles": [
+        "legal_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "qualified_legal_content"
+    },
+    "LEGAL-07": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Exact reviewed versions populated in encrypted library",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:legal_product_owner"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "approved_template_library_manifest"
+      ],
+      "required_roles": [
+        "legal_product_owner"
+      ],
+      "verified_role_signers": {},
+      "workstream": "qualified_legal_content"
+    },
+    "NET-01": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Malicious-validator response procedure approved",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:network_operator,security_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "validator_response_approval",
+        "validator_removal_exercise_report"
+      ],
+      "required_roles": [
+        "network_operator",
+        "security_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "distributed_network"
+    },
+    "NET-02": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Representative independent node profiles exercised",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:network_operator"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "independent_node_qualification_report"
+      ],
+      "required_roles": [
+        "network_operator"
+      ],
+      "verified_role_signers": {},
+      "workstream": "distributed_network"
+    },
+    "NET-03": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Real NAT relay outage and partition conditions exercised",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:network_operator"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "real_network_failure_report"
+      ],
+      "required_roles": [
+        "network_operator"
+      ],
+      "verified_role_signers": {},
+      "workstream": "distributed_network"
+    },
+    "NET-04": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Multi-device signed release activation completed",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:network_operator,release_publisher"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "multi_device_upgrade_activation_report"
+      ],
+      "required_roles": [
+        "network_operator",
+        "release_publisher"
+      ],
+      "verified_role_signers": {},
+      "workstream": "distributed_network"
+    },
+    "NET-05": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Production-like public relay independently validated",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:network_operator,independent_verifier"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "public_relay_validation_report",
+        "relay_privacy_observation"
+      ],
+      "required_roles": [
+        "network_operator",
+        "independent_verifier"
+      ],
+      "verified_role_signers": {},
+      "workstream": "distributed_network"
+    },
+    "REL-01": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Assurance and claim boundary published",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:release_publisher"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "assurance_boundary_publication_record"
+      ],
+      "required_roles": [
+        "release_publisher"
+      ],
+      "verified_role_signers": {},
+      "workstream": "controlled_release"
+    },
+    "REL-02": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Privacy participation and operator documents published",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:release_publisher"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "operator_documentation_publication_record"
+      ],
+      "required_roles": [
+        "release_publisher"
+      ],
+      "verified_role_signers": {},
+      "workstream": "controlled_release"
+    },
+    "REL-03": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Electronic-signature claims published exactly",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:release_publisher,legal_product_owner"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "electronic_signature_claim_publication"
+      ],
+      "required_roles": [
+        "release_publisher",
+        "legal_product_owner"
+      ],
+      "verified_role_signers": {},
+      "workstream": "controlled_release"
+    },
+    "REL-04": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Internal multi-device deployment completed",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:deployment_operator"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "internal_multi_device_deployment_report"
+      ],
+      "required_roles": [
+        "deployment_operator"
+      ],
+      "verified_role_signers": {},
+      "workstream": "controlled_release"
+    },
+    "REL-05": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Closed customer pilot completed",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:pilot_owner"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "closed_customer_pilot_report"
+      ],
+      "required_roles": [
+        "pilot_owner"
+      ],
+      "verified_role_signers": {},
+      "workstream": "controlled_release"
+    },
+    "REL-06": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Pilot success metrics measured",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:metrics_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "pilot_metrics_report"
+      ],
+      "required_roles": [
+        "metrics_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "controlled_release"
+    },
+    "REL-07": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Pilot findings resolved and retested",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:security_reviewer,pilot_owner"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "pilot_findings_closure_report"
+      ],
+      "required_roles": [
+        "security_reviewer",
+        "pilot_owner"
+      ],
+      "verified_role_signers": {},
+      "workstream": "controlled_release"
+    },
+    "REL-08": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Release manifest frozen and trust independently pinned",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:release_publisher,independent_trust_publisher"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "frozen_release_manifest",
+        "independent_release_pin_record"
+      ],
+      "required_roles": [
+        "release_publisher",
+        "independent_trust_publisher"
+      ],
+      "verified_role_signers": {},
+      "workstream": "controlled_release"
+    },
+    "REL-09": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Final security Legal product and release approvals obtained",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:application_security_reviewer,legal_product_owner,release_approver"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "final_security_approval",
+        "final_legal_product_approval",
+        "final_release_approval"
+      ],
+      "required_roles": [
+        "application_security_reviewer",
+        "legal_product_owner",
+        "release_approver"
+      ],
+      "verified_role_signers": {},
+      "workstream": "controlled_release"
+    },
+    "REL-10": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Production release explicitly approved after all preceding gates",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:release_approver,legal_product_owner,application_security_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "preauthorization_readiness_report",
+        "production_release_authorization"
+      ],
+      "required_roles": [
+        "release_approver",
+        "legal_product_owner",
+        "application_security_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "controlled_release"
+    },
+    "SEC-01": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Independent registry and live lost-device recovery enforced",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:security_operator"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "registry_deployment_record",
+        "live_recovery_revocation_report"
+      ],
+      "required_roles": [
+        "security_operator"
+      ],
+      "verified_role_signers": {},
+      "workstream": "security_recovery"
+    },
+    "SEC-02": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Independent application-security review resolved",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:application_security_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "application_security_review",
+        "application_security_findings_closure"
+      ],
+      "required_roles": [
+        "application_security_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "security_recovery"
+    },
+    "SEC-03": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Independent consensus and cryptography review resolved",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:consensus_security_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "consensus_cryptography_review",
+        "consensus_findings_closure"
+      ],
+      "required_roles": [
+        "consensus_security_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "security_recovery"
+    },
+    "SEC-04": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Representative sustained multi-network soak passed",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:network_operator,security_reviewer"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "independent_multi_network_soak_report"
+      ],
+      "required_roles": [
+        "network_operator",
+        "security_reviewer"
+      ],
+      "verified_role_signers": {},
+      "workstream": "security_recovery"
+    },
+    "TR-01": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Immutable checkpoint and verifier release published",
+      "errors": [
+        "evidence_missing",
+        "required_roles_missing:release_publisher"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": false,
+      "passed": false,
+      "required_artifact_kinds": [
+        "trust_release_manifest",
+        "trust_release_publication_record"
+      ],
+      "required_roles": [
+        "release_publisher"
+      ],
+      "verified_role_signers": {},
+      "workstream": "trust_publication"
+    },
+    "TR-02": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Checkpoint pin published through independent channel",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:independent_trust_publisher"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "independent_checkpoint_pin_record"
+      ],
+      "required_roles": [
+        "independent_trust_publisher"
+      ],
+      "verified_role_signers": {},
+      "workstream": "trust_publication"
+    },
+    "TR-03": {
+      "artifact_count": 0,
+      "artifact_manifest_sha256": null,
+      "attestation_signer_ids": [],
+      "description": "Clean-device private evidence verification completed",
+      "errors": [
+        "evidence_missing",
+        "independent_attestation_required",
+        "required_roles_missing:independent_verifier"
+      ],
+      "evidence_body_sha256": null,
+      "independent_required": true,
+      "passed": false,
+      "required_artifact_kinds": [
+        "clean_device_verification_report"
+      ],
+      "required_roles": [
+        "independent_verifier"
+      ],
+      "verified_role_signers": {},
+      "workstream": "trust_publication"
+    }
+  },
+  "trust_root_authority_key_id": null,
+  "trust_root_inventory_errors": [],
+  "trust_root_inventory_file_sha256": "ce799ce6f5da79c2becd519b60dc5cd7f52a20461dd73168f58cb5aae8d05d95",
+  "trust_roots_authenticated": false,
+  "trust_roots_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+  "unknown_task_ids": [],
+  "unmet_count": 34,
+  "unmet_task_ids": [
+    "LD-01",
+    "LD-02",
+    "LD-03",
+    "LD-04",
+    "LD-05",
+    "LEGAL-01",
+    "LEGAL-02",
+    "LEGAL-03",
+    "LEGAL-04",
+    "LEGAL-05",
+    "LEGAL-06",
+    "LEGAL-07",
+    "NET-01",
+    "NET-02",
+    "NET-03",
+    "NET-04",
+    "NET-05",
+    "REL-01",
+    "REL-02",
+    "REL-03",
+    "REL-04",
+    "REL-05",
+    "REL-06",
+    "REL-07",
+    "REL-08",
+    "REL-09",
+    "REL-10",
+    "SEC-01",
+    "SEC-02",
+    "SEC-03",
+    "SEC-04",
+    "TR-01",
+    "TR-02",
+    "TR-03"
+  ]
+}

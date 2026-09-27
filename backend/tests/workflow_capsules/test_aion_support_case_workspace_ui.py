@@ -12,7 +12,12 @@ def test_support_workspace_replaces_placeholder_with_governed_case_centre():
     support_renderer = app.split("function renderSupportWorkspaceSurface", 1)[1].split(
         "function renderHRWorkspaceSurface", 1)[0]
     assert 'data-aion-support-case-mount="true"' in support_renderer
-    assert "renderSupportCompactDirectorCard()" in support_renderer
+    assert "renderSupportPilotCommandCentre()" in support_renderer
+    assert 'data-aion-support-command-centre="true"' in support_renderer
+    assert 'data-aion-support-split-handle="true"' in support_renderer
+    assert 'data-aion-support-pilot-thread="true"' in support_renderer
+    assert 'data-aion-support-pilot-form="true"' in support_renderer
+    assert 'data-aion-support-workspace-pane="true"' in support_renderer
     assert 'renderAionDepartment121BoardroomPanelO14D("support")' not in support_renderer
     assert 'renderAionDepartmentScopedPilotSurface("support"' not in support_renderer
     compact_director = app.split("function renderSupportCompactDirectorCard", 1)[1].split(
@@ -36,6 +41,23 @@ def test_support_workspace_replaces_placeholder_with_governed_case_centre():
     assert "Prepare—do not send—a support reply" in support
     assert "Record verified resolution" in support
     assert "consumer-law" in support
+
+
+def test_support_command_centre_has_persistent_dated_chat_and_full_input_controls():
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    assert "function renderAionSupportConversationTurn" in app
+    assert "function hydrateAionSupportConversation" in app
+    assert 'department_id: "support"' in app
+    assert 'renderAionDatedConversationTurns(turns, renderAionSupportConversationTurn, "#67558f")' in app
+    assert 'data-aion-support-pilot-attach="true"' in app
+    assert 'data-aion-support-pilot-voice="true"' in app
+    assert "function startAionSupportPilotDictation" in app
+    assert 'data-aion-support-open-package="true"' in app
+
+
+def test_support_case_centre_prefers_the_right_hand_mount():
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    assert "document.querySelector('[data-aion-support-case-mount=\"true\"]')\n    || document.querySelector('[data-aion-support-live-agents-workspace-o14d=\"true\"]')" in support
 
 
 def test_support_ui_exposes_authority_and_evidence_controls():

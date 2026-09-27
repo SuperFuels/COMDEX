@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any, Mapping
 
 from backend.modules.aion_fabric.canonical import canonical_hash, utc_now_iso
@@ -56,11 +57,17 @@ def personal_space(persona_id: str, display_name: str) -> SpaceRef:
 
 
 def adapt_workspace(record: Mapping[str, Any]) -> SpaceRef:
+    owner = _value(record, "owner")
+    # Legacy business records may use an owner display name (for example
+    # ``Kevin Robinson``).  A mobile capability contract requires a stable,
+    # non-display identifier, so retain valid refs and derive a non-reversible
+    # local reference for older records.
+    owner_ref = owner if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:@/-]{0,199}", owner) else f"owner/{canonical_hash(owner)[:24]}"
     return SpaceRef(
         space_id=f"workspace/{_value(record, 'id')}",
         kind=SpaceKind.BOARDROOM if _value(record, "business_type").lower() == "boardroom" else SpaceKind.WORKSPACE,
         display_name=_value(record, "name", "Workspace"),
-        owner_ref=_value(record, "owner"),
+        owner_ref=owner_ref,
         policy_ref=_value(record, "governance_policy_ref"),
         status=_value(record, "status", "active"),
     )

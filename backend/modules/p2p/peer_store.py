@@ -14,6 +14,40 @@ _PEERS_BY_NODE_ID: Dict[str, PeerInfo] = {}
 _PEERS_BY_VAL_ID: Dict[str, PeerInfo] = {}
 
 
+def _max_peers() -> int:
+    try:
+        return max(8, min(100_000, int(os.getenv("GLYPHCHAIN_MAX_PEERS", "2048") or 2048)))
+    except Exception:
+        return 2048
+
+
+def _bounded(value: str, limit: int, label: str) -> str:
+    clean = str(value or "").strip()
+    if len(clean) > limit:
+        raise ValueError(f"peer_{label}_too_long")
+    return clean
+
+
+def _evict_if_needed_locked(incoming_node_id: str) -> None:
+    if incoming_node_id in _PEERS_BY_NODE_ID or len(_PEERS_BY_NODE_ID) < _max_peers():
+        return
+    candidates = [peer for peer in _PEERS_BY_NODE_ID.values() if not bool(getattr(peer, "banned", False))]
+    if not candidates:
+        candidates = list(_PEERS_BY_NODE_ID.values())
+    if not candidates:
+        return
+    # Prefer evicting non-validator peers; within the same class use oldest activity.
+    victim = min(candidates, key=lambda peer: (
+        1 if str(getattr(peer, "role", "") or "").lower() == "validator" else 0,
+        float(getattr(peer, "last_seen_ms", None) or getattr(peer, "last_hello_ms", None) or 0.0),
+        str(getattr(peer, "node_id", "") or ""),
+    ))
+    _PEERS_BY_NODE_ID.pop(victim.node_id, None)
+    old_val = str(getattr(victim, "val_id", "") or "").strip()
+    if old_val and _PEERS_BY_VAL_ID.get(old_val) is victim:
+        _PEERS_BY_VAL_ID.pop(old_val, None)
+
+
 def _norm_base_url(url: str) -> str:
     return (url or "").strip().rstrip("/")
 
@@ -23,14 +57,16 @@ def add_peer(
     node_id: str,
     val_id: Optional[str] = None,
     role: str = "peer",
+    relay_url: Optional[str] = None,
 ) -> PeerInfo:
-    nid = (node_id or "").strip()
-    vid = (val_id or "").strip() if val_id is not None else ""
+    nid = _bounded(node_id, 180, "node_id")
+    vid = _bounded(val_id or "", 180, "val_id") if val_id is not None else ""
     if not nid:
         nid = vid or _norm_base_url(base_url) or "peer"
 
-    base = _norm_base_url(base_url)
-    role = (role or "peer").strip()
+    base = _bounded(_norm_base_url(base_url), 2048, "base_url")
+    role = _bounded(role or "peer", 40, "role")
+    relay = _bounded(_norm_base_url(relay_url or ""), 2048, "relay_url") if relay_url else ""
 
     with _PEERS_LOCK:
         # ✅ MERGE into existing peer (DO NOT reset pubkey_hex / hello_ok)
@@ -47,6 +83,8 @@ def add_peer(
                     existing.role = role
             except Exception:
                 pass
+            if relay:
+                existing.relay_url = relay
 
             # only update val_id if provided (avoid wiping)
             if vid:
@@ -56,14 +94,19 @@ def add_peer(
                     pass
                 _PEERS_BY_VAL_ID[vid] = existing
 
+            existing.last_seen_ms = float(time.time() * 1000.0)
+
             return existing
 
         # ✅ NEW peer
+        _evict_if_needed_locked(nid)
         p = PeerInfo(
             node_id=nid,
             base_url=base,
             val_id=(vid or None),
             role=role,
+            relay_url=(relay or None),
+            last_seen_ms=float(time.time() * 1000.0),
         )
 
         # identity fields default only for NEW peers
@@ -87,6 +130,11 @@ def add_peer(
 def list_peers() -> List[PeerInfo]:
     with _PEERS_LOCK:
         return list(_PEERS_BY_NODE_ID.values())
+
+
+def peer_store_status() -> Dict[str, int]:
+    with _PEERS_LOCK:
+        return {"peer_count": len(_PEERS_BY_NODE_ID), "peer_limit": _max_peers()}
 
 
 def get_peer(node_id: str) -> Optional[PeerInfo]:
@@ -119,6 +167,7 @@ def set_peer_identity(
     val_id: Optional[str],
     pubkey_hex: str,
     hello_ok: bool,
+    protocol: Optional[dict] = None,
 ) -> None:
     """
     Update (or create) a peer record with a verified pubkey binding.
@@ -138,11 +187,13 @@ def set_peer_identity(
 
             if p is None:
                 # IMPORTANT: do NOT call add_peer() while holding the lock (deadlock).
+                _evict_if_needed_locked(nid)
                 p = PeerInfo(
                     node_id=nid,
                     base_url=burl,
                     val_id=(vid or None),
                     role="peer",
+                    last_seen_ms=float(time.time() * 1000.0),
                 )
                 # identity defaults if fields exist
                 try:
@@ -213,8 +264,20 @@ def set_peer_identity(
                 except Exception:
                     pass
 
+            if protocol is not None and hasattr(p, "protocol"):
+                try:
+                    setattr(p, "protocol", dict(protocol))
+                except Exception:
+                    pass
+
     except Exception:
         return
+
+
+def _reset_peer_store_for_tests() -> None:
+    with _PEERS_LOCK:
+        _PEERS_BY_NODE_ID.clear()
+        _PEERS_BY_VAL_ID.clear()
 
 
 def load_peers_from_env() -> None:
@@ -247,6 +310,7 @@ def load_peers_from_env() -> None:
         node_id = str(it.get("node_id") or "").strip()
         val_id = it.get("val_id")
         role = str(it.get("role") or "peer").strip() or "peer"
+        relay_url = str(it.get("relay_url") or "").strip() or None
         if not base_url:
             continue
 
@@ -255,4 +319,5 @@ def load_peers_from_env() -> None:
             node_id=node_id,
             val_id=(str(val_id).strip() if val_id is not None else None),
             role=role,
+            relay_url=relay_url,
         )

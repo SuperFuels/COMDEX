@@ -30,6 +30,7 @@ _CONTAINER_FILE_MAP: dict[BusinessContainerKind, str] = {
     "business_operating_model": "business_operating_model.json",
     "organization_authority": "organization_authority.json",
     "finance_inbox": "finance_inbox.json",
+    "finance_cash_position": "finance_cash_position.json",
     "brand_foundation": "brand_foundation.json",
     "boardroom_snapshot": "boardroom_snapshot.json",
     "operational_runtime_summary": "operational_runtime_summary.json",

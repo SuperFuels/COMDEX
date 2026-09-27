@@ -205,7 +205,13 @@
     const target = stream();
     if (!target || !state.inbox) return;
     const existing = target.querySelector('[data-aion-finance-inbox]');
-    if (existing) existing.outerHTML = markup(); else target.insertAdjacentHTML('afterbegin', markup());
+    if (existing) {
+      existing.outerHTML = markup();
+    } else {
+      const financeDirector = target.querySelector('[data-aion-finance-director]');
+      if (financeDirector) financeDirector.insertAdjacentHTML('afterend', markup());
+      else target.insertAdjacentHTML('afterbegin', markup());
+    }
   }
 
   async function load() {

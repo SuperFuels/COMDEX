@@ -28,3 +28,17 @@ def test_o14k_hides_original_top_package_docks_but_not_nested_content():
 
 def test_o14k_exported_for_workspace_renderers():
     assert "window.renderAionO14KCollapsedPackageDockUnderBoardroom = renderAionO14KCollapsedPackageDockUnderBoardroom" in APP
+
+
+def test_operations_flow_moves_from_global_sidebar_to_operations_workspace_dashboard_button():
+    app_tabs = APP[APP.index("const APP_TABS = ["):APP.index("];", APP.index("const APP_TABS = ["))]
+    sidebar_icons = APP[APP.index("function getAionMainSidebarIcon"):APP.index("function renderAppTabs")]
+    command_centre = APP[APP.index("function renderOperationsCommandCentre"):
+                         APP.index("function renderSupportCompactDirectorCard")]
+    assert '{ key: "operations_flow", label: "Operations Flow" }' not in app_tabs
+    assert 'operations_flow: "⌁"' not in sidebar_icons
+    assert 'data-aion-operations-dashboard="true"' in command_centre
+    assert 'data-tab="operations_flow"' in command_centre
+    assert '>Dashboard</button>' in command_centre
+    assert command_centre.index('>Dashboard</button>') < command_centre.index('>Open package</button>')
+    assert 'window.setAionSidebarActiveTabHardV1("operations_flow")' in APP

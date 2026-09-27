@@ -1,0 +1,156 @@
+\section{GlyphChain two-phase production-release authorization}
+\label{sec:glyphchain-two-phase-release-authorization}
+
+The final production decision is deliberately separated from readiness evidence.
+Passing technical, operational, security and Legal gates demonstrates that a
+specific release candidate is eligible for consideration; it does not itself
+authorize deployment.  Tessaris therefore implements a two-phase protocol in
+which the first thirty-three gates are frozen into a preauthorization report and
+the thirty-fourth gate signs an exact commitment to that report.
+
+\subsection{Phase one: clean preauthorization state}
+
+Let $T$ be the canonical set of thirty-four release tasks and let
+$t_f=\texttt{REL-10}$ be the final production-authorization task.  For release
+manifest digest $r$, authenticated trust-root inventory $G$ and evidence inventory
+$E$, the evaluator may emit
+\texttt{AWAITING\_FINAL\_RELEASE\_AUTHORIZATION} only when
+
+\begin{equation}
+  \begin{split}
+  P_{33}(r,E,G) ={}&
+    \bigwedge_{t\in T\setminus\{t_f\}}\operatorname{pass}(t)
+    \;\land\;\neg\operatorname{pass}(t_f) \\
+    &\land\;\operatorname{absentEvidence}(t_f)
+    \land\;\operatorname{authenticated}(G) \\
+    &\land\;\neg\operatorname{unknownTask}(E)
+    \land\;\neg\operatorname{duplicateTask}(E)
+    \land\;\neg\operatorname{globalError}.
+  \end{split}
+\end{equation}
+
+The final gate must be absent rather than merely malformed or rejected.  Its task
+record has no evidence-body digest and no attestation identifiers.  This prevents
+an attempted early authorization from being relabelled as a clean waiting state.
+The report records the exact release-manifest digest, evidence-inventory digest,
+trust-root inventory file digest, governance-authority key identifier, every
+per-task result and its own canonical report digest.
+
+Before a phase-one file can be used by phase two, the core evaluator
+revalidates the complete report structure.  It requires exactly thirty-three
+passing task identifiers, exactly one unmet identifier
+\texttt{REL-10}, authenticated and structurally valid trust roots, no unknown or
+duplicate tasks, no global errors, and a passing result for every individual
+preceding task.  It also verifies that the report binds the same release manifest,
+trust-root file, governance key and trust-root map as the proposed final
+evaluation.  The phase-one evidence-inventory digest must equal the digest of the
+final inventory after removing only the \texttt{REL-10} entry.  Consequently,
+adding final authorization is permitted, but silently changing any preceding
+entry---even an otherwise ignored top-level field---invalidates the phase-one
+continuity check.
+
+\subsection{Phase-two evidence contract}
+
+The final \texttt{REL-10} evidence body requires both of the following retained
+artefact classes:
+
+\begin{itemize}
+  \item \texttt{preauthorization\_readiness\_report}, containing the exact
+        phase-one readiness-report bytes; and
+  \item \texttt{production\_release\_authorization}, containing the explicit
+        controlled decision to release that candidate.
+\end{itemize}
+
+If $F_{33}$ denotes the exact phase-one report file, the signed artefact commitment
+must contain
+
+\begin{equation}
+  h_{33}=\operatorname{SHA256}(F_{33}).
+\end{equation}
+
+The final evaluator reads the report once as a bounded regular file, refuses a
+symbolic link, validates its internal digest and state, and computes $h_{33}$ from
+the same byte sequence.  The \texttt{REL-10} artefact set must contain exactly that
+digest for the preauthorization kind.  An omitted report produces
+\texttt{preauthorization\_report\_required}; an unvalidated report produces
+\texttt{preauthorization\_report\_not\_validated}; and a different digest produces
+\texttt{preauthorization\_report\_binding\_invalid}.
+
+This binding closes a time-of-check/time-of-authorization gap.  The final
+authorities cannot sign a generic statement and later attach a different readiness
+result, nor can evidence from one manifest, preceding evidence inventory or
+authority set authorize another.  The core evaluator accepts the bounded raw
+report bytes, parses and validates them itself, and derives the file digest; callers
+cannot supply a trusted boolean declaring that validation already happened.
+
+\subsection{Final authority and separation of duties}
+
+The final body is signed over the domain-separated canonical release-evidence
+payload by three distinct configured authorities:
+
+\begin{enumerate}
+  \item the release approver;
+  \item the Legal product owner; and
+  \item the application-security reviewer.
+\end{enumerate}
+
+The evaluator performs an injective role assignment, so one signer cannot satisfy
+two required roles.  At least one assigned signer must be marked independent in the
+governance-authenticated trust-root inventory.  Duplicate public keys under
+different signer names are rejected across the entire root inventory, preventing
+cosmetic identities from bypassing separation of duties.
+
+Let $S_f$ represent valid distinct final signatures, $A_f$ the two required
+artefact classes, $B_f$ the exact $h_{33}$ binding and $V_{33}$ successful
+revalidation of the preauthorization report.  Production authorization is
+
+\begin{equation}
+  \operatorname{Authorize}(r) =
+  P_{33}(r,E,G) \land V_{33} \land B_f \land A_f \land S_f.
+\end{equation}
+
+No percentage, user-interface toggle or presence of a filename substitutes for
+this conjunction.  Only a final report with all thirty-four gates passing emits
+\texttt{ALL\_RELEASE\_GATES\_EVIDENCED} and sets
+\texttt{production\_release\_authorized=true}.
+
+\subsection{Operational workflow}
+
+The controlled workflow is:
+
+\begin{enumerate}
+  \item freeze the candidate release manifest;
+  \item assemble and independently countersign evidence for gates
+        \texttt{LD-01} through \texttt{REL-09};
+  \item evaluate that inventory and retain the resulting clean phase-one report;
+  \item present that immutable report and its exact digest to the three final
+        authorities;
+  \item create the \texttt{REL-10} body with both required artefacts and the exact
+        preauthorization-report digest;
+  \item obtain the three distinct Ed25519 attestations without sharing private
+        keys; and
+  \item rerun the evaluator with the phase-one report supplied explicitly through
+        \texttt{--preauthorization-report}.
+\end{enumerate}
+
+Any change to the release manifest, evidence inventory, trust-root inventory or
+governance anchor after phase one requires a new phase-one evaluation and new final
+authorization.  A former valid authorization is audit evidence for its historical
+candidate, not permission for a modified release.
+
+\subsection{Implemented verification and claim boundary}
+
+Regression tests exercise the blocked state, the exact thirty-three-gate waiting
+state, successful transition to all thirty-four gates, omitted preauthorization,
+wrong report digest, modification of a preceding evidence entry, distinct-role
+assignment and authenticated trust-root requirements.  The evaluation report
+preserves the derived preauthorization file digest, validation result and explicit
+validation errors so downstream audit tooling can distinguish a mere byte sequence
+from a checked phase-one report.
+
+This protocol proves that configured authorities explicitly approved the exact
+candidate after the configured evidence gates passed.  It does not prove that an
+external report is truthful merely because its bytes were signed, replace qualified
+professional review, create qualified electronic-signature status, or authorize a
+release when any external gate remains unmet.  Those substantive facts remain the
+responsibility of the named reviewers and the retained external artefacts.

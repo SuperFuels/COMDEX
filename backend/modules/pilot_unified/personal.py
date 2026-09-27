@@ -44,6 +44,7 @@ class PersonalPilotProjection:
         intelligence_status_provider: Callable[[], dict[str, Any]] | None = None,
         intelligence_command_executor: Callable[[str, str, dict[str, Any]], dict[str, Any]] | None = None,
         tv_presentation_executor: Callable[[str, dict[str, Any]], dict[str, Any]] | None = None,
+        dashboard_action_executor: Callable[[str, str, dict[str, Any]], dict[str, Any]] | None = None,
     ) -> None:
         self.identities = identities
         self.inbox = inbox
@@ -69,6 +70,7 @@ class PersonalPilotProjection:
         self.intelligence_status_provider = intelligence_status_provider
         self.intelligence_command_executor = intelligence_command_executor
         self.tv_presentation_executor = tv_presentation_executor
+        self.dashboard_action_executor = dashboard_action_executor
 
     def _calendar_authority(
         self,
@@ -152,12 +154,27 @@ class PersonalPilotProjection:
                 "due_reminders": len([item for item in reminders if item.get("status") == "due"]),
                 "contacts": len(personal.get("contacts") or []),
             },
+            "shared_dashboard": self._shared_dashboard_state(persona_id),
             "authority": {
                 "source": "existing_personal_pilot",
                 "phone_device_id": authority["device_id"],
                 "other_adult_private_data_exposed": False,
-                "shared_tv_authority_granted": False,
+                "shared_tv_authority_granted": "tv.control" in set(authority.get("scopes") or []),
             },
+        }
+
+    def _shared_dashboard_state(self, persona_id: str) -> dict[str, Any]:
+        """Return only the caller's shared-dashboard session state."""
+        active = dict(self.identities.snapshot().get("active_shared_identity") or {})
+        state = "locked"
+        if active:
+            state = "you" if active.get("persona_id") == persona_id else "another_person"
+        return {
+            "state": state,
+            "display_name": str(active.get("display_name") or "")[:100] if state == "you" else "",
+            "expires_at": active.get("expires_at") if state == "you" else None,
+            "presence_expires_at": active.get("presence_expires_at") if state == "you" else None,
+            "exclusive": True,
         }
 
     def create_reminder(
@@ -1025,7 +1042,15 @@ class PersonalPilotProjection:
             raise ValueError("A valid local-presence purpose is required")
         if not trusted_local_address:
             raise PermissionError("Shared-screen presence must be proved directly on the trusted home network")
-        active = self.identities.confirm_shared_screen_presence(persona_id=persona_id, device_id=device_id)
+        # This is an explicit, signed action from the controller, not passive
+        # proximity telemetry. Renew both the nearby-phone proof and the
+        # bounded shared-dashboard lease so the button labelled "Keep active"
+        # does exactly that.
+        self.identities.confirm_shared_screen_presence(persona_id=persona_id, device_id=device_id)
+        active = self.identities.touch_shared_screen(
+            persona_id=persona_id,
+            source="explicit_mobile_dashboard_keepalive",
+        )
         return {
             "schema_version": "pilot.shared-tv-presence.v1", "state": "you",
             "expires_at": active.get("expires_at"),
@@ -1056,6 +1081,33 @@ class PersonalPilotProjection:
             "result": result,
             "private_content_persisted_on_tv": False,
             "authority_expires_with_shared_session": True,
+        }
+
+    def control_dashboard_action(
+        self, request: dict[str, Any], *, certificate: dict[str, Any], lease: dict[str, Any],
+        phone_signature: str,
+    ) -> dict[str, Any]:
+        """Open one explicitly allowed Pilot surface from the signed phone."""
+        persona_id, _device_id = self._device_authority(
+            request, certificate=certificate, lease=lease, phone_signature=phone_signature,
+            scope="tv.control",
+        )
+        command = str(request.get("command") or "")
+        allowed = {"games", "aion", "education_start", "tasks", "calendar", "files", "iot", "work"}
+        if command not in allowed or self.dashboard_action_executor is None:
+            raise PermissionError("That Pilot dashboard action is outside this phone's authority")
+        arguments = dict(request.get("arguments") or {})
+        if len(str(arguments)) > 2_048:
+            raise ValueError("That Pilot dashboard action is too large")
+        self.identities.touch_shared_screen(persona_id=persona_id, source="signed_mobile_dashboard_action")
+        result = dict(self.dashboard_action_executor(persona_id, command, arguments) or {})
+        return {
+            "schema_version": "pilot.personal-dashboard-action-mobile.v1",
+            "command": command,
+            "accepted": bool(result.get("accepted", True)),
+            "spoken_response": str(result.get("spoken_response") or "Pilot opened the requested surface.")[:500],
+            "receipt": result.get("receipt"),
+            "verified_navigation": result.get("verified_navigation"),
         }
 
     def control_iot_device(

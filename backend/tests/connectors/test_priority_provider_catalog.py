@@ -9,11 +9,11 @@ from backend.modules.connectors.priority_provider_catalog import (
 from backend.modules.connectors.provider_release_gate import evaluate_provider_release
 
 
-def test_all_six_priority_provider_manifests_are_valid():
+def test_all_priority_provider_manifests_are_valid():
     result = validate_priority_provider_catalog()
     assert result["valid"] is True
-    assert result["provider_count"] == 6
-    assert set(result["providers"]) == {"gmail", "microsoft_outlook", "xero", "hubspot", "twilio_voice", "stripe"}
+    assert result["provider_count"] == 16
+    assert set(result["providers"]) == {"gmail", "microsoft_outlook", "mailchimp_marketing", "resend", "twilio_messaging", "google_routes", "xero", "quickbooks_online", "sage_accounting", "freeagent", "freshbooks", "zoho_books", "hubspot", "pipedrive", "twilio_voice", "stripe"}
     assert all(len(item["manifest_sha256"]) == 64 for item in result["providers"].values())
 
 
@@ -53,7 +53,7 @@ def test_business_skill_catalog_is_large_curated_and_truthful():
 
 
 def test_each_priority_provider_has_a_release_curriculum():
-    for tool_id in ("gmail", "microsoft_outlook", "xero", "hubspot", "twilio_voice", "stripe"):
+    for tool_id in get_priority_provider_catalog():
         syllabus = get_provider_training_syllabus(tool_id)
         assert len(syllabus["lessons"]) >= 7
         assert "retention_and_unfamiliar_transfer" in syllabus["assessments"]

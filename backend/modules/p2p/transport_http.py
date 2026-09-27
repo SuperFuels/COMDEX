@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 import httpx
@@ -104,6 +106,66 @@ async def get_json(
 
         code = int(r.status_code)
         return {"status": code, "status_code": code, "json": j, "text": r.text}
+
+
+async def post_file(
+    base_url: str,
+    path: str,
+    body: Dict[str, Any],
+    *,
+    output_path: str | Path,
+    expected_media_type: str,
+    max_bytes: int,
+    timeout_s: float = 120.0,
+    headers: Optional[Dict[str, str]] = None,
+    transport: httpx.AsyncBaseTransport | None = None,
+) -> Dict[str, Any]:
+    """Stream a bounded peer response to an owner-only file without redirects."""
+    url = (base_url or "").rstrip("/") + path
+    output = Path(output_path).expanduser().resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    temporary = output.with_suffix(output.suffix + ".tmp")
+    temporary.unlink(missing_ok=True)
+    written = 0
+    try:
+        timeout = httpx.Timeout(timeout_s, connect=min(10.0, timeout_s))
+        async with httpx.AsyncClient(
+            timeout=timeout, follow_redirects=False, transport=transport,
+        ) as client:
+            async with client.stream("POST", url, json=body, headers=dict(headers or {})) as response:
+                if response.status_code != 200:
+                    content = await response.aread()
+                    raise RuntimeError(f"peer_snapshot_http_{response.status_code}:{content[:512].decode('utf-8', 'replace')}")
+                media_type = str(response.headers.get("content-type") or "").split(";", 1)[0].strip().lower()
+                if media_type != str(expected_media_type).strip().lower():
+                    raise RuntimeError("peer_snapshot_media_type_invalid")
+                try:
+                    declared = int(response.headers.get("content-length") or 0)
+                except ValueError:
+                    declared = 0
+                if declared > int(max_bytes):
+                    raise RuntimeError("peer_snapshot_size_exceeded")
+                with temporary.open("xb") as stream:
+                    async for chunk in response.aiter_bytes(1024 * 1024):
+                        written += len(chunk)
+                        if written > int(max_bytes):
+                            raise RuntimeError("peer_snapshot_size_exceeded")
+                        stream.write(chunk)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                if written <= 0:
+                    raise RuntimeError("peer_snapshot_empty")
+                os.chmod(temporary, 0o600)
+                os.replace(temporary, output)
+                return {
+                    "status": 200,
+                    "status_code": 200,
+                    "bytes": written,
+                    "snapshot_id": str(response.headers.get("x-glyphchain-snapshot-id") or ""),
+                    "snapshot_height": str(response.headers.get("x-glyphchain-snapshot-height") or ""),
+                }
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 async def relay_submit_tx_async(

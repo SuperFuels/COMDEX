@@ -294,6 +294,13 @@ class CanvasWorkflowCompiler:
                 "action",
                 "confidence",
                 "risk_flags",
+                "action_id",
+                "capability_id",
+                "skill_id",
+                "skill_hash",
+                "department_id",
+                "required_inputs",
+                "output_contract",
             ]:
                 if key in data:
                     raw_step[key] = data[key]

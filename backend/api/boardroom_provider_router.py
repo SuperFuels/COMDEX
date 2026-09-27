@@ -148,6 +148,69 @@ def _provider_status() -> List[Dict[str, Any]]:
     return records
 
 
+def _selected_local_provider(workspace_id: str) -> Optional[Dict[str, Any]]:
+    """Return the workspace's verified local model as a Boardroom provider."""
+    from backend.modules.aion_inference.local_model_selection_store import load_local_model_selection
+    from backend.modules.aion_inference.local_model_vault import LocalModelVault
+
+    selection = load_local_model_selection(str(workspace_id or "home-fixed"))
+    if selection.get("source") != "local_model_vault":
+        return None
+    model_id = str(selection.get("model_id") or selection.get("model") or "").strip()
+    model = next(
+        (item for item in LocalModelVault().snapshot().get("models") or []
+         if isinstance(item, dict) and str(item.get("model_id") or "") == model_id),
+        None,
+    )
+    installation = next(
+        (item for item in (model or {}).get("installations") or []
+         if isinstance(item, dict) and item.get("selectable") is True),
+        None,
+    )
+    connected = bool(model and model.get("selection_status") == "selectable" and installation)
+    runtime = {
+        **dict((model or {}).get("runtime_profile") or {}),
+        **dict((installation or {}).get("runtime_profile") or {}),
+    }
+    display_name = str((installation or {}).get("display_name") or model_id or "Local model")
+    return {
+        "id": "local_model",
+        "label": display_name,
+        "model": model_id,
+        "mode": "local_sd",
+        "source": "local_model_vault",
+        "connected": connected,
+        "reason": None if connected else "selected_local_model_not_available",
+        "capabilities": {"boardroom": True, "receipt_vision": False},
+        "capability_note": "Runs locally from verified storage through the bounded Tessaris model harness.",
+        "runtime": runtime,
+        "model_sha256": str((installation or {}).get("model_sha256") or ""),
+        "model_path": str((installation or {}).get("model_path") or ""),
+    }
+
+
+def _call_selected_local_provider(provider: Dict[str, Any], prompt: str) -> Dict[str, Any]:
+    from backend.services.aion_mission_mode.pilot_local_model_runtime import (
+        run_selected_local_chat,
+        selected_local_runtime_profile,
+    )
+
+    runtime = dict(provider.get("runtime") or {})
+    profile = selected_local_runtime_profile(
+        model_id=str(provider.get("model") or ""),
+        adapter=str(runtime.get("adapter") or ""),
+        endpoint=str(runtime.get("endpoint") or ""),
+        model_sha256=str(provider.get("model_sha256") or ""),
+        model_path=str(provider.get("model_path") or ""),
+        finance_arithmetic=str(runtime.get("finance_arithmetic") or ""),
+        chat_template_kwargs=runtime.get("chat_template_kwargs"),
+        max_output_tokens=runtime.get("max_output_tokens"),
+        context_size=runtime.get("context_size"),
+        parallel_slots=runtime.get("parallel_slots"),
+    )
+    return run_selected_local_chat(prompt=prompt, runtime_profile=profile)
+
+
 def _compact_canonical_context(context: Dict[str, Any]) -> Dict[str, Any]:
     """Keep the Board's highest-authority evidence ahead of the prompt limit."""
     if not isinstance(context, dict):
@@ -392,17 +455,17 @@ def _validate_pilot_draft_response(content: str) -> Dict[str, Any]:
     return structured
 
 
-def _call_connected_provider(provider_id: str, prompt: str) -> Dict[str, Any]:
+def _call_connected_provider(provider_id: str, prompt: str, model_id: str | None = None) -> Dict[str, Any]:
     if provider_id == "gemma":
-        return _call_ollama(prompt)
+        return _call_ollama(prompt, model_id)
     if provider_id == "gemini":
-        return _call_gemini(prompt)
+        return _call_gemini(prompt, model_id)
     if provider_id == "claude":
-        return _call_claude(prompt)
+        return _call_claude(prompt, model_id)
     if provider_id == "meta":
-        return _call_meta(prompt)
+        return _call_meta(prompt, model_id)
     if provider_id in {"openai", "grok", "kimi", "mistral", "deepseek"}:
-        return _call_openai_compatible(provider_id, prompt)
+        return _call_openai_compatible(provider_id, prompt, model_id)
     raise RuntimeError("provider_call_not_implemented_yet")
 
 
@@ -508,10 +571,10 @@ def _persist_board_meeting(business_id: str, result: Dict[str, Any]) -> None:
     temporary.replace(path)
 
 
-def _call_ollama(prompt: str) -> Dict[str, Any]:
+def _call_ollama(prompt: str, model_override: str | None = None) -> Dict[str, Any]:
     started = time.time()
     payload = {
-        "model": _ollama_model(),
+        "model": str(model_override or _ollama_model()),
         "prompt": prompt,
         "stream": False,
     }
@@ -523,10 +586,10 @@ def _call_ollama(prompt: str) -> Dict[str, Any]:
 
 
 
-def _call_gemini(prompt: str) -> Dict[str, Any]:
+def _call_gemini(prompt: str, model_override: str | None = None) -> Dict[str, Any]:
     start = time.time()
     api_key = get_ai_provider_secret("gemini")
-    model = get_ai_provider_model("gemini") or "gemini-2.5-flash"
+    model = str(model_override or get_ai_provider_model("gemini") or "gemini-2.5-flash")
 
     if not api_key:
         raise RuntimeError("missing_gemini_api_key")
@@ -583,7 +646,7 @@ def _call_gemini(prompt: str) -> Dict[str, Any]:
         "content": content,
     }
 
-def _call_openai_compatible(provider: str, prompt: str) -> Dict[str, Any]:
+def _call_openai_compatible(provider: str, prompt: str, model_override: str | None = None) -> Dict[str, Any]:
     started = time.time()
     api_key = get_ai_provider_secret(provider)
     if not api_key:
@@ -599,7 +662,7 @@ def _call_openai_compatible(provider: str, prompt: str) -> Dict[str, Any]:
         "mistral": "https://api.mistral.ai/v1/chat/completions",
         "deepseek": "https://api.deepseek.com/chat/completions",
     }
-    model = get_ai_provider_model(provider) or models[provider]
+    model = str(model_override or get_ai_provider_model(provider) or models[provider])
 
     payload = {
         "model": model,
@@ -637,12 +700,12 @@ def _call_openai_compatible(provider: str, prompt: str) -> Dict[str, Any]:
     }
 
 
-def _call_claude(prompt: str) -> Dict[str, Any]:
+def _call_claude(prompt: str, model_override: str | None = None) -> Dict[str, Any]:
     started = time.time()
     api_key = get_ai_provider_secret("claude")
     if not api_key:
         raise RuntimeError("missing_claude_api_key")
-    model = get_ai_provider_model("claude") or "claude-sonnet-4-5"
+    model = str(model_override or get_ai_provider_model("claude") or "claude-sonnet-4-5")
     data = _http_json(
         "https://api.anthropic.com/v1/messages",
         payload={
@@ -668,12 +731,12 @@ def _call_claude(prompt: str) -> Dict[str, Any]:
     return {"content": content, "latency_ms": int((time.time() - started) * 1000), "model": model}
 
 
-def _call_meta(prompt: str) -> Dict[str, Any]:
+def _call_meta(prompt: str, model_override: str | None = None) -> Dict[str, Any]:
     started = time.time()
     api_key = get_ai_provider_secret("meta")
     if not api_key:
         raise RuntimeError("missing_meta_api_key")
-    model = get_ai_provider_model("meta") or "muse-spark-1.1"
+    model = str(model_override or get_ai_provider_model("meta") or "muse-spark-1.1")
     data = _http_json(
         "https://api.meta.ai/v1/responses",
         payload={
@@ -692,8 +755,11 @@ def _call_meta(prompt: str) -> Dict[str, Any]:
 
 
 @router.get("/providers/status")
-def boardroom_provider_status() -> Dict[str, Any]:
+def boardroom_provider_status(workspace_id: str = "home-fixed") -> Dict[str, Any]:
     providers = _provider_status()
+    local_provider = _selected_local_provider(workspace_id)
+    if local_provider:
+        providers.append({key: value for key, value in local_provider.items() if key not in {"runtime", "model_sha256", "model_path"}})
     return {
         "schema_version": "aion.boardroom_provider_status.v1",
         "live_provider_registry": True,
@@ -705,6 +771,9 @@ def boardroom_provider_status() -> Dict[str, Any]:
 @router.post("/quote-interview")
 def quote_interview(req: QuoteInterviewRequest) -> Dict[str, Any]:
     providers = {item["id"]: item for item in _provider_status()}
+    local_provider = _selected_local_provider(req.business_id)
+    if local_provider:
+        providers["local_model"] = local_provider
     priority = [str(item).strip() for item in req.requested_providers if str(item).strip()] or ["gemini", "openai", "gemma"]
     attempts: List[Dict[str, str]] = []
     prompt = _quote_interview_prompt(req)
@@ -713,7 +782,7 @@ def quote_interview(req: QuoteInterviewRequest) -> Dict[str, Any]:
         if provider.get("connected") is not True:
             continue
         try:
-            result = _call_connected_provider(provider_id, prompt)
+            result = _call_selected_local_provider(provider, prompt) if provider_id == "local_model" else _call_connected_provider(provider_id, prompt)
             extraction = _validate_quote_interview_response(str(result.get("content") or ""))
             receipt_material = json.dumps({"business_id": req.business_id, "stage": req.stage, "user_turn": req.user_turn, "provider_id": provider_id, "extraction": extraction}, ensure_ascii=False, sort_keys=True)
             return {
@@ -751,6 +820,9 @@ def latest_boardroom_meeting(business_id: str) -> Dict[str, Any]:
 def pilot_draft(req: PilotDraftRequest) -> Dict[str, Any]:
     """Create one provider-backed draft without performing an external action."""
     providers = {item["id"]: item for item in _provider_status()}
+    local_provider = _selected_local_provider(req.business_id)
+    if local_provider:
+        providers["local_model"] = local_provider
     requested = [str(item).strip() for item in req.requested_providers if str(item).strip()]
     priority = requested or ["openai", "gemini", "claude", "grok", "kimi", "meta", "mistral", "deepseek", "gemma"]
     provider = next((providers.get(item) for item in priority if providers.get(item, {}).get("connected")), None)
@@ -765,7 +837,7 @@ def pilot_draft(req: PilotDraftRequest) -> Dict[str, Any]:
     provider_id = str(provider.get("id") or "")
     prompt = _pilot_draft_prompt(req, str(provider.get("label") or provider_id))
     try:
-        result = _call_connected_provider(provider_id, prompt)
+        result = _call_selected_local_provider(provider, prompt) if provider_id == "local_model" else _call_connected_provider(provider_id, prompt)
         structured = _validate_pilot_draft_response(str(result.get("content") or ""))
     except urllib.error.HTTPError as exc:
         return {
@@ -835,6 +907,9 @@ def pilot_draft(req: PilotDraftRequest) -> Dict[str, Any]:
 @router.post("/ask")
 def boardroom_ask(req: BoardroomAskRequest) -> Dict[str, Any]:
     providers = {item["id"]: item for item in _provider_status()}
+    local_provider = _selected_local_provider(req.business_id)
+    if local_provider:
+        providers["local_model"] = local_provider
     responses: List[Dict[str, Any]] = []
 
     for provider_id in req.requested_providers:
@@ -863,7 +938,9 @@ def boardroom_ask(req: BoardroomAskRequest) -> Dict[str, Any]:
         prompt = _board_prompt(req, provider.get("label") or provider_id)
 
         try:
-            if provider_id == "gemma":
+            if provider_id == "local_model":
+                result = _call_selected_local_provider(provider, prompt)
+            elif provider_id == "gemma":
                 result = _call_ollama(prompt)
             elif provider_id == "gemini":
                 result = _call_gemini(prompt)

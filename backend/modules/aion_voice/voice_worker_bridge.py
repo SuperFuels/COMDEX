@@ -21,6 +21,8 @@ class VoiceWorkerResult:
     stderr: str = ""
 
 
+# One local process retains both Kokoro and Whisper models after their first use.
+# Requests are serialised because both models share the same private runtime.
 _PERSISTENT_TTS_PROCESS: subprocess.Popen[str] | None = None
 _PERSISTENT_TTS_LOCK = threading.Lock()
 
@@ -157,8 +159,8 @@ def call_voice_worker(
     timeout: int = 120,
     env: dict[str, str] | None = None,
 ) -> VoiceWorkerResult:
-    if mode == "tts":
-        return _call_persistent_tts_worker(request=request, env=env)
+    if mode in {"tts", "stt"}:
+        return _call_persistent_voice_worker(mode=mode, request=request, env=env)
 
     python_path = resolve_voice_python()
     try:
@@ -262,14 +264,15 @@ def _start_persistent_tts_worker(env: dict[str, str] | None = None) -> subproces
     return _PERSISTENT_TTS_PROCESS
 
 
-def _call_persistent_tts_worker(
+def _call_persistent_voice_worker(
+    mode: str,
     request: dict[str, Any],
     env: dict[str, str] | None = None,
 ) -> VoiceWorkerResult:
     global _PERSISTENT_TTS_PROCESS
     payload_request = dict(request or {})
-    payload_request.setdefault("mode", "tts")
-    payload_request.setdefault("operation", "tts")
+    payload_request.setdefault("mode", mode)
+    payload_request.setdefault("operation", mode)
 
     with _PERSISTENT_TTS_LOCK:
         for attempt in range(2):
@@ -302,6 +305,14 @@ def _call_persistent_tts_worker(
                     return VoiceWorkerResult(ok=False, payload=payload)
 
     return VoiceWorkerResult(ok=False, payload={"ok": False, "error": "Persistent worker unavailable"})
+
+
+def _call_persistent_tts_worker(
+    request: dict[str, Any],
+    env: dict[str, str] | None = None,
+) -> VoiceWorkerResult:
+    return _call_persistent_voice_worker("tts", request=request, env=env)
+
 
 def synthesize_with_worker(text: str, voice: str = "af_heart", sample_rate: int = 24000) -> VoiceWorkerResult:
     return call_voice_worker(

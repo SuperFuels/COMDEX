@@ -103,6 +103,12 @@ DEPARTMENT_KEYWORDS = {
         "review response",
         "helpdesk",
     ),
+    "people": (
+        "people", "staff", "employee", "holiday", "leave", "absence", "capacity", "cover",
+    ),
+    "products_services": (
+        "product", "service", "offering", "unit cost", "unit economics", "product margin",
+    ),
     "builder": (
         "build me",
         "build a",
@@ -142,6 +148,8 @@ PRIMARY_PRIORITY = (
     "finance",
     "operations",
     "support",
+    "people",
+    "products_services",
     "builder",
     "pilot",
 )
@@ -153,6 +161,8 @@ DEFAULT_CAPABILITY_BY_DEPARTMENT = {
     "finance": "forecast.create",
     "operations": "workflow.create",
     "support": "customer_reply.draft",
+    "people": "capacity.summary",
+    "products_services": "offering.performance.review",
     "builder": "document.create",
     "pilot": "mission.route",
 }

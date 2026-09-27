@@ -39,7 +39,7 @@ class UniversalNodeService:
             recent.append(now)
             return True
 
-    def start(self) -> None:
+    def start(self) -> bool:
         service = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -110,9 +110,20 @@ class UniversalNodeService:
             def log_message(self, format: str, *args: object) -> None:
                 return
 
-        self._server = ThreadingHTTPServer(("0.0.0.0", self.port), Handler)
+        try:
+            self._server = ThreadingHTTPServer(("0.0.0.0", self.port), Handler)
+        except OSError as exc:
+            # The universal handshake endpoint is supplementary.  A previous
+            # local Pilot process can still own this shared LAN port while the
+            # dashboard is being restarted; that must never prevent Pilot,
+            # its microphone, or TV recovery from starting.
+            if getattr(exc, "errno", None) == 48:
+                self._server = None
+                return False
+            raise
         self._thread = threading.Thread(target=self._server.serve_forever, name="aion-universal-node", daemon=True)
         self._thread.start()
+        return True
 
     def stop(self) -> None:
         if self._server:
@@ -120,4 +131,3 @@ class UniversalNodeService:
             self._server.server_close()
         if self._thread:
             self._thread.join(timeout=3)
-

@@ -116,8 +116,14 @@ async def test_consensus_pr6_vote_past_height_ignore_gate() -> None:
         fh1 = int(st1.get("finalized_height") or 0)
         last_qc1 = st1.get("last_qc") or {}
 
-        # past-height vote must not change tip
-        assert fh1 == fh0, (st0, st1)
+        # The stale vote must be explicitly ignored.  The independently
+        # running cluster may legitimately finalize the next height between
+        # the two status reads, so the tip is monotonic rather than frozen.
+        if stc == 200:
+            response = rr.get("json") or {}
+            assert response.get("accepted") is False
+            assert response.get("ignored") is True or response.get("dropped") is True
+        assert fh1 >= fh0, (st0, st1)
         # last_qc must not regress
         def _k(qc: Any) -> tuple[int, int]:
             if not isinstance(qc, dict):

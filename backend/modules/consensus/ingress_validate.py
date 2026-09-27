@@ -17,7 +17,9 @@ def validate_vote_payload_or_error(p: Any) -> Optional[str]:
         return "bad vote payload (not a dict)"
 
     h = _as_int(p.get("height"), None)
-    r = _as_int(p.get("round"), None)
+    # Round zero is the canonical model default.  Ingress validation must use
+    # the same default instead of rejecting a payload that Pydantic accepts.
+    r = _as_int(p.get("round", 0), 0)
     vt = p.get("vote_type")
     voter = str(p.get("voter") or "").strip()
     bid = str(p.get("block_id") or "").strip()
@@ -39,7 +41,7 @@ def validate_qc_dict_or_error(qc_d: Any) -> Optional[str]:
         return "bad qc (not a dict)"
 
     h = _as_int(qc_d.get("height"), None)
-    r = _as_int(qc_d.get("round"), None)
+    r = _as_int(qc_d.get("round", 0), 0)
     vt = qc_d.get("vote_type")
     bid = str(qc_d.get("block_id") or "").strip()
     voters = qc_d.get("voters")

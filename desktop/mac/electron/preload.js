@@ -27,8 +27,27 @@ contextBridge.exposeInMainWorld("aionDesktop", {
     return await ipcRenderer.invoke("desktop-runtime-info");
   },
 
+  async getSecuritySentinelStatus() {
+    return await ipcRenderer.invoke("aion-security-sentinel-status");
+  },
+
+  async openSecuritySentinel() {
+    return await ipcRenderer.invoke("aion-security-sentinel-open");
+  },
+
+  onOpenCybersecurity(callback) {
+    if (typeof callback !== "function") return () => {};
+    const listener = () => callback();
+    ipcRenderer.on("aion-open-cybersecurity", listener);
+    return () => ipcRenderer.removeListener("aion-open-cybersecurity", listener);
+  },
+
   async signAionFlowRequest(payload = {}) {
     return await ipcRenderer.invoke("aion-flow-sign-request", payload);
+  },
+
+  async listCustomDepartments(payload = {}) {
+    return await ipcRenderer.invoke("aion-custom-departments-list", payload);
   },
 
   async openExternalUrl(url = "") {
@@ -59,6 +78,21 @@ contextBridge.exposeInMainWorld("aionDesktop", {
     return await ipcRenderer.invoke("aion-request-microphone-permission");
   },
 
+  async launchSpatialBoardroom(payload = {}) {
+    return await ipcRenderer.invoke("aion-launch-spatial-boardroom", payload);
+  },
+
+  async sendSpatialBoardroomEvent(payload = {}) {
+    return await ipcRenderer.invoke("aion-spatial-boardroom-event", payload);
+  },
+
+  onSpatialBoardroomAction(callback) {
+    if (typeof callback !== "function") return () => {};
+    const listener = (_event, payload) => callback(payload);
+    ipcRenderer.on("aion-spatial-boardroom-action", listener);
+    return () => ipcRenderer.removeListener("aion-spatial-boardroom-action", listener);
+  },
+
   /**
    * Existing isolated browser bridge.
    * Keep this because your current Electron main may already use it.
@@ -73,6 +107,10 @@ contextBridge.exposeInMainWorld("aionDesktop", {
 
   async stopBrowserRecording() {
     return await ipcRenderer.invoke("aion-stop-browser-recording");
+  },
+
+  async replayBrowserSkill(payload = {}) {
+    return await ipcRenderer.invoke("aion-replay-browser-skill", payload);
   },
 
   onBrowserRecorderEvent(callback) {

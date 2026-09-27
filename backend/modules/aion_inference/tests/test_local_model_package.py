@@ -25,13 +25,15 @@ def package(path: Path, warehouse_sha256: str, source_sha256: str = "a" * 64) ->
 def test_discovers_and_selects_only_a_complete_verified_matching_warehouse(tmp_path: Path):
     warehouse = tmp_path / "AION-Warehouse" / "manifest.v1.json"
     warehouse.parent.mkdir()
-    warehouse.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1", "status": "COMPLETE_VERIFIED", "verified_sources": [{"name": "source.gguf", "bytes": 3, "sha256": "a" * 64}]}), encoding="utf-8")
+    (warehouse.parent / "source.gguf").write_bytes(b"ggf")
+    warehouse.write_text(json.dumps({"schema": "aion.expert-frame-warehouse.v1", "status": "COMPLETE_VERIFIED", "verified_sources": [{"name": "source.gguf", "path": "source.gguf", "bytes": 3, "sha256": "a" * 64}]}), encoding="utf-8")
     card = package(tmp_path, hashlib.sha256(warehouse.read_bytes()).hexdigest())
     discovered = LocalModelPackage.discover([tmp_path])
     assert [item.package_path for item in discovered] == [card.resolve()]
     result = discovered[0].preflight(tmp_path, internal_free_bytes=100, memory_bytes=18)
     assert result["selectable"] is True
     assert result["runtime_profile"]["mode"] == "full_exact"
+    assert result["model_path"] == str((warehouse.parent / "source.gguf").resolve())
 
 
 def test_refuses_modified_or_incomplete_warehouse(tmp_path: Path):
@@ -52,16 +54,23 @@ def test_real_gpt_oss_package_has_no_placeholder_identity():
     assert all(len(item["sha256"]) == 64 for item in storage["source_shards"])
 
 
-def test_release_catalogue_lists_all_three_models_without_exposing_unready_packages():
+def test_release_catalogue_exposes_only_the_owner_approved_bounded_qwen_package():
     catalogue_path = Path(__file__).parents[1] / "model_packages" / "catalogue.v1.json"
     catalogue = LocalModelReleaseCatalogue(catalogue_path)
     entries = catalogue.entries()
-    assert [entry["model_id"] for entry in entries] == [
+    assert {
         "openai-gpt-oss-120b-q4-k-m-aion-sd",
         "ibm-granite-3.1-3b-a800m-aion-sd",
         "qwen3-30b-a3b-aion-resident-q2",
-    ]
-    assert all(entry["selection_status"] == "visible_not_selectable" for entry in entries)
+    }.issubset({entry["model_id"] for entry in entries})
+    selectable = [entry for entry in entries if entry["selection_status"] == "selectable"]
+    assert [entry["model_id"] for entry in selectable] == ["qwen3-8b-fast-local-q4"]
+    assert selectable[0]["release_status"] == "owner_approved_bounded"
+    assert all(
+        entry["selection_status"] == "visible_not_selectable"
+        for entry in entries if entry["model_id"] != "qwen3-8b-fast-local-q4"
+    )
+    assert catalogue.package_for("qwen3-8b-fast-local-q4").name == "qwen3-8b-fast-local-q4-v1.json"
     assert catalogue.package_for("openai-gpt-oss-120b-q4-k-m-aion-sd") is None
 
 

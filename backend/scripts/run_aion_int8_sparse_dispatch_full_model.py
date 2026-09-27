@@ -17,7 +17,11 @@ from transformers import AutoTokenizer
 
 from backend.modules.aion_inference.int8_glyph_moe import Int8GlyphMoE, load_layer_entries
 from backend.modules.aion_inference.int8_dynamic_bank_moe import (
-    PRECISE_ROUTER_PYTORCH_FALLBACK_LAYERS, Int8DynamicBankMoE, load_bank_entry,
+    PRECISE_ROUTER_PYTORCH_FALLBACK_LAYERS,
+    PRECISE_ROUTER_UNGUARDED_DECODE_TOKENS,
+    PROJECTION_PIPELINE_INITIAL_DECODE_TOKENS,
+    Int8DynamicBankMoE,
+    load_bank_entry,
 )
 from backend.scripts.run_aion_int8_glyph_full_model import _canonical_sha256, _memory
 from backend.scripts.run_aion_int8pack_expert_microbench import _p95
@@ -77,9 +81,14 @@ def _set_dynamic_bank(model: Any, enabled: bool) -> None:
 
 def _set_fused_router(model: Any, enabled: bool) -> None:
     for index, layer in enumerate(model.model.layers):
-        layer.block_sparse_moe.use_fused_router = (
-            enabled and index not in PRECISE_ROUTER_PYTORCH_FALLBACK_LAYERS)
+        layer.block_sparse_moe.use_fused_router = enabled
+        layer.block_sparse_moe.router_fallback_after_tokens = (
+            PRECISE_ROUTER_UNGUARDED_DECODE_TOKENS
+            if index in PRECISE_ROUTER_PYTORCH_FALLBACK_LAYERS else None)
         layer.block_sparse_moe.use_fused_prefill_router = enabled
+        layer.block_sparse_moe.use_fused_projection_pipeline = enabled
+        layer.block_sparse_moe.projection_pipeline_decode_tokens = (
+            PROJECTION_PIPELINE_INITIAL_DECODE_TOKENS if enabled else None)
 
 
 def main() -> int:

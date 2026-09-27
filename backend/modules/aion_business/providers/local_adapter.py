@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from time import perf_counter
 from typing import Any, Dict, Optional
@@ -33,11 +34,11 @@ class LocalAdapter:
     def __init__(
         self,
         *,
-        model: str = "gemma4:e2b",
+        model: Optional[str] = None,
         tasks: Optional[LocalLLMTasks] = None,
         enabled: bool = True,
     ) -> None:
-        self.model = model
+        self.model = model or os.getenv("AION_LOCAL_LLM_MODEL") or os.getenv("OLLAMA_MODEL") or "gemma4:e2b"
         self.tasks = tasks or LocalLLMTasks()
         self.enabled = enabled
 
@@ -82,7 +83,7 @@ class LocalAdapter:
             if system_prompt:
                 task_prompt = f"{system_prompt.strip()}\n\n{prompt.strip()}"
 
-            task_result = self._call_task_method(capability, task_prompt)
+            task_result = self._call_task_method(capability, task_prompt, max_tokens=max_tokens)
             content = self._coerce_task_content(task_result)
 
             return LocalAdapterResult(
@@ -121,7 +122,7 @@ class LocalAdapter:
             )
 
 
-    def _call_task_method(self, capability: str, task_prompt: str) -> Any:
+    def _call_task_method(self, capability: str, task_prompt: str, *, max_tokens: int = 512) -> Any:
         """
         Compatibility bridge:
         - supports older test fakes with generate/rewrite methods
@@ -149,7 +150,7 @@ class LocalAdapter:
         if capability == "drafting":
             if hasattr(self.tasks, "generate"):
                 return self.tasks.generate(task_prompt)
-            return self.tasks.draft_reply(task_prompt)
+            return self.tasks.draft_reply(task_prompt, max_tokens=max_tokens)
 
         raise AttributeError(f"Unsupported local capability: {capability}")
 

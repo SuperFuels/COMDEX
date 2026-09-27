@@ -15,6 +15,8 @@ from backend.scripts.run_aion_int8_dynamic_bank_moe_gate import _shader_source
 
 
 PRECISE_ROUTER_PYTORCH_FALLBACK_LAYERS = frozenset({19, 21, 22})
+PRECISE_ROUTER_UNGUARDED_DECODE_TOKENS = 32
+PROJECTION_PIPELINE_INITIAL_DECODE_TOKENS = 8
 
 
 @lru_cache(maxsize=1)
@@ -42,7 +44,8 @@ class Int8DynamicBankMoE(nn.Module):
                  verify_hash: Any, device: str = "mps",
                  use_dynamic_decode: bool = False,
                  use_fused_router: bool = False,
-                 use_fused_prefill_router: bool = False) -> None:
+                 use_fused_prefill_router: bool = False,
+                 use_fused_projection_pipeline: bool = False) -> None:
         super().__init__()
         path = Path(entry["path"]).resolve()
         if storage_root not in path.parents or verify_hash(path) != entry["sha256"]:
@@ -57,11 +60,18 @@ class Int8DynamicBankMoE(nn.Module):
         self.use_dynamic_decode = use_dynamic_decode
         self.use_fused_router = use_fused_router
         self.use_fused_prefill_router = use_fused_prefill_router
+        self.use_fused_projection_pipeline = use_fused_projection_pipeline
+        self.projection_pipeline_decode_tokens: int | None = None
+        self.router_fallback_after_tokens: int | None = None
+        self.decode_step = 0
         self.route_audit: dict[str, Any] | None = None
         self.register_buffer("dynamic_hidden", torch.empty(
             (8, self.input_bank.shape[1]), dtype=torch.float16, device=device), persistent=False)
         self.register_buffer("dynamic_output", torch.empty(
             (self.output_bank.shape[1],), dtype=torch.float16, device=device), persistent=False)
+        self.register_buffer("dynamic_activated", torch.empty(
+            (8, self.input_bank.shape[1] // 2), dtype=torch.float16, device=device),
+            persistent=False)
         self.register_buffer("dynamic_expert_indices", torch.empty(
             (8,), dtype=torch.int32, device=device), persistent=False)
         self.register_buffer("dynamic_gates", torch.empty(
@@ -92,7 +102,12 @@ class Int8DynamicBankMoE(nn.Module):
 
     def _dynamic(self, flattened: torch.Tensor) -> torch.Tensor:
         library = _library()
-        if self.use_fused_router:
+        fast_router_enabled = (
+            self.use_fused_router and
+            (self.router_fallback_after_tokens is None or
+             self.decode_step < self.router_fallback_after_tokens)
+        )
+        if fast_router_enabled:
             logits = self.router.layer(flattened).float()
             library.select_decode(
                 logits, self.dynamic_expert_indices, self.dynamic_gates,
@@ -119,18 +134,38 @@ class Int8DynamicBankMoE(nn.Module):
             top_indices, order = top_indices.sort(dim=1)
             gates = gates_2d.gather(1, order)[0]
             expert_indices = top_indices[0].to(torch.int32)
-        library.dyn_input(
-            flattened, self.input_bank, self.input_scale_bank, expert_indices,
-            self.dynamic_hidden, self.input_bank.shape[2], self.input_bank.shape[1],
-            threads=(self.input_bank.shape[1] * 32, 8, 1), group_size=(32, 1, 1),
+        fused_projection_enabled = (
+            self.use_fused_projection_pipeline and
+            (self.projection_pipeline_decode_tokens is None or
+             self.decode_step < self.projection_pipeline_decode_tokens)
         )
-        gate, projected = self.dynamic_hidden.chunk(2, dim=-1)
-        activated = self.activation(gate) * projected
-        library.dyn_output(
-            activated, self.output_bank, self.output_scale_bank, expert_indices, gates,
-            self.dynamic_output, self.output_bank.shape[2], self.output_bank.shape[1],
-            threads=(self.output_bank.shape[1] * 32, 1, 1), group_size=(32, 1, 1),
-        )
+        if fused_projection_enabled:
+            library.dyn_input_silu(
+                flattened, self.input_bank, self.input_scale_bank, expert_indices,
+                self.dynamic_activated, self.input_bank.shape[2], self.input_bank.shape[1],
+                threads=((self.input_bank.shape[1] // 2) * 32, 8, 1),
+                group_size=(32, 1, 1),
+            )
+            library.dyn_output_parallel(
+                self.dynamic_activated, self.output_bank, self.output_scale_bank,
+                expert_indices, gates, self.dynamic_output, self.output_bank.shape[2],
+                self.output_bank.shape[1], threads=(self.output_bank.shape[1] * 32, 8, 1),
+                group_size=(32, 8, 1),
+            )
+        else:
+            library.dyn_input(
+                flattened, self.input_bank, self.input_scale_bank, expert_indices,
+                self.dynamic_hidden, self.input_bank.shape[2], self.input_bank.shape[1],
+                threads=(self.input_bank.shape[1] * 32, 8, 1), group_size=(32, 1, 1),
+            )
+            gate, projected = self.dynamic_hidden.chunk(2, dim=-1)
+            activated = self.activation(gate) * projected
+            library.dyn_output(
+                activated, self.output_bank, self.output_scale_bank, expert_indices, gates,
+                self.dynamic_output, self.output_bank.shape[2], self.output_bank.shape[1],
+                threads=(self.output_bank.shape[1] * 32, 1, 1), group_size=(32, 1, 1),
+            )
+        self.decode_step += 1
         return self.dynamic_output.view(1, 1, self.input_size)
 
     def _fused_prefill_route(self, flattened: torch.Tensor):
@@ -142,15 +177,10 @@ class Int8DynamicBankMoE(nn.Module):
         top_gates = torch.softmax(top_logits, dim=1).type_as(flattened)
         flat_indices = top_indices.flatten()
         flat_gates = top_gates.flatten()
-        library.clear_counts(
-            self.prefill_counts, threads=(40, 1, 1), group_size=(32, 1, 1))
-        library.count_routes(
-            flat_indices, self.prefill_counts, assignments,
-            threads=(assignments, 1, 1), group_size=(32, 1, 1))
-        library.group_exact_by_expert(
+        library.group_count_exact(
             flat_indices, flat_gates, self.prefill_counts,
             self.prefill_batch_index, self.prefill_batch_gates, assignments,
-            threads=(40, 1, 1), group_size=(32, 1, 1))
+            threads=(64, 1, 1), group_size=(64, 1, 1))
         expert_size = self.prefill_counts.tolist()
         return (self.prefill_batch_index[:assignments],
                 self.prefill_batch_gates[:assignments], expert_size)
@@ -160,6 +190,7 @@ class Int8DynamicBankMoE(nn.Module):
         flattened = layer_input.reshape(-1, embedding)
         if self.use_dynamic_decode and flattened.shape[0] == 1:
             return self._dynamic(flattened)
+        self.decode_step = 0
         if self.use_fused_prefill_router and flattened.shape[0] <= self.PREFILL_TOKEN_CAPACITY:
             batch_index, batch_gates, expert_size = self._fused_prefill_route(flattened)
         else:

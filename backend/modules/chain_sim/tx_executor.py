@@ -161,6 +161,9 @@ _TX_CANDIDATES: Dict[str, tuple[str, ...]] = {
         "dev_undelegate",
         "handle_staking_undelegate",
     ),
+    "DOCUMENT_PROOF_V1": (
+        "apply_document_proof_v1",
+    ),
 }
 
 
@@ -376,6 +379,7 @@ def apply_tx(envelope: TxEnvelope) -> Tuple[bool, Optional[str], Dict[str, Any]]
             from_addr=_get_attr(envelope, "from_addr", None),
             sender=_get_attr(envelope, "from_addr", None),
             payload=p,
+            nonce=_get_attr(envelope, "nonce", None),
             **(p if isinstance(p, dict) else {}),
         )
         applied, err, payload = _normalize_engine_return(out)

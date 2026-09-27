@@ -2,7 +2,6 @@
 import "@/lib/api";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { Inter } from "next/font/google";
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
@@ -12,11 +11,12 @@ import "katex/dist/katex.min.css";
 const Navbar = dynamic(() => import("@/components/Navbar"), { ssr: false });
 const HUDOverlay = dynamic(() => import("@/components/HUD/HUDOverlay"), { ssr: false });
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
-
 export default function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const immersive = router.pathname.startsWith("/glyphnet") || router.pathname.startsWith("/pilot/mobile");
+  const immersive =
+    router.pathname.startsWith("/glyphnet") ||
+    router.pathname.startsWith("/pilot/mobile") ||
+    router.query.embed === "tessaris";
 
   useEffect(() => {
     console.log("🔍 NEXT_PUBLIC_API_URL =", process.env.NEXT_PUBLIC_API_URL);
@@ -27,7 +27,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <div className={`${inter.className} flex min-h-screen bg-bg-page text-text-primary`}>
+    <div className="flex min-h-screen bg-bg-page text-text-primary font-sans">
       {!immersive && <HUDOverlay />}
 
       <div className="flex-1 flex flex-col">

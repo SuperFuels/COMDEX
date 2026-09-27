@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import os
 import time
 import unicodedata
@@ -117,6 +118,10 @@ class ResendAdapter:
             )
 
         payload_meta = dict(metadata or {})
+        safe_metadata = {
+            key: value for key, value in payload_meta.items()
+            if key not in {"attachments", "html"}
+        }
 
         from_email = self._to_safe_text(
             str(
@@ -134,7 +139,7 @@ class ResendAdapter:
                 usage={},
                 latency_ms=0,
                 error_code="missing_from_email",
-                raw={"metadata": payload_meta},
+                raw={"metadata": safe_metadata},
             )
 
         to_emails = self._normalize_recipients(payload_meta.get("to_emails"))
@@ -147,13 +152,21 @@ class ResendAdapter:
                 usage={},
                 latency_ms=0,
                 error_code="missing_to_emails",
-                raw={"metadata": payload_meta},
+                raw={"metadata": safe_metadata},
             )
 
         cc_emails = self._normalize_recipients(payload_meta.get("cc_emails"))
         bcc_emails = self._normalize_recipients(payload_meta.get("bcc_emails"))
         reply_to = self._normalize_recipients(payload_meta.get("reply_to"))
         tags = self._normalize_tags(payload_meta.get("tags"))
+        try:
+            attachments = self._normalize_attachments(payload_meta.get("attachments"))
+        except ValueError as exc:
+            return ResendAdapterResult(
+                ok=False, provider="resend", model=preferred_model or self.model,
+                content="", usage={}, latency_ms=0, error_code=str(exc), raw=None,
+            )
+        safe_metadata["attachment_names"] = [item["filename"] for item in attachments]
 
         subject = self._to_safe_text(
             str(payload_meta.get("subject") or "Aion Business Email")
@@ -183,6 +196,8 @@ class ResendAdapter:
             request_payload["reply_to"] = reply_to
         if tags:
             request_payload["tags"] = tags
+        if attachments:
+            request_payload["attachments"] = attachments
 
         started = time.time()
 
@@ -216,7 +231,7 @@ class ResendAdapter:
                     raw={
                         "status_code": response.status_code,
                         "response": response_json,
-                        "metadata": payload_meta,
+                        "metadata": safe_metadata,
                         "request_preview": {
                             "from": from_email,
                             "to_count": len(to_emails),
@@ -237,7 +252,7 @@ class ResendAdapter:
                 raw={
                     "id": email_id,
                     "response": response_json,
-                    "metadata": payload_meta,
+                    "metadata": safe_metadata,
                     "request_preview": {
                         "from": from_email,
                         "to": to_emails,
@@ -261,7 +276,7 @@ class ResendAdapter:
                 latency_ms=latency_ms,
                 error_code=f"resend_request_failed:{exc}",
                 raw={
-                    "metadata": payload_meta,
+                    "metadata": safe_metadata,
                     "request_preview": {
                         "from": from_email,
                         "to_count": len(to_emails),
@@ -317,6 +332,31 @@ class ResendAdapter:
             return out
 
         return out
+
+    @staticmethod
+    def _normalize_attachments(value: Any) -> List[Dict[str, str]]:
+        if value is None:
+            return []
+        if not isinstance(value, list) or len(value) > 10:
+            raise ValueError("resend_attachments_invalid")
+        attachments: List[Dict[str, str]] = []
+        total = 0
+        for item in value:
+            if not isinstance(item, dict):
+                raise ValueError("resend_attachment_invalid")
+            filename = str(item.get("filename") or "").strip()[:240]
+            content = str(item.get("content") or "").strip()
+            if not filename or not content:
+                raise ValueError("resend_attachment_filename_and_content_required")
+            try:
+                decoded = base64.b64decode(content, validate=True)
+            except Exception as exc:
+                raise ValueError("resend_attachment_content_must_be_base64") from exc
+            total += len(decoded)
+            if total > 10_000_000:
+                raise ValueError("resend_attachments_too_large")
+            attachments.append({"filename": filename, "content": content})
+        return attachments
 
     @staticmethod
     def _text_to_basic_html(text: str) -> str:

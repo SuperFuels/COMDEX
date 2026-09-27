@@ -1,6 +1,15 @@
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
+from uuid import uuid4
+
+from backend.modules.aion_fabric.canonical import utc_now_iso
+from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.workspace_repository import WorkspaceRepository
+from backend.modules.aion_business.runtime.department_pilot_repository import DepartmentPilotRepository
+from backend.modules.aion_business.runtime.finance_pilot_conversation_service import FinancePilotConversationService
+from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
+from backend.modules.pilot_unified.workspace_gateway import AionBoardroomWorkspaceProvider
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
@@ -34,6 +43,10 @@ from backend.modules.aion_business.runtime.aion_flow_policy import AionFlowPolic
 from backend.modules.aion_business.runtime.aion_flow_session_authority import (
     AionFlowSessionAuthority,
     VerifiedAionFlowSession,
+)
+from backend.modules.aion_business.runtime.operations_executive_briefing_service import (
+    EXECUTIVE_MESSAGE_TYPES,
+    OperationsExecutiveBriefingService,
 )
 
 
@@ -217,6 +230,28 @@ def get_aion_flow_production_service() -> AionFlowProductionService:
 _aion_flow_session_authority = AionFlowSessionAuthority()
 
 
+def _operations_conversation_page(workspace_id: str, department_id: str = "operations", before: str = "", limit: int = 50) -> Dict[str, Any]:
+    """Read a bounded page from the protected workspace COO stream."""
+    repository = BusinessContainerRepository()
+    runtime = repository.load_optional_dict(workspace_id, "operational_runtime_summary") or {}
+    store = runtime.get("shared_conversations") if isinstance(runtime.get("shared_conversations"), dict) else {}
+    turns = [
+        dict(item) for item in store.get("turns") or []
+        if isinstance(item, dict) and str(item.get("message_type") or "") not in EXECUTIVE_MESSAGE_TYPES
+    ]
+    department = str(department_id or "operations").strip().lower()[:80]
+    turns = [item for item in turns if item.get("department_id") == department]
+    turns.sort(key=lambda item: (int(item.get("sequence") or 0), str(item.get("created_at") or ""), str(item.get("id") or "")))
+    if before:
+        index = next((i for i, item in enumerate(turns) if str(item.get("id") or "") == before), len(turns))
+        turns = turns[:index]
+    size = max(10, min(int(limit or 50), 75))
+    page = turns[-size:]
+    return {"ok": True, "workspace_id": workspace_id, "department_id": department, "turns": page,
+            "has_more": len(turns) > len(page), "next_before": str(page[0].get("id") or "") if len(turns) > len(page) and page else "",
+            "retention": {"recent_window": 75, "page_size": size, "archive_searchable": True}}
+
+
 async def require_aion_flow_session(request: Request) -> VerifiedAionFlowSession:
     try:
         body = await request.body()
@@ -226,6 +261,150 @@ async def require_aion_flow_session(request: Request) -> VerifiedAionFlowSession
         raise HTTPException(status_code=401, detail=str(exc)) from exc
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+class OperationsConversationHistoryRequest(BaseModel):
+    department_id: str = "operations"
+    before: str = ""
+    limit: int = Field(default=50, ge=10, le=75)
+
+
+class OperationsConversationAppendRequest(BaseModel):
+    department_id: str = "operations"
+    role: str = "user"
+    content: str = Field(min_length=1, max_length=2000)
+
+
+class OperationsConversationTurnRequest(BaseModel):
+    department_id: str = "operations"
+    user_text: str = Field(min_length=1, max_length=2000)
+    attachments: list[str] = Field(default_factory=list, max_length=3)
+
+
+class OperationsDepartmentChannelRequest(BaseModel):
+    department_id: str
+    limit: int = Field(default=75, ge=10, le=100)
+
+
+class OperationsDepartmentTurnRequest(BaseModel):
+    department_id: str
+    user_text: str = Field(min_length=1, max_length=2000)
+
+
+class OperationsMorningBriefingRequest(BaseModel):
+    force: bool = False
+
+
+def _operations_workspace_provider() -> AionBoardroomWorkspaceProvider:
+    return AionBoardroomWorkspaceProvider(
+        WorkspaceRepository(), BusinessContainerRepository(), DepartmentPilotRepository(),
+        FinancePilotConversationService(), WorkflowFileCabinetRepository,
+    )
+
+
+def _operations_executive_service() -> OperationsExecutiveBriefingService:
+    return OperationsExecutiveBriefingService(_operations_workspace_provider())
+
+
+@router.post("/aion-flow/operations-conversation/history")
+def read_operations_conversation(
+    payload: OperationsConversationHistoryRequest,
+    session: VerifiedAionFlowSession = Depends(require_aion_flow_session),
+) -> Dict[str, Any]:
+    # The possession-bound desktop session determines both the person and the
+    # workspace.  Browser input never selects another business record.
+    return _operations_conversation_page(session.workspace_id, payload.department_id, payload.before, payload.limit)
+
+
+@router.post("/aion-flow/operations-conversation/append")
+def append_operations_conversation(
+    payload: OperationsConversationAppendRequest,
+    session: VerifiedAionFlowSession = Depends(require_aion_flow_session),
+) -> Dict[str, Any]:
+    role = payload.role.strip().lower()
+    content = " ".join(payload.content.split())[:2000]
+    if role not in {"user", "assistant"} or not content:
+        raise HTTPException(status_code=422, detail="A conversation message needs a valid role and content")
+    department = payload.department_id.strip().lower()[:80] or "operations"
+    repository = BusinessContainerRepository()
+    runtime = repository.load_optional_dict(session.workspace_id, "operational_runtime_summary") or {}
+    store = runtime.get("shared_conversations") if isinstance(runtime.get("shared_conversations"), dict) else {"schema_version": "workspace_conversation_v1", "turns": []}
+    turns = [dict(item) for item in store.get("turns") or [] if isinstance(item, dict)]
+    message = {"id": f"msg-{uuid4().hex}", "sequence": len(turns), "department_id": department, "role": role,
+               "sender": session.person_id if role == "user" else "Operations Pilot", "content": content,
+               "created_at": utc_now_iso(), "approval_gated": True,
+               "source": "signed_desktop_session"}
+    turns.append(message)
+    runtime["shared_conversations"] = {"schema_version": "workspace_conversation_v1", "turns": turns[-1200:], "updated_at": message["created_at"]}
+    repository.save_dict(session.workspace_id, "operational_runtime_summary", runtime)
+    return {"ok": True, "message": message, "history": _operations_conversation_page(session.workspace_id, department)}
+
+
+@router.post("/aion-flow/operations-conversation/turn")
+def run_operations_conversation_turn(
+    payload: OperationsConversationTurnRequest,
+    session: VerifiedAionFlowSession = Depends(require_aion_flow_session),
+) -> Dict[str, Any]:
+    """Run the same read-only COO mission used by the paired phone.
+
+    The signed desktop session fixes both actor and workspace; a browser cannot
+    select another workspace or invoke a write-capable tool through this route.
+    """
+    try:
+        response = _operations_workspace_provider().conversation_turn(
+            session.workspace_id, payload.department_id, payload.user_text,
+            persona_id=session.person_id, attachments=payload.attachments,
+        )
+    except (OSError, ValueError, PermissionError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {"ok": True, "conversation": response, "history": _operations_conversation_page(session.workspace_id, payload.department_id)}
+
+
+@router.post("/aion-flow/operations-conversation/executive-status")
+def read_operations_executive_status(
+    session: VerifiedAionFlowSession = Depends(require_aion_flow_session),
+) -> Dict[str, Any]:
+    return _operations_executive_service().status(session.workspace_id)
+
+
+@router.post("/aion-flow/operations-conversation/channel-history")
+def read_operations_department_channel(
+    payload: OperationsDepartmentChannelRequest,
+    session: VerifiedAionFlowSession = Depends(require_aion_flow_session),
+) -> Dict[str, Any]:
+    try:
+        return _operations_executive_service().channel_history(
+            session.workspace_id, payload.department_id, limit=payload.limit,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post("/aion-flow/operations-conversation/channel-turn")
+def run_operations_department_turn(
+    payload: OperationsDepartmentTurnRequest,
+    session: VerifiedAionFlowSession = Depends(require_aion_flow_session),
+) -> Dict[str, Any]:
+    try:
+        return _operations_executive_service().channel_turn(
+            session.workspace_id, payload.department_id, payload.user_text,
+            person_id=session.person_id,
+        )
+    except (OSError, ValueError, PermissionError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post("/aion-flow/operations-conversation/morning-briefing")
+def run_operations_morning_briefing(
+    payload: OperationsMorningBriefingRequest,
+    session: VerifiedAionFlowSession = Depends(require_aion_flow_session),
+) -> Dict[str, Any]:
+    try:
+        return _operations_executive_service().run_morning_briefing(
+            session.workspace_id, person_id=session.person_id, force=payload.force,
+        )
+    except (OSError, ValueError, PermissionError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 def authorize_aion_flow_session(

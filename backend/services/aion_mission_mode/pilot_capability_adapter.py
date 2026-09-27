@@ -63,6 +63,8 @@ DEPARTMENT_CAPABILITY_TO_GATEWAY_CAPABILITY = {
     "iva_vat.breakdown": "generate_copy",
     "kpi.dashboard": "generate_copy",
     "pricing_calculator.create": "generate_copy",
+    "invoice.collection.prepare": "generate_copy",
+    "invoice.reminder.send": "send_email",
 
     # Operations
     "workflow.create": "generate_copy",
@@ -79,6 +81,27 @@ DEPARTMENT_CAPABILITY_TO_GATEWAY_CAPABILITY = {
     "aftercare.create": "generate_copy",
     "complaint_response.draft": "generate_copy",
     "support_knowledge.create": "generate_copy",
+    "case.triage": "generate_copy",
+
+    # People
+    "leave.coverage.plan": "generate_copy",
+    "capacity.summary": "generate_copy",
+    "people.task.coordinate": "generate_copy",
+
+    # Products and services
+    "product.cost.analyse": "generate_copy",
+    "product.margin.analyse": "generate_copy",
+    "pricing.scenario": "generate_copy",
+    "offering.performance.review": "generate_copy",
+
+    # Sales actions
+    "upsell.plan": "generate_copy",
+    "upsell.outreach_draft": "generate_copy",
+    "upsell.outreach.send": "send_email",
+
+    # Marketing actions
+    "ad_budget.plan": "generate_copy",
+    "ads.budget_change": "start_ad_campaign",
 
     # Builder
     "document.create": "generate_copy",
@@ -122,6 +145,8 @@ DEPARTMENT_CAPABILITY_TO_LOCAL_TOOL_ID = {
     "lead.reply_draft": "tool.gmail.draft_preview.v1",
     "crm_record.draft": "tool.stackone.crm.contact_upsert.v1",
     "gmail.send": "tool.gmail.create_draft.v1",
+    "invoice.reminder.send": "tool.gmail.create_draft.v1",
+    "upsell.outreach.send": "tool.gmail.create_draft.v1",
     "social.publish": "tool.browser.computer_use.v1",
     "ads.launch": "tool.browser.computer_use.v1",
     "booking.create": "tool.browser.computer_use.v1",

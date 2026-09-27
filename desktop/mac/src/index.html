@@ -4,11 +4,13 @@
     <meta charset="UTF-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self' data: blob: file: http://127.0.0.1:8080 http://localhost:8080; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file: http://127.0.0.1:8080 http://localhost:8080; font-src 'self' data: file:; media-src 'self' data: blob: file: http://127.0.0.1:8080 http://localhost:8080; connect-src 'self' http://127.0.0.1:8080 http://localhost:8080 ws://127.0.0.1:8080 ws://localhost:8080; frame-src 'none';"
+      content="default-src 'self' data: blob: file: http://127.0.0.1:8080 http://localhost:8080 http://127.0.0.1:3000 http://localhost:3000; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file: http://127.0.0.1:8080 http://localhost:8080; font-src 'self' data: file:; media-src 'self' data: blob: file: http://127.0.0.1:8080 http://localhost:8080; connect-src 'self' http://127.0.0.1:8080 http://localhost:8080 ws://127.0.0.1:8080 ws://localhost:8080; frame-src http://127.0.0.1:3000 http://localhost:3000;"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tessaris</title>
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./pilot_operating_team.css" />
+    <link rel="stylesheet" href="./aion_work_schedule_workspace.css" />
   </head>
   <body>
     <div id="app"></div>
@@ -55,6 +57,7 @@
     <script src="./aion_department_pilot_runtime.js"></script>
     <script src="./aion_department_pilot_backend.js"></script>
     <script src="./aion_business_twin_orchestrator.js"></script>
+    <script src="./aion_work_schedule_workspace.js"></script>
     <script src="./app.js"></script>
     <script src="./aion_finance_light_theme.js"></script>
     <script src="./aion_boardroom_department_pilot_producer.js"></script>
@@ -64,5 +67,8 @@
     <script src="./aion_sales_revenue_workspace.js"></script>
     <script src="./aion_telephony_vault.js"></script>
     <script src="./aion_support_case_workspace.js"></script>
+    <script src="./aion_legal_workspace.js"></script>
+    <script src="./aion_cybersecurity_workspace.js"></script>
+    <script src="./pilot_operating_team_ui.js"></script>
   </body>
 </html>

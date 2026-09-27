@@ -48,14 +48,22 @@ from backend.modules.aion_business.api.sales_revenue_api import router as sales_
 from backend.modules.aion_business.api.medium_business_operating_api import router as medium_business_operating_router
 from backend.modules.aion_business.api.sales_completion_api import router as sales_completion_router
 from backend.modules.aion_business.api.support_case_api import router as support_case_router
+from backend.modules.aion_business.api.cybersecurity_guard_api import router as cybersecurity_guard_router
 from backend.modules.aion_business.api.marketing_creative_api import router as marketing_creative_router
 from backend.modules.aion_business.api.marketing_connections_api import router as marketing_connections_router
 from backend.modules.aion_business.api.organization_authority_api import router as organization_authority_router
 from backend.modules.aion_business.api.pilot_scheduled_work_api import router as pilot_scheduled_work_router
+from backend.modules.aion_business.api.pilot_operating_team_api import router as pilot_operating_team_router
+from backend.modules.aion_business.api.work_schedule_api import router as work_schedule_router
+from backend.modules.aion_business.api.a2a_commerce_api import public_router as a2a_commerce_public_router, internal_router as a2a_commerce_internal_router
 from backend.modules.aion_business.api.workflow_api import router as business_workflow_router
 from backend.modules.aion_business.api.workflow_file_cabinet_api import router as workflow_file_cabinet_router
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.pilot_scheduled_work_service import PilotScheduledWorkService
+from backend.modules.aion_business.runtime.pilot_operating_team_service import PilotOperatingTeamService
+from backend.modules.aion_business.runtime.work_schedule_service import WorkScheduleService
+from backend.modules.aion_business.runtime.cybersecurity_guard_service import CybersecurityGuardScheduler
+from backend.modules.aion_business.runtime.request_body_limits import ScopedRequestBodyLimitMiddleware
 from backend.modules.aion_voice.api import router as voice_router
 from backend.modules.aion_workflow.workflow_approval_repository import WorkflowApprovalRepository
 from backend.modules.aion_workflow.workflow_dry_run import dry_run_workflow_glyph
@@ -69,10 +77,12 @@ app = FastAPI(
     docs_url=None,
     redoc_url=None,
 )
+app.add_middleware(ScopedRequestBodyLimitMiddleware)
 
 _desktop_pilot_scheduler_thread: Thread | None = None
 _desktop_pilot_scheduler_stop = Event()
 _logger = logging.getLogger("tessaris.desktop.pilot_scheduler")
+_cybersecurity_guard_scheduler = CybersecurityGuardScheduler()
 
 
 def _run_due_desktop_pilot_work() -> None:
@@ -80,9 +90,19 @@ def _run_due_desktop_pilot_work() -> None:
     if not root.exists():
         return
     service = PilotScheduledWorkService()
+    operating_team = PilotOperatingTeamService()
+    work_schedule = WorkScheduleService()
+    executive_briefings = workflow_capsule_router._operations_executive_service()
     for workspace in sorted(path for path in root.iterdir() if path.is_dir()):
         try:
             service.run_due(workspace.name)
+            operating_team.run_due_routines(workspace.name)
+            work_schedule.prepare_due_reminders(workspace.name)
+            briefing_status = executive_briefings.status(workspace.name)
+            if briefing_status.get("briefing_due"):
+                executive_briefings.run_morning_briefing(
+                    workspace.name, person_id="desktop_scheduler", force=False,
+                )
         except Exception:
             _logger.exception("Pilot scheduled-work scan failed for %s", workspace.name)
 
@@ -98,6 +118,7 @@ def start_support_channel_poller() -> None:
     SUPPORT_POLLER.start()
     from backend.modules.aion_business.runtime.creative_render_polling_service import CREATIVE_RENDER_POLLER
     CREATIVE_RENDER_POLLER.start()
+    _cybersecurity_guard_scheduler.start()
     if _desktop_pilot_scheduler_thread is None or not _desktop_pilot_scheduler_thread.is_alive():
         _desktop_pilot_scheduler_stop.clear()
         _desktop_pilot_scheduler_thread = Thread(
@@ -114,6 +135,7 @@ def stop_support_channel_poller() -> None:
     SUPPORT_POLLER.stop()
     from backend.modules.aion_business.runtime.creative_render_polling_service import CREATIVE_RENDER_POLLER
     CREATIVE_RENDER_POLLER.stop()
+    _cybersecurity_guard_scheduler.stop()
     _desktop_pilot_scheduler_stop.set()
     if _desktop_pilot_scheduler_thread is not None:
         _desktop_pilot_scheduler_thread.join(timeout=2)
@@ -150,13 +172,18 @@ for router in (
     sales_revenue_router,
     sales_completion_router,
     support_case_router,
+    cybersecurity_guard_router,
     marketing_creative_router,
     marketing_connections_router,
     department_pilot_router,
     organization_authority_router,
     pilot_scheduled_work_router,
+    pilot_operating_team_router,
     medium_business_operating_router,
+    work_schedule_router,
     voice_router,
+    a2a_commerce_public_router,
+    a2a_commerce_internal_router,
 ):
     app.include_router(router)
 

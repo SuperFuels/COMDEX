@@ -177,12 +177,41 @@ def test_restart_recovery_moves_running_node_to_safe_wait_and_resumes(tmp_path):
     waiting = runtime.repository.get("aflow_interrupted")
     assert waiting["status"] == "waiting"
     assert all(node["status"] != "running" for node in waiting["nodes"])
-
     resumed = runtime.control("aflow_interrupted", "resume", prepared=prepared)
     assert resumed["ok"] is True
     assert resumed["run"]["status"] == "verified"
     assert resumed["run"]["attempt"] == 2
 
+
+def test_capability_can_pause_for_department_computer_without_running_downstream_nodes(tmp_path):
+    calls = []
+
+    def execute_capability(**kwargs):
+        calls.append(kwargs["idempotency_key"])
+        return {
+            "ok": False,
+            "verified": False,
+            "waiting": True,
+            "status": "waiting_for_department_computer",
+            "workflow_skill_run_id": "workflow_skill_run_one",
+            "external_effect_performed": False,
+        }
+
+    runtime = service(tmp_path, execute_capability)
+    prepared = runtime.prepare(graph=read_graph(), actor=actor(), policy=policy())
+    result = runtime.execute(
+        prepared=prepared,
+        review_hash=prepared["review"]["review_hash"],
+        exact_confirmed=True,
+    )
+    assert result["ok"] is True
+    assert result["waiting"] is True
+    assert result["run"]["status"] == "waiting"
+    states = {item["node_id"]: item["status"] for item in result["run"]["nodes"]}
+    assert states["read"] == "waiting"
+    assert states["verify"] == "queued"
+    assert states["receipt"] == "queued"
+    assert calls == [result["run"]["run_id"] + ":read"]
 
 def test_secret_shaped_inputs_are_redacted_from_persisted_run(tmp_path):
     runtime = service(tmp_path)

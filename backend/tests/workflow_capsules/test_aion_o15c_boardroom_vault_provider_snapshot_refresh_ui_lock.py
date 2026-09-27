@@ -29,6 +29,34 @@ def test_o15c_forces_spatial_renderer_update_after_vault_refresh():
     assert "renderBoardroomSurfaceWithProviderRefreshO15C" in text
 
 
+def test_selected_local_model_uses_the_real_connected_boardroom_seat_contract():
+    text = APP.read_text(encoding="utf-8")
+    start = text.find("BEGIN AION O15C BOARDROOM VAULT PROVIDER SNAPSHOT REFRESH LOCK")
+    end = text.find("END AION O15C BOARDROOM VAULT PROVIDER SNAPSHOT REFRESH LOCK", start)
+    block = text[start:end]
+
+    assert start >= 0
+    assert end > start
+    assert 'id: "local_model"' in block
+    assert 'seat_type: "connected_provider"' in block
+    assert "refreshVaultProvidersForBoardroomO15C" in text
+
+
+def test_model_display_names_are_editable_and_reused_by_the_boardroom():
+    text = APP.read_text(encoding="utf-8")
+    table_start = text.find("function renderAionVaultHostedModelTableV2")
+    table_end = text.find("function renderAionVaultAiProvidersPanelV1", table_start)
+    table = text[table_start:table_end]
+
+    assert 'data-aion-vault-model-display-name' in table
+    assert "getAionBoardModelDisplayNameV1" in text
+    assert "setAionBoardModelDisplayNameV1" in text
+    assert "aion.boardroom.model_display_names.v1" in text
+    assert "provider.capability_note" not in table
+    assert "aion-vault-local-model-table" in text
+    assert "<span>Purpose</span>" in text
+
+
 def test_main_provider_suite_is_connectable_from_the_vault():
     text = APP.read_text(encoding="utf-8")
 

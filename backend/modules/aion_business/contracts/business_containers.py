@@ -14,6 +14,7 @@ BusinessContainerKind = Literal[
     "business_operating_model",
     "organization_authority",
     "finance_inbox",
+    "finance_cash_position",
     "brand_foundation",
     "boardroom_snapshot",
     "operational_runtime_summary",

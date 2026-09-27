@@ -44,6 +44,7 @@ def _seed(containers: BusinessContainerRepository) -> dict:
         "workspace_id": "home-fixed",
         "kind": "business_financial_model",
         "currency": "EUR",
+        "reporting_period": {"basis": "annual", "label": "FY2025"},
         "metrics": {
             "revenue": 378750,
             "gross_profit": 235016,
@@ -107,7 +108,7 @@ def test_grounded_finance_conversation_is_separate_persistent_and_source_labelle
     assert result["turn"]["reliability"] == "source_backed"
     assert "[Financial Model]" in result["turn"]["content"]
     assert result["turn"]["sources"][0]["content_hash"].startswith("sha256:")
-    assert provider.calls[0]["capability"] == "reasoning"
+    assert provider.calls[0]["capability"] == "drafting"
     assert provider.calls[0]["role_type"] == "FINANCE"
     assert provider.calls[0]["metadata"]["read_only"] is True
 
@@ -138,9 +139,27 @@ def test_finance_conversation_has_grounded_fallback_when_provider_is_unavailable
 
     result = service.answer("home-fixed", "Give me the Finance update")
 
-    assert "EUR 378,750.00" in result["turn"]["content"]
+    assert "€378,750.00" in result["turn"]["content"]
     assert "no external action was taken" in result["turn"]["content"]
     assert result["turn"]["provider"]["provider"] == "deterministic_finance_fallback"
+
+
+def test_turnover_is_a_direct_period_labelled_fact_not_a_generic_briefing(tmp_path):
+    containers = BusinessContainerRepository(tmp_path / "business_containers")
+    _seed(containers)
+    provider = FakeProvider(ok=False)
+    service = FinancePilotConversationService(
+        container_repository=containers,
+        conversation_repository=FinancePilotConversationRepository(tmp_path / "department_runtime"),
+        provider_router=provider,  # type: ignore[arg-type]
+    )
+
+    result = service.answer("home-fixed", "What is the turnover of the business?")
+
+    assert result["turn"]["content"].startswith("Turnover for FY2025 is €378,750.00.")
+    assert "Gross Profit" not in result["turn"]["content"]
+    assert result["turn"]["provider"]["provider"] == "deterministic_finance_fact"
+    assert provider.calls == []
 
 
 def test_finance_conversation_api_returns_and_restores_the_durable_session(

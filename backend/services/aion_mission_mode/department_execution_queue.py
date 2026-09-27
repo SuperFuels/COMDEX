@@ -31,11 +31,14 @@ from backend.services.aion_mission_mode.department_capability_map import (
 
 SAFE_INTERNAL_CAPABILITIES = {
     "campaign.plan",
+    "ad_budget.plan",
     "content_calendar.create",
     "landing_page.copy",
     "review_request.draft",
     "campaign_pack.pdf",
     "pipeline.plan",
+    "upsell.plan",
+    "upsell.outreach_draft",
     "lead.reply_draft",
     "quote.followup_sequence",
     "sales_script.create",
@@ -48,6 +51,7 @@ SAFE_INTERNAL_CAPABILITIES = {
     "iva_vat.breakdown",
     "kpi.dashboard",
     "pricing_calculator.create",
+    "invoice.collection.prepare",
     "workflow.create",
     "job_card.create",
     "sop.create",
@@ -60,6 +64,14 @@ SAFE_INTERNAL_CAPABILITIES = {
     "aftercare.create",
     "complaint_response.draft",
     "support_knowledge.create",
+    "case.triage",
+    "leave.coverage.plan",
+    "capacity.summary",
+    "people.task.coordinate",
+    "product.cost.analyse",
+    "product.margin.analyse",
+    "pricing.scenario",
+    "offering.performance.review",
     "document.create",
     "spreadsheet.create",
     "pdf.render",
@@ -102,6 +114,9 @@ APPROVED_LIVE_CAPABILITIES = {
     "website.deploy",
     "crm.mutate_live",
     "provider_account.mutate",
+    "invoice.reminder.send",
+    "upsell.outreach.send",
+    "ads.budget_change",
 }
 
 HUMAN_ONLY_CAPABILITIES = {
@@ -252,6 +267,7 @@ def create_department_queue_item(
     title: str,
     task_type: str,
     task_index: int = 0,
+    objective: str = "",
 ) -> dict[str, Any]:
     department_id = normalize_department_id(department_id)
     capability = str(capability or "").strip()
@@ -268,6 +284,7 @@ def create_department_queue_item(
         "department_display_name": DEPARTMENT_DISPLAY_NAMES.get(department_id, department_id),
         "task_id": task_id,
         "title": str(title or capability),
+        "objective": str(objective or title or capability)[:2_000],
         "task_type": str(task_type or "department_work"),
         "capability": capability,
         "concrete_tool_id": CONCRETE_TOOL_BY_CAPABILITY.get(capability),

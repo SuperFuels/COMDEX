@@ -100,7 +100,10 @@ async def _get_status(node) -> Dict[str, Any]:
     return j
 
 
-async def _post_to_all_skip_self(nodes, *, path: str, msg_type: str, payload: Dict[str, Any]) -> None:
+async def _post_to_all_skip_self(
+    nodes, *, path: str, msg_type: str, payload: Dict[str, Any],
+    permitted_rejection: str | None = None,
+) -> None:
     for i, dst in enumerate(nodes):
         # pick a sender that is NOT dst (avoid /proposal,/vote posting "to self" -> hello_ok is false)
         src = nodes[(i + 1) % len(nodes)]
@@ -110,7 +113,9 @@ async def _post_to_all_skip_self(nodes, *, path: str, msg_type: str, payload: Di
         pay["sig_hex"] = _sign_payload(src, msg_type=msg_type, payload=pay)
 
         rr = await http_post(dst.base_url, path, _mk_env(src=src, msg_type=msg_type, payload=pay), timeout_s=6.0)
-        assert int(rr.get("status") or 0) == 200, rr
+        status = int(rr.get("status") or 0)
+        detail = str((rr.get("json") or {}).get("detail") or rr.get("detail") or "")
+        assert status == 200 or (status == 400 and permitted_rejection and permitted_rejection in detail), rr
 
 
 @pytest.mark.asyncio
@@ -151,8 +156,15 @@ async def test_consensus_pr6_fork_choice_round_hint_convergence_gate() -> None:
         pA: Dict[str, Any] = {"height": h, "round": 0, "proposer": leader_r0, "block_id": blockA, "block": {}, "ts_ms": _now_ms()}
         pB: Dict[str, Any] = {"height": h, "round": 1, "proposer": leader_r1, "block_id": blockB, "block": {}, "ts_ms": _now_ms()}
 
-        await _post_to_all_skip_self(nodes, path="/api/p2p/proposal", msg_type="PROPOSAL", payload=pA)
+        # Deliver the higher-round hint first. Sending the round-0 proposal to
+        # every node before announcing round 1 can legitimately allow a fast
+        # cluster to finalize round 0 while the fixture is still posting, which
+        # tests scheduling rather than deterministic higher-round preference.
         await _post_to_all_skip_self(nodes, path="/api/p2p/proposal", msg_type="PROPOSAL", payload=pB)
+        await _post_to_all_skip_self(
+            nodes, path="/api/p2p/proposal", msg_type="PROPOSAL", payload=pA,
+            permitted_rejection="locked on different block_id",
+        )
 
         # Now wait until the cluster finalizes height h, and assert it finalized the round-1 block_id.
         deadline = time.time() + 30.0

@@ -51,7 +51,8 @@ def test_crm_panel_is_rendered_inside_the_canonical_vault():
     end = APP.index("function getEditableBusinessContextFoundation", start)
     vault = APP[start:end]
     assert "renderAionVaultCrmPanelV1()" in vault
-    assert vault.index("renderAionVaultCrmPanelV1()") < vault.index('data-aion-vault-canonical-gmail-ui="true"')
+    assert vault.index("renderAionVaultBusinessIntegrationsV1()") < vault.index("renderAionVaultCrmPanelV1()")
+    assert 'data-aion-vault-canonical-gmail-ui="true"' not in vault
 
 
 def test_crm_panel_has_responsive_vault_styling():

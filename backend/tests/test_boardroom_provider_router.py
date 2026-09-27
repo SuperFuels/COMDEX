@@ -36,6 +36,52 @@ def test_all_connected_mainstream_providers_can_be_board_members(monkeypatch) ->
     assert not result["missing_or_unavailable"]
 
 
+def test_selected_local_model_is_exposed_without_private_runtime_details(monkeypatch) -> None:
+    monkeypatch.setattr(router, "_provider_status", lambda: [])
+    monkeypatch.setattr(router, "_selected_local_provider", lambda workspace_id: {
+        "id": "local_model",
+        "label": "Qwen 3 8B Fast Local",
+        "model": "qwen3-8b-fast-local-q4",
+        "connected": True,
+        "source": "local_model_vault",
+        "runtime": {"endpoint": "http://127.0.0.1:8897"},
+        "model_sha256": "a" * 64,
+        "model_path": "/private/model.gguf",
+    })
+
+    result = router.boardroom_provider_status("home-fixed")
+
+    assert result["connected_count"] == 1
+    assert result["providers"][0]["model"] == "qwen3-8b-fast-local-q4"
+    assert "runtime" not in result["providers"][0]
+    assert "model_sha256" not in result["providers"][0]
+    assert "model_path" not in result["providers"][0]
+
+
+def test_selected_local_model_can_answer_as_a_board_member(monkeypatch) -> None:
+    valid_content = (
+        '{"position":"Ready","recommendations":["Continue"],"risks":["None observed"],'
+        '"missing_inputs":["None"],"plan_changes":["No change"],"confidence":0.9}'
+    )
+    local_provider = {
+        "id": "local_model", "label": "Qwen 3 8B Fast Local",
+        "model": "qwen3-8b-fast-local-q4", "connected": True,
+    }
+    monkeypatch.setattr(router, "_provider_status", lambda: [])
+    monkeypatch.setattr(router, "_selected_local_provider", lambda workspace_id: local_provider)
+    monkeypatch.setattr(router, "_call_selected_local_provider", lambda provider, prompt: {
+        "content": valid_content, "model": provider["model"], "latency_ms": 2,
+    })
+
+    result = router.boardroom_ask(router.BoardroomAskRequest(
+        business_id="home-fixed", requested_providers=["local_model"],
+    ))
+
+    assert result["succeeded_count"] == 1
+    assert result["responses"][0]["provider_id"] == "local_model"
+    assert result["responses"][0]["model"] == "qwen3-8b-fast-local-q4"
+
+
 def test_openai_compatible_board_member_uses_provider_specific_endpoint(monkeypatch) -> None:
     captured = {}
     monkeypatch.setattr(router, "get_ai_provider_secret", lambda provider: "key")

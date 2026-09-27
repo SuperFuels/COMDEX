@@ -19,6 +19,10 @@ class AIONBusinessPaths:
     EXTERNAL_WORK_ORDERS = ROOT / "external_work_orders"
     TOPOLOGIES = ROOT / "topologies"
     DEPARTMENT_PILOT_RUNTIME = ROOT / "department_pilot_runtime"
+    LEGAL_SIGNING = ROOT / "legal_signing"
+    LEGAL_MATTERS = ROOT / "legal_matters"
+    LEGAL_DOCUMENTS = ROOT / "legal_documents"
+    LEGAL_TEMPLATES = ROOT / "legal_templates"
 
     @classmethod
     def ensure_base_dirs(cls) -> None:
@@ -36,6 +40,10 @@ class AIONBusinessPaths:
         cls.EXTERNAL_WORK_ORDERS.mkdir(parents=True, exist_ok=True)
         cls.TOPOLOGIES.mkdir(parents=True, exist_ok=True)
         cls.DEPARTMENT_PILOT_RUNTIME.mkdir(parents=True, exist_ok=True)
+        cls.LEGAL_SIGNING.mkdir(parents=True, exist_ok=True)
+        cls.LEGAL_MATTERS.mkdir(parents=True, exist_ok=True)
+        cls.LEGAL_DOCUMENTS.mkdir(parents=True, exist_ok=True)
+        cls.LEGAL_TEMPLATES.mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def workspace_file(cls, workspace_id: str) -> Path:
@@ -188,3 +196,31 @@ class AIONBusinessPaths:
     @classmethod
     def department_pilot_audit_file(cls, workspace_id: str, department_id: str) -> Path:
         return cls.department_pilot_dir(workspace_id, department_id) / "audit.jsonl"
+
+    @classmethod
+    def legal_signing_dir(cls, workspace_id: str) -> Path:
+        cls.ensure_base_dirs()
+        path = cls.LEGAL_SIGNING / workspace_id
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    @classmethod
+    def legal_matter_dir(cls, workspace_id: str) -> Path:
+        cls.ensure_base_dirs()
+        path = cls.LEGAL_MATTERS / workspace_id
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    @classmethod
+    def legal_document_dir(cls, workspace_id: str) -> Path:
+        cls.ensure_base_dirs()
+        path = cls.LEGAL_DOCUMENTS / workspace_id
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    @classmethod
+    def legal_template_dir(cls, workspace_id: str) -> Path:
+        cls.ensure_base_dirs()
+        path = cls.LEGAL_TEMPLATES / workspace_id
+        path.mkdir(parents=True, exist_ok=True)
+        return path

@@ -36,6 +36,7 @@ function normalizeDesktopView(value: unknown): DesktopView {
 const AionBusinessPage: NextPage = () => {
   const router = useRouter();
   const desktopView = normalizeDesktopView(router.query.desktopView);
+  const embeddedInTessaris = router.query.embed === "tessaris";
 
   let content: React.ReactNode;
 
@@ -56,6 +57,17 @@ const AionBusinessPage: NextPage = () => {
     default:
       content = <BoardroomPage />;
       break;
+  }
+
+  if (embeddedInTessaris) {
+    return (
+      <main
+        data-aion-business-embedded-in-tessaris="true"
+        style={{ width: "100vw", height: "100vh", overflow: "auto", background: "#f3f4f6" }}
+      >
+        {content}
+      </main>
+    );
   }
 
   return (

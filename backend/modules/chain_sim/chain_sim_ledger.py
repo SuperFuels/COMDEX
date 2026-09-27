@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import os
+import shutil
 import sqlite3
 import threading
 import time
@@ -13,6 +15,12 @@ from pathlib import Path
 from threading import RLock
 from typing import Any, Dict, List, Optional, Tuple, Literal
 from backend.modules.chain_sim.chain_sim_merkle import hash_leaf, merkle_root
+from backend.modules.chain_sim.ledger_storage import (
+    LedgerStorageLimitError,
+    assert_ledger_write_capacity,
+    configure_sqlite_storage_bounds,
+    ledger_storage_status,
+)
 
 # ───────────────────────────────────────────────
 # Persistence env (DO NOT freeze at import-time)
@@ -79,10 +87,123 @@ def _db() -> Optional[sqlite3.Connection]:
         p.parent.mkdir(parents=True, exist_ok=True)
         conn = sqlite3.connect(str(p), check_same_thread=False)
         conn.row_factory = sqlite3.Row
+        try:
+            _db_init(conn)
+            conn.execute("PRAGMA trusted_schema=OFF;")
+            configure_sqlite_storage_bounds(conn, p)
+        except Exception:
+            conn.close()
+            raise
         _DB_CONN = conn
         _DB_CONN_PATH = str(p)
-        _db_init(conn)
         return conn
+
+
+def persist_ledger_storage_status() -> Dict[str, Any]:
+    path = _db_path()
+    if path is None:
+        return {
+            "schema_version": "glyphchain.ledger-storage-status.v1",
+            "persistence_enabled": False,
+            "policy": "persistence_disabled",
+        }
+    return {"persistence_enabled": True, **ledger_storage_status(path)}
+
+
+def persist_database_path() -> Optional[Path]:
+    """Return the configured ledger path for local administration code."""
+    path = _db_path()
+    return path.resolve() if path is not None else None
+
+
+def _database_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        while True:
+            chunk = stream.read(1024 * 1024)
+            if not chunk:
+                break
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def install_verified_ledger_database(
+    snapshot_database: str | Path,
+    *,
+    expected_sha256: str | None = None,
+) -> Dict[str, Any]:
+    """Atomically install a database that has already passed snapshot verification.
+
+    One previous database is retained beside the live file for operator recovery.
+    Callers must perform trust, integrity, chain and rollback checks before this
+    function.  The live connection and in-memory ledger are rebuilt immediately;
+    consensus/network callers must still restart before resuming participation.
+    """
+    global _DB_CONN, _DB_CONN_PATH
+    source = Path(snapshot_database).expanduser().resolve()
+    target = persist_database_path()
+    if target is None:
+        raise RuntimeError("glyphchain_ledger_persistence_disabled")
+    if not source.is_file():
+        raise RuntimeError("glyphchain_verified_snapshot_database_missing")
+    wanted_hash = str(expected_sha256 or "").strip().lower()
+    if wanted_hash:
+        digest = _database_sha256(source)
+        if not hmac.compare_digest(digest, wanted_hash):
+            raise RuntimeError("glyphchain_verified_snapshot_database_changed")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    staged = target.with_suffix(target.suffix + ".snapshot-install.tmp")
+    backup = target.with_suffix(target.suffix + ".pre-snapshot")
+    staged.unlink(missing_ok=True)
+    shutil.copy2(source, staged)
+    os.chmod(staged, 0o600)
+    if wanted_hash:
+        staged_digest = _database_sha256(staged)
+        if not hmac.compare_digest(staged_digest, wanted_hash):
+            staged.unlink(missing_ok=True)
+            raise RuntimeError("glyphchain_verified_snapshot_database_changed")
+    with _DB_LOCK:
+        if _DB_CONN is not None:
+            _DB_CONN.close()
+        _DB_CONN = None
+        _DB_CONN_PATH = None
+        for companion in (Path(str(target) + "-wal"), Path(str(target) + "-shm")):
+            companion.unlink(missing_ok=True)
+        if target.exists():
+            os.replace(target, backup)
+        try:
+            os.replace(staged, target)
+        except Exception:
+            if backup.exists() and not target.exists():
+                os.replace(backup, target)
+            raise
+    try:
+        if not replay_state_from_db():
+            raise RuntimeError("glyphchain_snapshot_replay_failed")
+        replay_strict_verify_or_raise()
+    except Exception:
+        with _DB_LOCK:
+            if _DB_CONN is not None:
+                _DB_CONN.close()
+            _DB_CONN = None
+            _DB_CONN_PATH = None
+            target.unlink(missing_ok=True)
+            if backup.exists():
+                os.replace(backup, target)
+        replay_state_from_db()
+        raise
+    return {
+        "installed": True,
+        "backup_retained": backup.exists(),
+        "restart_required": True,
+        "storage": persist_ledger_storage_status(),
+    }
+
+
+def _guard_persist_write(estimated_growth_bytes: int) -> None:
+    path = _db_path()
+    if path is not None:
+        assert_ledger_write_capacity(path, estimated_growth_bytes=max(4096, int(estimated_growth_bytes)))
 
 def _db_init(conn: sqlite3.Connection) -> None:
     cur = conn.cursor()
@@ -140,6 +261,7 @@ def persist_meta_set_json(key: str, obj: Any) -> None:
         return
 
     payload = json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    _guard_persist_write(len(payload.encode("utf-8")) + len(str(key).encode("utf-8")) + 4096)
 
     with _DB_LOCK:
         cur = con.cursor()
@@ -237,6 +359,7 @@ def persist_patch_block_roots_and_txs(
     tr = str(txs_root or "")
     if not st and not tr:
         return
+    _guard_persist_write(8192)
 
     with _DB_LOCK:
         cur = con.cursor()
@@ -287,6 +410,7 @@ def persist_patch_block_roots_and_txs(
 
 # --- checkpoint helpers (meta table) ---
 _CHECKPOINT_KEY = "checkpoint_json"
+_PRUNING_BASE_KEY = "pruning_base_json"
 
 def persist_set_checkpoint(last_height: int, last_state_root: str, last_txs_root: str) -> None:
     """
@@ -309,6 +433,14 @@ def persist_get_checkpoint() -> Optional[Dict[str, Any]]:
     try:
         ck = persist_meta_get_json(_CHECKPOINT_KEY)
         return ck if isinstance(ck, dict) else None
+    except Exception:
+        return None
+
+def persist_get_pruning_base() -> Optional[Dict[str, Any]]:
+    """Return the verified state base installed by proof-preserving pruning."""
+    try:
+        value = persist_meta_get_json(_PRUNING_BASE_KEY)
+        return value if isinstance(value, dict) else None
     except Exception:
         return None
 
@@ -572,6 +704,7 @@ def persist_set_genesis_state(state_obj: Dict[str, Any]) -> None:
     if conn is None:
         return
     payload = json.dumps(state_obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    _guard_persist_write(len(payload.encode("utf-8")) + 4096)
     with _DB_LOCK:
         cur = conn.cursor()
         cur.execute("INSERT OR REPLACE INTO meta(key,value) VALUES(?,?)", ("genesis_state_json", payload))
@@ -582,6 +715,7 @@ def persist_begin_block(height: int, created_at_ms: int, header: Dict[str, Any])
     if conn is None:
         return
     header_json = json.dumps(header or {}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    _guard_persist_write(len(header_json.encode("utf-8")) + 4096)
     with _DB_LOCK:
         cur = conn.cursor()
         cur.execute(
@@ -608,6 +742,7 @@ def persist_commit_block(height: int, header_patch: Optional[Dict[str, Any]] = N
         return
 
     hp = header_patch or {}
+    _guard_persist_write(len(json.dumps(hp, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")) + 8192)
 
     # capture for checkpoint write AFTER db lock is released
     ck_height = 0
@@ -723,6 +858,8 @@ def persist_tx_row(tx: Dict[str, Any]) -> None:
 
     payload_json = json.dumps(tx.get("payload") or {}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     result_json = json.dumps(tx.get("result") or {}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    estimated = sum(len(value.encode("utf-8")) for value in (payload_json, result_json, fee_json or "")) + 8192
+    _guard_persist_write(estimated)
 
     with _DB_LOCK:
         cur = conn.cursor()
@@ -836,6 +973,45 @@ def replay_state_from_db() -> bool:
       3) restore genesis (config/bank/staking) best-effort
       4) replay txs in (block_height, tx_index) order, rebuilding blocks/txs
     """
+    pruning_base = persist_get_pruning_base()
+    if isinstance(pruning_base, dict):
+        if pruning_base.get("schema_version") != "glyphchain.pruning-base.v1":
+            raise RuntimeError("REPLAY_PRUNED: unsupported pruning base")
+        try:
+            base_height = int(pruning_base.get("base_height") or 0)
+            base_state = pruning_base["state"]
+            expected_root = str(pruning_base["state_root"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise RuntimeError("REPLAY_PRUNED: invalid pruning base") from exc
+        if base_height <= 0 or not isinstance(base_state, dict):
+            raise RuntimeError("REPLAY_PRUNED: invalid pruning base")
+        from backend.modules.chain_sim.canonical_codec import canonical_hash_hex
+        if not hmac.compare_digest(canonical_hash_hex(base_state), expected_root):
+            raise RuntimeError("REPLAY_PRUNED: state snapshot hash mismatch")
+        from backend.modules.chain_sim import chain_sim_engine as engine
+        from backend.modules.chain_sim.tx_executor import apply_tx_receipt as apply_tx_executor
+        engine.import_chain_state(base_state)
+        if not replay_ledger_only_from_db():
+            return False
+
+        class _PrunedAttrDict(dict):
+            def __getattr__(self, key):
+                return self[key]
+
+        for tx in load_all_txs():
+            if int(tx["block_height"]) <= base_height:
+                continue
+            tx_type = "BANK_SEND" if str(tx["tx_type"]) == "BANK_TRANSFER" else str(tx["tx_type"])
+            receipt = apply_tx_executor(_PrunedAttrDict({
+                "from_addr": tx["from_addr"],
+                "nonce": int(tx["nonce"]),
+                "tx_type": tx_type,
+                "payload": tx["payload"],
+            }))
+            if not isinstance(receipt, dict) or receipt.get("ok") is False:
+                raise RuntimeError(f"REPLAY_PRUNED: transaction replay failed at {tx['tx_id']}")
+        return True
+
     genesis = load_genesis_state_json()
     if not isinstance(genesis, dict):
         # PR4.2: allow “ledger-only” replay so get_block(h) works after import
@@ -1126,7 +1302,7 @@ def _merge_header(dst: Dict[str, Any], src: Dict[str, Any]) -> None:
 
 
 def _next_height_locked() -> int:
-    return len(_BLOCKS) + 1
+    return (max((int(block.height) for block in _BLOCKS), default=0) + 1)
 
 
 def compute_tx_identity(
@@ -1183,6 +1359,7 @@ def begin_block(*, created_at_ms: Optional[int] = None) -> int:
     record_applied_tx() will append into it.
     """
     global _OPEN_BLOCK
+    _guard_persist_write(8192)
     with _LOCK:
         if _OPEN_BLOCK is not None:
             abort_open_block()
@@ -1203,6 +1380,11 @@ def begin_block(*, created_at_ms: Optional[int] = None) -> int:
         # ✅ persist the shell block reservation
         try:
             persist_begin_block(h, cam, header={})
+        except LedgerStorageLimitError:
+            if _BLOCKS and _BLOCKS[-1] is blk:
+                _BLOCKS.pop()
+            _OPEN_BLOCK = None
+            raise
         except Exception:
             pass
 
@@ -1252,9 +1434,12 @@ def commit_block(*, header_patch: Optional[Dict[str, Any]] = None) -> Optional[D
         # persist committed header (include computed txs_root even if caller didn't pass it)
         patch = dict(header_patch or {})
         patch.setdefault("txs_root", blk.txs_root)
+        _guard_persist_write(len(_stable_json(patch)) + 8192)
 
         try:
             persist_commit_block(blk.height, patch)
+        except LedgerStorageLimitError:
+            raise
         except Exception:
             pass
 
@@ -1304,6 +1489,8 @@ def _append_block_with_single_tx_locked(tx: DevTxRecord, *, header: Optional[Dic
     # ✅ persist shell block BEFORE any tx rows reference it
     try:
         persist_begin_block(h, int(tx.created_at_ms or _now_ms()), header=hdr)
+    except LedgerStorageLimitError:
+        raise
     except Exception:
         pass
 
@@ -1319,6 +1506,8 @@ def _append_block_with_single_tx_locked(tx: DevTxRecord, *, header: Optional[Dic
     # ✅ persist commitments now that we know txs_root (and any state_root you patch later)
     try:
         persist_commit_block(h, {"txs_root": txs_root, **hdr})
+    except LedgerStorageLimitError:
+        raise
     except Exception:
         pass
 
@@ -1339,10 +1528,11 @@ def patch_block_header(height: int, header_patch: Dict[str, Any]) -> None:
         raise ValueError("header_patch must be a dict")
 
     with _LOCK:
-        if height <= 0 or height > len(_BLOCKS):
+        if height <= 0:
             raise ValueError(f"block not found: height={height}")
-
-        blk = _BLOCKS[height - 1]
+        blk = next((item for item in _BLOCKS if int(item.height) == int(height)), None)
+        if blk is None:
+            raise ValueError(f"block not found: height={height}")
         if blk.header is None:
             blk.header = {}
 
@@ -1370,6 +1560,14 @@ def record_applied_tx(
     block_header: Optional[Dict[str, Any]] = None,
 ) -> DevTxRecord:
     norm_payload = _normalize_payload(payload)
+    estimated_write = len(_stable_json({
+        "from_addr": from_addr,
+        "nonce": int(nonce),
+        "tx_type": tx_type,
+        "payload": norm_payload,
+        "result": result or {},
+        "fee": fee or {},
+    })) + 24 * 1024
     key = (from_addr, int(nonce), tx_type)
 
     hdr: Dict[str, Any] = {}
@@ -1393,6 +1591,8 @@ def record_applied_tx(
         if existing:
             _TX_BY_KEY[key] = existing
             return existing
+
+        _guard_persist_write(estimated_write)
 
         rec = DevTxRecord(
             tx_id=tx_id,
@@ -1440,6 +1640,8 @@ def record_applied_tx(
                     "result": rec.result or {},
                     "fee": fee,
                 })
+            except LedgerStorageLimitError:
+                raise
             except Exception as e:
                 # THIS is where your "persist_tx_row failed" print goes
                 if os.getenv("CHAIN_SIM_PERSIST_DEBUG", "0") == "1":
@@ -1467,6 +1669,8 @@ def record_applied_tx(
                     "fee": fee,
                 }
             )
+        except LedgerStorageLimitError:
+            raise
         except Exception:
             pass
 
@@ -1590,6 +1794,30 @@ def get_tx(tx_id: str) -> Optional[Dict[str, Any]]:
     with _LOCK:
         rec = _TX_BY_ID.get(tx_id)
         return rec.to_dict() if rec else None
+
+
+def find_document_proof_tx(
+    *,
+    proof_id: Optional[str] = None,
+    document_hash: Optional[str] = None,
+) -> Optional[Dict[str, Any]]:
+    """Find the newest canonical DOCUMENT_PROOF_V1 transaction."""
+    wanted_proof_id = str(proof_id or "").strip()
+    wanted_document_hash = str(document_hash or "").strip().lower()
+    if not wanted_proof_id and not wanted_document_hash:
+        return None
+
+    with _LOCK:
+        for rec in reversed(_TXS):
+            if rec.tx_type != "DOCUMENT_PROOF_V1" or not rec.applied:
+                continue
+            payload = rec.payload or {}
+            if wanted_proof_id and str(payload.get("proof_id") or "") != wanted_proof_id:
+                continue
+            if wanted_document_hash and str(payload.get("document_hash") or "").lower() != wanted_document_hash:
+                continue
+            return rec.to_dict()
+    return None
 
 def _json_load_if_str(x: Any) -> Any:
     if isinstance(x, (dict, list)) or x is None:

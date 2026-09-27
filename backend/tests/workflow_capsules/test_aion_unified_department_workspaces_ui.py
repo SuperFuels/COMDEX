@@ -7,11 +7,13 @@ SALES_JS = (ROOT / "desktop/mac/src/aion_sales_revenue_workspace.js").read_text(
 HR_JS = (ROOT / "desktop/mac/src/aion_hr_people_workspace.js").read_text(encoding="utf-8")
 
 
-def test_six_operating_departments_share_one_compact_director_and_package_system():
-    for key in ("marketing", "sales", "finance", "operations", "support", "hr"):
+def test_operating_departments_use_compact_directors_except_operations_command_centre():
+    for key in ("marketing", "sales", "finance", "support", "hr"):
         assert f'{key}: {{' in APP_JS
         assert f'renderDepartmentCompactDirectorCard("{key}")' in APP_JS
         assert f'renderAionO14KCollapsedPackageDockUnderBoardroom("{key}")' in APP_JS
+
+    assert 'renderOperationsCommandCentre()' in APP_JS
 
     assert 'data-aion-unified-department-director=' in APP_JS
     assert 'grid-template-columns:minmax(360px,1fr) 260px' in APP_JS
@@ -58,6 +60,34 @@ def test_talk_to_pilot_uses_a_shared_runtime_registry_and_safe_renderer_fallback
     assert "window.renderAionO18ADDepartmentConversationCockpit" in APP_JS
     assert "Department Pilot conversation renderer failed" in APP_JS
     assert "document.body.appendChild(dialog);\n  return true;" in APP_JS
+
+
+def test_people_landing_page_is_the_full_width_resizable_command_centre():
+    assert "function renderHRWorkspaceSurface(selectedRuns, selectedAgentCard)" in APP_JS
+    assert "return renderPeoplePilotCommandCentre();" in APP_JS
+    assert "function renderPeoplePilotCommandCentre()" in APP_JS
+    assert 'data-aion-people-command-centre="true"' in APP_JS
+    assert 'data-aion-people-split-handle="true"' in APP_JS
+    assert 'data-aion-people-pilot-pane="true"' in APP_JS
+    assert 'data-aion-people-workspace-pane="true"' in APP_JS
+    assert 'data-aion-hr-directory-page-size="1"' in APP_JS
+    assert 'data-aion-people-pilot-thread' in APP_JS
+    assert 'data-aion-people-pilot-form' in APP_JS
+    assert 'department_id: "people"' in APP_JS
+    assert 'data-aion-people-open-package="true"' in APP_JS
+    assert 'data-aion-people-command-close' not in APP_JS
+    assert 'data-aion-people-live-agents-workspace="true"' in APP_JS
+    assert 'left:64px!important;right:0!important;bottom:0!important' in APP_JS
+    assert 'padding:16px 32px 80px!important' in APP_JS
+    assert 'min-height:calc(100vh - 190px);height:calc(100vh - 190px)' in APP_JS
+
+
+def test_people_command_centre_directory_pages_one_record_at_a_time():
+    assert "personPage: 0" in HR_JS
+    assert "data-aion-hr-directory-page-size" in HR_JS
+    assert "visiblePeople.map((person)" in HR_JS
+    assert "data-hrw-person-prev" in HR_JS
+    assert "data-hrw-person-next" in HR_JS
 
 
 def test_character_identity_system_blinks_talks_and_listens_without_video_rendering():
@@ -112,7 +142,7 @@ def test_marketing_and_operations_no_longer_embed_the_legacy_terminal_surface():
     operations_end = APP_JS.index("function renderSupportCompactDirectorCard", operations_start)
     operations = APP_JS[operations_start:operations_end]
     assert "renderAionDepartmentScopedPilotSurface" not in operations
-    assert 'data-aion-operations-delivery-workspace="true"' in operations
+    assert 'data-aion-operations-command-centre="true"' in operations
 
 
 def test_hr_person_modal_preserves_unsaved_draft_during_background_refreshes():

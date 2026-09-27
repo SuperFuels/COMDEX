@@ -43,12 +43,14 @@ PROVIDERS: dict[str, dict[str, Any]] = {
         "available_writes": [], "reconciliation_mode": "approved_manual_handoff",
     },
     "quickbooks_online": {
-        "name": "QuickBooks Online", "live_connector": False, "implemented_mode": "adapter_contract_ready",
-        "available_reads": [], "available_writes": [], "reconciliation_mode": "not_connected",
+        "name": "QuickBooks Online", "live_connector": False, "implemented_mode": "read_adapter_and_harness_ready",
+        "available_reads": ["chart_of_accounts", "invoices", "bills", "payments", "purchases", "journals"],
+        "available_writes": [], "reconciliation_mode": "local_review_only_until_connected",
     },
-    "sage_business_cloud": {
-        "name": "Sage Business Cloud Accounting", "live_connector": False, "implemented_mode": "adapter_contract_ready",
-        "available_reads": [], "available_writes": [], "reconciliation_mode": "not_connected",
+    "sage_accounting": {
+        "name": "Sage Business Cloud Accounting", "live_connector": False, "implemented_mode": "read_adapter_and_harness_ready",
+        "available_reads": ["chart_of_accounts", "sales_invoices", "purchase_invoices", "payments", "bank_transactions", "journals"],
+        "available_writes": [], "reconciliation_mode": "local_review_only_until_connected",
     },
     "freeagent": {
         "name": "FreeAgent", "live_connector": False, "implemented_mode": "adapter_contract_ready",

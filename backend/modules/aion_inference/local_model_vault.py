@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .local_model_package import LocalModelPackage, LocalModelReleaseCatalogue
+from .local_model_runtime_profiles import profile_for
 
 
 _PACKAGE_ROOT = Path(__file__).parent / "model_packages"
@@ -52,13 +53,18 @@ class LocalModelVault:
             if legacy:
                 entries.append({
                     **entry,
+                    "runtime_profile": profile_for(entry["model_id"]),
                     "release_status": "package_validation_pending",
                     "selection_status": "visible_not_selectable",
                     "reason": legacy["reason"],
                     "installations": [legacy],
                 })
             else:
-                entries.append({**entry, "installations": installations})
+                entries.append({
+                    **entry,
+                    "runtime_profile": profile_for(entry["model_id"]),
+                    "installations": installations,
+                })
         return {
             "schema_version": "aion.local-model-vault.v1",
             "ok": True,

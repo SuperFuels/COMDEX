@@ -1,0 +1,64 @@
+{
+  "checks": {
+    "delayed_message_redelivery_then_ack": true,
+    "duplicate_relay_put_idempotent": true,
+    "four_logical_device_profiles": true,
+    "partition_catchup_returned_healthy": true,
+    "partition_clearance_required_exact_halt": true,
+    "partition_conflict_failed_closed": true,
+    "relay_payload_excludes_legal_content": true,
+    "relay_restart_preserved_message": true,
+    "upgrade_bound_exact_release_manifest": true,
+    "upgrade_quorum_ready_at_activation": true,
+    "upgrade_survived_all_node_restarts": true
+  },
+  "claim_boundary": "Four logical profiles were exercised on one local machine. This is not evidence of separate physical devices, real carrier or enterprise NAT, an independently operated public relay, production availability, or operational approval.",
+  "content_free": true,
+  "generated_at": "2026-09-26T22:51:50.121226Z",
+  "logical_profiles": [
+    "home",
+    "office",
+    "vm",
+    "intermittent"
+  ],
+  "partition_recovery": {
+    "catchup_returned_healthy": true,
+    "conflict_entered_safety_halt": true,
+    "exact_halt_cleared_to_rejoin": true,
+    "halt_id_commitment": "f2afaa8ffa7ac8bc0647759843bfdd139b7eb93a2a8b6741233c2c65a15cebff",
+    "journal_event_count": 4
+  },
+  "production_ready": false,
+  "protocol_upgrade": {
+    "activation_height": 120,
+    "all_nodes_restarted_on_target_version": true,
+    "governance_approval_id_commitment": "a81d4feecc22dee4f397e58134ceab9a714610e25dc9e2b4bb49c010ce5e1c78",
+    "node_commitments": {
+      "home": "90988ecf32c6d225e8346ab2f00b60985ac6742f7973f1683576bc16d693ad8e",
+      "intermittent": "379cf1f537723a716c5a541239787036748bdfaae4fcb75cabed56649c664d6f",
+      "office": "fd39359e89d0d1e37d3dd8b62741ca7b6fe751d28322398e87ec3313cf14dafd",
+      "vm": "92eb0f322c4475146c408de3ad40edfae8b635e1ed3f18e3b1f6dc7dc0662587"
+    },
+    "quorum_ready_at_activation": true,
+    "release_manifest_sha256": "ae32cd564cbe0a6eb1bb1a9d22fb53958703677b612ff7d9aedf110fcad29c96",
+    "single_plan_id_across_nodes": true,
+    "validator_checkpoint_id_commitment": "9b0983945fa82161b0b405ae894cef994d61add0f94d48968129421bd0b12ec8"
+  },
+  "relay": {
+    "delayed_redelivery_then_ack": true,
+    "duplicate_put_idempotent": true,
+    "legal_content_present": false,
+    "relay_id_commitment": "72d79dae6b30c673c33a036106345e02524c5a075bb4d1c30c0ad84eb739a017",
+    "restart_preserved_message": true
+  },
+  "remaining_external_gates": [
+    "approved malicious-validator and emergency-removal procedure",
+    "representative independent home, office, VM and intermittent devices",
+    "real NAT, delay, reconnect, relay outage and partition exercise",
+    "multi-device signed-release activation exercise",
+    "production-like independently operated public relay validation"
+  ],
+  "report_sha256": "507c98c65024a33af47430c775fae38f8d6307475e0d854e4a461d3e2f1df5b4",
+  "result": "LOCAL_PREPRODUCTION_EXERCISE_PASSED",
+  "schema_version": "glyphchain.network-qualification.v1"
+}

@@ -370,6 +370,14 @@ class FinanceDirectorRefreshRequest(BaseModel):
     created_by: str = "finance_pilot"
 
 
+class FinanceCashPositionRequest(BaseModel):
+    cash_in_hand: float = Field(default=0, ge=0)
+    currency: str = Field(default="EUR", min_length=3, max_length=3)
+    as_of_date: Optional[str] = None
+    updated_by: str = "owner"
+    updated_at: Optional[str] = None
+
+
 class FinanceControlledProposalRequest(BaseModel):
     tool_call_id: str
     tool_name: str
@@ -1160,6 +1168,53 @@ def get_finance_director(workspace_id: str) -> dict[str, Any]:
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     return {"ok": True, "workspace_id": workspace_id, "finance_director": record}
+
+
+@router.get("/finance-cash-position")
+def get_finance_cash_position(workspace_id: str) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    record = get_business_container_repository().load_optional_dict(
+        workspace_id, "finance_cash_position"
+    ) or {
+        "schema_version": "aion.finance.cash_position.v1",
+        "workspace_id": workspace_id,
+        "cash_in_hand": 0.0,
+        "currency": "EUR",
+        "as_of_date": None,
+        "updated_at": None,
+        "updated_by": None,
+        "source": "owner_record",
+        "posts_to_accounting_ledger": False,
+    }
+    return {"ok": True, "workspace_id": workspace_id, "cash_position": record}
+
+
+@router.post("/finance-cash-position")
+def update_finance_cash_position(
+    workspace_id: str, request: FinanceCashPositionRequest
+) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    record = {
+        "schema_version": "aion.finance.cash_position.v1",
+        "workspace_id": workspace_id,
+        "cash_in_hand": round(float(request.cash_in_hand), 2),
+        "currency": request.currency.upper(),
+        "as_of_date": request.as_of_date,
+        "updated_at": request.updated_at or _now(),
+        "updated_by": request.updated_by,
+        "source": "owner_record",
+        "posts_to_accounting_ledger": False,
+    }
+    get_business_container_repository().save_dict(
+        workspace_id, "finance_cash_position", record
+    )
+    return {
+        "ok": True,
+        "workspace_id": workspace_id,
+        "cash_position": record,
+        "external_write_performed": False,
+        "accounting_ledger_changed": False,
+    }
 
 
 @router.post("/{workspace_id}/finance/{task_id}/proposals")

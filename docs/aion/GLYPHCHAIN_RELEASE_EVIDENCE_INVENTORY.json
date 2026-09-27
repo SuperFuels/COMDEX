@@ -1,0 +1,5 @@
+{
+  "schema_version": "tessaris.glyphchain-legal-release-evidence-inventory.v1",
+  "evidence_entries": [],
+  "claim_boundary": "Populate only with exact production evidence signed by an authority listed in the independently controlled trust-root inventory. Local development evidence does not satisfy an external gate."
+}

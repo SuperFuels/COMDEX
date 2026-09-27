@@ -8,6 +8,7 @@ const {
   shell,
   systemPreferences,
   dialog,
+  screen,
 } = require("electron");
 
 // AION O25N desktop backend local voice env lock
@@ -43,6 +44,8 @@ function aionO25NLocalVoiceBackendEnv() {
     HF_DATASETS_OFFLINE: "1",
     TESSARIS_AION_FLOW_SESSION_KEY_PATH: process.env.TESSARIS_AION_FLOW_SESSION_KEY_PATH
       || path.join(os.homedir(), ".tessaris", "security", "aion-flow-desktop-session.key"),
+    TESSARIS_APPLICATION_ACCOUNT_RECOVERY_DIR: process.env.TESSARIS_APPLICATION_ACCOUNT_RECOVERY_DIR
+      || path.join(os.homedir(), ".tessaris", "security", "application-account-recovery"),
   };
 }
 const path = require("path");
@@ -54,10 +57,15 @@ const http = require("http");
 const { pathToFileURL } = require("url");
 
 let mainWindow = null;
+let sentinelWindow = null;
 let isolatedBrowserWindow = null;
+let isolatedBrowserProfileId = null;
+let isolatedBrowserMissionKey = null;
 let isolatedBrowserRecording = false;
 let captureNextBrowserClick = false;
 let captureNextClickArmed = false;
+let spatialBoardroomBridge = null;
+let spatialBoardroomProc = null;
 
 let backendProc = null;
 let backendSpawnedByApp = false;
@@ -74,6 +82,166 @@ const LEGACY_FULL_BACKEND_APP = "backend.main:app";
 const DESKTOP_BACKEND_APP = process.env.TESSARIS_BACKEND_APP || "backend.desktop_app:app";
 const AION_FLOW_SESSION_KEY_PATH = process.env.TESSARIS_AION_FLOW_SESSION_KEY_PATH
   || path.join(os.homedir(), ".tessaris", "security", "aion-flow-desktop-session.key");
+const APPLICATION_ACCOUNT_DESCRIPTOR_PATH = path.join(
+  process.env.TESSARIS_APPLICATION_ACCOUNT_RECOVERY_DIR
+    || path.join(os.homedir(), ".tessaris", "security", "application-account-recovery"),
+  "account-descriptor.json",
+);
+
+const AION_CUSTOM_DEPARTMENT_WORKSPACE_ID = process.env.TESSARIS_FOUNDER_WORKSPACE_ID || "costa-conexion";
+function normalizeAionCustomDepartmentWorkspaceId(value = "") {
+  const workspaceId = String(value || AION_CUSTOM_DEPARTMENT_WORKSPACE_ID).trim().toLowerCase();
+  return /^[a-z0-9][a-z0-9_.-]{0,119}$/.test(workspaceId)
+    ? workspaceId
+    : AION_CUSTOM_DEPARTMENT_WORKSPACE_ID;
+}
+
+function readAionCustomDepartments(workspaceId = AION_CUSTOM_DEPARTMENT_WORKSPACE_ID) {
+  const safeWorkspaceId = normalizeAionCustomDepartmentWorkspaceId(workspaceId);
+  const departmentFile = path.join(
+    DEV_PROJECT_ROOT,
+    ".runtime",
+    "AION_BUSINESS",
+    "business_containers",
+    safeWorkspaceId,
+    "department_intelligence.json",
+  );
+  try {
+    const raw = JSON.parse(fs.readFileSync(departmentFile, "utf8"));
+    const items = Array.isArray(raw?.custom_departments) ? raw.custom_departments : [];
+    return items
+      .filter((item) => item && item.core === false && typeof item.id === "string" && typeof item.name === "string")
+      .map((item) => ({
+        id: item.id,
+        name: item.name,
+        template: item.template,
+        pilot_title: item.pilot_title,
+        mandate: item.mandate,
+        parent_department_id: item.parent_department_id || item.parent_id || null,
+        core: false,
+        created_at: item.created_at,
+      }));
+  } catch (error) {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+const SPATIAL_BOARDROOM_APP_CANDIDATES = [
+  process.env.TESSARIS_SPATIAL_BOARDROOM_APP,
+  path.join(DEV_PROJECT_ROOT, "unity", "spatial-boardroom-mvp", "Builds", "macOS", "Tessaris Spatial Boardroom.app"),
+  "/Volumes/Install macOS Sonoma/Tessaris/Unity/spatial-boardroom-mvp/Builds/macOS/Tessaris Spatial Boardroom.app",
+].filter(Boolean);
+
+function sanitizeSpatialBoardroomMember(raw = {}) {
+  const id = String(raw.id || raw.key || raw.provider_id || "")
+    .trim().toLowerCase().replace(/[^a-z0-9_.-]/g, "").slice(0, 64);
+  if (!id) return null;
+  return {
+    id,
+    label: String(raw.label || raw.name || id).trim().slice(0, 80),
+    role: String(raw.role || (id === "aion" ? "Pilot" : "AI Board member")).trim().slice(0, 100),
+    connected: raw.connected !== false,
+  };
+}
+
+function resolveSpatialBoardroomExecutable() {
+  for (const appPath of SPATIAL_BOARDROOM_APP_CANDIDATES) {
+    const executable = path.join(appPath, "Contents", "MacOS", "Tessaris Spatial Boardroom");
+    if (fs.existsSync(executable)) return { appPath, executable };
+  }
+  return null;
+}
+
+function enqueueSpatialBoardroomEvent(payload = {}) {
+  if (!spatialBoardroomBridge) return null;
+  const event = {
+    id: `${Date.now()}-${crypto.randomBytes(5).toString("hex")}`,
+    type: String(payload.type || "caption").slice(0, 64),
+    role: String(payload.role || "").slice(0, 80),
+    text: String(payload.text || "").slice(0, 1200),
+    members: Array.isArray(payload.members)
+      ? payload.members.map(sanitizeSpatialBoardroomMember).filter(Boolean).slice(0, 16)
+      : [],
+  };
+  spatialBoardroomBridge.events.push(event);
+  spatialBoardroomBridge.events = spatialBoardroomBridge.events.slice(-100);
+  return event;
+}
+
+function readSmallJsonRequest(request, limit = 32768) {
+  return new Promise((resolve, reject) => {
+    let raw = "";
+    request.setEncoding("utf8");
+    request.on("data", (chunk) => {
+      raw += chunk;
+      if (raw.length > limit) {
+        reject(new Error("payload_too_large"));
+        request.destroy();
+      }
+    });
+    request.on("end", () => {
+      try { resolve(raw ? JSON.parse(raw) : {}); }
+      catch { reject(new Error("invalid_json")); }
+    });
+    request.on("error", reject);
+  });
+}
+
+async function ensureSpatialBoardroomBridge() {
+  if (spatialBoardroomBridge?.server?.listening) return spatialBoardroomBridge;
+  const token = crypto.randomBytes(32).toString("base64url");
+  const bridge = { token, events: [], server: null, port: null };
+  bridge.server = http.createServer(async (request, response) => {
+    response.setHeader("Cache-Control", "no-store");
+    response.setHeader("Content-Type", "application/json; charset=utf-8");
+    const authorization = String(request.headers.authorization || "");
+    const supplied = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+    const validToken = supplied.length === token.length
+      && crypto.timingSafeEqual(Buffer.from(supplied), Buffer.from(token));
+    if (!validToken) {
+      response.writeHead(401); response.end(JSON.stringify({ error: "unauthorized" })); return;
+    }
+    const parsed = new URL(request.url || "/", "http://127.0.0.1");
+    if (request.method === "GET" && parsed.pathname === "/events") {
+      const after = parsed.searchParams.get("after") || "";
+      let next = bridge.events[0];
+      if (after) {
+        const index = bridge.events.findIndex((item) => item.id === after);
+        next = index >= 0 ? bridge.events[index + 1] : bridge.events[0];
+      }
+      if (!next) { response.writeHead(204); response.end(); return; }
+      response.writeHead(200); response.end(JSON.stringify(next)); return;
+    }
+    if (request.method === "POST" && parsed.pathname === "/actions") {
+      try {
+        const payload = await readSmallJsonRequest(request);
+        const type = String(payload.type || "").trim();
+        const allowed = new Set(["open_board_member_chat", "open_executive_chat", "meeting_overview"]);
+        if (!allowed.has(type)) throw new Error("unsupported_action");
+        const clean = {
+          type,
+          member_id: String(payload.member_id || "").trim().toLowerCase().replace(/[^a-z0-9_.-]/g, "").slice(0, 64),
+          label: String(payload.label || "").trim().slice(0, 80),
+          role: String(payload.role || "").trim().slice(0, 100),
+        };
+        sendToMainWindow("aion-spatial-boardroom-action", clean);
+        response.writeHead(202); response.end(JSON.stringify({ ok: true }));
+      } catch (error) {
+        response.writeHead(400); response.end(JSON.stringify({ error: error.message || "invalid_action" }));
+      }
+      return;
+    }
+    response.writeHead(404); response.end(JSON.stringify({ error: "not_found" }));
+  });
+  await new Promise((resolve, reject) => {
+    bridge.server.once("error", reject);
+    bridge.server.listen(0, "127.0.0.1", resolve);
+  });
+  bridge.port = bridge.server.address().port;
+  spatialBoardroomBridge = bridge;
+  return bridge;
+}
 
 function ensureAionFlowSessionKey() {
   fs.mkdirSync(path.dirname(AION_FLOW_SESSION_KEY_PATH), { recursive: true, mode: 0o700 });
@@ -86,22 +254,52 @@ function ensureAionFlowSessionKey() {
   return value;
 }
 
+function readApplicationAccountSession(deviceId, workspaceId) {
+  if (!fs.existsSync(APPLICATION_ACCOUNT_DESCRIPTOR_PATH)) return null;
+  const descriptor = JSON.parse(fs.readFileSync(APPLICATION_ACCOUNT_DESCRIPTOR_PATH, "utf8"));
+  const accountId = String(descriptor?.account_id || "").trim();
+  const descriptorWorkspace = String(descriptor?.workspace_id || "").trim();
+  const recoveryEpoch = Number(descriptor?.recovery_epoch || 0);
+  const activeDevices = Array.isArray(descriptor?.active_devices) ? descriptor.active_devices.map(String) : [];
+  if (!/^account_[0-9a-f]{40}$/.test(accountId) || !Number.isSafeInteger(recoveryEpoch) || recoveryEpoch < 1) {
+    throw new Error("The application-account recovery descriptor is invalid");
+  }
+  if (descriptorWorkspace !== workspaceId) {
+    throw new Error("The selected workspace does not match the recovered application account");
+  }
+  if (!activeDevices.includes(deviceId)) {
+    throw new Error("This desktop was revoked by application-account recovery");
+  }
+  return { accountId, recoveryEpoch };
+}
+
 function signAionFlowRequest(payload = {}) {
   const method = String(payload.method || "GET").toUpperCase();
   const target = String(payload.target || payload.path || "");
   const body = String(payload.body || "");
   const personId = String(payload.person_id || "").trim();
   const workspaceId = String(payload.workspace_id || "").trim();
-  if (!target.startsWith("/api/workflow-capsules/aion-flow/")) throw new Error("AION Flow request target is outside the signed boundary");
+  const protectedPrefixes = [
+    "/api/workflow-capsules/aion-flow/",
+    "/api/aion/business/legal-signing/",
+    "/api/aion/business/glyphchain-admin/",
+    "/api/aion/business/a2a/",
+  ];
+  if (!protectedPrefixes.some((prefix) => target.startsWith(prefix))) {
+    throw new Error("AION Flow request target is outside the signed boundary");
+  }
   if (!personId || !workspaceId) throw new Error("Select an authenticated Boardroom person and workspace first");
   const key = ensureAionFlowSessionKey();
   const issuedAt = Math.floor(Date.now() / 1000);
   const nonce = crypto.randomBytes(16).toString("hex");
   const deviceId = `tessaris-desktop-${crypto.createHash("sha256").update(key).digest("hex").slice(0, 16)}`;
   const bodyHash = crypto.createHash("sha256").update(body).digest("hex");
-  const message = ["aion.flow.desktop-session.v1", method, target, bodyHash, deviceId, personId, workspaceId, String(issuedAt), nonce].join("\n");
+  const account = readApplicationAccountSession(deviceId, workspaceId);
+  const message = account
+    ? ["aion.flow.desktop-session.v2", method, target, bodyHash, deviceId, personId, workspaceId, account.accountId, String(account.recoveryEpoch), String(issuedAt), nonce].join("\n")
+    : ["aion.flow.desktop-session.v1", method, target, bodyHash, deviceId, personId, workspaceId, String(issuedAt), nonce].join("\n");
   const signature = crypto.createHmac("sha256", key).update(message).digest("hex");
-  return {
+  const headers = {
     "x-aion-flow-device-id": deviceId,
     "x-aion-flow-person-id": personId,
     "x-aion-flow-workspace-id": workspaceId,
@@ -110,6 +308,11 @@ function signAionFlowRequest(payload = {}) {
     "x-aion-flow-body-sha256": bodyHash,
     "x-aion-flow-signature": signature,
   };
+  if (account) {
+    headers["x-tessaris-account-id"] = account.accountId;
+    headers["x-tessaris-recovery-epoch"] = String(account.recoveryEpoch);
+  }
+  return headers;
 }
 
 function wait(ms) {
@@ -858,11 +1061,17 @@ async function injectBrowserRecorder() {
   }
 
   try {
-    await isolatedBrowserWindow.webContents.executeJavaScript(
-      getRecorderInjectionScript(),
+    const recorderScript = JSON.stringify(getRecorderInjectionScript());
+    const result = await isolatedBrowserWindow.webContents.executeJavaScript(
+      `(async () => {
+        if (!window.aionIsolatedBrowser?.installRecorder) {
+          return { ok: false, error: "Isolated browser wrapper is not ready" };
+        }
+        return await window.aionIsolatedBrowser.installRecorder(${recorderScript});
+      })()`,
       true,
     );
-    return { ok: true };
+    return result?.ok ? result : { ok: false, error: result?.error || "Recorder install failed" };
   } catch (error) {
     return { ok: false, error: String(error?.message || error) };
   }
@@ -936,7 +1145,19 @@ async function loadUrlInIsolatedBrowser(startUrl) {
 
 async function openIsolatedBrowserWindow(
   startUrl = "https://mail.google.com/mail/u/0/#inbox",
+  options = {},
 ) {
+  const requestedProfile = String(options.browserProfileId || "aion-isolated-browser")
+    .replace(/[^a-zA-Z0-9_.-]+/g, "-")
+    .slice(0, 120) || "aion-isolated-browser";
+  const departmentId = String(options.departmentId || "operations")
+    .replace(/[^a-zA-Z0-9_.-]+/g, "-")
+    .slice(0, 80) || "operations";
+  const missionId = String(options.missionId || "").slice(0, 160);
+  const taskId = String(options.taskId || "").slice(0, 160);
+  const activityState = String(options.activityState || "idle").slice(0, 80);
+  const objective = String(options.objective || "").replace(/\s+/g, " ").trim().slice(0, 1000);
+  const missionKey = [missionId, taskId, activityState, objective].join("|");
   if (isolatedBrowserWindow && !isolatedBrowserWindow.isDestroyed()) {
     isolatedBrowserWindow.focus();
 
@@ -950,8 +1171,15 @@ async function openIsolatedBrowserWindow(
       wrapperReady = false;
     }
 
-    if (!wrapperReady) {
-      console.log("[isolated-browser] wrapper missing; reloading isolated-browser.html shell");
+    const profileChanged = isolatedBrowserProfileId !== requestedProfile;
+    const missionChanged = isolatedBrowserMissionKey !== missionKey;
+    if (!wrapperReady || profileChanged || missionChanged) {
+      console.log("[isolated-browser] loading isolated-browser.html shell", {
+        wrapperReady,
+        profileChanged,
+        missionChanged,
+        requestedProfile,
+      });
 
       const shellPath = resolveIsolatedBrowserShellPath();
       const webviewPreloadPath = path.join(__dirname, "isolated-webview-preload.js");
@@ -959,8 +1187,16 @@ async function openIsolatedBrowserWindow(
       await isolatedBrowserWindow.loadFile(shellPath, {
         query: {
           webviewPreload: webviewPreloadPath,
+          browserProfileId: requestedProfile,
+          departmentId,
+          missionId,
+          taskId,
+          activityState,
+          objective,
         },
       });
+      isolatedBrowserProfileId = requestedProfile;
+      isolatedBrowserMissionKey = missionKey;
 
       await new Promise((resolve) => {
         isolatedBrowserWindow.webContents.once("did-finish-load", resolve);
@@ -975,7 +1211,14 @@ async function openIsolatedBrowserWindow(
       ok: true,
       reused: true,
       wrapperReady,
-      reloadedWrapper: !wrapperReady,
+      reloadedWrapper: !wrapperReady || profileChanged || missionChanged,
+      profileChanged,
+      browserProfileId: requestedProfile,
+      departmentId,
+      missionId,
+      taskId,
+      activityState,
+      objective,
       url: startUrl,
     };
   }
@@ -997,6 +1240,8 @@ async function openIsolatedBrowserWindow(
 
   isolatedBrowserWindow.on("closed", () => {
     isolatedBrowserWindow = null;
+    isolatedBrowserProfileId = null;
+    isolatedBrowserMissionKey = null;
     isolatedBrowserRecording = false;
     captureNextClickArmed = false;
 
@@ -1021,8 +1266,9 @@ async function openIsolatedBrowserWindow(
     });
 
     if (isolatedBrowserRecording) {
+      const recorderScript = JSON.stringify(getRecorderInjectionScript());
       await runInIsolatedBrowser(
-        "window.__AION_BROWSER_RECORDER_START__ && window.__AION_BROWSER_RECORDER_START__()",
+        `window.aionIsolatedBrowser?.startRecorder(${recorderScript})`,
       );
     }
 
@@ -1039,17 +1285,42 @@ async function openIsolatedBrowserWindow(
   await isolatedBrowserWindow.loadFile(shellPath, {
     query: {
       webviewPreload: webviewPreloadPath,
+      browserProfileId: requestedProfile,
+      departmentId,
+      missionId,
+      taskId,
+      activityState,
+      objective,
     },
   });
+  isolatedBrowserProfileId = requestedProfile;
+  isolatedBrowserMissionKey = missionKey;
 
-  isolatedBrowserWindow.webContents.once("did-finish-load", async () => {
-    await loadUrlInIsolatedBrowser(startUrl);
-  });
+  // loadFile resolves after the wrapper has finished loading. Registering a
+  // one-shot did-finish-load listener here is therefore too late and leaves
+  // a newly created window on its historical Gmail default. Navigate the
+  // wrapper's webview explicitly before reporting success.
+  const navigation = await loadUrlInIsolatedBrowser(startUrl);
+  if (!navigation?.ok) {
+    return {
+      ok: false,
+      reused: false,
+      url: startUrl,
+      error: navigation?.error || "The isolated browser could not load the requested URL.",
+    };
+  }
 
   return {
     ok: true,
     reused: false,
     url: startUrl,
+    browserProfileId: requestedProfile,
+    departmentId,
+    missionId,
+    taskId,
+    activityState,
+    objective,
+    navigation,
   };
 }
 
@@ -1258,7 +1529,14 @@ ipcMain.handle("aion-open-isolated-browser", async (_event, payload = {}) => {
     payload.url ||
     "https://mail.google.com/mail/u/0/#inbox";
 
-  return await openIsolatedBrowserWindow(startUrl);
+  return await openIsolatedBrowserWindow(startUrl, {
+    browserProfileId: payload.browser_profile_id || payload.browserProfileId,
+    departmentId: payload.department_id || payload.departmentId,
+    missionId: payload.mission_id || payload.missionId,
+    taskId: payload.task_id || payload.taskId,
+    activityState: payload.activity_state || payload.activityState,
+    objective: payload.objective,
+  });
 });
 
 ipcMain.handle("browser-operator-open-isolated-browser", async (_event, payload = {}) => {
@@ -1267,17 +1545,24 @@ ipcMain.handle("browser-operator-open-isolated-browser", async (_event, payload 
     payload.url ||
     "https://mail.google.com/mail/u/0/#inbox";
 
-  return await openIsolatedBrowserWindow(startUrl);
+  return await openIsolatedBrowserWindow(startUrl, {
+    browserProfileId: payload.browser_profile_id || payload.browserProfileId,
+    departmentId: payload.department_id || payload.departmentId,
+    missionId: payload.mission_id || payload.missionId,
+    taskId: payload.task_id || payload.taskId,
+    activityState: payload.activity_state || payload.activityState,
+    objective: payload.objective,
+  });
 });
 
 ipcMain.handle("aion-start-browser-recording", async () => {
   isolatedBrowserRecording = true;
-
-  const injected = await injectBrowserRecorder();
+  let injected = { ok: true };
 
   if (isolatedBrowserWindow && !isolatedBrowserWindow.isDestroyed()) {
-    await runInIsolatedBrowser(
-      "window.__AION_BROWSER_RECORDER_START__ && window.__AION_BROWSER_RECORDER_START__()",
+    const recorderScript = JSON.stringify(getRecorderInjectionScript());
+    injected = await runInIsolatedBrowser(
+      `window.aionIsolatedBrowser?.startRecorder(${recorderScript})`,
     );
   }
 
@@ -1296,7 +1581,7 @@ ipcMain.handle("aion-stop-browser-recording", async () => {
 
   if (isolatedBrowserWindow && !isolatedBrowserWindow.isDestroyed()) {
     await runInIsolatedBrowser(
-      "window.__AION_BROWSER_RECORDER_STOP__ && window.__AION_BROWSER_RECORDER_STOP__()",
+      "window.aionIsolatedBrowser?.stopRecorder()",
     );
   }
 
@@ -1306,6 +1591,43 @@ ipcMain.handle("aion-stop-browser-recording", async () => {
     message: "Browser recorder stopped",
     created_at: new Date().toISOString(),
   };
+});
+
+ipcMain.handle("aion-replay-browser-skill", async (_event, payload = {}) => {
+  if (!isolatedBrowserWindow || isolatedBrowserWindow.isDestroyed()) {
+    return { ok: false, status: "no_isolated_browser", error: "Open the isolated browser before validating a skill." };
+  }
+  // Semantic replay is intentionally validation-only here. Live browser work must
+  // arrive through the External Tool Gateway after its exact payload approval has
+  // been verified server-side; renderer-supplied hashes are never authority.
+  if (payload.mode === "live") {
+    return {
+      ok: false,
+      status: "live_execution_requires_backend_gateway",
+      error: "Live skill execution must use AION's governed tool queue and exact-payload approval.",
+    };
+  }
+  const safePayload = {
+    steps: Array.isArray(payload.steps) ? payload.steps.slice(0, 200) : [],
+    inputs: payload.inputs && typeof payload.inputs === "object" ? payload.inputs : {},
+    mode: "dry_run",
+  };
+  const serialized = JSON.stringify(safePayload);
+  try {
+    return await isolatedBrowserWindow.webContents.executeJavaScript(`
+      (async () => {
+        for (let attempt = 0; attempt < 50; attempt += 1) {
+          if (window.aionIsolatedBrowser?.replaySemanticSteps) {
+            return await window.aionIsolatedBrowser.replaySemanticSteps(${serialized});
+          }
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        return { ok: false, status: "replay_bridge_unavailable" };
+      })()
+    `, true);
+  } catch (error) {
+    return { ok: false, status: "replay_failed", error: String(error?.message || error) };
+  }
 });
 
 
@@ -1369,6 +1691,64 @@ function createWindow() {
   });
 }
 
+const SENTINEL_STATUS_PATH = path.join(os.homedir(), ".tessaris", "security-sentinel", "status.json");
+
+function readSentinelStatus() {
+  try {
+    const stat = fs.statSync(SENTINEL_STATUS_PATH);
+    if (stat.size > 64 * 1024) throw new Error("status_too_large");
+    const value = JSON.parse(fs.readFileSync(SENTINEL_STATUS_PATH, "utf8"));
+    const heartbeat = Date.parse(String(value.heartbeat_at || ""));
+    if (!Number.isFinite(heartbeat) || Date.now() - heartbeat > 30_000) {
+      return { state: "offline", detail: "Security Sentinel heartbeat is unavailable." };
+    }
+    const allowed = new Set(["idle", "observing", "investigating", "review", "urgent", "verified", "offline"]);
+    return {
+      state: allowed.has(value.state) ? value.state : "offline",
+      heartbeat_at: value.heartbeat_at,
+      recent_event_count: Number(value.recent_event_count || 0),
+      last_event: value.last_event ? {
+        title: String(value.last_event.title || "Security event").slice(0, 160),
+        severity: String(value.last_event.severity || "LOW").slice(0, 16),
+      } : null,
+    };
+  } catch {
+    return { state: "offline", detail: "Security Sentinel is not running." };
+  }
+}
+
+function positionSentinelWindow() {
+  if (!sentinelWindow || sentinelWindow.isDestroyed()) return;
+  const point = screen.getCursorScreenPoint();
+  const display = screen.getDisplayNearestPoint(point);
+  const { x, y, width, height } = display.workArea;
+  const [windowWidth, windowHeight] = sentinelWindow.getSize();
+  sentinelWindow.setPosition(x + width - windowWidth - 18, y + height - windowHeight - 18, false);
+}
+
+function createSentinelWindow() {
+  if (sentinelWindow && !sentinelWindow.isDestroyed()) return sentinelWindow;
+  sentinelWindow = new BrowserWindow({
+    width: 164, height: 190, transparent: true, frame: false, resizable: false,
+    movable: true, alwaysOnTop: true, skipTaskbar: true, hasShadow: false,
+    focusable: true, show: false,
+    webPreferences: { contextIsolation: true, nodeIntegration: false, preload: path.join(__dirname, "preload.js") },
+  });
+  sentinelWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  sentinelWindow.loadFile(path.join(__dirname, "aion-sentinel.html"));
+  sentinelWindow.once("ready-to-show", () => { positionSentinelWindow(); sentinelWindow.showInactive(); });
+  sentinelWindow.on("closed", () => { sentinelWindow = null; });
+  return sentinelWindow;
+}
+
+ipcMain.handle("aion-security-sentinel-status", async () => readSentinelStatus());
+ipcMain.handle("aion-security-sentinel-open", async () => {
+  if (!mainWindow || mainWindow.isDestroyed()) createWindow();
+  mainWindow.show(); mainWindow.focus();
+  mainWindow.webContents.send("aion-open-cybersecurity");
+  return { ok: true };
+});
+
 async function bootBackendForWindow() {
   sendBackendStatus({
     ok: false,
@@ -1431,6 +1811,56 @@ ipcMain.handle("aion-flow-sign-request", async (_event, payload = {}) => {
   return signAionFlowRequest(payload);
 });
 
+ipcMain.handle("aion-custom-departments-list", async (_event, payload = {}) => {
+  const workspaceId = normalizeAionCustomDepartmentWorkspaceId(payload.workspace_id);
+  return {
+    workspace_id: workspaceId,
+    departments: readAionCustomDepartments(workspaceId),
+  };
+});
+
+ipcMain.handle("aion-launch-spatial-boardroom", async (_event, payload = {}) => {
+  const resolved = resolveSpatialBoardroomExecutable();
+  if (!resolved) {
+    return {
+      ok: false,
+      error: "native_build_not_found",
+      message: "The native Spatial Boardroom build is not installed yet.",
+      searched: SPATIAL_BOARDROOM_APP_CANDIDATES,
+    };
+  }
+  const bridge = await ensureSpatialBoardroomBridge();
+  const members = Array.isArray(payload.members)
+    ? payload.members.map(sanitizeSpatialBoardroomMember).filter((member) => member?.connected).slice(0, 16)
+    : [];
+  if (!members.some((member) => member.id === "aion")) {
+    members.unshift({ id: "aion", label: "AION", role: "Pilot", connected: true });
+  }
+  enqueueSpatialBoardroomEvent({ type: "board_members_snapshot", members });
+  enqueueSpatialBoardroomEvent({
+    type: "caption",
+    text: `Connected Board intelligence: ${members.map((member) => member.label).join(", ")}. Select a member to open their Tessaris chat.`,
+  });
+  if (spatialBoardroomProc && !spatialBoardroomProc.killed) {
+    enqueueSpatialBoardroomEvent({ type: "meeting_overview" });
+    return { ok: true, mode: "native", status: "already_running", app_path: resolved.appPath };
+  }
+  spatialBoardroomProc = spawn(resolved.executable, [
+    `--tessaris-endpoint=http://127.0.0.1:${bridge.port}/events`,
+    `--tessaris-actions=http://127.0.0.1:${bridge.port}/actions`,
+    `--tessaris-session=${bridge.token}`,
+  ], { stdio: "ignore" });
+  spatialBoardroomProc.once("exit", () => { spatialBoardroomProc = null; });
+  spatialBoardroomProc.once("error", () => { spatialBoardroomProc = null; });
+  return { ok: true, mode: "native", status: "launched", app_path: resolved.appPath };
+});
+
+ipcMain.handle("aion-spatial-boardroom-event", async (_event, payload = {}) => {
+  if (!spatialBoardroomBridge) return { ok: false, error: "spatial_boardroom_not_running" };
+  const event = enqueueSpatialBoardroomEvent(payload);
+  return { ok: Boolean(event), event_id: event?.id || null };
+});
+
 ipcMain.handle("aion-open-external-url", async (_event, rawUrl = "") => {
   const value = String(rawUrl || "").trim();
   let parsed;
@@ -1486,6 +1916,7 @@ ipcMain.handle("aion-choose-local-media", async (_event, payload = {}) => {
     video: [{ name: "Video", extensions: ["mp4", "mov", "m4v", "webm"] }],
     image: [{ name: "Image", extensions: ["png", "jpg", "jpeg", "webp"] }],
     audio: [{ name: "Audio", extensions: ["mp3", "wav", "m4a", "aac", "flac"] }],
+    document: [{ name: "People document", extensions: ["pdf", "docx", "txt", "md", "csv", "json"] }],
   };
   const result = await dialog.showOpenDialog(owner, {
     title: String(payload.title || `Choose ${kind}`),
@@ -1530,6 +1961,11 @@ app.on("before-quit", async (event) => {
   isQuitting = true;
   event.preventDefault();
 
+  if (spatialBoardroomBridge?.server) {
+    try { spatialBoardroomBridge.server.close(); } catch {}
+    spatialBoardroomBridge = null;
+  }
+
   try {
     await stopBackend();
   } finally {
@@ -1555,6 +1991,7 @@ app.whenReady().then(async () => {
   }
 
   createWindow();
+  createSentinelWindow();
 
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.once("did-finish-load", () => {
@@ -1571,13 +2008,14 @@ app.whenReady().then(async () => {
   }
 
   app.on("activate", async () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
+    if (!mainWindow || mainWindow.isDestroyed()) {
       try {
         await ensureBackendRunning();
       } catch (error) {
         console.error("[backend] activate startup failed:", error);
       }
       createWindow();
+      createSentinelWindow();
 
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.once("did-finish-load", () => {

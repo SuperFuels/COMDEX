@@ -28,6 +28,7 @@ from backend.modules.pilot_unified.inbox_live_service import UnifiedInboxLiveSer
 from backend.modules.pilot_unified.pairing import MobilePairingAuthority
 from backend.modules.pilot_unified.pairing_service import MobilePairingService
 from backend.modules.pilot_unified.workspace_gateway import AionBoardroomWorkspaceProvider, ProviderIndependentWorkspaceGateway
+from backend.modules.pilot_unified.contracts import Membership
 from backend.modules.pilot_unified.shared_surface import SharedSurfaceManifestAuthority
 from backend.modules.pilot_unified.adoption import TrustedNetworkAuthority
 from backend.modules.pilot_unified.handoff import TrustedHandoffAuthority
@@ -308,6 +309,7 @@ header p{{margin:0;color:#718096}}
 .ask-row button:hover{{background:linear-gradient(135deg,#155eea,#6845df)}}
 .ask-row .god-view{{background:linear-gradient(135deg,#071a35,#147ed4);display:flex;align-items:center;gap:8px;white-space:nowrap}}
 #home-result{{margin:8px 13px 4px;text-align:center;color:#7a8598;font-size:13px}}
+.home-microphone{{display:flex;justify-content:center;align-items:center;gap:10px;margin:-24px auto 30px;color:#647187;font-size:13px}}.home-microphone button{{border:1px solid #cedbfa;border-radius:999px;padding:9px 15px;background:#eef3ff;color:#1d57c6;font-weight:750;cursor:pointer}}.home-microphone button.listening{{background:#e8f8ef;border-color:#bfe8d0;color:#147a56}}
 .launcher{{grid-template-columns:repeat(4,1fr);gap:18px}}
 .launch,.launch.games,.launch.tv,.launch.learning,.launch.shopping{{min-height:182px;padding:22px;border-radius:24px;background:#fff;border:1px solid #e5eaf1;box-shadow:0 8px 26px #2c3b5510;color:var(--text)}}
 .launch:hover{{transform:translateY(-5px);border-color:#cdd9ed;box-shadow:0 18px 40px #2a3b5b20}}
@@ -342,6 +344,7 @@ header p{{margin:0;color:#718096}}
 <section id="home-view" class="view">
  <div class="welcome"><h2>What would you like to do?</h2><p>Choose an experience or ask Pilot naturally.</p></div>
  <form id="home-search" class="ask-box"><label for="home-query">Ask Pilot anything</label><div class="ask-row"><input id="home-query" maxlength="300" autocomplete="off" placeholder="Ask Pilot anything…"><button type="submit">Ask Pilot</button><button type="button" class="god-view" data-launch="god_view"><span>🌍</span> God View</button></div><p id="home-result">Search, plan, learn, compare, control your connected home, or explore the living planet.</p></form>
+ <div class="home-microphone"><span id="home-voice-state">Pilot microphone is checking…</span><button id="home-voice-toggle" type="button">Turn on microphone</button></div>
  <section class="launcher" aria-label="Pilot experiences">
   {experience_launcher}
  </section>
@@ -368,9 +371,17 @@ header p{{margin:0;color:#718096}}
 <section class="notice"><h2>AION TV Intelligence</h2><p>Say <strong>“Pilot, take over the TV”</strong>, “Pilot, show the device mesh”, “Pilot, show the Boardroom”, “Pilot, give me a briefing”, “Pilot, movie mode”, or “Pilot, open games”. The TV Canvas is a temporary read-only display; control keys and private COMDEX data remain on this Mac.</p><p><strong>Microphone privacy:</strong> say “Pilot, sleep” to close the microphone completely. It cannot hear a wake command while asleep; use the local button below to resume.</p><p><button id="voice-sleep">Turn microphone off</button> <button id="voice-resume">Resume microphone</button> <button class="voice-setting" data-quiet="true">Quiet mode</button> <button class="voice-setting" data-quiet="false">Spoken replies</button></p><p><label>Local voice <select id="voice-name">{voice_options}</select></label> <label>Quiet from <input id="quiet-start" type="time" value="{quiet_start}"></label> <label>until <input id="quiet-end" type="time" value="{quiet_end}"></label> <button id="save-voice-preferences">Save voice settings</button></p><p>Speak open-ended outcomes such as “Pilot, compare family hotels in Granada and prepare a booking” or “Pilot, find the best ladder and prepare the purchase”. AION now observes the foreground app, builds a persistent plan, researches options, and stops before a booking, purchase, message, or calendar change. Consequential actions continue on the <a href="{html.escape(companion_service.public_url if companion_service else '#')}">private phone companion</a>.</p><p>For research, say “Pilot, find me extendable ladders”, “Pilot, open the first result”, or “Pilot, show my results again”. On Netflix, ask for a title naturally or say “Pilot, go back”.</p><p>Standard controls include volume, mute, playback, HDMI switching, Netflix, YouTube and the allowlisted GeForce NOW Games surface. Raw microphone audio remains local and is not retained. Voice volume is capped at 50; power remains blocked. Purchases, bookings, messages and calendar changes require private approval and an authorized service adapter.</p><p id="voice-diagnostics">{html.escape(voice_details)}</p><p><strong>Discovery safety:</strong> AION listens for standard advertisements, sends one bounded SSDP discovery request, reads the existing neighbor cache, and inspects known Bluetooth records. It may download advertised local descriptors with strict limits.</p><p>Machine status: <code>/status</code> · Voice status: <code>/api/voice</code> · Discovery evidence: <code>/api/discovery</code></p></section>
 </section>
 <script>
+// A locked shared dashboard observes only the lock state. Once a trusted
+// Personal phone acquires it, reload once to render that phone's private tiles.
+const sharedDashboardLocked = {str(not bool(active_identity.get("persona_id"))).lower()};
+if (sharedDashboardLocked) setInterval(() => location.reload(), 10000);
 document.querySelectorAll('[data-local-view]').forEach(control=>control.addEventListener('click',()=>{{document.querySelectorAll('.view').forEach(view=>view.hidden=view.id!==control.dataset.localView);window.scrollTo({{top:0,behavior:'smooth'}})}}));
 async function dashboardAction(command,arguments={{}}){{const response=await fetch('/api/dashboard/action',{{method:'POST',headers:{{'X-AION-Fabric':'dashboard-v1','Content-Type':'application/json'}},body:JSON.stringify({{command,arguments}})}});const result=await response.json();if(!response.ok)throw new Error(result.error||'Pilot could not complete that request');return result}}
 const homeQuery=document.getElementById('home-query'),homeResult=document.getElementById('home-result');
+const homeVoiceToggle=document.getElementById('home-voice-toggle'),homeVoiceState=document.getElementById('home-voice-state');
+async function refreshVoiceControl(){{if(!homeVoiceToggle||!homeVoiceState)return;try{{const voice=await (await fetch('/api/voice',{{cache:'no-store'}})).json();const listening=['listening','hearing','awake','active'].includes(String(voice.activity_state||'').toLowerCase());homeVoiceToggle.textContent=listening?'Turn microphone off':'Turn on microphone';homeVoiceToggle.classList.toggle('listening',listening);homeVoiceState.textContent=listening?'Pilot is listening locally.':'Pilot microphone is off.'}}catch(error){{homeVoiceState.textContent='Pilot microphone is unavailable.'}}}}
+async function setVoiceCapture(enabled,control){{if(control)control.disabled=true;try{{const response=await fetch(enabled?'/api/voice/resume':'/api/voice/sleep',{{method:'POST',headers:{{'X-AION-Fabric':'dashboard-v1'}}}});const result=await response.json();if(!response.ok)throw new Error(result.error||'Voice control failed');await refreshVoiceControl()}}catch(error){{if(homeVoiceState)homeVoiceState.textContent=error.message}}finally{{if(control)control.disabled=false}}}}
+if(homeVoiceToggle)homeVoiceToggle.addEventListener('click',()=>setVoiceCapture(homeVoiceToggle.textContent==='Turn on microphone',homeVoiceToggle));refreshVoiceControl();
 document.querySelectorAll('[data-launch]').forEach(tile=>tile.addEventListener('click',async()=>{{tile.disabled=true;const title=tile.querySelector('strong');homeResult.textContent='Pilot is opening '+(title?title.textContent:tile.textContent.trim())+'…';try{{const result=await dashboardAction(tile.dataset.launch,tile.dataset.launch==='education_start'?{{profile_id:'explorer_a'}}:{{}});homeResult.textContent=result.spoken_response||'Ready on the television.'}}catch(error){{homeResult.textContent=error.message}}finally{{tile.disabled=false}}}}));
 document.querySelector('[data-mode="shopping"]').addEventListener('click',()=>{{homeQuery.value='Find and compare ';homeQuery.focus();homeQuery.setSelectionRange(homeQuery.value.length,homeQuery.value.length);homeResult.textContent='Tell Pilot what you are looking for. It will research and prepare, but not purchase without private approval.'}});
 document.getElementById('home-search').addEventListener('submit',async event=>{{event.preventDefault();const text=homeQuery.value.trim();if(!text)return;const submit=event.currentTarget.querySelector('button');submit.disabled=true;homeResult.textContent='Pilot is thinking…';try{{const result=await dashboardAction('ask',{{text}});homeResult.textContent=result.spoken_response||'Pilot has prepared the result.';homeQuery.value=''}}catch(error){{homeResult.textContent=error.message}}finally{{submit.disabled=false}}}});
@@ -387,8 +398,8 @@ document.querySelectorAll('.voice-setting').forEach(control=>control.addEventLis
 const saveVoicePreferences=document.getElementById('save-voice-preferences');if(saveVoicePreferences)saveVoicePreferences.addEventListener('click',async()=>{{saveVoicePreferences.disabled=true;try{{const response=await fetch('/api/voice/settings',{{method:'POST',headers:{{'X-AION-Fabric':'dashboard-v1','Content-Type':'application/json'}},body:JSON.stringify({{voice_name:document.getElementById('voice-name').value,quiet_start:document.getElementById('quiet-start').value,quiet_end:document.getElementById('quiet-end').value}})}});const result=await response.json();if(!response.ok)throw new Error(result.error||'Voice preference failed');voiceDiagnostics.textContent='Voice settings saved locally.'}}catch(error){{alert(error.message)}}finally{{saveVoicePreferences.disabled=false}}}});
 const healthCard=document.getElementById('connection-health'),healthMessage=document.getElementById('connection-message'),healthRetry=document.getElementById('connection-retry');
 async function refreshConnectionHealth(){{if(!healthCard)return;try{{const state=await(await fetch('/api/connection-health',{{cache:'no-store'}})).json();healthCard.dataset.status=state.status||'recovering';healthCard.querySelector('strong').lastChild.textContent=state.status==='connected'?' TV connected':' Reconnecting to TV';healthMessage.textContent=state.message||'Pilot is checking the television.'}}catch(error){{healthCard.dataset.status='recovering';healthMessage.textContent='Pilot is restarting the local connection.'}}}}
-if(healthRetry)healthRetry.addEventListener('click',async()=>{{healthRetry.disabled=true;try{{await fetch('/api/connection-health/retry',{{method:'POST',headers:{{'X-AION-Fabric':'dashboard-v1'}}}});setTimeout(refreshConnectionHealth,700)}}finally{{setTimeout(()=>healthRetry.disabled=false,900)}}}});refreshConnectionHealth();setInterval(refreshConnectionHealth,5000);
-for(const [id,path] of [['voice-sleep','/api/voice/sleep'],['voice-resume','/api/voice/resume']]){{const control=document.getElementById(id);if(control)control.addEventListener('click',async()=>{{control.disabled=true;try{{const response=await fetch(path,{{method:'POST',headers:{{'X-AION-Fabric':'dashboard-v1'}}}});const result=await response.json();if(!response.ok)throw new Error(result.error||'Voice control failed');location.reload()}}catch(error){{alert(error.message);control.disabled=false}}}})}}
+if(healthRetry)healthRetry.addEventListener('click',async()=>{{healthRetry.disabled=true;const original=healthRetry.textContent;healthRetry.textContent='Reconnecting…';healthMessage.textContent='Checking the TV connection now…';try{{const response=await fetch('/api/connection-health/retry',{{method:'POST',headers:{{'X-AION-Fabric':'dashboard-v1'}}}});const state=await response.json();if(!response.ok)throw new Error(state.error||'TV reconnection failed');healthCard.dataset.status=state.status||'recovering';healthMessage.textContent=state.message||'Pilot is checking the television.'}}catch(error){{healthCard.dataset.status='recovering';healthMessage.textContent=error.message}}finally{{healthRetry.textContent=original;healthRetry.disabled=false}}}});refreshConnectionHealth();setInterval(refreshConnectionHealth,5000);
+for(const [id,enabled] of [['voice-sleep',false],['voice-resume',true]]){{const control=document.getElementById(id);if(control)control.addEventListener('click',()=>setVoiceCapture(enabled,control))}}
 </script></main></body></html>"""
     return document.encode("utf-8")
 
@@ -403,6 +414,8 @@ def _serve(
     autonomous_discovery: bool = False,
     scan_interval: float = 300.0,
     voice_control: bool = False,
+    founder_persona_id: str = "",
+    founder_workspace_id: str = "",
 ) -> None:
     private_state = PrivateServiceState(runtime.base_dir).load()
     supervisor = (
@@ -1012,6 +1025,7 @@ def _serve(
                         mother_identity=runtime.identity,
                         endpoint=f"https://{companion_service.address}:8770",
                         ca_sha256=companion_tls_material.ca_sha256,
+                        ca_certificate_pem=companion_tls_material.ca_certificate_path.read_bytes(),
                         identity_registry=runtime.private_identity,
                         remote_endpoints=tuple(
                             value.strip()
@@ -1267,6 +1281,7 @@ def _serve(
                         intelligence_status_provider=runtime.tv_research.policy.status,
                         intelligence_command_executor=execute_mobile_intelligence,
                         tv_presentation_executor=execute_tv_presentation,
+                        dashboard_action_executor=lambda _persona_id, command, arguments: execute_mobile_device_command(command, arguments),
                     )
                     workspace_gateway = ProviderIndependentWorkspaceGateway(
                         issuer_id=runtime.identity.fingerprint,
@@ -1283,6 +1298,21 @@ def _serve(
                     )
                     workspace_gateway.register_provider(boardroom_provider)
                     workspace_gateway.discover(boardroom_provider.provider_id)
+                    # A founder chat enrollment is intentionally narrow.  It
+                    # grants only read and governed conversation authority for
+                    # one declared local workspace; it cannot administer users,
+                    # issue invitations, approve commercial actions or sign off.
+                    if founder_persona_id or founder_workspace_id:
+                        if not founder_persona_id or not founder_workspace_id:
+                            raise ValueError("Founder mobile enrollment requires both a persona and a workspace id")
+                        workspace_gateway.grant_membership(Membership(
+                            membership_id=f"membership/founder-{founder_workspace_id}-{founder_persona_id[-12:]}",
+                            persona_id=founder_persona_id,
+                            space_id=f"workspace/{founder_workspace_id}",
+                            role_id="founder_mobile_chat",
+                            scopes=("workspace.read", "workspace.conversation"),
+                            status="active", issued_at=time.strftime("%Y-%m-%dT%H:%M:%S+00:00", time.gmtime()),
+                        ))
                     if surface_authority is not None:
                         surface_authority.workspace_gateway = workspace_gateway
                     mobile_origins = (
@@ -1298,14 +1328,36 @@ def _serve(
                         allowed_origins=mobile_origins,
                     )
                     unified_inbox_live_service.start()
+                    pairing_confirmation_page = runtime.base_dir / "pilot_unified" / "mobile_pairing_confirmation.html"
+
+                    def present_mobile_confirmation(confirmation: dict[str, Any]) -> None:
+                        """Show the one-time code locally on the owner's Mac.
+
+                        The code never travels through the LAN QR screen: it is
+                        rendered into a local file and opened by the local Node.
+                        """
+                        pairing_confirmation_page.parent.mkdir(parents=True, exist_ok=True)
+                        code = html.escape(str(confirmation["confirmation_code"]))
+                        label = html.escape(str(confirmation["device_label"]))
+                        words = html.escape(" ".join(confirmation.get("trust_words") or []))
+                        pairing_confirmation_page.write_text(
+                            "<!doctype html><meta charset=utf-8><title>Confirm Pilot pairing</title>"
+                            "<style>body{font-family:-apple-system,sans-serif;background:#f5f4ef;"
+                            "display:grid;place-items:center;min-height:100vh;margin:0}main{background:white;"
+                            "padding:48px;border-radius:24px;text-align:center;box-shadow:0 12px 44px #0002}"
+                            "b{font-size:58px;letter-spacing:.16em;color:#173a57}</style>"
+                            f"<main><p>TESSARIS NODE · CONFIRM PAIRING</p><h1>{label}</h1>"
+                            f"<p>Enter this code on the phone:</p><b>{code}</b><p>{words}</p></main>",
+                            encoding="utf-8",
+                        )
+                        pairing_confirmation_page.chmod(0o600)
+                        webbrowser.open(pairing_confirmation_page.as_uri())
+                        print(f"Pilot mobile connection code {confirmation['confirmation_code']} for {confirmation['device_label']}")
+
                     unified_mobile_service = MobilePairingService(
                         mobile_pairing,
                         tls_context=companion_tls_material.context(),
-                        confirmation_presenter=lambda confirmation: print(
-                            "Pilot mobile connection code "
-                            f"{confirmation['confirmation_code']} for {confirmation['device_label']} · "
-                            f"words: {' '.join(confirmation['trust_words'])}"
-                        ),
+                        confirmation_presenter=present_mobile_confirmation,
                         address=companion_service.address,
                         port=8770,
                         allowed_origins=mobile_origins,
@@ -1676,6 +1728,8 @@ def main(argv: list[str] | None = None) -> int:
     serve.add_argument("--autonomous-discovery", action="store_true", help="Continuously refresh safe discovery evidence")
     serve.add_argument("--scan-interval", type=float, default=300.0)
     serve.add_argument("--voice-control", action="store_true", help="Run local wake-phrase TV voice control")
+    serve.add_argument("--founder-persona-id", default="", help="Founder persona for narrow mobile Boardroom chat enrollment")
+    serve.add_argument("--founder-workspace-id", default="", help="One local workspace for that founder mobile chat enrollment")
     subparsers.add_parser("status", help="Read current fabric status")
     subparsers.add_parser("demo", help="Run an isolated mother/fridge/TV proof")
 
@@ -1704,6 +1758,8 @@ def main(argv: list[str] | None = None) -> int:
             autonomous_discovery=args.autonomous_discovery,
             scan_interval=args.scan_interval,
             voice_control=args.voice_control,
+            founder_persona_id=args.founder_persona_id,
+            founder_workspace_id=args.founder_workspace_id,
         )
         return 0
     return 2

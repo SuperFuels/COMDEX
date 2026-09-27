@@ -46,6 +46,15 @@ def test_o12b_secondary_canvas_sheet_is_suppressed():
     assert "background-image: none !important" in APP_JS
 
 
+def test_o12b_staged_notice_is_dismissible_and_expires():
+    assert "data-aion-o12b-dismiss-workflow-status" in APP_JS
+    assert "dismissWorkflowStatus" in APP_JS
+    assert "scheduleWorkflowStatusExpiry" in APP_JS
+    assert "window.setTimeout(dismissWorkflowStatus, 7000)" in APP_JS
+    assert "aion.boardroomGoalSheet.stagedNoticeDismissed.v1" in APP_JS
+    assert "resetWorkflowStatusDismissal();" in APP_JS
+
+
 def test_o11b_is_retired_by_o12b():
     assert "RETIRED BY O12B" in APP_JS
     assert "Goal Loop is now a Boardroom Goal Sheet with linked department sheets" in APP_JS

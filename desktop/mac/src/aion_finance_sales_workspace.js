@@ -57,7 +57,13 @@
   function render() {
     const anchor = inbox(); if (!anchor || !state.catalog) return;
     const existing = document.querySelector('[data-aion-finance-sales]');
-    if (existing) existing.outerHTML = markup(); else anchor.insertAdjacentHTML('afterend', markup());
+    if (existing) {
+      existing.outerHTML = markup();
+    } else {
+      const financeDirector = anchor.parentElement?.querySelector?.('[data-aion-finance-director]');
+      if (financeDirector) financeDirector.insertAdjacentHTML('afterend', markup());
+      else anchor.insertAdjacentHTML('beforebegin', markup());
+    }
   }
 
   async function load() {

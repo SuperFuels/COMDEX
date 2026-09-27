@@ -1,0 +1,291 @@
+\section{Operations Executive Briefing and Live Department Channels}
+\label{sec:pilot-operations-executive-briefing}
+\raggedright
+
+\subsection{Purpose and delivered behaviour}
+
+The Operations Command Centre now implements a governed executive operating layer rather than a
+set of decorative department tabs.  The left pane remains the founder's direct conversation with
+Operations Pilot.  The right pane contains six persistent COO-to-Department-Pilot channels:
+Sales, Marketing, Finance, Support, People, and Products \& Services.  Each channel records COO
+instructions, departmental updates, morning minutes, evidence provenance, model provenance, and
+approval state as a durable business record.
+
+The implementation provides the following behaviour:
+\begin{itemize}[leftmargin=*]
+\item a daily executive briefing scheduled for 08:00 in the configured business timezone;
+\item a separate evidence-bounded director role for every participating department;
+\item review of previous-day results, the current day's plan, outstanding work, risks, target
+      variance, dependencies, and decisions required from the COO;
+\item inclusion of published Board meeting summaries, Board mandates, delegated actions, and the
+      current business pulse;
+\item dated minutes written into every Department Pilot channel;
+\item a briefing summary written into the main Operations Pilot conversation;
+\item a persistent action register for COO follow-up;
+\item staged feedback for material risks or target variance so it can be surfaced to the COO,
+      CEO, and Board without silently changing Board decisions;
+\item optional challenge by a second, separately accepted model; and
+\item exact approval gating for any later external action.
+\end{itemize}
+
+The feature is provider-neutral.  It is not fixed to Qwen, GPT-OSS, OpenAI, or any other model.
+The primary reasoner is the model selected and accepted through the Vault at the time the briefing
+or channel turn runs.
+
+\subsection{Runtime architecture}
+
+The implementation separates cognition from authority.  A model may supply bounded departmental
+judgement, but AION owns source selection, role assignment, validation, persistence, scheduling,
+audit records, action state, and approval enforcement.  The effective execution path is:
+
+\begin{enumerate}[leftmargin=*]
+\item The signed desktop session fixes the actor and workspace.  Browser input cannot select a
+      different business record.
+\item AION identifies the requested department and loads only its authorised evidence projection.
+\item AION loads the latest published Board context and the bounded recent channel history.
+\item The Vault resolver selects a released model.  Non-selectable local cards and disconnected
+      providers are rejected.
+\item AION gives the model a department-specific role card, evidence pack, Board context, output
+      schema, and explicit non-execution rules.
+\item The returned JSON is parsed and validated.  Unsupported or malformed output is rejected.
+\item AION writes the validated position, evidence identifiers, model receipt, and approval state
+      into the durable channel.
+\item Proposed actions enter an internal open-action register.  They are not treated as completed
+      work and receive no external execution authority.
+\end{enumerate}
+
+In compact form, the authority boundary is:
+\begin{center}
+\texttt{Vault model proposal}\\
+$\downarrow$\\
+\texttt{AION validation and persistence}\\
+$\downarrow$\\
+\texttt{governed Department Pilot work}\\
+$\downarrow$\\
+\texttt{exact approval for external change}
+\end{center}
+
+No renderer, model response, or department channel message can mint an approval or directly invoke
+an external connector.
+
+\subsection{Department role separation}
+
+Each Department Pilot is invoked separately with a distinct executive mandate.  This prevents a
+single undifferentiated prompt from presenting the same generic advice under six different names.
+
+\begin{longtable}{p{.18\linewidth}p{.76\linewidth}}
+\textbf{Department} & \textbf{Bounded executive mandate}\\ \hline
+Sales & Protect revenue quality, progress qualified pipeline, remove conversion blockers, and
+state the next accountable commercial action.\\
+Marketing & Protect efficient demand generation, distinguish measured attribution from
+assumptions, and coordinate campaigns with Sales capacity.\\
+Finance & Protect cash, margin, and financial control; distinguish ledger evidence from forecasts
+and surface overdue or unreconciled exposure.\\
+Support & Protect customer outcomes, service levels, and closure quality; surface complaints,
+overdue replies, and cross-department blockers.\\
+People & Protect team capacity, accountability, and safe access while excluding unnecessary
+sensitive personal detail.\\
+Products \& Services & Protect customer value, delivery feasibility, and unit economics while
+separating recorded product facts from assumptions.\\
+\end{longtable}
+
+Each model response must use the supplied evidence and return a structured position containing
+\texttt{summary}, \texttt{yesterday\_results}, \texttt{today\_plan},
+\texttt{outstanding}, \texttt{risks}, \texttt{target\_variance},
+\texttt{decisions\_needed}, and \texttt{actions}.  A department cannot change a Board target from
+its channel; it can only report variance and request a decision.
+
+\subsection{Evidence and Board context}
+
+Department evidence is obtained from the existing provider projections rather than assembled by
+the user interface.  Representative source boundaries include:
+\begin{itemize}[leftmargin=*]
+\item Sales: the Sales revenue spine and Boardroom snapshot;
+\item Finance: the business financial model and Finance/Sales invoice ledger;
+\item Marketing: Marketing department intelligence and Boardroom actions;
+\item Support: the governed support-case ledger;
+\item People: the organisation-authority model and authorised availability records; and
+\item Products \& Services: the business operating model, offerings, inventory metrics, and unit
+      economics.
+\end{itemize}
+
+The Board context is a bounded projection of the latest published meeting records, delegated
+department actions, and business pulse.  Raw credentials, secrets, access tokens, private keys,
+and unbounded provider payloads are excluded before model invocation.  Evidence source identifiers
+are retained with the resulting message so the UI can display the number of sources and the audit
+record can identify the authority used.
+
+If evidence is absent, the retrieval state is recorded as unavailable or not published.  If the
+selected model is unavailable, AION records the known source boundary and explicitly marks
+executive judgement and target variance as unknown.  It does not generate a plausible but
+unsupported meeting discussion.
+
+\subsection{Primary and critic model routing}
+
+The primary model is resolved dynamically from the workspace and Vault.  The stored public receipt
+contains only bounded fields such as provider, model, source, release status, and failure reason;
+Vault secrets are never copied into the conversation.
+
+A separately accepted critic model may be configured under
+\texttt{executive\_briefing\_config.critic\_model\_selection}.  The critic must resolve successfully
+and must be different from the primary model.  It receives the bounded departmental positions and
+Board context and may challenge unsupported claims, cross-department conflicts, or decisions that
+need executive attention.  It cannot execute work.
+
+The briefing records one of two explicit reasoning modes:
+\begin{itemize}[leftmargin=*]
+\item \texttt{single\_model\_role\_separated}: departments were considered through separate role
+      invocations, but no independent second model participated; or
+\item \texttt{two\_model\_challenge}: a distinct accepted model challenged the departmental
+      positions.
+\end{itemize}
+
+This disclosure prevents one local model speaking to itself from being misrepresented as an
+independent executive debate.
+
+\subsection{Scheduling, recovery, and duplicate prevention}
+
+The default schedule is daily at 08:00 in \texttt{Europe/Madrid}.  The local desktop backend checks
+for due executive work once per minute while Tessaris is running.  The Operations page also checks
+when opened and every five minutes while it remains visible.  The two paths use the same local-date
+deduplication rule, so a missed or delayed check can be recovered without producing duplicate
+minutes.
+
+A normal scheduled run returns the existing briefing when that local date has already been
+published.  The visible \emph{Run morning briefing} control deliberately uses a replacement run,
+allowing the founder to regenerate that day's minutes after evidence or model availability changes.
+The replacement does not grant external execution authority.
+
+The desktop application must be running for its local scheduler to operate.  An optional always-on
+worker node may perform the same protected check when the Mac application is not running; the
+briefing service itself remains idempotent by business-local date.
+
+\subsection{Conversation and audit persistence}
+
+Executive messages are stored in
+\texttt{operational\_runtime\_summary.shared\_conversations}.  The new record format is
+\texttt{workspace\_conversation\_v2}.  Each message includes:
+\begin{itemize}[leftmargin=*]
+\item message identifier, sequence, department, sender, role, and message type;
+\item UTC creation time and bounded structured metadata;
+\item evidence source identifiers and public model selection metadata;
+\item \texttt{approval\_gated} and \texttt{external\_writes\_performed};
+\item the previous record hash; and
+\item a canonical hash of the current record.
+\end{itemize}
+
+Relevant message types include \texttt{coo\_instruction},
+\texttt{department\_update}, \texttt{morning\_minutes}, and
+\texttt{executive\_briefing\_summary}.  The newest 1,200 workspace turns are retained in the active
+record.  Clients request a bounded recent page rather than loading the entire history into the
+renderer.
+
+Each completed meeting is also stored in \texttt{executive\_briefings} with its local date,
+meeting identifier, department positions, Board context, critic receipt, action register, Board
+feedback, reasoning mode, safety state, and canonical briefing hash.  The active store retains the
+newest 120 meeting records.
+
+\subsection{Actions, follow-up, and escalation}
+
+Every proposed departmental action becomes an entry in
+\texttt{executive\_action\_register} with an open state, originating meeting, department, creation
+time, and \texttt{external\_execution\_allowed=false}.  This gives Operations Pilot a durable basis
+for later questions such as whether Sales reached its target or whether Support obtained a customer
+reply.
+
+Material target variance and departmental risks are copied into
+\texttt{executive\_board\_feedback} with state
+\texttt{staged\_for\_coo\_ceo\_board}.  Staging makes the issue available to the executive layer; it
+does not rewrite approved Board minutes, change a target, or claim Board acceptance.
+
+The COO may send a follow-up from any department channel.  The protected turn includes that
+department's role card, current evidence, Board context, and the eight most recent bounded channel
+messages.  The COO instruction and Department Pilot response are then appended to the same durable
+stream.
+
+\subsection{Protected API surface}
+
+All executive endpoints are under the signed AION Flow desktop session:
+\begin{longtable}{p{.30\linewidth}p{.64\linewidth}}
+\textbf{Endpoint suffix} & \textbf{Purpose}\\ \hline
+\texttt{executive-status} & Returns the local schedule, whether today's briefing is due, the latest
+briefing receipt, and bounded channel summaries.\\
+\texttt{morning-briefing} & Runs or deduplicates the six-department meeting and returns its signed
+workspace result.\\
+\texttt{channel-history} & Returns the bounded persistent stream for exactly one supported
+department.\\
+\texttt{channel-turn} & Records a COO instruction and creates an evidence-bounded reply from the
+selected Department Pilot.\\
+\end{longtable}
+
+The possession-bound session supplies the person and workspace.  Payloads cannot select another
+workspace.  Unsupported department identifiers and empty messages are rejected with validation
+errors.
+
+\subsection{Desktop interface}
+
+The Operations Command Centre now displays:
+\begin{itemize}[leftmargin=*]
+\item the live schedule and timezone;
+\item whether the meeting used role separation or a two-model challenge;
+\item a manual morning-briefing control;
+\item six Department Pilot tabs;
+\item a persistent, scrollable message stream per department;
+\item sender and timestamp for each entry;
+\item message type, evidence-source count, public model identity, and approval state; and
+\item a COO composer addressed to the selected Department Pilot.
+\end{itemize}
+
+The previous ``Mission bridge not connected'' placeholder has been removed.  Selecting a tab now
+loads its protected business record, and sending a message invokes the governed department turn
+rather than changing local screen text only.
+
+\subsection{Failure handling and safety guarantees}
+
+The following rules are enforced by the service rather than by model instruction alone:
+\begin{itemize}[leftmargin=*]
+\item A missing or unavailable model produces an explicit evidence-only record; it does not trigger
+      canned business advice.
+\item Invalid model JSON is rejected and replaced with an honest unavailable-model result.
+\item Missing evidence remains unknown and cannot be converted into a target result.
+\item A model response cannot claim an external write, issue an approval hash, or select an
+      unregistered department.
+\item Morning briefings are read-and-prepare operations.  They cannot send email, update CRM,
+      publish advertising, move money, contact employees, or mutate connected services.
+\item External work must be compiled into a registered Department Pilot capability and pass through
+      AION's server-side exact approval gateway.
+\item A critic model is optional and cannot silently replace the user's selected primary model.
+\end{itemize}
+
+\subsection{Implementation locations}
+
+The principal implementation files are:
+\begin{itemize}[leftmargin=*]
+\item \texttt{backend/modules/aion\_business/runtime/operations\_executive\_briefing\_service.py}:
+      role cards, model routing, evidence packaging, meeting execution, persistence, action staging,
+      and Board feedback;
+\item \texttt{backend/api/workflow\_capsule\_router.py}: signed executive status, briefing,
+      history, and turn endpoints;
+\item \texttt{backend/desktop\_app.py}: once-per-minute due-work scan while Tessaris is running;
+\item \texttt{desktop/mac/src/app.js}: live executive-channel interface, protected request handling,
+      automatic recovery checks, and COO composer; and
+\item \texttt{docs/OPERATIONS\_EXECUTIVE\_BRIEFING.md}: concise operational and technical reference.
+\end{itemize}
+
+The installed application is \texttt{/Applications/Tessaris.app}.  The pre-install recovery copy is
+\texttt{/Applications/Tessaris.app.pre-executive-briefing-v1}.
+
+\subsection{Verification}
+
+Focused automated tests cover six-department minute publication, local-date deduplication,
+COO-instruction and Department-Pilot response persistence, Products \& Services identifier
+normalisation, the distinct critic-model path, visible desktop controls, protected route wiring,
+removal of the obsolete placeholder, and background scheduler integration.  Seven focused tests
+passed.  Python compilation, Electron JavaScript syntax, scoped whitespace checks, and the installed
+application's macOS signature verification also passed.
+
+The installed UI was exercised directly.  Dated Sales and Finance minutes remained visible after an
+application restart.  During that verification the selected OpenAI model adapter was unavailable;
+the system correctly retained the authorised evidence identifiers and marked judgement and target
+variance as unknown instead of fabricating an executive discussion.  This is the intended degraded
+mode and does not change the provider-neutral design.

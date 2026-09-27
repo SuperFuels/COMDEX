@@ -87,6 +87,7 @@ class MobilePairingAuthority:
         mother_identity: DeviceIdentity,
         endpoint: str,
         ca_sha256: str,
+        ca_certificate_pem: bytes | str | None = None,
         identity_registry: ProductionPrivateIdentity,
         remote_endpoints: Iterable[str] = (),
         relay_endpoint: str | None = None,
@@ -95,6 +96,8 @@ class MobilePairingAuthority:
         self.identity = mother_identity
         self.endpoint = _endpoint(endpoint)
         self.ca_sha256 = str(ca_sha256).lower()
+        certificate = ca_certificate_pem.encode("utf-8") if isinstance(ca_certificate_pem, str) else ca_certificate_pem
+        self.ca_certificate_pem = bytes(certificate or b"")
         self.identity_registry = identity_registry
         cleaned_remote = []
         for candidate in remote_endpoints:
@@ -112,6 +115,16 @@ class MobilePairingAuthority:
         ) if relay_endpoint else None
         if not re.fullmatch(r"[0-9a-f]{64}", self.ca_sha256):
             raise ValueError("The household certificate fingerprint must be SHA-256")
+        if self.ca_certificate_pem:
+            try:
+                from cryptography import x509
+                from cryptography.hazmat.primitives import hashes
+                parsed_certificate = x509.load_pem_x509_certificate(self.ca_certificate_pem)
+                actual_fingerprint = parsed_certificate.fingerprint(hashes.SHA256()).hex()
+            except ValueError as exc:
+                raise ValueError("The household certificate must be a valid PEM certificate") from exc
+            if not secrets.compare_digest(actual_fingerprint, self.ca_sha256):
+                raise ValueError("The household certificate does not match its fingerprint")
         self.path = Path(runtime_dir) / "pilot_unified" / "mobile_pairing.json"
         self.path.parent.mkdir(parents=True, exist_ok=True)
         os.chmod(self.path.parent, 0o700)
@@ -155,7 +168,7 @@ class MobilePairingAuthority:
     def mother_descriptor(self, *, validity_minutes: int = 10) -> dict[str, Any]:
         now = datetime.now(timezone.utc)
         payload = {
-            "schema_version": "pilot.mother-descriptor.v1",
+            "schema_version": "pilot.mother-descriptor.v2" if self.ca_certificate_pem else "pilot.mother-descriptor.v1",
             "mother_id": self.mother_id,
             "mother_public_key": self.identity.public_key_b64,
             "mother_fingerprint": self.identity.fingerprint,
@@ -164,7 +177,83 @@ class MobilePairingAuthority:
             "issued_at": now.isoformat(),
             "expires_at": (now + timedelta(minutes=max(1, min(validity_minutes, 30)))).isoformat(),
         }
+        if self.ca_certificate_pem:
+            # Public trust anchor only. This is signed with the Node identity;
+            # it contains no private key and lets a newly paired phone pin the
+            # Node's self-managed TLS CA without a global trust installation.
+            payload["ca_certificate_pem_b64"] = base64.b64encode(self.ca_certificate_pem).decode("ascii")
         return {**payload, "mother_signature": self.identity.sign(canonical_bytes(payload))}
+
+    def pairing_invitation(
+        self,
+        *,
+        persona_id: str,
+        requested_scopes: Iterable[str] = ("message.send", "task.create", "tv.control"),
+        validity_minutes: int = 10,
+    ) -> dict[str, Any]:
+        """Create the public, QR-safe start of a phone pairing journey.
+
+        An invitation deliberately contains no confirmation code, certificate,
+        lease, relay capability or mother secret.  The phone still creates its
+        own key, requests a single-use challenge, and needs the exact local
+        confirmation presented by the trusted Node before it is enrolled.
+        """
+        persona_id = _identifier(persona_id, "persona_id")
+        scopes = sorted(set(str(scope) for scope in requested_scopes))
+        if not scopes or len(scopes) > self.MAX_SCOPES or any(not _SCOPE.fullmatch(scope) for scope in scopes):
+            raise ValueError("The requested phone permissions are invalid")
+        now = datetime.now(timezone.utc)
+        descriptor = self.mother_descriptor(validity_minutes=validity_minutes)
+        payload = {
+            "schema_version": "pilot.phone-pairing-invitation.v1",
+            "mother_descriptor": descriptor,
+            "persona_id": persona_id,
+            "requested_scopes": scopes,
+            "issued_at": now.isoformat(),
+            "expires_at": (now + timedelta(minutes=max(1, min(validity_minutes, 30)))).isoformat(),
+            "nonce": secrets.token_urlsafe(18),
+            "contains_mother_secret": False,
+            "contains_pairing_confirmation": False,
+        }
+        return self._signed(payload)
+
+    @staticmethod
+    def verify_pairing_invitation(invitation: dict[str, Any]) -> bool:
+        """Reject altered, expired or over-broad QR invitation payloads."""
+        required = {
+            "schema_version", "mother_descriptor", "persona_id", "requested_scopes",
+            "issued_at", "expires_at", "nonce", "contains_mother_secret",
+            "contains_pairing_confirmation", "payload_hash", "mother_signature",
+        }
+        if set(invitation) != required or invitation.get("schema_version") != "pilot.phone-pairing-invitation.v1":
+            return False
+        try:
+            descriptor = invitation["mother_descriptor"]
+            if not isinstance(descriptor, dict) or not MobilePairingAuthority.verify_mother_descriptor(descriptor):
+                return False
+            if _parse_time(str(invitation["expires_at"])) <= datetime.now(timezone.utc):
+                return False
+            if _parse_time(str(descriptor["expires_at"])) < _parse_time(str(invitation["expires_at"])):
+                return False
+            _identifier(str(invitation["persona_id"]), "persona_id")
+            scopes = list(invitation["requested_scopes"])
+            if not scopes or len(scopes) > MobilePairingAuthority.MAX_SCOPES or scopes != sorted(set(scopes)):
+                return False
+            if any(not _SCOPE.fullmatch(str(scope)) for scope in scopes):
+                return False
+            if invitation.get("contains_mother_secret") is not False or invitation.get("contains_pairing_confirmation") is not False:
+                return False
+            payload = {key: invitation[key] for key in required if key not in {"payload_hash", "mother_signature"}}
+            if not secrets.compare_digest(str(invitation["payload_hash"]), canonical_hash(payload)):
+                return False
+            signed = {**payload, "payload_hash": invitation["payload_hash"]}
+            return DeviceIdentity.verify(
+                str(descriptor["mother_public_key"]),
+                canonical_bytes(signed),
+                str(invitation["mother_signature"]),
+            )
+        except (KeyError, TypeError, ValueError):
+            return False
 
     def direct_remote_route(self, *, validity_hours: int = 24) -> dict[str, Any] | None:
         """Return a phone-cacheable direct route without a relay or mother secret."""
@@ -225,11 +314,15 @@ class MobilePairingAuthority:
 
     @staticmethod
     def verify_mother_descriptor(descriptor: dict[str, Any], *, expected_fingerprint: str | None = None) -> bool:
-        required = {
+        required_v1 = {
             "schema_version", "mother_id", "mother_public_key", "mother_fingerprint",
             "endpoint", "ca_sha256", "issued_at", "expires_at", "mother_signature",
         }
-        if set(descriptor) != required or descriptor.get("schema_version") != "pilot.mother-descriptor.v1":
+        required_v2 = required_v1 | {"ca_certificate_pem_b64"}
+        version = descriptor.get("schema_version")
+        if (version == "pilot.mother-descriptor.v1" and set(descriptor) != required_v1) or (
+            version == "pilot.mother-descriptor.v2" and set(descriptor) != required_v2
+        ) or version not in {"pilot.mother-descriptor.v1", "pilot.mother-descriptor.v2"}:
             return False
         try:
             public_key = _public_key(str(descriptor["mother_public_key"]))
@@ -241,6 +334,13 @@ class MobilePairingAuthority:
                 return False
             if _parse_time(str(descriptor["expires_at"])) <= datetime.now(timezone.utc):
                 return False
+            if version == "pilot.mother-descriptor.v2":
+                from cryptography import x509
+                from cryptography.hazmat.primitives import hashes
+                certificate = x509.load_pem_x509_certificate(base64.b64decode(str(descriptor["ca_certificate_pem_b64"]), validate=True))
+                if not secrets.compare_digest(certificate.fingerprint(hashes.SHA256()).hex(), str(descriptor["ca_sha256"])):
+                    return False
+            required = required_v2 if version == "pilot.mother-descriptor.v2" else required_v1
             payload = {key: descriptor[key] for key in required if key != "mother_signature"}
             return DeviceIdentity.verify(public_key, canonical_bytes(payload), str(descriptor["mother_signature"]))
         except (KeyError, TypeError, ValueError):

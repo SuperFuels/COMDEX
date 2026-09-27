@@ -258,19 +258,34 @@
   function financeConversationPanel(payload) {
     const turns = Array.isArray(payload?.session?.turns) ? payload.session.turns.slice(-40) : [];
     const signature = turns.map((turn) => turn?.turn_hash || '').join('|') || 'empty';
+    let previousDay = '';
+    const renderedTurns = turns.map((turn) => {
+      const createdAt = String(turn?.created_at || turn?.timestamp || '');
+      const date = createdAt ? new Date(createdAt) : null;
+      const validDate = date && !Number.isNaN(date.getTime());
+      const dayKey = validDate
+        ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        : '';
+      const dayLabel = validDate
+        ? date.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+        : '';
+      const divider = dayKey && dayKey !== previousDay
+        ? `<div class="aion-finance-conversation-day" data-aion-conversation-day="${escapeHtml(dayKey)}" role="separator" aria-label="${escapeHtml(dayLabel)}"><span></span><strong>${escapeHtml(dayLabel)}</strong><span></span></div>`
+        : '';
+      if (dayKey) previousDay = dayKey;
+      const sources = Array.isArray(turn?.sources) ? turn.sources : [];
+      const isUser = turn?.role === 'user';
+      return `${divider}
+        <article class="aion-finance-conversation-turn ${isUser ? 'is-user' : 'is-finance'}">
+          <strong>${isUser ? 'You' : 'Finance Pilot'}</strong>
+          <p>${escapeHtml(turn?.content || '')}</p>
+          ${!isUser ? `<small>Reliability: ${escapeHtml(turn?.reliability || 'unverified')}${sources.length ? ` · Sources: ${sources.map((source) => escapeHtml(source?.label || source?.container_kind || '')).join(', ')}` : ''} · no external action taken</small>` : ''}
+        </article>`;
+    }).join('');
     return `
       <section class="aion-finance-conversation" data-aion-finance-conversation data-aion-finance-conversation-signature="${escapeHtml(signature)}">
         <header><strong>&gt; Finance Pilot · grounded conversation</strong><span>Read-only</span></header>
-        ${turns.length ? turns.map((turn) => {
-          const sources = Array.isArray(turn?.sources) ? turn.sources : [];
-          const isUser = turn?.role === 'user';
-          return `
-            <article class="aion-finance-conversation-turn ${isUser ? 'is-user' : 'is-finance'}">
-              <strong>${isUser ? 'You' : 'Finance Pilot'}</strong>
-              <p>${escapeHtml(turn?.content || '')}</p>
-              ${!isUser ? `<small>Reliability: ${escapeHtml(turn?.reliability || 'unverified')}${sources.length ? ` · Sources: ${sources.map((source) => escapeHtml(source?.label || source?.container_kind || '')).join(', ')}` : ''} · no external action taken</small>` : ''}
-            </article>`;
-        }).join('') : '<p class="aion-canonical-pilot-empty">Ask Finance about revenue, margins, costs, cash, evidence or an approved Boardroom action.</p>'}
+        ${turns.length ? renderedTurns : '<p class="aion-canonical-pilot-empty">Ask Finance about revenue, margins, costs, cash, evidence or an approved Boardroom action.</p>'}
       </section>`;
   }
 
@@ -371,7 +386,7 @@
     return payload;
   }
 
-  function financeDirectorPanel(ledgerPayload, directorPayload, transactionPayload, handoffPayload) {
+  function financeDirectorPanel(ledgerPayload, directorPayload, transactionPayload, handoffPayload, cashPositionPayload) {
     const ledger = ledgerPayload?.ledger || null;
     const director = directorPayload?.finance_director || null;
     const reconciliation = transactionPayload?.latest_transaction_reconciliation || null;
@@ -382,13 +397,18 @@
     const classifications = Array.isArray(reconciliation?.classifications) ? reconciliation.classifications.slice(0, 25) : [];
     const handoffs = Array.isArray(handoffPayload?.handoffs) ? handoffPayload.handoffs : [];
     const handoffFor = (matchId) => handoffs.find((item) => item?.payload?.match_id === matchId) || null;
-    const signature = [ledger?.ledger_hash, director?.director_model_hash, reconciliation?.run_hash, ...handoffs.map((item) => item.handoff_hash)].filter(Boolean).join('|') || 'empty';
+    const signature = [ledger?.ledger_hash, director?.director_model_hash, reconciliation?.run_hash, cashPositionPayload?.cash_position?.updated_at || 'cash-position-empty', ...handoffs.map((item) => item.handoff_hash)].filter(Boolean).join('|') || 'empty';
     const currency = director?.currency || ledger?.currency || 'EUR';
     const statements = director?.financial_statements || {};
     const statementQuality = director?.statement_quality || {};
     const profitAndLoss = statements.profit_and_loss || {};
     const balanceSheet = statements.balance_sheet || {};
     const cashFlowStatement = statements.cash_flow || {};
+    const cashPosition = cashPositionPayload?.cash_position || {};
+    const cashInBank = Number(cashFlowStatement.ending_cash ?? director?.cash_flow?.opening_or_latest_cash ?? 0);
+    const cashInHand = Number(cashPosition.cash_in_hand || 0);
+    const totalAvailableCash = cashInBank + cashInHand;
+    const cashAsOfDate = String(cashPosition.as_of_date || new Date().toISOString().slice(0, 10));
     const statementCard = (label, value, format = 'money') => `<article><small>${escapeHtml(label)}</small><strong>${value == null ? 'Required' : escapeHtml(formatFinanceValue(value, format, currency))}</strong></article>`;
     const statementPanel = statements && Object.keys(statements).length ? `
       <section class="aion-finance-statement-package" data-aion-finance-statement-package>
@@ -402,6 +422,14 @@
       </section>` : '';
     return `<section class="aion-finance-director" data-aion-finance-director data-aion-finance-director-signature="${escapeHtml(signature)}">
       <header><strong>&gt; Finance Director · live model and transaction control</strong><span>Read-only · approval gated</span></header>
+      <section class="aion-finance-cash-position" data-aion-finance-cash-position>
+        <div><small>CASH IN BANK</small><strong>${escapeHtml(formatFinanceValue(cashInBank, 'money', currency))}</strong><span>Latest accepted accounting evidence</span></div>
+        <label><small>CASH IN HAND</small><span class="aion-finance-cash-input"><b>${escapeHtml(currency)}</b><input type="number" min="0" step="0.01" value="${escapeHtml(cashInHand)}" data-aion-finance-cash-in-hand></span><span>Cash held outside the bank: till, petty cash or cash carried</span></label>
+        <div><small>TOTAL AVAILABLE CASH</small><strong>${escapeHtml(formatFinanceValue(totalAvailableCash, 'money', currency))}</strong><span>Bank evidence plus the cash-in-hand record</span></div>
+        <label><small>AS OF</small><input type="date" value="${escapeHtml(cashAsOfDate)}" data-aion-finance-cash-as-of><span>Update whenever physical cash is counted</span></label>
+        <button type="button" data-aion-finance-save-cash-position>Save cash in hand</button>
+        <p>Cash in hand is an owner-maintained operational record. Saving it does not post a journal or change the connected accounting ledger.</p>
+      </section>
       ${statementPanel}
       <div class="aion-finance-director-actions">
         <button type="button" data-aion-finance-build-ledger>${ledger ? 'Rebuild ledger from latest Xero sync' : 'Build canonical transaction ledger'}</button>
@@ -438,34 +466,38 @@
 
   async function refreshFinanceDirector(terminal, stream, workspaceId) {
     if (!terminal || !stream || terminal.getAttribute('data-aion-pilot-role') !== 'finance') return null;
-    const [ledgerPayload, directorPayload, transactionPayload, handoffPayload] = await Promise.all([
-      financeLedger(workspaceId), financeDirector(workspaceId), financeTransactionReconciliation(workspaceId), financeXeroReconciliationHandoffs(workspaceId),
+    const [ledgerPayload, directorPayload, transactionPayload, handoffPayload, cashPositionPayload] = await Promise.all([
+      financeLedger(workspaceId), financeDirector(workspaceId), financeTransactionReconciliation(workspaceId), financeXeroReconciliationHandoffs(workspaceId), financeCashPosition(workspaceId),
     ]);
-    const signature = [ledgerPayload?.ledger?.ledger_hash, directorPayload?.finance_director?.director_model_hash, transactionPayload?.latest_transaction_reconciliation?.run_hash, ...(handoffPayload?.handoffs || []).map((item) => item.handoff_hash)].filter(Boolean).join('|') || 'empty';
+    const signature = [ledgerPayload?.ledger?.ledger_hash, directorPayload?.finance_director?.director_model_hash, transactionPayload?.latest_transaction_reconciliation?.run_hash, cashPositionPayload?.cash_position?.updated_at || 'cash-position-empty', ...(handoffPayload?.handoffs || []).map((item) => item.handoff_hash)].filter(Boolean).join('|') || 'empty';
     const current = stream.querySelector?.('[data-aion-finance-director]');
     if (current?.getAttribute?.('data-aion-finance-director-signature') !== signature) {
       current?.remove?.();
-      const scenario = stream.querySelector?.('[data-aion-finance-scenario]');
-      if (scenario) scenario.insertAdjacentHTML?.('beforebegin', financeDirectorPanel(ledgerPayload, directorPayload, transactionPayload, handoffPayload));
-      else stream.insertAdjacentHTML?.('beforeend', financeDirectorPanel(ledgerPayload, directorPayload, transactionPayload, handoffPayload));
+      stream.insertAdjacentHTML?.('afterbegin', financeDirectorPanel(ledgerPayload, directorPayload, transactionPayload, handoffPayload, cashPositionPayload));
     }
-    return { ledgerPayload, directorPayload, transactionPayload, handoffPayload };
+    return { ledgerPayload, directorPayload, transactionPayload, handoffPayload, cashPositionPayload };
   }
 
   async function refreshFinanceConversation(terminal, stream, workspaceId) {
     if (!terminal || !stream || terminal.getAttribute('data-aion-pilot-role') !== 'finance') return null;
     const payload = await financeConversationSession(workspaceId);
     const html = financeConversationPanel(payload);
+    const commandCentre = terminal.closest?.('[data-aion-finance-command-centre]')
+      || global.document?.querySelector?.('[data-aion-finance-command-centre]');
+    const conversationStream = commandCentre?.querySelector?.('[data-aion-finance-conversation-thread]') || stream;
     const nextSignature = (Array.isArray(payload?.session?.turns) ? payload.session.turns : [])
       .map((turn) => turn?.turn_hash || '').join('|') || 'empty';
-    const current = stream.querySelector?.('[data-aion-finance-conversation]');
+    const current = conversationStream.querySelector?.('[data-aion-finance-conversation]');
     if (current?.getAttribute?.('data-aion-finance-conversation-signature') !== nextSignature) {
       current?.remove?.();
-      stream.insertAdjacentHTML?.('beforeend', html);
-      stream.scrollTop = stream.scrollHeight;
+      conversationStream.insertAdjacentHTML?.('beforeend', html);
+      conversationStream.scrollTop = conversationStream.scrollHeight;
     }
-    const input = terminal.querySelector?.('[data-aion-pilot-mission-input]');
-    const button = terminal.querySelector?.('[data-aion-pilot-create-draft-mission]');
+    stream.querySelector?.('[data-aion-finance-conversation]')?.remove?.();
+    const input = commandCentre?.querySelector?.('[data-aion-finance-pilot-input]')
+      || terminal.querySelector?.('[data-aion-pilot-mission-input]');
+    const button = commandCentre?.querySelector?.('[data-aion-finance-pilot-send]')
+      || terminal.querySelector?.('[data-aion-pilot-create-draft-mission]');
     if (input) input.placeholder = 'Ask the Finance Pilot about revenue, margins, costs, cash or evidence…';
     if (button && !button.disabled) button.textContent = 'Ask Finance';
     return payload;
@@ -510,7 +542,11 @@
       const current = stream.querySelector?.('[data-aion-canonical-pilot-queue]');
       if (current?.getAttribute?.('data-aion-canonical-queue-signature') !== signature) {
         current?.remove?.();
-        stream.insertAdjacentHTML?.('afterbegin', html);
+        const financeDirector = departmentId === 'finance'
+          ? stream.querySelector?.('[data-aion-finance-director]')
+          : null;
+        if (financeDirector) financeDirector.insertAdjacentHTML?.('afterend', html);
+        else stream.insertAdjacentHTML?.('afterbegin', html);
       }
       applyActivationGate(terminal, stream, payload, departmentId);
       if (departmentId === 'finance') {
@@ -684,6 +720,23 @@
     return request(`/finance-director?workspace_id=${encodeURIComponent(workspaceId)}`);
   }
 
+  function financeCashPosition(workspaceId) {
+    return request(`/finance-cash-position?workspace_id=${encodeURIComponent(workspaceId)}`);
+  }
+
+  function updateFinanceCashPosition(workspaceId, cashInHand, currency, asOfDate) {
+    return request(`/finance-cash-position?workspace_id=${encodeURIComponent(workspaceId)}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        cash_in_hand: cashInHand,
+        currency,
+        as_of_date: asOfDate || null,
+        updated_by: 'owner',
+        updated_at: new Date().toISOString(),
+      }),
+    });
+  }
+
   function refreshFinanceDirectorModel(workspaceId, minimumCashReserve) {
     return request(`/finance-director-refresh?workspace_id=${encodeURIComponent(workspaceId)}`, {
       method: 'POST', body: JSON.stringify({ minimum_cash_reserve: minimumCashReserve, created_by: 'finance_pilot', created_at: new Date().toISOString() }),
@@ -811,12 +864,15 @@
   }
 
   async function handleFinanceConversationSubmit(event) {
-    const button = event?.target?.closest?.('[data-aion-pilot-create-draft-mission]');
-    const terminal = button?.closest?.('[data-aion-shared-pilot-terminal="true"]');
+    const button = event?.target?.closest?.('[data-aion-finance-pilot-send],[data-aion-pilot-create-draft-mission]');
+    const commandCentre = button?.closest?.('[data-aion-finance-command-centre]');
+    const terminal = commandCentre?.querySelector?.('[data-aion-finance-functional-workspace] [data-aion-shared-pilot-terminal="true"]')
+      || button?.closest?.('[data-aion-shared-pilot-terminal="true"]');
     if (!button || terminal?.getAttribute?.('data-aion-pilot-role') !== 'finance') return;
     event.preventDefault?.();
     event.stopImmediatePropagation?.();
-    const input = terminal.querySelector?.('[data-aion-pilot-mission-input]');
+    const input = commandCentre?.querySelector?.('[data-aion-finance-pilot-input]')
+      || terminal.querySelector?.('[data-aion-pilot-mission-input]');
     const question = String(input?.value || '').trim();
     const workspaceId = resolveBusinessId();
     if (!question || !workspaceId || button.disabled) return;
@@ -830,7 +886,8 @@
       const stream = terminal.querySelector?.('[data-aion-pilot-stream-window]');
       await refreshFinanceConversation(terminal, stream, workspaceId);
     } catch (error) {
-      const stream = terminal.querySelector?.('[data-aion-pilot-stream-window]');
+      const stream = commandCentre?.querySelector?.('[data-aion-finance-conversation-thread]')
+        || terminal.querySelector?.('[data-aion-pilot-stream-window]');
       stream?.querySelector?.('[data-aion-finance-conversation-error]')?.remove?.();
       stream?.insertAdjacentHTML?.('beforeend', `
         <section class="aion-pilot-failure" data-aion-finance-conversation-error>
@@ -927,7 +984,8 @@
     const handoffPrepare = event?.target?.closest?.('[data-aion-xero-handoff-prepare]');
     const handoffDecision = event?.target?.closest?.('[data-aion-xero-handoff-decision]');
     const handoffReceipt = event?.target?.closest?.('[data-aion-xero-handoff-receipt]');
-    if (!build && !refresh && !reconcile && !review && !classification && !handoffPrepare && !handoffDecision && !handoffReceipt) return;
+    const cashSave = event?.target?.closest?.('[data-aion-finance-save-cash-position]');
+    if (!build && !refresh && !reconcile && !review && !classification && !handoffPrepare && !handoffDecision && !handoffReceipt && !cashSave) return;
     const workspaceId = resolveBusinessId();
     const terminal = event.target.closest?.('[data-aion-shared-pilot-terminal="true"]');
     const stream = terminal?.querySelector?.('[data-aion-pilot-stream-window]');
@@ -963,6 +1021,12 @@
       } else if (handoffReceipt) {
         event.target.textContent = 'Creating receipt…';
         await createFinanceXeroReconciliationReceipt(workspaceId, handoffReceipt.getAttribute('data-handoff-id'));
+      } else if (cashSave) {
+        event.target.textContent = 'Saving cash position…';
+        const cashInHand = Number(terminal.querySelector?.('[data-aion-finance-cash-in-hand]')?.value || 0);
+        const asOfDate = String(terminal.querySelector?.('[data-aion-finance-cash-as-of]')?.value || '');
+        const currency = String(terminal.querySelector?.('[data-aion-finance-cash-position] .aion-finance-cash-input b')?.textContent || 'EUR');
+        await updateFinanceCashPosition(workspaceId, cashInHand, currency, asOfDate);
       }
       await refreshFinanceDirector(terminal, stream, workspaceId);
     } catch (error) {
@@ -1052,6 +1116,8 @@
     financeLedger,
     buildFinanceLedger,
     financeDirector,
+    financeCashPosition,
+    updateFinanceCashPosition,
     refreshFinanceDirectorModel,
     financeTransactionReconciliation,
     runFinanceTransactionReconciliation,
@@ -1135,6 +1201,7 @@
       .aion-finance-reconciliation button{padding:9px 12px;border:1px solid #38bdf8;background:#0c4a6e;color:#e0f2fe;font-weight:700;cursor:pointer}.aion-finance-reconciliation-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
       .aion-finance-director{border:1px solid rgba(74,222,128,.55);background:#07111f;padding:14px;margin:0 0 16px;color:#cbd5e1}.aion-finance-director>header{display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid rgba(74,222,128,.25)}.aion-finance-director>header strong{color:#86efac}.aion-finance-director>header span{color:#7dd3fc;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
       .aion-finance-director-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:12px 0}.aion-finance-director-actions label{display:grid;gap:4px;color:#94a3b8;font-size:10px}.aion-finance-director-actions input{padding:8px;background:#0f172a;border:1px solid #38bdf8;color:#f8fafc}.aion-finance-director button{padding:8px 11px;border:1px solid #4ade80;background:#052e1a;color:#dcfce7;font-weight:700;cursor:pointer}.aion-finance-director button:disabled{opacity:.5;cursor:not-allowed}
+      .aion-finance-cash-position{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:stretch;margin:14px 0 18px;padding:14px;border:2px solid #0f766e;background:#ecfdf5}.aion-finance-cash-position>div,.aion-finance-cash-position>label{display:flex;min-width:0;flex-direction:column;gap:5px;padding:12px;background:#fff;border:1px solid #99f6e4}.aion-finance-cash-position small{color:#0f766e!important;font-size:9px;font-weight:950;letter-spacing:.13em}.aion-finance-cash-position strong{font-size:24px!important;color:#064e3b!important}.aion-finance-cash-position span{font-size:9px;color:#64748b}.aion-finance-cash-position input{width:100%;min-width:0;box-sizing:border-box;padding:8px!important;font-size:17px!important;font-weight:900}.aion-finance-cash-input{display:flex;align-items:center;gap:7px}.aion-finance-cash-input b{color:#0f766e}.aion-finance-cash-position>button{grid-column:2/-1;align-self:stretch;min-height:58px;background:#0f766e!important;color:#fff!important;border-color:#0f766e!important;white-space:nowrap}.aion-finance-cash-position>p{grid-column:1/-1;margin:0!important;color:#52667a!important;font-size:10px}
       .aion-finance-director-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:10px 0}.aion-finance-director-kpis article{padding:10px;border:1px solid rgba(56,189,248,.25);background:#0f172a}.aion-finance-director-kpis small,.aion-finance-director-kpis strong{display:block}.aion-finance-director-kpis small{color:#94a3b8}.aion-finance-director-kpis strong{color:#f8fafc;font-size:17px;margin-top:5px}
       .aion-finance-signal,.aion-finance-director-proposal,.aion-finance-transaction-match,.aion-finance-counterparty-suggestion,.aion-finance-exception{padding:10px;margin:8px 0;border:1px solid rgba(56,189,248,.24);background:#0f172a}.aion-finance-signal.is-critical{border-color:#ef4444}.aion-finance-signal.is-high{border-color:#f59e0b}.aion-finance-signal strong,.aion-finance-director-proposal strong{color:#fbbf24}.aion-finance-transaction-match>div,.aion-finance-counterparty-suggestion>div,.aion-finance-exception{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.aion-finance-transaction-match>div strong,.aion-finance-counterparty-suggestion>div strong{color:#7dd3fc}.aion-finance-transaction-match>div span,.aion-finance-counterparty-suggestion>div span{color:#86efac}.aion-finance-transaction-match em,.aion-finance-counterparty-suggestion em{display:block;color:#86efac;font-style:normal}.aion-finance-exception pre{flex:1 0 100%;white-space:pre-wrap;color:#cbd5e1;background:#07111f;padding:8px}
       .aion-canonical-pilot-empty{margin:12px 0 0;color:#64748b}

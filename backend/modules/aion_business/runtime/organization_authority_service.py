@@ -366,6 +366,8 @@ class OrganizationAuthorityService:
             item.update({
                 "id": _stable_id("person", item, index), "name": str(item["name"]).strip(),
                 "email": str(item.get("email") or "").strip().lower(),
+                "phone": str(item.get("phone") or "").strip()[:80],
+                "address": str(item.get("address") or "").strip()[:500],
                 "employment_type": employment_type, "position_title": str(item.get("position_title") or "").strip(),
                 "status": str(item.get("status") or "active"), "manager_id": item.get("manager_id") or None,
                 "department_ids": sorted(set(value for value in (item.get("department_ids") or []) if value in department_ids)),

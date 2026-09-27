@@ -314,9 +314,15 @@ class AionFlowExecutionService:
                         for attempt in range(1, max_attempts + 1):
                             state["attempts"] = attempt
                             started = self.clock()
+                            execution_inputs = {
+                                **dict(inputs),
+                                "_aion_workspace_id": str((run.get("authority_context") or {}).get("workspace_id") or ""),
+                                "_aion_person_id": str((run.get("authority_context") or {}).get("person_id") or ""),
+                                "_aion_workflow_id": str(run.get("flow_id") or ""),
+                            }
                             result = dict(self.capability_executor(
                                 node=node,
-                                inputs=dict(inputs),
+                                inputs=execution_inputs,
                                 idempotency_key=key,
                                 execution_mode=str(run.get("execution_mode") or "connector_ready"),
                             ))
@@ -325,11 +331,32 @@ class AionFlowExecutionService:
                                 result = {"ok": False, "verified": False, "error": "capability_timeout", "elapsed_seconds": elapsed}
                             if result.get("ok") and result.get("verified"):
                                 break
+                            if result.get("waiting") is True:
+                                break
                             if result.get("circuit_open") is True:
                                 break
                             if attempt < max_attempts:
                                 self._event(run, "node_retry_queued", node_id=state["node_id"], attempt=attempt + 1)
                         state["output"] = _redact(result)
+                        if result.get("waiting") is True:
+                            state["status"] = "waiting"
+                            state["finished_at"] = None
+                            run["status"] = "waiting"
+                            self._event(
+                                run,
+                                "node_waiting_for_department_computer",
+                                node_id=state["node_id"],
+                                workflow_skill_run_id=result.get("workflow_skill_run_id"),
+                            )
+                            receipt = self._receipt(run)
+                            run["receipt"] = receipt
+                            self.repository.save(run)
+                            return {
+                                "ok": True,
+                                "waiting": True,
+                                "run": run,
+                                "receipt": receipt,
+                            }
                         state["status"] = "verified" if result.get("ok") and result.get("verified") else "failed"
                         state["idempotency_key"] = key
                         if result.get("compensation"):
@@ -517,6 +544,37 @@ class AionFlowExecutionService:
     ) -> Mapping[str, Any]:
         connector = str(node.get("connector") or node.get("target") or "").strip().lower()
         action = str(node.get("capability_id") or node.get("action_id") or "").strip().lower()
+        if action == "pilot.demonstrated_skill.execute":
+            from backend.modules.aion_business.runtime.pilot_operating_team_service import (
+                PilotOperatingTeamService,
+            )
+
+            workspace_id = str(inputs.get("_aion_workspace_id") or "").strip()
+            if not workspace_id:
+                return {
+                    "ok": False,
+                    "verified": False,
+                    "error": "workflow_skill_workspace_required",
+                    "external_effect_performed": False,
+                }
+            try:
+                return PilotOperatingTeamService().queue_workflow_skill_run(
+                    workspace_id,
+                    skill_id=str(node.get("skill_id") or ""),
+                    skill_hash=str(node.get("skill_hash") or ""),
+                    workflow_id=str(inputs.get("_aion_workflow_id") or node.get("workflow_id") or "aion-flow"),
+                    workflow_node_id=str(node.get("id") or ""),
+                    inputs=dict(inputs),
+                    idempotency_key=idempotency_key,
+                    requested_by=str(inputs.get("_aion_person_id") or "workflow:aion-flow"),
+                )
+            except (FileNotFoundError, PermissionError, ValueError) as exc:
+                return {
+                    "ok": False,
+                    "verified": False,
+                    "error": str(exc),
+                    "external_effect_performed": False,
+                }
         if connector == "gmail":
             step = {**dict(node), "output_ref": f"{node.get('id')}.output"}
             available = list(inputs.get("available_vault_requirements") or [])

@@ -110,3 +110,33 @@ def test_canvas_compiler_rejects_invalid_edges() -> None:
 
     assert result.ok is False
     assert "edge[2]_source_missing:missing" in result.errors
+
+
+def test_canvas_compiler_preserves_taught_process_binding() -> None:
+    canvas = _sample_canvas()
+    canvas["nodes"] = [{
+        "id": "taught-crm-entry",
+        "type": "Taught Processes",
+        "data": {
+            "step_id": "taught_crm_entry",
+            "kind": "capability",
+            "label": "Enter lead into CRM",
+            "action_id": "pilot.demonstrated_skill.execute",
+            "capability_id": "pilot.demonstrated_skill.execute",
+            "skill_id": "pilot_skill_one",
+            "skill_hash": "hash-one",
+            "department_id": "sales",
+            "required_inputs": ["runtime_input"],
+            "output_contract": "verified_skill_result",
+        },
+    }]
+    canvas["edges"] = []
+
+    result = CanvasWorkflowCompiler().compile(canvas)
+
+    assert result.ok is True
+    step = result.capsule.compiled_glyph["steps"][0]
+    assert step["action_id"] == "pilot.demonstrated_skill.execute"
+    assert step["skill_id"] == "pilot_skill_one"
+    assert step["skill_hash"] == "hash-one"
+    assert step["department_id"] == "sales"

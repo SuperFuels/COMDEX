@@ -26,6 +26,7 @@ def test_module_picker_has_make_style_groups() -> None:
         "AI",
         "Apps",
         "Approval",
+        "Taught Processes",
     ]:
         assert label in text
 

@@ -1343,6 +1343,7 @@
         const allowed =
           alwaysOn ||
           seatType === "connected_provider" ||
+          ["provider", "local_model"].includes(seatType) ||
           ["gemma", "openai", "gemini", "claude", "grok"].includes(key);
 
         if (!key || !label) return null;
@@ -1360,6 +1361,7 @@
             key === "gemini" ? 0x38bdf8 :
             key === "claude" ? 0xf59e0b :
             key === "grok" ? 0xef4444 :
+            key === "local_model" ? 0x14b8a6 :
             0x8b5cf6,
           scale: key === "aion" ? 0.94 : 0.9,
         };
@@ -2344,7 +2346,7 @@ function buildBoardroomWorld(snapshot, options) {
           const alwaysOn = ["ceo", "aion"].includes(key);
           const connected = seat.connected === true || status === "connected" || status === "always_on";
           const allowedSeatType =
-            ["founder", "orchestrator", "connected_provider"].includes(seatType) ||
+            ["founder", "orchestrator", "connected_provider", "provider", "local_model"].includes(seatType) ||
             alwaysOn;
 
           if (!key || !label) return null;
@@ -2654,7 +2656,7 @@ function buildBoardroomWorld(snapshot, options) {
         const alwaysOn = ["ceo", "aion"].includes(key);
         const connected = seat.connected === true || status === "connected" || status === "always_on";
         const allowedSeatType =
-          ["founder", "orchestrator", "connected_provider"].includes(seatType) ||
+          ["founder", "orchestrator", "connected_provider", "provider", "local_model"].includes(seatType) ||
           alwaysOn;
 
         if (!key || !label) return null;
@@ -3840,6 +3842,7 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
 
     const isProvider =
       seat.seat_type === "connected_provider" ||
+      ["provider", "local_model"].includes(String(seat.seat_type || "").toLowerCase()) ||
       seat.provider_id ||
       ["gemma", "openai", "gemini", "claude", "grok"].includes(id);
 

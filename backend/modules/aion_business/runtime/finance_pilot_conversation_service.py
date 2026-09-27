@@ -203,6 +203,7 @@ class FinancePilotConversationService:
             },
             "financial_model": {
                 "revision": financial.get("revision"),
+                "reporting_period": financial.get("reporting_period") or financial.get("period"),
                 "metrics": financial.get("metrics") or {},
                 "revenue_model": financial.get("revenue_model") or {},
                 "direct_cost_model": financial.get("direct_cost_model") or {},
@@ -273,6 +274,13 @@ class FinancePilotConversationService:
         preferred_provider: str | None,
         preferred_model: str | None,
     ) -> tuple[str, dict[str, Any]]:
+        direct = self._direct_factual_answer(question, context)
+        if direct is not None:
+            return direct, {
+                "provider": "deterministic_finance_fact",
+                "model": None,
+                "fallback_used": False,
+            }
         labels = ["[Financial Model]"]
         if "operating_model" in context:
             labels.append("[Operating Model]")
@@ -284,16 +292,25 @@ class FinancePilotConversationService:
             "context. Never invent a number. State when information is missing, stale, assumed or "
             "conflicted. Cite supporting sections using these labels: " + source_labels + ". "
             "Be concise and practical. You may analyse and recommend, but you cannot perform an "
-            "external write or imply that an action has been executed."
+            "external write or imply that an action has been executed. Use the currency symbol "
+            "for amounts (for example, € for EUR), never spell the currency name."
         )
+        # Keep phone conversations responsive: canonical records can contain detailed
+        # models and historic results that are useful for storage but unnecessary for
+        # a single Finance reply. The bounded extract below preserves the evidence
+        # boundary without turning every mobile question into a long-context run.
+        compact_context = self._conversation_context(context)
         prompt = json.dumps(
             {
                 "question": question,
                 "recent_conversation": [
-                    {"role": item.get("role"), "content": item.get("content")}
-                    for item in recent
+                    {
+                        "role": item.get("role"),
+                        "content": str(item.get("content") or "")[:600],
+                    }
+                    for item in recent[-2:]
                 ],
-                "canonical_context": context,
+                "canonical_context": compact_context,
             },
             sort_keys=True,
             ensure_ascii=False,
@@ -304,7 +321,9 @@ class FinancePilotConversationService:
             system_prompt=system,
             preferred_provider=preferred_provider,
             preferred_model=preferred_model,
-            capability="reasoning",
+            # The evidence boundary is enforced here, while the local model uses the
+            # conversational drafting route to answer naturally in the Finance chat.
+            capability="drafting",
             role_type="FINANCE",
             metadata={
                 "workspace_id": workspace_id,
@@ -327,10 +346,72 @@ class FinancePilotConversationService:
         }
 
     @staticmethod
+    def _direct_factual_answer(question: str, context: dict[str, Any]) -> str | None:
+        """Answer single recorded headline facts without asking a language model.
+
+        These are exact retrieval questions, not drafting tasks. Keeping them on
+        the canonical path also means a model outage cannot turn a one-number
+        question into an unrelated general briefing.
+        """
+        lowered = question.casefold()
+        if not any(term in lowered for term in ("turnover", "revenue")):
+            return None
+        if any(term in lowered for term in (
+            "compare", "growth", "forecast", "why", "trend", "summary", "overview", "update",
+            "gross profit", "operating profit", "cash", "margin", "expense", "cost",
+        )):
+            return None
+        financial = context.get("financial_model") or {}
+        revenue = _metric(financial.get("metrics") or {}, "revenue", "net_sales", "annualised_revenue")
+        if revenue is None:
+            return "The Financial Model does not contain a recorded turnover figure. [Financial Model]"
+        currency = str((context.get("business") or {}).get("currency") or "EUR").strip().upper()
+        symbol = {"EUR": "€", "EURO": "€", "EUROS": "€", "GBP": "£", "USD": "$"}.get(currency, currency + " ")
+        period = financial.get("reporting_period")
+        if isinstance(period, dict):
+            period_label = str(period.get("label") or period.get("basis") or "").strip()
+        else:
+            period_label = str(period or "").strip()
+        qualifier = f" for {period_label}" if period_label else " in the recorded financial model (reporting period not specified)"
+        return f"Turnover{qualifier} is {symbol}{revenue:,.2f}. [Financial Model] This was a read-only lookup; no external action was taken."
+
+    @staticmethod
+    def _conversation_context(context: dict[str, Any]) -> dict[str, Any]:
+        """Return only the recorded facts relevant to a concise chat response."""
+        financial = context.get("financial_model") if isinstance(context.get("financial_model"), dict) else {}
+        compact: dict[str, Any] = {
+            "business": context.get("business") or {},
+            "financial_model": {
+                "revision": financial.get("revision"),
+                "metrics": financial.get("metrics") or {},
+                "missing_information": list(financial.get("missing_information") or [])[:8],
+                "conflicts": list(financial.get("conflicts") or [])[:6],
+            },
+        }
+        intelligence = context.get("finance_intelligence")
+        if isinstance(intelligence, dict):
+            compact["finance_intelligence"] = {
+                "status": intelligence.get("status"),
+                "boardroom_summary": str(intelligence.get("boardroom_summary") or "")[:1_200],
+                "latest_pilot_result": str(intelligence.get("latest_pilot_result") or "")[:1_200],
+                "missing_information": list(intelligence.get("missing_information") or [])[:6],
+            }
+        operating = context.get("operating_model")
+        if isinstance(operating, dict):
+            compact["operating_model"] = {
+                "revision": operating.get("revision"),
+                "inventory_metrics": operating.get("inventory_metrics") or {},
+                "financial_targets": operating.get("financial_targets") or {},
+            }
+        return compact
+
+    @staticmethod
     def _grounded_fallback(question: str, context: dict[str, Any]) -> str:
         financial = context["financial_model"]
         metrics = financial.get("metrics") or {}
         currency = context["business"].get("currency") or "EUR"
+        normalized_currency = str(currency).strip().upper()
+        symbol = {"EUR": "€", "EURO": "€", "EUROS": "€", "GBP": "£", "USD": "$"}.get(normalized_currency, str(currency) + " ")
         values = {
             "revenue": _metric(metrics, "revenue", "net_sales", "annualised_revenue", "average_monthly_revenue"),
             "gross profit": _metric(metrics, "gross_profit", "monthly_gross_profit"),
@@ -340,7 +421,19 @@ class FinancePilotConversationService:
             "operating margin": _metric(metrics, "operating_margin_percent"),
         }
         lowered = question.lower()
+        daily_terms = ("yesterday", "today", "daily", "this morning")
+        if any(term in lowered for term in daily_terms) and any(
+            term in lowered for term in ("sale", "revenue", "income", "turnover")
+        ):
+            return (
+                "I do not have a recorded daily sales ledger for that date, so I cannot state "
+                "yesterday's sales reliably. The Financial Model records longer-period revenue, "
+                "but it must not be presented as a daily result. This was read-only analysis; "
+                "no external action was taken."
+            )
         selected = [key for key in values if key in lowered]
+        if "turnover" in lowered and "revenue" not in selected:
+            selected.append("revenue")
         if not selected or any(word in lowered for word in ("update", "overview", "summary")):
             selected = list(values)
         parts = []
@@ -348,7 +441,7 @@ class FinancePilotConversationService:
             value = values[key]
             if value is None:
                 continue
-            rendered = f"{value:,.2f}%" if "margin" in key else f"{currency} {value:,.2f}"
+            rendered = f"{value:,.2f}%" if "margin" in key else f"{symbol}{value:,.2f}"
             parts.append(f"{key.title()}: {rendered}")
         missing = [str(item) for item in financial.get("missing_information") or []]
         if not parts:

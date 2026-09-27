@@ -1,0 +1,880 @@
+{
+  "attestation": {
+    "algorithm": "ed25519",
+    "key_id": "ed25519:sha256:0635d6cc9b26d585b4da8c5c945d42e6fa95b55f01dcae1e4ca25c03f0c5165f",
+    "public_key_base64": "EseDXIGXWRwfEuBtJO3wajxHTa8GkvjnpItrdcfymt0=",
+    "signature_base64": "bP1io8pAExKaEKW/X8BYFRloPFZNA2LKRGpPdPuH+45BxUfcyfwvNVi1yQWYjgB5ABtbl2CmnCkSu5XMzpKEAA==",
+    "signed_payload_sha256": "4ae5101949b56ccc233be887b7307f29c203ba3f46a65f8d12050a3110aa2e29"
+  },
+  "configured_resource_bounds": {
+    "block_max_interval_ms_default": 25,
+    "block_max_transactions_default": 100,
+    "claim_boundary": "Configuration defaults verified in source; production capacity requires deployment testing",
+    "p2p_queue_max_default": 20000
+  },
+  "environment": {
+    "architecture": "arm64",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3"
+  },
+  "generated_at": "2026-09-27T00:28:28.620696Z",
+  "latency": {
+    "claim_boundary": "No production finality SLO is claimed from local regression timing",
+    "per_transaction_finality_slo": null,
+    "suite_duration_seconds": 176.012
+  },
+  "result": "PASS",
+  "schema_version": "tessaris.glyphchain-baseline-report.v1",
+  "scope": "backend/tests/glyphchain + backend/tests/workflow_capsules/test_aion_legal_*.py + Legal delivery-adapter tests",
+  "source": {
+    "entries": [
+      {
+        "path": "backend/main.py",
+        "sha256": "7f27eaa90447d3bfca8de62d4d8ee2e029de3647dbc517d2bf9c693019cd1401"
+      },
+      {
+        "path": "backend/modules/aion_business/api/glyphchain_admin_api.py",
+        "sha256": "4f661ad6cd4eca3dd1778b20d5489e70382d2e0c916c3894fe71f72d36784fca"
+      },
+      {
+        "path": "backend/modules/aion_business/api/legal_signing_api.py",
+        "sha256": "9093aa1fe68234a6350b569b18d101c58178d51f1206b64a07e64d64d267011e"
+      },
+      {
+        "path": "backend/modules/aion_business/providers/microsoft_graph_mail_adapter.py",
+        "sha256": "c76445175671315a4fcb27d667897087abba521bbe29cad5858ac064b7e8ddbd"
+      },
+      {
+        "path": "backend/modules/aion_business/providers/resend_adapter.py",
+        "sha256": "27fe765b959cc2e838580f8352d7634e3e564ba5eb98a93cf24432a339efa1be"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/__init__.py",
+        "sha256": "ba36bc378ff44f203c425fa5c93665dd02e86ccc737cbb4ab826fab1d28a7f12"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/aion_flow_session_authority.py",
+        "sha256": "9df8e842b193ab68de44c709f87da363cd9f8f683ffd7a1b2a072af86d0f0a72"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/application_account_descriptor_registry.py",
+        "sha256": "6f8883585ab70577010efb18826e2405504f6f5fb5a657d4a5470ea40e033ae0"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/application_account_recovery.py",
+        "sha256": "9cc045d04e559a6673b3f4cfc2bf1c28d11c2041c01371f77427b9e3322e75db"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/glyphchain_release_readiness.py",
+        "sha256": "d8a056a195039c337d51d61de9c4b83fc01748666f3c0780dbf17fbc93a66385"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_clean_device_verification.py",
+        "sha256": "cb579704239bf30eaf82ac916b46cc69ed7f8a878a9b7e14f5711e704a42e80d"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_delivery_qualification.py",
+        "sha256": "e33d5ea2e6e505fef2f2274ba4f423ca195ad9ff0391c591aaf02941b50f70b4"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_delivery_service.py",
+        "sha256": "2bbc085a72c6969ece74bebac74c9353948f0445b40c4156872ceeb8f728b820"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_document_proof.py",
+        "sha256": "cd116cbc95e5c7c17b870b9e127d0d5d2bcde19694b0cf04b5d317a064b3abde"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_document_service.py",
+        "sha256": "25909df794c97c6495ee64fd9d622007d3b6eced7af47947b45cff8d9212d95b"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_full_state_backup.py",
+        "sha256": "b3e862e858c4194517cd2e85774ad4ce494ff933961961efd99e3f60dc6df532"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_matter_service.py",
+        "sha256": "cdb4d1a3cb5674b76171e19913f86dc5876fe8f9ddb9914023c12cf952b41008"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_pilot_harness_service.py",
+        "sha256": "fa3c1a74677f93e2b401db88fbc617fbad624c8ae0bd0561895fba2d415ebfa5"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_record_governance.py",
+        "sha256": "91b36c8ab6d74155da18890d5659487e6f41ab95642efd672a620da6973a8e81"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_resource_limits.py",
+        "sha256": "24f68540332b68c033814f12a3520af4342df48265dac63e78de1c6da45dc5e8"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_secure_storage.py",
+        "sha256": "86e3ca1bb74712e6a7ed10948a0bf951b9d0c12487e503942309d3c5d9222c06"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_signing_service.py",
+        "sha256": "857ab08de7c9f712d4577cf3fc2a36be2f661ddce2154fa2038bd3d639731b73"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/legal_template_service.py",
+        "sha256": "e962aec0a12698d764c3281f470fcd0404f789cb95753c30d441524037c2c90e"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/paths.py",
+        "sha256": "a04d9be9c8f1d09f35a0e2624db64bd474ff0dc677acbc38cf45a5c18392f939"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/public_signer_rate_limit.py",
+        "sha256": "f44cd5bab8fd06f1c3147743213764651edfcde9ea4966fa2aaa2b97b66ddc83"
+      },
+      {
+        "path": "backend/modules/aion_business/runtime/request_body_limits.py",
+        "sha256": "d076bbc39c42b0ce8da0b08c094020ab5afcca43a9f4e0bddd3e1f0ff408cdfe"
+      },
+      {
+        "path": "backend/modules/aion_business/static/tessaris-proof-verifier.html",
+        "sha256": "7b5d3848f63b6e88796ac1d2f9fee2ddcdc7871b3ae23953d3f4a55c216ebb07"
+      },
+      {
+        "path": "backend/modules/chain_sim/__init__.py",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "backend/modules/chain_sim/aion_proof_commit_store.py",
+        "sha256": "3d0c5c787e805812ab6716aeb29ac8bf87b3999242e0dd8a2c674778436214bf"
+      },
+      {
+        "path": "backend/modules/chain_sim/aion_proof_receipts.py",
+        "sha256": "9c27db0d4b80e0cc7d5a5cdc9521619e4c45e48ca45e030fb1fd2742b9955602"
+      },
+      {
+        "path": "backend/modules/chain_sim/canonical_codec.py",
+        "sha256": "93a57c98424b0be24aae52b09662d194862d3beb4c4a0ea60d28418adbf92669"
+      },
+      {
+        "path": "backend/modules/chain_sim/chain_sim_config.py",
+        "sha256": "ebe32e55e1c4477497f52f09f52b6c44cf4ddac5743efc0310fbae974b0ef564"
+      },
+      {
+        "path": "backend/modules/chain_sim/chain_sim_consensus_types.py",
+        "sha256": "625c1e1797159d9e4c528fbcbb605cd803b6e3efc6fbc87fe58907ab7416d939"
+      },
+      {
+        "path": "backend/modules/chain_sim/chain_sim_engine.py",
+        "sha256": "9b670e1d23e01d0110b3f3b66d6572001db4f0d0e32e8a3f6932b13032f84121"
+      },
+      {
+        "path": "backend/modules/chain_sim/chain_sim_ledger.py",
+        "sha256": "5e4e6345c5fb8093dc6d57f4509ddeddd03f0395e9b552d8467a56c6c91d8c14"
+      },
+      {
+        "path": "backend/modules/chain_sim/chain_sim_merkle.py",
+        "sha256": "d6340193c0728a9808e7260cbd8f975a97bbf9a9dc86076ff6518f671c234979"
+      },
+      {
+        "path": "backend/modules/chain_sim/chain_sim_model.py",
+        "sha256": "c8927a27007f376126c3f0b509e2088eec9c6bd7790674a5cc5544ce7191b071"
+      },
+      {
+        "path": "backend/modules/chain_sim/chain_sim_routes.py",
+        "sha256": "fcec0312bcf3391652e386e22399f84684a0a27a3d9e8d1f6495988263fd26f5"
+      },
+      {
+        "path": "backend/modules/chain_sim/chain_sim_state.py",
+        "sha256": "cbc85f8dd91f281620e29cee934a11f36930c463297ac9cd88e632ce7dd5903e"
+      },
+      {
+        "path": "backend/modules/chain_sim/dev_chain_bank_smoketest.py",
+        "sha256": "f0efa36b9d658dbc8d5c0e7b1ba2a1e23b8cfc2e0408179886f1b3f0d9b61561"
+      },
+      {
+        "path": "backend/modules/chain_sim/dev_chain_state_smoketest.py",
+        "sha256": "c9f4e94cf88ba534df28a75c5097f4b875206d0c2ed371e80fe1e3f58306104e"
+      },
+      {
+        "path": "backend/modules/chain_sim/dev_ledger_store.py",
+        "sha256": "78e296924c26a7042b091509c2603b76dd382ca47968e3ef4a5db1ea6e6cc9e6"
+      },
+      {
+        "path": "backend/modules/chain_sim/dev_tx_routes.py",
+        "sha256": "7d7737568ef622dcb1613c69a3f17e5c540ab871ab0362ad41a1c38a2531fc48"
+      },
+      {
+        "path": "backend/modules/chain_sim/document_proof.py",
+        "sha256": "741781978d1e2bf65ad4dfa2160fb6ab800750a969cf1283929da1f055258e9b"
+      },
+      {
+        "path": "backend/modules/chain_sim/leader_schedule.py",
+        "sha256": "ee02b14af5e12242248642e1c78c519fbbcd76c6897dfe719c064911607c5034"
+      },
+      {
+        "path": "backend/modules/chain_sim/ledger_pruning.py",
+        "sha256": "626a476fac3d54b1939b0663afc10db1794ebb38abc272275e01e245590a783a"
+      },
+      {
+        "path": "backend/modules/chain_sim/ledger_snapshot.py",
+        "sha256": "16fb96714553502ca71ea98fb5167967ae7c563f3b723a5924ce93533963311b"
+      },
+      {
+        "path": "backend/modules/chain_sim/ledger_storage.py",
+        "sha256": "97e070ffb535bdaa166aa9206721270225e0c34fcbf60b38943151ff094b32ac"
+      },
+      {
+        "path": "backend/modules/chain_sim/state_root.py",
+        "sha256": "623506f0f53f7c54779bbf7cee4ad35705745931b39730138eb2d67cfdec82d6"
+      },
+      {
+        "path": "backend/modules/chain_sim/tx_executor.py",
+        "sha256": "dbfd98c7ea9e9c6c65534a5a4f0a2494b5cb39d75bf03f56eeba78f05d4218a6"
+      },
+      {
+        "path": "backend/modules/chain_sim/tx_models.py",
+        "sha256": "f52e3de3db78b879fe65455774121ed9d7b34d4cb379ea7ff4498ac15f05cc15"
+      },
+      {
+        "path": "backend/modules/chain_sim/validator_registry.py",
+        "sha256": "785910c474cc2047989d737a8fcbea4b1c24553ef8fddd1491fd1fd738fab46e"
+      },
+      {
+        "path": "backend/modules/consensus/__init__.py",
+        "sha256": "b7f0ac017aa8ea225e7284ab7825f22d9f7bffb361f14d51655e3fd3c4cb2eb4"
+      },
+      {
+        "path": "backend/modules/consensus/engine.py",
+        "sha256": "25f09725e031c8395e4a626ef7a6c1d32a4824af1e9cad061a831075aaf541a0"
+      },
+      {
+        "path": "backend/modules/consensus/finality_certificate.py",
+        "sha256": "e981798d4816fc7795bad20dc664673d7947d3757aaeb5d535644c518b54d186"
+      },
+      {
+        "path": "backend/modules/consensus/finality_checkpoint.py",
+        "sha256": "e342c4c33e5912e67a62c50bcc966c7f988f01d7652d90379ff2f94c2e7337f8"
+      },
+      {
+        "path": "backend/modules/consensus/ingress_validate.py",
+        "sha256": "bb15292ae337dc43d9c2f3bede02f95a0902d770da3bd313c1f80611c9c38782"
+      },
+      {
+        "path": "backend/modules/consensus/ledger_commitment.py",
+        "sha256": "006449b49e376c03378537d117b8908efc1ab7853413016ee892d4df2236fabb"
+      },
+      {
+        "path": "backend/modules/consensus/net.py",
+        "sha256": "a54ffe27f6999495a15242472d4f9d41fdfdf39493144645db046ac55245b3e7"
+      },
+      {
+        "path": "backend/modules/consensus/network_qualification.py",
+        "sha256": "5dc207959073ce7e837a805e3ff3f79df60443e586e4fd86fd32c5c93a52558f"
+      },
+      {
+        "path": "backend/modules/consensus/network_soak_qualification.py",
+        "sha256": "75e16148dcc1f0f4448bfceb15fa8f96ab72c014b4dc3319ce05cbdef6d74076"
+      },
+      {
+        "path": "backend/modules/consensus/partition_recovery.py",
+        "sha256": "3203674e631ee2c812bd240baa28f4551a705d857ce44b2281685d5780b94da8"
+      },
+      {
+        "path": "backend/modules/consensus/persist.py",
+        "sha256": "f476527d45c656a2e304fac7bac9c7b86ff75342d333cd0486536e239792d8ac"
+      },
+      {
+        "path": "backend/modules/consensus/protocol_upgrade.py",
+        "sha256": "7a0163f6b1f87a7f7c6aee0f6155edca7fbe7ad63edde6e696a3bc9407a1472c"
+      },
+      {
+        "path": "backend/modules/consensus/store.py",
+        "sha256": "59737f772fa62056b6b9575afeb5f1e0263a6f384fc669ec6dd97adaee054f1c"
+      },
+      {
+        "path": "backend/modules/consensus/sync_policy.py",
+        "sha256": "cec5f5bc5260d95c48012695d89712ff6d70f92ea65936546256e2ed04ed7172"
+      },
+      {
+        "path": "backend/modules/consensus/trust_release.py",
+        "sha256": "9f4d29a7c8b209bbe5b84e931b5d641212b1d5081bf27cff0e4e024ffef1a25b"
+      },
+      {
+        "path": "backend/modules/consensus/types.py",
+        "sha256": "1167cc840cfa3b678c12dff43aea45699361c4765e5d6f43e8a1f0b9975a51f4"
+      },
+      {
+        "path": "backend/modules/consensus/validator_governance.py",
+        "sha256": "bae7e7290cd6913244dda309f417457e60c18b524b967a947a041bcb788f735a"
+      },
+      {
+        "path": "backend/modules/consensus/validator_set.py",
+        "sha256": "32d3f4afff1169bea58d7fb40109b9b23408df643f4413dc0517d52370ab6698"
+      },
+      {
+        "path": "backend/modules/p2p/crypto_ed25519.py",
+        "sha256": "2db12edc3f35c230c88aae1c16f50722a842cf93c2e9b6625ae9058cf42b213d"
+      },
+      {
+        "path": "backend/modules/p2p/ingress.py",
+        "sha256": "c4b136ae27a77681b7bc96f81335b3e226e1dbef72624e73d866d606b9200fbf"
+      },
+      {
+        "path": "backend/modules/p2p/lane_limiter.py",
+        "sha256": "4bf88177d09ff4250aa27da4bdb2ba097cbff58db849b6e1149b6689096051a1"
+      },
+      {
+        "path": "backend/modules/p2p/nat_relay.py",
+        "sha256": "94e5cfb6509016aa8958ae5b66900a4db6c5118c43f26e6b491f3f80391d6d02"
+      },
+      {
+        "path": "backend/modules/p2p/network_health.py",
+        "sha256": "0042cc85f5329fa6f5bafd502287fd8d90a05fb60f0d6907957067944a36d0ce"
+      },
+      {
+        "path": "backend/modules/p2p/network_identity.py",
+        "sha256": "d17dfe27ba015215eaf17d08881fa825ce1c511eb31d75b241aa5bee79cefbe9"
+      },
+      {
+        "path": "backend/modules/p2p/network_participation.py",
+        "sha256": "53f843127d09b29ad17ffb4dc53600ba2d57da2fec011421d949b303876899a9"
+      },
+      {
+        "path": "backend/modules/p2p/p2p_types.py",
+        "sha256": "a9c2a920021d6e2ec55a79dcbb241ba1ddf6989fb9dfedbfd78322ccba552bf0"
+      },
+      {
+        "path": "backend/modules/p2p/peer_discovery.py",
+        "sha256": "eeeeffa36dfc7b6ab9e9489c0cc92e8153cd0328a6206b4c7b7c3afb562cd5f6"
+      },
+      {
+        "path": "backend/modules/p2p/peer_store.py",
+        "sha256": "0d0c4b2484d0bc5ac988d527a107e0827b10d1a634e1ba03e9eddf5df16b44cd"
+      },
+      {
+        "path": "backend/modules/p2p/rate_limit.py",
+        "sha256": "2bb6f2019ea636c246f93b235630f9a23b68dd389382c5a20af4128bcf260343"
+      },
+      {
+        "path": "backend/modules/p2p/router.py",
+        "sha256": "eaa8347d1f803e352e560d11adf841b2624a14fd37436d86587a1767279d7b2e"
+      },
+      {
+        "path": "backend/modules/p2p/transport_http.py",
+        "sha256": "fb7b21e212f5f5b185269144852dd1828eeab4eb29135b0c7dc7d1bbd4a4b4ba"
+      },
+      {
+        "path": "backend/modules/pilot_unified/workspace_gateway.py",
+        "sha256": "bfd875384a34949409ffaa4c4b62eda3e4fa7d890a877615b50e1ca0fa776c47"
+      },
+      {
+        "path": "backend/scripts/application_account_recovery.py",
+        "sha256": "28e4af9277245bc2f482c9c778543806feac167f77ec8f16d67adadba4d79003"
+      },
+      {
+        "path": "backend/scripts/build_glyphchain_trust_release.py",
+        "sha256": "6aa754719d3b06233d2b437a31eec73b9fd004d2c4b5894711e8843920cc6d30"
+      },
+      {
+        "path": "backend/scripts/create_glyphchain_release_evidence.py",
+        "sha256": "06c7b3d973b530b7ca69cbee664b79fdc0270e92a91bda773c25ac61fb5462b8"
+      },
+      {
+        "path": "backend/scripts/create_glyphchain_release_trust_roots.py",
+        "sha256": "e6bc0f704417cc07b5c1877779828e35818e89cb08eb1ab00ed89705b9991c2a"
+      },
+      {
+        "path": "backend/scripts/evaluate_glyphchain_legal_release_readiness.py",
+        "sha256": "672f31f4e7aa0a09588e79423e838c5ef6b459ccbb4519362328cf47e96990b7"
+      },
+      {
+        "path": "backend/scripts/generate_glyphchain_baseline_report.py",
+        "sha256": "f45a8770fa48d1f68004b9fd6d513ed9c7c6fc24fb2caa377906a044a13f0834"
+      },
+      {
+        "path": "backend/scripts/legal_full_state_recovery.py",
+        "sha256": "14ba07649938a90abd88727379fd0e1cb43b59beb9157b6e397dcdcfad7317f9"
+      },
+      {
+        "path": "backend/scripts/run_application_account_descriptor_registry.py",
+        "sha256": "d1a558bd49e49b276304c4e8fcdc000b0b3c5da050e0d47f536920b0cc896485"
+      },
+      {
+        "path": "backend/scripts/run_glyphchain_clean_device_verification.py",
+        "sha256": "6ff85c44288389f09afe6895b0503eb8219c7580e16d10e08a7684eec4ab2400"
+      },
+      {
+        "path": "backend/scripts/run_glyphchain_legal_disaster_recovery_exercise.py",
+        "sha256": "c482fb6c32bfaf38edca6b3b78bd9fe195389d4e0c0ef1dcc159fc139d6d8835"
+      },
+      {
+        "path": "backend/scripts/run_glyphchain_network_qualification.py",
+        "sha256": "f09c09a3077ab0ac5e7e7475396390c899db9b722ed781407ead91cf667a76e1"
+      },
+      {
+        "path": "backend/scripts/run_glyphchain_network_soak_qualification.py",
+        "sha256": "dcabd7775cdd0e3821c4cd87253b52d520cdd0e2c3c853915a1b7d78f81feb67"
+      },
+      {
+        "path": "backend/scripts/run_glyphchain_validator_removal_exercise.py",
+        "sha256": "804ee85cba65827e4842f9f4de4c453ced40878065e6d99532431ec75cf1657c"
+      },
+      {
+        "path": "backend/scripts/run_legal_delivery_qualification.py",
+        "sha256": "a67db142e3f47c4d2b8d7fc2c60ca21bbf66fbabfe09609e23d27e6b8aa7126a"
+      },
+      {
+        "path": "backend/tests/aion_business/test_microsoft_graph_mail_adapter.py",
+        "sha256": "1e7f066d365c08caf34dcb62d296ddf9aab5e083d8f9b61ab3eea37a692fae88"
+      },
+      {
+        "path": "backend/tests/aion_business/test_resend_adapter.py",
+        "sha256": "5539b2172d40cc899fc07d1a1ef448416071973e9dd93dd83b80d4fb157bd182"
+      },
+      {
+        "path": "backend/tests/glyphchain/conftest.py",
+        "sha256": "34fde9e2e5f119fc7a1430d8dddf7bff3637171a62f1a0bc2f628ab9825897e1"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_baseline_report.py",
+        "sha256": "d2ec6001c5cd16392820a44e851936f47332028ff729bcc79236ce2ce1f00648"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_bounded_peer_store.py",
+        "sha256": "2886173e568e7cae919b40e67f46bf647367c19d466bda428181a2c7f6ae87b3"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_4node_finality.py",
+        "sha256": "c26c286fcb93e93ceb1d97fa5d69760ac45ee22c7aeefa8f73bc2f01ce759d9d"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr4_block_fill_gate.py",
+        "sha256": "dcf9829f72d03a51c5cfe37fea3a4a46ea2a70346f8511d764c08ecd5e99c7d3"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr4_restart_catchup_gate.py",
+        "sha256": "8086cf696870cd55b90fb03a9b61c74da4668ac6b8b816ca6df4f14fa1e82fc2"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_competing_proposal_same_hr_gate.py",
+        "sha256": "edf8394719b3b2fb1e15e62b6487effd22a848a3155b2fb6a7ccd3b79f07bc5f"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_fork_choice_fp_gate.py",
+        "sha256": "0d4c0f5cea48d0fb990de10c545138e2f777d2307768590a0f7abb8088e0f9c3"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_fork_choice_round_hint_convergence_gate.py",
+        "sha256": "d8a9c8c9a5448ac3b8ebf017a07848e82b22da66d4700d0fc434cad2b3970ec1"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_lock_unlock_across_rounds_gate.py",
+        "sha256": "243f7e8f88098f56f715b76656bf4b1a1cea715b9bec03084e11e84d89f17e92"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_locked_value_delayed_msgs_gate.py",
+        "sha256": "3e69daa930e663ced9c185b2996231f65faa6a075e95721d09718517aa9cce60"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_noncanonical_proposal_reject_gate.py",
+        "sha256": "73eba759c846612004b4e18fdf34bd962dd6facc0f965e0a1bdfd75cc2648c09"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_qc_linkage_reject_gate.py",
+        "sha256": "4ddcbb415fa970f75edb9cebf7fc5c70a7ee123dfe0f44f4b1e5fb0007bdc86e"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_qc_monotonicity_sync_resp_gate.py",
+        "sha256": "10205bda75ddd45587a047ead94fd1ce25bba0a0492cfcddabdbe771e0cefba9"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_qc_structural_reject_gate.py",
+        "sha256": "3fdd58c7b14198bebc3c83672156260674de7e84ccd5d7adce74262c9d107de2"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_round_fast_forward_convergence_gate.py",
+        "sha256": "597d23d9c6b02fe1cba1cfa67b893594c493ae06410666f830b338762d98ea50"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_structural_validation_ingress_gate.py",
+        "sha256": "3bd0ca2d42bc81f77a248095801ee67e49b8cc52478aee7240c9f44735ff6e0e"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_sync_resp_malformed_qc_reject_gate.py",
+        "sha256": "2c1d122e02e7d4de47e11b63cac7399e2b3904e6ba81c83f143b363d1d80f562"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_two_competing_rounds_preferred_convergence_gate.py",
+        "sha256": "2f8080f63fc7986e4380a590ea4adc0a9031b80ed108df05709272a8da2c2663"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_pr6_vote_past_height_ignore_gate.py",
+        "sha256": "16b0f2409e602a9853aade1f97330c69505914597d5939a22fd627839725da11"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_quorum_finality_certificate.py",
+        "sha256": "0b83c3e82304c4869e528b750c751ab389d056c4aa1e4cd19ffabfee44e30338"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_restart_catchup.py",
+        "sha256": "1d24f2e207251a85c2b1066e19f57f33498f3a6bf6fd112a729c3d7466b56872"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_consensus_sync_gap_catchup.py",
+        "sha256": "e8b564d12abaebfe3d9254d740c43c7adf852f4c46c2830f445f253fe67eb172"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_document_proof_v1.py",
+        "sha256": "04b19a51ebe49266a03640a7f1931f7a405718fd085a8d42da025a52fcf9803b"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_finality_certificate.py",
+        "sha256": "a606d8cb1e282a8bdacce00983cf969b30f7869fd0ee635894efe40bbdd157c0"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_ledger_commitment.py",
+        "sha256": "3849219607ecb70677e9bc23d967035c1d508b10ba7010f18b62183a8d8738fd"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_ledger_pruning.py",
+        "sha256": "ca6accca866997171dd58b89482a0c8a55c1e30a48ab31d9d1b738935949c2c1"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_ledger_snapshot.py",
+        "sha256": "e38d77ee1c875ad77460810755b27b210b4876fa36763e4f7a9121fe32b23029"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_ledger_storage_bounds.py",
+        "sha256": "d9419b313a608a41baf56212835004a4a064ac3a352830950e76256b1febf38e"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_nat_relay.py",
+        "sha256": "a2e6e0ba9de6e22fe78df9d2f26108a4baca4d1e7d670e8bc7b25dd572debb73"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_network_health.py",
+        "sha256": "52194893c4b3f6eb760aa49f7f0eba678cdf82ea49025cb165204c0e622c7540"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_network_identity.py",
+        "sha256": "b43ac012ff6a16fe2f93e7842c0edec399430c2c0762ecb8d9ccfa9dc7e86e1c"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_network_participation.py",
+        "sha256": "6f051d8178f3b6887573eb74af3f06ada4f5df126c95d8324afbfa0d2c72f483"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_network_participation_admin_api.py",
+        "sha256": "0d5b09ab1156b1cc9b8d557139b5824ca069cb71f26642e68fc084a2846d4e43"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_network_qualification.py",
+        "sha256": "2feb966a801f320612ff9584f2b4e018be998add429680568c53152acf6d9a14"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_network_soak_qualification.py",
+        "sha256": "1f4504b5da46205ee6a5ca8f7ae32beea0fbb378c7a207289f22198b57f8301c"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_p2p_block_fetch.py",
+        "sha256": "c049d1fb633350e6bdd2687a575419912bd216d336a9b2768960e21c3b64981f"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_p2p_block_req_sig_enforced_gate.py",
+        "sha256": "cf98076aa2f357fc75d900d1771cb2ceea58a82b75e27dfb5c0803f115389b95"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_p2p_hello_coverage_gate.py",
+        "sha256": "d06ea63288050ce95eb9448ce05798fc806a7754545da5fbd1bf7212c2529731"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_p2p_ingress_backpressure_gate.py",
+        "sha256": "685c8fde9a3193da371aa56cfdfb2fd9f1b5404def94a82d30e2d37f19211432"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_p2p_proposal_sig_accept_gate.py",
+        "sha256": "a1d909b01a0dde47bf64e2ac3a477ed10ecb940f9fb5f7e1c8b9f04a2766abed"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_p2p_proposal_sig_tamper_gate.py",
+        "sha256": "95dd159296b61ab8062e3cc7c3baf421bb4302d2dc3068670499d77a63bc1f7b"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_p2p_resp_cache_dedup_gate.py",
+        "sha256": "f5a7c71a628aebcc631eb7ba98606a0acd741847eeb4ac9f8d45c47a76d554dc"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_p2p_snapshot_sync.py",
+        "sha256": "aa4bedc28c46fbf1d51a2ba67f32dbee7b0f2c91af4207f4695347d103945a64"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_p2p_vote_sig_accept_gate.py",
+        "sha256": "1d41f3b7acc27215a5634353ee8331d904e76fb6765457daaa5cf95201b04904"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_p2p_vote_sig_tamper_gate.py",
+        "sha256": "a3dee4d534cbe0151ae3e3301d9a5ea7afd9e7e512dd1c2278c51cbec5157dad"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_partition_recovery.py",
+        "sha256": "88697ffb2b2ce8481f9a03c14bb2aab594a4fc7eeca9880b3a94cff2a9152fba"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_protocol_upgrade.py",
+        "sha256": "92bae1f330c13d7a922a062d4fc1700d2eeb4a30bbce3358263aa7f5e74ff90c"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_public_signer_resource_bounds.py",
+        "sha256": "e45bd319e1b30eaa355ad888e7df5a1a914d64ed2f32328228031d674d5347a1"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_resource_bounds.py",
+        "sha256": "a96af3e909f219ae5a3a3e400a619c2cb67958ddb8efe4adf8be8b3ac7380d03"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_signed_desktop_session_replay.py",
+        "sha256": "4c1e7147dc1ed50bbcd346eb963f54beb1ad500acdc13f850b64e222423bfb7a"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_signed_peer_discovery.py",
+        "sha256": "79a9793b1adc595449d7d0376d8a654ac6dc7c81d3e3684000c9a41ebff666d9"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_soak_adversarial_reorder_delay_gate.py",
+        "sha256": "1479a643fa61ffdc571a654c75c686ee3399e863aa13cf46dbdf68350f56b16e"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_trust_release.py",
+        "sha256": "eb2cf4b143d3dc29972fb115f0da40e6a69d068debe1977bea6222d95db7941e"
+      },
+      {
+        "path": "backend/tests/glyphchain/test_validator_governance.py",
+        "sha256": "957c4380fb872e1dc137c6efbfa6d59fd0277ffcf6aa79569d42ba8872ec735c"
+      },
+      {
+        "path": "backend/tests/helpers.py",
+        "sha256": "ca29c687e2e8641488c4cbb3d96270a8dfa6ebe78ac0b7f62884eef4f2f6ceec"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_application_account_descriptor_registry.py",
+        "sha256": "845b21cce221cff009c0746b71051f5e4706114d0fd667ea465dd5366b7fbf3a"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_application_account_recovery.py",
+        "sha256": "99ae8dea49cc229228b47fdf2ac7dc5122f0c9bb88477b66f7d8c7258dda95fc"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_clean_device_verification.py",
+        "sha256": "a2972942e767b302901f7d9b4e58f0707fbf9aa653a06803a2a5d60137b63100"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_delivery_qualification.py",
+        "sha256": "259ae729c80d7667ab9a4a5a2b2443095210cdabad405af299cc7bb751435e76"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_delivery_service.py",
+        "sha256": "3d92ac9a822a22ce785e7fbfb8532724d6dd9800557da74fb1cc5a36bd27a6fc"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_delivery_webhook_api.py",
+        "sha256": "bf5167e32ec940e94e4b94f8f81f7288e277bdf3214967b893e3859bc208d9db"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_disaster_recovery_exercise.py",
+        "sha256": "edd026ed930a5148381f19c7a3d616a8056d35c3f3468a7695ad64cc7db0cffc"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_document_service.py",
+        "sha256": "1ab507331f479e523798576322367cd807c87e305db24055e1337466e554f028"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_full_state_backup.py",
+        "sha256": "59a1ad35e43d4b4cb6d2a68cb5982ced2cecaaefa0dde0e81112a4c95e1dff6e"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_glyphchain_release_readiness.py",
+        "sha256": "fac34429fb0ecdb9bc7ef00d30cb243b2aa1e7ff6e93747307247358519a0257"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_matter_service.py",
+        "sha256": "563423c9255e1759388ead7a869ff433796674826a5ca19f23b3d970a19eb7d4"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_pilot_harness_service.py",
+        "sha256": "444f62b008316f16165947f81ab77f1a9a484b71cb5c876f5b027cac1ebedd8e"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_proof_verifier.py",
+        "sha256": "b56a55e46f1dc72ae3f2ae2236eeb4e225c500253e56daff821a6dda4052676a"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_secure_storage.py",
+        "sha256": "8d70320c3a3d8b5ee51263e8108c88c03f8ad18f7e7dce5b3d1fee3096475e49"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_signing_service.py",
+        "sha256": "fa29a6ce2767b02f83e2be231b8596c29a0d9c9535b1ed2aa3385554cde3ac8a"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_specialist_workspace_ui.py",
+        "sha256": "6c5e562bfa44aca974b1d19177f02777dc96ebb614fbb836444406c86cb70865"
+      },
+      {
+        "path": "backend/tests/workflow_capsules/test_aion_legal_template_service.py",
+        "sha256": "c1314e6a52d485308149d4d1969422a12d655f1eb8eb3e8efdc478c1db85d11e"
+      },
+      {
+        "path": "desktop/mac/electron/main.js",
+        "sha256": "71642e6ff10f7d730993824b0c6c3ea97c399ce3540e58f65f81dd166eb6f912"
+      },
+      {
+        "path": "desktop/mac/src/aion_legal_workspace.js",
+        "sha256": "59bf31b2654504cec02e3b09c4b020ee5d415d06ff9d20259ba09f8328149a50"
+      },
+      {
+        "path": "desktop/mac/src/app.js",
+        "sha256": "d2f069e75b11c5ee49f381ebd9748649cb9afc1580648f5ff4c182b0b12da732"
+      },
+      {
+        "path": "desktop/mac/src/index.html",
+        "sha256": "59a92cdec494eb4dfe165f108dac7381aee76d6358d3cefb27185ccdd1aef11b"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_APPLICATION_ACCOUNT_RECOVERY.md",
+        "sha256": "3b067a53dc34842fac987065a3880faa21d82a0b8db7e41820072312684ec704"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_APPLICATION_ACCOUNT_RECOVERY_SECTION.tex",
+        "sha256": "2113cff70f0fe7547e710a0c15e14d5135600aeca7fae7d85964647216b6487a"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_ASSURANCE_AND_PRIVACY.md",
+        "sha256": "3d443886c06f21a786cdca9bc650ccf2e800b338e285324c1e64093c9a6cd779"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_ASSURANCE_AND_PRIVACY_BOUNDARY_SECTION.tex",
+        "sha256": "6ffd8271010b2c80b3e7b29e0ba1412ed3f30da29c25b2f91ee24977bb169584"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_DISTRIBUTED_NETWORK_QUALIFICATION_SECTION.tex",
+        "sha256": "2bf5594d9b03a3b5b1e852b2599fd53dc3f01f3cb9556438fc9e2d3fdc49bbc2"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_INDEPENDENT_TRUST_PUBLICATION_SECTION.tex",
+        "sha256": "87d23a9084061688cf391905a4fc7ef9fd4796bb171db8da211b3749abd1858b"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_LEGAL_DISASTER_RECOVERY_EXERCISE_REPORT.json",
+        "sha256": "04a96199b414da1172b2838a991dc442f2754b3f283627ad54588b62873d6172"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_LEGAL_DOCUMENT_PROOF_AND_EVIDENCE_SECTION.tex",
+        "sha256": "47eb52f362ab2e43e8bb709388b48f31922c9d8e700d937bd1b4931bb97df619"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_LEGAL_INCIDENT_RESPONSE_PLAYBOOK.md",
+        "sha256": "acd16c9f844163f583d8188a3894fb86760d486b1491404ed74f9924a8cc3521"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_LEGAL_LIVE_SIGNING_DELIVERY_SECTION.tex",
+        "sha256": "f4bdfa023872866da7fb646181853ebe78b05b70d0d98bede27b1578050ab76c"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_LEGAL_PILOT_HARNESS_EVALUATION.md",
+        "sha256": "3a9210206c00b0ca9f3700ed832968b6c5bfec2d48f0ff292e3f271925a0731e"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_LEGAL_REMAINING_BUILD_CHECKLIST.md",
+        "sha256": "e97393d99fb966f19434f3e06a6fe728f54fa31d74198c400262a41ddd1d4d76"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_LEGAL_REPLAY_AND_DUPLICATE_REVIEW.md",
+        "sha256": "50c3629ef2c18d951bed3d55592c9ba29ee8be69046e1fa305494cdfd9d46fdd"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_LEGAL_RESOURCE_EXHAUSTION_REVIEW.md",
+        "sha256": "a3dbf3e264e34f84dec5e2b14281e544923601a4c7cc7963f25654ac2dfca24c"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_LEGAL_TEMPLATE_REVIEW_AND_WITHDRAWAL.md",
+        "sha256": "b70ca31e48f99057106c83e06b942999b03783a703e185831107b5c84688daab"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_LOCALLY_ACTIONABLE_COMPLETION_AUDIT.md",
+        "sha256": "9c4a3b1ff9c1bb79fca9efd2b5c78ff2d417fbbc57a233c399b207688a04a781"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_LOCAL_COMPLETION_AND_EXTERNAL_GATES_SECTION.tex",
+        "sha256": "6d08bd8cb52bb228178dbf0d6fdf6acfba844bc5d9d628ac21898d2e3c8eec3d"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_NETWORK_PARTICIPATION.md",
+        "sha256": "342b25fb42b2df280e793ba46e3900e3eebf68500f6bf76e5ac756d778fc91d0"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_NETWORK_QUALIFICATION_REPORT.json",
+        "sha256": "3a1e9ec074adb6fa7e188fa09a7090e42b010ad5d2f1fc59469223b2b454b906"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_NETWORK_SOAK_QUALIFICATION_REPORT.json",
+        "sha256": "6dfcffd14875a23a45245dd14140614953f562a446f17572acd68491b865b90c"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_RELAY_VALIDATOR_OPERATOR_RUNBOOK.md",
+        "sha256": "9d9b00cf7f1475ab3560f8fb5483fe082f1834c7db74fc4193fc219faeab59e5"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_RELEASE_EVIDENCE_ARTIFACT_CONTRACT_SECTION.tex",
+        "sha256": "2a25f860317759a3684f3c2f5de86054f249643bdc274a276ca78221243e842b"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_RELEASE_EVIDENCE_GATE_SECTION.tex",
+        "sha256": "c66d8b28f31b270431390ea0af76f3c1c48b65b75098526195d3d0a448fdb2ac"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_RELEASE_GATE_HARDENING_SECTION.tex",
+        "sha256": "41ba4a86bd388e9564126d9e00965b43fde9d4b3d7bf6d101098f07113214d9d"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_RELEASE_TRUST_ROOT_GOVERNANCE_SECTION.tex",
+        "sha256": "466daac031ba376a595c583231f830d96cd883ae56e5f6a259ee1927f8a86c31"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_SECURITY_RECOVERY_AND_SOAK_SECTION.tex",
+        "sha256": "d0c41c08e94f81809ead1a3cca5fddf8cfa759c0bc308ca2668ae2efb0d8deb7"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_SERVICE_COMMITMENTS.md",
+        "sha256": "00a81f3e3b127e7d63fa444bf951e5c58008b6424ad3a12770c49f96e59b13ac"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_TWO_PHASE_RELEASE_AUTHORIZATION_SECTION.tex",
+        "sha256": "fc24a7d2d744ef371cb4ca22f7f323253cc290c166c184d2fd83dde83fec84ba"
+      },
+      {
+        "path": "docs/aion/GLYPHCHAIN_VALIDATOR_REMOVAL_EXERCISE_REPORT.json",
+        "sha256": "f75d3608120d95306140fd812e20e9c26c5ce988a7385f3cf27bf90aa114346a"
+      }
+    ],
+    "file_count": 206,
+    "git_commit": "13f531a9140c579c197295542e4e37537d894fdb",
+    "manifest_sha256": "a76942082e505c995e9db3852928f0e0bba3adf750fd2445252b515e92955483",
+    "working_tree_dirty": true
+  },
+  "tests": {
+    "duration_seconds": 176.012,
+    "errors": 0,
+    "failures": 0,
+    "passed": 320,
+    "skipped": 0,
+    "tests": 320
+  },
+  "verified_topology": {
+    "claim_boundary": "Measured regression topology, not a production network-size guarantee",
+    "maximum_validator_nodes_exercised": 4,
+    "profiles": [
+      "single-node",
+      "four-validator",
+      "restart",
+      "gap-catch-up",
+      "adversarial-soak"
+    ]
+  }
+}

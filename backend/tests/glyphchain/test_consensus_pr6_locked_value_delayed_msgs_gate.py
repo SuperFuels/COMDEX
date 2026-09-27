@@ -96,12 +96,30 @@ async def _warm_and_assert_peers(dst, src_nodes) -> None:
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_consensus_pr6_locked_value_delayed_msgs_gate() -> None:
-    nodes = await start_n_nodes(4, base_port=18080, chain_id="glyphchain-dev")
+    # This test injects the exact proposal/vote sequence under examination. Pause
+    # automatic rounds after each node's startup tick so normal background
+    # finalisation cannot race ahead to the selected future height.
+    nodes = await start_n_nodes(
+        4,
+        base_port=18080,
+        chain_id="glyphchain-dev",
+        env_overrides={"CONSENSUS_TICK_MS": "600000"},
+    )
+    sources_stopped = False
     try:
         dst = nodes[3]
         srcA, srcB, srcC = nodes[0], nodes[1], nodes[2]
 
         await _warm_and_assert_peers(dst, [srcA, srcB, srcC])
+
+        # Keep the peer identity records and signing material, but stop the
+        # source processes before injecting the sequence.  If they remain live,
+        # dst's reactive vote gossip can cause them to emit a real quorum and
+        # finalize h before the deliberately invalid precommit is checked.  That
+        # tests normal network progress rather than the delayed-message safety
+        # invariant and makes the expected rejection timing-dependent.
+        await stop_nodes([srcA, srcB, srcC])
+        sources_stopped = True
 
         st0 = await _get_status(dst)
         validators = list(st0.get("validators") or [])
@@ -210,4 +228,4 @@ async def test_consensus_pr6_locked_value_delayed_msgs_gate() -> None:
         assert int(lock.get("height") or 0) == h, f"expected lock height to remain h={h}, got: {st_end}"
 
     finally:
-        await stop_nodes(nodes)
+        await stop_nodes([dst] if sources_stopped else nodes)

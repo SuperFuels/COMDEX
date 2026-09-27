@@ -39,13 +39,13 @@ def canonical_p2p_sign_bytes(*, msg_type: str, chain_id: str, payload: Dict[str,
 
 
 def canonical_hello_sign_bytes(
-    *, chain_id: str, node_id: str, val_id: str | None, base_url: str, pubkey_hex: str
+    *, chain_id: str, node_id: str, val_id: str | None, base_url: str, pubkey_hex: str,
+    protocol: Dict[str, Any] | None = None,
 ) -> bytes:
     """
     Self-signed HELLO: the peer proves control of pubkey and binds identity fields to it.
     """
-    return stable_json_bytes(
-        {
+    value: Dict[str, Any] = {
             "type": "HELLO",
             "chain_id": str(chain_id or ""),
             "node_id": str(node_id or ""),
@@ -53,7 +53,11 @@ def canonical_hello_sign_bytes(
             "base_url": str(base_url or ""),
             "pubkey_hex": str(pubkey_hex or "").strip().lower(),
         }
-    )
+    # Omit for legacy development peers so their existing signature domain is
+    # preserved; production may require the negotiated field.
+    if protocol is not None:
+        value["protocol"] = dict(protocol)
+    return stable_json_bytes(value)
 
 
 def sign_ed25519(privkey_hex: str, msg: bytes) -> str:

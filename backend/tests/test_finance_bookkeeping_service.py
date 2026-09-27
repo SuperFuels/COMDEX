@@ -126,6 +126,6 @@ def test_provider_catalog_is_honest_about_implemented_connectors(monkeypatch, tm
     rows = {row["provider_id"]: row for row in catalog["providers"]}
     assert rows["xero"]["connected"] is True
     assert rows["xero"]["available_writes"] == []
-    assert rows["sage_business_cloud"]["implemented_mode"] == "adapter_contract_ready"
+    assert rows["sage_accounting"]["implemented_mode"] == "read_adapter_and_harness_ready"
     assert rows["quickbooks_online"]["connected"] is False
     assert catalog["external_writes_enabled"] is False

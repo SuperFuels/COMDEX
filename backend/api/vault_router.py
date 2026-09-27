@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import hashlib
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -11,6 +12,7 @@ from backend.modules.vault.connector_readiness import ConnectorReadinessService
 from backend.modules.vault.credential_schema import gmail_oauth_credential
 from backend.modules.vault.credential_store import InMemoryVaultCredentialStore
 from backend.api.local_node_router import get_runtime
+from backend.modules.connectors.business_integration_catalog import get_business_integration_catalog
 
 
 router = APIRouter(prefix="/api/vault", tags=["vault"])
@@ -49,6 +51,11 @@ class AionFlowBindingCreateRequest(BaseModel):
     provider: str = Field(min_length=1, max_length=80)
     label: str = Field(default="", max_length=100)
     secret: str = Field(min_length=1, max_length=65536)
+
+
+class LocalModelSelectionRequest(BaseModel):
+    workspace_id: str = Field(default="home-fixed", min_length=1, max_length=160)
+    model_id: str = Field(min_length=1, max_length=200)
 
 
 @router.get("/aion-flow/bindings")
@@ -217,6 +224,43 @@ def gmail_status(
     }
 
 
+@router.get("/integration-providers")
+def list_integration_providers(
+    business_id: str = "costa-conexion",
+    workspace_id: str = "costa-conexion",
+    owner_user_id: str = "local_user",
+) -> Dict[str, Any]:
+    """Return a safe, truthful view of business integrations for the Vault UI."""
+
+    catalog = get_business_integration_catalog()
+    gmail = gmail_status(
+        business_id=business_id,
+        workspace_id=workspace_id,
+        owner_user_id=owner_user_id,
+    ).get("gmail", {})
+    providers = []
+    for item in catalog["providers"]:
+        provider = dict(item)
+        if provider["provider_id"] == "gmail":
+            provider["connected"] = bool(gmail.get("ready"))
+            provider["configured"] = provider["connected"]
+            provider["connection_reason"] = gmail.get("reason") or "not_connected"
+        provider["available_to_connect"] = provider["implementation"] in {
+            "adapter_ready",
+            "credential_ready",
+            "sandbox_verified",
+            "live_verified",
+        }
+        providers.append(provider)
+
+    return {
+        **catalog,
+        "providers": providers,
+        "connected_count": sum(bool(item["connected"]) for item in providers),
+        "configured_count": sum(bool(item["configured"]) for item in providers),
+    }
+
+
 # AION PATCH: Vault AI Provider Keys v1
 class AiProviderKeySaveRequest(BaseModel):
     api_key: str
@@ -233,12 +277,108 @@ def list_ai_providers() -> Dict[str, Any]:
     }
 
 
+def _local_model_workspace_selection(workspace_id: str) -> Dict[str, Any]:
+    from backend.modules.aion_inference.local_model_selection_store import load_local_model_selection
+
+    return load_local_model_selection(workspace_id)
+
+
 @router.get("/local-models")
-def list_local_models() -> Dict[str, Any]:
+def list_local_models(workspace_id: str = "home-fixed") -> Dict[str, Any]:
     """Inventory local model cards without reading or exposing model weights."""
     from backend.modules.aion_inference.local_model_vault import LocalModelVault
+    from backend.modules.aion_inference.local_model_selection_store import save_local_model_selection
 
-    return LocalModelVault().snapshot()
+    snapshot = LocalModelVault().snapshot()
+    selected = _local_model_workspace_selection(workspace_id)
+    selected_id = selected.get("model_id") or selected.get("model")
+    snapshot["workspace_id"] = workspace_id
+    snapshot["selected_model_id"] = selected_id if selected.get("source") == "local_model_vault" else None
+    for model in snapshot.get("models") or []:
+        if isinstance(model, dict):
+            model["selected"] = bool(model.get("model_id") == snapshot["selected_model_id"])
+    return snapshot
+
+
+@router.post("/local-models/select")
+def select_local_model(
+    payload: LocalModelSelectionRequest,
+    x_aion_vault_intent: str = Header(default=""),
+) -> Dict[str, Any]:
+    """Bind one verified local package to a workspace and start its loopback runtime."""
+    if x_aion_vault_intent != "select-local-model-v1":
+        raise HTTPException(status_code=403, detail="explicit_vault_intent_required")
+    from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+    from backend.modules.aion_fabric.canonical import utc_now_iso
+    from backend.modules.aion_inference.local_model_vault import LocalModelVault
+    from backend.services.aion_mission_mode.pilot_local_model_runtime import (
+        ensure_selected_local_runtime,
+        selected_local_runtime_profile,
+    )
+
+    snapshot = LocalModelVault().snapshot()
+    model = next(
+        (item for item in snapshot.get("models") or []
+         if isinstance(item, dict) and item.get("model_id") == payload.model_id),
+        None,
+    )
+    installation = next(
+        (item for item in (model or {}).get("installations") or []
+         if isinstance(item, dict) and item.get("selectable") is True),
+        None,
+    )
+    if not model or model.get("selection_status") != "selectable" or not installation:
+        raise HTTPException(status_code=409, detail="local_model_package_not_mounted_or_verified")
+    model_path = Path(str(installation.get("model_path") or "")).resolve()
+    if not model_path.is_file():
+        raise HTTPException(status_code=409, detail="local_model_weight_file_missing")
+    digest = hashlib.sha256()
+    with model_path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(4 * 1024 * 1024), b""):
+            digest.update(chunk)
+    expected_hash = str(installation.get("model_sha256") or "").lower()
+    if digest.hexdigest() != expected_hash:
+        raise HTTPException(status_code=409, detail="local_model_weight_hash_mismatch")
+    runtime_values = {
+        **dict(model.get("runtime_profile") or {}),
+        **dict(installation.get("runtime_profile") or {}),
+    }
+    runtime_profile = selected_local_runtime_profile(
+        model_id=payload.model_id,
+        adapter=str(runtime_values.get("adapter") or ""),
+        endpoint=str(runtime_values.get("endpoint") or ""),
+        model_sha256=expected_hash,
+        model_path=str(model_path),
+        finance_arithmetic=str(runtime_values.get("finance_arithmetic") or ""),
+        chat_template_kwargs=runtime_values.get("chat_template_kwargs"),
+        max_output_tokens=runtime_values.get("max_output_tokens"),
+        context_size=runtime_values.get("context_size"),
+        parallel_slots=runtime_values.get("parallel_slots"),
+    )
+    runtime_status = ensure_selected_local_runtime(runtime_profile)
+    repository = BusinessContainerRepository()
+    workspace = repository.load_optional_dict(payload.workspace_id, "operational_runtime_summary") or {
+        "workspace_id": payload.workspace_id,
+        "kind": "operational_runtime_summary",
+    }
+    selection = {
+        "provider": "local_model", "provider_id": "local_model",
+        "model": payload.model_id, "model_id": payload.model_id,
+        "source": "local_model_vault", "selection_status": "selectable",
+        "release_status": model.get("release_status"),
+        "binding_ref": installation.get("warehouse", {}).get("sha256"),
+        "storage_root": installation.get("storage_root"),
+        "selected_at": utc_now_iso(),
+    }
+    save_local_model_selection(payload.workspace_id, selection)
+    # Retain the compatibility projection for older clients. The dedicated Vault
+    # record above is authoritative and cannot be erased by briefing updates.
+    workspace["coo_model_selection"] = selection
+    repository.save_dict(payload.workspace_id, "operational_runtime_summary", workspace)
+    return {
+        "ok": True, "workspace_id": payload.workspace_id, "selection": selection,
+        "runtime": runtime_status,
+    }
 
 
 @router.post("/ai-providers/{provider_id}")

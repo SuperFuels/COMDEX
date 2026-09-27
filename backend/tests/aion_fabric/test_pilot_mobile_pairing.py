@@ -86,6 +86,54 @@ def test_signed_descriptor_rejects_endpoint_and_key_substitution(tmp_path):
     assert not authority.verify_mother_descriptor(descriptor, expected_fingerprint="00" * 16)
 
 
+def test_pairing_invitation_is_qr_safe_signed_and_tamper_evident(tmp_path):
+    authority, _, _, profile = _authority(tmp_path)
+    invitation = authority.pairing_invitation(
+        persona_id=profile["persona_id"],
+        requested_scopes=("task.create", "message.send"),
+    )
+
+    assert MobilePairingAuthority.verify_pairing_invitation(invitation) is True
+    assert invitation["requested_scopes"] == ["message.send", "task.create"]
+    assert invitation["contains_mother_secret"] is False
+    assert invitation["contains_pairing_confirmation"] is False
+    rendered = json.dumps(invitation)
+    assert "confirmation_code" not in rendered
+    assert "private_key" not in rendered
+
+    altered_scope = copy.deepcopy(invitation)
+    altered_scope["requested_scopes"].append("tv.control")
+    assert MobilePairingAuthority.verify_pairing_invitation(altered_scope) is False
+
+    altered_endpoint = copy.deepcopy(invitation)
+    altered_endpoint["mother_descriptor"]["endpoint"] = "https://attacker.example"
+    assert MobilePairingAuthority.verify_pairing_invitation(altered_endpoint) is False
+
+
+def test_signed_descriptor_binds_the_public_tls_trust_anchor(tmp_path):
+    mother = IdentityStore(tmp_path / "mother_identity").load_or_create()
+    identities = ProductionPrivateIdentity(tmp_path)
+    profile = identities.onboard(display_name="Owner")
+    tls = LocalTLSAuthority(tmp_path).ensure(address="127.0.0.1", hostname="pilot-test.local")
+    authority = MobilePairingAuthority(
+        tmp_path,
+        mother_id="node_home_mother",
+        mother_identity=mother,
+        endpoint="https://127.0.0.1:8770",
+        ca_sha256=tls.ca_sha256,
+        ca_certificate_pem=tls.ca_certificate_path.read_bytes(),
+        identity_registry=identities,
+    )
+    invitation = authority.pairing_invitation(persona_id=profile["persona_id"])
+    descriptor = invitation["mother_descriptor"]
+    assert descriptor["schema_version"] == "pilot.mother-descriptor.v2"
+    assert MobilePairingAuthority.verify_pairing_invitation(invitation) is True
+
+    altered = copy.deepcopy(invitation)
+    altered["mother_descriptor"]["ca_certificate_pem_b64"] = base64.b64encode(b"not a certificate").decode("ascii")
+    assert MobilePairingAuthority.verify_pairing_invitation(altered) is False
+
+
 def test_direct_remote_route_is_mother_signed_bounded_and_contains_no_secret(tmp_path):
     mother = IdentityStore(tmp_path / "mother_identity").load_or_create()
     identities = ProductionPrivateIdentity(tmp_path)

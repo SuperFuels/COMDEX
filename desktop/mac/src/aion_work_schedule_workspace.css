@@ -1,0 +1,320 @@
+.ws-surface {
+  min-height: 100vh;
+  padding: 0 28px 70px 92px !important;
+  background: #f5f8fb !important;
+  color: #102a43;
+}
+.ws-surface * { box-sizing: border-box; }
+.ws-shell { max-width: 1700px; margin: 0 auto; padding-top: 28px; }
+.ws-surface button {
+  padding: 10px 13px;
+  border: 1px solid #aebbc7;
+  background: #fff;
+  color: #17212b;
+  font-weight: 850;
+  cursor: pointer;
+}
+.ws-surface button:hover { border-color: #0f766e; color: #0f766e; }
+.ws-surface button.primary { border-color: #0f766e; background: #0f766e; color: #fff; }
+.ws-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 22px;
+  padding: 28px 30px 20px;
+  border-top: 5px solid #0f766e;
+  border-bottom: 1px solid #cad7e3;
+  background: #fff;
+}
+.ws-header > div:first-child > span,
+.ws-calendar-toolbar span,
+.ws-board > header span,
+.ws-intake > header span,
+.ws-customers > header span,
+.ws-field > header > div > span,
+.ws-modal header span,
+.ws-detail-panel > header span,
+.ws-pilot-bar span {
+  color: #0f766e;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .22em;
+}
+.ws-header h1 { margin: 5px 0; color: #17212b; font-size: 31px; }
+.ws-header p { max-width: 830px; margin: 0; color: #60748a; line-height: 1.5; }
+.ws-header-actions { display: flex; align-items: flex-start; gap: 8px; }
+.ws-sync-state { align-self: center; padding: 5px 8px; background: #ecfdf5; color: #047857; font-size: 10px; font-weight: 800; }
+.ws-sync-state.error { max-width: 230px; background: #fef2f2; color: #b91c1c; }
+.ws-header-actions b {
+  display: inline-grid;
+  place-items: center;
+  min-width: 19px;
+  height: 19px;
+  margin-left: 6px;
+  border-radius: 12px;
+  background: #e1eef2;
+  color: #0f5f5b;
+  font-size: 10px;
+}
+.ws-metrics { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.ws-metrics article { display: flex; align-items: baseline; gap: 8px; padding-top: 14px; border-top: 1px solid #d7e0ea; }
+.ws-metrics b { font-size: 24px; }
+.ws-metrics span { color: #60748a; font-size: 12px; }
+.ws-view-tabs { display: flex; padding: 0 24px; overflow-x: auto; border-bottom: 1px solid #bdcad6; background: #fff; }
+.ws-view-tabs button { padding: 14px 16px; border: 0; border-bottom: 3px solid transparent; color: #52677e; white-space: nowrap; }
+.ws-view-tabs button.active { border-bottom-color: #0f766e; color: #0f766e; }
+.ws-view-tabs span { display: inline-grid; place-items: center; min-width: 18px; height: 18px; margin-left: 7px; border-radius: 12px; background: #fef3c7; color: #92400e; font-size: 9px; }
+.ws-pilot-bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 18px 0; padding: 13px 16px; border: 1px solid #99e6dc; background: #effcf9; }
+.ws-pilot-bar > div { display: grid; gap: 2px; }
+.ws-pilot-bar > div { flex: 1; }
+.ws-pilot-bar > input { flex: 1.25; min-width: 260px; padding: 11px 12px; border: 1px solid #78d8cc; background: #fff; font: inherit; }
+.ws-pilot-bar strong { font-size: 14px; }
+.ws-pilot-bar small { color: #557082; }
+.ws-pilot-result { margin: -10px 0 16px; padding: 9px 13px; border-left: 3px solid #0f766e; background: #fff; color: #42647a; font-size: 11px; }
+.ws-conflicts { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; padding: 10px 12px; overflow-x: auto; border: 1px solid #f3b76b; background: #fff7ed; }
+.ws-conflicts > strong { flex: none; color: #9a3412; font-size: 11px; }
+.ws-conflicts button { padding: 7px 9px; border-color: #f3b76b; color: #9a3412; font-size: 10px; white-space: nowrap; }
+.ws-calendar-day[data-ws-drop-date] { transition: background .12s ease; }
+.ws-calendar-day[data-ws-drop-date]:has(.ws-calendar-card:active) { background: #ecfdf5; }
+.ws-calendar-panel,
+.ws-board,
+.ws-intake,
+.ws-customers,
+.ws-field { border: 1px solid #cbd8e4; background: #fff; }
+.ws-calendar-toolbar,
+.ws-board > header,
+.ws-intake > header,
+.ws-customers > header,
+.ws-field > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 18px 20px; border-bottom: 1px solid #d7e0ea; }
+.ws-calendar-toolbar h2,
+.ws-board h2,
+.ws-intake h2,
+.ws-customers h2,
+.ws-field h2 { margin: 4px 0 0; font-size: 22px; }
+.ws-board > header p,
+.ws-intake > header p,
+.ws-customers > header p,
+.ws-field > header p { margin: 3px 0; color: #60748a; }
+.ws-calendar-toolbar > div:last-child { display: flex; }
+.ws-calendar-toolbar button { padding: 7px 11px; }
+.ws-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(145px, 1fr)); min-height: 540px; overflow-x: auto; }
+.ws-calendar-day { min-width: 145px; border-right: 1px solid #d7e0ea; background: #fbfcfe; }
+.ws-calendar-day.today { background: #f0fdfa; }
+.ws-calendar-day > header { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #d7e0ea; background: #f8fafc; }
+.ws-calendar-day.today > header { background: #ccfbf1; }
+.ws-calendar-day > header span { font-size: 11px; font-weight: 900; }
+.ws-calendar-day > header button { padding: 2px 6px; border: 0; background: transparent; }
+.ws-day-items { display: grid; align-content: start; gap: 8px; padding: 8px; }
+.ws-calendar-card { position: relative; display: grid !important; gap: 4px; width: 100%; padding: 9px !important; border-left: 4px solid #0ea5e9 !important; text-align: left; box-shadow: 0 2px 5px rgba(15,23,42,.05); }
+.ws-calendar-card.ws-kind-job { border-left-color: #d97706 !important; }
+.ws-calendar-card.ws-kind-appointment { border-left-color: #7c3aed !important; }
+.ws-calendar-card.ws-kind-survey,
+.ws-calendar-card.ws-kind-visit { border-left-color: #059669 !important; }
+.ws-calendar-card time { color: #64748b; font-size: 10px; }
+.ws-calendar-card strong { font-size: 12px; line-height: 1.25; }
+.ws-calendar-card small,
+.ws-calendar-card em { color: #60748a; font-size: 10px; font-style: normal; }
+.ws-calendar-card i { position: absolute; right: 5px; top: 5px; padding: 2px 4px; background: #eef2f7; color: #64748b; font-size: 7px; font-style: normal; text-transform: uppercase; }
+.ws-empty-day { width: 100%; padding: 16px 5px !important; border: 1px dashed #cbd5e1 !important; background: transparent !important; color: #94a3b8 !important; font-size: 10px; }
+.ws-calendar-footer { display: flex; align-items: center; gap: 18px; padding: 10px 14px; border-top: 1px solid #d7e0ea; color: #60748a; font-size: 10px; }
+.ws-calendar-footer span { display: flex; align-items: center; gap: 5px; }
+.ws-calendar-footer i { width: 8px; height: 8px; background: #d97706; }
+.ws-calendar-footer i.appointment { background: #7c3aed; }
+.ws-calendar-footer i.survey { background: #059669; }
+.ws-calendar-footer small { margin-left: auto; }
+.ws-board-lanes { display: grid; grid-template-columns: repeat(6, minmax(210px, 1fr)); gap: 10px; padding: 14px; overflow-x: auto; }
+.ws-board-lane { min-height: 440px; padding: 9px; border-top: 4px solid #94a3b8; background: #f1f5f9; }
+.ws-board-lane > header { display: flex; justify-content: space-between; padding: 6px 3px 12px; }
+.ws-board-lane > header span { display: grid; place-items: center; min-width: 21px; height: 21px; background: #fff; }
+.ws-board-lane > button { display: grid; width: 100%; gap: 5px; margin-bottom: 8px; text-align: left; }
+.ws-board-lane > button small,
+.ws-board-lane > button span,
+.ws-board-lane > button em { color: #64748b; font-size: 10px; font-style: normal; }
+.ws-board-lane > p { padding: 12px; color: #94a3b8; font-size: 11px; }
+.ws-intake-list,
+.ws-customers > div { display: grid; gap: 8px; padding: 14px; }
+.ws-intake-list article { display: grid; grid-template-columns: 80px 1fr auto auto; align-items: center; gap: 14px; padding: 12px; border: 1px solid #d7e0ea; }
+.ws-intake-list article > div:nth-child(2),
+.ws-customers article > div:nth-child(2) { display: grid; gap: 3px; }
+.ws-intake-list article span,
+.ws-intake-list article small,
+.ws-customers article span { color: #64748b; font-size: 11px; }
+.ws-channel { display: grid; place-items: center; min-height: 40px; background: #e0f2fe; color: #075985; font-size: 10px; font-weight: 900; }
+.ws-customers article { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 12px; padding: 12px; border: 1px solid #d7e0ea; }
+.ws-customer-avatar { display: grid; place-items: center; width: 44px; height: 44px; background: #dbeafe; color: #075985; font-weight: 900; }
+.ws-field-summary { display: flex; gap: 8px; }
+.ws-field-summary article { display: grid; min-width: 100px; padding: 3px 12px; border-left: 1px solid #d7e0ea; }
+.ws-field-summary b { font-size: 22px; }
+.ws-field-summary small { color: #64748b; }
+.ws-field-layout { display: grid; grid-template-columns: minmax(220px, .65fr) minmax(480px, 1.6fr); gap: 28px; padding: 24px; background: #f8fafc; }
+.ws-field-layout > aside { align-self: start; padding: 18px; border-top: 4px solid #0f766e; background: #fff; line-height: 1.5; }
+.ws-field-layout > aside p,
+.ws-field-layout > aside li { color: #60748a; font-size: 12px; }
+.ws-field-layout > aside ul { padding-left: 18px; }
+.ws-field-device { overflow: hidden; border: 1px solid #aebbc7; border-radius: 18px; background: #fff; box-shadow: 0 18px 40px rgba(15,23,42,.1); }
+.ws-field-device-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; background: #102a43; color: #fff; }
+.ws-field-device-head > div { display: grid; }
+.ws-field-device-head strong { color: #fff !important; }
+.ws-field-device-head span,
+.ws-field-device-head small { color: #b8c7d9; font-size: 10px; }
+.ws-field-list { display: grid; gap: 10px; padding: 14px; }
+.ws-field-card { display: grid; grid-template-columns: 90px 1fr; border: 1px solid #d7e0ea; border-left: 5px solid #94a3b8; background: #fff; }
+.ws-field-card.active { border-left-color: #0f766e; background: #f0fdfa; }
+.ws-field-time { display: grid; align-content: start; gap: 5px; padding: 16px; border-right: 1px solid #d7e0ea; }
+.ws-field-time time { font-size: 17px; font-weight: 900; }
+.ws-field-time span { color: #64748b; font-size: 10px; }
+.ws-field-main { padding: 14px; }
+.ws-field-card-top { display: flex; align-items: center; justify-content: space-between; }
+.ws-field-card-top > small { color: #0f766e; font-size: 9px; font-weight: 900; letter-spacing: .14em; }
+.ws-field-main h3 { margin: 6px 0 2px; }
+.ws-field-main p { margin: 0; color: #52677e; }
+.ws-field-main em { display: block; margin-top: 5px; color: #64748b; font-size: 11px; font-style: normal; }
+.ws-field-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+.ws-field-actions button { padding: 8px 10px; }
+.ws-modal-layer,
+.ws-panel-layer { position: fixed; z-index: 12000; inset: 0; }
+.ws-modal-backdrop,
+.ws-panel-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; border: 0 !important; background: rgba(15,23,42,.48) !important; }
+.ws-modal { position: absolute; left: 50%; top: 50%; width: min(760px, calc(100vw - 60px)); max-height: calc(100vh - 70px); overflow: auto; transform: translate(-50%, -50%); background: #fff; box-shadow: 0 28px 80px rgba(15,23,42,.3); }
+.ws-modal > header,
+.ws-detail-panel > header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 20px; border-bottom: 1px solid #d7e0ea; }
+.ws-modal h2,
+.ws-detail-panel h2 { margin: 4px 0; }
+.ws-modal header p,
+.ws-detail-panel header p { margin: 0; color: #64748b; }
+.ws-modal header > button,
+.ws-detail-panel header > button { padding: 1px 8px; border: 0; font-size: 24px; }
+.ws-modal form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 20px; }
+.ws-modal label { display: grid; gap: 6px; color: #334e68; font-size: 11px; font-weight: 850; }
+.ws-modal label.wide { grid-column: 1 / -1; }
+.ws-modal input,
+.ws-modal select,
+.ws-modal textarea,
+.ws-detail-panel input,
+.ws-detail-panel select,
+.ws-detail-panel textarea { width: 100%; padding: 10px; border: 1px solid #aebbc7; background: #fff; font: inherit; }
+.ws-modal textarea { min-height: 80px; resize: vertical; }
+.ws-modal footer { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; padding-top: 8px; }
+.ws-detail-panel { position: absolute; right: 0; top: 0; width: min(650px, 96vw); height: 100%; overflow: auto; background: #fff; box-shadow: -20px 0 60px rgba(15,23,42,.28); }
+.ws-detail-status { display: flex; align-items: center; gap: 8px; padding: 12px 20px; }
+.ws-detail-status select { width: auto; margin-left: auto; }
+.ws-status,
+.ws-sample { display: inline-flex; padding: 5px 8px; background: #e0f2fe; color: #075985; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+.ws-status-completed,
+.ws-status-paid { background: #dcfce7; color: #166534; }
+.ws-status-in_progress,
+.ws-status-en_route,
+.ws-status-paused { background: #fef3c7; color: #92400e; }
+.ws-sample { background: #f1f5f9; color: #64748b; }
+.ws-detail-panel > nav { display: flex; overflow-x: auto; padding: 0 14px; border-block: 1px solid #d7e0ea; }
+.ws-detail-panel > nav button { flex: 1; padding: 10px 8px; border: 0; border-bottom: 3px solid transparent; font-size: 10px; white-space: nowrap; }
+.ws-detail-panel > nav button:last-child { min-width: 142px; }
+.ws-detail-panel > nav button.active { border-bottom-color: #0f766e; color: #0f766e; }
+.ws-detail-body { padding: 18px; }
+.ws-overview dl { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.ws-overview dl div { padding: 11px; background: #f8fafc; }
+.ws-overview dt { color: #64748b; font-size: 9px; text-transform: uppercase; }
+.ws-overview dd { margin: 4px 0 0; font-size: 12px; }
+.ws-overview article { margin: 14px 0; padding: 14px; border-left: 4px solid #0f766e; background: #f0fdfa; }
+.ws-overview article span,
+.ws-commercial article > span,
+.ws-signoff-copy > span,
+.ws-signed > span { color: #0f766e; font-size: 9px; font-weight: 900; letter-spacing: .16em; }
+.ws-overview article p { line-height: 1.5; }
+.ws-updates > div,
+.ws-documents > div { display: grid; gap: 8px; margin-bottom: 16px; }
+.ws-updates article,
+.ws-documents article { display: grid; gap: 3px; padding: 11px; border: 1px solid #d7e0ea; }
+.ws-updates article span,
+.ws-documents article small { color: #64748b; font-size: 10px; }
+.ws-updates form { display: grid; gap: 8px; }
+.ws-updates textarea { min-height: 100px; }
+.ws-upload { position: relative; display: block; overflow: hidden; padding: 18px; border: 1px dashed #0f766e; color: #0f766e; font-weight: 900; text-align: center; cursor: pointer; }
+.ws-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.ws-document-actions { display: flex !important; gap: 8px; margin: 10px 0 !important; }
+.ws-helper { display: block; color: #64748b; line-height: 1.4; }
+.ws-signoff { display: grid; gap: 13px; }
+.ws-signoff-copy h3 { margin: 5px 0; }
+.ws-signoff-copy p { color: #60748a; line-height: 1.5; }
+.ws-signoff > label { display: grid; gap: 5px; font-size: 10px; font-weight: 900; }
+.ws-signature-pad { width: 100%; height: 180px; border: 1px dashed #0f766e; background: repeating-linear-gradient(0deg, #fff, #fff 35px, #eef2f7 36px); touch-action: none; cursor: crosshair; }
+.ws-signature-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.ws-signed { display: grid; gap: 9px; padding: 18px; border-left: 4px solid #16a34a; background: #f0fdf4; }
+.ws-signed img { max-width: 100%; height: 150px; object-fit: contain; border: 1px solid #bbd9c3; background: #fff; }
+.ws-signed small { color: #64748b; }
+.ws-commercial { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ws-commercial article { display: grid; gap: 10px; padding: 15px; border: 1px solid #d7e0ea; }
+.ws-commercial article strong { font-size: 18px; }
+.ws-commercial label { display: grid; gap: 5px; font-size: 10px; }
+.ws-commercial article.ws-payment { grid-column: 1 / -1; border-top: 4px solid #0f766e; }
+.ws-payment > div { display: flex; gap: 8px; }
+.ws-payment > div > label,
+.ws-payment > div > button { flex: 1; }
+.ws-commercial > p { grid-column: 1 / -1; color: #64748b; font-size: 11px; }
+.ws-empty { display: grid; gap: 4px; padding: 30px; color: #64748b; text-align: center; }
+.ws-stock { border: 1px solid #cbd8e4; background: #fff; }
+.ws-stock > header { padding: 18px 20px; border-bottom: 1px solid #d7e0ea; }
+.ws-stock > header span { color: #0f766e; font-size: 10px; font-weight: 950; letter-spacing: .2em; }
+.ws-stock > header h2 { margin: 4px 0; }
+.ws-stock > header p { margin: 0; color: #60748a; }
+.ws-stock > form { display: grid; grid-template-columns: 1.4fr .6fr .6fr .9fr auto; gap: 8px; padding: 14px; background: #f8fafc; }
+.ws-stock input, .ws-stock select { min-width: 0; padding: 10px; border: 1px solid #aebbc7; background: #fff; }
+.ws-stock-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(190px,1fr)); gap: 10px; padding: 14px; }
+.ws-stock-grid article { display: grid; gap: 5px; padding: 14px; border: 1px solid #d7e0ea; }
+.ws-stock-grid article span, .ws-stock-grid article small { color: #64748b; font-size: 10px; }
+.ws-stock-grid article b { font-size: 24px; }
+.ws-delivery { display: grid; gap: 12px; }
+.ws-delivery h3 { margin: 10px 0 0; font-size: 14px; }
+.ws-delivery-summary { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: stretch; }
+.ws-delivery-summary article, .ws-delivery-summary a, .ws-delivery-summary small { display: grid; align-content: center; gap: 3px; padding: 11px; border: 1px solid #d7e0ea; }
+.ws-delivery-summary span { color: #64748b; font-size: 9px; font-weight: 900; }
+.ws-checklist, .ws-material-list, .ws-time-list { display: grid; gap: 7px; }
+.ws-checklist label { display: flex; gap: 9px; padding: 10px; background: #f8fafc; }
+.ws-checklist input, .ws-material-list input { width: auto; }
+.ws-checklist input:checked + span { color: #64748b; text-decoration: line-through; }
+.ws-delivery form { display: flex; gap: 7px; }
+.ws-delivery form input { min-width: 0; }
+.ws-delivery form input:first-child { flex: 1.5; }
+.ws-material-list article, .ws-time-list article { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 9px; padding: 10px; border: 1px solid #d7e0ea; }
+.ws-time-list article { grid-template-columns: auto 1fr; }
+.ws-material-list article span, .ws-time-list article span { color: #64748b; font-size: 10px; }
+
+@media (max-width: 1050px) {
+  .ws-calendar-grid { grid-template-columns: repeat(7, minmax(170px, 1fr)); }
+  .ws-metrics { grid-template-columns: 1fr 1fr; }
+  .ws-header { grid-template-columns: 1fr; }
+  .ws-header-actions { grid-row: 2; }
+  .ws-intake-list article { grid-template-columns: 70px 1fr; }
+  .ws-intake-list article > small,
+  .ws-intake-list article > button { grid-column: 2; }
+  .ws-calendar-footer small { display: none; }
+  .ws-field-layout { grid-template-columns: 1fr; }
+  .ws-field-layout > aside { display: none; }
+}
+
+@media (max-width: 720px) {
+  .ws-surface { padding: 0 10px 50px 76px !important; }
+  .ws-header { padding: 20px 16px; }
+  .ws-header-actions { flex-wrap: wrap; }
+  .ws-header h1 { font-size: 26px; }
+  .ws-view-tabs { padding: 0; }
+  .ws-pilot-bar { align-items: flex-start; flex-direction: column; }
+  .ws-modal form,
+  .ws-overview dl,
+  .ws-commercial { grid-template-columns: 1fr; }
+  .ws-modal label.wide,
+  .ws-modal footer,
+  .ws-commercial > p,
+  .ws-commercial article.ws-payment { grid-column: 1; }
+  .ws-field > header { display: grid; }
+  .ws-field-summary,
+  .ws-calendar-footer { overflow: auto; }
+  .ws-field-layout { padding: 8px; }
+  .ws-field-device { border-radius: 0; }
+  .ws-field-card { grid-template-columns: 72px 1fr; }
+  .ws-field-time { padding: 12px 9px; }
+  .ws-field-actions button { flex: 1; }
+  .ws-payment > div,
+  .ws-document-actions { display: grid !important; }
+  .ws-stock > form, .ws-delivery-summary { grid-template-columns: 1fr; }
+  .ws-delivery form { display: grid; }
+}

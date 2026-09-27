@@ -102,6 +102,20 @@ def test_readiness_rejects_send_scope() -> None:
     assert data["readiness"]["reason"] == "missing_required_scopes"
 
 
+def test_integration_catalog_is_public_safe_and_keeps_payments_deferred() -> None:
+    response = _client().get("/api/vault/integration-providers")
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data["schema_version"] == "tessaris.business_integrations.v1"
+    assert data["payments_deferred"] is True
+    providers = {item["provider_id"]: item for item in data["providers"]}
+    assert {"gmail", "microsoft_outlook", "mailchimp_marketing", "resend"} <= set(providers)
+    assert providers["gmail"]["available_to_connect"] is True
+    assert "secret-value" not in response.text.lower()
+    assert "bearer " not in response.text.lower()
+
+
 def test_telephony_status_never_returns_provider_secrets(monkeypatch) -> None:
     from backend.modules.aion_business.runtime.telephony_vault_service import TelephonyVaultService
 

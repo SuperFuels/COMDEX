@@ -11415,7 +11415,7 @@ body.aion-workflow-sidebar-expanded [data-aion-boardroom-sticky-team-header="tru
   min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: clamp(14px, 2vw, 30px);
 }
 
@@ -12977,6 +12977,61 @@ html body .surface-shell[data-aion-o14p-live-agents-shell="true"] {
   gap: 16px;
 }
 
+.aion-vault-business-integrations { display:grid; gap:16px; }
+.aion-vault-integration-groups { display:grid; gap:10px; }
+.aion-vault-integration-group {
+  display:grid;
+  grid-template-columns:minmax(180px,.48fr) minmax(0,1.52fr);
+  gap:20px;
+  align-items:center;
+  border:1px solid #d7e9f7;
+  border-left:4px solid #1681c4;
+  background:#fff;
+  padding:13px 15px;
+}
+.aion-vault-integration-group>header strong { display:block; color:#173956; font-size:11px; }
+.aion-vault-integration-group>header p { margin:5px 0 0; color:#7890a4; font-size:8px; line-height:1.4; }
+.aion-vault-integration-picker {
+  min-width:0;
+  display:grid;
+  grid-template-columns:minmax(230px,.9fr) minmax(250px,1.1fr) max-content;
+  gap:14px;
+  align-items:center;
+}
+.aion-vault-integration-picker>label { min-width:0; display:grid; gap:5px; }
+.aion-vault-integration-picker>label>span { color:#557086; font-size:7px; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
+.aion-vault-integration-picker select {
+  width:100%;
+  min-height:38px;
+  border:1px solid #c8d9e7;
+  border-radius:0;
+  background:#fbfdff;
+  color:#173956;
+  padding:7px 34px 7px 10px;
+  font-size:10px;
+  font-weight:750;
+}
+.aion-vault-integration-selection { min-width:0; display:grid; grid-template-columns:minmax(0,1fr) max-content; gap:4px 9px; align-items:center; }
+.aion-vault-integration-selection strong { overflow:hidden; color:#173956; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+.aion-vault-integration-selection .badge { font-size:6px; }
+.aion-vault-integration-selection p { grid-column:1/-1; overflow:hidden; margin:0; color:#7890a4; font-size:8px; line-height:1.35; text-overflow:ellipsis; white-space:nowrap; }
+.aion-vault-integration-action { display:flex; justify-content:flex-end; }
+.aion-vault-integration-action button { min-width:94px; min-height:38px; padding:7px 12px; font-size:7px; }
+.aion-vault-integration-boundary { display:flex; align-items:flex-start; gap:9px; border-left:3px solid #e59b17; background:#fffaf0; color:#704509; padding:10px 12px; }
+.aion-vault-integration-boundary strong { flex:0 0 auto; font-size:9px; }
+.aion-vault-integration-boundary span { font-size:8px; line-height:1.45; }
+
+@media (max-width: 1100px) {
+  .aion-vault-integration-group { grid-template-columns:1fr; }
+  .aion-vault-integration-picker { grid-template-columns:minmax(220px,1fr) minmax(220px,1fr) max-content; }
+}
+
+@media (max-width: 760px) {
+  .aion-vault-integration-picker { grid-template-columns:1fr; }
+  .aion-vault-integration-action { justify-content:stretch; }
+  .aion-vault-integration-action button { width:100%; }
+}
+
 .aion-vault-crm-panel .operations-agents-card-head {
   margin-bottom: 0;
 }
@@ -13661,4 +13716,165 @@ body.aion-workflow-sidebar-expanded .aion-board-direct-line {
   [data-aion-boardroom-sticky-name="true"] { display: none; }
   .aion-executive-sticky-divider { display: none; }
   .aion-board-direct-line { left: 70px; right: 8px; }
+}
+
+/* Executive navigation refresh: a compact navigation rail with neutral,
+   role-based badges instead of portrait photography. */
+[data-aion-boardroom-sticky-team-header="true"] {
+  min-height: 68px;
+  gap: 14px;
+  padding: 7px 18px 7px 88px;
+  color: #35475a;
+  background: rgba(252, 253, 254, .985);
+  border-top: 0;
+  border-bottom: 1px solid #dce3ea;
+  box-shadow: 0 5px 18px rgba(15, 38, 61, .08);
+}
+
+body.aion-workflow-sidebar-expanded [data-aion-boardroom-sticky-team-header="true"] {
+  padding-left: 254px;
+}
+
+[data-aion-boardroom-sticky-groups="true"] {
+  gap: clamp(12px, 1.45vw, 22px);
+}
+
+.aion-executive-sticky-group {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.aion-executive-sticky-group-label {
+  padding-left: 5px;
+  color: #7a8998;
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: .17em;
+}
+
+.aion-executive-sticky-divider {
+  height: 46px;
+  background: #e1e7ed;
+}
+
+[data-aion-boardroom-sticky-members="true"],
+.aion-executive-sticky-members {
+  gap: 4px;
+}
+
+[data-aion-boardroom-sticky-member],
+.aion-executive-sticky-member {
+  min-width: 50px;
+  gap: 3px;
+}
+
+.aion-executive-sticky-header .aion-executive-sticky-member,
+.aion-executive-sticky-header .aion-executive-sticky-member:hover,
+.aion-executive-sticky-header .aion-executive-sticky-member:focus,
+.aion-executive-sticky-header .aion-executive-sticky-member:focus-visible,
+.aion-executive-sticky-header .aion-executive-sticky-member[data-active="true"] {
+  min-height: 48px;
+  padding: 4px 6px !important;
+  border: 1px solid transparent !important;
+  border-radius: 9px;
+  background: transparent !important;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.aion-executive-sticky-header .aion-executive-sticky-member:hover,
+.aion-executive-sticky-header .aion-executive-sticky-member:focus-visible {
+  border-color: #dbe4eb !important;
+  background: #f3f6f8 !important;
+  color: #173956 !important;
+}
+
+.aion-executive-sticky-header .aion-executive-sticky-member[data-active="true"] {
+  border-color: #c8e1de !important;
+  background: #edf8f6 !important;
+  color: #0d6b63 !important;
+}
+
+.aion-board-provider-avatar,
+.aion-executive-utility-avatar {
+  width: 29px;
+  height: 29px;
+  border-radius: 9px;
+  box-shadow: none;
+  font-size: 8px;
+  letter-spacing: .04em;
+}
+
+.aion-board-provider-avatar {
+  border-color: #c7d8e7;
+  background: #173956;
+}
+
+.aion-executive-sticky-header .aion-board-provider-member:hover .aion-board-provider-avatar,
+.aion-executive-sticky-header .aion-board-provider-member:focus-visible .aion-board-provider-avatar,
+.aion-executive-sticky-header .aion-board-provider-member[data-active="true"] .aion-board-provider-avatar {
+  border-color: #9fc1d8 !important;
+  background: #173956 !important;
+  box-shadow: none !important;
+}
+
+.aion-executive-utility-avatar {
+  border-color: color-mix(in srgb, var(--department-colour, #16756f) 26%, white);
+  background: color-mix(in srgb, var(--department-colour, #16756f) 10%, white);
+  color: var(--department-colour, #16756f);
+}
+
+[data-aion-department-badge="marketing"] { --department-colour: #a64b68; }
+[data-aion-department-badge="sales"] { --department-colour: #2471a3; }
+[data-aion-department-badge="finance"] { --department-colour: #2d7a55; }
+[data-aion-department-badge="operations"] { --department-colour: #9a6319; }
+[data-aion-department-badge="support"] { --department-colour: #5f5aa2; }
+[data-aion-department-badge="hr"] { --department-colour: #8b4d78; }
+[data-aion-department-badge="products_services"] { --department-colour: #177d87; }
+
+.aion-executive-sticky-header .aion-executive-sticky-member:hover .aion-executive-utility-avatar,
+.aion-executive-sticky-header .aion-executive-sticky-member:focus-visible .aion-executive-utility-avatar,
+.aion-executive-sticky-header .aion-executive-sticky-member[data-active="true"] .aion-executive-utility-avatar {
+  border-color: color-mix(in srgb, var(--department-colour, #16756f) 38%, white) !important;
+  background: color-mix(in srgb, var(--department-colour, #16756f) 15%, white) !important;
+  box-shadow: none !important;
+}
+
+[data-aion-boardroom-sticky-name="true"] {
+  max-width: 74px;
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: .025em;
+  text-transform: none;
+}
+
+.aion-executive-sticky-header .aion-board-provider-member {
+  min-width: 82px;
+}
+
+.aion-executive-sticky-header .aion-board-provider-member [data-aion-boardroom-sticky-name="true"] {
+  max-width: 116px;
+}
+
+.aion-executive-sticky-action {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  border-color: #d2dbe3;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #24445f;
+  font-size: 17px;
+}
+
+.aion-executive-sticky-action:hover {
+  border-color: #a9c8c3;
+  background: #edf8f6;
+  color: #0d6b63;
+}
+
+@media (max-width: 1280px) {
+  [data-aion-boardroom-sticky-team-header="true"] { padding-right: 12px; }
+  [data-aion-boardroom-sticky-name="true"] { display: none; }
+  .aion-executive-sticky-header .aion-executive-sticky-member { min-width: 39px; }
 }

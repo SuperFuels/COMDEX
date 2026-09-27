@@ -79,6 +79,10 @@ class ConnectionHealthMonitor:
         self._thread.start()
 
     def retry_now(self) -> Dict[str, Any]:
+        # A button press should provide a fresh result immediately.  Waking the
+        # background loop alone made the dashboard appear unresponsive for up
+        # to one polling interval.
+        self._refresh_once()
         self._wake.set()
         return self.snapshot()
 
@@ -88,39 +92,42 @@ class ConnectionHealthMonitor:
 
     def _run(self) -> None:
         while not self._stop.is_set():
-            try:
-                result = dict(self.check())
-                connected = bool(result.get("connected"))
-                with self._lock:
-                    failures = 0 if connected else int(self._state.get("consecutive_failures", 0)) + 1
-                    self._state.update(
-                        {
-                            "status": "connected" if connected else "recovering",
-                            "message": (
-                                "TV connected and ready."
-                                if connected
-                                else "Pilot is looking for the TV. Keep it on and on the same Wi-Fi."
-                            ),
-                            "host": result.get("host"),
-                            "last_checked_at": time.time(),
-                            "last_connected_at": time.time() if connected else self._state.get("last_connected_at"),
-                            "consecutive_failures": failures,
-                            "detail": str(result.get("detail") or ""),
-                        }
-                    )
-            except Exception as exc:
-                with self._lock:
-                    self._state.update(
-                        {
-                            "status": "recovering",
-                            "message": "Pilot is reconnecting to the TV automatically.",
-                            "last_checked_at": time.time(),
-                            "consecutive_failures": int(self._state.get("consecutive_failures", 0)) + 1,
-                            "detail": f"{type(exc).__name__}: {exc}"[:240],
-                        }
-                    )
+            self._refresh_once()
             self._wake.wait(self.interval_seconds)
             self._wake.clear()
+
+    def _refresh_once(self) -> None:
+        try:
+            result = dict(self.check())
+            connected = bool(result.get("connected"))
+            with self._lock:
+                failures = 0 if connected else int(self._state.get("consecutive_failures", 0)) + 1
+                self._state.update(
+                    {
+                        "status": "connected" if connected else "recovering",
+                        "message": (
+                            "TV connected and ready."
+                            if connected
+                            else "Pilot is looking for the TV. Keep it on and on the same Wi-Fi."
+                        ),
+                        "host": result.get("host"),
+                        "last_checked_at": time.time(),
+                        "last_connected_at": time.time() if connected else self._state.get("last_connected_at"),
+                        "consecutive_failures": failures,
+                        "detail": str(result.get("detail") or ""),
+                    }
+                )
+        except Exception as exc:
+            with self._lock:
+                self._state.update(
+                    {
+                        "status": "recovering",
+                        "message": "Pilot is reconnecting to the TV automatically.",
+                        "last_checked_at": time.time(),
+                        "consecutive_failures": int(self._state.get("consecutive_failures", 0)) + 1,
+                        "detail": f"{type(exc).__name__}: {exc}"[:240],
+                    }
+                )
 
     def stop(self) -> None:
         self._stop.set()

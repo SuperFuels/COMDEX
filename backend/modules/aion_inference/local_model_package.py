@@ -69,6 +69,9 @@ class LocalModelPackage:
         integrity = self._verify_warehouse(warehouse_path)
         if not integrity["verified"]:
             failures.append(integrity["reason"])
+        model_path = self._resolve_model_path(volume, warehouse_path, integrity)
+        if integrity["verified"] and model_path is None:
+            failures.append("model_source_missing")
         return {
             "schema_version": "aion.local-model-preflight.v1",
             "model_ref": self.model_ref,
@@ -78,7 +81,35 @@ class LocalModelPackage:
             "warehouse": integrity,
             "runtime_profile": runtime,
             "speed_claim": dict(self.package["speed_claim"]),
+            "model_sha256": str((storage.get("source_shards") or [{}])[0].get("sha256") or ""),
+            "model_path": str(model_path) if model_path is not None else None,
         }
+
+    def _resolve_model_path(
+        self, volume: Path, warehouse_path: Path, integrity: dict[str, Any]
+    ) -> Path | None:
+        """Resolve the exact packaged weight without accepting an arbitrary path."""
+        if not integrity.get("verified"):
+            return None
+        try:
+            warehouse = json.loads(warehouse_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        expected = dict((self.package["storage"].get("source_shards") or [{}])[0])
+        source = next(
+            (item for item in warehouse.get("verified_sources") or []
+             if item.get("name") == expected.get("name")),
+            {},
+        )
+        relative = str(source.get("path") or source.get("relative_path") or expected.get("name") or "")
+        candidate = (warehouse_path.parent / relative).resolve()
+        try:
+            candidate.relative_to(volume)
+        except ValueError:
+            return None
+        if not candidate.is_file() or candidate.stat().st_size != int(expected.get("bytes") or -1):
+            return None
+        return candidate
 
     def _verify_warehouse(self, path: Path) -> dict[str, Any]:
         expected = dict(self.package["storage"])
@@ -88,7 +119,8 @@ class LocalModelPackage:
             warehouse = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             return {"verified": False, "reason": "warehouse_manifest_invalid", "path": str(path)}
-        if warehouse.get("schema") != WAREHOUSE_SCHEMA or warehouse.get("status") != "COMPLETE_VERIFIED":
+        accepted_statuses = {"COMPLETE_VERIFIED", "COMPLETE_VERIFIED_BOUNDED"}
+        if warehouse.get("schema") != WAREHOUSE_SCHEMA or warehouse.get("status") not in accepted_statuses:
             return {"verified": False, "reason": "warehouse_not_complete_verified", "path": str(path)}
         if _sha256(path) != expected["warehouse_manifest_sha256"]:
             return {"verified": False, "reason": "warehouse_manifest_hash_mismatch", "path": str(path)}
@@ -99,7 +131,14 @@ class LocalModelPackage:
             observed_bytes = observed.get("size") if "size" in observed else observed.get("bytes")
             if observed_hash != source["sha256"] or int(observed_bytes or -1) != int(source["bytes"]):
                 return {"verified": False, "reason": "warehouse_source_identity_mismatch", "path": str(path)}
-        return {"verified": True, "reason": "verified", "path": str(path), "sha256": _sha256(path)}
+        bounded = warehouse.get("status") == "COMPLETE_VERIFIED_BOUNDED"
+        return {
+            "verified": True, "reason": "verified_bounded" if bounded else "verified",
+            "path": str(path), "sha256": _sha256(path),
+            "approval_scope": warehouse.get("approval_scope") if bounded else None,
+            "known_failed_capabilities": list(warehouse.get("known_failed_capabilities") or []) if bounded else [],
+            "required_tool_routes": list(warehouse.get("required_tool_routes") or []) if bounded else [],
+        }
 
     def _validate_package(self) -> None:
         required = ("schema_version", "model_id", "version", "display_name", "storage",
@@ -132,7 +171,7 @@ class LocalModelReleaseCatalogue:
 
     def entries(self) -> list[dict[str, Any]]:
         """Return only customer-safe fields for the selector list."""
-        allowed = ("model_id", "version", "release_status", "selection_status", "reason")
+        allowed = ("model_id", "version", "release_status", "selection_status", "reason", "device_test", "category", "role", "harness")
         return [{key: entry.get(key) for key in allowed} for entry in self.catalogue["models"]]
 
     def package_for(self, model_id: str) -> Path | None:

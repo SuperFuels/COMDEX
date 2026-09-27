@@ -5,9 +5,16 @@ import os
 import random
 import time
 from typing import Any, Dict, List, Optional
-from backend.modules.p2p.crypto_ed25519 import canonical_p2p_sign_bytes, sign_ed25519
+from backend.modules.p2p.crypto_ed25519 import (
+    canonical_hello_sign_bytes,
+    canonical_p2p_sign_bytes,
+    pubkey_from_priv,
+    sign_ed25519,
+)
 from backend.modules.p2p.peer_store import load_peers_from_env, list_peers
 from backend.modules.p2p.transport_http import post_json
+from backend.modules.p2p.nat_relay import active_transport_private_key, enqueue_via_nat_relay
+from backend.modules.consensus.protocol_upgrade import local_protocol_advertisement
 
 
 def _now_ms() -> float:
@@ -59,6 +66,97 @@ def _pick_peer_base_url() -> str:
     return random.choice(bases)
 
 
+async def _post_peer_or_nat_relay(
+    peer: Any, *, path: str, envelope: Dict[str, Any], chain_id: str,
+    from_node_id: str, from_val_id: str, timeout_s: float,
+) -> Dict[str, Any]:
+    base = (getattr(peer, "base_url", "") or "").strip().rstrip("/")
+    target_node_id = (getattr(peer, "node_id", "") or "").strip()
+    relay_url = (getattr(peer, "relay_url", "") or "").strip().rstrip("/")
+    configured_relay = (os.getenv("GLYPHCHAIN_NAT_RELAY_URL", "") or "").strip().rstrip("/")
+    if relay_url:
+        return await enqueue_via_nat_relay(
+            relay_url=relay_url, chain_id=chain_id, from_node_id=from_node_id,
+            target_node_id=target_node_id, envelope=envelope,
+        )
+    try:
+        response = await post_json(
+            base, path, envelope, timeout_s=timeout_s,
+            add_p2p_headers=True, p2p_from_node_id=from_node_id,
+            p2p_from_val_id=from_val_id, p2p_chain_id=chain_id,
+        )
+        status = int(response.get("status") or 0)
+        if 200 <= status < 300:
+            return response
+        raise RuntimeError(f"peer_http_{status}")
+    except Exception:
+        if not configured_relay or not target_node_id:
+            raise
+        return await enqueue_via_nat_relay(
+            relay_url=configured_relay, chain_id=chain_id,
+            from_node_id=from_node_id, target_node_id=target_node_id,
+            envelope=envelope,
+        )
+
+
+async def ensure_peer_hello(
+    *,
+    chain_id: str,
+    from_node_id: str,
+    from_val_id: str,
+    peer_base_url: str,
+    finalized_height: int = 0,
+) -> Dict[str, Any]:
+    """Refresh the signed identity handshake before restart-sensitive sync.
+
+    This is intentionally idempotent.  A node restored with FastAPI lifespan
+    hooks disabled still re-establishes both sides of the HELLO binding before
+    it requests consensus state or blocks.
+    """
+    priv = active_transport_private_key(chain_id=chain_id, node_id=from_node_id)
+    base = (peer_base_url or "").strip().rstrip("/")
+    local = _local_base_url()
+    if not priv or not base or base == local:
+        return {"ok": False, "skipped": True, "reason": "identity_or_remote_peer_unavailable"}
+    pubkey = pubkey_from_priv(priv)
+    protocol = local_protocol_advertisement(
+        chain_id=chain_id, node_id=from_node_id, finalized_height=int(finalized_height),
+    )
+    msg = canonical_hello_sign_bytes(
+        chain_id=chain_id,
+        node_id=from_node_id,
+        val_id=from_val_id,
+        base_url=local,
+        pubkey_hex=pubkey,
+        protocol=protocol,
+    )
+    payload = {
+        "base_url": local,
+        "val_id": from_val_id,
+        "role": "validator",
+        "pubkey_hex": pubkey,
+        "sig_hex": sign_ed25519(priv, msg),
+        "is_reply": False,
+        "protocol": protocol,
+    }
+    env = _mk_env(
+        msg_type="HELLO",
+        from_node_id=from_node_id,
+        from_val_id=from_val_id,
+        chain_id=chain_id,
+        payload=payload,
+    )
+    env["base_url"] = local
+    env["role"] = "validator"
+    response = await post_json(base, "/api/p2p/hello", env, timeout_s=3.0)
+    body = response.get("json") if isinstance(response, dict) else None
+    return {
+        "ok": bool(isinstance(body, dict) and body.get("ok") is True),
+        "status": response.get("status") if isinstance(response, dict) else None,
+        "peer_base_url": base,
+    }
+
+
 # -----------------------------------------------------------------------------
 # broadcast helpers
 # -----------------------------------------------------------------------------
@@ -74,7 +172,7 @@ async def broadcast_proposal(
     local = _local_base_url()
 
     # PR5.2: sign proposal payload (best-effort; only if privkey is configured)
-    priv = (os.getenv("GLYPHCHAIN_P2P_PRIVKEY_HEX", "") or "").strip().lower()
+    priv = active_transport_private_key(chain_id=chain_id, node_id=from_node_id)
     if priv:
         sig_msg = canonical_p2p_sign_bytes(msg_type="PROPOSAL", chain_id=chain_id, payload=payload)
         payload = dict(payload)
@@ -96,15 +194,9 @@ async def broadcast_proposal(
         if not base or base == local:
             continue
         try:
-            await post_json(
-                base,
-                "/api/p2p/proposal",
-                env,
-                timeout_s=3.0,
-                add_p2p_headers=True,
-                p2p_from_node_id=from_node_id,
-                p2p_from_val_id=from_val_id,
-                p2p_chain_id=chain_id,
+            await _post_peer_or_nat_relay(
+                p, path="/api/p2p/proposal", envelope=env, chain_id=chain_id,
+                from_node_id=from_node_id, from_val_id=from_val_id, timeout_s=3.0,
             )
             sent += 1
         except Exception as e:
@@ -126,7 +218,7 @@ async def broadcast_vote(
     local = _local_base_url()
 
     # PR5.2: sign vote payload (best-effort; only if privkey is configured)
-    priv = (os.getenv("GLYPHCHAIN_P2P_PRIVKEY_HEX", "") or "").strip().lower()
+    priv = active_transport_private_key(chain_id=chain_id, node_id=from_node_id)
     if priv:
         sig_msg = canonical_p2p_sign_bytes(msg_type="VOTE", chain_id=chain_id, payload=payload)
         payload = dict(payload)
@@ -148,15 +240,9 @@ async def broadcast_vote(
         if not base or base == local:
             continue
         try:
-            await post_json(
-                base,
-                "/api/p2p/vote",
-                env,
-                timeout_s=3.0,
-                add_p2p_headers=True,
-                p2p_from_node_id=from_node_id,
-                p2p_from_val_id=from_val_id,
-                p2p_chain_id=chain_id,
+            await _post_peer_or_nat_relay(
+                p, path="/api/p2p/vote", envelope=env, chain_id=chain_id,
+                from_node_id=from_node_id, from_val_id=from_val_id, timeout_s=3.0,
             )
             sent += 1
         except Exception as e:

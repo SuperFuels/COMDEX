@@ -1,6 +1,6 @@
-const { ipcRenderer } = require("electron");
+const { contextBridge, ipcRenderer } = require("electron");
 
-window.aionBrowserRecorder = {
+const recorderBridge = {
   captureEvent(payload = {}) {
     ipcRenderer.sendToHost("aion-browser-recorder-event", payload);
   },
@@ -9,5 +9,11 @@ window.aionBrowserRecorder = {
     ipcRenderer.sendToHost("browser-operator-captured-step", payload);
   },
 };
+
+try {
+  contextBridge.exposeInMainWorld("aionBrowserRecorder", recorderBridge);
+} catch (_) {
+  window.aionBrowserRecorder = recorderBridge;
+}
 
 console.log("[aion-webview-preload] loaded");

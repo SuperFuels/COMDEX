@@ -52,8 +52,24 @@ class LocalLLMService:
             resolved_enabled = env_enabled not in {"0", "false", "no", "off"}
 
         self.enabled = resolved_enabled
-        self.model = model or os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL
-        self.base_url = (base_url or os.getenv("OLLAMA_BASE_URL") or DEFAULT_OLLAMA_BASE_URL).rstrip("/")
+        self.model = (
+            model
+            or os.getenv("AION_LOCAL_LLM_MODEL")
+            or os.getenv("OLLAMA_MODEL")
+            or DEFAULT_OLLAMA_MODEL
+        )
+        self.base_url = (
+            base_url
+            or os.getenv("AION_LOCAL_LLM_BASE_URL")
+            or os.getenv("OLLAMA_BASE_URL")
+            or DEFAULT_OLLAMA_BASE_URL
+        ).rstrip("/")
+        configured_timeout = os.getenv("AION_LOCAL_LLM_TIMEOUT_SECONDS", "").strip()
+        if configured_timeout and timeout_seconds == 120:
+            try:
+                timeout_seconds = max(5, int(configured_timeout))
+            except ValueError:
+                pass
         self.timeout_seconds = timeout_seconds
 
         self.provider = OllamaProvider(
@@ -92,12 +108,18 @@ class LocalLLMService:
         system: Optional[str] = None,
         model: Optional[str] = None,
         options: Optional[Dict[str, Any]] = None,
+        think: Optional[bool] = None,
     ) -> LocalLLMGenerateResult:
         if not self.enabled:
             raise LocalLLMServiceError("Local LLM service is disabled.")
 
         if not prompt or not prompt.strip():
             raise LocalLLMServiceError("Prompt must not be empty.")
+
+        if think is None and os.getenv("AION_LOCAL_LLM_DISABLE_THINK", "0").strip().lower() in {
+            "1", "true", "yes", "on"
+        }:
+            think = False
 
         try:
             result = self.provider.generate(
@@ -106,6 +128,7 @@ class LocalLLMService:
                 model=model,
                 stream=False,
                 options=options,
+                think=think,
             )
         except OllamaProviderError as exc:
             raise LocalLLMServiceError(str(exc)) from exc

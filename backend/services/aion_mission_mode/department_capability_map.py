@@ -36,6 +36,8 @@ SUPPORTED_DEPARTMENTS = (
     "finance",
     "operations",
     "support",
+    "people",
+    "products_services",
     "builder",
 )
 
@@ -46,6 +48,8 @@ DEPARTMENT_DISPLAY_NAMES = {
     "finance": "Finance",
     "operations": "Operations",
     "support": "Support",
+    "people": "People",
+    "products_services": "Products & Services",
     "builder": "Builder",
 }
 
@@ -60,6 +64,8 @@ REMOVED_PLACEHOLDER_DEPARTMENTS = (
 DEPARTMENT_CAPABILITIES = {
     "marketing": (
         "campaign.plan",
+        "ad_budget.plan",
+        "ads.budget_change",
         "social.post_draft",
         "advert.copy_draft",
         "content_calendar.create",
@@ -82,6 +88,9 @@ DEPARTMENT_CAPABILITIES = {
     ),
     "sales": (
         "pipeline.plan",
+        "upsell.plan",
+        "upsell.outreach_draft",
+        "upsell.outreach.send",
         "lead.reply_draft",
         "quote.followup_sequence",
         "sales_script.create",
@@ -97,6 +106,8 @@ DEPARTMENT_CAPABILITIES = {
         "iva_vat.breakdown",
         "kpi.dashboard",
         "pricing_calculator.create",
+        "invoice.collection.prepare",
+        "invoice.reminder.send",
     ),
     "operations": (
         "workflow.create",
@@ -108,12 +119,24 @@ DEPARTMENT_CAPABILITIES = {
         "handoff_task_cards.create",
     ),
     "support": (
+        "case.triage",
         "customer_reply.draft",
         "faq.create",
         "aftercare.create",
         "complaint_response.draft",
         "review_request.draft",
         "support_knowledge.create",
+    ),
+    "people": (
+        "leave.coverage.plan",
+        "capacity.summary",
+        "people.task.coordinate",
+    ),
+    "products_services": (
+        "product.cost.analyse",
+        "product.margin.analyse",
+        "pricing.scenario",
+        "offering.performance.review",
     ),
     "builder": (
         "document.create",

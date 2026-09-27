@@ -110,6 +110,7 @@ class LocalLLMTasks:
         tone: str = "polite and professional",
         purpose: str = "respond helpfully",
         system: Optional[str] = None,
+        max_tokens: int = 320,
     ) -> LocalLLMTaskResult:
         prompt = (
             f"Write a {tone} reply to the following message.\n"
@@ -120,6 +121,7 @@ class LocalLLMTasks:
         result = self.service.generate(
             prompt=prompt,
             system=system or "You draft business replies clearly and professionally.",
+            options={"num_predict": max(32, min(int(max_tokens), 320)), "temperature": 0.2},
         )
         output, model = self._normalize_result(result)
 

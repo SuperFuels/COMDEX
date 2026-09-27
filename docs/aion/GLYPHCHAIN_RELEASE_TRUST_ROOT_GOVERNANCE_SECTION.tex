@@ -1,0 +1,178 @@
+\section{GlyphChain release trust-root governance}
+\label{sec:glyphchain-release-trust-root-governance}
+
+Release evidence is meaningful only when the keys allowed to attest it are
+themselves authorised through a separate trust process.  Tessaris therefore uses a
+three-layer release hierarchy:
+
+\begin{enumerate}
+  \item evidence authorities sign task bodies with their individual Ed25519 keys;
+  \item a governance authority signs the complete mapping from evidence keys to
+        approved roles and independence status; and
+  \item the evaluator receives both the governance public key and the exact current
+        trust-root inventory digest through an independently controlled channel.
+\end{enumerate}
+
+The evaluator does not allow an evidence file to appoint its own verifier, and it
+does not treat an unsigned local JSON role assignment as release authority.
+
+\subsection{Versioned signed inventory}
+
+The trust-root document uses schema
+\texttt{tessaris.glyphchain-legal-release-evidence-trust-roots.v2}.  Its signed body
+contains:
+
+\begin{itemize}
+  \item the schema version and UTC generation time;
+  \item a map from stable signer identifier to raw Ed25519 public key, approved role
+        array and literal boolean independence status; and
+  \item the claim boundary explaining that the governance key and current digest
+        must be obtained independently.
+\end{itemize}
+
+The governance attestation contains its authority identifier, algorithm, canonical
+payload digest and Ed25519 signature.  For inventory body $T$ and domain $D_T$,
+
+\begin{equation}
+  \sigma_T = \operatorname{Ed25519.Sign}_{sk_G}
+  \left(\operatorname{canon}(D_T,T)\right),
+\end{equation}
+
+where $D_T$ is
+\texttt{TESSARIS\_GLYPHCHAIN\_LEGAL\_RELEASE\_TRUST\_ROOTS\_V1}.  Domain
+separation prevents a valid evidence signature or another protocol signature from
+being replayed as a trust-root authorization.
+
+\subsection{Independent current-state pin}
+
+A valid signature proves that the governance authority issued an inventory; it does
+not by itself prove that the inventory is the latest one.  An older valid inventory
+could otherwise be replayed after a signer was removed or had independence revoked.
+
+For exact trust-root file bytes $F_T$, the independently retained current pin is
+
+\begin{equation}
+  p_T = \operatorname{SHA256}(F_T).
+\end{equation}
+
+Production evaluation of a non-empty inventory requires the operator to supply
+$p_T$ separately.  The evaluator hashes the same bounded byte sequence it parses,
+compares it with the supplied pin, verifies the governance signature and only then
+makes the contained evidence keys available to task evaluation.  Re-reading the
+file for later verification is avoided, eliminating a change-between-check-and-use
+window.
+
+The public evaluator entry point accepts the bounded raw inventory bytes, the
+independently supplied Ed25519 governance public key and the expected file digest.
+It derives authentication state and the governance key identifier internally; no
+caller-supplied ``authenticated'' boolean is accepted.  The lower-level method
+that consumes an already verified root map is private and exists only to separate
+the deterministic task engine from input authentication.
+
+The governance public key is also supplied as a separate regular PEM file.  The
+readiness report records its key identifier
+
+\begin{equation}
+  \mathrm{keyid}_G =
+  \texttt{ed25519:sha256:}\operatorname{SHA256}(pk_G)
+\end{equation}
+
+and the exact trust-root inventory file digest.  Release operators can therefore
+reconstruct which governance anchor and authority set were used for the decision.
+
+\subsection{Whole-inventory validation}
+
+Authentication is necessary but not sufficient.  Before any task can pass, the
+entire root map is checked under the following constraints:
+
+\begin{itemize}
+  \item no more than 128 evidence authorities;
+  \item bounded protocol-safe unique signer identifiers;
+  \item exactly one valid 32-byte Ed25519 public key per signer;
+  \item no public key appearing under two different signer identifiers;
+  \item between one and sixteen unique roles, all drawn from the canonical
+        thirty-four-task role vocabulary; and
+  \item independence represented only by the literal JSON boolean.
+\end{itemize}
+
+The duplicate-public-key rule is essential to separation of duties.  Distinct
+labels do not represent distinct authorities when both signatures can be produced
+by the same private key.  If any root record is malformed, the report includes a
+global inventory error and every supplied evidence task remains failed.
+
+\subsection{Governance inventory builder}
+
+The offline script
+\texttt{backend/scripts/create\_glyphchain\_release\_trust\_roots.py} builds the
+versioned inventory from evidence-signer public PEM files and explicit approved
+role assignments.  It validates every role against the runtime task register,
+requires at least one role per signer, applies explicit independence assignments,
+sorts roots and roles deterministically and refuses duplicate signer identifiers.
+
+The governance private key must be an owner-only Ed25519 PEM file.  Encrypted PEM
+is supported through a named environment variable so the password is not placed in
+command history.  The governance key is rejected if it is also one of the evidence
+signer keys, preserving the boundary between appointing authorities and supplying
+task evidence.
+
+The builder writes two separate exclusive outputs:
+
+\begin{itemize}
+  \item the owner-only signed trust-root inventory; and
+  \item the public governance key for independent distribution and pinning.
+\end{itemize}
+
+It prints the governance key identifier and exact inventory SHA-256 for transfer to
+the approved independent channel.  Existing files and symbolic-link destinations
+are refused.  If the second output cannot be completed, the newly created inventory
+is removed rather than leaving a partial publication set.
+
+\subsection{Evaluation semantics}
+
+Let $S_T$ denote a valid governance signature, $P_T$ an exact current digest match,
+$V_T$ complete structural validity and $K_T$ an independently supplied governance
+public key.  Trust roots are usable only when
+
+\begin{equation}
+  G_T = S_T \land P_T \land V_T \land K_T.
+\end{equation}
+
+Task evaluation adds \texttt{trust\_roots\_not\_authenticated} when $S_T$, $P_T$ or
+$K_T$ is absent, and \texttt{trust\_root\_inventory\_invalid} when $V_T$ fails.
+The report also retains global error details.  Even correctly signed task evidence
+cannot pass while $G_T=0$.
+
+The repository's development trust-root inventory is deliberately empty.  An empty
+inventory may be evaluated without a governance key only because it authorises no
+evidence and necessarily returns a blocked release.  The moment roots are present,
+both the independently supplied governance public key and exact current digest are
+mandatory.
+
+\subsection{Rotation and revocation procedure}
+
+Removing a signer, changing a role or changing independence produces a new signed
+inventory with a new file digest.  Production operators shall publish and pin the
+new digest before using it for a release decision.  The old digest must be removed
+from the current independent channel while retained in audit history.  Because the
+evaluator requires the current exact pin, an old still-valid signature cannot
+silently restore a revoked authority.
+
+Governance-key rotation is a separate trust-anchor event.  The replacement public
+key and the first inventory it signs must be independently approved and published;
+the old private key cannot appoint its own successor merely by embedding it in the
+same mutable inventory.  Historical reports retain the prior key identifier and
+inventory digest for reproducibility.
+
+\subsection{Regression evidence and claim boundary}
+
+Regressions prove that unsigned non-empty roots cannot close a task, a governance-
+signed and independently pinned root set can validate a correctly countersigned
+gate, altered role or independence data invalidates the signature, an omitted pin
+fails before report creation, the public evaluator cannot be convinced by an
+authentication flag, and one public key cannot impersonate two authorities for
+separation of duties.
+
+These controls authenticate the configured release authorities.  They do not prove
+that an organisation is operationally independent merely because a boolean is set.
+That claim still depends on the external governance process, independent custody
+and publication evidence required by the controlled-release checklist.

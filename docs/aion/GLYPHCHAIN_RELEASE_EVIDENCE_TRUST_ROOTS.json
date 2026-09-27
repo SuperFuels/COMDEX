@@ -1,0 +1,5 @@
+{
+  "schema_version": "tessaris.glyphchain-legal-release-evidence-trust-roots.v2",
+  "trust_roots": {},
+  "claim_boundary": "Production trust roots must be approved and administered outside the development team. This empty local inventory intentionally authorizes no release evidence."
+}

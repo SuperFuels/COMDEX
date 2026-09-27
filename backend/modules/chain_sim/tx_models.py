@@ -11,6 +11,7 @@ TxType = Literal[
     "BANK_BURN",
     "STAKING_DELEGATE",
     "STAKING_UNDELEGATE",
+    "DOCUMENT_PROOF_V1",
 ]
 
 class TxEnvelope(BaseModel):

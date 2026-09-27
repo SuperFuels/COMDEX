@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import secrets
+import subprocess
 from typing import Any, Dict
 from urllib.parse import quote, urlencode
 
@@ -30,6 +31,12 @@ from backend.modules.aion_business.runtime.workflow_file_cabinet_repository impo
 from backend.modules.aion_business.runtime.xero_bookkeeping_export_service import XeroBookkeepingExportService
 from backend.modules.aion_business.runtime.xero_supplier_contact_service import XeroSupplierContactService
 from backend.modules.aion_business.runtime.xero_sales_invoice_export_service import XeroSalesInvoiceExportService
+from backend.modules.aion_business.runtime.accountant_harness_service import AccountantHarnessService
+from backend.modules.aion_business.providers.quickbooks_online_accounting_adapter import QuickBooksOnlineAccountingAdapter
+from backend.modules.aion_business.providers.sage_accounting_adapter import SageAccountingAdapter
+from backend.modules.aion_business.providers.zoho_books_accounting_adapter import ZohoBooksAccountingAdapter
+from backend.modules.aion_business.providers.freeagent_accounting_adapter import FreeAgentAccountingAdapter
+from backend.modules.aion_business.providers.freshbooks_accounting_adapter import FreshBooksAccountingAdapter
 
 
 router = APIRouter(prefix="/api/aion/integrations", tags=["aion-finance-integrations"])
@@ -60,6 +67,111 @@ XERO_WRITE_SCOPES = {
     "accounting.manualjournals", "accounting.attachments",
 }
 
+SAGE_AUTHORIZE_URL = "https://www.sageone.com/oauth2/auth/central"
+SAGE_TOKEN_URL = "https://oauth.accounting.sage.com/token"
+SAGE_ACCOUNTING_BASE = "https://api.accounting.sage.com/v3.1"
+SAGE_APP_KEYCHAIN_SERVICE = "com.tessaris.aion.sage-accounting-app"
+SAGE_TOKEN_KEYCHAIN_SERVICE = "com.tessaris.aion.sage-accounting"
+SAGE_SCOPE = "full_access"
+
+QUICKBOOKS_AUTHORIZE_URL = "https://appcenter.intuit.com/connect/oauth2"
+QUICKBOOKS_TOKEN_URL = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
+QUICKBOOKS_APP_KEYCHAIN_SERVICE = "com.tessaris.aion.quickbooks-online-app"
+QUICKBOOKS_TOKEN_KEYCHAIN_SERVICE = "com.tessaris.aion.quickbooks-online"
+QUICKBOOKS_SCOPE = "com.intuit.quickbooks.accounting"
+
+ZOHO_BOOKS_APP_KEYCHAIN_SERVICE = "com.tessaris.aion.zoho-books-app"
+ZOHO_BOOKS_TOKEN_KEYCHAIN_SERVICE = "com.tessaris.aion.zoho-books"
+ZOHO_BOOKS_SCOPES = [
+    "ZohoBooks.settings.READ",
+    "ZohoBooks.invoices.READ",
+    "ZohoBooks.bills.READ",
+    "ZohoBooks.customerpayments.READ",
+    "ZohoBooks.vendorpayments.READ",
+    "ZohoBooks.banking.READ",
+    "ZohoBooks.accountants.READ",
+]
+
+FREEAGENT_APP_KEYCHAIN_SERVICE = "com.tessaris.aion.freeagent-app"
+FREEAGENT_TOKEN_KEYCHAIN_SERVICE = "com.tessaris.aion.freeagent"
+
+FRESHBOOKS_AUTHORIZE_URL = "https://auth.freshbooks.com/oauth/authorize/"
+FRESHBOOKS_TOKEN_URL = "https://api.freshbooks.com/auth/oauth/token"
+FRESHBOOKS_IDENTITY_URL = "https://api.freshbooks.com/auth/api/v1/users/me"
+FRESHBOOKS_APP_KEYCHAIN_SERVICE = "com.tessaris.aion.freshbooks-app"
+FRESHBOOKS_TOKEN_KEYCHAIN_SERVICE = "com.tessaris.aion.freshbooks"
+FRESHBOOKS_SCOPES = [
+    "user:profile:read",
+    "user:business:read",
+    "user:account:read",
+    "user:invoices:read",
+    "user:bills:read",
+    "user:payments:read",
+    "user:expenses:read",
+    "user:reports:read",
+    "user:journal_entries:read",
+    "offline_access",
+]
+
+
+class AccountingProviderSnapshotRequest(BaseModel):
+    company_id: str
+    actor: str = "finance_pilot"
+    raw_snapshot: Dict[str, Any]
+
+
+class AccountingProviderReconciliationRequest(BaseModel):
+    actor: str = "finance_pilot"
+    amount_tolerance_percent: float = 1.0
+    date_window_days: int = 7
+
+
+@router.get("/accounting/providers")
+def accounting_provider_catalog() -> Dict[str, Any]:
+    """Describe implemented adapters separately from live connection state."""
+    return AccountantHarnessService().catalog()
+
+
+@router.post("/accounting/{provider_id}/{candidate}/ingest-read-snapshot")
+def ingest_accounting_provider_snapshot(
+    provider_id: str, candidate: str, request: AccountingProviderSnapshotRequest
+) -> Dict[str, Any]:
+    """Internal adapter boundary used after an authorised provider read.
+
+    OAuth secrets never enter this payload.  The raw provider response is
+    hash-bound, normalized, and stored as read-only evidence.
+    """
+    business_id = canonical_business_id(candidate)
+    try:
+        result = AccountantHarnessService().ingest(
+            business_id, provider_id, request.raw_snapshot,
+            company_id=request.company_id, actor=request.actor,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, "provider": provider_id,
+            **result, "external_write_performed": False}
+
+
+@router.post("/accounting/{provider_id}/{candidate}/reconcile")
+def reconcile_accounting_provider_snapshot(
+    provider_id: str, candidate: str, request: AccountingProviderReconciliationRequest
+) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    catalog = AccountantHarnessService().catalog()
+    if provider_id not in {row["provider_id"] for row in catalog["providers"]}:
+        raise HTTPException(status_code=404, detail="unknown_accounting_provider")
+    try:
+        result = AccountantHarnessService().reconcile(
+            business_id, actor=request.actor,
+            amount_tolerance=request.amount_tolerance_percent / 100,
+            date_window_days=request.date_window_days,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, "provider": provider_id,
+            "transaction_reconciliation": result, "external_write_performed": False}
+
 
 def _now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
@@ -78,6 +190,56 @@ def _integration_dir(business_id: str) -> Path:
 
 def _connection_path(business_id: str) -> Path:
     return _integration_dir(business_id) / "connection.json"
+
+
+def _sage_integration_dir(business_id: str) -> Path:
+    path = AIONBusinessPaths.business_container_dir(business_id) / "integrations" / "sage_accounting"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _sage_connection_path(business_id: str) -> Path:
+    return _sage_integration_dir(business_id) / "connection.json"
+
+
+def _quickbooks_integration_dir(business_id: str) -> Path:
+    path = AIONBusinessPaths.business_container_dir(business_id) / "integrations" / "quickbooks_online"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _quickbooks_connection_path(business_id: str) -> Path:
+    return _quickbooks_integration_dir(business_id) / "connection.json"
+
+
+def _zoho_books_integration_dir(business_id: str) -> Path:
+    path = AIONBusinessPaths.business_container_dir(business_id) / "integrations" / "zoho_books"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _zoho_books_connection_path(business_id: str) -> Path:
+    return _zoho_books_integration_dir(business_id) / "connection.json"
+
+
+def _freeagent_integration_dir(business_id: str) -> Path:
+    path = AIONBusinessPaths.business_container_dir(business_id) / "integrations" / "freeagent"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _freeagent_connection_path(business_id: str) -> Path:
+    return _freeagent_integration_dir(business_id) / "connection.json"
+
+
+def _freshbooks_integration_dir(business_id: str) -> Path:
+    path = AIONBusinessPaths.business_container_dir(business_id) / "integrations" / "freshbooks"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _freshbooks_connection_path(business_id: str) -> Path:
+    return _freshbooks_integration_dir(business_id) / "connection.json"
 
 
 def _read_json(path: Path, fallback: Any) -> Any:
@@ -235,6 +397,832 @@ class _TokenStore:
             keyring.delete_password(XERO_KEYCHAIN_SERVICE, business_id)
         except Exception:
             pass
+
+
+def _sage_app_credentials() -> tuple[str, str]:
+    """Read the developer application credentials without exposing them to records or logs."""
+    client_id = str(os.getenv("SAGE_ACCOUNTING_CLIENT_ID") or "").strip()
+    client_secret = str(os.getenv("SAGE_ACCOUNTING_CLIENT_SECRET") or "").strip()
+    if client_id and client_secret:
+        return client_id, client_secret
+    def keychain_value(account: str) -> str:
+        try:
+            result = subprocess.run(
+                ["/usr/bin/security", "find-generic-password", "-w", "-s", SAGE_APP_KEYCHAIN_SERVICE, "-a", account],
+                capture_output=True, text=True, check=False, timeout=5,
+            )
+            return result.stdout.strip() if result.returncode == 0 else ""
+        except (OSError, subprocess.SubprocessError):
+            return ""
+    client_id = keychain_value("client_id")
+    client_secret = keychain_value("client_secret")
+    return client_id, client_secret
+
+
+class _SageTokenStore:
+    @staticmethod
+    def save(business_id: str, payload: Dict[str, Any]) -> str:
+        test_dir = str(os.getenv("AION_SAGE_TOKEN_STORE_DIR") or "").strip()
+        if test_dir:
+            path = Path(test_dir) / f"{business_id}.tokens.json"
+            _write_json(path, payload)
+            return f"test-secret-file://{path}"
+        try:
+            import keyring
+            keyring.set_password(SAGE_TOKEN_KEYCHAIN_SERVICE, business_id, json.dumps(payload))
+        except Exception as exc:
+            raise RuntimeError("macOS Keychain is unavailable; install the keyring dependency") from exc
+        return f"keychain://{SAGE_TOKEN_KEYCHAIN_SERVICE}/{business_id}"
+
+    @staticmethod
+    def load(business_id: str) -> Dict[str, Any]:
+        test_dir = str(os.getenv("AION_SAGE_TOKEN_STORE_DIR") or "").strip()
+        if test_dir:
+            return _read_json(Path(test_dir) / f"{business_id}.tokens.json", {})
+        try:
+            import keyring
+            raw = keyring.get_password(SAGE_TOKEN_KEYCHAIN_SERVICE, business_id)
+            return json.loads(raw) if raw else {}
+        except Exception:
+            return {}
+
+
+def _sage_redirect_uri() -> str:
+    return str(
+        os.getenv("SAGE_ACCOUNTING_REDIRECT_URI")
+        or "http://localhost:8080/api/aion/integrations/sage-accounting/callback"
+    ).strip()
+
+
+def _sage_public_connection(business_id: str) -> Dict[str, Any]:
+    value = _read_json(_sage_connection_path(business_id), {})
+    client_id, client_secret = _sage_app_credentials()
+    connected = value.get("status") == "connected"
+    return {
+        "provider": "sage_accounting",
+        "business_id": business_id,
+        "configured": bool(client_id and client_secret),
+        "status": value.get("status") or "not_connected",
+        "connected": connected,
+        "sage_business_id": value.get("sage_business_id"),
+        "sage_business_name": value.get("sage_business_name"),
+        "available_businesses": value.get("available_businesses") or [],
+        "scope": value.get("scope"),
+        "read_only": not connected,
+        "external_writes_enabled": False,
+        "write_mode": "approval_and_provider_readback_required",
+        "connected_at": value.get("connected_at"),
+        "last_sync_at": value.get("last_sync_at"),
+        "last_sync_status": value.get("last_sync_status") or "never_synced",
+        "last_error": value.get("last_error"),
+    }
+
+
+async def _sage_request_json(
+    method: str, url: str, *, operation: str, timeout: float = 30.0, **kwargs: Any
+) -> Any:
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.request(method, url, **kwargs)
+    except (httpx.TimeoutException, httpx.TransportError) as exc:
+        raise HTTPException(status_code=504, detail={
+            "code": "sage_provider_unavailable", "provider": "sage_accounting",
+            "operation": operation, "error_type": type(exc).__name__, "retryable": True,
+        }) from exc
+    if response.status_code >= 400:
+        raise HTTPException(status_code=502, detail={
+            "code": "sage_provider_request_failed", "provider": "sage_accounting",
+            "operation": operation, "provider_status": response.status_code,
+            "retryable": response.status_code == 429 or response.status_code >= 500,
+        })
+    try:
+        return response.json()
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail={
+            "code": "sage_invalid_json", "provider": "sage_accounting", "operation": operation,
+        }) from exc
+
+
+async def _sage_token_request(data: Dict[str, str]) -> Dict[str, Any]:
+    value = await _sage_request_json(
+        "POST", SAGE_TOKEN_URL, operation="token_exchange",
+        data=data, headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"},
+    )
+    value["obtained_at"] = _now()
+    value["expires_at"] = (
+        datetime.now(UTC) + timedelta(seconds=max(30, int(value.get("expires_in") or 300)))
+    ).replace(microsecond=0).isoformat()
+    if value.get("refresh_token_expires_in"):
+        value["refresh_token_expires_at"] = (
+            datetime.now(UTC) + timedelta(seconds=int(value["refresh_token_expires_in"]))
+        ).replace(microsecond=0).isoformat()
+    return value
+
+
+async def _sage_valid_access_token(business_id: str) -> str:
+    token = _SageTokenStore.load(business_id)
+    if not token:
+        raise HTTPException(status_code=409, detail="sage_accounting_not_connected")
+    try:
+        valid = datetime.fromisoformat(str(token.get("expires_at") or "").replace("Z", "+00:00")) > datetime.now(UTC) + timedelta(seconds=45)
+    except ValueError:
+        valid = False
+    if valid and token.get("access_token"):
+        return str(token["access_token"])
+    refresh_token = str(token.get("refresh_token") or "")
+    client_id, client_secret = _sage_app_credentials()
+    if not refresh_token or not client_id or not client_secret:
+        raise HTTPException(status_code=409, detail="sage_accounting_reconnect_required")
+    refreshed = await _sage_token_request({
+        "grant_type": "refresh_token", "refresh_token": refresh_token,
+        "client_id": client_id, "client_secret": client_secret,
+    })
+    if not refreshed.get("refresh_token"):
+        refreshed["refresh_token"] = refresh_token
+    _SageTokenStore.save(business_id, refreshed)
+    return str(refreshed.get("access_token") or "")
+
+
+async def _sage_businesses(access_token: str) -> list[Dict[str, Any]]:
+    value = await _sage_request_json(
+        "GET", f"{SAGE_ACCOUNTING_BASE}/businesses", operation="businesses",
+        headers={"Authorization": f"Bearer {access_token}", "Accept": "application/json"},
+    )
+    items = value.get("$items") or value.get("items") or [] if isinstance(value, dict) else []
+    return [
+        {"business_id": item.get("id"), "business_name": item.get("displayed_as") or item.get("name")}
+        for item in items if item.get("id")
+    ]
+
+
+def _quickbooks_app_credentials() -> tuple[str, str]:
+    """Load Intuit app credentials without writing them into workspace records."""
+    client_id = str(os.getenv("QUICKBOOKS_ONLINE_CLIENT_ID") or "").strip()
+    client_secret = str(os.getenv("QUICKBOOKS_ONLINE_CLIENT_SECRET") or "").strip()
+    if client_id and client_secret:
+        return client_id, client_secret
+
+    def keychain_value(account: str) -> str:
+        try:
+            result = subprocess.run(
+                ["/usr/bin/security", "find-generic-password", "-w", "-s", QUICKBOOKS_APP_KEYCHAIN_SERVICE, "-a", account],
+                capture_output=True, text=True, check=False, timeout=5,
+            )
+            return result.stdout.strip() if result.returncode == 0 else ""
+        except (OSError, subprocess.SubprocessError):
+            return ""
+
+    return keychain_value("client_id"), keychain_value("client_secret")
+
+
+class _QuickBooksTokenStore:
+    @staticmethod
+    def save(business_id: str, payload: Dict[str, Any]) -> str:
+        test_dir = str(os.getenv("AION_QUICKBOOKS_TOKEN_STORE_DIR") or "").strip()
+        if test_dir:
+            path = Path(test_dir) / f"{business_id}.tokens.json"
+            _write_json(path, payload)
+            return f"test-secret-file://{path}"
+        try:
+            import keyring
+            keyring.set_password(QUICKBOOKS_TOKEN_KEYCHAIN_SERVICE, business_id, json.dumps(payload))
+        except Exception as exc:
+            raise RuntimeError("macOS Keychain is unavailable; install the keyring dependency") from exc
+        return f"keychain://{QUICKBOOKS_TOKEN_KEYCHAIN_SERVICE}/{business_id}"
+
+    @staticmethod
+    def load(business_id: str) -> Dict[str, Any]:
+        test_dir = str(os.getenv("AION_QUICKBOOKS_TOKEN_STORE_DIR") or "").strip()
+        if test_dir:
+            return _read_json(Path(test_dir) / f"{business_id}.tokens.json", {})
+        try:
+            import keyring
+            raw = keyring.get_password(QUICKBOOKS_TOKEN_KEYCHAIN_SERVICE, business_id)
+            return json.loads(raw) if raw else {}
+        except Exception:
+            return {}
+
+
+def _quickbooks_redirect_uri() -> str:
+    return str(
+        os.getenv("QUICKBOOKS_ONLINE_REDIRECT_URI")
+        or "http://localhost:8080/api/aion/integrations/quickbooks-online/callback"
+    ).strip()
+
+
+def _quickbooks_sandbox() -> bool:
+    return str(os.getenv("QUICKBOOKS_ONLINE_ENVIRONMENT") or "sandbox").strip().lower() != "production"
+
+
+def _quickbooks_public_connection(business_id: str) -> Dict[str, Any]:
+    value = _read_json(_quickbooks_connection_path(business_id), {})
+    client_id, client_secret = _quickbooks_app_credentials()
+    connected = value.get("status") == "connected"
+    return {
+        "provider": "quickbooks_online",
+        "business_id": business_id,
+        "configured": bool(client_id and client_secret),
+        "environment": "sandbox" if _quickbooks_sandbox() else "production",
+        "status": value.get("status") or "not_connected",
+        "connected": connected,
+        "realm_id": value.get("realm_id"),
+        "scope": value.get("scope"),
+        "read_only": not connected,
+        "external_writes_enabled": False,
+        "write_mode": "approval_and_provider_readback_required",
+        "connected_at": value.get("connected_at"),
+        "last_sync_at": value.get("last_sync_at"),
+        "last_sync_status": value.get("last_sync_status") or "never_synced",
+        "last_error": value.get("last_error"),
+    }
+
+
+async def _quickbooks_request_json(
+    method: str, url: str, *, operation: str, timeout: float = 30.0, **kwargs: Any
+) -> Any:
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.request(method, url, **kwargs)
+    except (httpx.TimeoutException, httpx.TransportError) as exc:
+        raise HTTPException(status_code=504, detail={
+            "code": "quickbooks_provider_unavailable", "provider": "quickbooks_online",
+            "operation": operation, "error_type": type(exc).__name__, "retryable": True,
+        }) from exc
+    if response.status_code >= 400:
+        raise HTTPException(status_code=502, detail={
+            "code": "quickbooks_provider_request_failed", "provider": "quickbooks_online",
+            "operation": operation, "provider_status": response.status_code,
+            "retryable": response.status_code == 429 or response.status_code >= 500,
+        })
+    try:
+        return response.json()
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail={
+            "code": "quickbooks_invalid_json", "provider": "quickbooks_online", "operation": operation,
+        }) from exc
+
+
+async def _quickbooks_token_request(data: Dict[str, str]) -> Dict[str, Any]:
+    client_id, client_secret = _quickbooks_app_credentials()
+    value = await _quickbooks_request_json(
+        "POST", QUICKBOOKS_TOKEN_URL, operation="token_exchange", data=data,
+        auth=(client_id, client_secret),
+        headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"},
+    )
+    value["obtained_at"] = _now()
+    value["expires_at"] = (
+        datetime.now(UTC) + timedelta(seconds=max(30, int(value.get("expires_in") or 3600)))
+    ).replace(microsecond=0).isoformat()
+    if value.get("x_refresh_token_expires_in"):
+        value["refresh_token_expires_at"] = (
+            datetime.now(UTC) + timedelta(seconds=int(value["x_refresh_token_expires_in"]))
+        ).replace(microsecond=0).isoformat()
+    return value
+
+
+async def _quickbooks_valid_access_token(business_id: str) -> str:
+    token = _QuickBooksTokenStore.load(business_id)
+    if not token:
+        raise HTTPException(status_code=409, detail="quickbooks_online_not_connected")
+    try:
+        valid = datetime.fromisoformat(str(token.get("expires_at") or "").replace("Z", "+00:00")) > datetime.now(UTC) + timedelta(seconds=45)
+    except ValueError:
+        valid = False
+    if valid and token.get("access_token"):
+        return str(token["access_token"])
+    refresh_token = str(token.get("refresh_token") or "")
+    client_id, client_secret = _quickbooks_app_credentials()
+    if not refresh_token or not client_id or not client_secret:
+        raise HTTPException(status_code=409, detail="quickbooks_online_reconnect_required")
+    refreshed = await _quickbooks_token_request({
+        "grant_type": "refresh_token", "refresh_token": refresh_token,
+    })
+    if not refreshed.get("refresh_token"):
+        refreshed["refresh_token"] = refresh_token
+    _QuickBooksTokenStore.save(business_id, refreshed)
+    return str(refreshed.get("access_token") or "")
+
+
+def _zoho_books_accounts_domain() -> str:
+    domain = str(os.getenv("ZOHO_BOOKS_ACCOUNTS_DOMAIN") or "https://accounts.zoho.com").strip().rstrip("/")
+    if not domain.startswith("https://"):
+        raise RuntimeError("zoho_books_accounts_domain_must_be_https")
+    return domain
+
+
+def _zoho_books_default_api_domain() -> str:
+    domain = str(os.getenv("ZOHO_BOOKS_API_DOMAIN") or "https://www.zohoapis.com").strip().rstrip("/")
+    if not domain.startswith("https://"):
+        raise RuntimeError("zoho_books_api_domain_must_be_https")
+    return domain
+
+
+def _zoho_books_app_credentials() -> tuple[str, str]:
+    """Load the Zoho developer application credentials without exposing them."""
+    client_id = str(os.getenv("ZOHO_BOOKS_CLIENT_ID") or "").strip()
+    client_secret = str(os.getenv("ZOHO_BOOKS_CLIENT_SECRET") or "").strip()
+    if client_id and client_secret:
+        return client_id, client_secret
+
+    def keychain_value(account: str) -> str:
+        try:
+            result = subprocess.run(
+                ["/usr/bin/security", "find-generic-password", "-w", "-s", ZOHO_BOOKS_APP_KEYCHAIN_SERVICE, "-a", account],
+                capture_output=True, text=True, check=False, timeout=5,
+            )
+            return result.stdout.strip() if result.returncode == 0 else ""
+        except (OSError, subprocess.SubprocessError):
+            return ""
+
+    return keychain_value("client_id"), keychain_value("client_secret")
+
+
+class _ZohoBooksTokenStore:
+    @staticmethod
+    def save(business_id: str, payload: Dict[str, Any]) -> str:
+        test_dir = str(os.getenv("AION_ZOHO_BOOKS_TOKEN_STORE_DIR") or "").strip()
+        if test_dir:
+            path = Path(test_dir) / f"{business_id}.tokens.json"
+            _write_json(path, payload)
+            return f"test-secret-file://{path}"
+        try:
+            import keyring
+            keyring.set_password(ZOHO_BOOKS_TOKEN_KEYCHAIN_SERVICE, business_id, json.dumps(payload))
+        except Exception as exc:
+            raise RuntimeError("macOS Keychain is unavailable; install the keyring dependency") from exc
+        return f"keychain://{ZOHO_BOOKS_TOKEN_KEYCHAIN_SERVICE}/{business_id}"
+
+    @staticmethod
+    def load(business_id: str) -> Dict[str, Any]:
+        test_dir = str(os.getenv("AION_ZOHO_BOOKS_TOKEN_STORE_DIR") or "").strip()
+        if test_dir:
+            return _read_json(Path(test_dir) / f"{business_id}.tokens.json", {})
+        try:
+            import keyring
+            raw = keyring.get_password(ZOHO_BOOKS_TOKEN_KEYCHAIN_SERVICE, business_id)
+            return json.loads(raw) if raw else {}
+        except Exception:
+            return {}
+
+
+def _zoho_books_redirect_uri() -> str:
+    return str(
+        os.getenv("ZOHO_BOOKS_REDIRECT_URI")
+        or "http://localhost:8080/api/aion/integrations/zoho-books/callback"
+    ).strip()
+
+
+def _zoho_books_public_connection(business_id: str) -> Dict[str, Any]:
+    value = _read_json(_zoho_books_connection_path(business_id), {})
+    client_id, client_secret = _zoho_books_app_credentials()
+    connected = value.get("status") == "connected"
+    return {
+        "provider": "zoho_books",
+        "business_id": business_id,
+        "configured": bool(client_id and client_secret),
+        "region": (
+            "eu" if _zoho_books_accounts_domain().endswith(".eu")
+            else "us" if _zoho_books_accounts_domain().endswith(".com")
+            else "custom"
+        ),
+        "status": value.get("status") or "not_connected",
+        "connected": connected,
+        "organization_id": value.get("organization_id"),
+        "organization_name": value.get("organization_name"),
+        "available_organizations": value.get("available_organizations") or [],
+        "api_domain": value.get("api_domain") or _zoho_books_default_api_domain(),
+        "scope": value.get("scope"),
+        "read_only": True,
+        "external_writes_enabled": False,
+        "write_mode": "approval_and_provider_readback_required",
+        "connected_at": value.get("connected_at"),
+        "last_sync_at": value.get("last_sync_at"),
+        "last_sync_status": value.get("last_sync_status") or "never_synced",
+        "last_error": value.get("last_error"),
+    }
+
+
+async def _zoho_books_request_json(
+    method: str, url: str, *, operation: str, timeout: float = 30.0, **kwargs: Any
+) -> Any:
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.request(method, url, **kwargs)
+    except (httpx.TimeoutException, httpx.TransportError) as exc:
+        raise HTTPException(status_code=504, detail={
+            "code": "zoho_books_provider_unavailable", "provider": "zoho_books",
+            "operation": operation, "error_type": type(exc).__name__, "retryable": True,
+        }) from exc
+    if response.status_code >= 400:
+        raise HTTPException(status_code=502, detail={
+            "code": "zoho_books_provider_request_failed", "provider": "zoho_books",
+            "operation": operation, "provider_status": response.status_code,
+            "retryable": response.status_code == 429 or response.status_code >= 500,
+        })
+    try:
+        return response.json()
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail={
+            "code": "zoho_books_invalid_json", "provider": "zoho_books", "operation": operation,
+        }) from exc
+
+
+async def _zoho_books_token_request(data: Dict[str, str]) -> Dict[str, Any]:
+    value = await _zoho_books_request_json(
+        "POST", f"{_zoho_books_accounts_domain()}/oauth/v2/token", operation="token_exchange",
+        data=data, headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"},
+    )
+    value["obtained_at"] = _now()
+    value["expires_at"] = (
+        datetime.now(UTC) + timedelta(seconds=max(30, int(value.get("expires_in") or 3600)))
+    ).replace(microsecond=0).isoformat()
+    value["api_domain"] = str(value.get("api_domain") or _zoho_books_default_api_domain()).rstrip("/")
+    return value
+
+
+async def _zoho_books_valid_access_token(business_id: str) -> tuple[str, str]:
+    token = _ZohoBooksTokenStore.load(business_id)
+    if not token:
+        raise HTTPException(status_code=409, detail="zoho_books_not_connected")
+    try:
+        valid = datetime.fromisoformat(str(token.get("expires_at") or "").replace("Z", "+00:00")) > datetime.now(UTC) + timedelta(seconds=45)
+    except ValueError:
+        valid = False
+    api_domain = str(token.get("api_domain") or _zoho_books_default_api_domain()).rstrip("/")
+    if valid and token.get("access_token"):
+        return str(token["access_token"]), api_domain
+    refresh_token = str(token.get("refresh_token") or "")
+    client_id, client_secret = _zoho_books_app_credentials()
+    if not refresh_token or not client_id or not client_secret:
+        raise HTTPException(status_code=409, detail="zoho_books_reconnect_required")
+    refreshed = await _zoho_books_token_request({
+        "grant_type": "refresh_token", "refresh_token": refresh_token,
+        "client_id": client_id, "client_secret": client_secret,
+    })
+    if not refreshed.get("refresh_token"):
+        refreshed["refresh_token"] = refresh_token
+    _ZohoBooksTokenStore.save(business_id, refreshed)
+    return str(refreshed.get("access_token") or ""), str(refreshed.get("api_domain") or api_domain).rstrip("/")
+
+
+async def _zoho_books_organizations(access_token: str, api_domain: str) -> list[Dict[str, Any]]:
+    value = await _zoho_books_request_json(
+        "GET", f"{api_domain.rstrip('/')}/books/v3/organizations", operation="organizations",
+        headers={"Authorization": f"Zoho-oauthtoken {access_token}", "Accept": "application/json"},
+    )
+    items = value.get("organizations") or [] if isinstance(value, dict) else []
+    return [
+        {
+            "organization_id": str(item.get("organization_id") or ""),
+            "organization_name": item.get("name") or item.get("organization_name"),
+            "currency_code": item.get("currency_code"),
+            "country_code": item.get("country_code"),
+        }
+        for item in items if item.get("organization_id")
+    ]
+
+
+def _freeagent_sandbox() -> bool:
+    return str(os.getenv("FREEAGENT_ENVIRONMENT") or "production").strip().lower() == "sandbox"
+
+
+def _freeagent_base_url() -> str:
+    return "https://api.sandbox.freeagent.com/v2" if _freeagent_sandbox() else "https://api.freeagent.com/v2"
+
+
+def _freeagent_app_credentials() -> tuple[str, str]:
+    client_id = str(os.getenv("FREEAGENT_CLIENT_ID") or "").strip()
+    client_secret = str(os.getenv("FREEAGENT_CLIENT_SECRET") or "").strip()
+    if client_id and client_secret:
+        return client_id, client_secret
+
+    def keychain_value(account: str) -> str:
+        try:
+            result = subprocess.run(
+                ["/usr/bin/security", "find-generic-password", "-w", "-s", FREEAGENT_APP_KEYCHAIN_SERVICE, "-a", account],
+                capture_output=True, text=True, check=False, timeout=5,
+            )
+            return result.stdout.strip() if result.returncode == 0 else ""
+        except (OSError, subprocess.SubprocessError):
+            return ""
+
+    return keychain_value("client_id"), keychain_value("client_secret")
+
+
+class _FreeAgentTokenStore:
+    @staticmethod
+    def save(business_id: str, payload: Dict[str, Any]) -> str:
+        test_dir = str(os.getenv("AION_FREEAGENT_TOKEN_STORE_DIR") or "").strip()
+        if test_dir:
+            path = Path(test_dir) / f"{business_id}.tokens.json"
+            _write_json(path, payload)
+            return f"test-secret-file://{path}"
+        try:
+            import keyring
+            keyring.set_password(FREEAGENT_TOKEN_KEYCHAIN_SERVICE, business_id, json.dumps(payload))
+        except Exception as exc:
+            raise RuntimeError("macOS Keychain is unavailable; install the keyring dependency") from exc
+        return f"keychain://{FREEAGENT_TOKEN_KEYCHAIN_SERVICE}/{business_id}"
+
+    @staticmethod
+    def load(business_id: str) -> Dict[str, Any]:
+        test_dir = str(os.getenv("AION_FREEAGENT_TOKEN_STORE_DIR") or "").strip()
+        if test_dir:
+            return _read_json(Path(test_dir) / f"{business_id}.tokens.json", {})
+        try:
+            import keyring
+            raw = keyring.get_password(FREEAGENT_TOKEN_KEYCHAIN_SERVICE, business_id)
+            return json.loads(raw) if raw else {}
+        except Exception:
+            return {}
+
+
+def _freeagent_redirect_uri() -> str:
+    return str(
+        os.getenv("FREEAGENT_REDIRECT_URI")
+        or "http://localhost:8080/api/aion/integrations/freeagent/callback"
+    ).strip()
+
+
+def _freeagent_public_connection(business_id: str) -> Dict[str, Any]:
+    value = _read_json(_freeagent_connection_path(business_id), {})
+    client_id, client_secret = _freeagent_app_credentials()
+    connected = value.get("status") == "connected"
+    return {
+        "provider": "freeagent",
+        "business_id": business_id,
+        "configured": bool(client_id and client_secret),
+        "environment": "sandbox" if _freeagent_sandbox() else "production",
+        "status": value.get("status") or "not_connected",
+        "connected": connected,
+        "company_id": value.get("company_id"),
+        "company_name": value.get("company_name"),
+        "company_subdomain": value.get("company_subdomain"),
+        "currency": value.get("currency"),
+        "read_only": True,
+        "external_writes_enabled": False,
+        "write_mode": "approval_and_provider_readback_required",
+        "connected_at": value.get("connected_at"),
+        "last_sync_at": value.get("last_sync_at"),
+        "last_sync_status": value.get("last_sync_status") or "never_synced",
+        "last_error": value.get("last_error"),
+    }
+
+
+async def _freeagent_request_json(
+    method: str, url: str, *, operation: str, timeout: float = 30.0, **kwargs: Any
+) -> Any:
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.request(method, url, **kwargs)
+    except (httpx.TimeoutException, httpx.TransportError) as exc:
+        raise HTTPException(status_code=504, detail={
+            "code": "freeagent_provider_unavailable", "provider": "freeagent",
+            "operation": operation, "error_type": type(exc).__name__, "retryable": True,
+        }) from exc
+    if response.status_code >= 400:
+        raise HTTPException(status_code=502, detail={
+            "code": "freeagent_provider_request_failed", "provider": "freeagent",
+            "operation": operation, "provider_status": response.status_code,
+            "retryable": response.status_code == 429 or response.status_code >= 500,
+        })
+    try:
+        return response.json()
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail={
+            "code": "freeagent_invalid_json", "provider": "freeagent", "operation": operation,
+        }) from exc
+
+
+async def _freeagent_token_request(data: Dict[str, str]) -> Dict[str, Any]:
+    client_id, client_secret = _freeagent_app_credentials()
+    value = await _freeagent_request_json(
+        "POST", f"{_freeagent_base_url()}/token_endpoint", operation="token_exchange",
+        data=data, auth=(client_id, client_secret),
+        headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"},
+    )
+    value["obtained_at"] = _now()
+    value["expires_at"] = (
+        datetime.now(UTC) + timedelta(seconds=max(30, int(value.get("expires_in") or 3600)))
+    ).replace(microsecond=0).isoformat()
+    if value.get("refresh_token_expires_in"):
+        value["refresh_token_expires_at"] = (
+            datetime.now(UTC) + timedelta(seconds=int(value["refresh_token_expires_in"]))
+        ).replace(microsecond=0).isoformat()
+    return value
+
+
+async def _freeagent_valid_access_token(business_id: str) -> str:
+    token = _FreeAgentTokenStore.load(business_id)
+    if not token:
+        raise HTTPException(status_code=409, detail="freeagent_not_connected")
+    try:
+        valid = datetime.fromisoformat(str(token.get("expires_at") or "").replace("Z", "+00:00")) > datetime.now(UTC) + timedelta(seconds=45)
+    except ValueError:
+        valid = False
+    if valid and token.get("access_token"):
+        return str(token["access_token"])
+    refresh_token = str(token.get("refresh_token") or "")
+    client_id, client_secret = _freeagent_app_credentials()
+    if not refresh_token or not client_id or not client_secret:
+        raise HTTPException(status_code=409, detail="freeagent_reconnect_required")
+    refreshed = await _freeagent_token_request({
+        "grant_type": "refresh_token", "refresh_token": refresh_token,
+    })
+    if not refreshed.get("refresh_token"):
+        refreshed["refresh_token"] = refresh_token
+    _FreeAgentTokenStore.save(business_id, refreshed)
+    return str(refreshed.get("access_token") or "")
+
+
+async def _freeagent_company(access_token: str) -> Dict[str, Any]:
+    value = await _freeagent_request_json(
+        "GET", f"{_freeagent_base_url()}/company", operation="company",
+        headers={"Authorization": f"Bearer {access_token}", "Accept": "application/json"},
+    )
+    company = value.get("company") or {} if isinstance(value, dict) else {}
+    return {
+        "company_id": str(company.get("id") or ""),
+        "company_name": company.get("name"),
+        "company_subdomain": company.get("subdomain"),
+        "currency": company.get("currency"),
+        "company_type": company.get("type"),
+    }
+
+
+def _freshbooks_app_credentials() -> tuple[str, str]:
+    client_id = str(os.getenv("FRESHBOOKS_CLIENT_ID") or "").strip()
+    client_secret = str(os.getenv("FRESHBOOKS_CLIENT_SECRET") or "").strip()
+    if client_id and client_secret:
+        return client_id, client_secret
+
+    def keychain_value(account: str) -> str:
+        try:
+            result = subprocess.run(
+                ["/usr/bin/security", "find-generic-password", "-w", "-s", FRESHBOOKS_APP_KEYCHAIN_SERVICE, "-a", account],
+                capture_output=True, text=True, check=False, timeout=5,
+            )
+            return result.stdout.strip() if result.returncode == 0 else ""
+        except (OSError, subprocess.SubprocessError):
+            return ""
+
+    return keychain_value("client_id"), keychain_value("client_secret")
+
+
+class _FreshBooksTokenStore:
+    @staticmethod
+    def save(business_id: str, payload: Dict[str, Any]) -> str:
+        test_dir = str(os.getenv("AION_FRESHBOOKS_TOKEN_STORE_DIR") or "").strip()
+        if test_dir:
+            path = Path(test_dir) / f"{business_id}.tokens.json"
+            _write_json(path, payload)
+            return f"test-secret-file://{path}"
+        try:
+            import keyring
+            keyring.set_password(FRESHBOOKS_TOKEN_KEYCHAIN_SERVICE, business_id, json.dumps(payload))
+        except Exception as exc:
+            raise RuntimeError("macOS Keychain is unavailable; install the keyring dependency") from exc
+        return f"keychain://{FRESHBOOKS_TOKEN_KEYCHAIN_SERVICE}/{business_id}"
+
+    @staticmethod
+    def load(business_id: str) -> Dict[str, Any]:
+        test_dir = str(os.getenv("AION_FRESHBOOKS_TOKEN_STORE_DIR") or "").strip()
+        if test_dir:
+            return _read_json(Path(test_dir) / f"{business_id}.tokens.json", {})
+        try:
+            import keyring
+            raw = keyring.get_password(FRESHBOOKS_TOKEN_KEYCHAIN_SERVICE, business_id)
+            return json.loads(raw) if raw else {}
+        except Exception:
+            return {}
+
+
+def _freshbooks_redirect_uri() -> str:
+    return str(
+        os.getenv("FRESHBOOKS_REDIRECT_URI")
+        or "https://tessaris.ai/api/aion/integrations/freshbooks/callback"
+    ).strip()
+
+
+def _freshbooks_public_connection(business_id: str) -> Dict[str, Any]:
+    value = _read_json(_freshbooks_connection_path(business_id), {})
+    client_id, client_secret = _freshbooks_app_credentials()
+    connected = value.get("status") == "connected"
+    return {
+        "provider": "freshbooks",
+        "business_id": business_id,
+        "configured": bool(client_id and client_secret),
+        "status": value.get("status") or "not_connected",
+        "connected": connected,
+        "account_id": value.get("account_id"),
+        "provider_business_id": value.get("provider_business_id"),
+        "company_id": value.get("company_id"),
+        "company_name": value.get("company_name"),
+        "currency": value.get("currency"),
+        "read_only": True,
+        "external_writes_enabled": False,
+        "write_mode": "approval_and_provider_readback_required",
+        "connected_at": value.get("connected_at"),
+        "last_sync_at": value.get("last_sync_at"),
+        "last_sync_status": value.get("last_sync_status") or "never_synced",
+        "last_error": value.get("last_error"),
+    }
+
+
+async def _freshbooks_request_json(
+    method: str, url: str, *, operation: str, timeout: float = 30.0, **kwargs: Any
+) -> Any:
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.request(method, url, **kwargs)
+    except (httpx.TimeoutException, httpx.TransportError) as exc:
+        raise HTTPException(status_code=504, detail={
+            "code": "freshbooks_provider_unavailable", "provider": "freshbooks",
+            "operation": operation, "error_type": type(exc).__name__, "retryable": True,
+        }) from exc
+    if response.status_code >= 400:
+        raise HTTPException(status_code=502, detail={
+            "code": "freshbooks_provider_request_failed", "provider": "freshbooks",
+            "operation": operation, "provider_status": response.status_code,
+            "retryable": response.status_code == 429 or response.status_code >= 500,
+        })
+    try:
+        return response.json()
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail={
+            "code": "freshbooks_invalid_json", "provider": "freshbooks", "operation": operation,
+        }) from exc
+
+
+async def _freshbooks_token_request(data: Dict[str, str]) -> Dict[str, Any]:
+    value = await _freshbooks_request_json(
+        "POST", FRESHBOOKS_TOKEN_URL, operation="token_exchange", json=data,
+        headers={"Accept": "application/json", "Content-Type": "application/json"},
+    )
+    value["obtained_at"] = _now()
+    value["expires_at"] = (
+        datetime.now(UTC) + timedelta(seconds=max(30, int(value.get("expires_in") or 3600)))
+    ).replace(microsecond=0).isoformat()
+    return value
+
+
+async def _freshbooks_valid_access_token(business_id: str) -> str:
+    token = _FreshBooksTokenStore.load(business_id)
+    if not token:
+        raise HTTPException(status_code=409, detail="freshbooks_not_connected")
+    try:
+        valid = datetime.fromisoformat(str(token.get("expires_at") or "").replace("Z", "+00:00")) > datetime.now(UTC) + timedelta(seconds=45)
+    except ValueError:
+        valid = False
+    if valid and token.get("access_token"):
+        return str(token["access_token"])
+    refresh_token = str(token.get("refresh_token") or "")
+    client_id, client_secret = _freshbooks_app_credentials()
+    if not refresh_token or not client_id or not client_secret:
+        raise HTTPException(status_code=409, detail="freshbooks_reconnect_required")
+    refreshed = await _freshbooks_token_request({
+        "grant_type": "refresh_token",
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "refresh_token": refresh_token,
+        "redirect_uri": _freshbooks_redirect_uri(),
+    })
+    _FreshBooksTokenStore.save(business_id, refreshed)
+    return str(refreshed.get("access_token") or "")
+
+
+async def _freshbooks_businesses(access_token: str) -> list[Dict[str, Any]]:
+    value = await _freshbooks_request_json(
+        "GET", FRESHBOOKS_IDENTITY_URL, operation="identity",
+        headers={"Authorization": f"Bearer {access_token}", "Accept": "application/json"},
+    )
+    response = value.get("response") or {} if isinstance(value, dict) else {}
+    memberships = response.get("business_memberships") or []
+    result: list[Dict[str, Any]] = []
+    for membership in memberships:
+        business = membership.get("business") or {}
+        account_id = str(business.get("account_id") or membership.get("account_id") or "")
+        # FreshBooks exposes both a numeric business ID and the UUID required by
+        # business-scoped accounting/report endpoints.  Keep the UUID in the
+        # governed company identifier so Chart of Accounts and ledger reports
+        # are addressed correctly.
+        provider_business_id = str(
+            business.get("business_uuid")
+            or business.get("uuid")
+            or business.get("id")
+            or business.get("business_id")
+            or ""
+        )
+        if not account_id:
+            continue
+        result.append({
+            "account_id": account_id,
+            "provider_business_id": provider_business_id,
+            "company_id": account_id + (f"|{provider_business_id}" if provider_business_id else ""),
+            "company_name": business.get("name") or business.get("business_name") or membership.get("role"),
+            "currency": business.get("currency_code") or business.get("currency"),
+        })
+    return result
 
 
 def _redirect_uri() -> str:
@@ -494,6 +1482,826 @@ async def xero_callback(
     pending_path.unlink(missing_ok=True)
     tenant_message = f"Connected to {selected.get('tenant_name')}." if selected else "Authorised. Select the Xero organisation in Tessaris."
     return HTMLResponse(f"<h2>Xero connected to Tessaris</h2><p>{tenant_message}</p><p>You can close this window and return to Finance.</p>")
+
+
+@router.get("/sage-accounting/{candidate}/status")
+def sage_accounting_status(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    return {"ok": True, "connection": _sage_public_connection(business_id)}
+
+
+@router.get("/sage-accounting/{candidate}/connect")
+@router.post("/sage-accounting/{candidate}/connect")
+def sage_accounting_connect(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    client_id, client_secret = _sage_app_credentials()
+    if not client_id or not client_secret:
+        return {
+            "ok": False,
+            "reason": "sage_accounting_oauth_config_missing",
+            "message": "Store the Sage Accounting Client ID and Client Secret in Tessaris Vault.",
+            "redirect_uri": _sage_redirect_uri(),
+            "connection": _sage_public_connection(business_id),
+        }
+    state = secrets.token_urlsafe(32)
+    pending = {
+        "business_id": business_id,
+        "state": state,
+        "created_at": _now(),
+        "redirect_uri": _sage_redirect_uri(),
+        "previous_connection": _read_json(_sage_connection_path(business_id), {}),
+    }
+    _write_json(_sage_integration_dir(business_id) / "oauth_pending.json", pending)
+    connection = _read_json(_sage_connection_path(business_id), {})
+    connection.update({"status": "awaiting_authorisation", "last_error": None})
+    _write_json(_sage_connection_path(business_id), connection)
+    params = {
+        "filter": "apiv3.1",
+        "response_type": "code",
+        "client_id": client_id,
+        "redirect_uri": _sage_redirect_uri(),
+        "scope": SAGE_SCOPE,
+        "state": state,
+    }
+    return {
+        "ok": True,
+        "connect_url": SAGE_AUTHORIZE_URL + "?" + urlencode(params),
+        "redirect_uri": _sage_redirect_uri(),
+        "connection": _sage_public_connection(business_id),
+    }
+
+
+@router.get("/sage-accounting/callback", response_class=HTMLResponse)
+async def sage_accounting_callback(
+    code: str = Query(default=""),
+    state: str = Query(default=""),
+    error: str = Query(default=""),
+) -> HTMLResponse:
+    pending_match: tuple[str, Dict[str, Any], Path] | None = None
+    root = AIONBusinessPaths.BUSINESS_CONTAINERS
+    for path in root.glob("*/integrations/sage_accounting/oauth_pending.json"):
+        pending = _read_json(path, {})
+        if secrets.compare_digest(str(pending.get("state") or ""), state):
+            pending_match = (str(pending.get("business_id") or path.parents[2].name), pending, path)
+            break
+    if not pending_match:
+        return HTMLResponse(
+            "<h2>Sage connection failed</h2><p>The OAuth state was not recognised. Return to Tessaris and try again.</p>",
+            status_code=400,
+        )
+    business_id, pending, pending_path = pending_match
+    if error or not code:
+        previous = pending.get("previous_connection") or {}
+        connection = dict(previous)
+        connection.update({
+            "status": previous.get("status") or "not_connected",
+            "last_error": error or "missing_authorisation_code",
+        })
+        _write_json(_sage_connection_path(business_id), connection)
+        pending_path.unlink(missing_ok=True)
+        return HTMLResponse(
+            "<h2>Sage connection was not completed</h2><p>You can close this window and return to Tessaris.</p>",
+            status_code=400,
+        )
+    client_id, client_secret = _sage_app_credentials()
+    token = await _sage_token_request({
+        "grant_type": "authorization_code",
+        "code": code,
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "redirect_uri": str(pending.get("redirect_uri") or _sage_redirect_uri()),
+    })
+    secret_ref = _SageTokenStore.save(business_id, token)
+    businesses = await _sage_businesses(str(token.get("access_token") or ""))
+    selected = businesses[0] if len(businesses) == 1 else {}
+    connection = {
+        **(pending.get("previous_connection") or {}),
+        "provider": "sage_accounting",
+        "business_id": business_id,
+        "status": "connected" if selected else "business_selection_required",
+        "sage_business_id": selected.get("business_id"),
+        "sage_business_name": selected.get("business_name"),
+        "available_businesses": businesses,
+        "scope": token.get("scope") or SAGE_SCOPE,
+        "secret_ref": secret_ref,
+        "connected_at": _now(),
+        "last_sync_status": "never_synced",
+        "last_error": None,
+    }
+    _write_json(_sage_connection_path(business_id), connection)
+    pending_path.unlink(missing_ok=True)
+    message = (
+        f"Connected to {selected.get('business_name')}."
+        if selected else "Authorised. Select the Sage business in Tessaris."
+    )
+    return HTMLResponse(
+        f"<h2>Sage Accounting connected to Tessaris</h2><p>{message}</p>"
+        "<p>You can close this window and return to Finance.</p>"
+    )
+
+
+class SageBusinessSelection(BaseModel):
+    business_id: str
+
+
+@router.post("/sage-accounting/{candidate}/business")
+async def select_sage_accounting_business(
+    candidate: str, request: SageBusinessSelection
+) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    access_token = await _sage_valid_access_token(business_id)
+    businesses = await _sage_businesses(access_token)
+    selected = next((item for item in businesses if item.get("business_id") == request.business_id), None)
+    if not selected:
+        raise HTTPException(status_code=404, detail="sage_accounting_business_not_found")
+    connection = _read_json(_sage_connection_path(business_id), {})
+    connection.update({
+        "status": "connected",
+        "sage_business_id": selected["business_id"],
+        "sage_business_name": selected.get("business_name"),
+        "available_businesses": businesses,
+        "last_error": None,
+    })
+    _write_json(_sage_connection_path(business_id), connection)
+    return {"ok": True, "connection": _sage_public_connection(business_id)}
+
+
+@router.post("/sage-accounting/{candidate}/sync-read-snapshot")
+async def sync_sage_accounting_snapshot(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    connection = _read_json(_sage_connection_path(business_id), {})
+    sage_business_id = str(connection.get("sage_business_id") or "")
+    if connection.get("status") != "connected" or not sage_business_id:
+        raise HTTPException(status_code=409, detail="sage_accounting_business_selection_required")
+    access_token = await _sage_valid_access_token(business_id)
+    try:
+        raw = await SageAccountingAdapter().read_snapshot(
+            access_token=access_token, company_id=sage_business_id
+        )
+        result = AccountantHarnessService().ingest(
+            business_id, "sage_accounting", raw,
+            company_id=sage_business_id, actor="finance_pilot",
+        )
+    except (httpx.HTTPError, ValueError) as exc:
+        connection.update({"last_sync_status": "failed", "last_error": type(exc).__name__})
+        _write_json(_sage_connection_path(business_id), connection)
+        raise HTTPException(status_code=502, detail={
+            "code": "sage_accounting_sync_failed", "error_type": type(exc).__name__,
+        }) from exc
+    connection.update({"last_sync_at": _now(), "last_sync_status": "succeeded", "last_error": None})
+    _write_json(_sage_connection_path(business_id), connection)
+    return {
+        "ok": True,
+        "provider": "sage_accounting",
+        "business_id": business_id,
+        "sage_business_id": sage_business_id,
+        "sync": result,
+        "external_write_performed": False,
+    }
+
+
+@router.get("/quickbooks-online/{candidate}/status")
+def quickbooks_online_status(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    return {"ok": True, "connection": _quickbooks_public_connection(business_id)}
+
+
+@router.get("/quickbooks-online/{candidate}/connect")
+@router.post("/quickbooks-online/{candidate}/connect")
+def quickbooks_online_connect(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    client_id, client_secret = _quickbooks_app_credentials()
+    if not client_id or not client_secret:
+        return {
+            "ok": False,
+            "reason": "quickbooks_online_oauth_config_missing",
+            "message": "Store the QuickBooks Online Client ID and Client Secret in Tessaris Vault.",
+            "redirect_uri": _quickbooks_redirect_uri(),
+            "connection": _quickbooks_public_connection(business_id),
+        }
+    state = secrets.token_urlsafe(32)
+    pending = {
+        "business_id": business_id,
+        "state": state,
+        "created_at": _now(),
+        "redirect_uri": _quickbooks_redirect_uri(),
+        "previous_connection": _read_json(_quickbooks_connection_path(business_id), {}),
+    }
+    _write_json(_quickbooks_integration_dir(business_id) / "oauth_pending.json", pending)
+    connection = _read_json(_quickbooks_connection_path(business_id), {})
+    connection.update({"status": "awaiting_authorisation", "last_error": None})
+    _write_json(_quickbooks_connection_path(business_id), connection)
+    params = {
+        "client_id": client_id,
+        "response_type": "code",
+        "scope": QUICKBOOKS_SCOPE,
+        "redirect_uri": _quickbooks_redirect_uri(),
+        "state": state,
+    }
+    return {
+        "ok": True,
+        "connect_url": QUICKBOOKS_AUTHORIZE_URL + "?" + urlencode(params),
+        "redirect_uri": _quickbooks_redirect_uri(),
+        "connection": _quickbooks_public_connection(business_id),
+    }
+
+
+@router.get("/quickbooks-online/callback", response_class=HTMLResponse)
+async def quickbooks_online_callback(
+    code: str = Query(default=""),
+    state: str = Query(default=""),
+    realmId: str = Query(default=""),
+    error: str = Query(default=""),
+) -> HTMLResponse:
+    pending_match: tuple[str, Dict[str, Any], Path] | None = None
+    root = AIONBusinessPaths.BUSINESS_CONTAINERS
+    for path in root.glob("*/integrations/quickbooks_online/oauth_pending.json"):
+        pending = _read_json(path, {})
+        if secrets.compare_digest(str(pending.get("state") or ""), state):
+            pending_match = (str(pending.get("business_id") or path.parents[2].name), pending, path)
+            break
+    if not pending_match:
+        return HTMLResponse(
+            "<h2>QuickBooks connection failed</h2><p>The OAuth state was not recognised. Return to Tessaris and try again.</p>",
+            status_code=400,
+        )
+    business_id, pending, pending_path = pending_match
+    if error or not code or not realmId:
+        previous = pending.get("previous_connection") or {}
+        connection = dict(previous)
+        connection.update({
+            "status": previous.get("status") or "not_connected",
+            "last_error": error or "missing_authorisation_code_or_realm",
+        })
+        _write_json(_quickbooks_connection_path(business_id), connection)
+        pending_path.unlink(missing_ok=True)
+        return HTMLResponse(
+            "<h2>QuickBooks connection was not completed</h2><p>You can close this window and return to Tessaris.</p>",
+            status_code=400,
+        )
+    token = await _quickbooks_token_request({
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": str(pending.get("redirect_uri") or _quickbooks_redirect_uri()),
+    })
+    secret_ref = _QuickBooksTokenStore.save(business_id, token)
+    connection = {
+        **(pending.get("previous_connection") or {}),
+        "provider": "quickbooks_online",
+        "business_id": business_id,
+        "status": "connected",
+        "realm_id": realmId,
+        "environment": "sandbox" if _quickbooks_sandbox() else "production",
+        "scope": token.get("scope") or QUICKBOOKS_SCOPE,
+        "secret_ref": secret_ref,
+        "connected_at": _now(),
+        "last_sync_status": "never_synced",
+        "last_error": None,
+    }
+    _write_json(_quickbooks_connection_path(business_id), connection)
+    pending_path.unlink(missing_ok=True)
+    return HTMLResponse(
+        "<h2>QuickBooks Online connected to Tessaris</h2>"
+        "<p>The company is authorised for approval-gated accounting work.</p>"
+        "<p>You can close this window and return to Finance.</p>"
+    )
+
+
+@router.post("/quickbooks-online/{candidate}/sync-read-snapshot")
+async def sync_quickbooks_online_snapshot(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    connection = _read_json(_quickbooks_connection_path(business_id), {})
+    realm_id = str(connection.get("realm_id") or "")
+    if connection.get("status") != "connected" or not realm_id:
+        raise HTTPException(status_code=409, detail="quickbooks_online_company_connection_required")
+    access_token = await _quickbooks_valid_access_token(business_id)
+    try:
+        raw = await QuickBooksOnlineAccountingAdapter().read_snapshot(
+            access_token=access_token, company_id=realm_id, sandbox=_quickbooks_sandbox()
+        )
+        result = AccountantHarnessService().ingest(
+            business_id, "quickbooks_online", raw,
+            company_id=realm_id, actor="finance_pilot",
+        )
+    except (httpx.HTTPError, ValueError) as exc:
+        connection.update({"last_sync_status": "failed", "last_error": type(exc).__name__})
+        _write_json(_quickbooks_connection_path(business_id), connection)
+        raise HTTPException(status_code=502, detail={
+            "code": "quickbooks_online_sync_failed", "error_type": type(exc).__name__,
+        }) from exc
+    connection.update({"last_sync_at": _now(), "last_sync_status": "succeeded", "last_error": None})
+    _write_json(_quickbooks_connection_path(business_id), connection)
+    return {
+        "ok": True,
+        "provider": "quickbooks_online",
+        "business_id": business_id,
+        "realm_id": realm_id,
+        "environment": "sandbox" if _quickbooks_sandbox() else "production",
+        "sync": result,
+        "external_write_performed": False,
+    }
+
+
+@router.get("/zoho-books/{candidate}/status")
+def zoho_books_status(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    return {"ok": True, "connection": _zoho_books_public_connection(business_id)}
+
+
+@router.get("/zoho-books/{candidate}/connect")
+@router.post("/zoho-books/{candidate}/connect")
+def zoho_books_connect(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    client_id, client_secret = _zoho_books_app_credentials()
+    if not client_id or not client_secret:
+        return {
+            "ok": False,
+            "reason": "zoho_books_oauth_config_missing",
+            "message": "Store the Zoho Books Client ID and Client Secret in Tessaris Vault.",
+            "redirect_uri": _zoho_books_redirect_uri(),
+            "connection": _zoho_books_public_connection(business_id),
+        }
+    state = secrets.token_urlsafe(32)
+    pending = {
+        "business_id": business_id,
+        "state": state,
+        "created_at": _now(),
+        "redirect_uri": _zoho_books_redirect_uri(),
+        "previous_connection": _read_json(_zoho_books_connection_path(business_id), {}),
+    }
+    _write_json(_zoho_books_integration_dir(business_id) / "oauth_pending.json", pending)
+    connection = _read_json(_zoho_books_connection_path(business_id), {})
+    connection.update({"status": "awaiting_authorisation", "last_error": None})
+    _write_json(_zoho_books_connection_path(business_id), connection)
+    params = {
+        "client_id": client_id,
+        "response_type": "code",
+        "scope": ",".join(ZOHO_BOOKS_SCOPES),
+        "redirect_uri": _zoho_books_redirect_uri(),
+        "access_type": "offline",
+        "prompt": "consent",
+        "state": state,
+    }
+    return {
+        "ok": True,
+        "connect_url": f"{_zoho_books_accounts_domain()}/oauth/v2/auth?" + urlencode(params),
+        "redirect_uri": _zoho_books_redirect_uri(),
+        "connection": _zoho_books_public_connection(business_id),
+    }
+
+
+@router.get("/zoho-books/callback", response_class=HTMLResponse)
+async def zoho_books_callback(
+    code: str = Query(default=""),
+    state: str = Query(default=""),
+    error: str = Query(default=""),
+) -> HTMLResponse:
+    pending_match: tuple[str, Dict[str, Any], Path] | None = None
+    root = AIONBusinessPaths.BUSINESS_CONTAINERS
+    for path in root.glob("*/integrations/zoho_books/oauth_pending.json"):
+        pending = _read_json(path, {})
+        if secrets.compare_digest(str(pending.get("state") or ""), state):
+            pending_match = (str(pending.get("business_id") or path.parents[2].name), pending, path)
+            break
+    if not pending_match:
+        return HTMLResponse(
+            "<h2>Zoho Books connection failed</h2><p>The OAuth state was not recognised. Return to Tessaris and try again.</p>",
+            status_code=400,
+        )
+    business_id, pending, pending_path = pending_match
+    if error or not code:
+        previous = pending.get("previous_connection") or {}
+        connection = dict(previous)
+        connection.update({
+            "status": previous.get("status") or "not_connected",
+            "last_error": error or "missing_authorisation_code",
+        })
+        _write_json(_zoho_books_connection_path(business_id), connection)
+        pending_path.unlink(missing_ok=True)
+        return HTMLResponse(
+            "<h2>Zoho Books connection was not completed</h2><p>You can close this window and return to Tessaris.</p>",
+            status_code=400,
+        )
+    client_id, client_secret = _zoho_books_app_credentials()
+    token = await _zoho_books_token_request({
+        "grant_type": "authorization_code",
+        "code": code,
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "redirect_uri": str(pending.get("redirect_uri") or _zoho_books_redirect_uri()),
+    })
+    secret_ref = _ZohoBooksTokenStore.save(business_id, token)
+    api_domain = str(token.get("api_domain") or _zoho_books_default_api_domain()).rstrip("/")
+    organizations = await _zoho_books_organizations(str(token.get("access_token") or ""), api_domain)
+    selected = organizations[0] if len(organizations) == 1 else {}
+    connection = {
+        **(pending.get("previous_connection") or {}),
+        "provider": "zoho_books",
+        "business_id": business_id,
+        "status": "connected" if selected else "organization_selection_required",
+        "organization_id": selected.get("organization_id"),
+        "organization_name": selected.get("organization_name"),
+        "available_organizations": organizations,
+        "api_domain": api_domain,
+        "scope": token.get("scope") or ",".join(ZOHO_BOOKS_SCOPES),
+        "secret_ref": secret_ref,
+        "connected_at": _now(),
+        "last_sync_status": "never_synced",
+        "last_error": None,
+    }
+    _write_json(_zoho_books_connection_path(business_id), connection)
+    pending_path.unlink(missing_ok=True)
+    message = (
+        f"Connected to {selected.get('organization_name')}."
+        if selected else "Authorised. Select the Zoho Books organisation in Tessaris."
+    )
+    return HTMLResponse(
+        f"<h2>Zoho Books connected to Tessaris</h2><p>{message}</p>"
+        "<p>You can close this window and return to Finance.</p>"
+    )
+
+
+class ZohoBooksOrganizationSelection(BaseModel):
+    organization_id: str
+
+
+@router.post("/zoho-books/{candidate}/organization")
+async def select_zoho_books_organization(
+    candidate: str, request: ZohoBooksOrganizationSelection
+) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    access_token, api_domain = await _zoho_books_valid_access_token(business_id)
+    organizations = await _zoho_books_organizations(access_token, api_domain)
+    selected = next(
+        (item for item in organizations if item.get("organization_id") == request.organization_id),
+        None,
+    )
+    if not selected:
+        raise HTTPException(status_code=404, detail="zoho_books_organization_not_found")
+    connection = _read_json(_zoho_books_connection_path(business_id), {})
+    connection.update({
+        "status": "connected",
+        "organization_id": selected["organization_id"],
+        "organization_name": selected.get("organization_name"),
+        "available_organizations": organizations,
+        "api_domain": api_domain,
+        "last_error": None,
+    })
+    _write_json(_zoho_books_connection_path(business_id), connection)
+    return {"ok": True, "connection": _zoho_books_public_connection(business_id)}
+
+
+@router.post("/zoho-books/{candidate}/sync-read-snapshot")
+async def sync_zoho_books_snapshot(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    connection = _read_json(_zoho_books_connection_path(business_id), {})
+    organization_id = str(connection.get("organization_id") or "")
+    if connection.get("status") != "connected" or not organization_id:
+        raise HTTPException(status_code=409, detail="zoho_books_organization_selection_required")
+    access_token, api_domain = await _zoho_books_valid_access_token(business_id)
+    company_id = f"{organization_id}|{api_domain}"
+    try:
+        raw = await ZohoBooksAccountingAdapter().read_snapshot(
+            access_token=access_token, company_id=company_id
+        )
+        result = AccountantHarnessService().ingest(
+            business_id, "zoho_books", raw,
+            company_id=company_id, actor="finance_pilot",
+        )
+    except (httpx.HTTPError, ValueError) as exc:
+        connection.update({"last_sync_status": "failed", "last_error": type(exc).__name__})
+        _write_json(_zoho_books_connection_path(business_id), connection)
+        raise HTTPException(status_code=502, detail={
+            "code": "zoho_books_sync_failed", "error_type": type(exc).__name__,
+        }) from exc
+    connection.update({
+        "api_domain": api_domain,
+        "last_sync_at": _now(),
+        "last_sync_status": "succeeded",
+        "last_error": None,
+    })
+    _write_json(_zoho_books_connection_path(business_id), connection)
+    return {
+        "ok": True,
+        "provider": "zoho_books",
+        "business_id": business_id,
+        "organization_id": organization_id,
+        "api_domain": api_domain,
+        "sync": result,
+        "external_write_performed": False,
+    }
+
+
+@router.get("/freeagent/{candidate}/status")
+def freeagent_status(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    return {"ok": True, "connection": _freeagent_public_connection(business_id)}
+
+
+@router.get("/freeagent/{candidate}/connect")
+@router.post("/freeagent/{candidate}/connect")
+def freeagent_connect(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    client_id, client_secret = _freeagent_app_credentials()
+    if not client_id or not client_secret:
+        return {
+            "ok": False,
+            "reason": "freeagent_oauth_config_missing",
+            "message": "Store the FreeAgent OAuth identifier and secret in Tessaris Vault.",
+            "redirect_uri": _freeagent_redirect_uri(),
+            "connection": _freeagent_public_connection(business_id),
+        }
+    state = secrets.token_urlsafe(32)
+    pending = {
+        "business_id": business_id,
+        "state": state,
+        "created_at": _now(),
+        "redirect_uri": _freeagent_redirect_uri(),
+        "previous_connection": _read_json(_freeagent_connection_path(business_id), {}),
+    }
+    _write_json(_freeagent_integration_dir(business_id) / "oauth_pending.json", pending)
+    connection = _read_json(_freeagent_connection_path(business_id), {})
+    connection.update({"status": "awaiting_authorisation", "last_error": None})
+    _write_json(_freeagent_connection_path(business_id), connection)
+    params = {
+        "client_id": client_id,
+        "response_type": "code",
+        "redirect_uri": _freeagent_redirect_uri(),
+        "state": state,
+    }
+    return {
+        "ok": True,
+        "connect_url": f"{_freeagent_base_url()}/approve_app?" + urlencode(params),
+        "redirect_uri": _freeagent_redirect_uri(),
+        "connection": _freeagent_public_connection(business_id),
+    }
+
+
+@router.get("/freeagent/callback", response_class=HTMLResponse)
+async def freeagent_callback(
+    code: str = Query(default=""),
+    state: str = Query(default=""),
+    error: str = Query(default=""),
+) -> HTMLResponse:
+    pending_match: tuple[str, Dict[str, Any], Path] | None = None
+    root = AIONBusinessPaths.BUSINESS_CONTAINERS
+    for path in root.glob("*/integrations/freeagent/oauth_pending.json"):
+        pending = _read_json(path, {})
+        if secrets.compare_digest(str(pending.get("state") or ""), state):
+            pending_match = (str(pending.get("business_id") or path.parents[2].name), pending, path)
+            break
+    if not pending_match:
+        return HTMLResponse(
+            "<h2>FreeAgent connection failed</h2><p>The OAuth state was not recognised. Return to Tessaris and try again.</p>",
+            status_code=400,
+        )
+    business_id, pending, pending_path = pending_match
+    if error or not code:
+        previous = pending.get("previous_connection") or {}
+        connection = dict(previous)
+        connection.update({
+            "status": previous.get("status") or "not_connected",
+            "last_error": error or "missing_authorisation_code",
+        })
+        _write_json(_freeagent_connection_path(business_id), connection)
+        pending_path.unlink(missing_ok=True)
+        return HTMLResponse(
+            "<h2>FreeAgent connection was not completed</h2><p>You can close this window and return to Tessaris.</p>",
+            status_code=400,
+        )
+    token = await _freeagent_token_request({
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": str(pending.get("redirect_uri") or _freeagent_redirect_uri()),
+    })
+    secret_ref = _FreeAgentTokenStore.save(business_id, token)
+    company = await _freeagent_company(str(token.get("access_token") or ""))
+    connection = {
+        **(pending.get("previous_connection") or {}),
+        "provider": "freeagent",
+        "business_id": business_id,
+        "status": "connected",
+        **company,
+        "environment": "sandbox" if _freeagent_sandbox() else "production",
+        "secret_ref": secret_ref,
+        "connected_at": _now(),
+        "last_sync_status": "never_synced",
+        "last_error": None,
+    }
+    _write_json(_freeagent_connection_path(business_id), connection)
+    pending_path.unlink(missing_ok=True)
+    return HTMLResponse(
+        "<h2>FreeAgent connected to Tessaris</h2>"
+        f"<p>Connected to {company.get('company_name') or 'the authorised company'}.</p>"
+        "<p>You can close this window and return to Finance.</p>"
+    )
+
+
+@router.post("/freeagent/{candidate}/sync-read-snapshot")
+async def sync_freeagent_snapshot(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    connection = _read_json(_freeagent_connection_path(business_id), {})
+    company_id = str(connection.get("company_id") or "")
+    if connection.get("status") != "connected":
+        raise HTTPException(status_code=409, detail="freeagent_company_connection_required")
+    access_token = await _freeagent_valid_access_token(business_id)
+    try:
+        raw = await FreeAgentAccountingAdapter().read_snapshot(
+            access_token=access_token,
+            company_id=company_id,
+            sandbox=_freeagent_sandbox(),
+        )
+        result = AccountantHarnessService().ingest(
+            business_id, "freeagent", raw,
+            company_id=company_id or business_id, actor="finance_pilot",
+        )
+    except (httpx.HTTPError, ValueError) as exc:
+        connection.update({"last_sync_status": "failed", "last_error": type(exc).__name__})
+        _write_json(_freeagent_connection_path(business_id), connection)
+        raise HTTPException(status_code=502, detail={
+            "code": "freeagent_sync_failed", "error_type": type(exc).__name__,
+        }) from exc
+    connection.update({"last_sync_at": _now(), "last_sync_status": "succeeded", "last_error": None})
+    _write_json(_freeagent_connection_path(business_id), connection)
+    return {
+        "ok": True,
+        "provider": "freeagent",
+        "business_id": business_id,
+        "company_id": company_id,
+        "environment": "sandbox" if _freeagent_sandbox() else "production",
+        "sync": result,
+        "external_write_performed": False,
+    }
+
+
+@router.get("/freshbooks/{candidate}/status")
+def freshbooks_status(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    return {"ok": True, "connection": _freshbooks_public_connection(business_id)}
+
+
+@router.get("/freshbooks/{candidate}/connect")
+@router.post("/freshbooks/{candidate}/connect")
+def freshbooks_connect(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    client_id, client_secret = _freshbooks_app_credentials()
+    if not client_id or not client_secret:
+        return {
+            "ok": False,
+            "reason": "freshbooks_oauth_config_missing",
+            "message": "Store the FreshBooks client ID and secret in Tessaris Vault.",
+            "redirect_uri": _freshbooks_redirect_uri(),
+            "connection": _freshbooks_public_connection(business_id),
+        }
+    state = secrets.token_urlsafe(32)
+    pending = {
+        "business_id": business_id,
+        "state": state,
+        "created_at": _now(),
+        "redirect_uri": _freshbooks_redirect_uri(),
+        "previous_connection": _read_json(_freshbooks_connection_path(business_id), {}),
+    }
+    _write_json(_freshbooks_integration_dir(business_id) / "oauth_pending.json", pending)
+    connection = _read_json(_freshbooks_connection_path(business_id), {})
+    connection.update({"status": "awaiting_authorisation", "last_error": None})
+    _write_json(_freshbooks_connection_path(business_id), connection)
+    params = {
+        "client_id": client_id,
+        "response_type": "code",
+        "redirect_uri": _freshbooks_redirect_uri(),
+        "state": state,
+        "scope": " ".join(FRESHBOOKS_SCOPES),
+    }
+    return {
+        "ok": True,
+        "connect_url": FRESHBOOKS_AUTHORIZE_URL + "?" + urlencode(params),
+        "redirect_uri": _freshbooks_redirect_uri(),
+        "connection": _freshbooks_public_connection(business_id),
+    }
+
+
+@router.get("/freshbooks/callback", response_class=HTMLResponse)
+async def freshbooks_callback(
+    code: str = Query(default=""),
+    state: str = Query(default=""),
+    error: str = Query(default=""),
+) -> HTMLResponse:
+    pending_match: tuple[str, Dict[str, Any], Path] | None = None
+    root = AIONBusinessPaths.BUSINESS_CONTAINERS
+    for path in root.glob("*/integrations/freshbooks/oauth_pending.json"):
+        pending = _read_json(path, {})
+        if secrets.compare_digest(str(pending.get("state") or ""), state):
+            pending_match = (str(pending.get("business_id") or path.parents[2].name), pending, path)
+            break
+    if not pending_match:
+        return HTMLResponse(
+            "<h2>FreshBooks connection failed</h2><p>The OAuth state was not recognised. Return to Tessaris and try again.</p>",
+            status_code=400,
+        )
+    business_id, pending, pending_path = pending_match
+    if error or not code:
+        previous = pending.get("previous_connection") or {}
+        connection = dict(previous)
+        connection.update({
+            "status": previous.get("status") or "not_connected",
+            "last_error": error or "missing_authorisation_code",
+        })
+        _write_json(_freshbooks_connection_path(business_id), connection)
+        pending_path.unlink(missing_ok=True)
+        return HTMLResponse(
+            "<h2>FreshBooks connection was not completed</h2><p>You can close this window and return to Tessaris.</p>",
+            status_code=400,
+        )
+    client_id, client_secret = _freshbooks_app_credentials()
+    token = await _freshbooks_token_request({
+        "grant_type": "authorization_code",
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "code": code,
+        "redirect_uri": str(pending.get("redirect_uri") or _freshbooks_redirect_uri()),
+    })
+    secret_ref = _FreshBooksTokenStore.save(business_id, token)
+    businesses = await _freshbooks_businesses(str(token.get("access_token") or ""))
+    selected = businesses[0] if len(businesses) == 1 else {}
+    connection = {
+        **(pending.get("previous_connection") or {}),
+        "provider": "freshbooks",
+        "business_id": business_id,
+        "status": "connected" if selected else "business_selection_required",
+        **selected,
+        "available_businesses": businesses,
+        "secret_ref": secret_ref,
+        "connected_at": _now(),
+        "last_sync_status": "never_synced",
+        "last_error": None,
+    }
+    _write_json(_freshbooks_connection_path(business_id), connection)
+    pending_path.unlink(missing_ok=True)
+    message = (
+        f"Connected to {selected.get('company_name') or 'the authorised business'}."
+        if selected else "Authorised. Select the FreshBooks business in Tessaris."
+    )
+    return HTMLResponse(
+        "<h2>FreshBooks connected to Tessaris</h2>"
+        f"<p>{message}</p><p>You can close this window and return to Finance.</p>"
+    )
+
+
+class FreshBooksBusinessSelection(BaseModel):
+    company_id: str
+
+
+@router.post("/freshbooks/{candidate}/business")
+async def select_freshbooks_business(
+    candidate: str, request: FreshBooksBusinessSelection
+) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    access_token = await _freshbooks_valid_access_token(business_id)
+    businesses = await _freshbooks_businesses(access_token)
+    selected = next((item for item in businesses if item.get("company_id") == request.company_id), None)
+    if not selected:
+        raise HTTPException(status_code=404, detail="freshbooks_business_not_found")
+    connection = _read_json(_freshbooks_connection_path(business_id), {})
+    connection.update({
+        "status": "connected", **selected, "available_businesses": businesses,
+        "last_error": None,
+    })
+    _write_json(_freshbooks_connection_path(business_id), connection)
+    return {"ok": True, "connection": _freshbooks_public_connection(business_id)}
+
+
+@router.post("/freshbooks/{candidate}/sync-read-snapshot")
+async def sync_freshbooks_snapshot(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    connection = _read_json(_freshbooks_connection_path(business_id), {})
+    company_id = str(connection.get("company_id") or "")
+    if connection.get("status") != "connected" or not company_id:
+        raise HTTPException(status_code=409, detail="freshbooks_business_connection_required")
+    access_token = await _freshbooks_valid_access_token(business_id)
+    try:
+        raw = await FreshBooksAccountingAdapter().read_snapshot(
+            access_token=access_token, company_id=company_id,
+        )
+        result = AccountantHarnessService().ingest(
+            business_id, "freshbooks", raw,
+            company_id=company_id, actor="finance_pilot",
+        )
+    except (httpx.HTTPError, ValueError) as exc:
+        connection.update({"last_sync_status": "failed", "last_error": type(exc).__name__})
+        _write_json(_freshbooks_connection_path(business_id), connection)
+        raise HTTPException(status_code=502, detail={
+            "code": "freshbooks_sync_failed", "error_type": type(exc).__name__,
+        }) from exc
+    connection.update({"last_sync_at": _now(), "last_sync_status": "succeeded", "last_error": None})
+    _write_json(_freshbooks_connection_path(business_id), connection)
+    return {
+        "ok": True,
+        "provider": "freshbooks",
+        "business_id": business_id,
+        "company_id": company_id,
+        "sync": result,
+        "external_write_performed": False,
+    }
 
 
 class TenantSelection(BaseModel):

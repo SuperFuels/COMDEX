@@ -1,0 +1,3 @@
+const labels={idle:"Guard active",observing:"Observing event",investigating:"AION investigating",review:"Review needed",urgent:"Urgent finding",verified:"Review complete",offline:"Sentinel offline"};
+async function refresh(){try{const value=await window.aionDesktop.getSecuritySentinelStatus();const state=labels[value?.state]?value.state:"offline";document.body.dataset.state=state;document.getElementById("label").textContent=labels[state];document.getElementById("sentinel").title=value?.last_event?.title||`AION Security Sentinel · ${labels[state]}`;}catch{document.body.dataset.state="offline";}}
+document.getElementById("sentinel").addEventListener("click",()=>window.aionDesktop.openSecuritySentinel());refresh();setInterval(refresh,3000);

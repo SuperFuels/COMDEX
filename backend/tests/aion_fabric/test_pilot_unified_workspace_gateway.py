@@ -68,6 +68,32 @@ class TestProvider:
             "external_writes_performed": False,
         }
 
+    def executive_channel_status(self, workspace_ref):
+        self.calls.append((workspace_ref, "executive_status"))
+        return {
+            "schedule": {"enabled": True, "local_time": "08:00", "timezone": "Europe/Madrid"},
+            "latest_briefing": {"reasoning_mode": "single_model_role_separated"},
+        }
+
+    def executive_channel_history(self, workspace_ref, department_id, *, limit=75):
+        self.calls.append((workspace_ref, "executive_history", department_id, limit))
+        return {
+            "department_id": department_id,
+            "turns": [{
+                "id": "executive-message-1", "role": "assistant", "sender": "Sales Director Pilot",
+                "content": "Morning minutes are ready.", "message_type": "morning_minutes",
+                "evidence_source_ids": ["sales_revenue_spine"], "approval_gated": True,
+            }],
+        }
+
+    def executive_channel_turn(self, workspace_ref, department_id, user_text, *, persona_id):
+        self.calls.append((workspace_ref, "executive_turn", department_id, user_text, persona_id))
+        return {
+            "department_id": department_id,
+            "response": {"sender": "Sales Director Pilot", "content": f"Department answer: {user_text}"},
+            "external_writes_performed": False,
+        }
+
 
 def membership(*, membership_id="member_1", space_id="workspace/acme", scopes=("workspace.read",), status="active", expires=None):
     now = datetime.now(timezone.utc)
@@ -150,6 +176,30 @@ def test_gateway_rejects_conversation_provider_that_claims_an_external_write():
             persona_id="persona_alex", membership_id="member_1", department_id="boardroom",
             user_text="Change it",
         )
+
+
+def test_gateway_exposes_the_same_persistent_executive_channels_to_mobile_clients():
+    subject, provider = gateway()
+    subject.grant_membership(membership(scopes=("workspace.conversation",)))
+
+    status = subject.executive_channels_status(persona_id="persona_alex", membership_id="member_1")
+    history = subject.executive_channel_history(
+        persona_id="persona_alex", membership_id="member_1", department_id="sales",
+    )
+    turn = subject.executive_channel_turn(
+        persona_id="persona_alex", membership_id="member_1", department_id="sales",
+        user_text="How are we tracking against today's target?",
+    )
+
+    assert status["executive"]["schedule"]["local_time"] == "08:00"
+    assert history["history"]["turns"][0]["message_type"] == "morning_minutes"
+    assert turn["executive"]["response"]["content"].startswith("Department answer:")
+    assert turn["external_writes_performed"] is False
+    assert provider.calls == [
+        ("acme", "executive_status"),
+        ("acme", "executive_history", "sales", 75),
+        ("acme", "executive_turn", "sales", "How are we tracking against today's target?", "persona_alex"),
+    ]
 
 
 def test_workspace_review_cards_bind_review_correction_delegation_and_approval_to_exact_scope():
@@ -716,6 +766,53 @@ def test_aion_boardroom_adapter_returns_bounded_mobile_summaries_without_secrets
     assert "provider_token" not in briefing["data"]
     dashboard = adapter.read_surface("acme", "dashboards", persona_id="persona_alex")
     assert dashboard["data"] == {"health": {"status": "healthy"}}
+
+
+def test_aion_boardroom_adapter_projects_published_minutes_and_delegated_actions_for_mobile():
+    class Model:
+        def model_dump(self, mode="json"):
+            return {"id": "acme", "name": "Acme", "business_type": "boardroom", "owner": "owner"}
+    class Workspaces:
+        def list_ids(self): return ["acme"]
+        def load(self, workspace_ref): return Model()
+    class Containers:
+        def load_optional_dict(self, workspace_ref, kind):
+            if kind == "boardroom_snapshot":
+                return {
+                    "boardroom": {
+                        "board_members": [
+                            {"id": "aion", "name": "AION"},
+                            {"id": "openai", "name": "OpenAI"},
+                        ],
+                        "runtime": {
+                            "meeting_history": [
+                                {"session_id": "august", "session_type": "monthly_review", "status": "published", "published_at": "2026-08-31T09:00:00Z", "summary": "Approved the September plan."},
+                                {"session_id": "draft", "session_type": "monthly_review", "status": "draft", "summary": "Must stay private."},
+                            ],
+                            "delegated_actions": [
+                                {"action_id": "sales-1", "title": "Review qualified pipeline", "department_id": "sales", "status": "delegated", "due_at": "2026-09-20"},
+                            ],
+                        },
+                    }
+                }
+            return {"meta": {"revision": 9}, "runtime_summary": {"boardroom_summary": {}}, "dashboard_summary": {}}
+    class Departments:
+        def list_for_workspace(self, workspace_ref): return []
+
+    briefing = AionBoardroomWorkspaceProvider(Workspaces(), Containers(), Departments()).read_surface(
+        "acme", "briefings", persona_id="persona_alex"
+    )
+    data = briefing["data"]
+    assert [member["name"] for member in data["board_members"]] == ["AION", "OpenAI"]
+    assert data["meeting_history"] == [{
+        "id": "august", "title": "monthly review", "occurred_at": "2026-08-31T09:00:00Z",
+        "summary": "Approved the September plan.", "status": "published",
+    }]
+    assert data["department_actions"] == [{
+        "id": "sales-1", "title": "Review qualified pipeline", "department": "sales",
+        "status": "delegated", "due_at": "2026-09-20",
+    }]
+    assert data["mobile_meeting_policy"]["first_meeting"] == "desktop_required"
 
 
 def test_aion_boardroom_adapter_reuses_finance_conversation_and_fails_honestly_elsewhere():

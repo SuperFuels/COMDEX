@@ -1,0 +1,343 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0AE5B2F05C059CD6172A48ED /* PilotWorkScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28B54FDE9E5BF692177DF566 /* PilotWorkScheduleView.swift */; };
+		262106BC0228E17CAB9A3D6F /* PilotPairingInvitation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E4653C221E9E3F9E87476A /* PilotPairingInvitation.swift */; };
+		306105875B0421A7505E688C /* PilotNotificationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2649DD3B4C9AD45CA9599671 /* PilotNotificationPolicy.swift */; };
+		469553F1D2B07FB19F59EFC0 /* PilotBackgroundInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C97091BA93E219E4E86665 /* PilotBackgroundInbox.swift */; };
+		5D9413D93586D39AEF0EA5E7 /* PilotNodeClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D730533ADF453584BE778672 /* PilotNodeClient.swift */; };
+		62ED7CC9AF612581C71FED98 /* PilotConnectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F273B2DADB9D8A0DC9DA64 /* PilotConnectionStore.swift */; };
+		80648F9C2067DDC68CCE5B44 /* PilotPulseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC957155FF282DCDEA8D638B /* PilotPulseView.swift */; };
+		850D79EA2A5DDD22E5BF1344 /* PilotPossessionVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549126CB88DA673E8FDAB1A3 /* PilotPossessionVault.swift */; };
+		C056043B4C8C26894E7567E2 /* PilotHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0226E62AF44DC9102AFF185 /* PilotHomeView.swift */; };
+		CBECF700A32F66C48519D768 /* PilotCanonicalJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE225355B0EB686A52E1C0E1 /* PilotCanonicalJSON.swift */; };
+		ED3131D8C43CB59A0DEEE91C /* PilotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFBE983CCDA722A187CF7D86 /* PilotApp.swift */; };
+		FB2D052841F66CE635A170C7 /* PilotPairingScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9207A1A8998851172C05CE65 /* PilotPairingScanner.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2649DD3B4C9AD45CA9599671 /* PilotNotificationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotNotificationPolicy.swift; sourceTree = "<group>"; };
+		28B54FDE9E5BF692177DF566 /* PilotWorkScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotWorkScheduleView.swift; sourceTree = "<group>"; };
+		32F273B2DADB9D8A0DC9DA64 /* PilotConnectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotConnectionStore.swift; sourceTree = "<group>"; };
+		37E4653C221E9E3F9E87476A /* PilotPairingInvitation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotPairingInvitation.swift; sourceTree = "<group>"; };
+		549126CB88DA673E8FDAB1A3 /* PilotPossessionVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotPossessionVault.swift; sourceTree = "<group>"; };
+		9207A1A8998851172C05CE65 /* PilotPairingScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotPairingScanner.swift; sourceTree = "<group>"; };
+		93C97091BA93E219E4E86665 /* PilotBackgroundInbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotBackgroundInbox.swift; sourceTree = "<group>"; };
+		9E62570EA1D8F899B80333C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		AB85CEC11BD665F9FF73BE7E /* Pilot.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Pilot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC957155FF282DCDEA8D638B /* PilotPulseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotPulseView.swift; sourceTree = "<group>"; };
+		CFBE983CCDA722A187CF7D86 /* PilotApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotApp.swift; sourceTree = "<group>"; };
+		D730533ADF453584BE778672 /* PilotNodeClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotNodeClient.swift; sourceTree = "<group>"; };
+		E0226E62AF44DC9102AFF185 /* PilotHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotHomeView.swift; sourceTree = "<group>"; };
+		EE225355B0EB686A52E1C0E1 /* PilotCanonicalJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotCanonicalJSON.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		294652EF0EAB036F2BAC4D5B /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				9E62570EA1D8F899B80333C0 /* Info.plist */,
+				CFBE983CCDA722A187CF7D86 /* PilotApp.swift */,
+				93C97091BA93E219E4E86665 /* PilotBackgroundInbox.swift */,
+				32F273B2DADB9D8A0DC9DA64 /* PilotConnectionStore.swift */,
+				E0226E62AF44DC9102AFF185 /* PilotHomeView.swift */,
+				D730533ADF453584BE778672 /* PilotNodeClient.swift */,
+				9207A1A8998851172C05CE65 /* PilotPairingScanner.swift */,
+				AC957155FF282DCDEA8D638B /* PilotPulseView.swift */,
+				28B54FDE9E5BF692177DF566 /* PilotWorkScheduleView.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		5DCCA06A0E104DBA6E91894C = {
+			isa = PBXGroup;
+			children = (
+				F9E9269C216565C348FF5259 /* PilotNativeCore */,
+				294652EF0EAB036F2BAC4D5B /* Sources */,
+				DC7D82CC69762577B57556DA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DC7D82CC69762577B57556DA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AB85CEC11BD665F9FF73BE7E /* Pilot.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F9E9269C216565C348FF5259 /* PilotNativeCore */ = {
+			isa = PBXGroup;
+			children = (
+				EE225355B0EB686A52E1C0E1 /* PilotCanonicalJSON.swift */,
+				2649DD3B4C9AD45CA9599671 /* PilotNotificationPolicy.swift */,
+				37E4653C221E9E3F9E87476A /* PilotPairingInvitation.swift */,
+				549126CB88DA673E8FDAB1A3 /* PilotPossessionVault.swift */,
+			);
+			name = PilotNativeCore;
+			path = ../PilotNativeCore/Sources/PilotNativeCore;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FE8ED209D7643DC0791F345F /* Pilot */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C88E1BB78C3D84A1284783C0 /* Build configuration list for PBXNativeTarget "Pilot" */;
+			buildPhases = (
+				103AA9C78E34D6CDE3EA0B73 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Pilot;
+			packageProductDependencies = (
+			);
+			productName = Pilot;
+			productReference = AB85CEC11BD665F9FF73BE7E /* Pilot.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A7605EA25E9B512DD73FBB4B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					FE8ED209D7643DC0791F345F = {
+						DevelopmentTeam = S6DL63REVH;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 79B4DC32867D528FEEA13573 /* Build configuration list for PBXProject "Pilot" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 5DCCA06A0E104DBA6E91894C;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = DC7D82CC69762577B57556DA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FE8ED209D7643DC0791F345F /* Pilot */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		103AA9C78E34D6CDE3EA0B73 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ED3131D8C43CB59A0DEEE91C /* PilotApp.swift in Sources */,
+				469553F1D2B07FB19F59EFC0 /* PilotBackgroundInbox.swift in Sources */,
+				CBECF700A32F66C48519D768 /* PilotCanonicalJSON.swift in Sources */,
+				62ED7CC9AF612581C71FED98 /* PilotConnectionStore.swift in Sources */,
+				C056043B4C8C26894E7567E2 /* PilotHomeView.swift in Sources */,
+				5D9413D93586D39AEF0EA5E7 /* PilotNodeClient.swift in Sources */,
+				306105875B0421A7505E688C /* PilotNotificationPolicy.swift in Sources */,
+				262106BC0228E17CAB9A3D6F /* PilotPairingInvitation.swift in Sources */,
+				FB2D052841F66CE635A170C7 /* PilotPairingScanner.swift in Sources */,
+				850D79EA2A5DDD22E5BF1344 /* PilotPossessionVault.swift in Sources */,
+				80648F9C2067DDC68CCE5B44 /* PilotPulseView.swift in Sources */,
+				0AE5B2F05C059CD6172A48ED /* PilotWorkScheduleView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		8E482AB3601FCC6B17D65964 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		B9526E7DB7A128CDB144622B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S6DL63REVH;
+				INFOPLIST_FILE = Sources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ai.tessaris.pilot;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C1A2173B7B1ED8D32455AF84 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		C9D2BBAB7A4E7EA3FEA815B4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S6DL63REVH;
+				INFOPLIST_FILE = Sources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ai.tessaris.pilot;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		79B4DC32867D528FEEA13573 /* Build configuration list for PBXProject "Pilot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8E482AB3601FCC6B17D65964 /* Debug */,
+				C1A2173B7B1ED8D32455AF84 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C88E1BB78C3D84A1284783C0 /* Build configuration list for PBXNativeTarget "Pilot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B9526E7DB7A128CDB144622B /* Debug */,
+				C9D2BBAB7A4E7EA3FEA815B4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A7605EA25E9B512DD73FBB4B /* Project object */;
+}

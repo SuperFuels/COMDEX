@@ -29,6 +29,67 @@ kernel void dyn_input(device const half* x [[buffer(0)]], device const char* w [
  uint row=g.x, slot=g.y, e=uint(experts[slot]); float v=0; uint base=(e*M+row)*K;
  for(uint j=lane;j<K;j+=32) v+=float(x[j])*float(w[base+j]); v=simd_sum(v);
  if(lane==0) out[slot*M+row]=half(v*float(s[e*M+row])); }
+kernel void dyn_input_silu(device const half* x [[buffer(0)]],
+ device const char* w [[buffer(1)]], device const half* s [[buffer(2)]],
+ device const int* experts [[buffer(3)]], device half* out [[buffer(4)]],
+ constant uint& K [[buffer(5)]], constant uint& M [[buffer(6)]],
+ uint2 g [[threadgroup_position_in_grid]], uint lane [[thread_index_in_threadgroup]]) {
+ uint row=g.x, slot=g.y, e=uint(experts[slot]), H=M/2; float gate=0, projected=0;
+ uint gate_base=(e*M+row)*K, projected_base=(e*M+row+H)*K;
+ for(uint j=lane;j<K;j+=32){ float value=float(x[j]);
+   gate+=value*float(w[gate_base+j]); projected+=value*float(w[projected_base+j]); }
+ gate=simd_sum(gate); projected=simd_sum(projected);
+ if(lane==0){ half gate_h=half(gate*float(s[e*M+row]));
+   half projected_h=half(projected*float(s[e*M+row+H]));
+   float gate_f=float(gate_h);
+   half silu_h=half(gate_f/(1.0f+fast::exp(-gate_f)));
+   out[slot*H+row]=half(float(silu_h)*float(projected_h)); }
+}
+kernel void dyn_input_silu2(device const half* x [[buffer(0)]],
+ device const char* w [[buffer(1)]], device const half* s [[buffer(2)]],
+ device const int* experts [[buffer(3)]], device half* out [[buffer(4)]],
+ constant uint& K [[buffer(5)]], constant uint& M [[buffer(6)]],
+ uint2 g [[threadgroup_position_in_grid]], uint tid [[thread_index_in_threadgroup]],
+ uint lane [[thread_index_in_simdgroup]], uint projection [[simdgroup_index_in_threadgroup]]) {
+ threadgroup half staged[2];uint row=g.x,slot=g.y,e=uint(experts[slot]),H=M/2;
+ uint matrix_row=row+projection*H,base=(e*M+matrix_row)*K;float value=0;
+ for(uint j=lane;j<K;j+=32)value+=float(x[j])*float(w[base+j]);
+ value=simd_sum(value);if(lane==0)staged[projection]=half(value*float(s[e*M+matrix_row]));
+ threadgroup_barrier(mem_flags::mem_threadgroup);
+ if(tid==0){float gate_f=float(staged[0]);
+   half silu_h=half(gate_f/(1.0f+fast::exp(-gate_f)));
+   out[slot*H+row]=half(float(silu_h)*float(staged[1]));}
+}
+kernel void prefill_input_silu(device const half* x [[buffer(0)]],
+ device const char* w [[buffer(1)]], device const half* s [[buffer(2)]],
+ device const long* experts [[buffer(3)]], device half* out [[buffer(4)]],
+ constant uint& K [[buffer(5)]], constant uint& M [[buffer(6)]],
+ uint2 g [[threadgroup_position_in_grid]], uint lane [[thread_index_in_threadgroup]]) {
+ uint row=g.x, assignment=g.y, token=assignment/8, e=uint(experts[assignment]), H=M/2;
+ float gate=0, projected=0; uint xb=token*K;
+ uint gate_base=(e*M+row)*K, projected_base=(e*M+row+H)*K;
+ for(uint j=lane;j<K;j+=32){float value=float(x[xb+j]);
+   gate+=value*float(w[gate_base+j]); projected+=value*float(w[projected_base+j]);}
+ gate=simd_sum(gate); projected=simd_sum(projected);
+ if(lane==0){half gate_h=half(gate*float(s[e*M+row]));
+   half projected_h=half(projected*float(s[e*M+row+H]));float gate_f=float(gate_h);
+   half silu_h=half(gate_f/(1.0f+fast::exp(-gate_f)));
+   out[assignment*H+row]=half(float(silu_h)*float(projected_h));}
+}
+kernel void prefill_output(device const half* x [[buffer(0)]],
+ device const char* w [[buffer(1)]], device const half* s [[buffer(2)]],
+ device const long* experts [[buffer(3)]], device const half* gates [[buffer(4)]],
+ device half* out [[buffer(5)]], constant uint& K [[buffer(6)]],
+ constant uint& M [[buffer(7)]], uint2 g [[threadgroup_position_in_grid]],
+ uint lane [[thread_index_in_threadgroup]]) {
+ uint row=g.x, token=g.y;float total=0;
+ for(uint slot=0;slot<8;slot++){uint assignment=token*8+slot,e=uint(experts[assignment]);
+   float v=0;uint base=(e*M+row)*K,xb=assignment*K;
+   for(uint j=lane;j<K;j+=32)v+=float(x[xb+j])*float(w[base+j]);
+   v=simd_sum(v);if(lane==0){half ev=half(v*float(s[e*M+row]));
+     total+=float(ev)*float(gates[assignment]);}}
+ if(lane==0)out[token*M+row]=half(total);
+}
 kernel void dyn_output(device const half* x [[buffer(0)]], device const char* w [[buffer(1)]],
  device const half* s [[buffer(2)]], device const int* experts [[buffer(3)]],
  device const half* gates [[buffer(4)]], device half* out [[buffer(5)]],
@@ -39,6 +100,39 @@ kernel void dyn_output(device const half* x [[buffer(0)]], device const char* w 
  v+=float(x[xb+j])*float(w[base+j]); v=simd_sum(v); if(lane==0){
  half ev=half(v*float(s[e*M+row])); total+=float(ev)*float(gates[slot]); }}
  if(lane==0) out[row]=half(total); }
+kernel void dyn_output_parallel(device const half* x [[buffer(0)]],
+ device const char* w [[buffer(1)]], device const half* s [[buffer(2)]],
+ device const int* experts [[buffer(3)]], device const half* gates [[buffer(4)]],
+ device half* out [[buffer(5)]], constant uint& K [[buffer(6)]],
+ constant uint& M [[buffer(7)]], uint row [[threadgroup_position_in_grid]],
+ uint tid [[thread_index_in_threadgroup]], uint lane [[thread_index_in_simdgroup]],
+ uint slot [[simdgroup_index_in_threadgroup]]) {
+ threadgroup float contributions[8]; uint e=uint(experts[slot]); float v=0;
+ uint base=(e*M+row)*K, xb=slot*K;
+ for(uint j=lane;j<K;j+=32) v+=float(x[xb+j])*float(w[base+j]);
+ v=simd_sum(v); if(lane==0){ half ev=half(v*float(s[e*M+row]));
+   contributions[slot]=float(ev)*float(gates[slot]); }
+ threadgroup_barrier(mem_flags::mem_threadgroup);
+ if(tid==0){ float total=0; for(uint j=0;j<8;j++)total+=contributions[j];
+   out[row]=half(total); }
+}
+kernel void dyn_output_parallel4(device const half* x [[buffer(0)]],
+ device const char* w [[buffer(1)]], device const half* s [[buffer(2)]],
+ device const int* experts [[buffer(3)]], device const half* gates [[buffer(4)]],
+ device half* out [[buffer(5)]], constant uint& K [[buffer(6)]],
+ constant uint& M [[buffer(7)]], uint row [[threadgroup_position_in_grid]],
+ uint tid [[thread_index_in_threadgroup]], uint lane [[thread_index_in_simdgroup]],
+ uint subgroup [[simdgroup_index_in_threadgroup]]) {
+ threadgroup float contributions[8];
+ for(uint pair=0;pair<2;pair++){ uint slot=subgroup+pair*4, e=uint(experts[slot]);
+   float v=0; uint base=(e*M+row)*K, xb=slot*K;
+   for(uint j=lane;j<K;j+=32)v+=float(x[xb+j])*float(w[base+j]);
+   v=simd_sum(v); if(lane==0){half ev=half(v*float(s[e*M+row]));
+     contributions[slot]=float(ev)*float(gates[slot]);}}
+ threadgroup_barrier(mem_flags::mem_threadgroup);
+ if(tid==0){float total=0;for(uint j=0;j<8;j++)total+=contributions[j];
+   out[row]=half(total);}
+}
 kernel void fused_route(device const half* x [[buffer(0)]],
  device const half* w [[buffer(1)]], device int* out_ids [[buffer(2)]],
  device half* out_gates [[buffer(3)]], constant uint& K [[buffer(4)]],
@@ -74,6 +168,18 @@ kernel void group_exact_by_expert(device const long* ids [[buffer(0)]],device co
  for(uint e=0;e<expert;e++)position+=uint(atomic_load_explicit(&counts[e],memory_order_relaxed));
  for(uint a=0;a<assignments;a++)if(ids[a]==long(expert)){
   batch_index[position]=int(a/8);batch_gates[position]=gates[a];position++;}}
+kernel void group_count_exact(device const long* ids [[buffer(0)]],
+ device const half* gates [[buffer(1)]], device int* counts [[buffer(2)]],
+ device int* batch_index [[buffer(3)]], device half* batch_gates [[buffer(4)]],
+ constant uint& assignments [[buffer(5)]], uint expert [[thread_index_in_threadgroup]]) {
+ threadgroup uint local_counts[40];
+ if(expert<40){uint count=0;for(uint a=0;a<assignments;a++)count+=ids[a]==long(expert);
+   local_counts[expert]=count;counts[expert]=int(count);}
+ threadgroup_barrier(mem_flags::mem_threadgroup);
+ if(expert<40){uint position=0;for(uint e=0;e<expert;e++)position+=local_counts[e];
+   for(uint a=0;a<assignments;a++)if(ids[a]==long(expert)){
+     batch_index[position]=int(a/8);batch_gates[position]=gates[a];position++;}}
+}
 kernel void select_routes(device const float* logits [[buffer(0)]],device int* ids [[buffer(1)]],
  device half* gates [[buffer(2)]],device atomic_int* counts [[buffer(3)]],
  constant uint& E [[buffer(4)]],uint token [[thread_position_in_grid]]){

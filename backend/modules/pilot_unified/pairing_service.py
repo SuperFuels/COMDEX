@@ -297,10 +297,18 @@ class MobilePairingService:
                         )
                         self._json(result, origin=origin)
                     elif self.path in {
+                        "/v1/workspaces/spaces/snapshot",
+                        "/v1/workspaces/surfaces/open",
                         "/v1/workspaces/invitations/snapshot",
                         "/v1/workspaces/invitations/respond",
                         "/v1/workspaces/surfaces/read",
                         "/v1/workspaces/conversations/turn",
+                        "/v1/workspaces/conversations/history",
+                        "/v1/workspaces/executive-channels/status",
+                        "/v1/workspaces/executive-channels/history",
+                        "/v1/workspaces/executive-channels/turn",
+                        "/v1/workspaces/custom-departments/create",
+                        "/v1/workspaces/custom-departments/delete",
                         "/v1/workspaces/cards/snapshot",
                         "/v1/workspaces/cards/action",
                         "/v1/workspaces/signoffs/prepare",
@@ -311,14 +319,24 @@ class MobilePairingService:
                         "/v1/workspaces/handoffs/desktop",
                         "/v1/workspaces/commercial/snapshot",
                         "/v1/workspaces/commercial/action",
+                        "/v1/workspaces/work-schedule/snapshot",
+                        "/v1/workspaces/work-schedule/action",
                     }:
                         if service.workspace_gateway is None:
                             raise RuntimeError("The Workspace Gateway is not active on this mother")
                         operation = {
+                            "/v1/workspaces/spaces/snapshot": service.workspace_gateway.mobile_spaces_snapshot,
+                            "/v1/workspaces/surfaces/open": service.workspace_gateway.mobile_open_surface,
                             "/v1/workspaces/invitations/snapshot": service.workspace_gateway.invitation_snapshot,
                             "/v1/workspaces/invitations/respond": service.workspace_gateway.respond_to_invitation,
                             "/v1/workspaces/surfaces/read": service.workspace_gateway.mobile_read_surface,
                             "/v1/workspaces/conversations/turn": service.workspace_gateway.mobile_conversation_turn,
+                            "/v1/workspaces/conversations/history": service.workspace_gateway.mobile_conversation_history,
+                            "/v1/workspaces/executive-channels/status": service.workspace_gateway.mobile_executive_channels_status,
+                            "/v1/workspaces/executive-channels/history": service.workspace_gateway.mobile_executive_channel_history,
+                            "/v1/workspaces/executive-channels/turn": service.workspace_gateway.mobile_executive_channel_turn,
+                            "/v1/workspaces/custom-departments/create": service.workspace_gateway.mobile_custom_department_create,
+                            "/v1/workspaces/custom-departments/delete": service.workspace_gateway.mobile_custom_department_delete,
                             "/v1/workspaces/cards/snapshot": service.workspace_gateway.mobile_review_cards,
                             "/v1/workspaces/cards/action": service.workspace_gateway.mobile_review_card_action,
                             "/v1/workspaces/signoffs/prepare": service.workspace_gateway.mobile_prepare_signoff,
@@ -329,6 +347,8 @@ class MobilePairingService:
                             "/v1/workspaces/handoffs/desktop": service.workspace_gateway.mobile_prepare_desktop_handoff,
                             "/v1/workspaces/commercial/snapshot": service.workspace_gateway.mobile_commercial_snapshot,
                             "/v1/workspaces/commercial/action": service.workspace_gateway.mobile_commercial_action,
+                            "/v1/workspaces/work-schedule/snapshot": service.workspace_gateway.mobile_work_schedule_snapshot,
+                            "/v1/workspaces/work-schedule/action": service.workspace_gateway.mobile_work_schedule_action,
                         }[self.path]
                         result = operation(
                             dict(body.get("request") or {}), certificate=dict(body.get("certificate") or {}),
@@ -441,6 +461,7 @@ class MobilePairingService:
                         "/v1/personal/tv/session",
                         "/v1/personal/tv/presence",
                         "/v1/personal/tv/presentation",
+                        "/v1/personal/dashboard/action",
                     }:
                         if service.personal is None:
                             raise RuntimeError("Personal Pilot is not active on this mother")
@@ -452,6 +473,7 @@ class MobilePairingService:
                             "/v1/personal/tv/session": service.personal.change_shared_tv_session,
                             "/v1/personal/tv/presence": service.personal.confirm_shared_tv_presence,
                             "/v1/personal/tv/presentation": service.personal.control_shared_tv_presentation,
+                            "/v1/personal/dashboard/action": service.personal.control_dashboard_action,
                         }[self.path]
                         call_args = {
                             "certificate": dict(body.get("certificate") or {}),

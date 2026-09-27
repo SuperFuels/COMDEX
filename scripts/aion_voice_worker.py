@@ -24,6 +24,19 @@ DEFAULT_WHISPER_MODEL = "base"
 
 _KOKORO_PIPELINE = None
 _KOKORO_PIPELINE_KEY = None
+_WHISPER_MODEL = None
+_WHISPER_MODEL_KEY = None
+
+
+def get_whisper_model(model_name: str, device: str, compute_type: str):
+    """Return the process-local Whisper model, loading it only when settings change."""
+    global _WHISPER_MODEL, _WHISPER_MODEL_KEY
+    key = (str(model_name), str(device), str(compute_type))
+    if _WHISPER_MODEL is None or _WHISPER_MODEL_KEY != key:
+        from faster_whisper import WhisperModel
+        _WHISPER_MODEL = WhisperModel(key[0], device=key[1], compute_type=key[2])
+        _WHISPER_MODEL_KEY = key
+    return _WHISPER_MODEL
 
 
 
@@ -320,7 +333,7 @@ def run_stt(request: dict[str, Any]) -> dict[str, Any]:
             tmp.write(base64.b64decode(audio_b64))
 
         try:
-            model = WhisperModel(
+            model = get_whisper_model(
                 model_name,
                 device=str(request.get("device") or "auto"),
                 compute_type=str(request.get("compute_type") or "int8"),

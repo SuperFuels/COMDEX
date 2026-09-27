@@ -84,7 +84,7 @@ def _spawn_node(
 
     cmd = [
         sys.executable, "-m", "uvicorn",
-        "backend.main:app",
+        "backend.glyphchain_test_asgi:app",
         "--host", "127.0.0.1",
         "--port", str(port),
         "--log-level", "warning",

@@ -29,8 +29,8 @@ static bool read_exact(int descriptor, void * output, size_t bytes, off_t offset
 }
 
 int main(int argc, char ** argv) {
-    if (argc != 6) {
-        std::cerr << "usage: packed_expert MODEL GATE_OFFSET UP_OFFSET DOWN_OFFSET REPS\n";
+    if (argc != 6 && argc != 8) {
+        std::cerr << "usage: packed_expert MODEL GATE_OFFSET UP_OFFSET DOWN_OFFSET REPS [HIDDEN INTERMEDIATE]\n";
         return 2;
     }
     const int descriptor = open(argv[1], O_RDONLY);
@@ -49,9 +49,11 @@ int main(int argc, char ** argv) {
     ggml_context * context = ggml_init(parameters);
     if (context == nullptr) return 6;
 
-    ggml_tensor * gate = ggml_new_tensor_2d(context, GGML_TYPE_Q4_K, 2048, 768);
-    ggml_tensor * up = ggml_new_tensor_2d(context, GGML_TYPE_Q4_K, 2048, 768);
-    ggml_tensor * down = ggml_new_tensor_2d(context, GGML_TYPE_Q6_K, 768, 2048);
+    const int hidden = argc == 8 ? std::stoi(argv[6]) : 2048;
+    const int intermediate = argc == 8 ? std::stoi(argv[7]) : 768;
+    ggml_tensor * gate = ggml_new_tensor_2d(context, GGML_TYPE_Q4_K, hidden, intermediate);
+    ggml_tensor * up = ggml_new_tensor_2d(context, GGML_TYPE_Q4_K, hidden, intermediate);
+    ggml_tensor * down = ggml_new_tensor_2d(context, GGML_TYPE_Q6_K, intermediate, hidden);
     if (!read_exact(descriptor, gate->data, ggml_nbytes(gate), std::stoll(argv[2])) ||
         !read_exact(descriptor, up->data, ggml_nbytes(up), std::stoll(argv[3])) ||
         !read_exact(descriptor, down->data, ggml_nbytes(down), std::stoll(argv[4]))) {
@@ -59,9 +61,9 @@ int main(int argc, char ** argv) {
     }
     close(descriptor);
 
-    ggml_tensor * input = ggml_new_tensor_2d(context, GGML_TYPE_F32, 2048, 1);
+    ggml_tensor * input = ggml_new_tensor_2d(context, GGML_TYPE_F32, hidden, 1);
     auto * input_values = static_cast<float *>(input->data);
-    for (int index = 0; index < 2048; ++index) {
+    for (int index = 0; index < hidden; ++index) {
         input_values[index] = std::sin(static_cast<float>(index) * 0.0078125f);
     }
     ggml_tensor * gate_result = ggml_mul_mat(context, gate, input);
@@ -90,12 +92,13 @@ int main(int argc, char ** argv) {
     const auto * output_values = static_cast<const float *>(output->data);
     double checksum = 0.0;
     bool finite = true;
-    for (int index = 0; index < 2048; ++index) {
+    for (int index = 0; index < hidden; ++index) {
         checksum += output_values[index];
         finite = finite && std::isfinite(output_values[index]);
     }
     std::cout << "{\"schema\":\"aion.qwen3moe.packed-expert-cpu.v1\","
               << "\"repetitions\":" << repetitions
+              << ",\"hidden\":" << hidden << ",\"intermediate\":" << intermediate
               << ",\"weight_bytes\":"
               << (ggml_nbytes(gate) + ggml_nbytes(up) + ggml_nbytes(down))
               << ",\"p50_ms\":" << p50 << ",\"p95_ms\":" << p95

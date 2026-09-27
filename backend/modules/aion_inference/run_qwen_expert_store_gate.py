@@ -9,7 +9,10 @@ import statistics
 import time
 from pathlib import Path
 
-from .qwen_expert_glyph_store import QwenExpertGlyphStore
+try:
+    from .qwen_expert_glyph_store import QwenExpertGlyphStore
+except ImportError:  # Allows this self-contained SD diagnostic to run directly.
+    from qwen_expert_glyph_store import QwenExpertGlyphStore
 
 
 def _p95(values: list[float]) -> float:

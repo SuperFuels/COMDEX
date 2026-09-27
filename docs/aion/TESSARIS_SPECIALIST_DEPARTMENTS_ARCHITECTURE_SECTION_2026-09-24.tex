@@ -1,0 +1,539 @@
+% Tessaris specialist-department product and technical architecture.
+% Planned architecture recorded on 24 September 2026.
+% Intended for inclusion in the Tessaris technical handover.
+% Parent-document packages: array, booktabs, enumitem, hyperref, longtable,
+% tabularx, url and xcolor.
+
+\section{Installable Specialist Departments and Business Capability Packs}
+\label{sec:tessaris-specialist-departments}
+
+\subsection{Product thesis}
+
+Tessaris is intended to make business capabilities that are normally available
+only to larger organisations accessible to small and medium-sized businesses.
+The product is not merely a collection of prompts that can draft isolated
+documents.  Its advantage is that it already holds an authorised, persistent
+understanding of the business: its customers, people, suppliers, contracts,
+terms, projects, communications, financial evidence, policies, decisions and
+operating history.  When a specialist issue arises, Tessaris can assemble the
+relevant context and route it to the appropriate specialist capability without
+requiring the owner to reconstruct the matter from the beginning.
+
+The intended proposition is:
+
+\begin{quote}
+Enterprise-grade specialist guidance, coordination and operating capacity for
+businesses that could not normally maintain every specialist function in-house.
+\end{quote}
+
+The names \emph{department} and \emph{Pilot} describe product organisation and
+workflow ownership.  They do not represent a claim that Tessaris itself is a
+solicitor, accountant, recruiter, safety professional or other regulated
+professional.  A specialist department supplies AI-assisted business guidance,
+document preparation, analysis and workflow automation.  Outputs can contain
+errors and do not replace qualified advice or any human decision legally
+required in the applicable jurisdiction.
+
+This section records the intended architecture.  Unless a component is
+separately identified in the implementation record, the specialist departments
+described here are planned capabilities rather than claims about the currently
+delivered application.
+
+\subsection{Capability layers}
+
+The business operating system is divided into three layers:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Core business departments.} Sales, Marketing, Customer Service,
+        Finance assistance, Operations, People/HR, Product, Work \& Schedule and
+        basic reporting form the standard day-to-day operating layer.
+  \item \textbf{Installable specialist departments.} IT, Cybersecurity, Legal,
+        Compliance, Procurement, Recruitment, Data, Design, Engineering, Risk,
+        Project Management and other expert functions are activated when the
+        business needs them.
+  \item \textbf{Oversight and assurance.} Strategy, Governance, Internal Audit,
+        Quality, Tax coordination, Health \& Safety and Business Continuity
+        inspect or constrain work performed elsewhere.
+\end{enumerate}
+
+Specialist departments should not all become permanent items in the sticky
+header.  A \emph{Specialist Departments} library will allow the owner to inspect,
+install, configure, activate, pause and remove capability packs.  Active
+specialists can appear in the appropriate workspace or be invoked automatically
+by the cross-department router when a qualifying matter occurs.
+
+\subsection{Specialist-department catalogue}
+
+\begin{longtable}{@{}p{0.22\textwidth}p{0.70\textwidth}@{}}
+\caption{Planned specialist departments and their principal scope.}
+\label{tab:specialist-department-catalogue}\\
+\toprule
+\textbf{Department} & \textbf{Guidance, generation and coordination scope} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Department} & \textbf{Guidance, generation and coordination scope} \\
+\midrule
+\endhead
+IT \& Systems & Device and software inventory, licences, identity and access,
+backups, help-desk work, systems configuration and technology suppliers. \\
+Cybersecurity & Local security scanning, vulnerability and configuration
+review, exposed services, credential risks, incident preparation, evidence,
+recovery coordination and staff awareness. \\
+Legal Support & Contract and terms review, document preparation, disputes,
+obligations, intellectual-property records, evidence bundles and escalation to
+an appropriately qualified professional. \\
+Compliance \& Privacy & Data protection, consent, retention, internal policies,
+industry requirements, control evidence, assessments and audit preparation. \\
+Risk Management & Risk registers, controls, insurance gaps, operational
+incidents, dependencies, scenario analysis and treatment tracking. \\
+Procurement & Requirement detection, supplier discovery, requests for quote,
+comparison, negotiation preparation, purchasing controls, approvals and renewal
+management. \\
+Vendor Management & Supplier contracts, service levels, dependencies,
+performance, failures, pricing changes, concentration risks and alternatives. \\
+Recruitment \& Workforce Planning & Capacity diagnosis, role design, sourcing,
+approved advertising, candidate workflow, interview scheduling, channel
+experiments, offers and onboarding preparation. \\
+Project \& Programme Management & Goals, teams, AI and human assignments,
+budgets, milestones, dependencies, risks, delivery evidence, re-planning and
+outcome tracking. \\
+Product Management & Customer needs, requirements, roadmaps, prioritisation,
+release plans and feedback-to-product traceability. \\
+Research \& Development & Research questions, experiments, prototypes,
+technical evaluation, innovation records and evidence-led recommendations. \\
+Software Engineering & Applications, integrations, automation, code review,
+testing, deployment preparation and maintenance under software-change controls. \\
+Design \& Creative & Brand systems, graphics, product design, user experience,
+websites, prototypes, campaign assets and approved design libraries. \\
+Data \& Analytics & Data quality, reporting, dashboards, forecasting, business
+intelligence, metric definitions and provenance. \\
+Strategy & Market and competitor analysis, business plans, growth options,
+scenario planning, resource allocation and strategic review. \\
+Quality Assurance & Standards, inspections, complaints, defects, root-cause
+analysis, corrective actions and evidence of closure. \\
+Internal Audit & Independent inspection of whether policies, approvals,
+controls, records and provider receipts are functioning as designed. \\
+Corporate Governance & Board records, policies, decisions, delegated authority,
+conflicts, statutory calendars and company obligations. \\
+Tax Coordination & Tax calendars, evidence assembly, calculation support and
+handoff to an appropriately qualified adviser; not unreviewed filing or advice. \\
+Treasury & Cash forecasting, banking evidence, liquidity, currency exposure,
+debt, working capital and controlled payment preparation. \\
+Insurance & Coverage inventories, gaps, renewals, claims preparation and
+supporting evidence. \\
+Facilities \& Workplace & Premises, utilities, maintenance, leases, workplace
+services, inspections and supplier coordination. \\
+Health \& Safety Support & Risk-assessment preparation, training and equipment
+records, incident capture, inspection schedules and escalation; not replacement
+of competent-person duties. \\
+Learning \& Development & Skills assessment, onboarding, learning plans,
+competency evidence and renewal schedules. \\
+Sustainability / ESG & Energy, waste, emissions, supplier standards, improvement
+plans and evidence-backed reporting. \\
+Communications \& PR & Editorial planning, announcements, stakeholder updates,
+reputation monitoring, response preparation, crisis communications and results. \\
+Partnerships & Channel partners, affiliates, alliances, joint initiatives,
+commercial evidence and relationship obligations. \\
+Business Continuity & Critical-process maps, backup operations, disaster
+recovery, emergency plans, exercises and resilience evidence. \\
+\bottomrule
+\end{longtable}
+
+The recommended first specialist release comprises Legal Support, IT \&
+Cybersecurity, Compliance \& Privacy, Procurement, Recruitment, Project
+Management, Design \& Software Engineering, Data \& Analytics, Health \& Safety,
+Communications \& PR, Strategy and Business Continuity.  These cover common
+capabilities that smaller businesses frequently outsource or operate without.
+
+\subsection{Department-pack contract}
+
+Each installed department is a versioned capability pack rather than a name and
+a system prompt.  A pack should declare at least:
+
+\begin{itemize}[leftmargin=*]
+  \item a stable department and pack identifier, version and publisher;
+  \item its purpose, supported tasks and explicit exclusions;
+  \item country, jurisdiction, industry and business-size applicability;
+  \item one or more supported hosted or local models and their fallback order;
+  \item a specialist harness containing workflows, tools, structured outputs,
+        evaluation cases, escalation rules and policy constraints;
+  \item the Business Container records it may read and the fields it may write;
+  \item connected applications, external professionals and provider scopes;
+  \item required approvals, eligible automation and non-removable controls;
+  \item retention, confidentiality and local-versus-cloud processing rules;
+  \item budget, rate and external-spend limits;
+  \item required evidence, action receipts and completion criteria; and
+  \item health, evaluation, update, suspension and rollback behaviour.
+\end{itemize}
+
+The pack can operate through three execution arrangements:
+
+\begin{description}[leftmargin=0pt,style=nextline]
+  \item[Internal Pilot]
+  Tessaris performs bounded analysis, generation and coordination using the
+  normal business context and shared deterministic tools.
+
+  \item[Specialist model and harness]
+  A model selected for a domain is combined with a jurisdictional or industrial
+  harness.  The harness, rather than the model name alone, defines admitted
+  inputs, deterministic checks, tools, limits, required citations, review gates
+  and output schema.
+
+  \item[External professional or provider]
+  Tessaris prepares a structured matter and its supporting evidence for a
+  solicitor, accountant, recruiter, security consultant or other specialist.
+  The external party's response and authority remain distinguishable from an AI
+  proposal.
+\end{description}
+
+No pack may silently expand its own data access, budget or authority because a
+new model has been selected.  Model selection and operational authority are
+separate controls.
+
+\subsection{Persistent context and specialist work records}
+
+A specialist should receive only the authorised subset of the shared Business
+Container required for a matter.  The system should create a canonical
+\emph{specialist work record} with:
+
+\begin{itemize}[leftmargin=*]
+  \item matter or project identity, originating event and owning department;
+  \item objective, scope, jurisdiction, business entity and responsible owner;
+  \item linked customers, people, suppliers, contracts and projects;
+  \item immutable references to source messages, documents, photographs,
+        transactions, policies and previous decisions;
+  \item participating human and AI team members;
+  \item budget, deadlines, milestones, dependencies and risk classification;
+  \item proposals, reviews, approvals, actions and provider receipts;
+  \item unresolved questions, professional escalations and final outcome; and
+  \item provenance sufficient to reproduce why each recommendation was made.
+\end{itemize}
+
+This record is the primary difference between an embedded specialist and a
+stand-alone chat.  A new conversation must not lose the business's approved
+terms, earlier decisions or the evidence already attached to the matter.
+
+\subsection{Automatic cross-department routing}
+
+Users should not need to know which specialist to open.  Existing Pilots and
+inbound connectors emit typed business events.  A specialist-routing service
+evaluates the event against installed pack manifests and proposes or creates a
+matter with the minimum necessary context.  Routing does not itself grant
+authority to communicate externally or make an irreversible decision.
+
+For example, a customer threat can follow this path:
+
+\begin{enumerate}[leftmargin=*]
+  \item Customer Service preserves the complete communication and opens an
+        incident rather than continuing an improvised argument.
+  \item Legal Support receives the customer, accepted terms, contract,
+        communications, invoices, work records, photographs and relevant policy.
+  \item Finance identifies disputed invoices and payment evidence.
+  \item Operations supplies delivery records, assignments and completion proof.
+  \item Legal Support identifies missing facts, prepares options and produces an
+        approval-gated response or a bundle for an external professional.
+\end{enumerate}
+
+Additional routing examples include:
+
+\begin{itemize}[leftmargin=*]
+  \item ``We need two more engineers'' routes to People, Recruitment, Finance
+        and Operations for capacity, affordability and sourcing.
+  \item A supplier price increase routes to Procurement, Finance and Risk.
+  \item A new customer portal routes to Product, Design, Engineering, Legal
+        Support, Privacy and Cybersecurity.
+  \item A journalist enquiry routes to Communications \& PR, Legal Support and
+        the business owner.
+  \item A fixed-budget expansion routes to Project Management, Procurement,
+        People and Finance.
+  \item A suspicious attachment or exposed credential routes locally to
+        Cybersecurity and preserves evidence before any remediation.
+\end{itemize}
+
+The router should return the matched rules, installed pack version, context
+selection and required approvals.  It must not invent a specialist capability
+when the relevant pack is absent, unhealthy or outside its jurisdiction.
+
+\subsection{Priority specialist workflows}
+
+\subsubsection{Legal Support}
+
+Legal Support may review or prepare terms and conditions, customer and supplier
+contracts, employment and contractor documents, website privacy and cookie
+materials, obligation calendars, debt-recovery preparation, intellectual-
+property records, dispute correspondence and evidence bundles.  Legal packs
+should be jurisdiction- and domain-specific, for example UK small-business law,
+Irish company and employment law, Spanish commercial operations, construction,
+e-commerce and data protection.
+
+The interface must distinguish information and document preparation from advice
+or representation by a qualified professional.  Settlement, admission,
+termination, signature, filing and contentious external communication remain
+review-controlled.  Where professional review is required, Tessaris should
+produce a concise issue summary, chronology, documents, missing facts and
+questions rather than an unstructured transcript.
+
+\subsubsection{Local IT and Cybersecurity}
+
+Cybersecurity should be continuously available in the desktop or VM product and
+should prefer local processing for logs, files, device metadata and secrets.  A
+local model and deterministic scanners may inspect software inventory, missing
+updates, vulnerable packages, open ports, exposed services, backup health,
+access permissions, suspicious changes, phishing indicators, website or domain
+configuration and possible credential disclosure.
+
+Scanning, evidence capture and prioritised guidance may be continuous.
+Destructive remediation, account suspension, firewall changes, deletion,
+quarantine that interrupts the business and active offensive testing require
+explicit authority.  Every finding must identify its source, scanner or model,
+time, confidence, affected asset, suggested treatment and verification result.
+
+\subsubsection{Procurement and Vendor Management}
+
+The Procurement Pilot may detect demand from projects, schedules, stock and
+budgets; discover suppliers; prepare requests for quote; normalise offers;
+compare total cost, delivery, quality, warranty and risk; monitor renewal and
+price changes; maintain approved suppliers; and prepare negotiation or purchase
+recommendations.  Purchase commitments remain subject to business authority and
+budget controls.
+
+Procurement is also a potential revenue line through premium subscriptions,
+verified supplier introductions, marketplace services, managed procurement or
+shared savings.  Any commission, ranking influence or commercial relationship
+must be disclosed.  Paid placement must never be presented as an independent
+best-value recommendation.
+
+\subsubsection{Recruitment and Workforce Planning}
+
+Recruitment begins with operational demand rather than a job advert.  For a
+request such as ``we need more engineers'', the system should inspect workload,
+pipeline, skills, availability and budget; compare hiring, contracting and
+rescheduling; prepare the role and budget; publish only approved vacancies;
+operate approved organic or paid sourcing channels; manage candidates and
+interviews; prepare offers and onboarding; and report channel outcomes.
+
+Candidate ranking must use declared job-related criteria, retain provenance and
+support challenge and human review.  Posting, paid media, direct candidate
+contact, rejection, selection, compensation and offers require the configured
+employment controls.  The pack must accommodate data-protection and
+anti-discrimination requirements for the deployment jurisdiction.
+
+\subsubsection{Project and Programme Management}
+
+Projects coordinate both human and AI teams around an approved goal.  Each
+project holds the success definition, owner, team, budget, authority limits,
+milestones, dependencies, documents, decisions, risks, expected outcome, actual
+cost and time, and completion evidence.  The Project Pilot may identify delays,
+request updates, prepare re-plans and escalate scope or budget variance.  It
+connects to Workflow Canvas, Work \& Schedule, People, Procurement, Finance and
+Operations rather than creating a separate unlinked task database.
+
+\subsubsection{Communications and PR}
+
+Communications \& PR may maintain the editorial calendar and brand voice,
+identify business events worth communicating, prepare announcements, website
+and social content, stakeholder updates, press materials, reactive statements
+and crisis plans, monitor reputation and measure outcomes.  Routine content may
+operate within an approved campaign policy.  Crisis statements, admissions,
+regulated claims and legally or reputationally sensitive publications require
+human and, where configured, Legal Support review.
+
+\subsection{Authority and human-oversight levels}
+
+Installation and activation are separate.  Every newly activated department
+starts in \emph{Review required}.  The owner can later grant more authority to
+eligible action classes, but authority is versioned, scoped and revocable.
+
+\begin{longtable}{@{}p{0.22\textwidth}p{0.70\textwidth}@{}}
+\caption{Department operating levels.}
+\label{tab:specialist-operating-levels}\\
+\toprule
+\textbf{Level} & \textbf{Permitted behaviour} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Level} & \textbf{Permitted behaviour} \\
+\midrule
+\endhead
+Review required & Tessaris researches, analyses and prepares drafts or actions,
+but nothing leaves the controlled workspace and no external mutation occurs
+without an authorised person's approval of the exact payload. \\
+Operate within policy & Tessaris performs defined, reversible actions within an
+approved policy, data scope, budget, recipient class and rate limit.  Exceptions
+return to review. \\
+Autonomous routine work & Low-risk, repeatable actions may run without per-action
+approval when logging, limits, monitoring, rollback and suspension are present.
+This level is not available for prohibited or permanently review-bound actions. \\
+\bottomrule
+\end{longtable}
+
+Human oversight must be effective rather than ceremonial.  The reviewer needs
+the competence, information, time and authority to reject or stop the action.
+The interface must show source evidence, uncertainty, important assumptions,
+changes since the last approved version and the exact external effect.
+
+The following action classes remain human-controlled unless a later legal and
+safety assessment establishes a lawful, narrower implementation:
+
+\begin{itemize}[leftmargin=*]
+  \item legal demands, admissions, settlements, representation and contract
+        signature;
+  \item statutory or tax filing and ambiguous accounting treatment;
+  \item candidate or employee rejection, dismissal and other materially
+        consequential employment decisions;
+  \item safety-critical decisions or assertions that a workplace or activity is
+        safe;
+  \item transfers of money, bank-detail changes and new financial beneficiaries;
+  \item destructive cybersecurity remediation and offensive testing;
+  \item crisis, regulated or legally sensitive public statements; and
+  \item actions that are irreversible, exceed budget or lack a verified receipt.
+\end{itemize}
+
+A customer setting cannot remove a control required by law or by the product's
+minimum safety policy.  Increasing autonomy transfers operational discretion
+only within the published boundary; it does not convert an unavailable or
+unverified capability into an authorised one.
+
+\subsection{Installation and administration experience}
+
+The Specialist Departments library should provide catalogue, installed and
+active views.  Before activation, the owner must be able to inspect:
+
+\begin{itemize}[leftmargin=*]
+  \item the department's capabilities and exclusions;
+  \item jurisdiction, industry and supported business context;
+  \item model, harness, publisher, version and evaluation status;
+  \item data requested from each Business Container and its purpose;
+  \item available connectors and external-professional handoffs;
+  \item actions that require approval and those eligible for automation;
+  \item non-removable safety boundaries and known limitations;
+  \item professional review recommendations or requirements;
+  \item retention, local processing and cloud-processing position;
+  \item monthly usage and external-spend limits; and
+  \item update, rollback and removal consequences.
+\end{itemize}
+
+Activation should create the department workspace, default Review-required
+authority profile, matter registry, event subscriptions and health checks.  It
+must not silently grant a provider scope or copy all business records.  Removal
+disables routing and tools but preserves records required by the configured
+retention and audit policy.  An \emph{Activate all} operation applies a visible
+bundle manifest and requests the combined permissions; it is not a bypass for
+department-specific boundaries.
+
+\subsection{Commercial packaging}
+
+The initial packaging hypothesis is:
+
+\begin{description}[leftmargin=0pt,style=nextline]
+  \item[Tessaris Business Core]
+  Sales, Marketing, Customer Service, Finance assistance, Operations, People/HR,
+  Work \& Schedule and basic reporting are included in the standard business
+  operating system.
+
+  \item[Tessaris Complete Business]
+  An \emph{Activate all} package makes the supported specialist catalogue
+  available under one subscription while still requiring individual permission
+  and authority configuration.
+
+  \item[Specialist Packs]
+  Individual departments, jurisdictions or industries can be installed as
+  optional packs.  Pricing may be a small monthly department fee, a premium
+  pack subscription or a usage allowance rather than a separate model licence.
+\end{description}
+
+Additional revenue can come from professional-review marketplaces,
+recruitment-channel management, managed cybersecurity, project or campaign
+budgets, and disclosed procurement introductions or shared savings.  Model and
+harness cost should be presented as the capability price rather than forcing
+the customer to understand token or model infrastructure.  Pricing remains a
+commercial hypothesis until usage, support, insurance and provider costs have
+been measured.
+
+\subsection{Trust, claims and regulatory position}
+
+The product should not use an ``entertainment purposes only'' statement for
+business capabilities designed to influence real work.  Product descriptions,
+limitations and demonstrations must accurately reflect the intended use.
+Appropriate wording is that the department provides AI-assisted guidance,
+document preparation and workflow automation; outputs may contain errors and do
+not replace qualified professional advice or legally required human decisions.
+
+Terms and customer-selected autonomy do not replace product controls,
+evaluation, clear instructions, incident handling or compliance with applicable
+law.  Recruitment and other uses that materially influence people require
+particular assessment.  Solely automated decisions that have legal or similarly
+significant effects may engage data-protection restrictions and safeguards.
+High-risk uses may require risk management, technical documentation, logging,
+accuracy, robustness, cybersecurity, effective human oversight and deployer
+controls.  The exact product claims, contractual allocation, insurance and
+jurisdictional implementation must be reviewed by appropriately qualified legal
+and regulatory professionals before public release.
+
+\subsection{Technical service boundaries}
+
+The planned implementation should maintain the following separations:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Catalogue service:} discovers signed pack manifests without
+        granting their requested access.
+  \item \textbf{Installation service:} verifies compatibility, publisher,
+        version, model availability and evaluations, then records consent.
+  \item \textbf{Context broker:} produces a purpose-limited evidence bundle from
+        authorised Business Container records.
+  \item \textbf{Specialist router:} matches typed events to healthy installed
+        capabilities and records the reason for the route.
+  \item \textbf{Matter service:} owns the canonical specialist work record and
+        cross-department references.
+  \item \textbf{Harness runtime:} admits only declared tools and structured
+        outputs and runs deterministic checks around model proposals.
+  \item \textbf{Authority gateway:} compares each proposed action with actor,
+        department, action, budget, recipient and risk policies.
+  \item \textbf{Approval service:} binds approval to an exact payload hash and
+        expires it when the payload or material context changes.
+  \item \textbf{Execution adapters:} perform permitted external actions and
+        return provider identifiers and read-back evidence.
+  \item \textbf{Receipt and audit service:} preserves sources, proposal,
+        reviewer, approval, execution result, model and pack versions.
+  \item \textbf{Health and suspension service:} disables routing or execution
+        when a pack, model, connector, evaluation or jurisdiction is invalid.
+\end{enumerate}
+
+The model proposes; the harness validates and structures; the authority gateway
+decides whether execution is admissible; a human approves where required; the
+adapter acts; and the receipt proves what occurred.  No user-interface label
+such as ``department'', ``active'' or ``autonomous'' may bypass that chain.
+
+\subsection{Acceptance criteria for the first release}
+
+The first specialist-department release is complete only when:
+
+\begin{enumerate}[leftmargin=*]
+  \item the library distinguishes available, installed, active, unhealthy and
+        unavailable-for-jurisdiction packs;
+  \item installation displays and records all requested data, tool, provider,
+        budget and retention scopes;
+  \item activation defaults to Review required and exposes no hidden external
+        write authority;
+  \item at least one typed business event opens a canonical specialist matter
+        with a minimal, inspectable context bundle;
+  \item the user can trace every included fact to its source record;
+  \item model unavailability, low confidence or missing evidence causes an
+        explicit limitation or escalation rather than a fabricated answer;
+  \item exact-payload approvals are invalidated by material changes;
+  \item every external action produces a receipt or is reported as unverified;
+  \item permanent human-control actions cannot be enabled through ordinary
+        customer settings;
+  \item pack updates can be evaluated, staged, rolled back and audited;
+  \item removal stops new routing and execution without destroying retained
+        matter evidence; and
+  \item marketing and in-product wording accurately separates assistance,
+        automation and professional responsibility.
+\end{enumerate}
+
+The resulting system is a coordinated organisation of persistent,
+context-aware capabilities operating under the business's data permissions,
+authority, budget and evidence controls.  This in-house context, controlled
+handoff and durable institutional memory---rather than generic document
+generation alone---is the intended competitive advantage.

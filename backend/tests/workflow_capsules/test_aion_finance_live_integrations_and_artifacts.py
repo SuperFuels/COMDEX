@@ -23,6 +23,9 @@ def configure_runtime(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(AIONBusinessPaths, "BUSINESS_CONTAINERS", root / "business_containers")
     monkeypatch.setattr(AIONBusinessPaths, "WORKSPACES", root / "workspaces")
     monkeypatch.setenv("AION_XERO_TOKEN_STORE_DIR", str(tmp_path / "secrets"))
+    monkeypatch.setenv("AION_ZOHO_BOOKS_TOKEN_STORE_DIR", str(tmp_path / "zoho-secrets"))
+    monkeypatch.setenv("AION_FREEAGENT_TOKEN_STORE_DIR", str(tmp_path / "freeagent-secrets"))
+    monkeypatch.setenv("AION_FRESHBOOKS_TOKEN_STORE_DIR", str(tmp_path / "freshbooks-secrets"))
 
 
 def test_xero_connect_reports_real_configuration_requirements(monkeypatch, tmp_path: Path) -> None:
@@ -32,6 +35,131 @@ def test_xero_connect_reports_real_configuration_requirements(monkeypatch, tmp_p
     assert result["ok"] is False
     assert result["reason"] == "xero_oauth_config_missing"
     assert result["redirect_uri"] == "http://localhost:8080/api/aion/integrations/xero/callback"
+    assert result["connection"]["external_writes_enabled"] is False
+
+
+def test_zoho_books_connect_is_read_only_and_uses_us_offline_consent(monkeypatch, tmp_path: Path) -> None:
+    configure_runtime(monkeypatch, tmp_path)
+    monkeypatch.setenv("ZOHO_BOOKS_CLIENT_ID", "test-client-id")
+    monkeypatch.setenv("ZOHO_BOOKS_CLIENT_SECRET", "test-client-secret")
+    result = xero_api.zoho_books_connect("Home Fixed")
+    assert result["ok"] is True
+    assert result["connect_url"].startswith("https://accounts.zoho.com/oauth/v2/auth?")
+    assert "access_type=offline" in result["connect_url"]
+    assert "prompt=consent" in result["connect_url"]
+    assert "ZohoBooks.invoices.READ" in result["connect_url"]
+    assert "ZohoBooks.banking.READ" in result["connect_url"]
+    assert result["connection"]["configured"] is True
+    assert result["connection"]["read_only"] is True
+    assert result["connection"]["external_writes_enabled"] is False
+    pending = json.loads((
+        AIONBusinessPaths.business_container_dir("home-fixed")
+        / "integrations/zoho_books/oauth_pending.json"
+    ).read_text())
+    assert pending["state"]
+    assert "client_secret" not in pending
+
+
+def test_zoho_books_cancelled_authorisation_preserves_existing_connection(monkeypatch, tmp_path: Path) -> None:
+    configure_runtime(monkeypatch, tmp_path)
+    monkeypatch.setenv("ZOHO_BOOKS_CLIENT_ID", "test-client-id")
+    monkeypatch.setenv("ZOHO_BOOKS_CLIENT_SECRET", "test-client-secret")
+    existing = {
+        "status": "connected", "organization_id": "org-1",
+        "organization_name": "Home Fixed", "api_domain": "https://www.zohoapis.com",
+    }
+    xero_api._write_json(xero_api._zoho_books_connection_path("home-fixed"), existing)
+    xero_api.zoho_books_connect("home-fixed")
+    pending = json.loads((
+        AIONBusinessPaths.business_container_dir("home-fixed")
+        / "integrations/zoho_books/oauth_pending.json"
+    ).read_text())
+    response = asyncio.run(xero_api.zoho_books_callback(state=pending["state"], error="access_denied"))
+    assert response.status_code == 400
+    restored = xero_api._zoho_books_public_connection("home-fixed")
+    assert restored["connected"] is True
+    assert restored["organization_id"] == "org-1"
+
+
+def test_freeagent_connect_uses_registered_callback_and_read_only_governance(monkeypatch, tmp_path: Path) -> None:
+    configure_runtime(monkeypatch, tmp_path)
+    monkeypatch.setenv("FREEAGENT_CLIENT_ID", "test-client-id")
+    monkeypatch.setenv("FREEAGENT_CLIENT_SECRET", "test-client-secret")
+    monkeypatch.delenv("FREEAGENT_ENVIRONMENT", raising=False)
+    result = xero_api.freeagent_connect("Home Fixed")
+    assert result["ok"] is True
+    assert result["connect_url"].startswith("https://api.freeagent.com/v2/approve_app?")
+    assert "response_type=code" in result["connect_url"]
+    assert "localhost%3A8080%2Fapi%2Faion%2Fintegrations%2Ffreeagent%2Fcallback" in result["connect_url"]
+    assert result["connection"]["configured"] is True
+    assert result["connection"]["read_only"] is True
+    assert result["connection"]["external_writes_enabled"] is False
+    pending = json.loads((
+        AIONBusinessPaths.business_container_dir("home-fixed")
+        / "integrations/freeagent/oauth_pending.json"
+    ).read_text())
+    assert pending["state"]
+    assert "client_secret" not in pending
+
+
+def test_freeagent_cancelled_authorisation_preserves_existing_connection(monkeypatch, tmp_path: Path) -> None:
+    configure_runtime(monkeypatch, tmp_path)
+    monkeypatch.setenv("FREEAGENT_CLIENT_ID", "test-client-id")
+    monkeypatch.setenv("FREEAGENT_CLIENT_SECRET", "test-client-secret")
+    existing = {"status": "connected", "company_id": "123", "company_name": "Home Fixed"}
+    xero_api._write_json(xero_api._freeagent_connection_path("home-fixed"), existing)
+    xero_api.freeagent_connect("home-fixed")
+    pending = json.loads((
+        AIONBusinessPaths.business_container_dir("home-fixed")
+        / "integrations/freeagent/oauth_pending.json"
+    ).read_text())
+    response = asyncio.run(xero_api.freeagent_callback(state=pending["state"], error="access_denied"))
+    assert response.status_code == 400
+    restored = xero_api._freeagent_public_connection("home-fixed")
+    assert restored["connected"] is True
+    assert restored["company_id"] == "123"
+
+
+def test_freshbooks_business_selection_uses_reporting_uuid(monkeypatch, tmp_path: Path) -> None:
+    configure_runtime(monkeypatch, tmp_path)
+
+    async def fake_request(method: str, url: str, *, operation: str, **kwargs):
+        assert method == "GET"
+        assert operation == "identity"
+        return {
+            "response": {
+                "business_memberships": [{
+                    "business": {
+                        "id": 14784847,
+                        "business_uuid": "4ff129cb-432e-43f1-bb15-bb9ff9e12ed1",
+                        "account_id": "610Md4",
+                        "name": "Tessaris Ai Limited",
+                    }
+                }]
+            }
+        }
+
+    monkeypatch.setattr(xero_api, "_freshbooks_request_json", fake_request)
+    businesses = asyncio.run(xero_api._freshbooks_businesses("safe-test-token"))
+    assert businesses == [{
+        "account_id": "610Md4",
+        "provider_business_id": "4ff129cb-432e-43f1-bb15-bb9ff9e12ed1",
+        "company_id": "610Md4|4ff129cb-432e-43f1-bb15-bb9ff9e12ed1",
+        "company_name": "Tessaris Ai Limited",
+        "currency": None,
+    }]
+
+
+def test_freshbooks_connect_requests_reporting_scope(monkeypatch, tmp_path: Path) -> None:
+    configure_runtime(monkeypatch, tmp_path)
+    monkeypatch.setenv("FRESHBOOKS_CLIENT_ID", "test-client-id")
+    monkeypatch.setenv("FRESHBOOKS_CLIENT_SECRET", "test-client-secret")
+    result = xero_api.freshbooks_connect("Home Fixed")
+    assert result["ok"] is True
+    assert result["connect_url"].startswith("https://auth.freshbooks.com/oauth/authorize/?")
+    assert "user%3Ajournal_entries%3Aread" in result["connect_url"]
+    assert result["connection"]["configured"] is True
+    assert result["connection"]["read_only"] is True
     assert result["connection"]["external_writes_enabled"] is False
 
 

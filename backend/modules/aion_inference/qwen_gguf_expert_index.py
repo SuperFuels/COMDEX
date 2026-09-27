@@ -64,7 +64,8 @@ def read_gguf_index(path: Path) -> dict[str, Any]:
     retained_keys = {
         "general.architecture", "general.name", "general.alignment",
         "qwen3moe.block_count", "qwen3moe.expert_count",
-        "qwen3moe.expert_used_count",
+        "qwen3moe.expert_used_count", "qwen3next.block_count",
+        "qwen3next.expert_count", "qwen3next.expert_used_count",
     }
     with path.open("rb") as handle:
         if _read_exact(handle, 4) != b"GGUF":
@@ -118,8 +119,15 @@ def build_expert_manifest(path: Path, model_sha256: str) -> dict[str, Any]:
     """Describe each expert as three exact byte ranges in the original GGUF."""
     index = read_gguf_index(path)
     metadata = index["metadata"]
-    expert_count = int(metadata.get("qwen3moe.expert_count") or 0)
-    layer_count = int(metadata.get("qwen3moe.block_count") or 0)
+    architecture = str(metadata.get("general.architecture") or "")
+    if architecture == "qwen3next":
+        family = "qwen3next"
+    elif architecture == "qwen3moe":
+        family = "qwen3moe"
+    else:
+        raise ValueError(f"unsupported Qwen MoE architecture: {architecture or 'missing'}")
+    expert_count = int(metadata.get(f"{family}.expert_count") or 0)
+    layer_count = int(metadata.get(f"{family}.block_count") or 0)
     if expert_count <= 0 or layer_count <= 0:
         raise ValueError("GGUF is missing Qwen MoE layer/expert metadata")
 
@@ -179,7 +187,7 @@ def build_expert_manifest(path: Path, model_sha256: str) -> dict[str, Any]:
         "model_name": metadata.get("general.name"),
         "layer_count": layer_count,
         "expert_count": expert_count,
-        "experts_used_per_token": int(metadata.get("qwen3moe.expert_used_count") or 0),
+        "experts_used_per_token": int(metadata.get(f"{family}.expert_used_count") or 0),
         "expert_tensor_bytes": expert_bytes,
         "logical_expert_instances": layer_count * expert_count,
         "layers": manifest_layers,

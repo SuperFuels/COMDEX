@@ -1,7 +1,6 @@
 import Head from "next/head";
 import type { GetStaticProps, NextPage } from "next";
-import fs from "node:fs";
-import path from "node:path";
+import pilotFixture from "@/data/pilot_unified_mobile_v1.json";
 import {
   Bell,
   Brain,
@@ -2339,9 +2338,7 @@ const PilotMobile: NextPage<PageProps> = ({ fixture }) => {
 };
 
 export const getStaticProps: GetStaticProps<PageProps> = async () => {
-  const fixturePath = path.join(process.cwd(), "..", "docs", "aion", "fixtures", "pilot_unified_mobile_v1.json");
-  const fixture = JSON.parse(fs.readFileSync(fixturePath, "utf8")) as Fixture;
-  return { props: { fixture } };
+  return { props: { fixture: pilotFixture as Fixture } };
 };
 
 export default PilotMobile;

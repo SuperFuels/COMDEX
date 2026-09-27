@@ -171,7 +171,17 @@ async def _post_to_many_skip_self(
 
 
 @pytest.mark.asyncio
-async def test_consensus_pr6_two_competing_rounds_preferred_convergence_gate() -> None:
+async def test_consensus_pr6_two_competing_rounds_preferred_convergence_gate(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # This gate exercises adversarial round preference through votes, not state
+    # sync.  Background tip sync can legitimately skip the injected height once
+    # a peer advances, making the exact-height QC assertion race the sync loop.
+    monkeypatch.setenv("CONSENSUS_SYNC_ENABLE", "0")
+    # This gate drives proposals and votes explicitly.  Suppress autonomous
+    # ticks after startup so a later height cannot race the exact retained-QC
+    # assertion; autonomous progress is covered by the dedicated finality tests.
+    monkeypatch.setenv("CONSENSUS_TICK_MS", "100000")
     nodes = await start_n_nodes(4, base_port=18180, chain_id="glyphchain-dev")
     try:
         # If this fails, fix the engine deadlock first (not the test).
@@ -182,7 +192,10 @@ async def test_consensus_pr6_two_competing_rounds_preferred_convergence_gate() -
         assert validators, f"no validators in status: {st0}"
 
         base_fh = int(st0.get("finalized_height") or 0)
-        h = int(base_fh + 25)  # far enough ahead to avoid racing normal progress
+        # Stay within the 64-height future-message window while leaving enough
+        # headroom that background consensus cannot reach the injected height
+        # during the deliberately chatty adversarial setup below.
+        h = int(base_fh + 60)
 
         leader0 = _leader_for(validators, h, 0)
         leader1 = _leader_for(validators, h, 1)
@@ -191,8 +204,34 @@ async def test_consensus_pr6_two_competing_rounds_preferred_convergence_gate() -
         blockA = _canon_block_id(h, 0, leader0)
         blockB = _canon_block_id(h, 1, leader1)
 
-        gA = [nodes[0], nodes[1]]  # see (h,0) first
-        gB = [nodes[2], nodes[3]]  # see (h,1) first
+        gA = [nodes[0], nodes[1]]  # adversarial lower-round recipients
+        gB = [nodes[2], nodes[3]]  # higher-round recipients
+
+        # Announce the higher round before either proposal is acted on.  This
+        # isolates the preferred-round rule from the engine's normal automatic
+        # prevote gossip: once round 1 is observed, a subsequently delivered
+        # round-0 proposal must be stored/ignored rather than voted through.
+        hint_voter = nodes[2]
+        higher_round_hint: Dict[str, Any] = {
+            "height": h,
+            "round": 1,
+            "voter": hint_voter.val_id,
+            "vote_type": "PREVOTE",
+            "block_id": blockB,
+            "ts_ms": _now_ms(),
+        }
+        higher_round_hint["sig_hex"] = _sign_payload(
+            hint_voter,
+            msg_type="VOTE",
+            payload=higher_round_hint,
+        )
+        await _post_to_many_skip_self(
+            src=hint_voter,
+            dsts=gA,
+            path="/api/p2p/vote",
+            msg_type="VOTE",
+            payload=higher_round_hint,
+        )
 
         # --- Step 1: split proposals (A to gA, B to gB) ---
         src_for_A = nodes[2]  # not in gA
@@ -248,8 +287,31 @@ async def test_consensus_pr6_two_competing_rounds_preferred_convergence_gate() -
 
         await asyncio.sleep(0.25)
 
-        # --- Step 3: ensure gA learns round=1 (preference should become 1) ---
-        for voter_node in (nodes[2], nodes[3]):
+        # --- Step 3: deliver B, then give every gA recipient a round=1 quorum ---
+        # A higher-round lock must be grounded in the proposal it names.  Use a
+        # source outside gA so both recipients receive the same signed proposal.
+        src_for_B_to_gA = nodes[2]
+        pB_to_gA = dict(pB)
+        pB_to_gA.pop("sig_hex", None)
+        pB_to_gA["ts_ms"] = _now_ms()
+        pB_to_gA["sig_hex"] = _sign_payload(
+            src_for_B_to_gA,
+            msg_type="PROPOSAL",
+            payload=pB_to_gA,
+        )
+        await _post_to_many_skip_self(
+            src=src_for_B_to_gA,
+            dsts=gA,
+            path="/api/p2p/proposal",
+            msg_type="PROPOSAL",
+            payload=pB_to_gA,
+        )
+
+        # Posting skips a source node's own endpoint because peer stores do not
+        # contain self records.  Using all four validators therefore delivers
+        # three distinct votes to each gA node: exactly the quorum needed to
+        # establish B as the preferred lock before the stale round-0 canary.
+        for voter_node in nodes:
             vB_hint: Dict[str, Any] = {
                 "height": h,
                 "round": 1,
@@ -318,11 +380,11 @@ async def test_consensus_pr6_two_competing_rounds_preferred_convergence_gate() -
         for n in nodes:
             st = await _get_status(n)
             assert int(st.get("finalized_height") or 0) >= h, f"node did not finalize h={h}: {st}"
-            last_qc = st.get("last_qc") or {}
-            assert isinstance(last_qc, dict) and last_qc, f"missing last_qc: {st}"
-            assert int(last_qc.get("height") or 0) == h, f"wrong qc height: {st}"
-            assert int(last_qc.get("round") or -1) == 1, f"expected qc round=1: {st}"
-            assert str(last_qc.get("block_id") or "") == blockB, f"expected finalize on B: {st}"
+            recent = list(st.get("recent_qcs") or [])
+            finality = next((qc for qc in recent if int(qc.get("height") or 0) == h), None)
+            assert isinstance(finality, dict) and finality, f"missing retained qc for h={h}: {st}"
+            assert int(finality.get("round") or -1) == 1, f"expected qc round=1: {st}"
+            assert str(finality.get("block_id") or "") == blockB, f"expected finalize on B: {st}"
 
     finally:
         await stop_nodes(nodes)

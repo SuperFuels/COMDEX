@@ -254,6 +254,9 @@ app = FastAPI(
 )
 app.router.redirect_slashes = False
 
+from backend.modules.aion_business.runtime.request_body_limits import ScopedRequestBodyLimitMiddleware
+app.add_middleware(ScopedRequestBodyLimitMiddleware)
+
 app.include_router(workflow_capsule_router.router)
 app.include_router(workflow_glyph_router.router)
 app.include_router(workflow_architect_router)
@@ -1123,10 +1126,17 @@ from backend.modules.aion_business.api.finance_sales_api import router as aion_f
 from backend.modules.aion_business.api.sales_revenue_api import router as aion_sales_revenue_router
 from backend.modules.aion_business.api.sales_completion_api import router as aion_sales_completion_router
 from backend.modules.aion_business.api.pilot_scheduled_work_api import router as aion_pilot_scheduled_work_router
+from backend.modules.aion_business.api.pilot_operating_team_api import router as aion_pilot_operating_team_router
+from backend.modules.aion_business.api.work_schedule_api import router as aion_work_schedule_router
 from backend.modules.aion_business.api.medium_business_operating_api import router as aion_medium_business_operating_router
 from backend.modules.aion_business.api.support_case_api import router as aion_support_case_router
+from backend.modules.aion_business.api.legal_signing_api import router as aion_legal_signing_router, public_router as aion_legal_signing_public_router
+from backend.modules.aion_business.api.cybersecurity_guard_api import router as aion_cybersecurity_guard_router
+from backend.modules.aion_business.runtime.cybersecurity_guard_service import CybersecurityGuardScheduler
+from backend.modules.aion_business.api.glyphchain_admin_api import router as aion_glyphchain_admin_router
 from backend.modules.aion_business.api.marketing_creative_api import router as aion_marketing_creative_router
 from backend.modules.aion_business.api.marketing_connections_api import router as aion_marketing_connections_router
+from backend.modules.aion_business.api.a2a_commerce_api import public_router as a2a_commerce_public_router, internal_router as a2a_commerce_internal_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -1391,10 +1401,18 @@ app.include_router(aion_finance_sales_router)
 app.include_router(aion_sales_revenue_router)
 app.include_router(aion_sales_completion_router)
 app.include_router(aion_pilot_scheduled_work_router)
+app.include_router(aion_pilot_operating_team_router)
+app.include_router(aion_work_schedule_router)
 app.include_router(aion_medium_business_operating_router)
 app.include_router(aion_support_case_router)
+app.include_router(aion_legal_signing_router)
+app.include_router(aion_legal_signing_public_router)
+app.include_router(aion_cybersecurity_guard_router)
+app.include_router(aion_glyphchain_admin_router)
 app.include_router(aion_marketing_creative_router)
 app.include_router(aion_marketing_connections_router)
+app.include_router(a2a_commerce_public_router)
+app.include_router(a2a_commerce_internal_router)
 app.include_router(aion_business_role_router)
 app.include_router(aion_business_audit_router)
 app.include_router(aion_business_founder_review_router)
@@ -1414,6 +1432,18 @@ app.include_router(local_node_router)
 app.include_router(aion_business_container_bindings_router)
 app.include_router(aion_business_brand_foundation_router)
 app.include_router(aion_business_browser_skills_router)
+
+_cybersecurity_guard_scheduler = CybersecurityGuardScheduler()
+
+
+@app.on_event("startup")
+async def start_cybersecurity_guard_scheduler() -> None:
+    _cybersecurity_guard_scheduler.start()
+
+
+@app.on_event("shutdown")
+async def stop_cybersecurity_guard_scheduler() -> None:
+    _cybersecurity_guard_scheduler.stop()
 # app.include_router(aion_demo_router, prefix="/aion-demo")
 register_voice_events(app)
 

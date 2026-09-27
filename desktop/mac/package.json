@@ -8,7 +8,8 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --mac",
-    "pack": "electron-builder --dir --mac"
+    "pack": "electron-builder --dir --mac",
+    "pack:local": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir --mac"
   },
   "devDependencies": {
     "electron": "^43.1.0",

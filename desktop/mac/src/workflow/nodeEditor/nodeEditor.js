@@ -2199,6 +2199,58 @@ function normaliseRuntimeError(value) {
 
     const inputItems = getInputItemsForNode(node, nodes);
     const executedAt = new Date().toISOString();
+
+    const actionKey = getActionKey(node);
+    if (
+      actionKey.includes("pilot.demonstrated_skill.execute") &&
+      typeof window.__aionQueuePilotWorkflowSkillNode === "function"
+    ) {
+      const runtime = getNodeRuntime(node);
+      runtime.input_items = inputItems;
+      runtime.output_items = [];
+      runtime.execution_status = "queueing";
+      runtime.last_run_at = executedAt;
+      runtime.error = null;
+      helpers.requestRender?.();
+
+      window.__aionQueuePilotWorkflowSkillNode(node, inputItems)
+        .then((result) => {
+          const completedAt = new Date().toISOString();
+          runtime.output_items = [{
+            json: {
+              ...result,
+              skill_id: node?.config?.skill_id || node?.skill_id || "",
+              skill_hash: node?.config?.skill_hash || node?.skill_hash || "",
+              source: "pilot.demonstrated_skill.execute",
+              queued_at: completedAt,
+            },
+          }];
+          runtime.execution_status = result?.waiting ? "waiting_for_department_computer" : (result?.status || "queued");
+          runtime.last_run_at = completedAt;
+          runtime.error = null;
+          graph.dirty = true;
+          window.__aionWorkflowGraph = graph;
+          helpers.compileAndAttachAionWorkflowGlyph?.(graph);
+          helpers.persistAionWorkflowDraftState?.();
+          window.__aionNodeEditorIoTabs = {
+            ...(window.__aionNodeEditorIoTabs || {}),
+            output: "json",
+          };
+          helpers.requestRender?.();
+        })
+        .catch((error) => {
+          runtime.output_items = [];
+          runtime.execution_status = "error";
+          runtime.last_run_at = new Date().toISOString();
+          runtime.error = String(error?.message || error);
+          graph.dirty = true;
+          window.__aionWorkflowGraph = graph;
+          helpers.persistAionWorkflowDraftState?.();
+          helpers.requestRender?.();
+        });
+      return;
+    }
+
     const outputItems = executeNodeDryRun(node, inputItems, executedAt);
 
     const edges = Array.isArray(graph.edges) ? graph.edges : [];
