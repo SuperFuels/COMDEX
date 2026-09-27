@@ -11,6 +11,7 @@ import TabDock, { type TabDef } from "./TabDock";
  */
 export const TABS: readonly TabDef[] = [
   { key: "home", label: "Home", href: "/" },
+  { key: "market", label: "Market", href: "/market" },
   { key: "launch", label: "Launch", href: "/launch" },
   { key: "glyph", label: "Glyph OS", href: "/glyph" },
   { key: "compression", label: "Compression", href: "/compression" },
