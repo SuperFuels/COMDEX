@@ -10,6 +10,8 @@ import TabDock, { type TabDef } from "./TabDock";
  * Add new tabs here.
  */
 export const TABS: readonly TabDef[] = [
+  { key: "home", label: "Home", href: "/" },
+  { key: "market", label: "Market", href: "/market" },
   { key: "launch", label: "Launch", href: "/launch" },
   { key: "glyph", label: "Glyph OS", href: "/glyph" },
   { key: "compression", label: "Compression", href: "/compression" },
@@ -45,8 +47,7 @@ function getActiveKeyFromPath(pathname: string): string {
     .find((t) => t.href !== "/" && p.startsWith(t.href + "/"));
   if (nested) return nested.key;
 
-  // default to glyph (keeps previous behavior)
-  return "glyph";
+  return "home";
 }
 
 /** ✅ Tabs bar meant to be mounted inside the navbar (mobile scroll). */
