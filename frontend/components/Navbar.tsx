@@ -14,20 +14,12 @@ export default function GlyphNetNavbar() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <Link href="/" className="logo-link flex items-center shrink-0">
             <Image
-              src="/tessaris_light_logo.svg"
+              src="/tessaris-tesseract-rounded-loop.png"
               alt="Tessaris"
-              width={120}
-              height={34}
+              width={174}
+              height={58}
               priority
-              className="block dark:hidden border-none"
-            />
-            <Image
-              src="/tessaris_dark_logo.svg"
-              alt="Tessaris"
-              width={120}
-              height={34}
-              priority
-              className="hidden dark:block border-none"
+              className="block h-auto w-[148px] border-none sm:w-[174px]"
             />
           </Link>
 
