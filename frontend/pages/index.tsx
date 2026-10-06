@@ -139,21 +139,17 @@ export default function HomePage() {
             <div className="mx-auto max-w-[1380px]">
               <div className="relative min-h-[330px] overflow-hidden rounded-[26px] border border-blue-100 bg-[#b9d2eb] shadow-[0_24px_70px_rgba(7,19,41,.16)] sm:min-h-[430px] lg:min-h-[560px]">
                 <Image
-                  src="/tessaris-spatial-boardroom.png"
+                  src="/tessaris-spatial-boardroom-clean.png"
                   alt="Tessaris spatial boardroom with AION and specialist AI models meeting around the business table"
                   fill
                   priority
                   sizes="(max-width: 768px) 100vw, 1380px"
                   className="object-cover object-center"
                 />
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#071329]/85 via-[#071329]/20 to-transparent" />
-                <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-[#071329]/75 px-4 py-2 text-[10px] font-black uppercase tracking-[.18em] text-white backdrop-blur sm:left-6 sm:top-6">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" /> Interactive AI boardroom
-                </div>
-                <div className="absolute bottom-24 left-5 right-5 text-white sm:bottom-28 sm:left-8">
-                  <div className="text-[10px] font-black uppercase tracking-[.2em] text-blue-200">AION + your chosen intelligence</div>
-                  <p className="mt-2 max-w-2xl text-lg font-extrabold leading-6 sm:text-2xl">Your board is already working on the business.</p>
-                </div>
+                <div className="absolute left-[9%] top-[43%] -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">AION</div>
+                <div className="absolute left-[41.5%] top-[39%] -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">Gemini</div>
+                <div className="absolute left-[58%] top-[39%] -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">OpenAI</div>
+                <div className="absolute left-[90%] top-[43%] -translate-x-1/2 -translate-y-full rounded-full border border-white/70 bg-[#071329]/85 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">Qwen</div>
               </div>
 
               <div className="relative z-10 mx-auto -mt-2 max-w-[1060px] rounded-[30px] border border-slate-200 bg-white px-6 py-10 text-center shadow-[0_24px_70px_rgba(7,19,41,.10)] sm:-mt-10 sm:px-12 sm:py-14 lg:-mt-16">
@@ -241,7 +237,7 @@ export default function HomePage() {
 
               <figure className="mt-12 overflow-hidden rounded-[30px] border border-white/15 bg-[#102141] shadow-[0_34px_90px_rgba(0,0,0,.35)]">
                 <div className="relative aspect-[3216/1334] w-full">
-                  <Image src="/tessaris-spatial-boardroom.png" alt="Tessaris spatial AI boardroom with four intelligent agents meeting around a central table" fill sizes="(max-width: 1280px) 100vw, 1240px" className="object-cover" />
+                  <Image src="/tessaris-spatial-boardroom-clean.png" alt="Tessaris spatial AI boardroom with four intelligent agents meeting around a central table" fill sizes="(max-width: 1280px) 100vw, 1240px" className="object-cover" />
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#071329]/90 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-3 sm:bottom-6 sm:left-6 sm:right-6 sm:flex-row sm:items-end sm:justify-between">
                     <div className="rounded-2xl border border-white/15 bg-[#071329]/80 px-4 py-3 backdrop-blur-md">
