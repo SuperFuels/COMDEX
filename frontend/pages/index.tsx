@@ -121,48 +121,6 @@ function Eyebrow({ children, dark = false }: { children: ReactNode; dark?: boole
   );
 }
 
-function CommandCentreVisual() {
-  return (
-    <div className="overflow-hidden rounded-[30px] border border-slate-700 bg-[#071329] p-4 shadow-[0_30px_80px_rgba(7,19,41,.22)] sm:p-6">
-      <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
-        <div>
-          <div className="text-[10px] font-black uppercase tracking-[.2em] text-blue-300">Tessaris command centre</div>
-          <div className="mt-1 text-lg font-extrabold text-white">Business in motion</div>
-        </div>
-        <div className="inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.15em] text-emerald-300">
-          <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399]" /> Live
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {[
-          ["Sales", "3 follow-ups sent", PhoneCall],
-          ["Marketing", "Campaign adapting", Megaphone],
-          ["Finance", "Books reconciled", CircleDollarSign],
-          ["Operations", "2 blockers cleared", BriefcaseBusiness],
-          ["Support", "18 cases resolved", Headphones],
-          ["Security", "Stack monitored", ShieldCheck],
-        ].map(([title, status, Icon]) => {
-          const AgentIcon = Icon as LucideIcon;
-          return (
-            <div key={title as string} className="rounded-2xl border border-white/10 bg-white/[.06] p-4">
-              <AgentIcon size={20} className="mb-6 text-blue-300" />
-              <div className="text-sm font-extrabold text-white">{title as string}</div>
-              <div className="mt-1 text-xs leading-5 text-slate-400">{status as string}</div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-3 flex items-center gap-4 rounded-2xl border border-blue-400/20 bg-blue-500/10 p-4">
-        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#1769ff] text-white"><BrainCircuit size={22} /></div>
-        <div className="min-w-0 flex-1">
-          <div className="text-xs font-black uppercase tracking-[.16em] text-blue-300">AION board briefing</div>
-          <p className="mt-1 text-sm leading-5 text-white">Revenue is ahead. Marketing spend can move toward the campaign converting best.</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function HomePage() {
   return (
     <>
@@ -235,14 +193,14 @@ export default function HomePage() {
             </div>
           </section>
 
-          <section className="border-b border-slate-200 bg-white px-5 py-20 sm:px-8 lg:py-24">
-            <div className="mx-auto grid max-w-[1240px] items-center gap-12 lg:grid-cols-[.78fr_1.22fr]">
-              <div>
-                <Eyebrow>From board decision to action</Eyebrow>
-                <h2 className="text-balance text-4xl font-black leading-[1.03] tracking-[-.04em] sm:text-5xl">The board sets direction. Your agents keep the business in motion.</h2>
-                <p className="mt-5 text-lg leading-8 text-slate-600">Tessaris turns intelligence into coordinated work across every department, then brings results, exceptions and the next decision back to the boardroom.</p>
-              </div>
-              <CommandCentreVisual />
+          <section aria-label="Interactive business automation story" className="border-b border-slate-200 bg-white px-2 py-12 sm:px-5 lg:py-16">
+            <div className="mx-auto max-w-[1380px] overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_22px_70px_rgba(7,19,41,.08)]">
+              <iframe
+                title="Tessaris business automation demonstration"
+                src="/concepts/business-automation/index.html"
+                className="block h-[1480px] w-full border-0 sm:h-[1040px] lg:h-[840px]"
+                loading="lazy"
+              />
             </div>
           </section>
 
