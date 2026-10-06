@@ -285,6 +285,17 @@ export default function HomePage() {
             </div>
           </section>
 
+          <section aria-label="Meet your AI company" className="border-y border-slate-200 bg-white px-2 py-12 sm:px-5 lg:py-16">
+            <div className="mx-auto max-w-[1380px] overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_22px_70px_rgba(7,19,41,.08)]">
+              <iframe
+                title="Meet your Tessaris AI company"
+                src="/concepts/business-automation/team.html"
+                className="block h-[1780px] w-full border-0 sm:h-[1320px] lg:h-[980px]"
+                loading="lazy"
+              />
+            </div>
+          </section>
+
           <section className="border-y border-slate-200 bg-[#f7f9fc] px-5 py-20 sm:px-8 lg:py-28">
             <div className="mx-auto max-w-[1240px]">
               <div className="max-w-3xl"><Eyebrow>The operating layer</Eyebrow><h2 className="text-balance text-4xl font-black leading-[1.03] tracking-[-.04em] sm:text-6xl">The tools your agents need are already in the room.</h2><p className="mt-5 text-lg leading-8 text-slate-600">Plan the work, keep the customer record, automate the process and prepare your business for a market where agents can transact with agents.</p></div>
