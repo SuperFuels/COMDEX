@@ -6892,12 +6892,6 @@ pre {
   .aion-coo-command__direct { grid-template-columns:1fr; }
 }
 
-.operations-agents-surface .aion-workflow-sidebar-collapsed .aion-workflow-app-nav button[data-tab="local_node"]::before {
-  content: "▣";
-}
-
-
-
 /* =========================================================
    Empty workflow first-step state + trigger picker
    ========================================================= */

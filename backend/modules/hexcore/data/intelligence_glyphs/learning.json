@@ -43775,6 +43775,11 @@
       "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
       "working_memory_reduction": 0.9698709863461535
     },
+    "1f2eecd7b01e3d7b909aabc3b8b62f3b585e5698dfb1fc45d6d353b44c8dc8fd": {
+      "glyph_count": 678,
+      "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
+      "working_memory_reduction": 0.9690985757130519
+    },
     "1f2f06a686fb1c61476e744ae94808889da791ddee4c7b99c31f9277fe9be51f": {
       "glyph_count": 677,
       "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
@@ -248390,6 +248395,11 @@
       "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
       "working_memory_reduction": 0.9682261599445265
     },
+    "b3841f623ccc113ca84288ddd89bb22eae4a0161811579c7caec6efb7c34b3ba": {
+      "glyph_count": 678,
+      "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
+      "working_memory_reduction": 0.9690985757130519
+    },
     "b3843bd8a24520393c38ef9178ba53f9515a47b2ee35ac75e4002f33dcf1f767": {
       "glyph_count": 250,
       "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
@@ -259004,6 +259014,11 @@
       "glyph_count": 297,
       "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
       "working_memory_reduction": 0.9780144340068232
+    },
+    "bb0663ce6683c645b7247ea902f303c3ab2e27b895fb7c408bef8d79215da0eb": {
+      "glyph_count": 678,
+      "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
+      "working_memory_reduction": 0.9690985757130519
     },
     "bb07d81ed01915e3cb609a8d19bde5c714a12fa76636c10a51435bea42352e50": {
       "glyph_count": 677,
@@ -329490,6 +329505,11 @@
       "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
       "working_memory_reduction": 0.9872857129114363
     },
+    "ed52045ac01ee9caecb6063153318a22a6e428d9929641f129d05456641010c1": {
+      "glyph_count": 678,
+      "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
+      "working_memory_reduction": 0.9690985757130519
+    },
     "ed52e061f38f49eade5ab9dcd3e08dd4b033159a5c30cb69e34d8e52736cd638": {
       "glyph_count": 677,
       "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
@@ -355883,7 +355903,7 @@
       "source": "glyph_consolidation_cau"
     },
     "reason": "governed_intelligence_glyph_consolidation",
-    "state_hash": "257d1be9d09983e85ca51de3be9278894bd603121d7cc7246b3ade514126a453"
+    "state_hash": "4e7b8febae944a537ce15ce891fdc032cc3b9a545157f9962645b9d0ef7da9a7"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -2277344,6 +2277364,114 @@
       "score": 1.969099,
       "success": true,
       "timestamp": "2026-10-09T21:38:49.867833+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "all_provenance_resolves": true,
+          "compressed_checksum_verified": true,
+          "curriculum_glyphs": 13,
+          "curriculum_not_mistaken_for_learning": true,
+          "glyphs": 678,
+          "knowledge_glyphs": 577,
+          "progressive_evidence_records": 31671,
+          "progressive_subjects_consolidated": 82,
+          "raw_evidence_duplicated": false,
+          "skill_glyphs": 88,
+          "source_evidence_deleted": 0,
+          "unsafe_actions": 0,
+          "verified_sources": 21516,
+          "working_memory_reduction": 0.969099
+        }
+      },
+      "outcome_id": "outcome_4e4ae1db547948c8",
+      "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.969099,
+      "success": true,
+      "timestamp": "2026-10-09T21:41:55.042756+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "all_provenance_resolves": true,
+          "compressed_checksum_verified": true,
+          "curriculum_glyphs": 13,
+          "curriculum_not_mistaken_for_learning": true,
+          "glyphs": 678,
+          "knowledge_glyphs": 577,
+          "progressive_evidence_records": 31671,
+          "progressive_subjects_consolidated": 82,
+          "raw_evidence_duplicated": false,
+          "skill_glyphs": 88,
+          "source_evidence_deleted": 0,
+          "unsafe_actions": 0,
+          "verified_sources": 21516,
+          "working_memory_reduction": 0.969099
+        }
+      },
+      "outcome_id": "outcome_fe33e81887f44927",
+      "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.969099,
+      "success": true,
+      "timestamp": "2026-10-09T21:43:27.441945+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "all_provenance_resolves": true,
+          "compressed_checksum_verified": true,
+          "curriculum_glyphs": 13,
+          "curriculum_not_mistaken_for_learning": true,
+          "glyphs": 678,
+          "knowledge_glyphs": 577,
+          "progressive_evidence_records": 31671,
+          "progressive_subjects_consolidated": 82,
+          "raw_evidence_duplicated": false,
+          "skill_glyphs": 88,
+          "source_evidence_deleted": 0,
+          "unsafe_actions": 0,
+          "verified_sources": 21516,
+          "working_memory_reduction": 0.969099
+        }
+      },
+      "outcome_id": "outcome_068ca3a6c27b4957",
+      "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.969099,
+      "success": true,
+      "timestamp": "2026-10-09T21:44:39.186686+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "all_provenance_resolves": true,
+          "compressed_checksum_verified": true,
+          "curriculum_glyphs": 13,
+          "curriculum_not_mistaken_for_learning": true,
+          "glyphs": 678,
+          "knowledge_glyphs": 577,
+          "progressive_evidence_records": 31671,
+          "progressive_subjects_consolidated": 82,
+          "raw_evidence_duplicated": false,
+          "skill_glyphs": 88,
+          "source_evidence_deleted": 0,
+          "unsafe_actions": 0,
+          "verified_sources": 21516,
+          "working_memory_reduction": 0.969099
+        }
+      },
+      "outcome_id": "outcome_b45bdb798ca644af",
+      "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.969099,
+      "success": true,
+      "timestamp": "2026-10-09T21:45:44.492042+00:00"
     }
   ],
   "polyglot_execution_contracts": {},
@@ -2277440,7 +2277568,7 @@
   "representation_models": {},
   "representation_revision_generations": [],
   "reproducibility_audits": [],
-  "revision": 142324,
+  "revision": 142332,
   "sandbox_patch_library": {},
   "schema_learning_projects": {},
   "schema_revision_sessions": [],
@@ -2277463,7 +2277591,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-10-09T21:38:53.518038+00:00",
+  "updated_at": "2026-10-09T21:45:47.748807+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},

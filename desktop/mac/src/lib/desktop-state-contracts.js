@@ -1835,6 +1835,7 @@
   }
 
   function normalizeActiveTab(value) {
+    if (value === "local_node") return "business_context";
     const allowed = {
       boardroom: true,
       communications: true,
@@ -1847,7 +1848,6 @@
       operations_flow: true,
       operations_agents: true,
       vault: true,
-      local_node: true,
     };
 
     return allowed[value] ? value : DEFAULTS.activeTab;

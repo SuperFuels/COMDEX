@@ -783,7 +783,7 @@
       "task_type": "unfamiliar_apprenticeship_experiment"
     }
   ],
-  "evidence_revision": 15237,
+  "evidence_revision": 15238,
   "executor_contracts": {
     "procedure_executor_1edd5e4b2bc53b3b540c": {
       "authorities": [
@@ -1042,7 +1042,7 @@
             "curriculum"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "7a3c6aab25e688d5f839c2c8fa07f1817cd3098bd4c50f0721defa7fa127cfa8"
+          "sha256": "76a35087af3ea57a8740f085a4b556e935adac96791105a299b677f222e988b4"
         },
         {
           "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
@@ -1625,7 +1625,7 @@
             "repair"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "7a3c6aab25e688d5f839c2c8fa07f1817cd3098bd4c50f0721defa7fa127cfa8"
+          "sha256": "76a35087af3ea57a8740f085a4b556e935adac96791105a299b677f222e988b4"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -2820,7 +2820,7 @@
             "transfer"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "7a3c6aab25e688d5f839c2c8fa07f1817cd3098bd4c50f0721defa7fa127cfa8"
+          "sha256": "76a35087af3ea57a8740f085a4b556e935adac96791105a299b677f222e988b4"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -3772,7 +3772,7 @@
             "outcome"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "7a3c6aab25e688d5f839c2c8fa07f1817cd3098bd4c50f0721defa7fa127cfa8"
+          "sha256": "76a35087af3ea57a8740f085a4b556e935adac96791105a299b677f222e988b4"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -6211,7 +6211,7 @@
             "semantic"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "7a3c6aab25e688d5f839c2c8fa07f1817cd3098bd4c50f0721defa7fa127cfa8"
+          "sha256": "76a35087af3ea57a8740f085a4b556e935adac96791105a299b677f222e988b4"
         },
         {
           "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
@@ -7308,7 +7308,7 @@
             "open"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "7a3c6aab25e688d5f839c2c8fa07f1817cd3098bd4c50f0721defa7fa127cfa8"
+          "sha256": "76a35087af3ea57a8740f085a4b556e935adac96791105a299b677f222e988b4"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -8314,7 +8314,7 @@
             "physical"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "7a3c6aab25e688d5f839c2c8fa07f1817cd3098bd4c50f0721defa7fa127cfa8"
+          "sha256": "76a35087af3ea57a8740f085a4b556e935adac96791105a299b677f222e988b4"
         },
         {
           "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
@@ -8944,7 +8944,7 @@
             "project"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "7a3c6aab25e688d5f839c2c8fa07f1817cd3098bd4c50f0721defa7fa127cfa8"
+          "sha256": "76a35087af3ea57a8740f085a4b556e935adac96791105a299b677f222e988b4"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -10271,7 +10271,7 @@
             "schema"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "7a3c6aab25e688d5f839c2c8fa07f1817cd3098bd4c50f0721defa7fa127cfa8"
+          "sha256": "76a35087af3ea57a8740f085a4b556e935adac96791105a299b677f222e988b4"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -11307,9 +11307,9 @@
     "procedure_split_leakage": [],
     "protocol_usage": "evaluation infrastructure only; never capability training truth",
     "splits": {
-      "development": 62,
-      "sealed": 28,
-      "train": 183
+      "development": 66,
+      "sealed": 27,
+      "train": 180
     }
   },
   "method_cards": [
@@ -23558,5 +23558,5 @@
   ],
   "schema_version": "aion.hexcore.autonomous_general_apprentice.v1",
   "status": "active",
-  "updated_at": "2026-10-09T21:37:45.148839+00:00"
+  "updated_at": "2026-10-09T21:42:46.855145+00:00"
 }

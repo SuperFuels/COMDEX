@@ -59919,14 +59919,74 @@
       ]
     },
     {
+      "artifact_hash": "d3ff0a61cfc52beb5d59331b6551e68e89665eacf0ca89c5fb5461be121b0713",
+      "authority_artifact": "backend/modules/hexcore/diverse_practical_executor_portfolios.py",
       "blocker_id": "competency_blocker_d2cf58277de573552f",
       "blocker_type": "executor_capability",
       "contract_id": "competency_contract_59d16981c1f30030fed3",
       "created_at": "2026-10-09T21:39:57.645945+00:00",
+      "executor_version": "111162136927f2863b4c4f75d671e74e26c66a4d9aed58b0dff9178ac0cc401c",
+      "reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
+      "required_authority": "genuinely_diverse_hidden_project_portfolio",
+      "requirement_kind": "project",
+      "resolution": "versioned_executor_portfolio_installed",
+      "resolved_at": "2026-10-09T21:42:52.326587+00:00",
+      "status": "resolved",
+      "subject_id": "capability_systems_thinking",
+      "subskills": [
+        "trace_second_order_effects"
+      ]
+    },
+    {
+      "artifact_hash": "d3ff0a61cfc52beb5d59331b6551e68e89665eacf0ca89c5fb5461be121b0713",
+      "authority_artifact": "backend/modules/hexcore/diverse_practical_executor_portfolios.py",
+      "blocker_id": "competency_blocker_5c155da2977ec0ccc2",
+      "blocker_type": "executor_capability",
+      "contract_id": "competency_contract_a3d9da01d82438f920d9",
+      "created_at": "2026-10-09T21:42:55.546379+00:00",
+      "executor_version": "111162136927f2863b4c4f75d671e74e26c66a4d9aed58b0dff9178ac0cc401c",
+      "reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
+      "required_authority": "genuinely_diverse_hidden_project_portfolio",
+      "requirement_kind": "project",
+      "resolution": "versioned_executor_portfolio_installed",
+      "resolved_at": "2026-10-09T21:44:26.155616+00:00",
+      "status": "resolved",
+      "subject_id": "capability_systems_thinking",
+      "subskills": [
+        "trace_second_order_effects"
+      ]
+    },
+    {
+      "artifact_hash": "d3ff0a61cfc52beb5d59331b6551e68e89665eacf0ca89c5fb5461be121b0713",
+      "authority_artifact": "backend/modules/hexcore/diverse_practical_executor_portfolios.py",
+      "blocker_id": "competency_blocker_815e82384fbfa132d1",
+      "blocker_type": "executor_capability",
+      "contract_id": "competency_contract_29060b95f8943c459078",
+      "created_at": "2026-10-09T21:44:28.942851+00:00",
+      "executor_version": "111162136927f2863b4c4f75d671e74e26c66a4d9aed58b0dff9178ac0cc401c",
+      "reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
+      "required_authority": "genuinely_diverse_hidden_project_portfolio",
+      "requirement_kind": "project",
+      "resolution": "versioned_executor_portfolio_installed",
+      "resolved_at": "2026-10-09T21:45:30.285752+00:00",
+      "status": "resolved",
+      "subject_id": "capability_systems_thinking",
+      "subskills": [
+        "trace_second_order_effects"
+      ]
+    },
+    {
+      "artifact_hash": "d3ff0a61cfc52beb5d59331b6551e68e89665eacf0ca89c5fb5461be121b0713",
+      "authority_artifact": "backend/modules/hexcore/diverse_practical_executor_portfolios.py",
+      "blocker_id": "competency_blocker_6a6c250f8ecf04493d",
+      "blocker_type": "executor_capability",
+      "contract_id": "competency_contract_69ea7f9212820ec0304c",
+      "created_at": "2026-10-09T21:45:33.115127+00:00",
       "reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
       "required_authority": "genuinely_diverse_hidden_project_portfolio",
       "requirement_kind": "knowledge_test",
-      "status": "open",
+      "resolved_at": "2026-10-09T21:46:40.476731+00:00",
+      "status": "resolved",
       "subject_id": "capability_systems_thinking",
       "subskills": [
         "trace_second_order_effects"
@@ -765110,258 +765170,93 @@
       "subject_id": "capability_systems_thinking",
       "target_level": "expert",
       "teacher_proposal_only": true
+    },
+    {
+      "commitment": "a3d9da01d82438f920d905c79791a7934ffb4a7297b7c4b7d7bbeedd822be89e",
+      "contract_id": "competency_contract_a3d9da01d82438f920d9",
+      "created_at": "2026-10-09T21:42:54.063874+00:00",
+      "created_epoch": 1791582174.063885,
+      "current_level": "unassessed",
+      "generation_index": 23821,
+      "minimum_score": 0.9,
+      "no_progress_cycles": 0,
+      "parked_at": "2026-10-09T21:42:56.048344+00:00",
+      "parked_reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
+      "prior_evidence_commitment": "98d078ac0e839c3c2f304fe9afc69c74c5e20706da1ec0daf94a50d4a4f6d70f",
+      "required_authority": "genuinely_diverse_hidden_project_portfolio",
+      "requirement": {
+        "authority": "authoritative_source_plus_withheld_assessment",
+        "kind": "knowledge_test",
+        "subskills": [
+          "trace_second_order_effects"
+        ]
+      },
+      "requires_retention": true,
+      "requires_transfer": true,
+      "solution_replay_forbidden": true,
+      "status": "blocked_executor_capability",
+      "subject_id": "capability_systems_thinking",
+      "target_level": "expert",
+      "teacher_proposal_only": true
+    },
+    {
+      "commitment": "29060b95f8943c45907810410aac54ebb4a18743475aa6dc7a6b12aa939e769b",
+      "contract_id": "competency_contract_29060b95f8943c459078",
+      "created_at": "2026-10-09T21:44:27.528868+00:00",
+      "created_epoch": 1791582267.528875,
+      "current_level": "unassessed",
+      "generation_index": 23822,
+      "minimum_score": 0.9,
+      "no_progress_cycles": 0,
+      "parked_at": "2026-10-09T21:44:29.442606+00:00",
+      "parked_reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
+      "prior_evidence_commitment": "98d078ac0e839c3c2f304fe9afc69c74c5e20706da1ec0daf94a50d4a4f6d70f",
+      "required_authority": "genuinely_diverse_hidden_project_portfolio",
+      "requirement": {
+        "authority": "authoritative_source_plus_withheld_assessment",
+        "kind": "knowledge_test",
+        "subskills": [
+          "trace_second_order_effects"
+        ]
+      },
+      "requires_retention": true,
+      "requires_transfer": true,
+      "solution_replay_forbidden": true,
+      "status": "blocked_executor_capability",
+      "subject_id": "capability_systems_thinking",
+      "target_level": "expert",
+      "teacher_proposal_only": true
+    },
+    {
+      "commitment": "69ea7f9212820ec0304c4b549f4104519de4b45440583ddb253400f8f9f2e9ab",
+      "contract_id": "competency_contract_69ea7f9212820ec0304c",
+      "created_at": "2026-10-09T21:45:31.709188+00:00",
+      "created_epoch": 1791582331.709196,
+      "current_level": "unassessed",
+      "generation_index": 23823,
+      "minimum_score": 0.9,
+      "no_progress_cycles": 0,
+      "parked_at": "2026-10-09T21:45:33.627929+00:00",
+      "parked_reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
+      "prior_evidence_commitment": "98d078ac0e839c3c2f304fe9afc69c74c5e20706da1ec0daf94a50d4a4f6d70f",
+      "required_authority": "genuinely_diverse_hidden_project_portfolio",
+      "requirement": {
+        "authority": "authoritative_source_plus_withheld_assessment",
+        "kind": "knowledge_test",
+        "subskills": [
+          "trace_second_order_effects"
+        ]
+      },
+      "requires_retention": true,
+      "requires_transfer": true,
+      "solution_replay_forbidden": true,
+      "status": "blocked_executor_capability",
+      "subject_id": "capability_systems_thinking",
+      "target_level": "expert",
+      "teacher_proposal_only": true
     }
   ],
   "curriculum_cycles": [
-    {
-      "action": {
-        "assessment": {
-          "coverage": {
-            "knowledge": 1.0,
-            "practical": 0.0
-          },
-          "debugging_cases": 0,
-          "display_level": "unassessed",
-          "evidence_kinds": [
-            "knowledge_test",
-            "lesson"
-          ],
-          "evidence_records": 17,
-          "group": "learning_capability",
-          "independent_outcomes": 17,
-          "knowledge_level": "intermediate",
-          "latest_scaffolding": 0.15,
-          "long_term_retention_complete": false,
-          "mean_score": 1.0,
-          "name": "Systems and consequence thinking",
-          "open_blockers": [],
-          "overall_level": "unassessed",
-          "per_subskill": {
-            "analyse_tradeoffs": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "find_emergent_failure": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "maintain_system_boundaries": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "model_feedback": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "trace_second_order_effects": {
-              "knowledge": 1,
-              "practical": 0,
-              "total": 1
-            }
-          },
-          "practical_level": "unassessed",
-          "projects": 0,
-          "raw_evidence_records": 17,
-          "required_expert_retention_milestones": [
-            1,
-            7,
-            30,
-            90
-          ],
-          "retention_cases": 0,
-          "retention_milestones_completed": [],
-          "subject_id": "capability_systems_thinking",
-          "target_level": "expert",
-          "target_reached": false,
-          "transfer_cases": 0,
-          "trials": 51,
-          "unfamiliar_projects": 0
-        },
-        "contract_id": "competency_contract_57c89a23b4fb3f27e6d5",
-        "lane": "breadth",
-        "requirement": {
-          "authority": "authoritative_source_plus_withheld_assessment",
-          "kind": "knowledge_test",
-          "subskills": [
-            "trace_second_order_effects"
-          ]
-        },
-        "status": "curriculum_contract_created",
-        "subject_id": "capability_systems_thinking"
-      },
-      "created_at": "2026-10-07T20:14:41.954438+00:00",
-      "cycle_id": "competency_cycle_6c6ba4ac3b54f9e23a"
-    },
-    {
-      "action": {
-        "assessment": {
-          "coverage": {
-            "knowledge": 1.0,
-            "practical": 0.0
-          },
-          "debugging_cases": 0,
-          "display_level": "unassessed",
-          "evidence_kinds": [
-            "knowledge_test",
-            "lesson"
-          ],
-          "evidence_records": 17,
-          "group": "learning_capability",
-          "independent_outcomes": 17,
-          "knowledge_level": "intermediate",
-          "latest_scaffolding": 0.15,
-          "long_term_retention_complete": false,
-          "mean_score": 1.0,
-          "name": "Systems and consequence thinking",
-          "open_blockers": [],
-          "overall_level": "unassessed",
-          "per_subskill": {
-            "analyse_tradeoffs": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "find_emergent_failure": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "maintain_system_boundaries": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "model_feedback": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "trace_second_order_effects": {
-              "knowledge": 1,
-              "practical": 0,
-              "total": 1
-            }
-          },
-          "practical_level": "unassessed",
-          "projects": 0,
-          "raw_evidence_records": 17,
-          "required_expert_retention_milestones": [
-            1,
-            7,
-            30,
-            90
-          ],
-          "retention_cases": 0,
-          "retention_milestones_completed": [],
-          "subject_id": "capability_systems_thinking",
-          "target_level": "expert",
-          "target_reached": false,
-          "transfer_cases": 0,
-          "trials": 51,
-          "unfamiliar_projects": 0
-        },
-        "contract_id": "competency_contract_cb52eecdc7ae6ee565b7",
-        "lane": "breadth",
-        "requirement": {
-          "authority": "authoritative_source_plus_withheld_assessment",
-          "kind": "knowledge_test",
-          "subskills": [
-            "trace_second_order_effects"
-          ]
-        },
-        "status": "curriculum_contract_created",
-        "subject_id": "capability_systems_thinking"
-      },
-      "created_at": "2026-10-07T20:15:44.159222+00:00",
-      "cycle_id": "competency_cycle_ae90da43cdfe9369bc"
-    },
-    {
-      "action": {
-        "assessment": {
-          "coverage": {
-            "knowledge": 1.0,
-            "practical": 0.0
-          },
-          "debugging_cases": 0,
-          "display_level": "unassessed",
-          "evidence_kinds": [
-            "knowledge_test",
-            "lesson"
-          ],
-          "evidence_records": 17,
-          "group": "learning_capability",
-          "independent_outcomes": 17,
-          "knowledge_level": "intermediate",
-          "latest_scaffolding": 0.15,
-          "long_term_retention_complete": false,
-          "mean_score": 1.0,
-          "name": "Systems and consequence thinking",
-          "open_blockers": [],
-          "overall_level": "unassessed",
-          "per_subskill": {
-            "analyse_tradeoffs": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "find_emergent_failure": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "maintain_system_boundaries": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "model_feedback": {
-              "knowledge": 4,
-              "practical": 0,
-              "total": 4
-            },
-            "trace_second_order_effects": {
-              "knowledge": 1,
-              "practical": 0,
-              "total": 1
-            }
-          },
-          "practical_level": "unassessed",
-          "projects": 0,
-          "raw_evidence_records": 17,
-          "required_expert_retention_milestones": [
-            1,
-            7,
-            30,
-            90
-          ],
-          "retention_cases": 0,
-          "retention_milestones_completed": [],
-          "subject_id": "capability_systems_thinking",
-          "target_level": "expert",
-          "target_reached": false,
-          "transfer_cases": 0,
-          "trials": 51,
-          "unfamiliar_projects": 0
-        },
-        "contract_id": "competency_contract_9f7945a382c377ba1a2e",
-        "lane": "breadth",
-        "requirement": {
-          "authority": "authoritative_source_plus_withheld_assessment",
-          "kind": "knowledge_test",
-          "subskills": [
-            "trace_second_order_effects"
-          ]
-        },
-        "status": "curriculum_contract_created",
-        "subject_id": "capability_systems_thinking"
-      },
-      "created_at": "2026-10-07T20:16:44.843022+00:00",
-      "cycle_id": "competency_cycle_90ee2a39535ebbab1b"
-    },
     {
       "action": {
         "assessment": {
@@ -931047,6 +930942,255 @@
       },
       "created_at": "2026-10-09T21:39:55.268654+00:00",
       "cycle_id": "competency_cycle_2405a58355d6659ee2"
+    },
+    {
+      "action": {
+        "assessment": {
+          "coverage": {
+            "knowledge": 1.0,
+            "practical": 0.0
+          },
+          "debugging_cases": 0,
+          "display_level": "unassessed",
+          "evidence_kinds": [
+            "knowledge_test",
+            "lesson"
+          ],
+          "evidence_records": 17,
+          "group": "learning_capability",
+          "independent_outcomes": 17,
+          "knowledge_level": "intermediate",
+          "latest_scaffolding": 0.15,
+          "long_term_retention_complete": false,
+          "mean_score": 1.0,
+          "name": "Systems and consequence thinking",
+          "open_blockers": [],
+          "overall_level": "unassessed",
+          "per_subskill": {
+            "analyse_tradeoffs": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "find_emergent_failure": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "maintain_system_boundaries": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "model_feedback": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "trace_second_order_effects": {
+              "knowledge": 1,
+              "practical": 0,
+              "total": 1
+            }
+          },
+          "practical_level": "unassessed",
+          "projects": 0,
+          "raw_evidence_records": 17,
+          "required_expert_retention_milestones": [
+            1,
+            7,
+            30,
+            90
+          ],
+          "retention_cases": 0,
+          "retention_milestones_completed": [],
+          "subject_id": "capability_systems_thinking",
+          "target_level": "expert",
+          "target_reached": false,
+          "transfer_cases": 0,
+          "trials": 51,
+          "unfamiliar_projects": 0
+        },
+        "contract_id": "competency_contract_a3d9da01d82438f920d9",
+        "lane": "breadth",
+        "requirement": {
+          "authority": "authoritative_source_plus_withheld_assessment",
+          "kind": "knowledge_test",
+          "subskills": [
+            "trace_second_order_effects"
+          ]
+        },
+        "status": "curriculum_contract_created",
+        "subject_id": "capability_systems_thinking"
+      },
+      "created_at": "2026-10-09T21:42:54.063930+00:00",
+      "cycle_id": "competency_cycle_e4acba358a8acccc45"
+    },
+    {
+      "action": {
+        "assessment": {
+          "coverage": {
+            "knowledge": 1.0,
+            "practical": 0.0
+          },
+          "debugging_cases": 0,
+          "display_level": "unassessed",
+          "evidence_kinds": [
+            "knowledge_test",
+            "lesson"
+          ],
+          "evidence_records": 17,
+          "group": "learning_capability",
+          "independent_outcomes": 17,
+          "knowledge_level": "intermediate",
+          "latest_scaffolding": 0.15,
+          "long_term_retention_complete": false,
+          "mean_score": 1.0,
+          "name": "Systems and consequence thinking",
+          "open_blockers": [],
+          "overall_level": "unassessed",
+          "per_subskill": {
+            "analyse_tradeoffs": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "find_emergent_failure": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "maintain_system_boundaries": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "model_feedback": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "trace_second_order_effects": {
+              "knowledge": 1,
+              "practical": 0,
+              "total": 1
+            }
+          },
+          "practical_level": "unassessed",
+          "projects": 0,
+          "raw_evidence_records": 17,
+          "required_expert_retention_milestones": [
+            1,
+            7,
+            30,
+            90
+          ],
+          "retention_cases": 0,
+          "retention_milestones_completed": [],
+          "subject_id": "capability_systems_thinking",
+          "target_level": "expert",
+          "target_reached": false,
+          "transfer_cases": 0,
+          "trials": 51,
+          "unfamiliar_projects": 0
+        },
+        "contract_id": "competency_contract_29060b95f8943c459078",
+        "lane": "breadth",
+        "requirement": {
+          "authority": "authoritative_source_plus_withheld_assessment",
+          "kind": "knowledge_test",
+          "subskills": [
+            "trace_second_order_effects"
+          ]
+        },
+        "status": "curriculum_contract_created",
+        "subject_id": "capability_systems_thinking"
+      },
+      "created_at": "2026-10-09T21:44:27.528916+00:00",
+      "cycle_id": "competency_cycle_fe005744995ddaff48"
+    },
+    {
+      "action": {
+        "assessment": {
+          "coverage": {
+            "knowledge": 1.0,
+            "practical": 0.0
+          },
+          "debugging_cases": 0,
+          "display_level": "unassessed",
+          "evidence_kinds": [
+            "knowledge_test",
+            "lesson"
+          ],
+          "evidence_records": 17,
+          "group": "learning_capability",
+          "independent_outcomes": 17,
+          "knowledge_level": "intermediate",
+          "latest_scaffolding": 0.15,
+          "long_term_retention_complete": false,
+          "mean_score": 1.0,
+          "name": "Systems and consequence thinking",
+          "open_blockers": [],
+          "overall_level": "unassessed",
+          "per_subskill": {
+            "analyse_tradeoffs": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "find_emergent_failure": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "maintain_system_boundaries": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "model_feedback": {
+              "knowledge": 4,
+              "practical": 0,
+              "total": 4
+            },
+            "trace_second_order_effects": {
+              "knowledge": 1,
+              "practical": 0,
+              "total": 1
+            }
+          },
+          "practical_level": "unassessed",
+          "projects": 0,
+          "raw_evidence_records": 17,
+          "required_expert_retention_milestones": [
+            1,
+            7,
+            30,
+            90
+          ],
+          "retention_cases": 0,
+          "retention_milestones_completed": [],
+          "subject_id": "capability_systems_thinking",
+          "target_level": "expert",
+          "target_reached": false,
+          "transfer_cases": 0,
+          "trials": 51,
+          "unfamiliar_projects": 0
+        },
+        "contract_id": "competency_contract_69ea7f9212820ec0304c",
+        "lane": "breadth",
+        "requirement": {
+          "authority": "authoritative_source_plus_withheld_assessment",
+          "kind": "knowledge_test",
+          "subskills": [
+            "trace_second_order_effects"
+          ]
+        },
+        "status": "curriculum_contract_created",
+        "subject_id": "capability_systems_thinking"
+      },
+      "created_at": "2026-10-09T21:45:31.709241+00:00",
+      "cycle_id": "competency_cycle_a85e962d9f3994ae68"
     }
   ],
   "curriculum_policy_version": "cross_domain_depth_acceleration_v4",
@@ -931060,7 +931204,7 @@
       "scientific_method"
     ],
     "awards_competency": false,
-    "configured_at": "2026-10-09T21:39:37.130772+00:00",
+    "configured_at": "2026-10-09T21:46:27.340143+00:00",
     "expert_targets": [
       "algorithms_data_structures",
       "software_engineering"
@@ -1880878,7 +1881022,7 @@
     }
   },
   "lane_scheduler": {
-    "breadth_contracts": 6109,
+    "breadth_contracts": 6112,
     "depth_contracts": 17544,
     "expert_unlocks": [
       "algorithms_data_structures",
@@ -1884641,5 +1884785,5 @@
   },
   "target_level_default": "advanced",
   "unsafe_actions": 0,
-  "updated_at": "2026-10-09T21:40:02.862948+00:00"
+  "updated_at": "2026-10-09T21:46:40.476766+00:00"
 }

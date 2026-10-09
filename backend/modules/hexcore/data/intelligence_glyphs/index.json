@@ -1,9 +1,9 @@
 {
   "canonical_glyph_bytes": 3824330,
   "compressed_glyph_bytes": 1722045,
-  "compressed_sha256": "288199cebf9217342595a10a9e9621aa42db457c6cd67b2b5b43c2c2a54c335a",
+  "compressed_sha256": "b3841f623ccc113ca84288ddd89bb22eae4a0161811579c7caec6efb7c34b3ba",
   "compressed_store": "backend/modules/hexcore/data/intelligence_glyphs/glyphs.json.gz",
-  "created_at": "2026-10-09T21:38:46.953027+00:00",
+  "created_at": "2026-10-09T21:45:41.667010+00:00",
   "curriculum_glyphs": 13,
   "evidence": {
     "ev_0000eb0901e3fb3155c0": {

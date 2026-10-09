@@ -65,7 +65,6 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
       description: "Train and test backend business automations",
     },
     { key: "vault", label: "Connections" },
-    { key: "local_node", label: "Local processing" },
   ];
 
   /*
@@ -3463,7 +3462,6 @@ function getAionMainSidebarIcon(tabKey) {
     operations_agents: "⚙",
     file_cabinet: "≡",
     vault: "◈",
-    local_node: "▣",
   }[String(tabKey || "")] || "•";
 }
 
@@ -3504,36 +3502,28 @@ function getAionMainSidebarIcon(tabKey) {
   document.head.appendChild(style);
 })();
 
-/* Final site-wide sidebar icon lock. Some older workflow presentation rules
-   hide the Business Files glyph and allow the Local Node monitor SVG to
-   inherit a solid fill. Keep both icons visible and consistent on every
-   route, before and after selection. */
+/* Final site-wide sidebar icon lock for the Business Files utility. */
 (function installTessarisSidebarUtilityIconLockV1() {
   if (document.getElementById("tessaris-sidebar-utility-icon-lock-v1")) return;
   const style = document.createElement("style");
   style.id = "tessaris-sidebar-utility-icon-lock-v1";
   style.textContent = `
-    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"]:not(.active):not(.app-tab-active),
-    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"]:not(.active):not(.app-tab-active) {
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"]:not(.active):not(.app-tab-active) {
       border:0 !important;
       background:transparent !important;
       color:#475569 !important;
       box-shadow:none !important;
     }
-    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"]:not(.active):not(.app-tab-active):hover,
-    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"]:not(.active):not(.app-tab-active):hover {
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"]:not(.active):not(.app-tab-active):hover {
       background:#eef5ff !important;
       color:#2563eb !important;
     }
     html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"].active,
-    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"].app-tab-active,
-    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"].active,
-    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"].app-tab-active {
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"].app-tab-active {
       background:#2563eb !important;
       color:#ffffff !important;
     }
-    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"] .aion-workflow-nav-icon,
-    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"] .aion-workflow-nav-icon {
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"] .aion-workflow-nav-icon {
       width:64px !important;
       height:58px !important;
       display:grid !important;
@@ -3543,13 +3533,11 @@ function getAionMainSidebarIcon(tabKey) {
       box-shadow:none !important;
       overflow:visible !important;
     }
-    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"] .aion-workflow-nav-icon::before,
-    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"] .aion-workflow-nav-icon::before {
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"] .aion-workflow-nav-icon::before {
       content:none !important;
       display:none !important;
     }
-    html body .aion-main-sidebar .aion-sidebar-file-cabinet-icon,
-    html body .aion-main-sidebar .aion-sidebar-local-processing-icon {
+    html body .aion-main-sidebar .aion-sidebar-file-cabinet-icon {
       width:24px !important;
       height:24px !important;
       max-width:24px !important;
@@ -3564,15 +3552,10 @@ function getAionMainSidebarIcon(tabKey) {
       stroke-linecap:round !important;
       stroke-linejoin:round !important;
     }
-    html body .aion-main-sidebar .aion-sidebar-file-cabinet-icon *,
-    html body .aion-main-sidebar .aion-sidebar-local-processing-icon * {
+    html body .aion-main-sidebar .aion-sidebar-file-cabinet-icon * {
       fill:none !important;
       stroke:currentColor !important;
       vector-effect:non-scaling-stroke !important;
-    }
-    html body .aion-main-sidebar .aion-sidebar-local-processing-icon circle {
-      fill:currentColor !important;
-      stroke:none !important;
     }
   `;
   document.head.appendChild(style);
@@ -3700,10 +3683,6 @@ function renderAppTabs() {
           const chatIcon = tab.key === "aion_chat"
             ? `<svg class="aion-sidebar-chat-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 5.5h13a2.5 2.5 0 0 1 2.5 2.5v7a2.5 2.5 0 0 1-2.5 2.5H11l-4.8 3v-3H5.5A2.5 2.5 0 0 1 3 15V8a2.5 2.5 0 0 1 2.5-2.5Z"/><path d="m15.7 8.2.42 1.18 1.18.42-1.18.42-.42 1.18-.42-1.18-1.18-.42 1.18-.42.42-1.18Z"/></svg>`
             : "";
-          const localProcessingIcon = tab.key === "local_node"
-            ? `<svg class="aion-sidebar-local-processing-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="12" rx="2"/><path d="M8 20h8M12 16.5V20"/><circle cx="8" cy="10.5" r="1"/><path d="M11 10.5h5"/></svg>`
-            : "";
-
           return `
             <button
               class="aion-workflow-nav-btn app-tab ${activeClass} ${highlightClass}"
@@ -3714,7 +3693,7 @@ function renderAppTabs() {
               aria-label="${escapeHtml(tab.label)}"
               data-aion-sidebar-label="${escapeHtml(tab.label)}"
             >
-              <span class="aion-workflow-nav-icon" aria-hidden="true" data-icon="${connectionIcon || chatIcon || localProcessingIcon ? "" : escapeHtml(icon)}">${connectionIcon || chatIcon || localProcessingIcon}</span>
+              <span class="aion-workflow-nav-icon" aria-hidden="true" data-icon="${connectionIcon || chatIcon ? "" : escapeHtml(icon)}">${connectionIcon || chatIcon}</span>
               <span class="aion-workflow-nav-label">${escapeHtml(tab.label)}</span>
             </button>
           `;
@@ -4985,7 +4964,7 @@ function renderAionSitewideFileCabinetSurface() {
   const LAST_ROUTE_KEY = "aion.file_cabinet.last_workspace_route.v1";
   const validRoutes = new Set([
     "boardroom", "communications", "work_schedule", "business_context",
-    "live_agents", "operations_agents", "vault", "local_node",
+    "live_agents", "operations_agents", "vault",
   ]);
 
   function currentRoute() {
@@ -14045,7 +14024,7 @@ function setLiveAgentsWorkspace(departmentKey, options = {}) {
   );
 }
 
-function renderLocalNodeSurface() {
+function renderBusinessLocalProcessingSubtabContent() {
   const status = state.status || {};
   const control = status.control || {};
   const scheduler = state.scheduler || {};
@@ -14083,9 +14062,8 @@ function renderLocalNodeSurface() {
   installAionLocalProcessingStyles();
 
   return `
-    <div class="surface-shell aion-local-processing-page" data-aion-local-processing-page="true">
-      ${renderAppTabs()}
-      <main class="aion-local-processing-content">
+    <section class="aion-local-processing-page aion-local-processing-business-subtab" data-aion-local-processing-page="true">
+      <div class="aion-local-processing-content">
         <header class="aion-local-processing-hero">
           <div>
             <div class="surface-eyebrow">TESSARIS · THIS MAC</div>
@@ -14201,8 +14179,8 @@ function renderLocalNodeSurface() {
             </details>
           </div>
         </details>
-      </main>
-    </div>
+      </div>
+    </section>
   `;
 }
 
@@ -14211,10 +14189,7 @@ function installAionLocalProcessingStyles() {
   const style = document.createElement("style");
   style.id = "aion-local-processing-styles-v1";
   style.textContent = `
-    html body .aion-sidebar-local-processing-icon { width:24px!important; height:24px!important; display:block!important; fill:none!important; stroke:currentColor!important; stroke-width:1.8!important; stroke-linecap:round!important; stroke-linejoin:round!important; }
-    html body .aion-main-sidebar [data-tab="local_node"] .aion-workflow-nav-icon::before { content:none!important; display:none!important; }
-    html body .aion-local-processing-page { --lp-blue:#2563eb; --lp-ink:#0b1730; --lp-muted:#66758a; --lp-line:#d9e2ec; width:100%!important; max-width:none!important; min-height:100vh!important; margin:0!important; padding:32px 48px 100px 128px!important; background:#f7f9fc!important; color:var(--lp-ink)!important; font-family:var(--tessaris-font-sans,Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif)!important; }
-    html body.aion-workflow-sidebar-expanded .aion-local-processing-page { padding-left:300px!important; }
+    html body .aion-local-processing-page { --lp-blue:#2563eb; --lp-ink:#0b1730; --lp-muted:#66758a; --lp-line:#d9e2ec; width:100%!important; max-width:none!important; min-height:0!important; margin:0!important; padding:0 0 32px!important; background:transparent!important; color:var(--lp-ink)!important; font-family:var(--tessaris-font-sans,Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif)!important; }
     .aion-local-processing-content { width:100%; max-width:none; display:grid; gap:18px; }
     .aion-local-processing-hero { min-height:170px; display:flex; align-items:flex-start; justify-content:space-between; gap:28px; padding:30px 34px; border:1px solid var(--lp-line); border-top:4px solid var(--lp-blue); border-radius:20px; background:#fff; box-shadow:0 12px 34px rgba(11,23,48,.055); }
     .aion-local-processing-page .surface-eyebrow { color:var(--lp-blue)!important; font-size:10px!important; font-weight:850!important; letter-spacing:.18em!important; text-transform:uppercase!important; }
@@ -14239,7 +14214,7 @@ function installAionLocalProcessingStyles() {
     .aion-local-processing-activity { display:grid; }.aion-local-processing-activity>div{min-height:48px;display:grid;grid-template-columns:10px minmax(0,1fr) auto;align-items:center;gap:10px;border-bottom:1px solid #edf0f4}.aion-local-processing-activity>div:last-child{border-bottom:0}.aion-local-processing-activity-dot{width:8px;height:8px;border-radius:50%;background:#94a3b8}.aion-local-processing-activity-dot.is-completed{background:#22a77a}.aion-local-processing-activity-dot.is-running,.aion-local-processing-activity-dot.is-queued{background:#2563eb}.aion-local-processing-activity-dot.is-failed,.aion-local-processing-activity-dot.is-cancelled{background:#d96b63}.aion-local-processing-activity p{display:grid;gap:2px;margin:0;min-width:0}.aion-local-processing-activity strong{overflow:hidden;color:#26364d;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.aion-local-processing-activity small{color:#7b899b;font-size:9px}.aion-local-processing-activity .status-badge{font-size:8px!important}
     .aion-local-processing-advanced { overflow:hidden; border:1px solid var(--lp-line); border-radius:16px; background:#fff; box-shadow:0 7px 22px rgba(11,23,48,.035); }.aion-local-processing-advanced>summary{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 22px;cursor:pointer;list-style:none}.aion-local-processing-advanced>summary::-webkit-details-marker{display:none}.aion-local-processing-advanced>summary span{display:grid;gap:4px}.aion-local-processing-advanced>summary strong{color:#24324a;font-size:13px}.aion-local-processing-advanced>summary small{color:#7b899b;font-size:10px}.aion-local-processing-advanced>summary b{color:#627287;font-size:18px;transition:transform .18s}.aion-local-processing-advanced[open]>summary b{transform:rotate(180deg)}
     .aion-local-processing-advanced-body { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:20px; border-top:1px solid var(--lp-line); background:#f8fafc; }.aion-local-processing-advanced-panel{padding:18px;border:1px solid #dfe6ef;border-radius:13px;background:#fff}.aion-local-processing-advanced-panel h3{margin:0;color:#1d2c43;font-size:14px}.aion-local-processing-advanced-panel>p{margin:6px 0 15px;color:#718096;font-size:10px;line-height:1.45}.aion-local-processing-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}.aion-local-processing-fields label{display:grid;gap:5px}.aion-local-processing-fields label span{color:#637289;font-size:9px;font-weight:800}.aion-local-processing-fields .input{min-height:39px!important;border:1px solid #cbd8e7!important;border-radius:9px!important;font-size:10px!important}.aion-local-processing-controls{display:flex;flex-wrap:wrap;gap:8px}.aion-local-processing-log{grid-column:1/-1}.aion-local-processing-events{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.aion-local-processing-events>div{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border:1px solid #e4e9f0;border-radius:9px;background:#fafbfd}.aion-local-processing-events p{display:grid;gap:2px;margin:0}.aion-local-processing-events strong{color:#334155;font-size:10px}.aion-local-processing-events small,.aion-local-processing-events>div>span{color:#8491a3;font-size:8px}.aion-local-processing-raw{grid-column:1/-1;padding:14px 16px;border:1px solid #dfe6ef;border-radius:11px;background:#fff}.aion-local-processing-raw>summary{cursor:pointer;color:#526174;font-size:10px;font-weight:800}.aion-local-processing-raw .json-block{max-height:340px;margin-top:12px;font-size:9px}
-    @media(max-width:1100px){html body .aion-local-processing-page{padding:24px 20px 90px 92px!important}.aion-local-processing-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.aion-local-processing-grid{grid-template-columns:1fr}}
+    @media(max-width:1100px){.aion-local-processing-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.aion-local-processing-grid{grid-template-columns:1fr}}
     @media(max-width:720px){.aion-local-processing-hero{flex-direction:column}.aion-local-processing-hero-meta{min-width:0;justify-items:start}.aion-local-processing-metrics,.aion-local-processing-advanced-body,.aion-local-processing-fields,.aion-local-processing-events{grid-template-columns:1fr}.aion-local-processing-notice{grid-template-columns:1fr!important;align-items:start!important}.aion-local-processing-notice .primary-btn{justify-self:start!important}}
   `;
   document.head.appendChild(style);
@@ -14474,7 +14449,6 @@ function getDesktopAssistantTitle() {
     aion_chat: "Aion",
     operations_agents: "Train Agent Assistant",
     operations_flow: "Operations Assistant",
-    local_node: "Local Processing Assistant",
   };
 
   return labels[state.activeTab] || "Aion Assistant";
@@ -14488,7 +14462,6 @@ function getDesktopAssistantPlaceholder() {
     live_agents: "Ask about this run, approval, agent, or workflow...",
     operations_agents: "Ask about trained tasks, triggers, test runs, approvals, or automation setup...",
     operations_flow: "Ask what is blocked or how the work is flowing...",
-    local_node: "Ask about private processing or background automation...",
     aion_chat: "Ask Aion anything about the business, runtime, brand, agents, code, or next action...",
   };
 
@@ -14523,11 +14496,6 @@ function renderDesktopAssistantQuickActions() {
       ["find_blockers", "Find blockers"],
       ["explain_flow", "Explain the flow"],
       ["next_actions", "Suggest next actions"],
-    ],
-    local_node: [
-      ["backend_status", "Is local processing ready?"],
-      ["scheduler_status", "Explain background automation"],
-      ["sync_status", "Where is my data stored?"],
     ],
   };
 
@@ -33116,6 +33084,23 @@ function renderMainSurface() {
     }
   } catch {}
 
+  /* Local processing now lives inside Business. Migrate older saved sessions
+     to the new internal tab instead of reopening the retired page route. */
+  try {
+    const activeRoute = String(state?.activeTab || "").trim().toLowerCase();
+    const forcedRoute = String(window.__aionForcedMainTabV2 || localStorage.getItem("aion.forcedMainTab.v2") || "").trim().toLowerCase();
+    if (activeRoute === "local_node" || forcedRoute === "local_node") {
+      state.activeTab = "business_context";
+      state.activeBusinessContextSubtab = "local_processing";
+      window.__aionBusinessContextSubtab = "local_processing";
+      window.__aionForcedMainTabV2 = "business_context";
+      window.__aionLastManualNavTabV2 = "business_context";
+      window.localStorage?.setItem("aion.activeBusinessContextSubtab", "local_processing");
+      ["aion.activeTab", "aion.activeTab.v1", "aion.lastActiveTab.v1", "aion.forcedMainTab.v2", "aionDesktop.activeTab"]
+        .forEach((key) => window.localStorage?.setItem(key, "business_context"));
+    }
+  } catch {}
+
   /* O25BC: backend hydration must not replace the fresh startup route. */
   try {
     const financeHandoffActive =
@@ -33150,7 +33135,11 @@ function renderMainSurface() {
       (typeof window !== "undefined" && window.__aionForcedMainTabV2)
         ? String(window.__aionForcedMainTabV2 || "")
         : String(localStorage.getItem("aion.forcedMainTab.v2") || "");
-    const forcedTab = persistedForcedTab === "dashboard" ? "boardroom" : persistedForcedTab;
+    const forcedTab = persistedForcedTab === "dashboard"
+      ? "boardroom"
+      : persistedForcedTab === "local_node"
+        ? "business_context"
+        : persistedForcedTab;
 
     const allowedForcedTabs = [
       "boardroom",
@@ -33163,7 +33152,6 @@ function renderMainSurface() {
       "glyph_library",
       "settings",
       "file_cabinet",
-      "local_node",
       "work_schedule",
       "brand_foundation",
       "business_context",
@@ -33337,10 +33325,6 @@ if (state.activeTab === "vault") {
       : `<div class="surface-shell"><section class="panel"><div class="surface-eyebrow">Connections</div><div class="panel-title">Connections are unavailable</div><div class="helper-text">The Connections page could not be loaded in this build.</div></section></div>`;
   }
 
-  if (state.activeTab === "local_node") {
-    return renderLocalNodeSurface();
-  }
-
   if (state.activeTab === "file_cabinet") {
     return renderAionSitewideFileCabinetSurface();
   }
@@ -33392,7 +33376,8 @@ if (state.activeTab === "vault") {
     return renderOperationsAgentsSurface();
   }
 
-  return renderLocalNodeSurface();
+  state.activeTab = "boardroom";
+  return renderBoardroomSurface();
 }
 
 function buildLiveAgentCards(runs) {
@@ -64507,7 +64492,6 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
     "operations_agents",
     "operations_flow",
     "vault",
-    "local_node",
     "file_cabinet",
     "brand_foundation",
     "website_intake",
@@ -64532,7 +64516,7 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
       operations_agents: "operations_agents",
       operations_flow: "operations_flow",
       vault: "vault",
-      local_node: "local_node",
+      local_node: "business_context",
       file_cabinet: "file_cabinet",
       brand_foundation: "brand_foundation",
       website_intake: "website_intake",
@@ -64592,6 +64576,7 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
   }
 
   function setAionSidebarActiveTabHardV1(nextTab) {
+    const requestedTab = String(nextTab || "").trim().toLowerCase();
     const tab = normaliseAionCanonicalRouteV3(nextTab);
     if (!AION_CANONICAL_MAIN_ROUTES_V3.has(tab)) {
       console.warn("[AION] Sidebar rejected unsupported route", nextTab);
@@ -64606,6 +64591,12 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
       state.activeTab = tab;
       window.__aionForcedMainTabV2 = tab;
       window.__aionLastManualNavTabV2 = tab;
+
+      if (requestedTab === "local_node") {
+        state.activeBusinessContextSubtab = "local_processing";
+        window.__aionBusinessContextSubtab = "local_processing";
+        localStorage.setItem("aion.activeBusinessContextSubtab", "local_processing");
+      }
 
       if (tab === "boardroom") {
         state.boardroomViewMode = "spatial";
@@ -131289,6 +131280,7 @@ function renderBusinessContextSubtabs() {
     ["brand_foundation", "Brand Foundation"],
     ["audience", "Audience"],
     ["design_system", "Business Design System"],
+    ["local_processing", "Local Processing"],
   ];
 
   return `
@@ -132229,7 +132221,9 @@ function renderBusinessContextSurface() {
 
   let subtabHtml = "";
 
-  if (activeSubtab === "brand_foundation") {
+  if (activeSubtab === "local_processing") {
+    subtabHtml = renderBusinessLocalProcessingSubtabContent();
+  } else if (activeSubtab === "brand_foundation") {
     subtabHtml = renderBusinessBrandFoundationSubtabContent();
   } else if (activeSubtab === "audience") {
     subtabHtml = renderBusinessAudienceSubtabContent();
@@ -132513,6 +132507,7 @@ const AION_BUSINESS_CONTEXT_SUBTABS = new Set([
   "brand_foundation",
   "audience",
   "design_system",
+  "local_processing",
 ]);
 
 function normaliseAionBusinessContextSubtabKey(rawKey) {
@@ -132537,6 +132532,10 @@ function normaliseAionBusinessContextSubtabKey(rawKey) {
 
   if (key === "design_system" || key === "brand_design" || key === "brand_bible") {
     return "design_system";
+  }
+
+  if (key === "local_processing" || key === "local_node" || key === "processing") {
+    return "local_processing";
   }
 
   if (AION_BUSINESS_CONTEXT_SUBTABS.has(key)) {

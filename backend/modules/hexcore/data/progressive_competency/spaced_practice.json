@@ -2143,23 +2143,9 @@
       ]
     }
   ],
-  "last_run_epoch": 1791581920.779285,
-  "last_subject_id": "accounting_corporate_finance",
+  "last_run_epoch": 1791582271.671665,
+  "last_subject_id": "advanced_python",
   "runs": [
-    {
-      "authority_boundary": "Verified reusable authority family: authorized_cyber_range; outcome checks, not adapter claims, authorize evidence.",
-      "awards_competence": false,
-      "external_actions": 0,
-      "outcome_sha256": "8fbff18fba6cbedc6390512946c585851b68c47e8e71a6f9b40bf5a3ab40f751",
-      "passed": true,
-      "practice_id": "spaced_practice_network_wireless_security_1789042881",
-      "recorded_epoch": 1789042881.244111,
-      "subject_id": "network_wireless_security",
-      "subject_name": "Network and wireless security",
-      "subskills": [
-        "secure_routing"
-      ]
-    },
     {
       "authority_boundary": "Distinct executable project and withheld fault outcome; the portfolio remains engineered and is not external production operation.",
       "awards_competence": false,
@@ -72145,6 +72131,20 @@
       "subskills": [
         "bookkeeping"
       ]
+    },
+    {
+      "authority_boundary": "CPython, sealed concurrency tests, transfer tests and security scans authorize evidence.",
+      "awards_competence": false,
+      "external_actions": 0,
+      "outcome_sha256": "41c6de1c8cb5f62fa73dbce69c2077e4f2758f59cbcfbb84c1de2530c2390dcf",
+      "passed": true,
+      "practice_id": "spaced_practice_advanced_python_1791582271",
+      "recorded_epoch": 1791582271.671665,
+      "subject_id": "advanced_python",
+      "subject_name": "Advanced Python",
+      "subskills": [
+        "asyncio"
+      ]
     }
   ],
   "schema_version": "aion.hexcore.continuous_spaced_practice.v1",
@@ -72160,12 +72160,12 @@
     },
     "advanced_python": {
       "failures": 0,
-      "last_epoch": 1791554637.430785,
+      "last_epoch": 1791582271.671665,
       "last_subskills": [
-        "typing"
+        "asyncio"
       ],
-      "passes": 119,
-      "rehearsals": 119
+      "passes": 120,
+      "rehearsals": 120
     },
     "adversary_emulation_penetration_testing": {
       "failures": 0,

@@ -1,36 +1,6 @@
 {
   "attempts": [
     {
-      "contract_id": "competency_contract_d0475a20425cc066c8bb",
-      "event_id": "executor_event_e7a0e21af949f9571164",
-      "passed": false,
-      "progressed": false,
-      "reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
-      "recorded_epoch": 1791484840.472224,
-      "status": "diverse_project_executor_required",
-      "subject_id": "capability_systems_thinking"
-    },
-    {
-      "contract_id": "competency_contract_6d31687556d032feaec7",
-      "event_id": "executor_event_3885d4dd73dff75a8f92",
-      "passed": false,
-      "progressed": false,
-      "reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
-      "recorded_epoch": 1791484980.0486941,
-      "status": "diverse_project_executor_required",
-      "subject_id": "capability_systems_thinking"
-    },
-    {
-      "contract_id": "competency_contract_2f0fab5cad9b0d89b5eb",
-      "event_id": "executor_event_a379169e139b92792b6c",
-      "passed": false,
-      "progressed": false,
-      "reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
-      "recorded_epoch": 1791485071.5456488,
-      "status": "diverse_project_executor_required",
-      "subject_id": "capability_systems_thinking"
-    },
-    {
       "contract_id": "competency_contract_5514ac55906c2280b8de",
       "event_id": "executor_event_cb895d7b1b0617abfb8e",
       "passed": false,
@@ -9997,6 +9967,36 @@
       "progressed": false,
       "reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
       "recorded_epoch": 1791581998.9079812,
+      "status": "diverse_project_executor_required",
+      "subject_id": "capability_systems_thinking"
+    },
+    {
+      "contract_id": "competency_contract_a3d9da01d82438f920d9",
+      "event_id": "executor_event_0cc956285de02f9b6a66",
+      "passed": false,
+      "progressed": false,
+      "reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
+      "recorded_epoch": 1791582176.517857,
+      "status": "diverse_project_executor_required",
+      "subject_id": "capability_systems_thinking"
+    },
+    {
+      "contract_id": "competency_contract_29060b95f8943c459078",
+      "event_id": "executor_event_7c26589ad84c48acab1b",
+      "passed": false,
+      "progressed": false,
+      "reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
+      "recorded_epoch": 1791582269.907179,
+      "status": "diverse_project_executor_required",
+      "subject_id": "capability_systems_thinking"
+    },
+    {
+      "contract_id": "competency_contract_69ea7f9212820ec0304c",
+      "event_id": "executor_event_6af616a4d90b0c4f4538",
+      "passed": false,
+      "progressed": false,
+      "reason": "The finite capability_systems_thinking knowledge_test portfolio is exhausted.",
+      "recorded_epoch": 1791582334.119518,
       "status": "diverse_project_executor_required",
       "subject_id": "capability_systems_thinking"
     }

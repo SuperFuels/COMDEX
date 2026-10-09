@@ -888,7 +888,7 @@
       "source": "continuous_real_outcome_cau"
     },
     "reason": "continuous_real_outcome_learning",
-    "state_hash": "242f1c72fb0ae0573d089bb224261885cf60aabe43305dc76f10fee457886e7b"
+    "state_hash": "3a93127c7a0459b4abd767eda4820578e27418f879084bc3a9d5be456a0dd3c4"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -214501,6 +214501,28 @@
       "score": 2.0,
       "success": true,
       "timestamp": "2026-10-09T21:32:54.754413+00:00"
+    },
+    {
+      "evidence": {
+        "event_set_hash": "072e2bd4a80730a0bfb7869e61dc7a1b1caa00479f4c20d0fd22fe4f5093f37a",
+        "gate": {
+          "accepted": true,
+          "committed_events_available": 797,
+          "duplicate_actions_after_restart": 0,
+          "new_events_processed": 0,
+          "source_models_retained": 4,
+          "total_events_retained": 797,
+          "unsafe_live_writes": 0,
+          "verified_response_rate": 1.0,
+          "world_change_events_retained": 768
+        }
+      },
+      "outcome_id": "outcome_97f5c0140eff4875",
+      "procedure_id": "procedure_continuous_real_outcome_learning_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 2.0,
+      "success": true,
+      "timestamp": "2026-10-09T21:42:53.291911+00:00"
     }
   ],
   "polyglot_execution_contracts": {},
@@ -248476,7 +248498,7 @@
   "representation_models": {},
   "representation_revision_generations": [],
   "reproducibility_audits": [],
-  "revision": 20213,
+  "revision": 20215,
   "sandbox_patch_library": {},
   "schema_learning_projects": {},
   "schema_revision_sessions": [],
@@ -248499,7 +248521,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-10-09T21:32:55.089337+00:00",
+  "updated_at": "2026-10-09T21:42:53.686440+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},

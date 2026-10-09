@@ -386,7 +386,7 @@
       "adapter_id": "tessaris_business_outcome_v1",
       "authority": "versioned Tessaris business containers and later owner-confirmed operating metrics",
       "authority_probe": {
-        "observed_at": "2026-10-09T21:40:02.643450+00:00",
+        "observed_at": "2026-10-09T21:45:36.996201+00:00",
         "reachable": true,
         "snapshot_sha256": "63117da7d2c8b93ff8923c7cbfee2ff797a1bd2efbfd0d6ae811a7163ce87c4c",
         "sources": [
@@ -893,7 +893,7 @@
         "close": 82437.6,
         "interval_minutes": 60,
         "market_available": true,
-        "observed_at": "2026-10-09T21:40:02.802272+00:00",
+        "observed_at": "2026-10-09T21:45:37.082858+00:00",
         "previous_candle_epoch": 1791572400,
         "previous_close": 82252.4,
         "reachable": true,
@@ -12398,7 +12398,7 @@
     }
   },
   "created_at": "2026-08-21T14:09:11.833299+00:00",
-  "cycles": 49996,
+  "cycles": 49999,
   "outcome_sequences": {
     "paper_market_strategy_v1": 437,
     "public_forecasting_competition_v1": 1795
@@ -12414,7 +12414,7 @@
     }
   ],
   "schema_version": "aion.hexcore.real_world_experience_adapters.v1",
-  "updated_at": "2026-10-09T21:40:02.807436+00:00",
+  "updated_at": "2026-10-09T21:45:37.086542+00:00",
   "verified_outcomes": [
     "real_forecast_outcome__madrid_weather_v1",
     "real_forecast_outcome__madrid_weather_v1__0001",
