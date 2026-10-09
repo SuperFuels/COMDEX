@@ -31,5 +31,12 @@ def test_people_workspace_supports_leave_review_and_employee_onboarding_evidence
 def test_people_workspace_read_load_cannot_trigger_an_application_remount_loop():
     visible_render = "if (requireVisibleMount) {\n      render();\n    } else {"
     assert visible_render in WORKSPACE
-    assert "if (state.activeTab === \"dashboard\") requestRender?.();" in APP
+    assert "if (state.activeTab === \"dashboard\") requestRender?.();" not in APP
     assert "if (state.model && state.workspaceId === businessId())" in WORKSPACE
+
+
+def test_person_record_replaces_only_the_right_workspace_pane():
+    assert "if (state.panel?.type === 'person') return renderPanel();" in WORKSPACE
+    assert 'class="hrw-panel hrw-person-modal"' in WORKSPACE
+    assert "if (target.dataset.hrwReviewPerson) { state.tab = 'people';" not in WORKSPACE
+    assert 'class="hrw-person-modal-layout"' in WORKSPACE

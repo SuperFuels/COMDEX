@@ -54,8 +54,8 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
 
   const APP_TABS = [
     { key: "boardroom", label: "Boardroom" },
+    { key: "aion_chat", label: "AI Chat" },
     { key: "communications", label: "Communications" },
-    { key: "dashboard", label: "Dashboard" },
     { key: "work_schedule", label: "Work & Schedule" },
     { key: "business_context", label: "Business" },
     { key: "live_agents", label: "Department Pilots" },
@@ -64,8 +64,8 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
       label: "Train Agent",
       description: "Train and test backend business automations",
     },
-    { key: "vault", label: "Vault" },
-    { key: "local_node", label: "Local Node" },
+    { key: "vault", label: "Connections" },
+    { key: "local_node", label: "Local processing" },
   ];
 
   /*
@@ -80,7 +80,10 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
 
   const LIVE_AGENT_VIEWS = {
     STREAM: "stream",
+    CAMPAIGNS: "campaigns",
     CALENDAR: "calendar",
+    CREATE: "create",
+    LIBRARY: "library",
     RUNS: "runs",
     SETTINGS: "settings",
     APPROVALS: "approvals",
@@ -203,6 +206,15 @@ function getMarketingCalendarMode() {
   }
 
   function getLiveAgentsView() {
+    const marketingView = String(window.__tessarisMarketingWorkspaceView || "").trim();
+    const marketingIsSelected = [
+      state.activeZone,
+      state.selectedLiveAgentDepartment,
+      state.liveAgentsSelectedDepartment,
+    ].some((value) => String(value || "").toLowerCase() === "marketing");
+    if (marketingIsSelected && Object.values(LIVE_AGENT_VIEWS).includes(marketingView)) {
+      return marketingView;
+    }
     return state.liveAgentsView || LIVE_AGENT_VIEWS.STREAM;
   }
 
@@ -665,21 +677,28 @@ function renderMarketingAssetTypeOptions(selected) {
 
 function renderMarketingCreativeAssetList() {
   const assets = getMarketingCreativeAssetDrafts();
+  const catalogueAsset = aionMarketingOfferingAsset(getAionMarketingSelectedOffering());
+  const existingSourceAssets = getAionMarketingExistingSourceAssets();
 
-  if (!assets.length) {
+  if (!assets.length && !catalogueAsset && !existingSourceAssets.length) {
     return `
       <div class="empty-state" style="margin-top:10px;">
-        No creative assets added yet. Upload product shots, logos, backgrounds, headshots, or reference style images.
+        No creative evidence added yet. Upload product shots, logos, original footage, headshots, or visual references when they are relevant.
       </div>
     `;
   }
 
+  const allAssets = [...(catalogueAsset ? [{ ...catalogueAsset, source: "product_catalogue" }] : []), ...existingSourceAssets.map((asset) => ({ ...asset, source: "existing_content_record" })), ...assets]
+    .filter((asset, index, items) => index === items.findIndex((candidate) => String(candidate?.id || candidate?.url || candidate?.file_path || "") === String(asset?.id || asset?.url || asset?.file_path || "")));
+
   return `
     <div class="list-wrap" style="margin-top:10px;">
-      ${assets
+      ${allAssets
         .map((asset, index) => {
           const assetId = asset?.id || `asset_${index}`;
           const previewUrl = asset?.previewUrl || asset?.url || "";
+          const mimeType = String(asset?.mimeType || asset?.mime_type || "").toLowerCase();
+          const isVideo = mimeType.startsWith("video/");
 
           return `
             <div class="list-item" style="
@@ -701,7 +720,17 @@ function renderMarketingCreativeAssetList() {
                 color:rgba(17,17,17,0.55);
               ">
                 ${
-                  previewUrl
+                  previewUrl && isVideo
+                    ? `
+                      <video
+                        src="${escapeHtml(previewUrl)}"
+                        aria-label="${escapeHtml(asset?.label || "Creative video") }"
+                        muted
+                        preload="metadata"
+                        style="width:100%;height:100%;object-fit:cover;display:block;"
+                      ></video>
+                    `
+                    : previewUrl
                     ? `
                       <img
                         src="${escapeHtml(previewUrl)}"
@@ -714,7 +743,7 @@ function renderMarketingCreativeAssetList() {
                         "
                       />
                     `
-                    : "Image"
+                    : isVideo ? "Video" : "Image"
                 }
               </div>
 
@@ -730,13 +759,13 @@ function renderMarketingCreativeAssetList() {
                 >${escapeHtml(asset?.notes || "")}</textarea>
               </div>
 
-              <button
+              ${["product_catalogue", "existing_content_record"].includes(asset?.source) ? `<span class="badge">${asset?.source === "existing_content_record" ? "ATTACHED TO DRAFT" : "PRODUCT IMAGE"}</span>` : `<button
                 type="button"
                 class="secondary-btn marketing-asset-remove-btn"
                 data-asset-id="${escapeHtml(assetId)}"
               >
                 Remove
-              </button>
+              </button>`}
             </div>
           `;
         })
@@ -995,6 +1024,9 @@ function renderFacebookPostMockup(run, options = {}) {
   const postPackage = getRunPostPackage(run);
   const resultPayload = getRunResultPayload(run);
   const context = getRunContext(run);
+  const previewKey =
+    firstString(run?.id, run?.run_id, run?.runId, postPackage?.id) ||
+    "facebook-draft";
 
   const publishResult =
     asRecord(postPackage?.publish_result) ||
@@ -1002,7 +1034,7 @@ function renderFacebookPostMockup(run, options = {}) {
     null;
 
   const imageFailure = getRunImageFailure(run);
-  const slides = getRunCarouselSlides(run);
+  const allSlides = getRunCarouselSlides(run);
 
   const caption =
     firstString(
@@ -1016,7 +1048,26 @@ function renderFacebookPostMockup(run, options = {}) {
     ) || "";
 
   const channels = safeArray(postPackage?.channels);
-  const primaryChannel = firstString(channels[0], "Facebook") || "Facebook";
+  const templateKey = String(options.templateKey || "");
+  const template = typeof MARKETING_CREATE_TEMPLATES !== "undefined" ? MARKETING_CREATE_TEMPLATES[templateKey] : null;
+  const channelPreviews = {
+    facebook_feed: { label: "Facebook", glyph: "f", colour: "#1877f2", suggestion: "Suggested Facebook post", aspect: "4 / 5" },
+    facebook_carousel: { label: "Facebook", glyph: "f", colour: "#1877f2", suggestion: "Suggested Facebook carousel", aspect: "4 / 5" },
+    facebook_story: { label: "Facebook", glyph: "f", colour: "#1877f2", suggestion: "Suggested Facebook Story", aspect: "9 / 16" },
+    instagram_feed: { label: "Instagram", glyph: "◎", colour: "#c13584", suggestion: "Suggested Instagram post", aspect: "4 / 5" },
+    instagram_carousel: { label: "Instagram", glyph: "◎", colour: "#c13584", suggestion: "Suggested Instagram carousel", aspect: "4 / 5" },
+    instagram_story: { label: "Instagram", glyph: "◎", colour: "#c13584", suggestion: "Suggested Instagram Story", aspect: "9 / 16" },
+    linkedin_feed: { label: "LinkedIn", glyph: "in", colour: "#0a66c2", suggestion: "Suggested LinkedIn post", aspect: "4 / 5" },
+    linkedin_carousel: { label: "LinkedIn", glyph: "in", colour: "#0a66c2", suggestion: "Suggested LinkedIn carousel", aspect: "4 / 5" },
+    google_business: { label: "Google Business", glyph: "G", colour: "#4285f4", suggestion: "Suggested Google Business update", aspect: "4 / 3" },
+    facebook_video: { label: "Facebook", glyph: "f", colour: "#1877f2", suggestion: "Suggested Facebook video", aspect: "9 / 16" },
+    instagram_reel: { label: "Instagram", glyph: "◎", colour: "#c13584", suggestion: "Suggested Instagram Reel", aspect: "9 / 16" },
+    tiktok_video: { label: "TikTok", glyph: "♪", colour: "#111111", suggestion: "Suggested TikTok video", aspect: "9 / 16" },
+    youtube_short: { label: "YouTube", glyph: "▶", colour: "#ff0033", suggestion: "Suggested YouTube Short", aspect: "9 / 16" },
+    linkedin_video: { label: "LinkedIn", glyph: "in", colour: "#0a66c2", suggestion: "Suggested LinkedIn video", aspect: "4 / 5" },
+  };
+  const channelPreview = channelPreviews[templateKey] || channelPreviews.facebook_feed;
+  const primaryChannel = template ? channelPreview.label : (firstString(channels[0], "Facebook") || "Facebook");
 
   const pageName =
     firstString(
@@ -1037,10 +1088,11 @@ function renderFacebookPostMockup(run, options = {}) {
   const visualType = firstString(
     postPackage?.visual_type,
     postPackage?.image_layout,
-    slides.length > 1 ? "carousel" : "single",
+    allSlides.length > 1 ? "carousel" : "single",
   );
 
-  const isCarousel = visualType === "carousel" || slides.length > 1;
+  const isCarousel = template ? template.format === "carousel" : (visualType === "carousel" || allSlides.length > 1);
+  const slides = isCarousel ? allSlides : allSlides.slice(0, 1);
 
   const requestedActiveIndex = Number(options.activeIndex ?? 0);
   const maxSlideIndex = Math.max(slides.length - 1, 0);
@@ -1125,7 +1177,7 @@ function renderFacebookPostMockup(run, options = {}) {
   const showDesignedImage = !!activeCardImageUrl;
   const showTextOverlay = !showDesignedImage;
 
-  const mediaAspectRatio = isCarousel ? "4 / 5" : "1.91 / 1";
+  const mediaAspectRatio = template ? channelPreview.aspect : (isCarousel ? "4 / 5" : "1.91 / 1");
 
   const canGoPrev = activeIndex > 0;
   const canGoNext = activeIndex < pageCount - 1;
@@ -1136,11 +1188,11 @@ function renderFacebookPostMockup(run, options = {}) {
     isCarousel
       ? `${slides.length || Math.max(carouselCards.length, 1)} cards`
       : "Single creative",
-    isCarousel ? "4:5 creative" : "1.91:1 creative",
+    template?.ratio || (isCarousel ? "4:5 creative" : "Single creative"),
   ].filter(Boolean);
 
   return `
-    <div style="
+    <div data-facebook-post-mockup="${escapeHtml(previewKey)}" style="
       width:100%;
       display:flex;
       justify-content:center;
@@ -1173,7 +1225,7 @@ function renderFacebookPostMockup(run, options = {}) {
                 width:38px;
                 height:38px;
                 border-radius:999px;
-                background:#1877f2;
+                background:${escapeHtml(channelPreview.colour)};
                 color:#fff;
                 display:flex;
                 align-items:center;
@@ -1181,7 +1233,7 @@ function renderFacebookPostMockup(run, options = {}) {
                 font-weight:800;
                 font-size:15px;
                 flex:0 0 auto;
-              ">f</div>
+              ">${escapeHtml(channelPreview.glyph)}</div>
 
               <div style="min-width:0;">
                 <div style="
@@ -1205,7 +1257,7 @@ function renderFacebookPostMockup(run, options = {}) {
                   align-items:center;
                   font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
                 ">
-                  <span>Suggested Facebook post</span>
+                  <span>${escapeHtml(channelPreview.suggestion)}</span>
                   <span>·</span>
                   <span>${escapeHtml(pageLabel)}</span>
                 </div>
@@ -3280,6 +3332,8 @@ async function runControl(path, body) {
 function setActiveTab(tabKey) {
   const requestedTabKey = String(tabKey || "").trim();
   const resolvedTabKey = normaliseAionBusinessTabAlias(requestedTabKey);
+  const supportedTabKey = resolvedTabKey === "dashboard" ? "boardroom" : resolvedTabKey;
+  const previousTabKey = String(state?.activeTab || "").trim();
 
   if (resolvedTabKey !== "small_business_foundation") {
     window.__aionO25ABStartupRouteHold = false;
@@ -3291,11 +3345,17 @@ function setActiveTab(tabKey) {
       .filter(Boolean),
   );
 
-  const nextTab = allowedTabKeys.has(resolvedTabKey)
-    ? resolvedTabKey
-    : "dashboard";
+  const nextTab = allowedTabKeys.has(supportedTabKey)
+    ? supportedTabKey
+    : "boardroom";
 
   state.activeTab = nextTab;
+
+  /* Entering the Boardroom always starts from its compact presence strip.
+     The founder can explicitly open the live Unity room from the header. */
+  if (nextTab === "boardroom" && previousTabKey !== "boardroom") {
+    window.__aionBoardroomFullRoomExpandedV2 = false;
+  }
 
   try {
     window.localStorage?.setItem("aion.activeTab", nextTab);
@@ -3394,17 +3454,211 @@ function renderGlobalStatusBanner() {
 function getAionMainSidebarIcon(tabKey) {
   return {
     boardroom: "AI",
+    aion_chat: "",
     communications: "✉",
-    dashboard: "▦",
     work_schedule: "◫",
     business_context: "◆",
     marketing_stream: "✦",
     live_agents: "P",
     operations_agents: "⚙",
-    file_cabinet: "▤",
+    file_cabinet: "≡",
     vault: "◈",
     local_node: "▣",
   }[String(tabKey || "")] || "•";
+}
+
+(function installAionBrandedChatSidebarIconV1() {
+  if (document.getElementById("aion-branded-chat-sidebar-icon-v1")) return;
+  const style = document.createElement("style");
+  style.id = "aion-branded-chat-sidebar-icon-v1";
+  style.textContent = `
+    html body .aion-main-sidebar [data-tab="aion_chat"] .aion-workflow-nav-icon::before,
+    html body > .aion-main-sidebar [data-tab="aion_chat"] .aion-workflow-nav-icon::before {
+      content:none!important;
+      display:none!important;
+    }
+    html body .aion-main-sidebar [data-tab="aion_chat"] .aion-sidebar-chat-icon,
+    html body > .aion-main-sidebar [data-tab="aion_chat"] .aion-sidebar-chat-icon {
+      width:24px!important;
+      height:24px!important;
+      max-width:24px!important;
+      max-height:24px!important;
+      display:block!important;
+      overflow:visible!important;
+      fill:none!important;
+      stroke:currentColor!important;
+      stroke-width:1.8!important;
+      stroke-linecap:round!important;
+      stroke-linejoin:round!important;
+    }
+    html body .aion-main-sidebar [data-tab="aion_chat"]:not(.active):not(.app-tab-active):hover {
+      background:#eef5ff!important;
+      color:#2563eb!important;
+    }
+    html body .aion-main-sidebar [data-tab="aion_chat"].active .aion-sidebar-chat-icon,
+    html body .aion-main-sidebar [data-tab="aion_chat"].app-tab-active .aion-sidebar-chat-icon {
+      color:#fff!important;
+      stroke:#fff!important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+/* Final site-wide sidebar icon lock. Some older workflow presentation rules
+   hide the Business Files glyph and allow the Local Node monitor SVG to
+   inherit a solid fill. Keep both icons visible and consistent on every
+   route, before and after selection. */
+(function installTessarisSidebarUtilityIconLockV1() {
+  if (document.getElementById("tessaris-sidebar-utility-icon-lock-v1")) return;
+  const style = document.createElement("style");
+  style.id = "tessaris-sidebar-utility-icon-lock-v1";
+  style.textContent = `
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"]:not(.active):not(.app-tab-active),
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"]:not(.active):not(.app-tab-active) {
+      border:0 !important;
+      background:transparent !important;
+      color:#475569 !important;
+      box-shadow:none !important;
+    }
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"]:not(.active):not(.app-tab-active):hover,
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"]:not(.active):not(.app-tab-active):hover {
+      background:#eef5ff !important;
+      color:#2563eb !important;
+    }
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"].active,
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"].app-tab-active,
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"].active,
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"].app-tab-active {
+      background:#2563eb !important;
+      color:#ffffff !important;
+    }
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"] .aion-workflow-nav-icon,
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"] .aion-workflow-nav-icon {
+      width:64px !important;
+      height:58px !important;
+      display:grid !important;
+      place-items:center !important;
+      background:transparent !important;
+      color:currentColor !important;
+      box-shadow:none !important;
+      overflow:visible !important;
+    }
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="file_cabinet"] .aion-workflow-nav-icon::before,
+    html body .aion-main-sidebar .aion-workflow-app-nav button[data-tab="local_node"] .aion-workflow-nav-icon::before {
+      content:none !important;
+      display:none !important;
+    }
+    html body .aion-main-sidebar .aion-sidebar-file-cabinet-icon,
+    html body .aion-main-sidebar .aion-sidebar-local-processing-icon {
+      width:24px !important;
+      height:24px !important;
+      max-width:24px !important;
+      max-height:24px !important;
+      display:block !important;
+      visibility:visible !important;
+      opacity:1 !important;
+      overflow:visible !important;
+      fill:none !important;
+      stroke:currentColor !important;
+      stroke-width:1.8 !important;
+      stroke-linecap:round !important;
+      stroke-linejoin:round !important;
+    }
+    html body .aion-main-sidebar .aion-sidebar-file-cabinet-icon *,
+    html body .aion-main-sidebar .aion-sidebar-local-processing-icon * {
+      fill:none !important;
+      stroke:currentColor !important;
+      vector-effect:non-scaling-stroke !important;
+    }
+    html body .aion-main-sidebar .aion-sidebar-local-processing-icon circle {
+      fill:currentColor !important;
+      stroke:none !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+function getAionDepartmentPilotFlyoutItemsV1() {
+  const connected = [
+    { key: "marketing", icon: "MK", label: "Marketing" },
+    { key: "sales", icon: "SL", label: "Sales" },
+    { key: "finance", icon: "FN", label: "Finance" },
+    { key: "operations", icon: "OP", label: "Operations" },
+    { key: "support", icon: "SP", label: "Support" },
+    { key: "hr", icon: "PE", label: "People" },
+    { key: "products_services", icon: "P&S", label: "Products & services" },
+    { key: "legal", icon: "LE", label: "Legal" },
+    { key: "cybersecurity", icon: "CY", label: "Cybersecurity" },
+    { key: "procurement", icon: "S&P", label: "Stock & procurement" },
+    { key: "projects", icon: "PM", label: "Project management" },
+  ];
+  const customDepartments = typeof getAionDesktopCustomDepartmentsV1 === "function"
+    ? getAionDesktopCustomDepartmentsV1()
+    : [];
+  customDepartments.forEach((department) => {
+    const key = String(department?.id || "").trim();
+    const label = String(department?.name || "Department").trim();
+    if (!key || connected.some((item) => item.key === key.toLowerCase())) return;
+    const icon = label
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word.charAt(0))
+      .join("")
+      .toUpperCase() || "D";
+    connected.push({ key, icon, label });
+  });
+  return connected;
+}
+
+function getAionActiveDepartmentPilotV1() {
+  if (String(state?.activeTab || "") !== "live_agents") return "";
+  return String(
+    window.__aionLiveAgentsFocusDepartment ||
+    window.__aionActiveDepartmentPilot ||
+    window.__aionSelectedDepartmentPilot ||
+    state?.activeZone ||
+    ""
+  ).trim().toLowerCase();
+}
+
+function renderAionDepartmentPilotFlyoutV1() {
+  const activeDepartment = getAionActiveDepartmentPilotV1();
+  const items = getAionDepartmentPilotFlyoutItemsV1();
+  return `
+    <section
+      id="aion-department-pilot-flyout-v1"
+      class="aion-department-pilot-flyout"
+      data-aion-department-pilot-flyout="true"
+      role="menu"
+      aria-label="Live departments"
+      aria-hidden="true"
+    >
+      <div class="aion-department-pilot-flyout-heading">
+        <span>Live departments</span>
+        <strong>${items.length}</strong>
+      </div>
+      <div class="aion-department-pilot-flyout-list">
+        ${items.map((item) => {
+          const isActive = activeDepartment === String(item.key).toLowerCase();
+          return `
+            <button
+              class="aion-department-pilot-flyout-item ${isActive ? "is-active" : ""}"
+              data-aion-department-pilot-flyout-item="${escapeHtml(item.key)}"
+              type="button"
+              role="menuitem"
+              aria-current="${isActive ? "page" : "false"}"
+              title="Open ${escapeHtml(item.label)}"
+            >
+              <span class="aion-department-pilot-flyout-icon" aria-hidden="true">${escapeHtml(item.icon)}</span>
+              <span class="aion-department-pilot-flyout-name">${escapeHtml(item.label)}</span>
+              <span class="aion-department-pilot-flyout-live" aria-label="Live" title="Live"></span>
+            </button>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
 }
 
 function renderAppTabs() {
@@ -3427,7 +3681,12 @@ function renderAppTabs() {
         title="Toggle sidebar"
         aria-label="Toggle sidebar"
       >
-        ☰
+        <img
+          class="aion-sidebar-brand-icon"
+          src="../assets/icon.png"
+          alt=""
+          aria-hidden="true"
+        />
       </button>
 
       <nav class="aion-workflow-app-nav" aria-label="Aion workspace navigation">
@@ -3435,17 +3694,27 @@ function renderAppTabs() {
           const activeClass = state.activeTab === tab.key ? "active app-tab-active" : "";
           const highlightClass = tab.highlight ? "app-tab-highlight" : "";
           const icon = getAionMainSidebarIcon(tab.key);
+          const connectionIcon = tab.key === "vault"
+            ? `<svg class="aion-sidebar-connections-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.6 13.4a4.5 4.5 0 0 0 6.36.08l2.52-2.52a4.5 4.5 0 0 0-6.36-6.36l-1.44 1.44"/><path d="M13.4 10.6a4.5 4.5 0 0 0-6.36-.08l-2.52 2.52a4.5 4.5 0 0 0 6.36 6.36l1.44-1.44"/></svg>`
+            : "";
+          const chatIcon = tab.key === "aion_chat"
+            ? `<svg class="aion-sidebar-chat-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 5.5h13a2.5 2.5 0 0 1 2.5 2.5v7a2.5 2.5 0 0 1-2.5 2.5H11l-4.8 3v-3H5.5A2.5 2.5 0 0 1 3 15V8a2.5 2.5 0 0 1 2.5-2.5Z"/><path d="m15.7 8.2.42 1.18 1.18.42-1.18.42-.42 1.18-.42-1.18-1.18-.42 1.18-.42.42-1.18Z"/></svg>`
+            : "";
+          const localProcessingIcon = tab.key === "local_node"
+            ? `<svg class="aion-sidebar-local-processing-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="12" rx="2"/><path d="M8 20h8M12 16.5V20"/><circle cx="8" cy="10.5" r="1"/><path d="M11 10.5h5"/></svg>`
+            : "";
 
           return `
             <button
               class="aion-workflow-nav-btn app-tab ${activeClass} ${highlightClass}"
               data-tab="${escapeHtml(tab.key)}"
+              ${tab.key === "live_agents" ? `data-aion-department-pilot-trigger="true" aria-haspopup="menu" aria-controls="aion-department-pilot-flyout-v1" aria-expanded="false"` : ""}
               type="button"
               title="${escapeHtml(tab.label)}"
               aria-label="${escapeHtml(tab.label)}"
               data-aion-sidebar-label="${escapeHtml(tab.label)}"
             >
-              <span class="aion-workflow-nav-icon" aria-hidden="true" data-icon="${escapeHtml(icon)}"></span>
+              <span class="aion-workflow-nav-icon" aria-hidden="true" data-icon="${connectionIcon || chatIcon || localProcessingIcon ? "" : escapeHtml(icon)}">${connectionIcon || chatIcon || localProcessingIcon}</span>
               <span class="aion-workflow-nav-label">${escapeHtml(tab.label)}</span>
             </button>
           `;
@@ -3456,18 +3725,119 @@ function renderAppTabs() {
           data-tab="file_cabinet"
           data-aion-sitewide-file-cabinet-tab="true"
           type="button"
-          title="File Cabinet"
-          aria-label="File Cabinet"
-          data-aion-sidebar-label="File Cabinet"
+          title="Business Files"
+          aria-label="Business Files"
+          data-aion-sidebar-label="Files"
         >
-          <span class="aion-workflow-nav-icon" aria-hidden="true" data-icon="${escapeHtml(getAionMainSidebarIcon("file_cabinet"))}"></span>
-          <span class="aion-workflow-nav-label">File Cabinet</span>
+          <span class="aion-workflow-nav-icon" aria-hidden="true" data-icon=""><svg class="aion-sidebar-file-cabinet-icon" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M4 9h16M4 15h16"/><path d="M10 6.25h4M10 12h4M10 18h4"/></svg></span>
+          <span class="aion-workflow-nav-label">Files</span>
         </button>
       </nav>
     </aside>
 
+    ${renderAionDepartmentPilotFlyoutV1()}
+
     <div data-aion-sitewide-file-cabinet-mount="true">${renderAionWorkflowFileCabinetDrawer()}</div>
   `;
+}
+
+if (!window.__aionDepartmentPilotFlyoutEventsV1Installed) {
+  window.__aionDepartmentPilotFlyoutEventsV1Installed = true;
+  let departmentPilotFlyoutCloseTimer = 0;
+
+  const getDepartmentPilotFlyout = () => document.querySelector('[data-aion-department-pilot-flyout="true"]');
+  const getDepartmentPilotTrigger = () => document.querySelector('[data-aion-department-pilot-trigger="true"]');
+  const cancelDepartmentPilotFlyoutClose = () => {
+    if (!departmentPilotFlyoutCloseTimer) return;
+    window.clearTimeout(departmentPilotFlyoutCloseTimer);
+    departmentPilotFlyoutCloseTimer = 0;
+  };
+  const refreshDepartmentPilotFlyoutActiveState = (flyout) => {
+    const activeDepartment = getAionActiveDepartmentPilotV1();
+    flyout?.querySelectorAll?.("[data-aion-department-pilot-flyout-item]").forEach((item) => {
+      const isActive = String(item.getAttribute("data-aion-department-pilot-flyout-item") || "").toLowerCase() === activeDepartment;
+      item.classList.toggle("is-active", isActive);
+      item.setAttribute("aria-current", isActive ? "page" : "false");
+    });
+  };
+  const positionDepartmentPilotFlyout = (trigger, flyout) => {
+    if (!trigger || !flyout) return;
+    const triggerRect = trigger.getBoundingClientRect();
+    const panelHeight = Math.max(360, flyout.offsetHeight || 0);
+    const top = Math.max(14, Math.min(triggerRect.top - 160, window.innerHeight - panelHeight - 14));
+    flyout.style.left = `${Math.round(triggerRect.right + 10)}px`;
+    flyout.style.top = `${Math.round(top)}px`;
+  };
+  const openDepartmentPilotFlyout = () => {
+    cancelDepartmentPilotFlyoutClose();
+    const trigger = getDepartmentPilotTrigger();
+    const flyout = getDepartmentPilotFlyout();
+    if (!trigger || !flyout) return;
+    refreshDepartmentPilotFlyoutActiveState(flyout);
+    flyout.classList.add("is-open");
+    flyout.setAttribute("aria-hidden", "false");
+    trigger.setAttribute("aria-expanded", "true");
+    positionDepartmentPilotFlyout(trigger, flyout);
+    window.requestAnimationFrame(() => positionDepartmentPilotFlyout(trigger, flyout));
+  };
+  const closeDepartmentPilotFlyout = () => {
+    cancelDepartmentPilotFlyoutClose();
+    const trigger = getDepartmentPilotTrigger();
+    const flyout = getDepartmentPilotFlyout();
+    flyout?.classList?.remove("is-open");
+    flyout?.setAttribute?.("aria-hidden", "true");
+    trigger?.setAttribute?.("aria-expanded", "false");
+  };
+  const scheduleDepartmentPilotFlyoutClose = () => {
+    cancelDepartmentPilotFlyoutClose();
+    departmentPilotFlyoutCloseTimer = window.setTimeout(closeDepartmentPilotFlyout, 180);
+  };
+
+  document.addEventListener("pointerover", (event) => {
+    if (event.target?.closest?.('[data-aion-department-pilot-trigger="true"], [data-aion-department-pilot-flyout="true"]')) {
+      openDepartmentPilotFlyout();
+    }
+  });
+  document.addEventListener("pointerout", (event) => {
+    const surface = event.target?.closest?.('[data-aion-department-pilot-trigger="true"], [data-aion-department-pilot-flyout="true"]');
+    if (!surface) return;
+    const related = event.relatedTarget;
+    if (related?.closest?.('[data-aion-department-pilot-trigger="true"], [data-aion-department-pilot-flyout="true"]')) return;
+    scheduleDepartmentPilotFlyoutClose();
+  });
+  document.addEventListener("focusin", (event) => {
+    if (event.target?.closest?.('[data-aion-department-pilot-trigger="true"], [data-aion-department-pilot-flyout="true"]')) {
+      openDepartmentPilotFlyout();
+    }
+  });
+  document.addEventListener("focusout", (event) => {
+    const surface = event.target?.closest?.('[data-aion-department-pilot-trigger="true"], [data-aion-department-pilot-flyout="true"]');
+    if (!surface) return;
+    if (event.relatedTarget?.closest?.('[data-aion-department-pilot-trigger="true"], [data-aion-department-pilot-flyout="true"]')) return;
+    scheduleDepartmentPilotFlyoutClose();
+  });
+  document.addEventListener("click", (event) => {
+    const item = event.target?.closest?.("[data-aion-department-pilot-flyout-item]");
+    if (!item) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const departmentKey = item.getAttribute("data-aion-department-pilot-flyout-item") || "";
+    closeDepartmentPilotFlyout();
+    openAionExecutiveDepartmentFromStickyHeaderV1(departmentKey);
+  }, true);
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const flyout = getDepartmentPilotFlyout();
+    if (!flyout?.classList?.contains("is-open")) return;
+    closeDepartmentPilotFlyout();
+    getDepartmentPilotTrigger()?.focus?.();
+  });
+  window.addEventListener("resize", closeDepartmentPilotFlyout);
+  window.addEventListener("scroll", () => {
+    const flyout = getDepartmentPilotFlyout();
+    if (!flyout?.classList?.contains("is-open")) return;
+    positionDepartmentPilotFlyout(getDepartmentPilotTrigger(), flyout);
+  }, true);
 }
 
 
@@ -3714,6 +4084,803 @@ function renderAionSitewideFileCabinetSurface() {
   document.head.appendChild(style);
 })();
 
+/* Connections is the public product name for the existing Vault-backed page.
+   Keep every data attribute, route and API contract named Vault internally. */
+(function installAionConnectionsBrandPresentationV1() {
+  const style = document.createElement("style");
+  style.id = "aion-connections-brand-presentation-v1";
+  style.textContent = `
+    html body .aion-main-sidebar [data-tab="vault"] .aion-sidebar-connections-icon,
+    html body > .aion-main-sidebar [data-tab="vault"] .aion-sidebar-connections-icon {
+      width:24px !important;
+      height:24px !important;
+      display:block !important;
+      fill:none !important;
+      stroke:currentColor !important;
+      stroke-width:2 !important;
+      stroke-linecap:round !important;
+      stroke-linejoin:round !important;
+    }
+    html body .aion-main-sidebar [data-tab="vault"] .aion-workflow-nav-icon::before,
+    html body > .aion-main-sidebar [data-tab="vault"] .aion-workflow-nav-icon::before {
+      content:none !important;
+      display:none !important;
+    }
+
+    html body .aion-connections-page {
+      --connections-blue:#2563eb;
+      --connections-blue-dark:#1d4ed8;
+      --connections-blue-soft:#eef5ff;
+      --connections-ink:#0b1730;
+      --connections-muted:#66758a;
+      --connections-line:#d9e2ec;
+      --connections-surface:#ffffff;
+      --connections-canvas:#f7f9fc;
+      width:100% !important;
+      max-width:none !important;
+      min-height:100vh !important;
+      padding:32px 48px 104px 128px !important;
+      background:var(--connections-canvas) !important;
+      color:var(--connections-ink) !important;
+      font-family:var(--tessaris-font-sans, Inter, "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
+    }
+    html body.aion-workflow-sidebar-expanded .aion-connections-page {
+      padding-left:300px !important;
+    }
+    html body .aion-connections-page *,
+    html body .aion-connections-page button,
+    html body .aion-connections-page input,
+    html body .aion-connections-page select,
+    html body .aion-connections-page textarea {
+      font-family:inherit !important;
+    }
+    html body .aion-connections-page .aion-vault-canonical-hero {
+      min-height:156px !important;
+      padding:30px 34px !important;
+      border:1px solid var(--connections-line) !important;
+      border-top:4px solid var(--connections-blue) !important;
+      border-radius:20px !important;
+      background:var(--connections-surface) !important;
+      box-shadow:0 12px 34px rgba(11,23,48,.055) !important;
+    }
+    html body .aion-connections-page .aion-vault-canonical-hero .eyebrow,
+    html body .aion-connections-page .eyebrow {
+      color:var(--connections-blue) !important;
+      font-size:10px !important;
+      font-weight:850 !important;
+      letter-spacing:.18em !important;
+      text-transform:uppercase !important;
+    }
+    html body .aion-connections-page .aion-vault-canonical-hero h1 {
+      margin:9px 0 7px !important;
+      color:var(--connections-ink) !important;
+      font-size:38px !important;
+      font-weight:820 !important;
+      line-height:1.02 !important;
+      letter-spacing:-.04em !important;
+    }
+    html body .aion-connections-page .aion-vault-canonical-hero p {
+      max-width:820px !important;
+      color:var(--connections-muted) !important;
+      font-size:15px !important;
+      line-height:1.5 !important;
+    }
+    html body .aion-connections-page .aion-vault-hero-status {
+      gap:9px !important;
+    }
+    html body .aion-connections-page .aion-vault-hero-status span {
+      min-height:34px !important;
+      display:inline-flex !important;
+      align-items:center !important;
+      padding:0 13px !important;
+      border:1px solid #bfd3ff !important;
+      border-radius:999px !important;
+      background:var(--connections-blue-soft) !important;
+      color:var(--connections-blue-dark) !important;
+      font-size:9px !important;
+      font-weight:820 !important;
+      letter-spacing:.11em !important;
+    }
+
+    html body .aion-connections-page .aion-vault-canonical-panel {
+      margin-top:20px !important;
+      padding:26px 28px !important;
+      overflow:hidden !important;
+      border:1px solid var(--connections-line) !important;
+      border-top:4px solid var(--connections-blue) !important;
+      border-radius:18px !important;
+      background:var(--connections-surface) !important;
+      box-shadow:0 10px 30px rgba(11,23,48,.045) !important;
+    }
+    html body .aion-connections-page [data-aion-vault-local-models="true"] {
+      border-top-color:var(--connections-blue) !important;
+    }
+    html body .aion-connections-page .operations-agents-card-head {
+      min-height:76px !important;
+      display:flex !important;
+      align-items:flex-start !important;
+      justify-content:space-between !important;
+      gap:24px !important;
+      padding:0 0 18px !important;
+      border-bottom:1px solid var(--connections-line) !important;
+    }
+    html body .aion-connections-page .operations-agents-card-head h2,
+    html body .aion-connections-page .tv-hero h2 {
+      margin:6px 0 !important;
+      color:var(--connections-ink) !important;
+      font-size:24px !important;
+      font-weight:800 !important;
+      line-height:1.14 !important;
+      letter-spacing:-.025em !important;
+    }
+    html body .aion-connections-page .operations-agents-card-head .muted,
+    html body .aion-connections-page .tv-hero p {
+      max-width:900px !important;
+      color:var(--connections-muted) !important;
+      font-size:13px !important;
+      line-height:1.5 !important;
+    }
+
+    html body .aion-connections-page .primary-btn,
+    html body .aion-connections-page .secondary-btn {
+      min-height:40px !important;
+      padding:0 15px !important;
+      border:1px solid #c5d2e1 !important;
+      border-radius:10px !important;
+      background:#fff !important;
+      color:#334155 !important;
+      box-shadow:0 2px 5px rgba(11,23,48,.035) !important;
+      font-size:11px !important;
+      font-weight:750 !important;
+      letter-spacing:0 !important;
+      line-height:1.15 !important;
+      text-transform:none !important;
+    }
+    html body .aion-connections-page .primary-btn {
+      border-color:var(--connections-blue) !important;
+      background:var(--connections-blue) !important;
+      color:#fff !important;
+    }
+    html body .aion-connections-page .primary-btn:hover,
+    html body .aion-connections-page .secondary-btn:hover {
+      border-color:#8eb3ff !important;
+      background:var(--connections-blue-soft) !important;
+      color:var(--connections-blue-dark) !important;
+    }
+    html body .aion-connections-page .primary-btn:hover {
+      border-color:var(--connections-blue-dark) !important;
+      background:var(--connections-blue-dark) !important;
+      color:#fff !important;
+    }
+    html body .aion-connections-page .badge,
+    html body .aion-connections-page .aion-vault-model-status {
+      min-height:28px !important;
+      display:inline-flex !important;
+      align-items:center !important;
+      padding:0 10px !important;
+      border:1px solid #c6d7ef !important;
+      border-radius:999px !important;
+      background:#f2f7ff !important;
+      color:#335fba !important;
+      font-size:9px !important;
+      font-weight:800 !important;
+      letter-spacing:.06em !important;
+      text-transform:none !important;
+    }
+
+    html body .aion-connections-page .aion-vault-model-table {
+      margin-top:18px !important;
+      overflow:hidden !important;
+      border:1px solid var(--connections-line) !important;
+      border-radius:14px !important;
+      background:#fff !important;
+    }
+    html body .aion-connections-page .aion-vault-model-row {
+      min-height:68px !important;
+      padding:0 16px !important;
+      border-bottom:1px solid #e4eaf1 !important;
+      background:#fff !important;
+      color:#24324a !important;
+      font-size:13px !important;
+    }
+    html body .aion-connections-page .aion-vault-model-head {
+      min-height:42px !important;
+      background:#f3f6fa !important;
+      color:#66758a !important;
+      font-size:9px !important;
+      font-weight:850 !important;
+      letter-spacing:.12em !important;
+      text-transform:uppercase !important;
+    }
+    html body .aion-connections-page .aion-vault-model-row:hover:not(.aion-vault-model-head) {
+      background:#f8fbff !important;
+    }
+    html body .aion-connections-page .aion-vault-model-display-name,
+    html body .aion-connections-page input,
+    html body .aion-connections-page select,
+    html body .aion-connections-page textarea {
+      min-height:42px !important;
+      border:1px solid #cbd8e7 !important;
+      border-radius:9px !important;
+      background:#fff !important;
+      color:var(--connections-ink) !important;
+      box-shadow:none !important;
+      font-size:12px !important;
+    }
+    html body .aion-connections-page input:focus,
+    html body .aion-connections-page select:focus,
+    html body .aion-connections-page textarea:focus {
+      border-color:var(--connections-blue) !important;
+      outline:0 !important;
+      box-shadow:0 0 0 3px rgba(37,99,235,.11) !important;
+    }
+    html body .aion-connections-page .aion-vault-model-settings,
+    html body .aion-connections-page .aion-vault-local-model-note,
+    html body .aion-connections-page .aion-vault-advanced-details {
+      margin-top:14px !important;
+      border:1px solid var(--connections-line) !important;
+      border-radius:12px !important;
+      background:#f8fafc !important;
+      color:#52647a !important;
+    }
+
+    html body .aion-connections-page .aion-vault-integration-groups {
+      gap:12px !important;
+    }
+    html body .aion-connections-page .aion-vault-integration-group {
+      min-height:112px !important;
+      padding:18px !important;
+      border:1px solid var(--connections-line) !important;
+      border-left:4px solid var(--connections-blue) !important;
+      border-radius:14px !important;
+      background:#fbfcff !important;
+    }
+    html body .aion-connections-page .aion-vault-integration-group > header strong,
+    html body .aion-connections-page .aion-vault-integration-selection strong {
+      color:var(--connections-ink) !important;
+      font-size:13px !important;
+      font-weight:780 !important;
+    }
+    html body .aion-connections-page .aion-vault-integration-group > header p,
+    html body .aion-connections-page .aion-vault-integration-selection p {
+      color:var(--connections-muted) !important;
+      font-size:11px !important;
+      line-height:1.45 !important;
+      white-space:normal !important;
+    }
+    html body .aion-connections-page .aion-vault-integration-picker > label > span {
+      color:#66758a !important;
+      font-size:9px !important;
+    }
+    html body .aion-connections-page .aion-vault-integration-boundary {
+      padding:15px 17px !important;
+      border:1px solid #f1d18d !important;
+      border-left:4px solid #e7a321 !important;
+      border-radius:12px !important;
+      background:#fffaf0 !important;
+    }
+    html body .aion-connections-page .aion-vault-integration-boundary strong,
+    html body .aion-connections-page .aion-vault-integration-boundary span {
+      font-size:11px !important;
+      line-height:1.45 !important;
+    }
+
+    html body .aion-connections-page .aion-vault-crm-provider-select-row,
+    html body .aion-connections-page .aion-vault-crm-connection-row {
+      padding:16px !important;
+      border:1px solid var(--connections-line) !important;
+      border-radius:13px !important;
+      background:#f8fafc !important;
+    }
+    html body .aion-connections-page .aion-vault-crm-provider-select-row > div > strong,
+    html body .aion-connections-page .aion-vault-crm-health strong {
+      color:var(--connections-ink) !important;
+      font-size:13px !important;
+    }
+    html body .aion-connections-page .aion-vault-crm-provider-select-row > div > span,
+    html body .aion-connections-page .aion-vault-crm-provider-select-row > div > p,
+    html body .aion-connections-page .aion-vault-crm-health small {
+      color:var(--connections-muted) !important;
+      font-size:11px !important;
+      line-height:1.4 !important;
+    }
+    html body .aion-connections-page .aion-vault-crm-contract {
+      gap:10px !important;
+      border:0 !important;
+      background:transparent !important;
+    }
+    html body .aion-connections-page .aion-vault-crm-contract > div {
+      gap:7px !important;
+      padding:16px !important;
+      border:1px solid var(--connections-line) !important;
+      border-radius:12px !important;
+      background:#fbfcff !important;
+    }
+    html body .aion-connections-page .aion-vault-crm-contract strong {
+      color:var(--connections-ink) !important;
+      font-size:12px !important;
+    }
+    html body .aion-connections-page .aion-vault-crm-contract span {
+      color:var(--connections-muted) !important;
+      font-size:11px !important;
+      line-height:1.5 !important;
+    }
+
+    html body .aion-connections-page .tv-panel {
+      padding:0 !important;
+    }
+    html body .aion-connections-page .tv-hero {
+      padding:26px 28px 20px !important;
+      border-bottom:1px solid var(--connections-line) !important;
+    }
+    html body .aion-connections-page .tv-progress strong {
+      color:var(--connections-blue) !important;
+    }
+    html body .aion-connections-page .tv-steps {
+      gap:16px !important;
+      padding:20px 28px !important;
+      background:#f7f9fc !important;
+    }
+    html body .aion-connections-page .tv-step {
+      padding:20px !important;
+      border:1px solid var(--connections-line) !important;
+      border-radius:14px !important;
+      background:#fff !important;
+    }
+    html body .aion-connections-page .tv-number {
+      background:var(--connections-blue) !important;
+    }
+    html body .aion-connections-page .tv-instructions,
+    html body .aion-connections-page .tv-connected-summary,
+    html body .aion-connections-page .tv-notice,
+    html body .aion-connections-page .tv-next {
+      border-radius:11px !important;
+    }
+    html body .aion-connections-page .tv-boundary {
+      padding:0 28px 24px !important;
+      color:var(--connections-muted) !important;
+      font-size:11px !important;
+    }
+
+    /* The governed Business connections summary is shared with Boardroom, but
+       it needs to read as a first-class Connections card on this route. */
+    html body .aion-connections-page [data-aion-connections-business-map="true"] {
+      margin:20px 0 0 !important;
+      padding:28px !important;
+      overflow:hidden !important;
+      border:1px solid var(--connections-line) !important;
+      border-top:4px solid var(--connections-blue) !important;
+      border-radius:18px !important;
+      background:var(--connections-surface) !important;
+      box-shadow:0 10px 30px rgba(11,23,48,.045) !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-business-connections-head {
+      padding:0 0 20px !important;
+      border-bottom:1px solid var(--connections-line) !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .panel-kicker {
+      color:var(--connections-blue) !important;
+      font-size:10px !important;
+      font-weight:850 !important;
+      letter-spacing:.18em !important;
+      line-height:1.2 !important;
+      text-transform:uppercase !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .panel-title {
+      margin-top:7px !important;
+      color:var(--connections-ink) !important;
+      font-size:24px !important;
+      font-weight:800 !important;
+      line-height:1.16 !important;
+      letter-spacing:-.025em !important;
+      text-transform:none !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-business-connections-head .muted {
+      max-width:880px !important;
+      margin-top:8px !important;
+      color:var(--connections-muted) !important;
+      font-size:13px !important;
+      line-height:1.5 !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-business-connections-list {
+      display:grid !important;
+      gap:10px !important;
+      margin:18px 0 0 !important;
+      border:0 !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-connection-row {
+      min-height:80px !important;
+      grid-template-columns:180px minmax(0,1fr) !important;
+      gap:18px !important;
+      align-items:center !important;
+      padding:12px 14px !important;
+      border:1px solid #e1e8f1 !important;
+      border-radius:14px !important;
+      background:#f8faff !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .card-label {
+      color:#52657d !important;
+      font-size:9px !important;
+      font-weight:850 !important;
+      letter-spacing:.14em !important;
+      text-transform:uppercase !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-connection-items {
+      gap:10px !important;
+      padding:0 !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-connection-tile {
+      min-width:220px !important;
+      min-height:58px !important;
+      padding:7px 10px !important;
+      border:1px solid #dce5f0 !important;
+      border-radius:12px !important;
+      background:#fff !important;
+      color:#26364d !important;
+      box-shadow:0 2px 6px rgba(11,23,48,.03) !important;
+      text-transform:none !important;
+      letter-spacing:0 !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-connection-tile:hover {
+      border-color:#91b5ff !important;
+      background:#f4f8ff !important;
+      box-shadow:0 5px 14px rgba(37,99,235,.08) !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-connection-tile.is-suggested {
+      border-style:dashed !important;
+      background:#f6f8fc !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-connection-tile strong {
+      color:var(--connections-ink) !important;
+      font-size:12px !important;
+      font-weight:780 !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-connection-tile small {
+      color:var(--connections-muted) !important;
+      font-size:10px !important;
+      line-height:1.3 !important;
+    }
+    html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-connection-mark {
+      width:42px !important;
+      height:42px !important;
+      border-color:#dce5f0 !important;
+      box-shadow:0 3px 9px rgba(11,23,48,.055) !important;
+    }
+    html body .aion-connections-page .aion-connections-map-status {
+      min-height:42px !important;
+      margin-top:14px !important;
+      padding:10px 13px !important;
+      border:1px solid #ccebdd !important;
+      border-radius:11px !important;
+      background:#f1fbf6 !important;
+      color:#376b57 !important;
+      font-size:11px !important;
+      line-height:1.4 !important;
+    }
+    html body .aion-connections-page .aion-connections-map-review {
+      min-height:70px !important;
+      margin-top:10px !important;
+      padding:13px 14px !important;
+      border:1px solid #dce5f0 !important;
+      border-radius:12px !important;
+      background:#f8fafc !important;
+    }
+    html body .aion-connections-page .aion-connections-map-review strong {
+      color:var(--connections-ink) !important;
+      font-size:13px !important;
+      font-weight:780 !important;
+    }
+    html body .aion-connections-page .aion-connections-map-review .muted {
+      color:var(--connections-muted) !important;
+      font-size:11px !important;
+    }
+
+    @media (max-width:1100px) {
+      html body .aion-connections-page {
+        padding:24px 20px 90px 92px !important;
+      }
+      html body .aion-connections-page .aion-vault-canonical-hero {
+        grid-template-columns:1fr !important;
+      }
+      html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-connection-row {
+        grid-template-columns:145px minmax(0,1fr) !important;
+      }
+    }
+    @media (max-width:760px) {
+      html body .aion-connections-page .aion-vault-canonical-hero {
+        padding:24px !important;
+      }
+      html body .aion-connections-page .aion-vault-canonical-panel {
+        padding:20px !important;
+      }
+      html body .aion-connections-page .operations-agents-card-head,
+      html body .aion-connections-page .aion-vault-crm-connection-row {
+        align-items:stretch !important;
+        flex-direction:column !important;
+      }
+      html body .aion-connections-page [data-aion-connections-business-map="true"] {
+        padding:20px !important;
+      }
+      html body .aion-connections-page [data-aion-connections-business-map="true"] .aion-boardroom-connection-row {
+        grid-template-columns:1fr !important;
+        gap:8px !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+/* Marketing must win after every legacy cockpit override above has loaded. */
+(function installAionMarketingSharedCommandCentreFinalRoute() {
+  if (typeof renderLiveAgentsWorkspaceBody !== "function") return;
+  if (typeof window.renderMarketingSharedCommandCentre !== "function") return;
+  const previous = renderLiveAgentsWorkspaceBody;
+  renderLiveAgentsWorkspaceBody = function aionMarketingFinalRouteEarly(selectedRuns, selectedAgentCard) {
+    const department = typeof getSelectedLiveDepartmentKey === "function"
+      ? String(getSelectedLiveDepartmentKey() || "").trim().toLowerCase()
+      : "";
+    if (department === "marketing") {
+      return window.renderMarketingSharedCommandCentre(selectedRuns, selectedAgentCard);
+    }
+    return previous(selectedRuns, selectedAgentCard);
+  };
+  window.renderLiveAgentsWorkspaceBody = renderLiveAgentsWorkspaceBody;
+})();
+
+/* BEGIN AION MARKETING SHARED COMMAND CENTRE */
+/*
+ * Marketing historically used a standalone hero/cockpit. Keep every existing
+ * Marketing workspace renderer and action, but present it inside the same
+ * persistent Pilot + functional workspace shell used by the other departments.
+ */
+(function installAionMarketingSharedCommandCentre() {
+  const previousRenderLiveAgentsWorkspaceBodyMarketing =
+    typeof renderLiveAgentsWorkspaceBody === "function" ? renderLiveAgentsWorkspaceBody : null;
+
+  function renderMarketingPilotThread() {
+    const pilotState = getAionPilotFrontendInteractionState();
+    const lastRequest = String(pilotState?.last_request || "").trim();
+    const status = String(pilotState?.status || "").trim();
+    return `
+      <div style="max-width:90%;background:#eef5ff;color:#14213d;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;">
+        <strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#2563eb;">Marketing Pilot</strong>
+        Ask me to shape a campaign, define the audience, review evidence, prepare content or organise the channel plan. I will keep claims, spend and publishing behind approval.
+      </div>
+      ${lastRequest ? `
+        <div style="align-self:flex-end;max-width:90%;background:#2563eb;color:#fff;padding:14px 16px;line-height:1.5;border-radius:16px 4px 16px 16px;">
+          <strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#dbeafe;">You</strong>${escapeHtml(lastRequest)}
+        </div>
+        <div style="max-width:90%;background:#eef5ff;color:#14213d;padding:12px 14px;line-height:1.45;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;">
+          <strong style="display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;color:#2563eb;">Marketing Pilot</strong>
+          ${status === "campaign_building" ? "I’m building the governed campaign workspace now. Progress and approvals are shown on the right." : "Your latest Marketing instruction is saved. Continue it here or use the detailed tools on the right."}
+        </div>
+      ` : ""}
+    `;
+  }
+
+  function renderMarketingFunctionalWorkspace(selectedRuns, selectedAgentCard) {
+    const activeView = getLiveAgentsView();
+    if (activeView === LIVE_AGENT_VIEWS.CAMPAIGNS) {
+      return renderMarketingCampaignsSurface(selectedRuns, selectedAgentCard);
+    }
+    if (activeView === LIVE_AGENT_VIEWS.CALENDAR) {
+      return renderMarketingCalendarWorkspace(selectedRuns, selectedAgentCard);
+    }
+    if (activeView === LIVE_AGENT_VIEWS.CREATE) {
+      return renderMarketingCreateSurface(selectedRuns, selectedAgentCard);
+    }
+    if (activeView === LIVE_AGENT_VIEWS.LIBRARY) {
+      return renderMarketingLibrarySurface(selectedRuns, selectedAgentCard);
+    }
+    if (activeView === LIVE_AGENT_VIEWS.RUNS) {
+      return renderLiveAgentRunsView(selectedRuns, selectedAgentCard);
+    }
+    if (activeView === LIVE_AGENT_VIEWS.APPROVALS) {
+      return renderDepartmentApprovalsSurface("marketing", selectedAgentCard);
+    }
+    if (activeView === LIVE_AGENT_VIEWS.SETTINGS) {
+      return renderLiveAgentSettingsView(selectedAgentCard);
+    }
+    return renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard);
+  }
+
+  function renderMarketingSharedCommandCentre(selectedRuns = [], selectedAgentCard = null) {
+    ensureAionDepartmentComposerStyles();
+    const workspace = renderMarketingFunctionalWorkspace(selectedRuns, selectedAgentCard);
+    const pilotState = getAionPilotFrontendInteractionState();
+    const activeView = getLiveAgentsView();
+    if (activeView === LIVE_AGENT_VIEWS.CALENDAR || activeView === LIVE_AGENT_VIEWS.CREATE || activeView === LIVE_AGENT_VIEWS.LIBRARY) {
+      const isCreatePage = activeView === LIVE_AGENT_VIEWS.CREATE;
+      const isLibraryPage = activeView === LIVE_AGENT_VIEWS.LIBRARY;
+      const isTemplateBuilder = isCreatePage && getAionMarketingCreativeLabState().templateBuilderOpen;
+      const fullPageKey = isCreatePage ? "create" : isLibraryPage ? "library" : "calendar";
+      const fullPageEyebrow = isTemplateBuilder ? "MARKETING · TEMPLATE STUDIO" : isCreatePage ? "MARKETING · CREATIVE SUITE" : isLibraryPage ? "MARKETING · BRAND & ASSET LIBRARY" : "MARKETING · CONTENT OPERATIONS";
+      const fullPageTitle = isTemplateBuilder ? "Create branded template" : isCreatePage ? "Create marketing content" : isLibraryPage ? "Marketing library" : "Content pipeline & calendar";
+      return `
+        <div data-aion-marketing-live-agents-workspace="true" data-aion-marketing-full-page="${escapeHtml(fullPageKey)}" data-aion-shared-department-pilot="true" data-aion-shared-department="marketing" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:40!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#f7f9fc!important;">
+          <section data-aion-marketing-command-centre="true" style="background:#f7f9fc;border-top:4px solid #2563eb;padding:22px 0 0;box-sizing:border-box;">
+            <style>
+              [data-aion-marketing-full-page] .panel{border-color:#d9e2ec!important;border-radius:16px!important;background:#fff!important;box-shadow:none!important}
+              [data-aion-marketing-full-page] .primary-btn{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;border-radius:11px!important}
+              [data-aion-marketing-full-page] .secondary-btn{border-color:#d9e2ec!important;border-radius:11px!important;background:#fff!important;box-shadow:none!important}
+              [data-aion-marketing-full-page] .badge{border-radius:999px!important;border-color:#c8d8fb!important;background:#eef5ff!important;color:#2563eb!important}
+              @media(max-width:1100px){[data-aion-marketing-full-page="library"] .aion-marketing-library-grid{grid-template-columns:1fr!important}}
+            </style>
+            <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin:0 0 18px;padding:0 10px;">
+              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                ${
+                  isTemplateBuilder
+                    ? `<button type="button" class="secondary-btn" data-marketing-close-template-builder>← Back to content creator</button>`
+                    : `<button type="button" class="secondary-btn live-agents-view-btn" data-live-agents-view="${escapeHtml(LIVE_AGENT_VIEWS.STREAM)}">← Back to Marketing</button>`
+                }
+                <div><div class="surface-eyebrow">${escapeHtml(fullPageEyebrow)}</div><h2 style="margin:6px 0 0;color:#14213d;">${escapeHtml(fullPageTitle)}</h2></div>
+              </div>
+            </header>
+            ${workspace}
+          </section>
+        </div>
+      `;
+    }
+    const pilotPercent = Math.max(24, Math.min(48, Number(state.marketingPilotPanePercent || 34)));
+    window.setTimeout?.(() => hydrateAionMarketingConversation(document.querySelector("[data-aion-marketing-command-centre]")), 0);
+    return `
+      <div data-aion-marketing-live-agents-workspace="true" data-aion-shared-department-pilot="true" data-aion-shared-department="marketing" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:40!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#f7f9fc!important;">
+        <section class="aion-department-command-centre" data-aion-marketing-command-centre="true" style="--aion-department-accent:#2563eb;background:#f7f9fc;border-top:4px solid #2563eb;padding:24px 0 0;box-sizing:border-box;">
+          <style>
+            [data-aion-marketing-command-centre] [data-aion-marketing-split]{border:1px solid #d9e2ec!important;border-radius:18px!important;box-shadow:0 14px 38px rgba(15,23,42,.035)!important}
+            [data-aion-marketing-command-centre] .live-agents-subtabs{margin:0 0 14px!important;padding:6px!important;border:1px solid #d9e2ec!important;border-radius:14px!important;background:#f7f9fc!important;display:flex!important;gap:6px!important;flex-wrap:wrap!important}
+            [data-aion-marketing-command-centre] .live-agents-subtab{border:1px solid transparent!important;border-radius:10px!important;background:transparent!important;color:#66758a!important;padding:8px 13px!important;box-shadow:none!important}
+            [data-aion-marketing-command-centre] .live-agents-subtab-active{border-color:#bfd2fb!important;background:#fff!important;color:#2563eb!important;box-shadow:0 1px 3px rgba(15,23,42,.08)!important}
+            [data-aion-marketing-workspace-pane] [data-aion-phase23y-pilot-marketing-workspace]{margin:0!important;max-width:none!important;padding:0 14px 28px!important;background:#f8fafc!important}
+            [data-aion-marketing-workspace-pane] [data-aion-unified-department-director="marketing"]{display:none!important}
+            [data-aion-marketing-workspace-pane] .panel,
+            [data-aion-marketing-workspace-pane] [data-aion-marketing-director-brief],
+            [data-aion-marketing-workspace-pane] [data-aion-marketing-automation-studio]{border-color:#d9e2ec!important;border-radius:16px!important;background:#fff!important;box-shadow:none!important;overflow:hidden!important}
+            [data-aion-marketing-workspace-pane] [style*="border:2px solid #0ea5e9"]{border:1px solid #d9e2ec!important;border-top:1px solid #d9e2ec!important;border-radius:16px!important}
+            [data-aion-marketing-workspace-pane] [style*="border-bottom:1px solid #bae6fd"],
+            [data-aion-marketing-workspace-pane] [style*="border:1px solid #bae6fd"]{border-color:#d9e2ec!important}
+            [data-aion-marketing-workspace-pane] [style*="color:#087f5b"],
+            [data-aion-marketing-workspace-pane] [style*="color: #087f5b"],
+            [data-aion-marketing-workspace-pane] [style*="color:#0f766e"]{color:#2563eb!important}
+            [data-aion-marketing-workspace-pane] [style*="background:#f0fdf4"],
+            [data-aion-marketing-workspace-pane] [style*="background: #f0fdf4"],
+            [data-aion-marketing-workspace-pane] [style*="background:#f8fcff"]{background:#eef5ff!important}
+            [data-aion-marketing-workspace-pane] [style*="border-left:4px solid #087f5b"],
+            [data-aion-marketing-workspace-pane] [style*="border-left:3px solid #0f766e"],
+            [data-aion-marketing-workspace-pane] [style*="border-left:4px solid #0ea5e9"]{border-left-color:#2563eb!important}
+            [data-aion-marketing-workspace-pane] .primary-btn{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;border-radius:11px!important;box-shadow:0 5px 13px rgba(37,99,235,.16)!important}
+            [data-aion-marketing-workspace-pane] .marketing-overview-primary-action{background:#2864eb!important;background-image:none!important;border-color:#2864eb!important;color:#fff!important;box-shadow:0 5px 13px rgba(40,100,235,.18)!important}
+            [data-aion-marketing-workspace-pane] .marketing-overview-primary-action:hover{background:#1f55d5!important;background-image:none!important;border-color:#1f55d5!important;color:#fff!important}
+            [data-aion-marketing-workspace-pane] .secondary-btn,
+            [data-aion-marketing-workspace-pane] .input,
+            [data-aion-marketing-workspace-pane] select,
+            [data-aion-marketing-workspace-pane] textarea{border-color:#d9e2ec!important;border-radius:11px!important;box-shadow:none!important}
+            [data-aion-marketing-workspace-pane] .badge{border-radius:999px!important;border-color:#c8d8fb!important;background:#eef5ff!important;color:#2563eb!important}
+            [data-aion-marketing-workspace-pane] [data-aion-o14k-package-dock],
+            [data-aion-marketing-workspace-pane] [data-aion-o14k-collapsed-package-dock]{border-color:#d9e2ec!important;border-radius:14px!important;background:#fff!important}
+            [data-aion-marketing-command-centre] [data-aion-marketing-overview] .panel,
+            [data-aion-marketing-command-centre] [data-aion-marketing-campaigns] .panel,
+            [data-aion-marketing-command-centre] [data-aion-marketing-calendar-workspace] .panel,
+            [data-aion-marketing-command-centre] [data-aion-marketing-create] .panel,
+            [data-aion-marketing-command-centre] [data-aion-marketing-library] .panel{border-color:#d9e2ec!important;border-radius:16px!important;box-shadow:none!important;background:#fff!important}
+            @media(max-width:1320px){[data-aion-marketing-command-centre] .aion-marketing-overview-metrics{grid-template-columns:repeat(2,minmax(150px,1fr))!important}[data-aion-marketing-command-centre] .aion-marketing-library-grid{grid-template-columns:1fr!important}}
+            @media(max-width:900px){[data-aion-marketing-command-centre] .aion-marketing-overview-grid{grid-template-columns:1fr!important}[data-aion-marketing-command-centre] .aion-marketing-overview-metrics{grid-template-columns:1fr!important}}
+            @media(max-width:1180px){[data-aion-marketing-command-centre] [data-aion-marketing-split]{display:block!important;height:auto!important;overflow:auto!important}[data-aion-marketing-command-centre] [data-aion-marketing-split-handle]{display:none!important}[data-aion-marketing-pilot-pane],[data-aion-marketing-workspace-pane]{min-height:720px!important;height:auto!important}}
+          </style>
+          <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:18px;box-sizing:border-box;">
+            <div style="padding-left:20px;"><div style="color:#2563eb;font-size:10px;letter-spacing:.22em;font-weight:950;">PILOT · MARKETING COMMAND CENTRE</div><h2 style="margin:8px 0 0;color:#14213d;">Marketing coordination</h2></div>
+            <button type="button" data-aion-o18t-open-marketing-package="true" style="border:1px solid #d9e2ec;border-radius:11px;background:#fff;color:#14213d;padding:9px 12px;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Open package</button>
+          </header>
+          <div data-aion-marketing-split="${escapeHtml(pilotPercent)}" style="display:grid;grid-template-columns:minmax(300px,${escapeHtml(pilotPercent)}fr) 30px minmax(520px,${escapeHtml(100 - pilotPercent)}fr);min-height:calc(100vh - 190px);height:calc(100vh - 190px);background:#fff;overflow:hidden;box-sizing:border-box;">
+            <section data-aion-marketing-pilot-pane="true" style="min-width:0;height:100%;overflow:hidden;background:#f7fafc;padding:20px;display:flex;flex-direction:column;box-sizing:border-box;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid #d9e2ec;">
+                <div style="display:flex;align-items:center;gap:11px;"><span style="width:11px;height:11px;border-radius:50%;background:#2563eb;box-shadow:0 0 0 4px #eef5ff;"></span><div><strong style="color:#14213d;">Marketing Pilot</strong><div style="color:#66758a;font-size:12px;margin-top:3px;">Demand, brand and campaign adviser</div></div></div>
+                <span style="border:1px solid #bfd2fb;border-radius:999px;background:#eef5ff;color:#2563eb;padding:6px 8px;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">Approval gated</span>
+              </div>
+              <details style="margin-top:12px;border:1px solid #d9e2ec;background:#fff;border-radius:10px;color:#14213d;"><summary style="cursor:pointer;list-style:none;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:800;"><span>What can I ask Marketing Pilot to do?</span><span aria-hidden="true" style="font-size:16px;color:#2563eb;">＋</span></summary><div style="padding:0 13px 13px;border-top:1px solid #d9e2ec;"><p style="margin:10px 0 0;color:#66758a;font-size:11px;line-height:1.5;">Ask for a campaign, audience, channel plan, content draft, evidence review or a clearer marketing brief. Pilot will show missing facts and required approvals.</p></div></details>
+              <div data-aion-marketing-pilot-thread="true" style="flex:1;min-height:0;padding:20px 0;display:flex;flex-direction:column;gap:12px;overflow:auto;">${renderMarketingPilotThread()}</div>
+              <form class="aion-department-composer" data-aion-marketing-pilot-form="true" style="margin-top:14px;"><textarea data-aion-marketing-pilot-input="true" rows="2" placeholder="Message Marketing Pilot…"></textarea><div class="aion-composer-actions"><button class="aion-composer-tool" type="button" aria-label="Attach marketing evidence" title="Attach marketing evidence">＋</button><button class="aion-composer-tool" type="button" aria-label="Speak to Marketing Pilot" title="Speak to Marketing Pilot">●</button><button class="aion-composer-send" type="submit">Send&nbsp; ↑</button></div></form>
+            </section>
+            <div aria-label="Marketing Command Centre divider" style="border-left:1px solid #d9e2ec;border-right:1px solid #d9e2ec;background:#f7f9fc;display:flex;justify-content:center;align-items:center;cursor:col-resize;"><div role="separator" tabindex="0" data-aion-marketing-split-handle="true" aria-label="Resize Marketing Pilot chat" aria-valuemin="24" aria-valuemax="48" aria-valuenow="${escapeHtml(pilotPercent)}" style="width:18px;height:76px;border:1px solid #bfd2fb;border-radius:9px;background:#eef5ff;color:#2563eb;display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;user-select:none;cursor:col-resize;touch-action:none;">⋮<br>⋮</div></div>
+            <section data-aion-marketing-workspace-pane="true" style="min-width:0;height:100%;overflow:auto;background:#f8fafc;padding:14px;box-sizing:border-box;">${renderLiveAgentsSubviewTabs()}<div data-aion-marketing-functional-workspace="true">${workspace}</div></section>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  if (previousRenderLiveAgentsWorkspaceBodyMarketing) {
+    renderLiveAgentsWorkspaceBody = function aionMarketingSharedCommandCentreRoute(selectedRuns, selectedAgentCard) {
+      const department = typeof getSelectedLiveDepartmentKey === "function"
+        ? String(getSelectedLiveDepartmentKey() || "").trim().toLowerCase()
+        : "";
+      if (department === "marketing") {
+        return renderMarketingSharedCommandCentre(selectedRuns, selectedAgentCard);
+      }
+      return previousRenderLiveAgentsWorkspaceBodyMarketing(selectedRuns, selectedAgentCard);
+    };
+    window.renderLiveAgentsWorkspaceBody = renderLiveAgentsWorkspaceBody;
+  }
+
+  window.renderMarketingSharedCommandCentre = renderMarketingSharedCommandCentre;
+})();
+/* END AION MARKETING SHARED COMMAND CENTRE */
+
+(function installMarketingWorkspaceSplitter() {
+  if (window.__tessarisMarketingWorkspaceSplitterInstalled) return;
+  window.__tessarisMarketingWorkspaceSplitterInstalled = true;
+  let activeSplit = null;
+  let activeHandle = null;
+  let pendingPercent = 34;
+
+  const clampPercent = (value) => Math.max(24, Math.min(48, Math.round(Number(value || 34))));
+  const applyPercent = (split, handle, value) => {
+    if (!split) return;
+    const percent = clampPercent(value);
+    split.dataset.aionMarketingSplit = String(percent);
+    split.style.gridTemplateColumns = `minmax(300px,${percent}fr) 30px minmax(520px,${100 - percent}fr)`;
+    handle?.setAttribute("aria-valuenow", String(percent));
+    pendingPercent = percent;
+  };
+  const savePercent = () => {
+    safeAionDesktopPatch({ marketingPilotPanePercent: pendingPercent });
+    desktopStore.persistCache();
+  };
+  const finishResize = () => {
+    if (!activeSplit) return;
+    savePercent();
+    activeSplit = null;
+    activeHandle = null;
+    document.body.style.removeProperty("cursor");
+    document.body.style.removeProperty("user-select");
+  };
+
+  window.addEventListener("pointerdown", (event) => {
+    const handle = event.target?.closest?.("[data-aion-marketing-split-handle]");
+    if (!handle) return;
+    const split = handle.closest("[data-aion-marketing-split]");
+    if (!split || window.innerWidth <= 1180) return;
+    event.preventDefault();
+    activeSplit = split;
+    activeHandle = handle;
+    pendingPercent = clampPercent(split.dataset.aionMarketingSplit || state.marketingPilotPanePercent || 34);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    handle.setPointerCapture?.(event.pointerId);
+  }, true);
+
+  window.addEventListener("pointermove", (event) => {
+    if (!activeSplit) return;
+    event.preventDefault();
+    const bounds = activeSplit.getBoundingClientRect();
+    if (!bounds.width) return;
+    applyPercent(activeSplit, activeHandle, ((event.clientX - bounds.left) / bounds.width) * 100);
+  }, true);
+
+  window.addEventListener("pointerup", finishResize, true);
+  window.addEventListener("pointercancel", finishResize, true);
+
+  window.addEventListener("keydown", (event) => {
+    const handle = event.target?.closest?.("[data-aion-marketing-split-handle]");
+    if (!handle || !["ArrowLeft", "ArrowRight", "Home"].includes(event.key)) return;
+    event.preventDefault();
+    const split = handle.closest("[data-aion-marketing-split]");
+    const current = clampPercent(split?.dataset.aionMarketingSplit || state.marketingPilotPanePercent || 34);
+    const next = event.key === "Home" ? 34 : current + (event.key === "ArrowLeft" ? -2 : 2);
+    applyPercent(split, handle, next);
+    savePercent();
+  }, true);
+
+  window.addEventListener("dblclick", (event) => {
+    const handle = event.target?.closest?.("[data-aion-marketing-split-handle]");
+    if (!handle) return;
+    event.preventDefault();
+    const split = handle.closest("[data-aion-marketing-split]");
+    applyPercent(split, handle, 34);
+    savePercent();
+  }, true);
+})();
+
 /* Remove the legacy button-drawn document icon with enough specificity to
    beat its older !important rule. The inner glyph is the sole visible icon. */
 (function installAionFileCabinetSingleGlyphV19() {
@@ -3817,7 +4984,7 @@ function renderAionSitewideFileCabinetSurface() {
   const OPEN_KEY = "aion.workflow_file_cabinet.open.v1";
   const LAST_ROUTE_KEY = "aion.file_cabinet.last_workspace_route.v1";
   const validRoutes = new Set([
-    "boardroom", "communications", "dashboard", "work_schedule", "business_context",
+    "boardroom", "communications", "work_schedule", "business_context",
     "live_agents", "operations_agents", "vault", "local_node",
   ]);
 
@@ -4536,6 +5703,7 @@ function getAionExecutiveDashboardAutomationsV1() {
           department: department || "aion",
           status: node.status || "saved",
           source: "Train Agent",
+          canOpen: true,
         });
       } else if (rawName.includes("workflow") && node?.type === "business_container_artifact") {
         automations.push({
@@ -4544,6 +5712,7 @@ function getAionExecutiveDashboardAutomationsV1() {
           department: department || "aion",
           status: node.status || "saved",
           source: "File Cabinet",
+          canOpen: false,
         });
       }
       walk(node?.children, department);
@@ -4558,16 +5727,49 @@ function getAionExecutiveDashboardAutomationsV1() {
       department: chain.department_key || "aion",
       status: chain.status || "saved",
       source: "Train Agent",
+      canOpen: false,
     });
   });
 
+  const seededIds = new Set(["workflow_social_post", "workflow_campaign_approval"]);
   const seen = new Set();
   return automations.filter((item) => {
-    const identity = item.id || `${item.department}:${item.name}`;
+    const name = String(item.name || "").trim();
+    const normalisedName = name.toLowerCase().replace(/\s+/g, " ");
+    if (seededIds.has(String(item.id || "").toLowerCase())) return false;
+    if (/^untitled workflow(?: \d+)?$/i.test(name) || /^workflow \d+$/i.test(name)) return false;
+    const identity = `${String(item.department || "aion").toLowerCase()}:${normalisedName}`;
     if (seen.has(identity)) return false;
     seen.add(identity);
     return true;
   });
+}
+
+function getAionSavedWorkflowLibraryV1() {
+  return getAionExecutiveDashboardAutomationsV1().map((item) => ({
+    ...item,
+    status: String(item.status || "saved").toLowerCase(),
+  }));
+}
+
+function renderAionSavedWorkflowFooterMenuV1() {
+  const workflows = getAionSavedWorkflowLibraryV1();
+  return `<details class="aion-saved-workflows-dropup" data-aion-saved-workflows-dropup="true">
+    <summary aria-label="Open saved workflows">
+      <span aria-hidden="true">▤</span>
+      <strong>Saved</strong>
+      <i aria-hidden="true">⌃</i>
+    </summary>
+    <div class="aion-saved-workflows-menu" data-aion-saved-workflows-menu="true">
+      <header><div><span>SAVED WORKFLOWS</span><strong>Reusable automations</strong></div><b>${workflows.length}</b></header>
+      ${workflows.length ? `<div class="aion-saved-workflows-list">${workflows.map((workflow) => `
+        ${workflow.canOpen ? `<button type="button" data-aion-file-cabinet-open-workflow="${escapeHtml(workflow.id)}" data-aion-saved-workflow-open="true">` : `<div class="aion-saved-workflow-index-only">`}
+          <span><strong>${escapeHtml(workflow.name)}</strong><small>${escapeHtml(runtimeShared.getDepartmentLabel(workflow.department))} · ${escapeHtml(workflow.status)}</small></span>
+          <i>${workflow.canOpen ? "Open →" : "Indexed"}</i>
+        ${workflow.canOpen ? `</button>` : `</div>`}
+      `).join("")}</div>` : `<div class="aion-saved-workflows-empty"><strong>No saved workflows yet</strong><span>Saved canvas work will appear here and in Business Files.</span></div>`}
+    </div>
+  </details>`;
 }
 
 function getAionExecutiveDashboardKpisV1(departmentKey, entry = {}) {
@@ -4583,6 +5785,8 @@ function getAionExecutiveDashboardKpisV1(departmentKey, entry = {}) {
     actual: kpi?.actual ?? kpi?.value ?? "Awaiting result",
     unit: kpi?.unit || "",
     status: normaliseAionExecutiveDashboardStatusV1(kpi?.status || "in_progress"),
+    targetOwner: kpi?.target_owner || kpi?.set_by || kpi?.created_by || "Founder / Boardroom",
+    evidence: kpi?.evidence || kpi?.evidence_ref || kpi?.source || "Awaiting verified outcome",
   }));
 }
 
@@ -5635,15 +6839,6 @@ function renderAionSupportFunctionSnapshotV1(department) {
   `;
 }
 
-if (!window.__aionSupportDashboardRefreshV1Installed) {
-  window.__aionSupportDashboardRefreshV1Installed = true;
-  window.addEventListener("aion:support-workspace-updated", () => {
-    // Support actions update their own workspace. Only the executive dashboard
-    // needs a full redraw after background hydration.
-    if (state.activeTab === "dashboard") requestRender?.();
-  });
-}
-
 function getAionPeopleDashboardSnapshotV1(department = {}) {
   const runtime = window.AionHrPeopleWorkspace;
   const model = runtime?.snapshot?.() || null;
@@ -5718,16 +6913,6 @@ function renderAionPeopleFunctionSnapshotV1(department) {
     </div>
     <footer class="aion-people-governance-note">Dashboard detail is deliberately minimal. Leave decisions, performance action, contracts, discipline, access grants and employee messages remain human-controlled and are handled in the authorised People workspace.</footer>
   </div>`;
-}
-
-if (!window.__aionPeopleDashboardRefreshV1Installed) {
-  window.__aionPeopleDashboardRefreshV1Installed = true;
-  window.addEventListener("aion:people-workspace-updated", () => {
-    // People saves render their own workspace. Only redraw the application
-    // when the user is actually looking at the executive dashboard; redrawing
-    // on the People page destroys and remounts its interactive workspace.
-    if (state.activeTab === "dashboard") requestRender?.();
-  });
 }
 
 function renderAionExecutiveDepartmentSnapshotV1(department) {
@@ -5909,7 +7094,7 @@ function renderDashboardSurface() {
           <div class="aion-exec-dashboard-action-list">${renderAionExecutiveActionRowsV1(model.tasks)}</div>
         </section>
 
-        <div class="aion-exec-dashboard-two-column">
+        <div class="aion-exec-dashboard-two-column aion-exec-dashboard-two-column--single">
           <section class="aion-exec-dashboard-panel" data-aion-executive-kpis="true">
             <header>
               <div><span>Targets and actual results</span><h2>Business KPIs</h2></div>
@@ -5918,13 +7103,6 @@ function renderDashboardSurface() {
             <div class="aion-exec-dashboard-kpis">${renderAionExecutiveKpiCardsV1(model.departments)}</div>
           </section>
 
-          <section class="aion-exec-dashboard-panel" data-aion-executive-automations="true">
-            <header>
-              <div><span>Train Agent and workflow activity</span><h2>Automations</h2></div>
-              <small>${model.automations.length} indexed</small>
-            </header>
-            <div class="aion-exec-dashboard-automations">${renderAionExecutiveAutomationsV1(model.automations)}</div>
-          </section>
         </div>
 
         <section class="aion-exec-dashboard-panel" data-aion-daily-department-work="true">
@@ -6530,7 +7708,215 @@ function findRunById(runId) {
   );
 }
 
+function findMarketingRunForApproval(item) {
+  const runs = Array.isArray(state.runs) ? state.runs : [];
+  const approvalId = String(item?.id || "");
+  const explicitRunIds = [
+    item?.workflow_run_id,
+    item?.run_id,
+    item?.queue_item_id,
+    item?.runtime_run_id,
+  ]
+    .filter(Boolean)
+    .map((value) => String(value));
+
+  return (
+    runs.find((run) => {
+      const runIds = [run?.id, run?.queue_item_id, run?.runtime_run_id]
+        .filter(Boolean)
+        .map((value) => String(value));
+      if (explicitRunIds.some((id) => runIds.includes(id))) return true;
+
+      const runApprovalIds = [
+        run?.approval_request_id,
+        run?.approval_id,
+        getRunContext(run)?.approval_request_id,
+        getRunResultPayload(run)?.approval_request_id,
+      ]
+        .filter(Boolean)
+        .map((value) => String(value));
+      return approvalId && runApprovalIds.includes(approvalId);
+    }) || null
+  );
+}
+
+function getMarketingReviewTitle(item, linkedRun) {
+  const postPackage = linkedRun ? getRunPostPackage(linkedRun) : null;
+  return (
+    firstString(
+      postPackage?.headline,
+      postPackage?.title,
+      postPackage?.caption,
+      getRunInputPayload(linkedRun)?.product_name,
+      linkedRun?.brief,
+      item?.content_title,
+      item?.title,
+    ) || "Marketing content draft"
+  );
+}
+
+function renderMarketingReviewItem(item, index) {
+  const linkedRun = findMarketingRunForApproval(item);
+  const runId =
+    linkedRun?.id ||
+    linkedRun?.queue_item_id ||
+    item?.workflow_run_id ||
+    item?.run_id ||
+    item?.queue_item_id ||
+    item?.runtime_run_id ||
+    "";
+  const approvalId = String(item?.id || "");
+  const status = String(item?.status || "pending").toLowerCase();
+  const isPending = status === "pending";
+  const title = getMarketingReviewTitle(item, linkedRun);
+  const requestedAt = item?.requested_at || item?.created_at || null;
+  const postPackage = linkedRun ? getRunPostPackage(linkedRun) : null;
+  const platform = firstString(
+    postPackage?.platform,
+    postPackage?.channel,
+    getRunInputPayload(linkedRun)?.platform,
+    getRunInputPayload(linkedRun)?.channel,
+    "Marketing",
+  );
+
+  return `
+    <details class="marketing-review-item" data-marketing-review-item="${escapeHtml(approvalId || String(index))}">
+      <summary class="marketing-review-summary">
+        <div class="marketing-review-summary-copy">
+          <span class="marketing-review-platform">${escapeHtml(platform)}</span>
+          <strong>${escapeHtml(title)}</strong>
+          <span>${escapeHtml(formatDateTime(requestedAt))}</span>
+        </div>
+        <div class="marketing-review-summary-state">
+          ${renderStatusBadge(status)}
+          <span class="marketing-review-open-label">Review content</span>
+        </div>
+      </summary>
+
+      <div class="marketing-review-detail">
+        <div class="marketing-review-preview">
+          ${
+            linkedRun
+              ? renderMarketingRunCard(linkedRun)
+              : `
+                <div class="marketing-review-preview-unavailable">
+                  <strong>Content preview unavailable</strong>
+                  <span>${escapeHtml(item?.summary || "This older approval is not linked to a saved content record.")}</span>
+                </div>
+              `
+          }
+        </div>
+
+        <aside class="marketing-review-decision">
+          <div class="marketing-review-decision-eyebrow">Approval decision</div>
+          <h3>${isPending ? "Is this content ready?" : `Draft ${prettify(status)}`}</h3>
+          <p>${
+            isPending
+              ? "Check the copy, visual, source facts and destination before making a decision."
+              : escapeHtml(item?.resolution_note || "This approval has already been resolved.")
+          }</p>
+          <div class="marketing-review-facts">
+            <span><strong>Channel</strong>${escapeHtml(platform)}</span>
+            <span><strong>Requested</strong>${escapeHtml(formatDateTime(requestedAt))}</span>
+            ${runId ? `<span><strong>Content record</strong>${escapeHtml(runId)}</span>` : ""}
+          </div>
+          ${
+            isPending
+              ? `
+                <div class="marketing-review-actions">
+                  <button
+                    type="button"
+                    class="primary-btn approve-marketing-btn"
+                    data-approval-id="${escapeHtml(approvalId)}"
+                    data-run-id="${escapeHtml(runId)}"
+                    data-approve="true"
+                    data-review-surface="true"
+                  >Approve draft</button>
+                  <button
+                    type="button"
+                    class="secondary-btn approve-marketing-btn"
+                    data-approval-id="${escapeHtml(approvalId)}"
+                    data-run-id="${escapeHtml(runId)}"
+                    data-approve="false"
+                    data-review-surface="true"
+                  >Reject / request changes</button>
+                </div>
+                <div class="marketing-review-governance">
+                  Approval marks this draft ready for scheduling or manual publishing. It does not publish automatically.
+                </div>
+              `
+              : `
+                <div class="marketing-review-governance marketing-review-governance-resolved">
+                  ${status === "approved" ? "Approved and ready to schedule or publish from its content record." : "Rejected drafts remain unpublished and can be revised."}
+                </div>
+              `
+          }
+        </aside>
+      </div>
+    </details>
+  `;
+}
+
+function renderMarketingReviewSurface(selectedAgentCard) {
+  const approvals = getDepartmentApprovals("marketing");
+  const counts = getApprovalStatusCounts(approvals);
+  const pending = approvals.filter((item) => String(item?.status || "").toLowerCase() === "pending");
+  const resolved = approvals.filter((item) => String(item?.status || "").toLowerCase() !== "pending");
+
+  return `
+    <section class="marketing-review-surface" data-marketing-review-surface>
+      <header class="marketing-review-header">
+        <div>
+          <div class="marketing-review-eyebrow">Marketing · Review</div>
+          <h2>Content approval queue</h2>
+          <p>Open a draft to inspect the finished content, then approve it or send it back for changes.</p>
+        </div>
+        <span class="marketing-review-gate">Approval gated</span>
+      </header>
+
+      <div class="marketing-review-metrics">
+        <div><span>Waiting for review</span><strong>${counts.pending}</strong></div>
+        <div><span>Approved</span><strong>${counts.approved}</strong></div>
+        <div><span>Needs changes</span><strong>${counts.rejected}</strong></div>
+        <div><span>Total records</span><strong>${counts.total}</strong></div>
+      </div>
+
+      <div class="marketing-review-section">
+        <div class="marketing-review-section-head">
+          <div>
+            <span>Waiting for review</span>
+            <h3>Decisions needed</h3>
+          </div>
+          <span>${pending.length} ${pending.length === 1 ? "draft" : "drafts"}</span>
+        </div>
+        ${
+          pending.length
+            ? `<div class="marketing-review-list">${pending.map((item, index) => renderMarketingReviewItem(item, index)).join("")}</div>`
+            : `<div class="marketing-review-empty"><strong>You are all caught up.</strong><span>New Marketing drafts will appear here when they need approval.</span></div>`
+        }
+      </div>
+
+      ${
+        resolved.length
+          ? `
+            <div class="marketing-review-section marketing-review-resolved">
+              <div class="marketing-review-section-head">
+                <div><span>History</span><h3>Resolved content</h3></div>
+                <span>${resolved.length} ${resolved.length === 1 ? "record" : "records"}</span>
+              </div>
+              <div class="marketing-review-list">${resolved.map((item, index) => renderMarketingReviewItem(item, pending.length + index)).join("")}</div>
+            </div>
+          `
+          : ""
+      }
+    </section>
+  `;
+}
+
 function renderDepartmentApprovalsSurface(departmentKey, selectedAgentCard) {
+  if (String(departmentKey || "").toLowerCase() === "marketing") {
+    return renderMarketingReviewSurface(selectedAgentCard);
+  }
   const departmentLabel = runtimeShared.getDepartmentLabel(departmentKey);
   const approvals = getDepartmentApprovals(departmentKey);
   const counts = getApprovalStatusCounts(approvals);
@@ -10495,10 +11881,6 @@ function renderBoardroomDashboardView(snapshot) {
   return `
 
     <div class="dashboard-shell aion-boardroom-frontpage-simplified" data-aion-boardroom-frontpage-simplified="true">
-      ${typeof window.aionRenderOriginalBusinessMapGovernanceV2 === "function"
-        ? window.aionRenderOriginalBusinessMapGovernanceV2()
-        : ""}
-
       ${renderAionCommercialAdoptionPanelV1()}
 
       <div data-aion-phase25j-boardroom-visible-intelligence="true">
@@ -10582,44 +11964,74 @@ if (!window.__aionBoardroomViewToggleAuthorityV1) {
 function renderBoardroomSpatialView(snapshot) {
   const fullRoomExpanded = window.__aionBoardroomFullRoomExpandedV2 === true;
   return `
-    <div class="dashboard-shell" data-aion-spatial-boardroom-layout="clean-3d">
+    <div class="dashboard-shell aion-boardroom-workspace" data-aion-spatial-boardroom-layout="embedded-unity">
       <div
-        class="aion-executive-page-header-bleed"
-        data-aion-executive-page-header-bleed="true"
-        data-aion-executive-page-header-scope="boardroom"
+        class="aion-boardroom-page-controls"
+        style="display:flex;justify-content:flex-end;align-items:center;gap:8px;box-sizing:border-box;"
       >
-        ${renderAionBoardroomStickyTeamHeaderV1(snapshot, { fullRoomExpanded })}
+        <button
+          type="button"
+          class="secondary-btn"
+          data-aion-executive-header-action="toggle-boardroom-full-room"
+          data-aion-boardroom-return-full-room="true"
+          aria-expanded="${fullRoomExpanded ? "true" : "false"}"
+          aria-label="${fullRoomExpanded ? "Close full Boardroom" : "Expand full Boardroom"}"
+          title="${fullRoomExpanded ? "Close full Boardroom" : "Expand full Boardroom"}"
+          style="width:44px;height:44px;display:grid;place-items:center;padding:0;border:1px solid #cbd6e5;border-radius:12px;background:#fff;color:#182942;font-size:22px;font-weight:700;box-shadow:0 4px 14px rgba(24,41,66,.05);"
+        >
+          ${fullRoomExpanded
+            ? `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7 12h10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`
+            : `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 4H4v5M15 4h5v5M20 15v5h-5M4 15v5h5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+        </button>
+      </div>
+      <div data-aion-boardroom-full-room-region="true" ${fullRoomExpanded ? "" : "hidden"}>
+        <div
+          class="panel large-panel"
+          data-aion-spatial-boardroom-main-panel="true"
+          style="
+            max-width:none;
+            margin:0;
+            padding:0;
+            overflow:hidden;
+            background:transparent;
+            border:1px solid rgba(17,17,17,0.12);
+          "
+        >
+          <div data-aion-boardroom-world-embedded="true" style="position:relative;width:100%;aspect-ratio:12/5;min-height:480px;max-height:780px;background:transparent;">
+            <div data-aion-boardroom-loading="true" style="position:absolute;inset:0;display:grid;place-items:center;background:#ffffff;color:#36506b;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;">
+              Preparing Spatial Boardroom…
+            </div>
+            <div
+              data-aion-spatial-boardroom-frame-anchor="true"
+              aria-label="Tessaris Spatial Boardroom"
+              style="position:absolute;inset:0;pointer-events:none;"
+            ></div>
+            <div data-aion-boardroom-embed-error="true" style="display:none;position:absolute;inset:0;place-items:center;padding:40px;text-align:center;background:#f7fbfd;color:#243b50;">
+              <div>
+                <h2 style="margin:0 0 10px;">The embedded Boardroom could not start.</h2>
+                <p style="margin:0 0 20px;color:#607589;">You can retry, or use the native Boardroom as a temporary fallback.</p>
+                <div style="display:flex;justify-content:center;gap:10px;">
+                  <button type="button" class="primary-btn" onclick="mountAionEmbeddedBoardroomV1(true)">Retry</button>
+                  <button type="button" class="secondary-btn" onclick="openAionNativeBoardroomFallbackV1()">Open native fallback</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div
-        class="panel large-panel"
-        data-aion-spatial-boardroom-main-panel="true"
+        data-aion-spatial-boardroom-terminal-dock="true"
         style="
-          padding:14px 14px 0;
-          background:#ffffff;
+          max-width:1500px;
+          margin:${fullRoomExpanded ? "0" : "22px"} auto 0;
           border:1px solid rgba(17,17,17,0.12);
+          background:#ffffff;
+          padding:14px 22px 0;
+          box-sizing:border-box;
         "
       >
-        <div
-          data-aion-boardroom-full-room-region="true"
-          ${fullRoomExpanded ? "" : "hidden"}
-        >
-        <div class="spatial-boardroom-shell" style="margin-top:0;">
-          <div id="spatialBoardroomMount" class="spatial-boardroom-mount"></div>
-        </div>
-        </div>
-
-        <div
-          data-aion-spatial-boardroom-terminal-dock="true"
-          style="
-            margin-top:0;
-            border-top:1px solid rgba(17,17,17,0.12);
-            background:#ffffff;
-            padding:14px 0 0;
-          "
-        >
-          ${typeof renderBoardroomCouncilSessionTerminal === "function" ? renderBoardroomCouncilSessionTerminal() : ""}
-        </div>
+        ${typeof renderBoardroomCouncilSessionTerminal === "function" ? renderBoardroomCouncilSessionTerminal() : ""}
       </div>
     </div>
   `;
@@ -10650,8 +12062,8 @@ function renderAionExecutiveStickyHeaderV1({
       aria-label="Board and Executive Team"
     >
       <div class="aion-executive-sticky-groups" data-aion-boardroom-sticky-groups="true">
-        <section class="aion-executive-sticky-group" data-aion-boardroom-sticky-group="board" aria-label="Board">
-          <strong class="aion-executive-sticky-group-label">Board</strong>
+        <section class="aion-executive-sticky-group" data-aion-boardroom-sticky-group="board" aria-label="Board Members">
+          <strong class="aion-executive-sticky-group-label">Board Members</strong>
           <div class="aion-executive-sticky-members" data-aion-boardroom-sticky-board-members="true">
             ${boardMembers.length ? boardMembers.map((member) => {
               const selected = String(directLine.provider_id || "") === String(member.key || "") ||
@@ -10670,6 +12082,7 @@ function renderAionExecutiveStickyHeaderV1({
                     ? 'data-aion-board-member-pilot="true"'
                     : `data-aion-board-member-direct-line="${escapeHtml(member.key)}"`}
                   data-active="${selected ? "true" : "false"}"
+                  data-tessaris-tooltip="${escapeHtml(member.label)}"
                   title="Talk directly to ${escapeHtml(member.label)}"
                   aria-label="Talk directly to ${escapeHtml(member.label)}"
                   aria-expanded="${selected ? "true" : "false"}"
@@ -10696,6 +12109,7 @@ function renderAionExecutiveStickyHeaderV1({
                   data-aion-boardroom-sticky-member="${escapeHtml(member.key)}"
                   data-aion-o14l-executive-department="${escapeHtml(member.key)}"
                   data-active="${active ? "true" : "false"}"
+                  data-tessaris-tooltip="${escapeHtml(member.label)}"
                   title="Open ${escapeHtml(member.label)}"
                   aria-label="Open ${escapeHtml(member.label)} workspace"
                 >
@@ -11000,6 +12414,7 @@ function renderAionBoardroomStickyTeamHeaderV1(snapshot = {}, { fullRoomExpanded
     { key: "operations", label: "Operations", shortLabel: "OP" },
     { key: "support", label: "Support", shortLabel: "SP" },
     { key: "hr", label: "People", shortLabel: "PE" },
+    { key: "products_services", label: "Products & services", shortLabel: "P&S" },
   ];
   const selectedHint = String(
     snapshot.activeZone ||
@@ -11163,7 +12578,6 @@ function renderAionDepartmentPilotsStickyHeaderV1(activeDepartment = "marketing"
 
 const AION_SHARED_EXECUTIVE_HEADER_TABS_V1 = new Set([
   "communications",
-  "dashboard",
   "work_schedule",
   "business_context",
   "operations_agents",
@@ -11261,6 +12675,8 @@ function openAionExecutiveDepartmentFromStickyHeaderV1(departmentKey = "") {
     "pilot",
     "legal",
     "cybersecurity",
+    "procurement",
+    "projects",
     ...getAionDesktopCustomDepartmentsV1().map((department) => String(department?.id || "").toLowerCase()),
   ]);
   if (!allowed.has(key)) return false;
@@ -11296,6 +12712,11 @@ function openAionExecutiveDepartmentFromStickyHeaderV1(departmentKey = "") {
     } else {
       window.__aionForcedMainTabV2 = "live_agents";
       requestRender?.();
+    }
+    if (key === "projects") {
+      [0, 600, 1800].forEach((delay) => {
+        window.setTimeout(() => window.AionProjectManagementWorkspace?.refresh?.(false), delay);
+      });
     }
     return true;
   } catch (error) {
@@ -11540,14 +12961,32 @@ function renderAionProviderCouncilPanelSafeV1(...args) {
 }
 
 
-async function openAionBoardroomWorldV1() {
-  window.__aionBoardroomFullRoomExpandedV2 = false;
-  const members = getAionStickyBoardMembersV1(getBoardroomSnapshot()).map((member) => ({
+function getAionSpatialBoardroomMembersV1() {
+  return getAionStickyBoardMembersV1(getBoardroomSnapshot()).map((member) => ({
     id: member.key,
     label: member.label,
     role: member.key === "aion" ? "Pilot" : "AI Board member",
     connected: member.connected !== false,
   }));
+}
+
+async function syncAionConnectedModelsToBoardroomV1() {
+  const members = getAionSpatialBoardroomMembersV1();
+  try {
+    await window.aionDesktop?.sendSpatialBoardroomEvent?.({ type: "board_members_snapshot", members });
+    await window.aionDesktop?.sendSpatialBoardroomEvent?.({
+      type: "caption",
+      text: `Connected Board intelligence: ${members.map((member) => member.label).join(", ")}. Select a member to open their Tessaris chat.`,
+    });
+  } catch {}
+  return members;
+}
+
+window.syncAionConnectedModelsToBoardroomV1 = syncAionConnectedModelsToBoardroomV1;
+
+async function openAionNativeBoardroomFallbackV1() {
+  window.__aionBoardroomFullRoomExpandedV2 = false;
+  const members = getAionSpatialBoardroomMembersV1();
   let result;
   try {
     result = await window.aionDesktop?.launchSpatialBoardroom?.({ members });
@@ -11569,7 +13008,104 @@ async function openAionBoardroomWorldV1() {
   return result || { ok: false, error: "desktop_bridge_unavailable" };
 }
 
-window.openAionBoardroomWorldV1 = openAionBoardroomWorldV1;
+window.openAionNativeBoardroomFallbackV1 = openAionNativeBoardroomFallbackV1;
+
+function ensureAionPersistentBoardroomHostV2() {
+  let host = document.getElementById("aion-persistent-boardroom-host-v2");
+  if (host) return host;
+
+  host = document.createElement("div");
+  host.id = "aion-persistent-boardroom-host-v2";
+  host.style.cssText = [
+    "position:fixed",
+    "display:none",
+    "overflow:hidden",
+    "z-index:40",
+    "background:transparent",
+    "border:0",
+  ].join(";");
+
+  const frame = document.createElement("iframe");
+  frame.id = "aion-persistent-boardroom-frame-v2";
+  frame.title = "Tessaris Spatial Boardroom";
+  frame.setAttribute("data-aion-spatial-boardroom-frame", "true");
+  frame.setAttribute("allow", "autoplay; fullscreen; gamepad");
+  frame.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;visibility:hidden;";
+  host.appendChild(frame);
+  document.body.appendChild(host);
+  return host;
+}
+
+function syncAionPersistentBoardroomHostV2() {
+  const host = document.getElementById("aion-persistent-boardroom-host-v2");
+  if (!host) return;
+  if (String(state?.activeTab || "") !== "boardroom") {
+    window.closeAionBoardroomChatDrawerV1?.();
+  }
+  const world = document.querySelector('[data-aion-boardroom-world-embedded="true"]');
+  const fullRoomRegion = world?.closest?.('[data-aion-boardroom-full-room-region="true"]');
+  const visible = String(state?.activeTab || "") === "boardroom" &&
+    window.__aionBoardroomFullRoomExpandedV2 === true &&
+    world &&
+    !fullRoomRegion?.hasAttribute?.("hidden");
+  if (!visible) {
+    host.style.display = "none";
+    return;
+  }
+  const rect = world.getBoundingClientRect();
+  host.style.left = `${Math.round(rect.left)}px`;
+  host.style.top = `${Math.round(rect.top)}px`;
+  host.style.width = `${Math.max(1, Math.round(rect.width))}px`;
+  host.style.height = `${Math.max(1, Math.round(rect.height))}px`;
+  host.style.display = "block";
+}
+
+window.syncAionPersistentBoardroomHostV2 = syncAionPersistentBoardroomHostV2;
+if (!window.__aionPersistentBoardroomGeometryV2) {
+  window.__aionPersistentBoardroomGeometryV2 = true;
+  window.addEventListener("resize", syncAionPersistentBoardroomHostV2);
+  window.addEventListener("scroll", syncAionPersistentBoardroomHostV2, true);
+  window.setInterval(syncAionPersistentBoardroomHostV2, 500);
+}
+
+async function mountAionEmbeddedBoardroomV1(force = false) {
+  if (String(state?.activeTab || "") !== "boardroom") return { ok: false, error: "boardroom_not_visible" };
+  const host = ensureAionPersistentBoardroomHostV2();
+  const frame = host.querySelector('[data-aion-spatial-boardroom-frame="true"]');
+  syncAionPersistentBoardroomHostV2();
+  if (!force && frame.getAttribute("src")) {
+    frame.style.visibility = "visible";
+    return window.__aionEmbeddedBoardroomV1 || { ok: true, status: "mounted" };
+  }
+  const loading = document.querySelector('[data-aion-boardroom-loading="true"]');
+  const errorPanel = document.querySelector('[data-aion-boardroom-embed-error="true"]');
+  if (loading) loading.style.display = "grid";
+  if (errorPanel) errorPanel.style.display = "none";
+  try {
+    const result = await window.aionDesktop?.getSpatialBoardroomEmbed?.({ members: getAionSpatialBoardroomMembersV1() });
+    window.__aionEmbeddedBoardroomV1 = result || { ok: false, error: "desktop_bridge_unavailable" };
+    if (!result?.ok || !result?.url) throw new Error(result?.message || "Embedded Boardroom unavailable");
+    frame.onload = () => {
+      const currentLoading = document.querySelector('[data-aion-boardroom-loading="true"]');
+      if (currentLoading) currentLoading.style.display = "none";
+      syncAionPersistentBoardroomHostV2();
+    };
+    frame.onerror = () => {
+      if (loading) loading.style.display = "none";
+      if (errorPanel) errorPanel.style.display = "grid";
+    };
+    frame.style.visibility = "visible";
+    frame.src = result.url;
+    return result;
+  } catch (error) {
+    if (loading) loading.style.display = "none";
+    if (errorPanel) errorPanel.style.display = "grid";
+    return { ok: false, error: "embedded_boardroom_failed", message: String(error?.message || error) };
+  }
+}
+
+window.mountAionEmbeddedBoardroomV1 = mountAionEmbeddedBoardroomV1;
+window.openAionBoardroomWorldV1 = mountAionEmbeddedBoardroomV1;
 
 function previewAionBoardroomWorldV1() {
   window.__aionBoardroomWorldEmbeddedV1 = true;
@@ -11586,8 +13122,38 @@ function handleAionSpatialBoardroomActionV1(action = {}) {
   const memberId = normaliseAionBoardProviderKeyV1(action.member_id || "");
   if (action.type === "meeting_overview") return true;
   if (!memberId) return false;
-  if (memberId === "aion") {
-    return openAionExecutiveDepartmentFromStickyHeaderV1("pilot");
+  if (action.type === "open_board_member_chat" && memberId === "aion") {
+    const packet = typeof buildAionBoardroomSessionPacket === "function"
+      ? buildAionBoardroomSessionPacket("central_pilot_board_chat")
+      : {};
+    setAionBoardMeetingChatContextV1({ active:true, joined_at:new Date().toISOString(), provider_id:"aion", model_label:"AION", role:"Central Pilot", team_mode:"board", seat_id:"seat_aion", session_id:packet.session_id || "", session_type:packet.session_type || "central_pilot_board_chat", meeting_title:packet.minutes_document?.title || "Current Board meeting", boardroom_snapshot:getBoardroomSnapshot(), session_packet:packet });
+    return openAionBoardroomChatDrawerV1({ kind:"department", department:"pilot", label:"AION Pilot", role:"Central Pilot" });
+  }
+  if (action.type === "open_executive_chat") {
+    const department = getAionBoardroomDrawerDepartmentV1(memberId);
+    const packet = typeof buildAionBoardroomSessionPacket === "function"
+      ? buildAionBoardroomSessionPacket("executive_pilot_chat")
+      : {};
+    setAionBoardMeetingChatContextV1({
+      active: true,
+      joined_at: new Date().toISOString(),
+      provider_id: `${department}_pilot`,
+      model_label: `${getAionBoardroomDrawerDepartmentLabelV1(department)} Pilot`,
+      role: action.role || "Department Pilot",
+      team_mode: "executive",
+      seat_id: `seat_${department}`,
+      session_id: packet.session_id || "",
+      session_type: packet.session_type || "executive_pilot_chat",
+      meeting_title: packet.minutes_document?.title || "Current Board meeting",
+      boardroom_snapshot: getBoardroomSnapshot(),
+      session_packet: packet,
+    });
+    return openAionBoardroomChatDrawerV1({
+      kind: "department",
+      department,
+      label: `${getAionBoardroomDrawerDepartmentLabelV1(department)} Pilot`,
+      role: action.role || "Department Pilot",
+    });
   }
   const snapshot = getBoardroomSnapshot();
   const member = getAionStickyBoardMembersV1(snapshot).find((item) => item.key === memberId);
@@ -11595,16 +13161,15 @@ function handleAionSpatialBoardroomActionV1(action = {}) {
     safeAionDesktopPatch?.({ message: `${action.label || memberId} is not connected to this Boardroom.`, messageTone: "warning" });
     return false;
   }
-  window.AionBoardroomSeatConversation?.open?.({
-    seatId: action.type === "open_executive_chat" ? `seat_${memberId}` : `seat_provider_${memberId}`,
+  return openAionBoardMemberInSharedChatV1({
+    seatId: `seat_provider_${memberId}`,
     key: memberId,
-    teamMode: action.type === "open_executive_chat" ? "executive" : "board",
+    teamMode: "board",
     label: action.label || member?.label || memberId,
-    role: action.role || (action.type === "open_executive_chat" ? "Department-specific AION agent" : "Connected Board member"),
+    role: action.role || "Connected Board member",
     providerId: memberId,
     snapshot,
   });
-  return true;
 }
 
 window.handleAionSpatialBoardroomActionV1 = handleAionSpatialBoardroomActionV1;
@@ -11623,59 +13188,83 @@ function closeAionBoardroomWorldV1() {
 
 window.closeAionBoardroomWorldV1 = closeAionBoardroomWorldV1;
 
+function scheduleAionEmbeddedBoardroomMountV1() {
+  window.setTimeout(() => {
+    if (String(state?.activeTab || "") !== "boardroom") return;
+    syncAionPersistentBoardroomHostV2();
+    mountAionEmbeddedBoardroomV1();
+  }, 180);
+}
+
 
 function renderBoardroomSurface() {
   const snapshot = getBoardroomSnapshot();
-  const boardroomWorldEmbedded = window.__aionBoardroomWorldEmbeddedV1 === true;
+  scheduleAionEmbeddedBoardroomMountV1();
 
   return `
-    <div class="surface-shell" data-aion-boardroom-view-mode="boardroom">
+    <div class="surface-shell aion-boardroom-surface" data-aion-boardroom-view-mode="boardroom">
       ${renderAppTabs()}
+      <header class="aion-boardroom-hero">
+        <h1>Boardroom</h1>
+      </header>
       <div data-aion-boardroom-current-meeting="true">
         ${renderBoardroomSpatialView(snapshot)}
       </div>
-      <section
-        data-aion-boardroom-world-launch="true"
-        style="max-width:1320px;margin:18px auto 34px;padding:18px 20px;border:1px solid #cbd5e1;background:#f8fbff;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;"
-      >
-        <div>
-          <div class="surface-eyebrow">Spatial business view</div>
-          <div class="panel-title">Boardroom World</div>
-          <div class="helper-text">Open the full interactive company, Board and department world inside Tessaris.</div>
-        </div>
-        <div class="actions" style="margin:0;">
-          <button type="button" class="primary-btn" data-aion-open-boardroom-world="true" onclick="openAionBoardroomWorldV1()">
-            Open Native Boardroom World
-          </button>
-          <button type="button" class="secondary-btn" data-aion-preview-boardroom-world="true" onclick="previewAionBoardroomWorldV1()">
-            Preview current web world
-          </button>
-        </div>
-      </section>
-      ${boardroomWorldEmbedded ? `
-        <section
-          data-aion-boardroom-world-embedded="true"
-          style="max-width:1680px;height:min(1120px,calc(100vh - 120px));min-height:760px;margin:18px auto 34px;border:1px solid #cbd5e1;background:#f3f4f6;display:flex;flex-direction:column;overflow:hidden;"
-        >
-          <header style="height:54px;padding:0 18px;border-bottom:1px solid #dbe3ee;background:#ffffff;display:flex;align-items:center;justify-content:space-between;gap:16px;flex:0 0 auto;">
-            <div>
-              <div class="surface-eyebrow">Live spatial business view</div>
-              <strong>Boardroom World</strong>
-            </div>
-            <button type="button" class="secondary-btn" data-aion-close-boardroom-world="true" onclick="closeAionBoardroomWorldV1()">Return to Boardroom</button>
-          </header>
-          <iframe
-            data-aion-boardroom-world-frame="true"
-            title="Boardroom World"
-            src="http://127.0.0.1:3000/aion-business?desktopView=boardroom&amp;embed=tessaris"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-            style="width:100%;height:100%;border:0;background:#f3f4f6;flex:1 1 auto;"
-          ></iframe>
-        </section>
-      ` : ""}
     </div>
   `;
 }
+
+function installAionBoardroomWorkspaceStyles() {
+  if (document.getElementById("aion-boardroom-workspace-styles")) return;
+  const style = document.createElement("style");
+  style.id = "aion-boardroom-workspace-styles";
+  style.textContent = `
+    html body .surface-shell.aion-boardroom-surface[data-aion-boardroom-view-mode] { width:100% !important; max-width:none !important; min-height:100vh; margin:0 !important; padding:0 24px 48px 64px !important; box-sizing:border-box; background:#fff !important; color:#0f172a !important; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important; overflow-x:clip; }
+    .aion-boardroom-hero { width:calc(100% - 24px); min-height:54px; margin:0 0 0 24px; display:flex; align-items:center; box-sizing:border-box; padding:9px 32px 10px; border-top:4px solid #1687d9; border-bottom:1px solid #dbe6ef; background:#f8fafc; }
+    .aion-boardroom-hero h1 { margin:0; color:#0f172a !important; font-size:24px; line-height:1.08; letter-spacing:-.035em; }
+    .aion-boardroom-workspace { position:relative; width:calc(100% - 24px) !important; max-width:none !important; margin:0 0 0 24px !important; padding:6px 0 40px !important; box-sizing:border-box !important; background:#fff !important; }
+    .aion-boardroom-page-controls { position:absolute; top:12px; right:12px; z-index:80; width:auto !important; margin:0 !important; }
+    .aion-boardroom-workspace [data-aion-executive-page-header-bleed] { margin:0 0 18px !important; }
+    .aion-boardroom-workspace [data-aion-spatial-boardroom-main-panel] { margin:0 !important; background:transparent !important; border:1px solid #dce7ef !important; border-radius:12px !important; box-shadow:0 8px 24px rgba(15,42,67,.04) !important; }
+    .aion-boardroom-workspace [data-aion-spatial-boardroom-terminal-dock] { max-width:none !important; margin:18px 0 0 !important; padding:0 !important; border:0 !important; border-radius:0 !important; background:#fff !important; }
+    .aion-boardroom-workspace [data-aion-council-session-terminal] { padding:0 !important; margin:0 !important; background:#fff !important; border:0 !important; }
+    .aion-boardroom-workspace [data-aion-boardroom-business-connections] { margin:0 0 18px !important; padding:24px !important; border:1px solid #dce7ef !important; border-radius:12px !important; background:#fff !important; box-shadow:0 8px 24px rgba(15,42,67,.04) !important; }
+    .aion-boardroom-business-connections-head { padding-bottom:18px; border-bottom:1px solid #e4ebf1; }
+    .aion-boardroom-business-connections-list { margin-top:0 !important; border-bottom:0 !important; }
+    .aion-boardroom-connection-row { grid-template-columns:170px minmax(0,1fr) !important; padding:15px 0 !important; border-top:1px solid #e4ebf1 !important; }
+    .aion-boardroom-connection-row:first-child { border-top:0 !important; }
+    .aion-boardroom-connection-row .card-label { color:#54708a !important; font-size:10px !important; font-weight:900 !important; letter-spacing:.14em !important; }
+    .aion-boardroom-connection-items { gap:18px !important; }
+    .aion-boardroom-connection-tile { min-width:190px !important; min-height:58px !important; padding:6px 4px !important; border:0 !important; border-radius:9px !important; background:transparent !important; color:#1e293b !important; box-shadow:none !important; text-transform:none !important; letter-spacing:0 !important; }
+    .aion-boardroom-connection-tile:hover { background:#f1f7fb !important; color:#0f4c81 !important; }
+    .aion-boardroom-connection-tile.is-suggested { background:#f8fafc !important; }
+    .aion-boardroom-connection-tile strong { color:#0f172a !important; font-size:13px !important; }
+    .aion-boardroom-connection-mark { border:1px solid #dce7ef !important; box-shadow:0 3px 10px rgba(20,40,55,.06) !important; }
+    .aion-boardroom-workspace .panel-kicker, .aion-boardroom-workspace .surface-eyebrow { color:#0f766e !important; font-size:10px !important; font-weight:900 !important; letter-spacing:.16em !important; text-transform:uppercase !important; }
+    .aion-boardroom-workspace .panel-title { color:#0f172a !important; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important; font-size:22px !important; line-height:1.2 !important; letter-spacing:-.025em !important; }
+    .aion-boardroom-workspace .muted, .aion-boardroom-workspace .helper-text, .aion-boardroom-workspace .panel p { color:#64748b !important; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important; font-size:13px !important; line-height:1.5 !important; }
+    .aion-boardroom-workspace button:not(.aion-boardroom-connection-tile), .aion-boardroom-workspace .primary-btn, .aion-boardroom-workspace .secondary-btn { min-height:36px !important; border:1px solid #cbd5e1 !important; border-radius:7px !important; padding:8px 12px !important; background:#fff !important; color:#334155 !important; box-shadow:none !important; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important; font-size:12px !important; font-weight:800 !important; letter-spacing:0 !important; text-transform:none !important; }
+    .aion-boardroom-workspace button:not(.aion-boardroom-connection-tile):hover { border-color:#60a5fa !important; background:#eff6ff !important; color:#1d4ed8 !important; }
+    .aion-boardroom-workspace .primary-btn, .aion-boardroom-workspace button.primary { border-color:#2563eb !important; background:#2563eb !important; color:#fff !important; }
+    .aion-boardroom-workspace [data-aion-business-map-review-panel] { border-top:1px solid #e4ebf1 !important; }
+    .aion-boardroom-workspace [data-aion-business-map-review-panel] article { border:1px solid #dce7ef !important; border-radius:9px !important; background:#f8fafc !important; }
+    .aion-boardroom-workspace [data-aion-boardroom-meeting-controls], .aion-boardroom-workspace [data-aion-council-session-terminal-collapsed], .aion-boardroom-workspace [data-aion-council-session-terminal-log] { border-radius:12px !important; border-color:#dce7ef !important; box-shadow:0 8px 24px rgba(15,42,67,.04) !important; }
+    .aion-board-meeting-archive { margin-top:18px; border:1px solid #dce7ef; border-radius:12px; overflow:hidden; background:#fff; box-shadow:0 8px 24px rgba(15,42,67,.04); }
+    .aion-board-meeting-archive-summary { min-height:74px; display:grid; grid-template-columns:minmax(190px,.7fr) minmax(280px,1.3fr) auto; align-items:center; gap:22px; padding:14px 18px; }
+    .aion-board-meeting-archive-heading { display:flex; align-items:baseline; gap:10px; }.aion-board-meeting-archive-heading strong{font-size:15px;color:#0f172a}.aion-board-meeting-archive-heading span{font-size:11px;color:#718399}
+    .aion-board-meeting-latest { display:grid; grid-template-columns:auto auto 1fr; align-items:center; gap:9px; min-width:0; }.aion-board-meeting-latest>span{color:#1687d9;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}.aion-board-meeting-latest strong{font-size:12px;color:#24364a}.aion-board-meeting-latest small{color:#718399;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .aion-board-meeting-archive-actions { display:flex; align-items:center; gap:8px; }.aion-board-meeting-expand{width:38px!important;min-width:38px!important;padding:0!important;font-size:18px!important}
+    .aion-board-meeting-archive-list { max-height:286px; overflow:auto; border-top:1px solid #dce7ef; background:#fbfdff; }
+    .aion-board-meeting-archive-columns,.aion-board-meeting-row { display:grid!important; grid-template-columns:minmax(200px,1.1fr) minmax(185px,.8fr) 130px; align-items:center; column-gap:18px; width:100%; box-sizing:border-box; }
+    .aion-board-meeting-archive-columns{position:sticky;top:0;z-index:2;padding:9px 18px;background:#f1f6fa;border-bottom:1px solid #dce7ef;color:#718399;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.12em}
+    .aion-boardroom-workspace button.aion-board-meeting-row { min-height:49px!important; margin:0!important; padding:8px 18px!important; border:0!important; border-bottom:1px solid #e7eef4!important; border-radius:0!important; background:#fff!important; box-shadow:none!important; text-align:left!important; }
+    .aion-boardroom-workspace button.aion-board-meeting-row:last-child{border-bottom:0!important}.aion-boardroom-workspace button.aion-board-meeting-row:hover{background:#f2f8fc!important}.aion-board-meeting-row>span{display:flex;align-items:center;gap:8px;min-width:0}.aion-board-meeting-row strong{font-size:12px;color:#172033;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aion-board-meeting-row small{padding:2px 6px;border-radius:999px;background:#e8f4ff;color:#1269a9;font-size:9px;font-weight:900;text-transform:uppercase}.aion-board-meeting-row time{font-size:11px;color:#52687d}.aion-board-meeting-row em{justify-self:end;color:#1687d9;font-size:11px;font-style:normal;font-weight:800}.aion-board-meeting-row em b{margin-left:4px}
+    @media (max-width:900px) { html body .surface-shell.aion-boardroom-surface[data-aion-boardroom-view-mode] { padding:0 14px 48px 64px !important; } .aion-boardroom-hero { width:calc(100% - 14px); margin-left:14px; padding:9px 24px 10px; } .aion-boardroom-workspace { width:calc(100% - 14px) !important; margin-left:14px !important; } .aion-boardroom-connection-row { grid-template-columns:1fr !important; gap:8px !important; } }
+  `;
+  document.head.appendChild(style);
+}
+
+installAionBoardroomWorkspaceStyles();
 
 
 /* AION COMMUNICATIONS WORKSPACE: extracted from the legacy Boardroom dashboard. */
@@ -11911,7 +13500,7 @@ function renderAionCommunicationsWebsiteTab() {
 
         <div class="aion-comms-action-row">
           <button type="button" class="primary-btn" onclick="setAionCommunicationsWorkspaceTab('inbox')">Open enquiry inbox</button>
-          <button type="button" class="secondary-btn" onclick="openAionCommunicationsRoute('vault')">Open connections in Vault</button>
+          <button type="button" class="secondary-btn" onclick="openAionCommunicationsRoute('vault')">Open Connections</button>
           <button type="button" class="secondary-btn" onclick="openAionCommunicationsRoute('live_agents', 'sales')">Open Sales</button>
         </div>
       </section>
@@ -11939,7 +13528,7 @@ function renderAionCommunicationsInboxTab() {
       </section>
       ${typeof renderAionWebsiteIntakeInstallationPanel === "function" ? renderAionWebsiteIntakeInstallationPanel() : ""}
       <div class="aion-comms-action-row">
-        <button type="button" class="secondary-btn" onclick="openAionCommunicationsRoute('vault')">Manage Gmail in Vault</button>
+        <button type="button" class="secondary-btn" onclick="openAionCommunicationsRoute('vault')">Manage Gmail connection</button>
         <button type="button" class="secondary-btn" onclick="openAionCommunicationsRoute('live_agents', 'support')">Open Support</button>
         <button type="button" class="secondary-btn" onclick="openAionCommunicationsRoute('live_agents', 'sales')">Open Sales</button>
       </div>
@@ -12020,8 +13609,8 @@ function renderAionCommunicationsSurface() {
       ${renderAppTabs()}
       <header class="aion-comms-hero">
         <div>
-          <div class="surface-eyebrow">AION communications</div>
-          <h1>Communications</h1>
+          <div class="surface-eyebrow">PILOT · COMMUNICATIONS COMMAND CENTRE</div>
+          <h1>Communications coordination</h1>
           <p>Connect the website, customer inboxes and external agents without crowding the Boardroom.</p>
         </div>
         <div class="aion-comms-governance-badge"><span></span> Governed connections</div>
@@ -12045,22 +13634,48 @@ function installAionCommunicationsWorkspaceStyles() {
   const style = document.createElement("style");
   style.id = "aion-communications-workspace-styles";
   style.textContent = `
-    .aion-communications-surface { min-height:100vh; background:#fff; }
-    .aion-comms-hero, .aion-comms-tabs, .aion-comms-content { width:min(1540px, calc(100% - 64px)); margin-left:auto; margin-right:auto; }
-    .aion-comms-hero { display:flex; justify-content:space-between; align-items:end; gap:24px; padding:48px 0 24px; border-bottom:1px solid #dbe6ef; }
-    .aion-comms-hero h1 { margin:5px 0 6px; font-size:42px; letter-spacing:-.035em; }
-    .aion-comms-hero p { margin:0; color:#62758a; font-size:16px; }
+    .aion-communications-surface {
+      width:100% !important;
+      max-width:none !important;
+      min-height:100vh;
+      margin:0 !important;
+      padding:16px 32px 80px 96px !important;
+      box-sizing:border-box;
+      background:#fff;
+    }
+    .aion-comms-hero, .aion-comms-tabs, .aion-comms-content {
+      width:100%;
+      max-width:none;
+      margin:0;
+      box-sizing:border-box;
+    }
+    .aion-comms-hero {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:24px;
+      padding:24px;
+      border-top:4px solid #1687d9;
+      border-bottom:1px solid #dbe6ef;
+      background:#f8fafc;
+    }
+    .aion-comms-hero h1 { margin:4px 0 5px; font-size:30px; line-height:1.08; letter-spacing:-.035em; }
+    .aion-comms-hero p { margin:0; color:#62758a; font-size:14px; line-height:1.45; }
     .aion-comms-governance-badge { display:flex; align-items:center; gap:8px; color:#315878; font-size:12px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
     .aion-comms-governance-badge span { width:9px; height:9px; border-radius:50%; background:#42d7b0; box-shadow:0 0 0 5px rgba(66,215,176,.14); }
-    .aion-comms-tabs { display:flex; gap:6px; padding:16px 0; position:sticky; top:0; z-index:15; background:rgba(255,255,255,.96); border-bottom:1px solid #e2ebf2; }
-    .aion-comms-tabs button { border:0 !important; border-radius:8px; padding:10px 16px; background:transparent !important; color:#52677d !important; font-weight:750; }
-    .aion-comms-tabs button:hover { background:#eef7ff !important; color:#1673cf !important; }
-    .aion-comms-tabs button.is-active { background:#e4f2ff !important; color:#126ac2 !important; box-shadow:inset 0 -2px 0 #2d8ef0 !important; }
-    .aion-comms-content { padding:8px 0 64px; }
+    .aion-comms-tabs { display:flex; gap:28px; padding:0 20px; background:#fff; border-bottom:1px solid #dbe6ef; }
+    .aion-comms-tabs button { min-height:54px; border:0 !important; border-radius:0 !important; padding:0 0; background:transparent !important; color:#52677d !important; font-size:13px; font-weight:800; box-shadow:none !important; }
+    .aion-comms-tabs button:hover { color:#1673cf !important; }
+    .aion-comms-tabs button.is-active { color:#126ac2 !important; box-shadow:inset 0 -3px 0 #2d8ef0 !important; }
+    .aion-comms-content { padding:18px 0 64px; }
     .aion-comms-stack { display:grid; gap:18px; }
-    .aion-comms-section { background:#fff !important; border:1px solid #dce7ef !important; box-shadow:none !important; }
+    .aion-comms-section { margin:0 !important; padding:24px !important; background:#fff !important; border:1px solid #dce7ef !important; border-radius:12px !important; box-shadow:0 8px 24px rgba(15,42,67,.04) !important; }
+    .aion-comms-section .panel-header { align-items:flex-start; gap:24px; margin:0; padding:0 0 18px; border-bottom:1px solid #e4ebf1; }
+    .aion-comms-section .panel-header h2 { margin:4px 0 5px; font-size:22px; line-height:1.2; letter-spacing:-.025em; }
+    .aion-comms-section .panel-header .muted { margin:0; max-width:880px; color:#62758a; font-size:13px; line-height:1.5; }
+    .aion-comms-section .status-pill { flex:0 0 auto; }
     .aion-comms-capability-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; margin-top:18px; }
-    .aion-comms-capability-card { border:1px solid #dce7ef; border-left:4px solid #7e9bb2; padding:15px; background:#fbfdff; }
+    .aion-comms-capability-card { border:1px solid #dce7ef; border-left:4px solid #7e9bb2; border-radius:9px; padding:15px; background:#fbfdff; }
     .aion-comms-capability-card.is-live { border-left-color:#22a879; }
     .aion-comms-capability-card.is-preview { border-left-color:#e3a11a; }
     .aion-comms-capability-card.is-reserved { border-left-color:#9aa8b5; background:#f7f9fb; }
@@ -12068,10 +13683,10 @@ function installAionCommunicationsWorkspaceStyles() {
     .aion-comms-capability-head span { font-size:10px; font-weight:850; letter-spacing:.08em; text-transform:uppercase; color:#54708a; }
     .aion-comms-capability-card p { margin:9px 0 0; color:#60758a; font-size:13px; line-height:1.5; }
     .aion-comms-code-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:16px; }
-    .aion-comms-code-card { border:1px solid #dce7ef; padding:14px; background:#f8fbfd; min-width:0; }
+    .aion-comms-code-card { border:1px solid #dce7ef; border-radius:9px; padding:14px; background:#f8fbfd; min-width:0; }
     .aion-comms-code-card > div { display:flex; justify-content:space-between; gap:12px; align-items:center; }
     .aion-comms-code-card button { padding:7px 12px; border:1px solid #9fc9ee !important; background:#eaf5ff !important; color:#176db9 !important; }
-    .aion-comms-code-card pre { overflow:auto; margin:12px 0; padding:12px; background:#fff !important; border:1px solid #dce7ef; }
+    .aion-comms-code-card pre { overflow:auto; margin:12px 0; padding:12px; background:#fff !important; border:1px solid #dce7ef; border-radius:7px; }
     .aion-comms-code-card p { margin:0; color:#667b90; font-size:12px; }
     .aion-comms-action-row { display:flex; flex-wrap:wrap; gap:9px; margin-top:16px; }
     .aion-commerce-live-panel { border-top:4px solid #1687d9 !important; }
@@ -12089,8 +13704,296 @@ function installAionCommunicationsWorkspaceStyles() {
     .aion-commerce-inbox article { display:grid; gap:4px; border:1px solid #dce7ef; border-left:3px solid #2d8ef0; padding:11px; }.aion-commerce-inbox article > span { color:#2476bd; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
     .aion-commerce-empty { display:grid; gap:6px; border:1px dashed #b8cbd9; background:#f8fbfe; padding:18px; color:#60758a; }.aion-commerce-empty strong { color:#243b53; }
     .aion-commerce-publisher { margin-top:10px; border:1px solid #dce7ef; padding:12px; }.aion-commerce-publisher summary { cursor:pointer; color:#176db9; font-weight:800; }.aion-commerce-publisher form { display:grid; gap:10px; margin-top:13px; }.aion-commerce-publisher label { display:grid; gap:5px; color:#52677d; font-size:11px; font-weight:800; }.aion-commerce-publisher input,.aion-commerce-publisher select,.aion-commerce-publisher textarea { width:100%; border:1px solid #cbd9e4; background:#fff; padding:9px; color:#1b2b3a; }.aion-commerce-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }.aion-commerce-publisher output { color:#52677d; font-size:12px; }
+
+    /* The preserved Inbox, AgentMap and commercial-ticket modules retain their
+       behaviour here, but inherit the Communications command-centre language. */
+    .aion-communications-surface .aion-boardroom-a2a-setup,
+    .aion-communications-surface .agentmap-dashboard-panel,
+    .aion-communications-surface .aion-phase18-a2a-ticket,
+    .aion-communications-surface .aion-website-enquiries-feed {
+      margin:0 !important;
+      padding:24px !important;
+      border:1px solid #dce7ef !important;
+      border-radius:12px !important;
+      background:#fff !important;
+      color:#102a43 !important;
+      box-shadow:0 8px 24px rgba(15,42,67,.04) !important;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+    }
+    .aion-communications-surface .aion-boardroom-a2a-setup > .agentmap-dashboard-panel {
+      margin-top:18px !important;
+      padding:20px !important;
+      border-radius:10px !important;
+      background:#f8fafc !important;
+      box-shadow:none !important;
+    }
+    .aion-communications-surface .panel-header {
+      display:flex !important;
+      align-items:flex-start !important;
+      justify-content:space-between !important;
+      gap:24px !important;
+      margin:0 !important;
+      padding:0 0 18px !important;
+      border:0 !important;
+      border-bottom:1px solid #e2e8f0 !important;
+      background:transparent !important;
+    }
+    .aion-communications-surface .panel-header h2,
+    .aion-communications-surface .aion-phase18-step-card h3,
+    .aion-communications-surface .aion-phase18-proposal-card h3,
+    .aion-communications-surface .aion-phase18-negotiation-card h3 {
+      margin:5px 0 !important;
+      color:#0f172a !important;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+      font-size:22px !important;
+      line-height:1.2 !important;
+      letter-spacing:-.025em !important;
+    }
+    .aion-communications-surface .panel-kicker,
+    .aion-communications-surface .eyebrow {
+      color:#0f766e !important;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+      font-size:10px !important;
+      font-weight:900 !important;
+      letter-spacing:.16em !important;
+      text-transform:uppercase !important;
+    }
+    .aion-communications-surface .muted,
+    .aion-communications-surface .panel p,
+    .aion-communications-surface .aion-phase18-route-copy span,
+    .aion-communications-surface .aion-phase18-step-card p {
+      color:#64748b !important;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+      font-size:13px !important;
+      line-height:1.5 !important;
+    }
+    .aion-communications-surface button,
+    .aion-communications-surface .primary-btn,
+    .aion-communications-surface .secondary-btn,
+    .aion-communications-surface .button {
+      min-height:36px !important;
+      border:1px solid #cbd5e1 !important;
+      border-radius:7px !important;
+      padding:8px 12px !important;
+      background:#fff !important;
+      color:#334155 !important;
+      box-shadow:none !important;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+      font-size:12px !important;
+      font-weight:800 !important;
+      letter-spacing:0 !important;
+      text-transform:none !important;
+    }
+    .aion-communications-surface button:hover,
+    .aion-communications-surface .button:hover { border-color:#60a5fa !important; background:#eff6ff !important; color:#1d4ed8 !important; }
+    .aion-communications-surface .primary-btn,
+    .aion-communications-surface button.primary { border-color:#2563eb !important; background:#2563eb !important; color:#fff !important; }
+    .aion-communications-surface .status-pill,
+    .aion-communications-surface .badge {
+      border:1px solid #cbd5e1 !important;
+      border-radius:999px !important;
+      padding:6px 10px !important;
+      background:#f8fafc !important;
+      color:#475569 !important;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+      font-size:10px !important;
+      font-weight:900 !important;
+      letter-spacing:.08em !important;
+      text-transform:uppercase !important;
+    }
+    .aion-communications-surface input,
+    .aion-communications-surface select,
+    .aion-communications-surface textarea,
+    .aion-communications-surface pre,
+    .aion-communications-surface code {
+      border-color:#cbd5e1 !important;
+      border-radius:7px !important;
+      background:#fff !important;
+      color:#1e293b !important;
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace !important;
+      box-shadow:none !important;
+    }
+    .aion-communications-surface select,
+    .aion-communications-surface input,
+    .aion-communications-surface textarea { min-height:40px !important; padding:8px 10px !important; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important; }
+    .aion-communications-surface .agentmap-actions { display:flex !important; flex-wrap:wrap !important; gap:8px !important; margin:16px 0 !important; }
+    .aion-communications-surface .agentmap-dashboard-panel .metric-grid {
+      display:grid !important;
+      grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+      gap:10px !important;
+      margin:0 !important;
+    }
+    .aion-communications-surface .agentmap-dashboard-panel .card,
+    .aion-communications-surface .agentmap-dashboard-panel .list-item,
+    .aion-communications-surface .aion-phase18-ticket-summary > div,
+    .aion-communications-surface .aion-phase18-step-card,
+    .aion-communications-surface .aion-phase18-proposal-card,
+    .aion-communications-surface .aion-phase18-route-copy,
+    .aion-communications-surface .aion-phase18-customer-request,
+    .aion-communications-surface .aion-phase18-negotiation-card,
+    .aion-communications-surface .aion-intake-method-summary,
+    .aion-communications-surface .aion-intake-connected-strip {
+      border:1px solid #dce7ef !important;
+      border-radius:9px !important;
+      background:#f8fafc !important;
+      color:#1e293b !important;
+      box-shadow:none !important;
+    }
+    .aion-communications-surface .agentmap-dashboard-panel .card { min-width:0 !important; padding:14px !important; }
+    .aion-communications-surface .agentmap-dashboard-panel .card-value {
+      overflow-wrap:anywhere !important;
+      color:#0f172a !important;
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace !important;
+      font-size:15px !important;
+      line-height:1.35 !important;
+      letter-spacing:-.02em !important;
+    }
+    .aion-communications-surface .agentmap-dashboard-panel .panel-grid { gap:10px !important; margin-top:10px !important; }
+    .aion-communications-surface .agentmap-dashboard-panel .list-item { padding:14px !important; }
+    .aion-communications-surface .aion-phase18-a2a-ticket { margin-top:0 !important; }
+    .aion-communications-surface .aion-phase18-ticket-summary { gap:10px !important; }
+    .aion-communications-surface .aion-phase18-ticket-summary > div { padding:13px 14px !important; }
+    .aion-communications-surface .aion-phase18-ticket-summary strong {
+      color:#0f172a !important;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+      font-size:14px !important;
+      line-height:1.35 !important;
+    }
+    .aion-communications-surface .aion-phase18-timeline-item { min-height:58px !important; border-radius:9px !important; }
+    .aion-communications-surface .aion-phase18-timeline-item.is-current,
+    .aion-communications-surface .aion-phase18-timeline-item.is-active { border-color:#60a5fa !important; background:#eff6ff !important; color:#1e40af !important; }
+    .aion-communications-surface .aion-enquiries-table-wrap { border:1px solid #dce7ef !important; border-radius:9px !important; background:#fff !important; }
+    .aion-communications-surface .aion-enquiries-table th { background:#f8fafc !important; color:#64748b !important; }
+    .aion-communications-surface .aion-enquiries-table td { background:#fff !important; color:#334155 !important; }
+    .aion-communications-surface .aion-intake-advanced-details,
+    .aion-communications-surface .aion-phase18-advanced { border-top:1px solid #e2e8f0 !important; padding-top:14px !important; }
+
+    /* Tessaris Signal: align Communications with the department workspaces. */
+    .aion-communications-surface {
+      --comms-blue:#2563eb;
+      --comms-blue-dark:#1d4ed8;
+      --comms-navy:#0b1730;
+      --comms-muted:#66758a;
+      --comms-border:#d9e2ec;
+      --comms-soft:#eef5ff;
+      padding:0 32px 80px 96px !important;
+      background:#f7f9fc !important;
+      color:var(--comms-navy) !important;
+      font-family:var(--tessaris-font-sans,Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif) !important;
+    }
+    .aion-communications-surface .aion-comms-hero {
+      margin-top:48px;
+      padding:28px 30px;
+      border:1px solid var(--comms-border);
+      border-top:4px solid var(--comms-blue);
+      border-radius:18px;
+      background:#fff;
+      box-shadow:0 8px 24px rgba(11,23,48,.045);
+    }
+    .aion-communications-surface .aion-comms-hero .surface-eyebrow {
+      color:var(--comms-blue) !important;
+      font-family:inherit !important;
+      font-size:10px !important;
+      font-weight:850 !important;
+      letter-spacing:.2em !important;
+      text-transform:uppercase;
+    }
+    .aion-communications-surface .aion-comms-hero h1 {
+      margin:8px 0 6px;
+      color:var(--comms-navy);
+      font-family:inherit;
+      font-size:30px;
+      font-weight:800;
+      letter-spacing:-.035em;
+    }
+    .aion-communications-surface .aion-comms-hero p { color:var(--comms-muted); }
+    .aion-communications-surface .aion-comms-governance-badge {
+      padding:10px 14px;
+      border:1px solid #bfd3ff;
+      border-radius:999px;
+      background:var(--comms-soft);
+      color:var(--comms-blue-dark);
+      font-family:inherit;
+      font-size:10px;
+      font-weight:850;
+    }
+    .aion-communications-surface .aion-comms-governance-badge span {
+      background:var(--comms-blue);
+      box-shadow:0 0 0 4px rgba(37,99,235,.1);
+    }
+    .aion-communications-surface .aion-comms-tabs {
+      display:flex;
+      gap:7px;
+      margin:18px 0 0;
+      padding:12px 14px;
+      border:1px solid var(--comms-border);
+      border-radius:16px;
+      background:#f1f5f9;
+    }
+    .aion-communications-surface .aion-comms-tabs button {
+      min-height:42px !important;
+      padding:9px 15px !important;
+      border:1px solid var(--comms-border) !important;
+      border-radius:999px !important;
+      background:#fff !important;
+      color:#43536a !important;
+      font-family:inherit !important;
+      font-size:12px !important;
+      font-weight:800 !important;
+      box-shadow:none !important;
+      white-space:nowrap;
+    }
+    .aion-communications-surface .aion-comms-tabs button:hover {
+      border-color:#93b4ff !important;
+      background:#f8fbff !important;
+      color:var(--comms-blue-dark) !important;
+    }
+    .aion-communications-surface .aion-comms-tabs button.is-active {
+      border-color:var(--comms-blue) !important;
+      background:var(--comms-soft) !important;
+      color:var(--comms-blue-dark) !important;
+      box-shadow:none !important;
+    }
+    .aion-communications-surface .aion-comms-content { padding-top:22px; }
+    .aion-communications-surface .aion-comms-section,
+    .aion-communications-surface .aion-boardroom-a2a-setup,
+    .aion-communications-surface .agentmap-dashboard-panel,
+    .aion-communications-surface .aion-phase18-a2a-ticket,
+    .aion-communications-surface .aion-website-enquiries-feed {
+      border-color:var(--comms-border) !important;
+      border-radius:16px !important;
+      box-shadow:0 8px 24px rgba(11,23,48,.04) !important;
+      font-family:inherit !important;
+    }
+    .aion-communications-surface .panel-kicker,
+    .aion-communications-surface .eyebrow,
+    .aion-communications-surface .aion-commerce-subhead span { color:var(--comms-blue) !important; font-family:inherit !important; }
+    .aion-communications-surface .panel-header h2,
+    .aion-communications-surface .aion-phase18-step-card h3,
+    .aion-communications-surface .aion-phase18-proposal-card h3,
+    .aion-communications-surface .aion-phase18-negotiation-card h3 { color:var(--comms-navy) !important; font-family:inherit !important; }
+    .aion-communications-surface .muted,
+    .aion-communications-surface .panel p,
+    .aion-communications-surface .aion-phase18-route-copy span,
+    .aion-communications-surface .aion-phase18-step-card p { color:var(--comms-muted) !important; font-family:inherit !important; }
+    .aion-communications-surface button,
+    .aion-communications-surface .primary-btn,
+    .aion-communications-surface .secondary-btn,
+    .aion-communications-surface .button,
+    .aion-communications-surface input,
+    .aion-communications-surface select,
+    .aion-communications-surface textarea { font-family:inherit !important; }
+    .aion-communications-surface button,
+    .aion-communications-surface .primary-btn,
+    .aion-communications-surface .secondary-btn,
+    .aion-communications-surface .button { border-radius:10px !important; }
+    .aion-communications-surface .aion-comms-capability-card,
+    .aion-communications-surface .aion-comms-code-card,
+    .aion-communications-surface .aion-commerce-metrics article,
+    .aion-communications-surface .aion-commerce-service-list article,
+    .aion-communications-surface .aion-commerce-inbox article { border-color:var(--comms-border); border-radius:12px; }
     @media (max-width:1000px) { .aion-comms-capability-grid, .aion-comms-code-grid, .aion-commerce-columns { grid-template-columns:1fr; } .aion-commerce-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-    @media (max-width:720px) { .aion-comms-hero, .aion-comms-tabs, .aion-comms-content { width:calc(100% - 28px); } .aion-comms-hero { align-items:start; flex-direction:column; } .aion-comms-tabs { overflow-x:auto; } .aion-comms-tabs button { white-space:nowrap; } }
+    @media (max-width:720px) { .aion-communications-surface { padding:0 14px 64px 78px !important; } .aion-communications-surface .aion-comms-hero { margin-top:32px; align-items:start; flex-direction:column; padding:20px; } .aion-comms-tabs { overflow-x:auto; } .aion-comms-section { padding:18px !important; } }
   `;
   document.head.appendChild(style);
 }
@@ -12148,131 +14051,198 @@ function renderLocalNodeSurface() {
   const scheduler = state.scheduler || {};
   const counts = getQueueCounts();
   const approvalCounts = getApprovalCounts();
+  const nodeRunning = control.is_running === true || String(control.status || "").toLowerCase() === "running";
+  const nodePaused = control.is_paused === true || String(control.status || "").toLowerCase() === "paused";
+  const schedulerRunning = scheduler.is_running === true;
+  const boundWorkspace = String(control.workspace_id || status?.config?.workspace_id || "").trim();
+  const selectedWorkspace = String(state.workspaceId || "").trim();
+  const workspaceMismatch = Boolean(boundWorkspace && selectedWorkspace && boundWorkspace !== selectedWorkspace);
+  const overallLabel = workspaceMismatch
+    ? "Workspace needs updating"
+    : nodePaused
+      ? "Paused"
+      : nodeRunning
+        ? "Ready"
+        : "Needs attention";
+  const overallTone = workspaceMismatch || !nodeRunning ? "attention" : nodePaused ? "paused" : "ready";
+  const recentRuns = safeArray(state.runs).slice().reverse().slice(0, 5);
+  const recentAudit = safeArray(state.audit).slice(0, 8);
+  const friendlyRunName = (run = {}) => prettify(String(run.workflow_name || run.workflow_id || "Background task").replace(/^workflow_/i, "").replace(/_v\d+$/i, ""));
+  const friendlyEventName = (event = {}) => {
+    const type = String(event.event_type || "");
+    if (type === "local_node.started") return "Local processing started";
+    if (type === "local_node.agent_seed_succeeded") return "Department tools prepared";
+    if (type === "local_node.gmail_connector_health_checked") return "Email connection checked";
+    if (type.includes("scheduler_started")) return "Background automation started";
+    if (type.includes("scheduler_stopped")) return "Background automation stopped";
+    if (type.includes("paused")) return "Local processing paused";
+    if (type.includes("resumed")) return "Local processing resumed";
+    return String(event.message || prettify(type.replace(/^local_node\./, "")) || "System activity");
+  };
+
+  installAionLocalProcessingStyles();
 
   return `
-    <div class="surface-shell">
-      <div class="surface-header">
-        <div>
-          <div class="surface-eyebrow">DA1–DA3</div>
-          <div class="surface-title">Local Node Status Panel</div>
-          <div class="surface-subtitle">Mac local node control surface inside the real Aion Business desktop shell.</div>
-        </div>
-        <div class="surface-right-meta">
-          <div class="surface-pill">DESKTOP · LOCAL NODE</div>
-          <div class="last-refresh">Last refresh: ${escapeHtml(formatDateTime(state.lastRefreshAt))}</div>
-        </div>
-      </div>
-
+    <div class="surface-shell aion-local-processing-page" data-aion-local-processing-page="true">
       ${renderAppTabs()}
-
-      <div class="desktop-layout">
-        <aside class="sidebar">
-          <div class="panel">
-            <div class="panel-title">Workspace Binding</div>
-
-            <label class="field-label">API Base</label>
-            <input id="apiBaseInput" class="input" value="${escapeHtml(state.apiBase)}" />
-
-            <label class="field-label">Web Base</label>
-            <input id="webBaseInput" class="input" value="${escapeHtml(state.webBase)}" />
-
-            <label class="field-label">Workspace ID</label>
-            <input id="workspaceIdInput" class="input" value="${escapeHtml(state.workspaceId)}" />
-
-            <label class="field-label">Node ID</label>
-            <input id="nodeIdInput" class="input" value="${escapeHtml(state.nodeId)}" />
-
-            <button id="bindWorkspaceBtn" class="primary-btn">Bind Workspace</button>
-
-            <div class="helper-text">
-              ${escapeHtml(state.message || `Bound to ${state.workspaceId}`)}
-            </div>
+      <main class="aion-local-processing-content">
+        <header class="aion-local-processing-hero">
+          <div>
+            <div class="surface-eyebrow">TESSARIS · THIS MAC</div>
+            <h1>Local processing</h1>
+            <p>Tessaris keeps the business runtime, approvals and private working data on this Mac. You normally do not need to manage it.</p>
           </div>
-
-          <div class="panel">
-            <div class="panel-title">Node Controls</div>
-            <div class="button-grid">
-              <button id="refreshBtn" class="secondary-btn">Refresh</button>
-              <button id="schedulerStartBtn" class="secondary-btn">Start Scheduler</button>
-              <button id="schedulerStopBtn" class="secondary-btn">Stop Scheduler</button>
-              <button id="pauseNodeBtn" class="secondary-btn">Pause Node</button>
-              <button id="resumeNodeBtn" class="secondary-btn">Resume Node</button>
-            </div>
+          <div class="aion-local-processing-hero-meta">
+            <span class="aion-local-processing-state is-${escapeHtml(overallTone)}"><i aria-hidden="true"></i>${escapeHtml(overallLabel)}</span>
+            <button id="refreshBtn" class="secondary-btn" type="button">Check again</button>
+            <small>Checked ${escapeHtml(formatDateTime(state.lastRefreshAt))}</small>
           </div>
+        </header>
 
-          <div class="panel">
-            <div class="panel-title">Environment</div>
-            <div class="kv-row"><span>Platform</span><strong>mac</strong></div>
-            <div class="kv-row"><span>Shell</span><strong>Electron</strong></div>
-            <div class="kv-row"><span>Version</span><strong>0.1.0</strong></div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-title">Local Truth Boundary</div>
-            <div class="helper-text">
-              Local state is primary. Cloud remains optional for summaries, snapshots, commands, and approvals.
+        ${workspaceMismatch ? `
+          <section class="aion-local-processing-notice" role="status">
+            <div>
+              <strong>This Mac is linked to a different business workspace</strong>
+              <p>The app is showing <b>${escapeHtml(selectedWorkspace)}</b>, while local processing is linked to <b>${escapeHtml(boundWorkspace)}</b>. Update the link before relying on new automated work.</p>
             </div>
-          </div>
-        </aside>
+            <button id="bindWorkspaceBtn" class="primary-btn" type="button">Use ${escapeHtml(selectedWorkspace)}</button>
+          </section>
+        ` : ""}
 
-        <main class="main-content">
-          <div class="card-grid">
-            <div class="card">
-              <div class="card-label">Node Status</div>
-              <div class="card-value">${escapeHtml(control.status || "unknown")}</div>
-              <div class="card-sub">${escapeHtml(control.node_id || state.nodeId)} · ${escapeHtml(control.workspace_id || state.workspaceId)}</div>
+        <section class="aion-local-processing-metrics" aria-label="Local processing summary">
+          <article>
+            <span>Private processing</span>
+            <strong>${nodeRunning ? "Available" : nodePaused ? "Paused" : "Offline"}</strong>
+            <small>${nodeRunning ? "Business data can be processed on this Mac" : "Tessaris may need attention before local work can run"}</small>
+          </article>
+          <article>
+            <span>Background automation</span>
+            <strong>${schedulerRunning ? "On" : "Off"}</strong>
+            <small>${schedulerRunning ? "Approved scheduled work can run" : "Nothing will start automatically"}</small>
+          </article>
+          <article>
+            <span>Needs approval</span>
+            <strong>${escapeHtml(approvalCounts.pending)}</strong>
+            <small>${approvalCounts.pending ? "Waiting for your decision" : "No decisions are waiting"}</small>
+          </article>
+          <article>
+            <span>Recent work</span>
+            <strong>${escapeHtml(state.runs.length)}</strong>
+            <small>${counts.running ? `${counts.running} running now` : `${counts.completed} completed · ${counts.failed} failed`}</small>
+          </article>
+        </section>
+
+        <section class="aion-local-processing-grid">
+          <article class="aion-local-processing-card">
+            <div class="aion-local-processing-card-head">
+              <div><span class="surface-eyebrow">PRIVACY</span><h2>What local processing means</h2></div>
             </div>
-
-            <div class="card">
-              <div class="card-label">Scheduler</div>
-              <div class="card-value">${escapeHtml(scheduler.is_running ? "running" : "stopped")}</div>
-              <div class="card-sub">Last tick: ${escapeHtml(scheduler.last_tick_at || "—")}</div>
+            <div class="aion-local-processing-benefits">
+              <div><span aria-hidden="true">✓</span><p><strong>Your operational data stays local</strong><small>Business records and working state remain on this Mac unless you approve a connected service.</small></p></div>
+              <div><span aria-hidden="true">✓</span><p><strong>External actions stay approval-gated</strong><small>Messages, payments and other consequential actions still require the configured approval.</small></p></div>
+              <div><span aria-hidden="true">✓</span><p><strong>Cloud services remain optional</strong><small>Connected providers can supply evidence or models without replacing the local source of truth.</small></p></div>
             </div>
+          </article>
 
-            <div class="card">
-              <div class="card-label">Queue Counts</div>
-              <div class="card-value">${state.runs.length}</div>
-              <div class="card-sub">
-                Q ${counts.queued} · R ${counts.running} · W ${counts.waiting} · C ${counts.completed}
+          <article class="aion-local-processing-card">
+            <div class="aion-local-processing-card-head">
+              <div><span class="surface-eyebrow">RECENT</span><h2>Background activity</h2></div>
+              <span class="aion-local-processing-count">${escapeHtml(recentRuns.length)}</span>
+            </div>
+            <div class="aion-local-processing-activity">
+              ${recentRuns.length ? recentRuns.map((run) => `
+                <div>
+                  <span class="aion-local-processing-activity-dot is-${escapeHtml(String(run.status || "unknown"))}" aria-hidden="true"></span>
+                  <p><strong>${escapeHtml(friendlyRunName(run))}</strong><small>${escapeHtml(prettify(run.department_key || "Business"))}</small></p>
+                  ${renderStatusBadge(run.status)}
+                </div>
+              `).join("") : `<div class="empty-state">No background work has run yet.</div>`}
+            </div>
+          </article>
+        </section>
+
+        <details class="aion-local-processing-advanced">
+          <summary><span><strong>Advanced technical details</strong><small>Connection settings, manual controls and diagnostic logs</small></span><b aria-hidden="true">⌄</b></summary>
+          <div class="aion-local-processing-advanced-body">
+            <section class="aion-local-processing-advanced-panel">
+              <h3>Workspace connection</h3>
+              <p>Only change these values when moving the local service or when support asks you to.</p>
+              <div class="aion-local-processing-fields">
+                <label><span>Local service address</span><input id="apiBaseInput" class="input" value="${escapeHtml(state.apiBase)}" /></label>
+                <label><span>Local web address</span><input id="webBaseInput" class="input" value="${escapeHtml(state.webBase)}" /></label>
+                <label><span>Business workspace</span><input id="workspaceIdInput" class="input" value="${escapeHtml(state.workspaceId)}" /></label>
+                <label><span>Device identifier</span><input id="nodeIdInput" class="input" value="${escapeHtml(state.nodeId)}" /></label>
               </div>
-            </div>
+              ${workspaceMismatch ? "" : `<button id="bindWorkspaceBtn" class="secondary-btn" type="button">Save workspace connection</button>`}
+              <small class="helper-text">${escapeHtml(state.message || `Linked to ${state.workspaceId}`)}</small>
+            </section>
 
-            <div class="card">
-              <div class="card-label">Approvals</div>
-              <div class="card-value">${approvalCounts.pending}</div>
-              <div class="card-sub">
-                Approved ${approvalCounts.approved} · Rejected ${approvalCounts.rejected}
+            <section class="aion-local-processing-advanced-panel">
+              <h3>Manual controls</h3>
+              <p>These controls affect background processing on this Mac. Routine use should not require them.</p>
+              <div class="aion-local-processing-controls">
+                <button id="schedulerStartBtn" class="secondary-btn" type="button">Turn automation on</button>
+                <button id="schedulerStopBtn" class="secondary-btn" type="button">Turn automation off</button>
+                <button id="pauseNodeBtn" class="secondary-btn" type="button">Pause local processing</button>
+                <button id="resumeNodeBtn" class="secondary-btn" type="button">Resume local processing</button>
               </div>
-            </div>
-          </div>
+            </section>
 
-          <div class="two-col">
-            <div class="panel large-panel">
-              <div class="panel-title">Runs</div>
-              ${renderRuns()}
-            </div>
+            <section class="aion-local-processing-advanced-panel aion-local-processing-log">
+              <h3>Technical activity</h3>
+              <div class="aion-local-processing-events">
+                ${recentAudit.length ? recentAudit.map((event) => `<div><p><strong>${escapeHtml(friendlyEventName(event))}</strong><small>${escapeHtml(formatDateTime(event.created_at))}</small></p><span>${escapeHtml(event.level || "info")}</span></div>`).join("") : `<div class="empty-state">No technical events recorded.</div>`}
+              </div>
+            </section>
 
-            <div class="panel large-panel">
-              <div class="panel-title">Approvals</div>
-              ${renderApprovals()}
-            </div>
-          </div>
-
-          <div class="two-col">
-            <div class="panel large-panel">
-              <div class="panel-title">Audit Events</div>
-              ${renderAudit()}
-            </div>
-
-            <div class="panel large-panel">
-              <div class="panel-title">Raw Status</div>
+            <details class="aion-local-processing-raw">
+              <summary>Raw diagnostic status</summary>
               <pre class="json-block">${escapeHtml(shortJson({ status, scheduler }))}</pre>
-            </div>
+            </details>
           </div>
-        </main>
-      </div>
+        </details>
+      </main>
     </div>
   `;
+}
+
+function installAionLocalProcessingStyles() {
+  if (document.getElementById("aion-local-processing-styles-v1")) return;
+  const style = document.createElement("style");
+  style.id = "aion-local-processing-styles-v1";
+  style.textContent = `
+    html body .aion-sidebar-local-processing-icon { width:24px!important; height:24px!important; display:block!important; fill:none!important; stroke:currentColor!important; stroke-width:1.8!important; stroke-linecap:round!important; stroke-linejoin:round!important; }
+    html body .aion-main-sidebar [data-tab="local_node"] .aion-workflow-nav-icon::before { content:none!important; display:none!important; }
+    html body .aion-local-processing-page { --lp-blue:#2563eb; --lp-ink:#0b1730; --lp-muted:#66758a; --lp-line:#d9e2ec; width:100%!important; max-width:none!important; min-height:100vh!important; margin:0!important; padding:32px 48px 100px 128px!important; background:#f7f9fc!important; color:var(--lp-ink)!important; font-family:var(--tessaris-font-sans,Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif)!important; }
+    html body.aion-workflow-sidebar-expanded .aion-local-processing-page { padding-left:300px!important; }
+    .aion-local-processing-content { width:100%; max-width:none; display:grid; gap:18px; }
+    .aion-local-processing-hero { min-height:170px; display:flex; align-items:flex-start; justify-content:space-between; gap:28px; padding:30px 34px; border:1px solid var(--lp-line); border-top:4px solid var(--lp-blue); border-radius:20px; background:#fff; box-shadow:0 12px 34px rgba(11,23,48,.055); }
+    .aion-local-processing-page .surface-eyebrow { color:var(--lp-blue)!important; font-size:10px!important; font-weight:850!important; letter-spacing:.18em!important; text-transform:uppercase!important; }
+    .aion-local-processing-hero h1 { margin:9px 0 7px; color:var(--lp-ink); font-size:38px; line-height:1.02; letter-spacing:-.04em; }
+    .aion-local-processing-hero p { max-width:760px; margin:0; color:var(--lp-muted); font-size:15px; line-height:1.55; }
+    .aion-local-processing-hero-meta { min-width:210px; display:grid; justify-items:end; gap:9px; }
+    .aion-local-processing-hero-meta small { color:#8492a5; font-size:10px; }
+    .aion-local-processing-state { min-height:34px; display:inline-flex; align-items:center; gap:8px; padding:0 12px; border:1px solid #c9e9da; border-radius:999px; background:#f1fbf6; color:#176b4a; font-size:11px; font-weight:800; }
+    .aion-local-processing-state i { width:8px; height:8px; border-radius:50%; background:#22a77a; box-shadow:0 0 0 4px rgba(34,167,122,.11); }
+    .aion-local-processing-state.is-attention { border-color:#f2d08c; background:#fff8ea; color:#8a5410; }.aion-local-processing-state.is-attention i{background:#e49a1d;box-shadow:0 0 0 4px rgba(228,154,29,.12)}
+    .aion-local-processing-state.is-paused { border-color:#d7ddea; background:#f5f7fa; color:#526174; }.aion-local-processing-state.is-paused i{background:#8794a7;box-shadow:0 0 0 4px rgba(135,148,167,.12)}
+    .aion-local-processing-page button { min-height:40px!important; border-radius:10px!important; font-size:11px!important; font-weight:780!important; text-transform:none!important; letter-spacing:0!important; }
+    .aion-local-processing-notice { display:grid!important; grid-template-columns:minmax(0,1fr) auto!important; align-items:center!important; gap:22px!important; min-height:92px!important; padding:18px 20px!important; border:1px solid #efcf8e!important; border-left:4px solid #e59a1f!important; border-radius:14px!important; background:#fff9ee!important; }
+    .aion-local-processing-notice>div { width:auto!important; min-width:0!important; max-width:none!important; display:block!important; }.aion-local-processing-notice strong { display:block!important; width:auto!important; color:#513a18!important; font-size:14px!important; line-height:1.3!important; }.aion-local-processing-notice p{width:auto!important;max-width:920px!important;margin:5px 0 0!important;color:#795b2d!important;font-size:12px!important;line-height:1.45!important}.aion-local-processing-notice .primary-btn{width:auto!important;min-width:180px!important;max-width:260px!important;justify-self:end!important;flex:0 0 auto!important;padding:0 18px!important}
+    .aion-local-processing-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+    .aion-local-processing-metrics article { min-height:132px; display:flex; flex-direction:column; padding:19px; border:1px solid var(--lp-line); border-radius:15px; background:#fff; box-shadow:0 6px 18px rgba(11,23,48,.035); }
+    .aion-local-processing-metrics span { color:#66758a; font-size:9px; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }.aion-local-processing-metrics strong{margin:9px 0 6px;color:var(--lp-ink);font-size:25px;line-height:1}.aion-local-processing-metrics small{margin-top:auto;color:#718096;font-size:10px;line-height:1.4}
+    .aion-local-processing-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:14px; }
+    .aion-local-processing-card { min-height:300px; padding:24px; border:1px solid var(--lp-line); border-radius:17px; background:#fff; box-shadow:0 8px 24px rgba(11,23,48,.04); }
+    .aion-local-processing-card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding-bottom:17px; border-bottom:1px solid #e5eaf0; }.aion-local-processing-card-head h2{margin:6px 0 0;color:var(--lp-ink);font-size:20px;letter-spacing:-.025em}.aion-local-processing-count{min-width:30px;height:30px;display:grid;place-items:center;border-radius:999px;background:#eef5ff;color:#1d4ed8;font-size:11px;font-weight:850}
+    .aion-local-processing-benefits { display:grid; gap:0; }.aion-local-processing-benefits>div{display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px;padding:17px 0;border-bottom:1px solid #edf0f4}.aion-local-processing-benefits>div:last-child{border-bottom:0}.aion-local-processing-benefits>div>span{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:#eaf8f1;color:#17815a;font-size:13px;font-weight:900}.aion-local-processing-benefits p{display:grid;gap:4px;margin:0}.aion-local-processing-benefits strong{color:#213047;font-size:12px}.aion-local-processing-benefits small{color:#718096;font-size:10px;line-height:1.45}
+    .aion-local-processing-activity { display:grid; }.aion-local-processing-activity>div{min-height:48px;display:grid;grid-template-columns:10px minmax(0,1fr) auto;align-items:center;gap:10px;border-bottom:1px solid #edf0f4}.aion-local-processing-activity>div:last-child{border-bottom:0}.aion-local-processing-activity-dot{width:8px;height:8px;border-radius:50%;background:#94a3b8}.aion-local-processing-activity-dot.is-completed{background:#22a77a}.aion-local-processing-activity-dot.is-running,.aion-local-processing-activity-dot.is-queued{background:#2563eb}.aion-local-processing-activity-dot.is-failed,.aion-local-processing-activity-dot.is-cancelled{background:#d96b63}.aion-local-processing-activity p{display:grid;gap:2px;margin:0;min-width:0}.aion-local-processing-activity strong{overflow:hidden;color:#26364d;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.aion-local-processing-activity small{color:#7b899b;font-size:9px}.aion-local-processing-activity .status-badge{font-size:8px!important}
+    .aion-local-processing-advanced { overflow:hidden; border:1px solid var(--lp-line); border-radius:16px; background:#fff; box-shadow:0 7px 22px rgba(11,23,48,.035); }.aion-local-processing-advanced>summary{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 22px;cursor:pointer;list-style:none}.aion-local-processing-advanced>summary::-webkit-details-marker{display:none}.aion-local-processing-advanced>summary span{display:grid;gap:4px}.aion-local-processing-advanced>summary strong{color:#24324a;font-size:13px}.aion-local-processing-advanced>summary small{color:#7b899b;font-size:10px}.aion-local-processing-advanced>summary b{color:#627287;font-size:18px;transition:transform .18s}.aion-local-processing-advanced[open]>summary b{transform:rotate(180deg)}
+    .aion-local-processing-advanced-body { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:20px; border-top:1px solid var(--lp-line); background:#f8fafc; }.aion-local-processing-advanced-panel{padding:18px;border:1px solid #dfe6ef;border-radius:13px;background:#fff}.aion-local-processing-advanced-panel h3{margin:0;color:#1d2c43;font-size:14px}.aion-local-processing-advanced-panel>p{margin:6px 0 15px;color:#718096;font-size:10px;line-height:1.45}.aion-local-processing-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}.aion-local-processing-fields label{display:grid;gap:5px}.aion-local-processing-fields label span{color:#637289;font-size:9px;font-weight:800}.aion-local-processing-fields .input{min-height:39px!important;border:1px solid #cbd8e7!important;border-radius:9px!important;font-size:10px!important}.aion-local-processing-controls{display:flex;flex-wrap:wrap;gap:8px}.aion-local-processing-log{grid-column:1/-1}.aion-local-processing-events{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.aion-local-processing-events>div{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border:1px solid #e4e9f0;border-radius:9px;background:#fafbfd}.aion-local-processing-events p{display:grid;gap:2px;margin:0}.aion-local-processing-events strong{color:#334155;font-size:10px}.aion-local-processing-events small,.aion-local-processing-events>div>span{color:#8491a3;font-size:8px}.aion-local-processing-raw{grid-column:1/-1;padding:14px 16px;border:1px solid #dfe6ef;border-radius:11px;background:#fff}.aion-local-processing-raw>summary{cursor:pointer;color:#526174;font-size:10px;font-weight:800}.aion-local-processing-raw .json-block{max-height:340px;margin-top:12px;font-size:9px}
+    @media(max-width:1100px){html body .aion-local-processing-page{padding:24px 20px 90px 92px!important}.aion-local-processing-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.aion-local-processing-grid{grid-template-columns:1fr}}
+    @media(max-width:720px){.aion-local-processing-hero{flex-direction:column}.aion-local-processing-hero-meta{min-width:0;justify-items:start}.aion-local-processing-metrics,.aion-local-processing-advanced-body,.aion-local-processing-fields,.aion-local-processing-events{grid-template-columns:1fr}.aion-local-processing-notice{grid-template-columns:1fr!important;align-items:start!important}.aion-local-processing-notice .primary-btn{justify-self:start!important}}
+  `;
+  document.head.appendChild(style);
 }
 
 function getDepartmentRuntime(roomKey) {
@@ -12471,7 +14441,6 @@ function renderOperationsFlowModeToggle() {
 
 function renderDesktopWorkspace() {
   const showAssistantRail = state.activeTab === "brand_foundation";
-  const sharedExecutiveHeader = renderAionSharedPageExecutiveHeaderV1(state.activeTab);
 
   const layoutClass = showAssistantRail
     ? "desktop-workspace-layout"
@@ -12479,8 +14448,7 @@ function renderDesktopWorkspace() {
 
   return `
     <div class="${layoutClass}">
-      <main class="desktop-workspace-main${sharedExecutiveHeader ? " aion-shared-executive-header-page" : ""}">
-        ${sharedExecutiveHeader}
+      <main class="desktop-workspace-main">
         ${renderMainSurface()}
       </main>
 
@@ -12500,14 +14468,13 @@ function renderDesktopWorkspace() {
 function getDesktopAssistantTitle() {
   const labels = {
     boardroom: "Boardroom Assistant",
-    dashboard: "Dashboard Assistant",
     marketing_stream: "Marketing Assistant",
     brand_foundation: "Brand Assistant",
     live_agents: "Agent Assistant",
     aion_chat: "Aion",
     operations_agents: "Train Agent Assistant",
     operations_flow: "Operations Assistant",
-    local_node: "Local Node Assistant",
+    local_node: "Local Processing Assistant",
   };
 
   return labels[state.activeTab] || "Aion Assistant";
@@ -12516,13 +14483,12 @@ function getDesktopAssistantTitle() {
 function getDesktopAssistantPlaceholder() {
   const placeholders = {
     boardroom: "Ask what needs attention in the business...",
-    dashboard: "Ask about alerts, queues, approvals, or current status...",
     marketing_stream: "Ask for post ideas, captions, hooks, or campaign improvements...",
     brand_foundation: "Ask for help writing or improving brand sections...",
     live_agents: "Ask about this run, approval, agent, or workflow...",
     operations_agents: "Ask about trained tasks, triggers, test runs, approvals, or automation setup...",
     operations_flow: "Ask what is blocked or how the work is flowing...",
-    local_node: "Ask about backend status, runtime, scheduler, or sync...",
+    local_node: "Ask about private processing or background automation...",
     aion_chat: "Ask Aion anything about the business, runtime, brand, agents, code, or next action...",
   };
 
@@ -12530,18 +14496,13 @@ function getDesktopAssistantPlaceholder() {
 }
 
 function renderDesktopAssistantQuickActions() {
-  const tab = state.activeTab || "dashboard";
+  const tab = state.activeTab || "boardroom";
 
   const actionsByTab = {
     boardroom: [
       ["focus_today", "What should I focus on today?"],
       ["explain_business_state", "Explain current business state"],
       ["find_risks", "Find risks"],
-    ],
-    dashboard: [
-      ["explain_alerts", "Explain alerts"],
-      ["summarize_queue", "Summarize queue"],
-      ["what_changed", "What changed recently?"],
     ],
     marketing_stream: [
       ["write_post", "Help write a post"],
@@ -12564,9 +14525,9 @@ function renderDesktopAssistantQuickActions() {
       ["next_actions", "Suggest next actions"],
     ],
     local_node: [
-      ["backend_status", "Why is backend not ready?"],
-      ["scheduler_status", "Explain scheduler"],
-      ["sync_status", "Explain sync"],
+      ["backend_status", "Is local processing ready?"],
+      ["scheduler_status", "Explain background automation"],
+      ["sync_status", "Where is my data stored?"],
     ],
   };
 
@@ -27319,218 +29280,925 @@ if (typeof window !== "undefined") {
 /* END PHASE 21X LOCK */
 
 
+function getAionConnectedChatModelsV1() {
+  const models = [];
+  const hostedState = typeof getAionVaultAiProviderStatusState === "function"
+    ? getAionVaultAiProviderStatusState()
+    : { loaded: false, loading: false, providers: [] };
+  const localState = typeof getAionVaultLocalModelsStateV1 === "function"
+    ? getAionVaultLocalModelsStateV1()
+    : { loaded: false, loading: false, models: [] };
+
+  safeArray(hostedState.providers).filter((provider) => provider?.connected === true).forEach((provider) => {
+    const id = String(provider.id || provider.provider || "").trim();
+    if (!id) return;
+    const modelName = getAionBoardModelDisplayNameV1(
+      id,
+      provider.model,
+      formatAionBoardModelLabelV1(provider.model || provider.label || id),
+    );
+    models.push({
+      id,
+      label: modelName,
+      provider: String(provider.label || provider.provider_label || id),
+      model: String(provider.model || ""),
+      local: false,
+      isLead: provider.is_lead === true || String(hostedState.lead_model?.provider_id || "") === id,
+    });
+  });
+
+  safeArray(localState.models).filter((model) => model?.selected === true && model?.selection_status === "selectable").forEach((model) => {
+    const installation = safeArray(model.installations).find((item) => item?.selectable) || safeArray(model.installations)[0] || {};
+    const modelId = String(model.model_id || installation.model_id || "local_model").trim();
+    models.push({
+      id: String(model.provider_id || "local_model"),
+      label: getAionBoardModelDisplayNameV1("local_model", modelId, installation.display_name || formatAionBoardModelLabelV1(modelId)),
+      provider: "Private local model",
+      model: modelId,
+      local: true,
+      isLead: String(hostedState.lead_model?.provider_id || "") === "local_model",
+    });
+  });
+
+  const businessProviders = safeArray(window.__aionOriginalBusinessMapStateV2?.providers)
+    .filter((provider) => provider?.connected === true);
+  businessProviders.forEach((provider) => {
+    const id = String(provider.id || provider.provider || "").trim();
+    if (!id || models.some((item) => item.id === id)) return;
+    models.push({
+      id,
+      label: String(provider.display_name || provider.model || provider.label || id),
+      provider: String(provider.label || provider.provider_label || id),
+      model: String(provider.model || ""),
+      local: id === "local_model",
+    });
+  });
+
+  const normalisedModels = models.map((model) => {
+    const label = String(model.label || model.id || "").trim();
+    const provider = String(model.provider || "").trim();
+    const labelLooksLikeIdentifier = label === model.id || (/^[a-z0-9._-]+$/i.test(label) && /[-_.]/.test(label));
+    const providerLooksLikeModelName = provider.length > label.length && /\s/.test(provider);
+    if (model.local === true && labelLooksLikeIdentifier && providerLooksLikeModelName) {
+      return { ...model, label: provider, provider: "Private local model" };
+    }
+    return model;
+  });
+
+  return {
+    models: normalisedModels,
+    loading: hostedState.loading === true || localState.loading === true,
+    loaded: hostedState.loaded === true || localState.loaded === true || businessProviders.length > 0,
+  };
+}
+
+function getAionChatSelectedEngineV1(models = []) {
+  const leadModel = models.find((model) => model?.isLead === true) || null;
+  if (leadModel && window.__aionChatLeadAppliedV1 !== true) {
+    window.__aionChatLeadAppliedV1 = true;
+    return String(leadModel.id || "").trim();
+  }
+  let selected = String(window.__aionChatSelectedEngineV1 || "").trim();
+  if (!selected) {
+    selected = String(leadModel?.id || "").trim();
+  }
+  if (!selected) {
+    try { selected = String(localStorage.getItem("aion.chat.selected_engine.v1") || "").trim(); } catch {}
+  }
+  if (!selected) selected = String(state.aionChatEngine || state.desktopAssistantProvider || "").trim();
+  return models.some((model) => model.id === selected) ? selected : String(models[0]?.id || "");
+}
+
+function setAionChatSelectedEngineV1(engine = "") {
+  const value = String(engine || "").trim();
+  window.__aionChatSelectedEngineV1 = value;
+  try { localStorage.setItem("aion.chat.selected_engine.v1", value); } catch {}
+  return value;
+}
+
+function getAionChatWorkspaceIdV1() {
+  return String(
+    window.AionBusinessContainerClient?.resolveBusinessId?.()
+    || (typeof getAionBoardroomBusinessContainerId === "function" ? getAionBoardroomBusinessContainerId() : "")
+    || state.workspaceId
+    || window.desktopStore?.state?.workspaceId
+    || "home-fixed"
+  ).trim() || "home-fixed";
+}
+
+function syncAionChatSelectionToToolbarV1(engine = "") {
+  const toolbarSelect = document.querySelector("[data-tessaris-active-model]");
+  const value = String(engine || "").trim();
+  if (!toolbarSelect || !value || toolbarSelect.value === value) return;
+  const available = [...toolbarSelect.options].some((option) => option.value === value);
+  if (!available) return;
+  toolbarSelect.value = value;
+  toolbarSelect.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function getAionFriendlyChatFailureV1(value = "", modelLabel = "This model") {
+  const text = String(value || "");
+  const lowered = text.toLowerCase();
+  if (lowered.includes("conversation is too large") || lowered.includes("context limit") || lowered.includes("context window") || lowered.includes("too many tokens")) {
+    return `${modelLabel} reached its conversation limit. Start a new chat, then try again.`;
+  }
+  if (lowered.includes("quota") || lowered.includes("429") || lowered.includes("rate limit")) {
+    return `${modelLabel} has reached its current request limit. Try again later or choose another connected model.`;
+  }
+  if (lowered.includes("not selected") || lowered.includes("not_selected")) {
+    return `${modelLabel} is not selected for this workspace. Open Connections, select it as the lead model, then try again.`;
+  }
+  if (lowered.includes("local") || lowered.includes("ollama") || lowered.includes("11434") || lowered.includes("runtime")) {
+    return `${modelLabel} is installed, but its local runtime is not ready. Open Connections to start or reselect it, then try again.`;
+  }
+  return `${modelLabel} could not respond just now. Check its status in Connections or choose another connected model.`;
+}
+
+function getAionSafeExternalChatUrlV1(value = "") {
+  try {
+    const parsed = new URL(String(value || "").trim());
+    return ["http:", "https:"].includes(parsed.protocol) ? parsed.toString() : "";
+  } catch {
+    return "";
+  }
+}
+
+function renderAionChatMessageCopyV1(value = "") {
+  const raw = String(value || "");
+  const citations = new Map();
+  const sourcePattern = /^\s*(\d+)\.\s*\[[^\]\n]+\]\s*\(\s*(https?:\/\/[^\s)]+)\s*\)/gim;
+  for (const match of raw.matchAll(sourcePattern)) {
+    const safeUrl = getAionSafeExternalChatUrlV1(match[2]);
+    if (safeUrl) citations.set(match[1], safeUrl);
+  }
+
+  const renderPlainText = (text = "") => escapeHtml(text).replace(/\[(\d+)\]/g, (whole, number) => {
+    const url = citations.get(number);
+    if (!url) return whole;
+    return `<a class="aion-chat-citation-v1" href="${escapeHtml(url)}" data-aion-chat-external-url="${escapeHtml(url)}" title="Open source ${escapeHtml(number)}">[${escapeHtml(number)}]</a>`;
+  });
+
+  const linkPattern = /\[([^\]\n]{1,240})\]\s*\(\s*(https?:\/\/[^\s)]+)\s*\)|(https?:\/\/[^\s<>"']+)/gi;
+  let output = "";
+  let cursor = 0;
+  for (const match of raw.matchAll(linkPattern)) {
+    output += renderPlainText(raw.slice(cursor, match.index));
+    let candidate = String(match[2] || match[3] || "");
+    let trailing = "";
+    if (!match[2]) {
+      const trimmed = candidate.replace(/[.,;:!?\]\}]+$/g, "");
+      trailing = candidate.slice(trimmed.length);
+      candidate = trimmed;
+    }
+    const safeUrl = getAionSafeExternalChatUrlV1(candidate);
+    if (!safeUrl) {
+      output += renderPlainText(match[0]);
+    } else {
+      const visible = match[1]
+        ? String(match[1])
+        : candidate.length > 88
+          ? `${candidate.slice(0, 85)}…`
+          : candidate;
+      output += `<a class="aion-chat-message-link-v1" href="${escapeHtml(safeUrl)}" data-aion-chat-external-url="${escapeHtml(safeUrl)}" title="Open source in your browser">${escapeHtml(visible)}<span aria-hidden="true"> ↗</span></a>${escapeHtml(trailing)}`;
+    }
+    cursor = Number(match.index || 0) + match[0].length;
+  }
+  output += renderPlainText(raw.slice(cursor));
+  return output;
+}
+
+function renderAionBrowserPlanCardV1(plan = {}) {
+  if (!plan || !plan.plan_id) return "";
+  const steps = safeArray(plan.steps);
+  const approvalCount = safeArray(plan.approval_step_ids).length;
+  const stateLabel = String(plan.state || "prepared").replaceAll("_", " ");
+  const completed = ["completed", "failed"].includes(String(plan.state || ""));
+  return `
+    <section class="aion-chat-browser-plan-v1" data-browser-plan-state="${escapeHtml(plan.state || "prepared")}">
+      <header><span>AION browser plan</span><strong>${escapeHtml(stateLabel)}</strong></header>
+      <p>${escapeHtml(plan.objective || "Governed browser task")}</p>
+      <ol>${steps.map((step) => `<li><span>${escapeHtml(String(step.operation || "step").replaceAll("_", " "))}</span><small>${escapeHtml(step.target?.url || step.target?.selector || "Isolated browser")}${step.approval_required ? " · approval required" : " · read only"}</small></li>`).join("")}</ol>
+      ${plan.receipt_id ? `<div class="aion-chat-browser-receipt-v1">✓ Receipt saved · ${escapeHtml(plan.receipt_id)}</div>` : ""}
+      ${completed ? "" : `<button type="button" data-aion-browser-plan-run="${escapeHtml(plan.plan_id)}">${approvalCount ? `Review & approve ${approvalCount} action${approvalCount === 1 ? "" : "s"}` : "Run read-only task"}</button>`}
+    </section>
+  `;
+}
+
+function renderAionComputerPlanCardV1(plan = {}) {
+  if (!plan || !plan.plan_id) return "";
+  const steps = safeArray(plan.steps);
+  const approvalCount = safeArray(plan.approval_step_ids).length;
+  const stateLabel = String(plan.state || "prepared").replaceAll("_", " ");
+  const completed = ["completed", "failed"].includes(String(plan.state || ""));
+  const autoRunning = plan.auto_execute === true && String(plan.state || "") === "ready";
+  const cardLabel = String(plan.state || "") === "completed" ? "AION work receipt" : autoRunning ? "AION working" : "AION desktop plan";
+  return `
+    <section class="aion-chat-browser-plan-v1" data-computer-plan-state="${escapeHtml(plan.state || "prepared")}">
+      <header><span>${escapeHtml(cardLabel)}</span><strong>${escapeHtml(stateLabel)}</strong></header>
+      <p>${escapeHtml(plan.objective || "Governed desktop task")}</p>
+      <ol>${steps.map((step) => `<li><span>${escapeHtml(String(step.operation || "step").replaceAll("_", " "))}</span><small>${escapeHtml(getAionComputerStepSummaryV1(step))}${step.approval_required ? " · approval required" : " · read only"}</small></li>`).join("")}</ol>
+      ${plan.receipt_id ? `<div class="aion-chat-browser-receipt-v1">✓ Receipt saved · ${escapeHtml(plan.receipt_id)}</div>` : ""}
+      ${completed ? "" : `<button type="button" data-aion-computer-plan-run="${escapeHtml(plan.plan_id)}">${approvalCount ? `Review & approve ${approvalCount} consequential action${approvalCount === 1 ? "" : "s"}` : "Working…"}</button>`}
+    </section>
+  `;
+}
+
+function getAionComputerStepSummaryV1(step = {}) {
+  const app = String(step.target?.app || "Approved desktop app");
+  const operation = String(step.operation || "");
+  if (operation === "click_control") return `${app} · click “${String(step.control || "control").replaceAll("_", " ")}”`;
+  if (operation === "type_text") {
+    const value = String(step.value || "");
+    const preview = value.length > 80 ? `${value.slice(0, 77)}…` : value;
+    return `${app} · ${String(step.control || "field")} · type “${preview}”`;
+  }
+  if (operation === "select_menu_item") return `${app} · ${String(step.menu || "menu")} → ${String(step.item || "item")}`;
+  if (operation === "press_key") {
+    const chord = [...safeArray(step.modifiers), step.key].filter(Boolean).join(" + ");
+    return `${app} · press ${chord || "key"}`;
+  }
+  if (operation === "verify_text") return `${app} · verify “${String(step.expected_text || "text")}”`;
+  if (operation === "inspect_app") return `${app} · inspect visible controls`;
+  if (operation === "create_document") return `${app} · create document with “${String(step.value || "").slice(0, 80)}”`;
+  if (operation === "create_spreadsheet") return `${app} · enter “${String(step.value || "").slice(0, 80)}” in ${String(step.cell || "A1")}`;
+  if (operation === "create_email_draft") return `${app} · draft “${String(step.subject || "Draft email").slice(0, 80)}” without sending`;
+  if (operation === "wait") return `${app} · wait ${Number(step.seconds || 1)}s`;
+  if (step.title) return `${app} · ${String(step.title)}`;
+  return app;
+}
+
+function getAionBoardMeetingChatContextV1() {
+  if (window.__aionBoardMeetingChatContextV1?.active === true) {
+    return window.__aionBoardMeetingChatContextV1;
+  }
+  try {
+    const stored = JSON.parse(sessionStorage.getItem("aion.chat.board_meeting_context.v1") || "null");
+    if (stored?.active === true) {
+      window.__aionBoardMeetingChatContextV1 = stored;
+      return stored;
+    }
+  } catch {}
+  return null;
+}
+
+function setAionBoardMeetingChatContextV1(context = null) {
+  const next = context?.active === true ? context : null;
+  window.__aionBoardMeetingChatContextV1 = next;
+  try {
+    if (next) sessionStorage.setItem("aion.chat.board_meeting_context.v1", JSON.stringify(next));
+    else sessionStorage.removeItem("aion.chat.board_meeting_context.v1");
+  } catch {}
+  return next;
+}
+
+function openAionBoardMemberInSharedChatV1(seat = {}) {
+  const providerId = normaliseAionBoardProviderKeyV1(
+    seat.providerId || seat.key || seat.provider_id || "",
+  );
+  const connectedModels = getAionConnectedChatModelsV1().models;
+  const activeModel = connectedModels.find((model) =>
+    normaliseAionBoardProviderKeyV1(model.id) === providerId ||
+    normaliseAionBoardProviderKeyV1(model.model) === providerId
+  );
+
+  if (!activeModel) {
+    safeAionDesktopPatch?.({
+      message: `${seat.label || providerId || "This Board member"} is not available in AI Chat.`,
+      messageTone: "warning",
+    });
+    return false;
+  }
+
+  const packet = typeof buildAionBoardroomSessionPacket === "function"
+    ? buildAionBoardroomSessionPacket("board_member_chat")
+    : {};
+  const snapshot = seat.snapshot || (typeof getBoardroomSnapshot === "function" ? getBoardroomSnapshot() : {});
+  const context = setAionBoardMeetingChatContextV1({
+    active: true,
+    joined_at: new Date().toISOString(),
+    provider_id: activeModel.id,
+    model_label: activeModel.label,
+    role: seat.role || "Connected Board member",
+    team_mode: seat.teamMode || "board",
+    seat_id: seat.seatId || `seat_provider_${providerId}`,
+    session_id: packet.session_id || "",
+    session_type: packet.session_type || "board_member_chat",
+    meeting_title: packet.minutes_document?.title || "Current Board meeting",
+    boardroom_snapshot: snapshot,
+    session_packet: packet,
+  });
+
+  setAionChatSelectedEngineV1(activeModel.id);
+  safeAionDesktopPatch({
+    aionChatEngine: activeModel.id,
+    desktopAssistantProvider: activeModel.id,
+    aionChatMode: "business_workspace",
+    desktopAssistantContextMode: "business_workspace",
+    message: `${activeModel.label} joined the Board meeting.`,
+    messageTone: "success",
+  });
+  window.AionBoardroomSeatConversation?.close?.();
+  desktopStore.persistCacheSoon?.(50);
+  return !!context && openAionBoardroomChatDrawerV1({
+    kind: "model",
+    engine: activeModel.id,
+    label: activeModel.label,
+    role: seat.role || "Connected Board member",
+  });
+}
+
+window.openAionBoardMemberInSharedChatV1 = openAionBoardMemberInSharedChatV1;
+
+function getAionChatStreamEngineV2(engine = "") {
+  const requested = String(engine || "").trim();
+  if (requested) return requested;
+  const models = getAionConnectedChatModelsV1().models;
+  return getAionChatSelectedEngineV1(models) || "unassigned";
+}
+
+function getAionChatMessageStreamsV2() {
+  if (window.__aionChatMessageStreamsV2 && typeof window.__aionChatMessageStreamsV2 === "object") {
+    return window.__aionChatMessageStreamsV2;
+  }
+  let streams = {};
+  try {
+    const stored = JSON.parse(localStorage.getItem("aion.chat.message_streams.v2") || "{}");
+    if (stored && typeof stored === "object" && !Array.isArray(stored)) streams = stored;
+  } catch {}
+  window.__aionChatMessageStreamsV2 = streams;
+  return streams;
+}
+
+function makeAionChatSessionIdV3() {
+  if (globalThis.crypto?.randomUUID) return `chat_${globalThis.crypto.randomUUID()}`;
+  return `chat_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function normaliseAionChatTitleV3(value = "", fallback = "New chat") {
+  const clean = String(value || "").replace(/\s+/g, " ").trim();
+  if (!clean) return fallback;
+  return clean.length > 48 ? `${clean.slice(0, 47).trimEnd()}…` : clean;
+}
+
+function getAionChatSessionStoreV3() {
+  if (window.__aionChatSessionStoreV3 && typeof window.__aionChatSessionStoreV3 === "object") {
+    return window.__aionChatSessionStoreV3;
+  }
+  let store = {};
+  try {
+    const stored = JSON.parse(localStorage.getItem("aion.chat.sessions.v3") || "{}");
+    if (stored && typeof stored === "object" && !Array.isArray(stored)) store = stored;
+  } catch {}
+  window.__aionChatSessionStoreV3 = store;
+  return store;
+}
+
+function persistAionChatSessionStoreV3() {
+  const store = getAionChatSessionStoreV3();
+  try { localStorage.setItem("aion.chat.sessions.v3", JSON.stringify(store)); } catch {}
+  return store;
+}
+
+function createAionChatSessionRecordV3(messages = [], title = "") {
+  const clean = safeArray(messages)
+    .filter((message) => message && ["user", "assistant"].includes(message.role))
+    .slice(-60);
+  const firstUser = clean.find((message) => message.role === "user" && String(message.content || "").trim());
+  const now = new Date().toISOString();
+  return {
+    id: makeAionChatSessionIdV3(),
+    title: normaliseAionChatTitleV3(title || firstUser?.content || "", clean.length ? "Previous chat" : "New chat"),
+    created_at: clean[0]?.at || now,
+    updated_at: clean[clean.length - 1]?.at || now,
+    messages: clean,
+  };
+}
+
+function ensureAionChatModelWorkspaceV3(engine = "") {
+  const key = getAionChatStreamEngineV2(engine);
+  const store = getAionChatSessionStoreV3();
+  let workspace = store[key];
+  if (!workspace || typeof workspace !== "object" || !Array.isArray(workspace.chats)) {
+    const streams = getAionChatMessageStreamsV2();
+    let legacyMessages = Array.isArray(streams[key]) ? streams[key] : [];
+    if (!legacyMessages.length) {
+      try {
+        const oldMessages = JSON.parse(localStorage.getItem("aion.chat.messages.v1") || "[]");
+        const oldMigrated = localStorage.getItem("aion.chat.messages.v1.migrated") === "true";
+        if (!oldMigrated && Array.isArray(oldMessages)) legacyMessages = oldMessages;
+      } catch {}
+    }
+    const migratedChat = createAionChatSessionRecordV3(legacyMessages);
+    workspace = { active_chat_id: migratedChat.id, chats: [migratedChat] };
+    store[key] = workspace;
+    try { localStorage.setItem("aion.chat.messages.v1.migrated", "true"); } catch {}
+    persistAionChatSessionStoreV3();
+  }
+  workspace.chats = workspace.chats.filter((chat) => chat && typeof chat === "object" && chat.id);
+  if (!workspace.chats.length) {
+    const freshChat = createAionChatSessionRecordV3();
+    workspace.chats.push(freshChat);
+    workspace.active_chat_id = freshChat.id;
+    persistAionChatSessionStoreV3();
+  }
+  if (!workspace.chats.some((chat) => chat.id === workspace.active_chat_id)) {
+    workspace.active_chat_id = workspace.chats[0].id;
+    persistAionChatSessionStoreV3();
+  }
+  const hasReadyNewChat = workspace.chats.some((chat) =>
+    String(chat.title || "") === "New chat" && safeArray(chat.messages).length === 0
+  );
+  if (!hasReadyNewChat) {
+    workspace.chats.push(createAionChatSessionRecordV3());
+    persistAionChatSessionStoreV3();
+  }
+  return workspace;
+}
+
+function getAionChatSessionsV3(engine = "") {
+  return [...ensureAionChatModelWorkspaceV3(engine).chats]
+    .sort((left, right) => String(right.updated_at || "").localeCompare(String(left.updated_at || "")));
+}
+
+function getAionChatActiveSessionIdV3(engine = "") {
+  return ensureAionChatModelWorkspaceV3(engine).active_chat_id || "";
+}
+
+function getAionChatSessionV3(engine = "", sessionId = "") {
+  const workspace = ensureAionChatModelWorkspaceV3(engine);
+  const requestedId = String(sessionId || workspace.active_chat_id || "");
+  return workspace.chats.find((chat) => chat.id === requestedId) || workspace.chats[0];
+}
+
+function createAionChatSessionV3(engine = "") {
+  const workspace = ensureAionChatModelWorkspaceV3(engine);
+  const readyChat = workspace.chats.find((chat) =>
+    String(chat.title || "") === "New chat" && safeArray(chat.messages).length === 0
+  );
+  if (readyChat) {
+    readyChat.updated_at = new Date().toISOString();
+    workspace.active_chat_id = readyChat.id;
+    persistAionChatSessionStoreV3();
+    return readyChat;
+  }
+  const chat = createAionChatSessionRecordV3();
+  workspace.chats.push(chat);
+  workspace.active_chat_id = chat.id;
+  persistAionChatSessionStoreV3();
+  return chat;
+}
+
+function selectAionChatSessionV3(engine = "", sessionId = "") {
+  const workspace = ensureAionChatModelWorkspaceV3(engine);
+  if (!workspace.chats.some((chat) => chat.id === sessionId)) return false;
+  workspace.active_chat_id = sessionId;
+  persistAionChatSessionStoreV3();
+  return true;
+}
+
+function deleteAionChatSessionV3(engine = "", sessionId = "") {
+  const workspace = ensureAionChatModelWorkspaceV3(engine);
+  const index = workspace.chats.findIndex((chat) => chat.id === sessionId);
+  if (index < 0) return false;
+  workspace.chats.splice(index, 1);
+  if (!workspace.chats.length) workspace.chats.push(createAionChatSessionRecordV3());
+  if (workspace.active_chat_id === sessionId || !workspace.chats.some((chat) => chat.id === workspace.active_chat_id)) {
+    workspace.active_chat_id = [...workspace.chats]
+      .sort((left, right) => String(right.updated_at || "").localeCompare(String(left.updated_at || "")))[0].id;
+  }
+  persistAionChatSessionStoreV3();
+  return true;
+}
+
+function getAionChatMessagesV1(engine = "", sessionId = "") {
+  return safeArray(getAionChatSessionV3(engine, sessionId)?.messages);
+}
+
+function setAionChatMessagesV1(messages = [], engine = "", sessionId = "") {
+  const chat = getAionChatSessionV3(engine, sessionId);
+  const clean = safeArray(messages).filter((message) => message && ["user", "assistant"].includes(message.role)).slice(-60);
+  chat.messages = clean;
+  const firstUser = clean.find((message) => message.role === "user" && String(message.content || "").trim());
+  if (firstUser && (!chat.title || chat.title === "New chat" || chat.title === "Previous chat")) {
+    chat.title = normaliseAionChatTitleV3(firstUser.content);
+  }
+  chat.updated_at = clean[clean.length - 1]?.at || new Date().toISOString();
+  persistAionChatSessionStoreV3();
+  return clean;
+}
+
+function getAionChatAttachmentsV1() {
+  return safeArray(state.aionChatAttachments)
+    .filter((item) => item && typeof item.path === "string" && item.path.trim())
+    .slice(0, 20);
+}
+
+function formatAionChatAttachmentSizeV1(value) {
+  const bytes = Number(value);
+  if (!Number.isFinite(bytes) || bytes < 0) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0)} MB`;
+}
+
+function renderAionChatAttachmentsV1(attachments = [], { removable = false } = {}) {
+  const items = safeArray(attachments).slice(0, 20);
+  if (!items.length) return "";
+  return `<div class="aion-chat-attachments-v1">${items.map((item) => {
+    const kind = item.kind === "folder" ? "folder" : "file";
+    const detail = kind === "folder" ? "Folder" : (item.extension || formatAionChatAttachmentSizeV1(item.size) || "File");
+    return `<span class="aion-chat-attachment-v1" title="${escapeHtml(item.path || item.name || "")}"><span class="aion-chat-attachment-icon-v1" aria-hidden="true">${kind === "folder" ? "▰" : "▤"}</span><span class="aion-chat-attachment-copy-v1"><strong>${escapeHtml(item.name || "Attachment")}</strong><small>${escapeHtml(detail)}</small></span>${removable ? `<button type="button" data-aion-chat-remove-attachment="${escapeHtml(item.id || item.path || "")}" aria-label="Remove ${escapeHtml(item.name || "attachment")}">×</button>` : ""}</span>`;
+  }).join("")}</div>`;
+}
+
+function ensureAionBoardroomChatDrawerStylesV1() {
+  if (document.getElementById("aion-boardroom-chat-drawer-styles-v1")) return;
+  const style = document.createElement("style");
+  style.id = "aion-boardroom-chat-drawer-styles-v1";
+  style.textContent = `
+    .aion-boardroom-chat-drawer-v1{position:fixed;z-index:100200;top:72px;right:14px;bottom:14px;width:min(430px,calc(100vw - 100px));display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;background:#fbfcfe;border:1px solid #d7e0eb;border-radius:22px;box-shadow:0 24px 70px rgba(15,29,54,.24);overflow:hidden;color:#14213d;font-family:Inter,"SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .aion-boardroom-chat-drawer-v1 *{box-sizing:border-box}.aion-boardroom-chat-head-v1{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:19px 18px 16px;background:#fff;border-bottom:1px solid #dfe6f0}.aion-boardroom-chat-kicker-v1{margin-bottom:6px;color:#0f766e;font-size:9px;font-weight:950;letter-spacing:.18em;text-transform:uppercase}.aion-boardroom-chat-head-v1 h2{margin:0;color:#101d34;font-size:21px;line-height:1.15;letter-spacing:-.025em}.aion-boardroom-chat-sub-v1{display:flex;align-items:center;gap:7px;margin-top:6px;color:#6b7c93;font-size:10px;font-weight:700}.aion-boardroom-chat-sub-v1:before{content:"";width:8px;height:8px;border-radius:50%;background:#2fc99a;box-shadow:0 0 0 4px rgba(47,201,154,.13)}.aion-boardroom-chat-close-v1{flex:0 0 auto;width:38px;height:38px;display:grid;place-items:center;border:1px solid #cad5e2;border-radius:12px;background:#fff;color:#18253a;font-size:22px;line-height:1;cursor:pointer}.aion-boardroom-chat-context-v1{padding:11px 18px;border-bottom:1px solid #dbe5f1;background:#f0f5ff;color:#536a88;font-size:10px;line-height:1.45}.aion-boardroom-chat-context-v1 strong{color:#174fbd}.aion-boardroom-chat-stream-v1{display:flex;flex-direction:column;gap:12px;min-height:0;padding:18px;overflow:auto}.aion-boardroom-chat-empty-v1{margin:auto;padding:28px 18px;text-align:center;color:#74839a;font-size:12px;line-height:1.55}.aion-boardroom-chat-bubble-v1{max-width:88%;padding:12px 14px;border-radius:15px;font-size:12px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}.aion-boardroom-chat-bubble-v1.is-user{align-self:flex-end;border-radius:15px 5px 15px 15px;background:#10203b;color:#fff}.aion-boardroom-chat-bubble-v1.is-assistant{align-self:flex-start;border:1px solid #d7e1ee;border-radius:5px 15px 15px 15px;background:#fff;color:#293a54}.aion-boardroom-chat-bubble-v1.is-working{color:#718096;font-style:italic}.aion-boardroom-chat-label-v1{display:block;margin-bottom:5px;color:#1d5fd1;font-size:9px;font-weight:950;letter-spacing:.11em;text-transform:uppercase}.aion-boardroom-chat-compose-v1{padding:12px 14px 14px;border-top:1px solid #dfe6f0;background:#fff}.aion-boardroom-chat-compose-v1 form{display:grid;grid-template-columns:minmax(0,1fr) 42px;gap:8px;align-items:end;padding:9px 9px 9px 13px;border:1px solid #cbd7e6;border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(20,42,73,.08)}.aion-boardroom-chat-compose-v1 textarea{min-height:34px;max-height:110px;padding:7px 0;border:0;outline:0;background:transparent;color:#14213d;font:inherit;font-size:12px;line-height:1.45;resize:none}.aion-boardroom-chat-compose-v1 button{width:42px;height:42px;border:0;border-radius:12px;background:#2563eb;color:#fff;font-size:18px;font-weight:900;cursor:pointer}.aion-boardroom-chat-compose-v1 button:disabled{opacity:.42;cursor:not-allowed}.aion-boardroom-chat-note-v1{margin:7px 3px 0;color:#8a97aa;font-size:9px;text-align:center}@media(max-width:760px){.aion-boardroom-chat-drawer-v1{top:64px;right:8px;bottom:8px;width:calc(100vw - 88px);border-radius:17px}}
+  `;
+  document.head.appendChild(style);
+}
+
+function getAionBoardroomDrawerDepartmentV1(value = "") {
+  const key = String(value || "").trim().toLowerCase().replaceAll("-", "_");
+  if (["hr", "people"].includes(key)) return "people";
+  if (["products", "product", "products_services", "products_and_services", "p&s"].includes(key)) return "products_services";
+  return key;
+}
+
+function getAionBoardroomDrawerDepartmentLabelV1(key = "") {
+  const normalised = getAionBoardroomDrawerDepartmentV1(key);
+  const labels = { marketing:"Marketing", sales:"Sales", finance:"Finance", operations:"Operations", support:"Support", people:"People", products_services:"Products & services", procurement:"Stock & procurement", pilot:"AION" };
+  return labels[normalised] || prettify(normalised || "Department");
+}
+
+function renderAionBoardroomChatDrawerMessagesV1(drawer, messages = [], label = "AI") {
+  const stream = drawer?.querySelector?.("[data-aion-boardroom-chat-stream-v1]");
+  if (!stream) return;
+  const clean = safeArray(messages).filter((item) => item && ["user", "assistant"].includes(String(item.role || "")));
+  stream.innerHTML = clean.length ? clean.map((item) => `<div class="aion-boardroom-chat-bubble-v1 ${item.role === "user" ? "is-user" : "is-assistant"}">${item.role === "assistant" ? `<strong class="aion-boardroom-chat-label-v1">${escapeHtml(item.modelLabel || label)}</strong>` : ""}${item.role === "assistant" ? renderAionChatMessageCopyV1(item.content || "") : escapeHtml(String(item.content || ""))}</div>`).join("") : `<div class="aion-boardroom-chat-empty-v1">This conversation is ready inside the Boardroom.<br>Ask a question without leaving the meeting.</div>`;
+  stream.scrollTop = stream.scrollHeight;
+}
+
+async function loadAionBoardroomDepartmentDrawerV1(drawer, department) {
+  const stream = drawer?.querySelector?.("[data-aion-boardroom-chat-stream-v1]");
+  if (!stream) return;
+  stream.innerHTML = `<div class="aion-boardroom-chat-empty-v1">Loading the protected ${escapeHtml(getAionBoardroomDrawerDepartmentLabelV1(department))} Pilot stream…</div>`;
+  try {
+    const result = await aionOperationsConversationRequest("history", { department_id: department, limit: 50 });
+    if (!drawer.isConnected) return;
+    drawer.__aionDepartmentTurns = safeArray(result?.turns);
+    renderAionBoardroomChatDrawerMessagesV1(drawer, drawer.__aionDepartmentTurns, `${getAionBoardroomDrawerDepartmentLabelV1(department)} Pilot`);
+  } catch (error) {
+    stream.innerHTML = `<div class="aion-boardroom-chat-empty-v1">The ${escapeHtml(getAionBoardroomDrawerDepartmentLabelV1(department))} Pilot stream is unavailable.<br>${escapeHtml(String(error?.message || error))}</div>`;
+  }
+}
+
+async function sendAionBoardroomModelDrawerMessageV1(drawer, prompt, config) {
+  const connectedModels = getAionConnectedChatModelsV1().models;
+  const engine = String(config.engine || getAionChatSelectedEngineV1(connectedModels));
+  const activeModel = connectedModels.find((model) => model.id === engine);
+  if (!activeModel) throw new Error("This connected model is no longer available.");
+  const priorMessages = getAionChatMessagesV1(engine);
+  const userMessage = { role:"user", content:prompt, model:engine, at:new Date().toISOString() };
+  setAionChatMessagesV1([...priorMessages, userMessage], engine);
+  renderAionBoardroomChatDrawerMessagesV1(drawer, getAionChatMessagesV1(engine), activeModel.label);
+  const stream = drawer.querySelector("[data-aion-boardroom-chat-stream-v1]");
+  stream?.insertAdjacentHTML("beforeend", `<div class="aion-boardroom-chat-bubble-v1 is-assistant is-working"><strong class="aion-boardroom-chat-label-v1">${escapeHtml(activeModel.label)}</strong>Reviewing the current Board meeting context…</div>`);
+  if (stream) stream.scrollTop = stream.scrollHeight;
+  const meetingContext = getAionBoardMeetingChatContextV1();
+  const recentConversation = priorMessages.slice(-12).map((message) => `${message.role === "assistant" ? "Assistant" : "User"}: ${String(message.content || "")}`).join("\n\n");
+  const requestPrompt = recentConversation ? `Continue this conversation with the new user message.\n\n${recentConversation}\n\nUser: ${prompt}` : prompt;
+  const payload = { provider:engine, engine, mode:"business_workspace", prompt:requestPrompt, messages:[...priorMessages,userMessage].slice(-20), active_tab:"boardroom", context_mode:"business_workspace", instruction:"You are a connected AI Board member inside an active Tessaris Board meeting. Use the current Business Map, meeting notes, department intelligence, decisions and unresolved questions supplied below. State uncertainties and challenge weak assumptions when useful. Do not claim an external action occurred.", workspace_context:{ workspace_id:getAionChatWorkspaceIdV1(), node_id:state.nodeId || "", dashboard_summary:state.dashboardSummary || {}, boardroom_snapshot:state.boardroomSnapshot || {}, brand_foundation_state:state.brandFoundationState || {}, marketing_summary:state.marketingSummary || {}, marketing_form:state.marketingForm || {}, operations_flow_snapshot:state.operationsFlowSnapshot || {}, live_agents_snapshot:state.liveAgentsSnapshot || {}, scheduler:state.scheduler || {}, status:state.status || {}, runs:Array.isArray(state.runs) ? state.runs.slice(0,80) : [], approvals:Array.isArray(state.approvals) ? state.approvals.slice(0,80) : [], audit:Array.isArray(state.audit) ? state.audit.slice(0,40) : [], board_meeting_context:meetingContext || null } };
+  let result;
+  try { result = await apiPost("/api/local-node/aion/chat", payload); } catch (_) { result = await apiPost("/api/local-node/assistant/ask", payload); }
+  if (result?.ok === false) throw new Error(result?.user_message || result?.text || "The selected model could not respond.");
+  const text = result?.text || result?.answer || result?.output || result?.response || result?.message || result?.item?.text || result?.item?.output || "No AI response returned.";
+  setAionChatMessagesV1([...getAionChatMessagesV1(engine), { role:"assistant", content:String(text), model:engine, modelLabel:activeModel.label, at:new Date().toISOString() }], engine);
+  renderAionBoardroomChatDrawerMessagesV1(drawer, getAionChatMessagesV1(engine), activeModel.label);
+  desktopStore.persistCacheSoon?.(100);
+}
+
+async function sendAionBoardroomDepartmentDrawerMessageV1(drawer, prompt, config) {
+  const department = getAionBoardroomDrawerDepartmentV1(config.department);
+  drawer.__aionDepartmentTurns = [...safeArray(drawer.__aionDepartmentTurns), { role:"user", content:prompt, created_at:new Date().toISOString() }];
+  renderAionBoardroomChatDrawerMessagesV1(drawer, drawer.__aionDepartmentTurns, `${getAionBoardroomDrawerDepartmentLabelV1(department)} Pilot`);
+  const stream = drawer.querySelector("[data-aion-boardroom-chat-stream-v1]");
+  stream?.insertAdjacentHTML("beforeend", `<div class="aion-boardroom-chat-bubble-v1 is-assistant is-working"><strong class="aion-boardroom-chat-label-v1">${escapeHtml(getAionBoardroomDrawerDepartmentLabelV1(department))} Pilot</strong>Reviewing the authorised department evidence…</div>`);
+  if (stream) stream.scrollTop = stream.scrollHeight;
+  const result = await aionOperationsConversationRequest("turn", { department_id:department, user_text:prompt, board_meeting_context:getAionBoardMeetingChatContextV1() });
+  const nextTurns = safeArray(result?.history?.turns);
+  drawer.__aionDepartmentTurns = nextTurns.length ? nextTurns : [...drawer.__aionDepartmentTurns, result?.conversation?.turn || { role:"assistant", content:`${getAionBoardroomDrawerDepartmentLabelV1(department)} Pilot is ready.` }];
+  renderAionBoardroomChatDrawerMessagesV1(drawer, drawer.__aionDepartmentTurns, `${getAionBoardroomDrawerDepartmentLabelV1(department)} Pilot`);
+}
+
+function closeAionBoardroomChatDrawerV1() { document.querySelector("[data-aion-boardroom-chat-drawer-v1]")?.remove(); window.__aionBoardroomChatDrawerV1 = null; return true; }
+
+function openAionBoardroomChatDrawerV1(config = {}) {
+  ensureAionBoardroomChatDrawerStylesV1(); closeAionBoardroomChatDrawerV1();
+  const kind = config.kind === "department" ? "department" : "model";
+  const label = String(config.label || (kind === "department" ? `${getAionBoardroomDrawerDepartmentLabelV1(config.department)} Pilot` : "AI Board member"));
+  const drawer = document.createElement("aside"); drawer.className = "aion-boardroom-chat-drawer-v1"; drawer.setAttribute("data-aion-boardroom-chat-drawer-v1", kind); drawer.setAttribute("aria-label", `${label} Boardroom conversation`);
+  drawer.innerHTML = `<header class="aion-boardroom-chat-head-v1"><div><div class="aion-boardroom-chat-kicker-v1">${kind === "department" ? "Executive team conversation" : "Board adviser conversation"}</div><h2>${escapeHtml(label)}</h2><div class="aion-boardroom-chat-sub-v1">Inside the current Board meeting</div></div><button class="aion-boardroom-chat-close-v1" type="button" data-aion-boardroom-chat-close-v1 aria-label="Close conversation">×</button></header><div class="aion-boardroom-chat-context-v1"><strong>Board context active.</strong> Current meeting notes, Business Map and governed evidence are available to this conversation.</div><div class="aion-boardroom-chat-stream-v1" data-aion-boardroom-chat-stream-v1></div><div class="aion-boardroom-chat-compose-v1"><form data-aion-boardroom-chat-form-v1><textarea rows="2" placeholder="Message ${escapeHtml(label)}…" data-aion-boardroom-chat-input-v1></textarea><button type="submit" aria-label="Send message">↑</button></form><div class="aion-boardroom-chat-note-v1">External actions remain approval gated.</div></div>`;
+  document.body.appendChild(drawer); window.__aionBoardroomChatDrawerV1 = { ...config, kind, label };
+  drawer.querySelector("[data-aion-boardroom-chat-close-v1]")?.addEventListener("click", closeAionBoardroomChatDrawerV1);
+  const form = drawer.querySelector("[data-aion-boardroom-chat-form-v1]"); const input = drawer.querySelector("[data-aion-boardroom-chat-input-v1]");
+  input?.addEventListener("keydown", (event) => { if (event.key === "Enter" && !event.shiftKey && !event.isComposing) { event.preventDefault(); form?.requestSubmit(); } });
+  form?.addEventListener("submit", async (event) => { event.preventDefault(); const prompt = String(input?.value || "").trim(); if (!prompt || form.dataset.busy === "true") return; form.dataset.busy = "true"; input.value = ""; input.disabled = true; form.querySelector("button").disabled = true; try { if (kind === "department") await sendAionBoardroomDepartmentDrawerMessageV1(drawer, prompt, config); else await sendAionBoardroomModelDrawerMessageV1(drawer, prompt, config); } catch (error) { const current = kind === "department" ? safeArray(drawer.__aionDepartmentTurns) : getAionChatMessagesV1(config.engine); const failed = [...current, { role:"assistant", content:`Unable to complete that message: ${String(error?.message || error)}`, modelLabel:label }]; if (kind === "department") drawer.__aionDepartmentTurns = failed; else setAionChatMessagesV1(failed, config.engine); renderAionBoardroomChatDrawerMessagesV1(drawer, failed, label); } finally { form.dataset.busy = "false"; input.disabled = false; form.querySelector("button").disabled = false; input.focus(); } });
+  if (kind === "department") void loadAionBoardroomDepartmentDrawerV1(drawer, getAionBoardroomDrawerDepartmentV1(config.department)); else renderAionBoardroomChatDrawerMessagesV1(drawer, getAionChatMessagesV1(config.engine), label);
+  window.setTimeout(() => input?.focus(), 30); return true;
+}
+
+window.openAionBoardroomChatDrawerV1 = openAionBoardroomChatDrawerV1;
+window.closeAionBoardroomChatDrawerV1 = closeAionBoardroomChatDrawerV1;
+
+function installAionMultiModelChatStylesV1() {
+  if (document.getElementById("aion-multi-model-chat-styles-v1")) return;
+  const style = document.createElement("style");
+  style.id = "aion-multi-model-chat-styles-v1";
+  style.textContent = `
+    html:has(.aion-chat-surface-v1), html body:has(.aion-chat-surface-v1) { height:100%!important; overflow:hidden!important; }
+    html body .aion-chat-surface-v1 { position:fixed!important; inset:58px 0 0 0!important; box-sizing:border-box!important; width:auto!important; height:auto!important; min-height:0!important; max-height:none!important; max-width:none!important; margin:0!important; padding:0 0 0 72px!important; overflow:hidden!important; background:#f7f9fc!important; color:#11203b; }
+    html body .aion-chat-shell-v1 { box-sizing:border-box; display:grid; grid-template-columns:250px minmax(0,1fr); width:100%; height:100%; min-height:0; overflow:hidden; }
+    html body .aion-chat-conversations-v1 { min-height:0; padding:24px 18px; overflow-y:auto; border-right:1px solid #dfe6f0; background:#f2f5f9; scrollbar-width:none; }
+    html body .aion-chat-conversations-v1::-webkit-scrollbar { display:none; }
+    html body .aion-chat-new-v1 { width:auto; min-height:32px; display:inline-flex; align-items:center; gap:7px; margin:0 6px; padding:0 7px!important; border:0!important; border-radius:8px; background:transparent!important; color:#1f5fd2!important; box-shadow:none!important; font:850 12px/1 var(--aion-font-body,Inter,sans-serif); cursor:pointer; }
+    html body .aion-chat-new-v1:hover, html body .aion-chat-new-v1:focus-visible { background:#e8f1ff!important; color:#144fb9!important; }
+    html body .aion-chat-new-v1 span { color:currentColor; font-size:18px; font-weight:500; }
+    html body .aion-chat-side-label-v1 { margin:26px 8px 10px; color:#738096; font-size:10px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; }
+    html body .aion-chat-model-list-v1 { display:grid; gap:7px; }
+    html body .aion-chat-model-card-v1 { width:100%; display:grid; grid-template-columns:30px 1fr; gap:10px; align-items:center; padding:10px; border:1px solid transparent!important; border-radius:12px; background:transparent!important; color:#11203b!important; box-shadow:none!important; text-align:left; cursor:pointer; }
+    html body .aion-chat-model-card-v1:hover { background:#edf4ff!important; border-color:#c8daf5!important; }
+    html body .aion-chat-model-card-v1.is-active { background:#fff!important; border-color:#9fbeed!important; box-shadow:0 5px 16px rgba(24,49,83,.06)!important; }
+    html body .aion-chat-model-avatar-v1 { width:30px; height:30px; display:grid; place-items:center; border-radius:9px; background:#eaf1ff; color:#1457d9; font-size:11px; font-weight:950; }
+    html body .aion-chat-model-copy-v1 { min-width:0; display:grid; gap:3px; }
+    html body .aion-chat-model-copy-v1 strong, html body .aion-chat-model-copy-v1 small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    html body .aion-chat-model-copy-v1 strong { font-size:12px; }
+    html body .aion-chat-model-copy-v1 small { color:#718096; font-size:10px; }
+    html body .aion-chat-connect-v1 { appearance:none; display:block; margin:10px 6px; padding:4px 7px!important; border:0!important; border-radius:7px; background:transparent!important; color:#1f5fd2!important; box-shadow:none!important; font:800 11px/1.4 var(--aion-font-body,Inter,sans-serif); text-decoration:none; cursor:pointer; }
+    html body .aion-chat-connect-v1:hover, html body .aion-chat-connect-v1:focus-visible { background:#e8f1ff!important; color:#144fb9!important; }
+    html body .aion-chat-history-label-v1 { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:24px; }
+    html body .aion-chat-history-label-v1 span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    html body .aion-chat-history-label-v1 small { flex:0 0 auto; min-width:20px; padding:3px 6px; border-radius:999px; background:#e5ebf4; color:#53647d; font-size:9px; line-height:1; text-align:center; }
+    html body .aion-chat-thread-list-v1 { display:grid; gap:4px; }
+    html body .aion-chat-thread-row-v1 { display:grid; grid-template-columns:minmax(0,1fr) 30px; align-items:center; border:1px solid transparent; border-radius:11px; }
+    html body .aion-chat-thread-row-v1:hover { border-color:#c8daf5; background:#edf4ff; }
+    html body .aion-chat-thread-row-v1.is-active { border-color:#9fbeed; background:#eaf1ff; box-shadow:0 4px 12px rgba(24,49,83,.05); }
+    html body .aion-chat-thread-open-v1 { min-width:0; display:grid; grid-template-columns:24px minmax(0,1fr); gap:8px; align-items:center; padding:9px 4px 9px 9px; border:0!important; background:transparent!important; color:#22324a!important; box-shadow:none!important; text-align:left; cursor:pointer; }
+    html body .aion-chat-thread-open-v1:hover, html body .aion-chat-thread-open-v1:focus-visible { background:transparent!important; color:#173e7a!important; }
+    html body .aion-chat-thread-icon-v1 { width:24px; height:24px; display:grid; place-items:center; border-radius:7px; background:#eef2f7; color:#66778f; }
+    html body .aion-chat-thread-row-v1.is-active .aion-chat-thread-icon-v1 { background:#d8e7ff; color:#1f5fd2; }
+    html body .aion-chat-thread-icon-v1 svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+    html body .aion-chat-thread-copy-v1 { min-width:0; display:grid; gap:3px; }
+    html body .aion-chat-thread-copy-v1 strong, html body .aion-chat-thread-copy-v1 small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    html body .aion-chat-thread-copy-v1 strong { color:#22324a; font-size:11px; font-weight:800; }
+    html body .aion-chat-thread-copy-v1 small { color:#8190a5; font-size:9px; }
+    html body .aion-chat-thread-delete-v1 { width:27px; height:27px; display:grid; place-items:center; padding:0!important; border:0!important; border-radius:8px; background:transparent!important; color:#8794a6!important; box-shadow:none!important; cursor:pointer; opacity:0; }
+    html body .aion-chat-thread-row-v1:hover .aion-chat-thread-delete-v1, html body .aion-chat-thread-delete-v1:focus-visible, html body .aion-chat-thread-row-v1.is-active .aion-chat-thread-delete-v1 { opacity:1; }
+    html body .aion-chat-thread-delete-v1:hover, html body .aion-chat-thread-delete-v1:focus-visible { background:#dce9ff!important; color:#b42318!important; }
+    html body .aion-chat-thread-delete-v1 svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+    html body .aion-chat-workspace-v1 { position:relative; box-sizing:border-box; min-width:0; min-height:0; display:flex; flex-direction:column; width:100%; height:100%; overflow:hidden; background:#fff; }
+    html body .aion-chat-header-v1, html body .aion-chat-meeting-context-v1 { flex:0 0 auto; }
+    html body .aion-chat-header-v1 { min-height:76px; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:14px 28px; border-bottom:1px solid #e4e9f1; }
+    html body .aion-chat-heading-v1 { min-width:0; }
+    html body .aion-chat-heading-v1 h1 { margin:0; color:#0f1d36; font-size:20px; font-weight:850; letter-spacing:-.025em; }
+    html body .aion-chat-heading-v1 p { margin:4px 0 0; color:#708097; font-size:11px; }
+    html body .aion-chat-header-controls-v1 { display:flex; align-items:center; gap:10px; }
+    html body .aion-chat-context-toggle-v1 { display:flex; padding:3px; border:1px solid #d5deea; border-radius:11px; background:#f5f7fa; }
+    html body .aion-chat-context-toggle-v1 button { min-height:31px; padding:0 11px; border:0; border-radius:8px; background:transparent; color:#65758c; font-size:10px; font-weight:850; cursor:pointer; }
+    html body .aion-chat-context-toggle-v1 button.is-active { background:#fff; color:#1f5fd2; box-shadow:0 2px 8px rgba(17,32,59,.08); }
+    html body #aionChatEngineInput { min-width:220px; min-height:38px!important; padding:0 34px 0 12px!important; border:1px solid #cbd6e5!important; border-radius:10px!important; background:#fff!important; color:#12213a!important; font-size:12px!important; font-weight:800!important; }
+    html body .aion-chat-meeting-context-v1 { display:flex; align-items:center; gap:12px; padding:10px 28px; border-bottom:1px solid #cddbf2; background:#f0f5ff; color:#18345f; }
+    html body .aion-chat-meeting-context-mark-v1 { flex:0 0 auto; display:inline-flex; align-items:center; gap:7px; padding:6px 9px; border-radius:999px; background:#2563eb; color:#fff; font-size:9px; font-weight:950; letter-spacing:.12em; text-transform:uppercase; }
+    html body .aion-chat-meeting-context-mark-v1:before { content:""; width:7px; height:7px; border-radius:50%; background:#73e0bd; box-shadow:0 0 0 3px rgba(115,224,189,.18); }
+    html body .aion-chat-meeting-context-copy-v1 { min-width:0; flex:1; display:grid; gap:2px; }
+    html body .aion-chat-meeting-context-copy-v1 strong { font-size:12px; }
+    html body .aion-chat-meeting-context-copy-v1 span { overflow:hidden; color:#61738f; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+    html body .aion-chat-meeting-context-actions-v1 { flex:0 0 auto; display:flex; gap:7px; }
+    html body .aion-chat-meeting-context-actions-v1 button { min-height:32px; padding:0 11px; border:1px solid #b8cae9; border-radius:9px; background:#fff; color:#24466f; font-size:10px; font-weight:850; cursor:pointer; }
+    html body .aion-chat-meeting-context-actions-v1 button:hover { border-color:#7fa2df; color:#174fbd; }
+    html body .aion-chat-stream-v1 { flex:1 1 auto; min-height:0; overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; padding:34px max(30px,calc((100% - 840px)/2)) 24px; scrollbar-color:#9bbcf5 transparent; scrollbar-width:thin; }
+    html body .aion-chat-stream-v1::-webkit-scrollbar { width:8px; }
+    html body .aion-chat-stream-v1::-webkit-scrollbar-track { background:transparent; }
+    html body .aion-chat-stream-v1::-webkit-scrollbar-thumb { border:2px solid transparent; border-radius:999px; background:#9bbcf5; background-clip:padding-box; }
+    html body .aion-chat-stream-v1::-webkit-scrollbar-thumb:hover { background:#6f9bea; background-clip:padding-box; }
+    html body .aion-chat-empty-v1 { min-height:100%; display:grid; place-items:center; text-align:center; }
+    html body .aion-chat-empty-mark-v1 { width:58px; height:58px; display:grid; place-items:center; margin:0 auto 18px; border:1px solid #c9d7ef; border-radius:18px; background:#f0f5ff; color:#2563eb; }
+    html body .aion-chat-empty-mark-v1 svg { width:28px; height:28px; fill:none; stroke:currentColor; stroke-width:1.7; }
+    html body .aion-chat-empty-v1 h2 { margin:0; color:#10203b; font-size:25px; letter-spacing:-.035em; }
+    html body .aion-chat-empty-v1 p { max-width:510px; margin:10px auto 0; color:#718096; font-size:13px; line-height:1.55; }
+    html body .aion-chat-message-v1 { max-width:840px; margin:0 auto 22px; }
+    html body .aion-chat-message-v1.is-user { display:flex; justify-content:flex-end; }
+    html body .aion-chat-message-bubble-v1 { overflow-wrap:anywhere; }
+    html body .aion-chat-message-copy-v1 { display:block; white-space:pre-wrap; }
+    html body .aion-chat-message-copy-v1 .aion-chat-message-link-v1, html body .aion-chat-message-copy-v1 .aion-chat-citation-v1, html body .aion-boardroom-chat-bubble-v1 .aion-chat-message-link-v1, html body .aion-boardroom-chat-bubble-v1 .aion-chat-citation-v1 { color:#145fd7; font-weight:750; text-decoration:underline; text-decoration-color:#9abcf4; text-decoration-thickness:1.5px; text-underline-offset:3px; cursor:pointer; }
+    html body .aion-chat-message-copy-v1 .aion-chat-message-link-v1:hover, html body .aion-chat-message-copy-v1 .aion-chat-citation-v1:hover, html body .aion-boardroom-chat-bubble-v1 .aion-chat-message-link-v1:hover, html body .aion-boardroom-chat-bubble-v1 .aion-chat-citation-v1:hover { color:#0b46a5; text-decoration-color:currentColor; }
+    html body .aion-chat-message-v1.is-user .aion-chat-message-bubble-v1 { max-width:68%; padding:13px 17px; border-radius:19px 19px 6px 19px; background:#2563eb; color:#fff; font-size:13px; line-height:1.55; box-shadow:0 8px 22px rgba(37,99,235,.16); }
+    html body .aion-chat-message-v1.is-assistant { display:grid; grid-template-columns:34px minmax(0,1fr); gap:13px; }
+    html body .aion-chat-message-v1.is-assistant .aion-chat-message-avatar-v1 { width:34px; height:34px; display:grid; place-items:center; border:1px solid #cfddf5; border-radius:11px; background:#eef4ff; color:#1f5fd2; font-size:11px; font-weight:950; }
+    html body .aion-chat-message-v1.is-assistant .aion-chat-message-bubble-v1 { max-width:720px; padding:12px 15px; border:1px solid #e0e7f0; border-radius:6px 18px 18px 18px; background:#fff; color:#273750; font-size:13px; line-height:1.65; box-shadow:0 6px 20px rgba(21,45,78,.055); }
+    html body .aion-chat-message-model-v1 { display:block; margin-bottom:6px; color:#0f1d36; font-size:11px; font-weight:850; }
+    html body .aion-chat-message-v1.is-error .aion-chat-message-avatar-v1 { border-color:#f2c9c9; background:#fff1f1; color:#b42318; }
+    html body .aion-chat-message-v1.is-error .aion-chat-message-bubble-v1 { border-color:#efcccc; background:#fff8f7; color:#7a271a; }
+    html body .aion-chat-error-actions-v1 { display:flex; gap:8px; margin-top:10px; }
+    html body .aion-chat-error-actions-v1 button { min-height:31px; padding:0 11px; border:1px solid #d7a9a4; border-radius:9px; background:#fff; color:#8f2d24; font:800 10px/1 var(--aion-font-body,Inter,sans-serif); cursor:pointer; }
+    html body .aion-chat-browser-plan-v1 { margin-top:12px; padding:13px; border:1px solid #bfd2f5; border-radius:13px; background:#f5f8ff; }
+    html body .aion-chat-browser-plan-v1 header { display:flex; justify-content:space-between; gap:12px; color:#1f5fd2; font-size:9px; font-weight:950; letter-spacing:.1em; text-transform:uppercase; }
+    html body .aion-chat-browser-plan-v1 header strong { color:#596b84; }
+    html body .aion-chat-browser-plan-v1 p { margin:8px 0; color:#172842; font-size:12px; font-weight:800; }
+    html body .aion-chat-browser-plan-v1 ol { display:grid; gap:6px; margin:9px 0 12px; padding-left:20px; }
+    html body .aion-chat-browser-plan-v1 li span { display:block; color:#22354f; font-size:11px; font-weight:800; text-transform:capitalize; }
+    html body .aion-chat-browser-plan-v1 li small { display:block; overflow-wrap:anywhere; color:#6b7c93; font-size:9px; }
+    html body .aion-chat-browser-plan-v1 button { min-height:34px; padding:0 12px; border:0; border-radius:9px; background:#2563eb; color:#fff; font-size:10px; font-weight:900; cursor:pointer; }
+    html body .aion-chat-browser-receipt-v1 { margin:8px 0; color:#067647; font-size:10px; font-weight:850; }
+    html body .aion-chat-thinking-v1 { color:#718096; font-style:italic; }
+    html body .aion-chat-composer-wrap-v1 { position:sticky; z-index:5; bottom:0; flex:none; padding:12px max(30px,calc((100% - 840px)/2)) max(14px,env(safe-area-inset-bottom)); border-top:1px solid rgba(224,231,240,.72); background:rgba(255,255,255,.96); backdrop-filter:blur(16px); }
+    html body .aion-chat-composer-v1 { display:grid; grid-template-columns:42px minmax(0,1fr) 44px; gap:8px; align-items:end; padding:10px; border:1px solid #cbd6e5; border-radius:18px; background:#fff; box-shadow:0 12px 34px rgba(21,45,78,.10); }
+    html body #aionChatAttachBtn { width:42px; height:42px; display:grid; place-items:center; padding:0; border:1px solid #d4deeb; border-radius:13px; background:#f7f9fc; color:#315277; font-size:22px; line-height:1; cursor:pointer; }
+    html body #aionChatAttachBtn:hover { border-color:#9db8e5; background:#eef4ff; color:#145fd7; }
+    html body .aion-chat-attachments-v1 { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
+    html body .aion-chat-composer-wrap-v1 > .aion-chat-attachments-v1 { max-width:840px; margin:0 auto 9px; }
+    html body .aion-chat-attachment-v1 { min-width:0; max-width:260px; display:grid; grid-template-columns:26px minmax(0,1fr) auto; gap:7px; align-items:center; padding:7px 8px; border:1px solid #ccdaee; border-radius:11px; background:#f3f7ff; color:#18385f; }
+    html body .aion-chat-attachment-icon-v1 { width:26px; height:26px; display:grid; place-items:center; border-radius:8px; background:#dfeaff; color:#195dcc; font-size:13px; }
+    html body .aion-chat-attachment-copy-v1 { min-width:0; display:grid; gap:2px; }
+    html body .aion-chat-attachment-copy-v1 strong, html body .aion-chat-attachment-copy-v1 small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    html body .aion-chat-attachment-copy-v1 strong { font-size:10px; }
+    html body .aion-chat-attachment-copy-v1 small { color:#71839b; font-size:8px; text-transform:uppercase; }
+    html body .aion-chat-attachment-v1 button { width:24px; height:24px; padding:0; border:0; border-radius:7px; background:transparent; color:#64748b; font-size:17px; cursor:pointer; }
+    html body .aion-chat-message-bubble-v1 > .aion-chat-attachments-v1 { margin-bottom:8px; }
+    html body .aion-chat-message-v1.is-user .aion-chat-attachment-v1 { border-color:rgba(255,255,255,.34); background:rgba(255,255,255,.13); color:#fff; }
+    html body .aion-chat-message-v1.is-user .aion-chat-attachment-icon-v1 { background:rgba(255,255,255,.18); color:#fff; }
+    html body .aion-chat-message-v1.is-user .aion-chat-attachment-copy-v1 small { color:rgba(255,255,255,.72); }
+    html body #aionChatPromptInput { min-height:28px!important; max-height:150px; padding:5px 0!important; border:0!important; background:transparent!important; box-shadow:none!important; color:#13223b!important; font-size:13px!important; line-height:1.5!important; resize:none; }
+    html body #aionChatPromptInput:focus { outline:none!important; }
+    html body #aionChatRunBtn { width:42px; height:42px; display:grid; place-items:center; padding:0!important; border:0!important; border-radius:13px!important; background:#2563eb!important; color:#fff!important; font-size:20px; cursor:pointer; }
+    html body #aionChatRunBtn:disabled { opacity:.42; cursor:not-allowed; }
+    html body .aion-chat-composer-note-v1 { margin:8px 4px 0; color:#8a96a8; font-size:9px; text-align:center; }
+    html body .aion-sidebar-chat-icon { width:23px; height:23px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+    html body .aion-sidebar-connections-icon { fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
+    @media (max-width:900px) { html body .aion-chat-shell-v1 { grid-template-columns:1fr; } html body .aion-chat-conversations-v1 { display:none; } html body .aion-chat-header-v1 { align-items:flex-start; flex-direction:column; } html body .aion-chat-workspace-v1 { height:100%; } html body .aion-chat-header-controls-v1 { width:100%; flex-wrap:wrap; } html body #aionChatEngineInput { flex:1; min-width:170px; } html body .aion-chat-meeting-context-v1 { align-items:flex-start; flex-wrap:wrap; padding:10px 18px; } html body .aion-chat-meeting-context-actions-v1 { width:100%; } }
+  `;
+  document.head.appendChild(style);
+}
+
+function scrollAionChatToLatestMessageV1() {
+  if (state.activeTab !== "aion_chat") return;
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      const stream = document.querySelector(".aion-chat-stream-v1");
+      if (!stream) return;
+      stream.scrollTop = stream.scrollHeight;
+    });
+  });
+}
+
+function formatAionChatSessionMetaV3(chat = {}) {
+  const count = safeArray(chat.messages).length;
+  if (!count) return "Empty chat";
+  const stamp = new Date(chat.updated_at || "");
+  const date = Number.isNaN(stamp.getTime())
+    ? "Saved"
+    : stamp.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return `${date} · ${count} message${count === 1 ? "" : "s"}`;
+}
+
 function renderAionChatSurface() {
-  installAionPilotCockpitStyles();
-  const engine = state.aionChatEngine || state.desktopAssistantProvider || "gemma4";
+  installAionMultiModelChatStylesV1();
+  const connectionState = getAionConnectedChatModelsV1();
+  if (!connectionState.loaded && !connectionState.loading && typeof setTimeout === "function") {
+    scheduleAionChatConnectionHydrationV1();
+  }
+  const models = connectionState.models;
+  const engine = getAionChatSelectedEngineV1(models);
+  if (engine) setAionChatSelectedEngineV1(engine);
+  const activeModel = models.find((model) => model.id === engine) || null;
+  const sessions = activeModel ? getAionChatSessionsV3(engine) : [];
+  const activeSessionId = activeModel ? getAionChatActiveSessionIdV3(engine) : "";
   const mode = state.aionChatMode || "business_workspace";
   const prompt = state.aionChatPrompt || state.desktopAssistantPrompt || "";
-  const output = state.aionChatOutput || state.desktopAssistantOutput || "";
-
-  const askLabel =
-    mode === "business_workspace"
-      ? "Ask Aion"
-      : engine === "openai"
-        ? "Ask OpenAI"
-        : engine === "claude"
-          ? "Ask Claude"
-          : "Ask Gemma 4";
-
-  const modeDescription =
-    mode === "business_workspace"
-      ? "Aion uses the business workspace, dashboards, brand foundation, agents, runs, approvals, and local containers as context. Gemma/OpenAI/Claude are only used as the reasoning engine."
-      : "General AI mode asks the selected model directly. Business context is not forced unless you ask for it.";
+  const messages = getAionChatMessagesV1();
+  const attachments = getAionChatAttachmentsV1();
+  const meetingContext = getAionBoardMeetingChatContextV1();
+  const busy = state.loading === true && String(state.message || "").toLowerCase().includes("aion");
 
   return `
-    <div class="surface-shell aion-chat-surface">
-      <div class="surface-header">
-        <div>
-          <div class="surface-eyebrow">Local AI Workspace</div>
-          <div class="surface-title">Aion</div>
-          <div class="surface-subtitle">
-            Ask business-context questions through Aion, or switch to a normal AI provider for general reasoning.
-          </div>
-        </div>
-
-        <div class="surface-right-meta">
-          <div class="surface-pill">
-            ${mode === "business_workspace" ? "AION BUSINESS CONTEXT" : "GENERAL AI"}
-          </div>
-          <div class="last-refresh">Provider: ${escapeHtml(engine)}</div>
-        </div>
-      </div>
-
+    <div class="surface-shell aion-chat-surface-v1" data-aion-multi-model-chat="true">
       ${renderAppTabs()}
-
-      <div class="aion-chat-layout">
-        <aside class="aion-chat-sidebar">
-          <div class="panel">
-            <div class="panel-title">Mode</div>
-            <div class="helper-text" style="margin-top:0;">
-              Choose whether Aion should answer from the business workspace or whether you want a normal AI chat.
-            </div>
-
-            <div class="aion-mode-toggle">
-              <button
-                type="button"
-                class="secondary-btn aion-chat-mode-btn ${mode === "business_workspace" ? "aion-chat-mode-btn-active" : ""}"
-                data-aion-chat-mode="business_workspace"
-              >
-                Aion Business
+      <div class="aion-chat-shell-v1">
+        <aside class="aion-chat-conversations-v1" aria-label="AI models">
+          <button id="aionChatClearBtn" class="aion-chat-new-v1" type="button"><span>＋</span> New chat</button>
+          <div class="aion-chat-side-label-v1">Connected models</div>
+          <div class="aion-chat-model-list-v1">
+            ${models.map((model) => `
+              <button type="button" class="aion-chat-model-card-v1 ${model.id === engine ? "is-active" : ""}" data-aion-chat-select-model="${escapeHtml(model.id)}" title="Chat with ${escapeHtml(model.label)}">
+                <span class="aion-chat-model-avatar-v1">${escapeHtml((model.label || model.id).slice(0, 2).toUpperCase())}</span>
+                <span class="aion-chat-model-copy-v1"><strong>${escapeHtml(model.label)}</strong><small>${escapeHtml(model.provider)}</small></span>
               </button>
-
-              <button
-                type="button"
-                class="secondary-btn aion-chat-mode-btn ${mode === "general_ai" ? "aion-chat-mode-btn-active" : ""}"
-                data-aion-chat-mode="general_ai"
-              >
-                General AI
-              </button>
-            </div>
+            `).join("") || `<div class="helper-text">${connectionState.loading ? "Checking Connections…" : "No AI models are connected yet."}</div>`}
           </div>
-
-          <div class="panel">
-            <div class="panel-title">AI Provider</div>
-            <div class="helper-text" style="margin-top:0;">
-              Gemma 4 is the free local option. OpenAI and Claude can be used for heavier reasoning.
+          <button type="button" class="aion-chat-connect-v1" data-tab="vault">Manage Connections →</button>
+          ${activeModel ? `
+            <div class="aion-chat-side-label-v1 aion-chat-history-label-v1"><span>${escapeHtml(activeModel.label)} chats</span><small>${sessions.length}</small></div>
+            <div class="aion-chat-thread-list-v1" aria-label="${escapeHtml(activeModel.label)} conversations">
+              ${sessions.map((chat) => `
+                <div class="aion-chat-thread-row-v1 ${chat.id === activeSessionId ? "is-active" : ""}">
+                  <button type="button" class="aion-chat-thread-open-v1" data-aion-chat-select-session="${escapeHtml(chat.id)}" title="Open ${escapeHtml(chat.title || "New chat")}">
+                    <span class="aion-chat-thread-icon-v1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6.5h6l1.7 2H20v8.8A2.7 2.7 0 0 1 17.3 20H6.7A2.7 2.7 0 0 1 4 17.3Z"/><path d="M4 9h16"/></svg></span>
+                    <span class="aion-chat-thread-copy-v1"><strong>${escapeHtml(chat.title || "New chat")}</strong><small>${escapeHtml(formatAionChatSessionMetaV3(chat))}</small></span>
+                  </button>
+                  <button type="button" class="aion-chat-thread-delete-v1" data-aion-chat-delete-session="${escapeHtml(chat.id)}" data-aion-chat-delete-title="${escapeHtml(chat.title || "New chat")}" aria-label="Delete ${escapeHtml(chat.title || "chat")}" title="Delete chat"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4.8h6V7m-8 0 1 13h8l1-13M10 11v5m4-5v5"/></svg></button>
+                </div>
+              `).join("")}
             </div>
-
-            <select id="aionChatEngineInput" class="input">
-              <option value="gemma4" ${engine === "gemma4" ? "selected" : ""}>
-                Free · Gemma 4 AI
-              </option>
-              <option value="openai" ${engine === "openai" ? "selected" : ""}>
-                OpenAI
-              </option>
-              <option value="claude" ${engine === "claude" ? "selected" : ""}>
-                Claude
-              </option>
-            </select>
-          </div>
-
-          <div class="panel">
-            <div class="panel-title">Current Routing</div>
-
-            <div class="kv-row">
-              <span>Mode</span>
-              <strong>${escapeHtml(mode === "business_workspace" ? "Aion Business" : "General AI")}</strong>
-            </div>
-
-            <div class="kv-row">
-              <span>Reasoning engine</span>
-              <strong>${escapeHtml(engine)}</strong>
-            </div>
-
-            <div class="kv-row">
-              <span>Context</span>
-              <strong>${escapeHtml(mode === "business_workspace" ? "business containers" : "direct model")}</strong>
-            </div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-title">Actions</div>
-            <div class="aion-mode-list">
-              <button class="secondary-btn desktop-ai-action-btn" data-desktop-ai-action="explain_business_state">
-                Explain business state
-              </button>
-              <button class="secondary-btn desktop-ai-action-btn" data-desktop-ai-action="find_risks">
-                Find risks
-              </button>
-              <button class="secondary-btn desktop-ai-action-btn" data-desktop-ai-action="write_post">
-                Write marketing post
-              </button>
-              <button class="secondary-btn desktop-ai-action-btn" data-desktop-ai-action="backend_status">
-                Check backend
-              </button>
-            </div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-title">Runtime Context</div>
-            <div class="kv-row">
-              <span>Workspace</span>
-              <strong>${escapeHtml(state.workspaceId || "—")}</strong>
-            </div>
-            <div class="kv-row">
-              <span>Node</span>
-              <strong>${escapeHtml(state.nodeId || "—")}</strong>
-            </div>
-            <div class="kv-row">
-              <span>Runs</span>
-              <strong>${escapeHtml(Array.isArray(state.runs) ? state.runs.length : 0)}</strong>
-            </div>
-            <div class="kv-row">
-              <span>Approvals</span>
-              <strong>${escapeHtml(Array.isArray(state.approvals) ? state.approvals.length : 0)}</strong>
-            </div>
-          </div>
+          ` : ""}
         </aside>
 
-        <main class="aion-chat-main">
-          <div class="panel large-panel aion-chat-panel">
-            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-              <div>
-                <div class="panel-title">Chat</div>
-                <div class="helper-text" style="margin-top:0;">
-                  ${escapeHtml(modeDescription)}
-                </div>
+        <main class="aion-chat-workspace-v1">
+          <header class="aion-chat-header-v1">
+            <div class="aion-chat-heading-v1"><h1>AI Chat</h1><p>Switch between the models connected to Tessaris.</p></div>
+            <div class="aion-chat-header-controls-v1">
+              <div class="aion-chat-context-toggle-v1" aria-label="Chat context">
+                <button type="button" class="${mode === "business_workspace" ? "is-active" : ""}" data-aion-chat-mode="business_workspace">Business context</button>
+                <button type="button" class="${mode === "general_ai" ? "is-active" : ""}" data-aion-chat-mode="general_ai">General chat</button>
               </div>
-
-              <div class="badge-row">
-                <span class="badge">${escapeHtml(mode === "business_workspace" ? "Aion Business" : "General AI")}</span>
-                <span class="badge">${escapeHtml(engine)}</span>
-              </div>
+              <select id="aionChatEngineInput" aria-label="Choose connected model" ${models.length ? "" : "disabled"}>
+                ${models.map((model) => `<option value="${escapeHtml(model.id)}" ${model.id === engine ? "selected" : ""}>${escapeHtml(model.label)} · ${escapeHtml(model.provider)}</option>`).join("") || `<option>No connected model</option>`}
+              </select>
             </div>
+          </header>
 
-            <div class="aion-chat-window">
-              ${
-                output
-                  ? `
-                    <div class="aion-message aion-message-assistant">
-                      <div class="aion-message-label">
-                        ${escapeHtml(mode === "business_workspace" ? "Aion" : engine)}
-                      </div>
-                      <div class="aion-message-body">${escapeHtml(output)}</div>
-                    </div>
-                  `
-                  : `
-                    <div class="empty-state">
-                      No conversation yet. Ask a question below.
-                    </div>
-                  `
-              }
-            </div>
+          ${meetingContext ? `
+            <section class="aion-chat-meeting-context-v1" aria-label="Active Board meeting context">
+              <span class="aion-chat-meeting-context-mark-v1">Board meeting</span>
+              <span class="aion-chat-meeting-context-copy-v1">
+                <strong>${escapeHtml(meetingContext.model_label || activeModel?.label || "Board member")} has joined the current meeting</strong>
+                <span>Live Business Map, meeting notes and Board decisions are included as governed context.</span>
+              </span>
+              <span class="aion-chat-meeting-context-actions-v1">
+                <button type="button" data-aion-chat-meeting-action="return">Return to Boardroom</button>
+                <button type="button" data-aion-chat-meeting-action="leave">Leave meeting</button>
+              </span>
+            </section>
+          ` : ""}
 
-            <section class="panel" data-aion-pilot-chat-pointer>
-            <div class="panel-title">AION Pilot</div>
-            <div class="helper-text" style="margin-top:0;">
-              <span data-aion-pilot-live-agents-entry="true">Pilot Cockpit is available in <strong>Live Agents → Aion</strong></span>, where operator missions, artifacts, blocked actions, proof and replay belong.
-            </div>
+          <section class="aion-chat-stream-v1" aria-live="polite">
+            ${messages.length ? messages.map((message) => `
+              <article class="aion-chat-message-v1 ${message.role === "user" ? "is-user" : "is-assistant"} ${message.kind === "provider_error" || String(message.content || "").includes("The selected AI provider failed") ? "is-error" : ""}">
+                ${message.role === "assistant" ? `<span class="aion-chat-message-avatar-v1">${escapeHtml(String(message.modelLabel || "AI").slice(0, 2).toUpperCase())}</span>` : ""}
+                <div class="aion-chat-message-bubble-v1">${message.role === "assistant" ? `<span class="aion-chat-message-model-v1">${escapeHtml(message.modelLabel || "Tessaris AI")}</span>` : ""}${message.role === "user" ? renderAionChatAttachmentsV1(message.attachments || []) : ""}<span class="aion-chat-message-copy-v1">${message.kind === "provider_error" || String(message.content || "").includes("The selected AI provider failed") ? escapeHtml(getAionFriendlyChatFailureV1(message.content, message.modelLabel || "This model")) : message.role === "assistant" ? renderAionChatMessageCopyV1(message.content || "") : escapeHtml(message.content || "")}</span>${message.browserPlan ? renderAionBrowserPlanCardV1(message.browserPlan) : ""}${message.computerPlan ? renderAionComputerPlanCardV1(message.computerPlan) : ""}${message.kind === "provider_error" || String(message.content || "").includes("The selected AI provider failed") ? `<span class="aion-chat-error-actions-v1"><button type="button" data-tab="vault">Open Connections</button></span>` : ""}</div>
+              </article>
+            `).join("") : `
+              <div class="aion-chat-empty-v1"><div><div class="aion-chat-empty-mark-v1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 5.5h13A2.5 2.5 0 0 1 21 8v7a2.5 2.5 0 0 1-2.5 2.5H11l-4.8 3v-3h-.7A2.5 2.5 0 0 1 3 15V8a2.5 2.5 0 0 1 2.5-2.5Z"/><path d="m15.7 8.2.42 1.18 1.18.42-1.18.42-.42 1.18-.42-1.18-1.18-.42 1.18-.42.42-1.18Z"/></svg></div><h2>${activeModel ? `Chat with ${escapeHtml(activeModel.label)}` : "Connect a model to begin"}</h2><p>${activeModel ? "Ask a general question or let the selected model use your governed Tessaris business context." : "Open Connections to add an AI provider or select a verified private local model."}</p></div></div>
+            `}
+            ${busy ? `<article class="aion-chat-message-v1 is-assistant"><span class="aion-chat-message-avatar-v1">AI</span><div class="aion-chat-message-bubble-v1 aion-chat-thinking-v1">Thinking…</div></article>` : ""}
           </section>
 
-            <textarea
-              id="aionChatPromptInput"
-              class="input input-textarea aion-chat-input"
-              placeholder="${
-                mode === "business_workspace"
-                  ? "Ask about the business, dashboard, brand, agents, approvals, runs, marketing, or next action..."
-                  : "Ask the selected AI model anything..."
-              }"
-            >${escapeHtml(prompt)}</textarea>
-
-            <div class="marketing-form-actions aion-chat-actions">
-              <button id="aionChatRunBtn" class="primary-btn" type="button">
-                ${escapeHtml(askLabel)}
-              </button>
-
-              <button id="aionChatClearBtn" class="secondary-btn" type="button">
-                Clear
-              </button>
+          <div class="aion-chat-composer-wrap-v1">
+            ${renderAionChatAttachmentsV1(attachments, { removable: true })}
+            <div class="aion-chat-composer-v1">
+              <button id="aionChatAttachBtn" type="button" aria-label="Attach files or folders" title="Attach files or folders" ${activeModel && !busy ? "" : "disabled"}>＋</button>
+              <textarea id="aionChatPromptInput" rows="1" placeholder="${activeModel ? `Message ${escapeHtml(activeModel.label)}…` : "Connect an AI model to start chatting"}" ${activeModel ? "" : "disabled"}>${escapeHtml(prompt)}</textarea>
+              <button id="aionChatRunBtn" type="button" aria-label="Send message" title="Send message" ${activeModel && !busy ? "" : "disabled"}>↑</button>
             </div>
+            <div class="aion-chat-composer-note-v1">${attachments.length ? `${attachments.length} local item${attachments.length === 1 ? "" : "s"} attached. Files stay on this Mac unless an API model is selected.` : meetingContext ? "Board meeting context is active and governed by Tessaris permissions." : mode === "business_workspace" ? "Business context is governed by Tessaris permissions and Connections." : "General chat does not automatically include business workspace context."}</div>
           </div>
         </main>
       </div>
     </div>
   `;
+}
+
+function getAionChatModelSignatureV1() {
+  return getAionConnectedChatModelsV1().models
+    .map((model) => [model.id, model.label, model.provider, model.model, model.local === true, model.isLead === true].join("|"))
+    .sort()
+    .join("||");
+}
+
+function scheduleAionChatConnectionHydrationV1() {
+  if (window.__aionChatConnectionHydrationScheduledV1 === true) return;
+  window.__aionChatConnectionHydrationScheduledV1 = true;
+  const beforeSignature = getAionChatModelSignatureV1();
+
+  window.setTimeout(async () => {
+    try {
+      await Promise.allSettled([
+        typeof refreshAionVaultAiProviderStatusV1 === "function"
+          ? refreshAionVaultAiProviderStatusV1({ render: false })
+          : Promise.resolve(),
+        typeof refreshAionVaultLocalModelsV1 === "function"
+          ? refreshAionVaultLocalModelsV1({ render: false })
+          : Promise.resolve(),
+      ]);
+    } finally {
+      window.__aionChatConnectionHydrationScheduledV1 = false;
+      const afterSignature = getAionChatModelSignatureV1();
+      if (state.activeTab === "aion_chat" && beforeSignature !== afterSignature) requestRender?.();
+    }
+  }, 0);
 }
 
 
@@ -27910,11 +30578,11 @@ function setAionSelectedBoardroomProviderIdsV1(ids = []) {
   return clean;
 }
 
-async function refreshAionVaultAiProviderStatusV1() {
+async function refreshAionVaultAiProviderStatusV1({ render: shouldRender = true } = {}) {
   const status = getAionVaultAiProviderStatusState();
   status.loading = true;
   status.error = "";
-  requestRender?.();
+  if (shouldRender) requestRender?.();
 
   try {
     const response = await fetch("http://127.0.0.1:8080/api/vault/ai-providers", {
@@ -27926,15 +30594,36 @@ async function refreshAionVaultAiProviderStatusV1() {
       throw new Error(payload?.error || payload?.detail || "AI provider status failed");
     }
 
+    let boardroomStatus = {};
+    try {
+      const workspaceId = getAionChatWorkspaceIdV1();
+      const leadResponse = await fetch(`http://127.0.0.1:8080/api/boardroom/providers/status?workspace_id=${encodeURIComponent(workspaceId)}`, {
+        method: "GET",
+        headers: { "Accept": "application/json" },
+      });
+      if (leadResponse.ok) boardroomStatus = await leadResponse.json().catch(() => ({}));
+    } catch {}
+
+    const leadProviderId = String(boardroomStatus?.lead_model?.provider_id || "").trim();
+    const providers = safeArray(payload.providers).map((provider) => ({
+      ...provider,
+      is_lead: Boolean(leadProviderId && String(provider?.id || provider?.provider || "") === leadProviderId),
+    }));
+
     window.__aionVaultAiProviderStatus = {
       loading: false,
       loaded: true,
       error: "",
-      providers: safeArray(payload.providers),
+      providers,
       connected_count: Number(payload.connected_count || 0),
       storage: payload.storage || "",
       note: payload.note || "",
+      lead_model: boardroomStatus?.lead_model || null,
     };
+    providers.filter((provider) => provider?.connected === true).forEach((provider) => {
+      ensureAionChatModelStreamV2(String(provider.id || provider.provider || ""));
+    });
+    void syncAionConnectedModelsToBoardroomV1();
   } catch (error) {
     window.__aionVaultAiProviderStatus = {
       ...status,
@@ -27944,7 +30633,7 @@ async function refreshAionVaultAiProviderStatusV1() {
     };
   }
 
-  requestRender?.();
+  if (shouldRender) requestRender?.();
 }
 
 function renderAionVaultHostedModelTableV2({ status, providers, selectedProvider, selectedRecord, selectedBoardMembers }) {
@@ -28134,17 +30823,22 @@ function getAionVaultLocalModelsStateV1() {
   return window.__aionVaultLocalModels;
 }
 
-async function refreshAionVaultLocalModelsV1() {
+async function refreshAionVaultLocalModelsV1({ render: shouldRender = true } = {}) {
   const state = getAionVaultLocalModelsStateV1();
-  window.__aionVaultLocalModels = { ...state, loading: true, error: "" }; requestRender?.();
+  window.__aionVaultLocalModels = { ...state, loading: true, error: "" };
+  if (shouldRender) requestRender?.();
   try {
     const workspaceId = window.AionBusinessContainerClient?.resolveBusinessId?.() || "home-fixed";
     const response = await fetch(`http://127.0.0.1:8080/api/vault/local-models?workspace_id=${encodeURIComponent(workspaceId)}`, { headers: { Accept: "application/json" } });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || payload?.ok === false) throw new Error(payload?.error || payload?.detail || "Local-model scan failed");
     window.__aionVaultLocalModels = { loading: false, loaded: true, error: "", ...payload };
+    safeArray(payload.models).filter((model) => model?.selected === true && model?.selection_status === "selectable").forEach(() => {
+      ensureAionChatModelStreamV2("local_model");
+    });
+    void syncAionConnectedModelsToBoardroomV1();
   } catch (error) { window.__aionVaultLocalModels = { ...state, loading: false, loaded: true, error: error?.message || String(error) }; }
-  requestRender?.();
+  if (shouldRender) requestRender?.();
 }
 
 async function selectAionVaultLocalModelV1(modelId) {
@@ -28159,7 +30853,12 @@ async function selectAionVaultLocalModelV1(modelId) {
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || payload?.ok === false) throw new Error(payload?.error || payload?.detail || "Local model could not be selected");
+    const selected = new Set(getAionSelectedBoardroomProviderIdsV1());
+    selected.add("local_model");
+    setAionSelectedBoardroomProviderIdsV1([...selected]);
+    ensureAionChatModelStreamV2("local_model");
     await refreshAionVaultLocalModelsV1();
+    void syncAionConnectedModelsToBoardroomV1();
   } catch (error) {
     window.__aionVaultLocalModels = { ...state, loading: false, loaded: true, error: error?.message || String(error) };
     requestRender?.();
@@ -28309,6 +31008,7 @@ if (!window.__aionVaultAiProviderHandlersInstalledV1) {
       if (localMember.checked) selected.add("local_model"); else selected.delete("local_model");
       setAionSelectedBoardroomProviderIdsV1([...selected]);
       window.refreshVaultProvidersForBoardroomO15C?.();
+      void syncAionConnectedModelsToBoardroomV1();
       requestRender?.();
       return;
     }
@@ -28319,6 +31019,8 @@ if (!window.__aionVaultAiProviderHandlersInstalledV1) {
       if (member.checked) selected.add(provider); else selected.delete(provider);
       setAionSelectedBoardroomProviderIdsV1([...selected]);
       window.refreshVaultProvidersForBoardroomO15C?.();
+      if (member.checked) ensureAionChatModelStreamV2(provider);
+      void syncAionConnectedModelsToBoardroomV1();
       requestRender?.();
       return;
     }
@@ -28363,7 +31065,12 @@ if (!window.__aionVaultAiProviderHandlersInstalledV1) {
         const payload = await response.json().catch(() => ({}));
         if (!response.ok || payload?.ok === false) throw new Error(payload?.error || payload?.detail || "Provider key could not be saved");
         if (keyField) keyField.value = "";
+        const selected = new Set(getAionSelectedBoardroomProviderIdsV1());
+        selected.add(provider);
+        setAionSelectedBoardroomProviderIdsV1([...selected]);
+        ensureAionChatModelStreamV2(provider);
         await refreshAionVaultAiProviderStatusV1();
+        void syncAionConnectedModelsToBoardroomV1();
       } catch (error) {
         window.__aionVaultAiProviderStatus = { ...getAionVaultAiProviderStatusState(), loading: false, error: error?.message || String(error) };
         requestRender?.();
@@ -28705,10 +31412,20 @@ if (!window.__aionPhase24FBusinessSubtabsInstalled) {
     event.preventDefault();
     event.stopPropagation();
 
-    const value = String(tab.getAttribute("data-aion-business-context-subtab") || "").trim();
-    setAionBusinessContextSubtab(value);
-
-    if (typeof render === "function") render();
+    const value = setAionBusinessContextSubtab(
+      String(tab.getAttribute("data-aion-business-context-subtab") || "").trim(),
+    );
+    const nextTab = typeof setActiveTab === "function" ? setActiveTab("business_context") : "business_context";
+    try {
+      window.__aionForcedMainTabV2 = nextTab;
+      window.localStorage?.setItem("aion.forcedMainTab.v2", nextTab);
+    } catch {}
+    if (typeof safeAionDesktopPatch === "function") {
+      safeAionDesktopPatch({ activeTab: nextTab, activeBusinessContextSubtab: value });
+    }
+    desktopStore?.persistCacheSoon?.(50);
+    if (typeof requestRender === "function") requestRender();
+    else if (typeof render === "function") render();
   }, true);
 
   document.addEventListener("input", (event) => {
@@ -28845,7 +31562,7 @@ if (!window.__aionPhase24FBusinessSubtabsInstalled) {
 
     html body .aion-main-sidebar .aion-workflow-nav-btn.active,
     html body .aion-main-sidebar .aion-workflow-nav-btn.app-tab-active {
-      background: #0f172a !important;
+      background: #2563eb !important;
       color: #ffffff !important;
       border: 0 !important;
       box-shadow: none !important;
@@ -29167,6 +31884,25 @@ function routeAionBusinessTwinToFinanceOnceV2() {
 function applyAionO25ABFreshStartupRouteOwner() {
   if (typeof window === "undefined") return;
 
+  /*
+   * AI Chat is a user-owned working surface, not a startup handoff.  Electron
+   * can reload the renderer after a backend reconnect; when that happens the
+   * persisted manual chat route must be restored before the completed-business
+   * startup default gets an opportunity to send the user to Department Pilots.
+   */
+  const persistedManualChatRoute = (() => {
+    try {
+      return [
+        window.localStorage?.getItem("aion.forcedMainTab.v2"),
+        window.localStorage?.getItem("aionDesktop.activeTab"),
+        window.localStorage?.getItem("aion.lastActiveTab.v1"),
+        window.localStorage?.getItem("aion.activeTab.v1"),
+      ].some((value) => String(value || "").trim().toLowerCase() === "aion_chat");
+    } catch {
+      return false;
+    }
+  })();
+
   const completedBusinessPacket = (() => {
     try {
       return window.AionDevelopmentBusinessSession?.restoreCompletedBusiness?.() || null;
@@ -29203,7 +31939,15 @@ function applyAionO25ABFreshStartupRouteOwner() {
    * department switching must remain authoritative.  Running this branch on
    * every render trapped the desktop in Live Agents / Finance.
    */
-  if (completedBusinessPacket && !startupRouteAlreadyClaimed) {
+  if (persistedManualChatRoute && !startupRouteAlreadyClaimed) {
+    try {
+      state.activeTab = "aion_chat";
+      window.__aionForcedMainTabV2 = "aion_chat";
+      window.__aionLastManualNavTabV2 = "aion_chat";
+      appliedRoute = "aion_chat";
+      routeReason = "persisted_manual_chat_route";
+    } catch {}
+  } else if (completedBusinessPacket && !startupRouteAlreadyClaimed) {
     try {
       state.activeTab = "live_agents";
       state.selectedLiveAgentDepartment = "finance";
@@ -30359,6 +33103,19 @@ console.log("[AION] O14K full collapsed Department Pilot Package Dock under boar
 
 
 function renderMainSurface() {
+  /* Dashboard was retired after its accountability views moved into the
+     department workspaces. Migrate any cached or restored legacy route to
+     Boardroom so an older session can never reopen the removed page. */
+  try {
+    if (String(state?.activeTab || "").trim().toLowerCase() === "dashboard") {
+      state.activeTab = "boardroom";
+      window.__aionForcedMainTabV2 = "boardroom";
+      window.__aionLastManualNavTabV2 = "boardroom";
+      ["aion.activeTab", "aion.activeTab.v1", "aion.lastActiveTab.v1", "aion.forcedMainTab.v2", "aionDesktop.activeTab"]
+        .forEach((key) => window.localStorage?.setItem(key, "boardroom"));
+    }
+  } catch {}
+
   /* O25BC: backend hydration must not replace the fresh startup route. */
   try {
     const financeHandoffActive =
@@ -30389,10 +33146,11 @@ function renderMainSurface() {
    * route guard or page branch is evaluated.
    */
   try {
-    const forcedTab =
+    const persistedForcedTab =
       (typeof window !== "undefined" && window.__aionForcedMainTabV2)
         ? String(window.__aionForcedMainTabV2 || "")
         : String(localStorage.getItem("aion.forcedMainTab.v2") || "");
+    const forcedTab = persistedForcedTab === "dashboard" ? "boardroom" : persistedForcedTab;
 
     const allowedForcedTabs = [
       "boardroom",
@@ -30406,11 +33164,11 @@ function renderMainSurface() {
       "settings",
       "file_cabinet",
       "local_node",
-      "dashboard",
       "work_schedule",
       "brand_foundation",
       "business_context",
       "marketing_stream",
+      "aion_chat",
       "small_business_foundation",
     ];
 
@@ -30576,7 +33334,7 @@ state.activeTab = normaliseAionBusinessTabAlias(state.activeTab);
 if (state.activeTab === "vault") {
     return typeof renderVaultCredentialsSurface === "function"
       ? renderVaultCredentialsSurface()
-      : `<div class="surface-shell"><section class="panel"><div class="surface-eyebrow">Vault</div><div class="panel-title">Vault renderer unavailable</div><div class="helper-text">renderVaultCredentialsSurface is not loaded in this build.</div></section></div>`;
+      : `<div class="surface-shell"><section class="panel"><div class="surface-eyebrow">Connections</div><div class="panel-title">Connections are unavailable</div><div class="helper-text">The Connections page could not be loaded in this build.</div></section></div>`;
   }
 
   if (state.activeTab === "local_node") {
@@ -30585,10 +33343,6 @@ if (state.activeTab === "vault") {
 
   if (state.activeTab === "file_cabinet") {
     return renderAionSitewideFileCabinetSurface();
-  }
-
-  if (state.activeTab === "dashboard") {
-    return renderDashboardSurface();
   }
 
   if (state.activeTab === "work_schedule") {
@@ -38525,6 +41279,31 @@ function getAionWorkflowFileCabinetItems() {
 
 const AION_FILE_CABINET_STORAGE_KEY = "aion.workflow_file_cabinet.v1";
 
+function isAionDummyWorkflowRecordV1(node = {}) {
+  const id = String(node.workflow_id || node.id || "").trim().toLowerCase();
+  const name = String(node.name || "").trim();
+  return ["workflow_social_post", "workflow_campaign_approval"].includes(id) ||
+    /^untitled workflow(?: \d+)?$/i.test(name) ||
+    /^workflow \d+$/i.test(name);
+}
+
+function sanitiseAionFileCabinetTreeV1(tree = {}) {
+  const seen = new Set();
+  const walk = (nodes = [], inheritedDepartment = "aion") => safeArray(nodes).flatMap((node) => {
+    if (!node || typeof node !== "object") return [];
+    const rawId = String(node.id || "").toLowerCase().replace(/^folder_/, "");
+    const department = node.type === "department" ? (rawId || String(node.name || "aion").toLowerCase()) : inheritedDepartment;
+    if (node.type === "workflow") {
+      if (isAionDummyWorkflowRecordV1(node)) return [];
+      const identity = `${department}:${String(node.name || "").trim().toLowerCase().replace(/\s+/g, " ")}`;
+      if (seen.has(identity)) return [];
+      seen.add(identity);
+    }
+    return [{ ...node, children: walk(node.children || [], department) }];
+  });
+  return { ...tree, folders: walk(tree.folders || tree.root?.children || []) };
+}
+
 function makeAionFileCabinetId(prefix) {
   return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
 }
@@ -38551,20 +41330,7 @@ function getDefaultAionFileCabinetTree() {
             id: "folder_marketing_workflows",
             name: "Workflows",
             type: "folder",
-            children: [
-              {
-                id: "workflow_social_post",
-                name: "Social post workflow",
-                type: "workflow",
-                workflow_id: "workflow_social_post",
-              },
-              {
-                id: "workflow_campaign_approval",
-                name: "Campaign approval flow",
-                type: "workflow",
-                workflow_id: "workflow_campaign_approval",
-              },
-            ],
+            children: [],
           },
           {
             id: "folder_marketing_assets",
@@ -38592,14 +41358,7 @@ function getDefaultAionFileCabinetTree() {
             id: "folder_operations_workflows",
             name: "Workflows",
             type: "folder",
-            children: [
-              {
-                id: currentWorkflowId,
-                name: currentWorkflowName,
-                type: "workflow",
-                workflow_id: currentWorkflowId,
-              },
-            ],
+            children: [],
           },
           {
             id: "folder_operations_assets",
@@ -38656,7 +41415,11 @@ function getAionFileCabinetTree() {
     const raw = window.localStorage?.getItem(AION_FILE_CABINET_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && Array.isArray(parsed.folders)) return parsed;
+      if (parsed && Array.isArray(parsed.folders)) {
+        const sanitised = sanitiseAionFileCabinetTreeV1(parsed);
+        if (JSON.stringify(sanitised) !== JSON.stringify(parsed)) saveAionFileCabinetTree(sanitised);
+        return sanitised;
+      }
     }
   } catch (error) {
     console.warn("[aion-file-cabinet] load failed", error);
@@ -39004,6 +41767,7 @@ function renderAionWorkflowFileCabinetDrawer() {
 
   const backendTree = window.__aionWorkflowFileCabinetBackendTree;
   const backendStatus = backendTree ? "Backend synced" : "Local only";
+  const savedWorkflows = getAionSavedWorkflowLibraryV1();
 
   return `
     <aside
@@ -39013,9 +41777,9 @@ function renderAionWorkflowFileCabinetDrawer() {
     >
       <div class="aion-file-cabinet-head">
         <div>
-          <div class="eyebrow">Aion File Cabinet</div>
-          <h2>Workflow Library</h2>
-          <p>${escapeHtml(workspaceId)} · ${escapeHtml(backendStatus)}</p>
+          <div class="eyebrow">Tessaris · Business files</div>
+          <h2>Documents &amp; workflows</h2>
+          <p><span class="aion-file-cabinet-sync-dot" aria-hidden="true"></span>${escapeHtml(workspaceId)} · ${escapeHtml(backendStatus)}</p>
         </div>
 
         <button
@@ -39045,12 +41809,21 @@ function renderAionWorkflowFileCabinetDrawer() {
 
       <div class="aion-file-cabinet-actions">
         <button type="button" data-aion-cabinet-top-folder="true">
-          + Top folder
+          <span aria-hidden="true">+</span> New folder
         </button>
         <button type="button" data-aion-workflow-save="true">
-          Save current
+          Save workflow
         </button>
       </div>
+
+      <section class="aion-file-cabinet-current" data-aion-file-cabinet-saved-index="true">
+        <div class="aion-file-cabinet-section-title">Saved workflows</div>
+        ${savedWorkflows.length ? savedWorkflows.map((workflow) => workflow.canOpen ? `
+          <button type="button" class="aion-file-cabinet-file" data-aion-file-cabinet-open-workflow="${escapeHtml(workflow.id)}">
+            <span>◇</span><span class="aion-file-cabinet-node-main"><strong>${escapeHtml(workflow.name)}</strong><small>${escapeHtml(runtimeShared.getDepartmentLabel(workflow.department))} · ${escapeHtml(workflow.status)}</small></span>
+          </button>` : `
+          <div class="aion-file-cabinet-file"><span>◇</span><span class="aion-file-cabinet-node-main"><strong>${escapeHtml(workflow.name)}</strong><small>${escapeHtml(runtimeShared.getDepartmentLabel(workflow.department))} · indexed Train Agent skill</small></span></div>`).join("") : `<div class="aion-file-cabinet-empty">No saved workflows yet.</div>`}
+      </section>
 
       <section class="aion-file-cabinet-current">
         <div class="aion-file-cabinet-section-title">Current workflow</div>
@@ -39754,55 +42527,54 @@ function renderAionWorkflowFloatingToolbar() {
         <strong>Execute workflow</strong>
       </button>
 
-      <button
-        class="aion-workflow-mode-btn"
-        type="button"
-        data-aion-flow-run-centre-open="true"
-        title="Compile, simulate, run, recover and inspect receipts"
-        aria-label="Open AION Flow run and receipt centre"
-      >
-        <span aria-hidden="true">◎</span>
-        <strong>Run &amp; receipts</strong>
-      </button>
+      <details class="aion-workflow-tools-dropup">
+        <summary aria-label="Open workflow tools">
+          <span aria-hidden="true">✦</span>
+          <strong>Tools</strong>
+          <i aria-hidden="true">⌃</i>
+        </summary>
+        <div class="aion-workflow-tools-menu">
+          <section>
+            <div class="aion-workflow-tools-label">Run and validate</div>
+            <button
+              class="aion-workflow-mode-btn"
+              type="button"
+              data-aion-flow-run-centre-open="true"
+              title="Compile, simulate, run, recover and inspect receipts"
+              aria-label="Open AION Flow run and receipt centre"
+            ><span aria-hidden="true">◎</span><strong>Run &amp; receipts</strong></button>
+            <button
+              class="aion-workflow-mode-btn"
+              type="button"
+              data-aion-flow-comparison-open="true"
+              title="Duplicate and compare models, harnesses or compute routes"
+              aria-label="Open intelligence stack comparison"
+            ><span aria-hidden="true">A/B</span><strong>Compare stacks</strong></button>
+            <button
+              class="aion-workflow-mode-btn"
+              type="button"
+              data-aion-flow-template-open="true"
+              title="Inspect and install signed Intelligence Stack templates"
+              aria-label="Open Intelligence Stack templates"
+            ><span aria-hidden="true">▦</span><strong>Templates</strong></button>
+            <button
+              class="aion-workflow-mode-btn"
+              type="button"
+              data-aion-flow-production-open="true"
+              title="Run production, version and performance checks"
+              aria-label="Open production qualification"
+            ><span aria-hidden="true">✓</span><strong>Production</strong></button>
+          </section>
+          <section>
+            <div class="aion-workflow-tools-label">Builder mode</div>
+            ${modeButton("manual", "Manual", "Manual builder mode")}
+            ${modeButton("assisted", "Ask Aion", "Ask Aion for the next step")}
+            ${modeButton("describe", "Describe workflow", "Describe the full workflow")}
+          </section>
+        </div>
+      </details>
 
-      <button
-        class="aion-workflow-mode-btn"
-        type="button"
-        data-aion-flow-comparison-open="true"
-        title="Duplicate and compare models, harnesses or compute routes"
-        aria-label="Open intelligence stack comparison"
-      >
-        <span aria-hidden="true">A/B</span>
-        <strong>Compare stacks</strong>
-      </button>
-
-      <button
-        class="aion-workflow-mode-btn"
-        type="button"
-        data-aion-flow-template-open="true"
-        title="Inspect and install signed Intelligence Stack templates"
-        aria-label="Open Intelligence Stack templates"
-      >
-        <span aria-hidden="true">▦</span>
-        <strong>Templates</strong>
-      </button>
-
-      <button
-        class="aion-workflow-mode-btn"
-        type="button"
-        data-aion-flow-production-open="true"
-        title="Run production, version and performance checks"
-        aria-label="Open production qualification"
-      >
-        <span aria-hidden="true">✓</span>
-        <strong>Production</strong>
-      </button>
-
-      <div class="aion-workflow-floating-divider"></div>
-
-      ${modeButton("manual", "Manual", "Manual builder mode")}
-      ${modeButton("assisted", "Ask Aion", "Ask Aion for the next step")}
-      ${modeButton("describe", "Describe workflow", "Describe the full workflow")}
+      ${renderAionSavedWorkflowFooterMenuV1()}
 
       <div class="aion-workflow-floating-divider"></div>
 
@@ -45516,6 +48288,9 @@ function getSelectedLiveDepartmentKey() {
     "pilot",
     "builder",
     "legal",
+    "cybersecurity",
+    "procurement",
+    "projects",
     ...getAionDesktopCustomDepartmentsV1().map((department) => String(department?.id || "").toLowerCase()),
   ]);
 
@@ -47681,6 +50456,17 @@ function formatAionBoardMeetingTypeV1(entry = {}) {
   return raw.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+function formatAionBoardMeetingShortDateV1(entry = {}) {
+  const epoch = Number(String(entry?.record?.session_id || "").match(/\d{10,}/)?.[0] || 0);
+  const date = new Date(entry.generatedAt || (epoch ? epoch : Date.now()));
+  if (Number.isNaN(date.getTime())) return "Date unavailable";
+  return new Intl.DateTimeFormat(undefined, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
 function renderAionBoardMeetingArchiveStripV1() {
   const entries = getAionBoardMeetingArchiveEntriesV1();
   const expanded = window.__aionBoardMeetingArchiveExpandedV1 === true;
@@ -47718,12 +50504,14 @@ function renderAionBoardMeetingArchiveStripV1() {
       </div>
       ${expanded ? `
         <div class="aion-board-meeting-archive-list" data-aion-board-meeting-archive-list="true">
-          ${entries.length ? entries.slice(0, 12).map((entry, index) => `
+          <div class="aion-board-meeting-archive-columns" aria-hidden="true">
+            <span>Meeting</span><span>Date</span><span>Record</span>
+          </div>
+          ${entries.length ? entries.slice(0, 20).map((entry, index) => `
             <button type="button" class="aion-board-meeting-row" data-aion-board-meeting-open="${escapeHtml(entry.itemId)}">
-              <span>${index === 0 ? "Latest meeting" : `Meeting ${entries.length - index}`}</span>
-              <strong>${escapeHtml(formatAionBoardMeetingDateV1(entry))}</strong>
-              <small>${escapeHtml(formatAionBoardMeetingTypeV1(entry))}</small>
-              <em>Open minutes →</em>
+              <span><strong>${escapeHtml(formatAionBoardMeetingTypeV1(entry))}</strong>${index === 0 ? "<small>Latest</small>" : ""}</span>
+              <time>${escapeHtml(formatAionBoardMeetingDateV1(entry))}</time>
+              <em>View minutes <b aria-hidden="true">→</b></em>
             </button>
           `).join("") : `
             <div class="aion-board-meeting-empty">Complete a Board meeting to create the first governed minutes record.</div>
@@ -47732,6 +50520,40 @@ function renderAionBoardMeetingArchiveStripV1() {
       ` : ""}
     </section>
   `;
+}
+
+function buildAionStandardBoardMinutesV1(packet = {}, result = null) {
+  const boardResult = result && typeof result === "object" ? result : {};
+  const consensus = boardResult.consensus && typeof boardResult.consensus === "object" ? boardResult.consensus : {};
+  const responses = safeArray(boardResult.backend_payload?.responses || boardResult.council_responses);
+  const succeeded = responses.filter((item) => String(item?.status || "succeeded") === "succeeded");
+  const isLocal = (item = {}) => /local|ollama|gemma|qwen/i.test([item.mode,item.provider_id,item.model,item.member,item.model_state].filter(Boolean).join(" "));
+  const preferredSource = succeeded.find((item) => !isLocal(item)) || succeeded[0] || null;
+  const parsedPreferred = preferredSource ? parseAionProviderJsonContentV1(preferredSource.content || preferredSource.raw_provider_response?.content || "") : null;
+  const contextLines = safeArray(packet.business_context_packet?.lines).map((line) => String(line || "").replace(/^>\s*/, "").trim()).filter(Boolean).slice(0, 8);
+  const actions = safeArray(consensus.recommended_plan || consensus.plan || packet.proposed_pilot_actions).map((item, index) => {
+    if (item && typeof item === "object") return { action: String(item.action || item.title || item.step || "Action to review"), owner: String(item.owner || item.department || "To assign"), status: String(item.status || "Proposed · approval required") };
+    return { action: String(item || `Action ${index + 1}`), owner: "To assign", status: "Proposed · approval required" };
+  }).slice(0, 10);
+  const providerRows = responses.map((item) => ({
+    name: String(item.label || item.member || item.provider_id || "Connected model"),
+    model: String(item.model || item.raw_provider_response?.model || item.model_state || "Model not reported"),
+    status: String(item.status || (item.view ? "succeeded" : "unavailable")),
+    source: isLocal(item) ? "Local fallback" : "Connected API",
+  }));
+  const summary = String(parsedPreferred?.position || parsedPreferred?.summary || consensus.consensus_summary || consensus.summary || boardResult.summary || "The Board reviewed the available governed business evidence.").trim();
+  return {
+    schema_version: "aion.boardroom_minutes.v1", title: "Board meeting minutes",
+    meeting_type: String(packet.session_type || "business_assessment"), occurred_at: String(packet.generated_at || new Date().toISOString()), session_id: String(packet.session_id || ""), summary,
+    attendees: safeArray(packet.council_members).map((name) => ({ name: String(name), role: "Board member" })),
+    model_provenance: { policy: "Connected API preferred; local model used when no connected API response is available.", authoring_source: preferredSource ? (isLocal(preferredSource) ? "local_fallback" : "connected_api") : "structured_record_fallback", providers: providerRows },
+    business_context: contextLines,
+    discussion: safeArray(boardResult.council_responses).map((item) => ({ member: String(item?.member || "Board member"), position: String(item?.view || item?.position || "").trim() })).filter((item) => item.position).slice(0, 10),
+    decisions: safeArray(consensus.agreements).map(String).filter(Boolean).slice(0, 10), decision_status: String(consensus.decision || "Awaiting founder approval"), actions,
+    risks: safeArray(consensus.risks).map(String).filter(Boolean).slice(0, 10), open_questions: safeArray(consensus.open_questions || consensus.disagreements).map(String).filter(Boolean).slice(0, 10),
+    evidence: { business_container_id: String(packet.business_id || ""), business_map_revision: packet.business_map_snapshot?.revision || packet.source_business_map_revision || "Not recorded", packet_hash: String(packet.boardroom_session_packet_hash || "Pending at capture") },
+    governance: "Approval-gated. No live external action was performed by creating these minutes.",
+  };
 }
 
 if (!window.__aionBoardMeetingArchiveControlsV1Installed) {
@@ -47908,6 +50730,8 @@ function buildAionBoardroomSessionPacket(sessionType = "business_assessment") {
       provider_memory_mutation_allowed: false,
     },
   };
+
+  packet.minutes_document = buildAionStandardBoardMinutesV1(packet, currentBoardResult);
 
   packet.boardroom_session_packet_hash =
     typeof stableAionHash === "function"
@@ -48098,7 +50922,7 @@ function addAionBoardroomSessionPointerToFileCabinet(record = {}) {
 
   const pointer = {
     id: pointerId,
-    name: `Boardroom Session — ${record.session_id || record.artifact_id}`,
+    name: `Board meeting minutes — ${String(record.session_type || record.artifact_payload?.session_type || "board meeting").replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase())}`,
     type: "business_container_artifact",
     document_type: "boardroom_session",
     target: {
@@ -48218,7 +51042,13 @@ function getAionLiveBusinessContextPacketLinesV2(context) {
   const identity = context.business_identity || {};
   const projection = context.business_map_projection || {};
   const facts = safeArray(projection.facts);
-  const operating = context.operating_model || {};
+  const persistedOperating = context.operating_model || {};
+  const currentOperating = typeof getAionCurrentOperatingModelForBoardroomV1 === "function"
+    ? getAionCurrentOperatingModelForBoardroomV1()
+    : {};
+  const operating = currentOperating && Object.keys(currentOperating).length
+    ? { ...persistedOperating, ...currentOperating }
+    : persistedOperating;
   const lines = [];
   const add = (label, value) => {
     const text = formatAionCouncilPacketValue(value);
@@ -48252,6 +51082,17 @@ function getAionLiveBusinessContextPacketLinesV2(context) {
   }
   const terms = safeArray(operating.payment_terms);
   if (terms.length) add("Payment terms", terms.map((item) => `${item.name || "Terms"}: ${item.deposit_percent || 0}% deposit, balance ${item.balance_due_days || 0} days`));
+  const labour = safeArray(operating.labour_resources).filter((item) => Number(item?.cost_rate ?? item?.planning_rate) > 0);
+  if (labour.length) {
+    add("Workforce planning rates", labour.map((item) => {
+      const basis = ({ hourly: "hour", daily: "day", monthly: "month", per_job: "job" })[item.cost_basis] || item.cost_basis || "unit";
+      return `${item.person_name || "Workforce planning cost"}: ${formatAionBoardroomMoneyV2(item.cost_rate ?? item.planning_rate, operating.currency || "EUR")}/${basis}`;
+    }));
+  }
+  const directCosts = offerings.filter((item) => Number(item?.material_cost_per_unit) > 0 || Number(item?.other_direct_cost_per_unit) > 0);
+  if (directCosts.length) add("Offering direct costs", directCosts.map((item) => `${item.name || "Offering"}: material ${formatAionBoardroomMoneyV2(item.material_cost_per_unit || 0, operating.currency || "EUR")}, other direct ${formatAionBoardroomMoneyV2(item.other_direct_cost_per_unit || 0, operating.currency || "EUR")}`));
+  const targets = safeArray(operating.financial_targets).filter((item) => String(item?.target_value ?? "").trim() !== "");
+  if (targets.length) add("Financial targets", targets.map((item) => `${item.name || "Target"}: ${item.target_value}${item.unit ? ` ${item.unit}` : ""}`));
   add("Persistent truth source", context.persistent_truth_source);
   add("Live snapshot", `${context.snapshot_id || ""} · generated ${context.generated_at || ""}`);
   return lines;
@@ -48698,7 +51539,8 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
       "Give a concise health view (healthy, mixed, at risk, or insufficient evidence), the three most useful actions now, and a paced department activation plan for the coming days.",
       "Missing information must become optional routed tasks, not a long interrogation. Ask no more than three critical questions in this meeting and do not demand a complete marketing, sales, support, HR or automation plan during the baseline meeting.",
       `Recommend reconvening on ${packet.next_meeting_date || "the founder's chosen date"}; a completed department may request an earlier executive review.`,
-      "Return structured JSON with position, recommendations, risks, missing_inputs, plan_changes and confidence.",
+      "Your response will also be used to create the governed Board meeting minutes. Keep it concise, factual and suitable for a permanent business record.",
+      "Return structured JSON with position, recommendations, risks, missing_inputs, plan_changes and confidence. Do not add markdown or invent attendees, decisions, owners or dates.",
     ].join(" "),
     context_packet: {
       business_id: packet.business_id || "home-fixed",
@@ -48930,6 +51772,222 @@ function getAionParsedLiveProviderPayloadsV1(result = {}) {
     .filter(Boolean);
 }
 
+function getAionCurrentOperatingModelForBoardroomV1() {
+  const live = window.AionOperatingModelWorkspace?.state?.model;
+  if (live && typeof live === "object") return live;
+  try {
+    const draft = JSON.parse(window.localStorage?.getItem("aion.businessOperatingModel.draft.v1") || "null");
+    if (draft && typeof draft === "object") return draft;
+  } catch {}
+  return getAionLiveBoardroomContextV2()?.operating_model || {};
+}
+
+function getAionBoardroomRequirementDefinitionV1(value = "") {
+  const text = String(value || "").toLowerCase();
+  if (/engineer|hourly|daily rate|labou?r (?:rate|cost)|planning rate/.test(text)) {
+    return {
+      id: "engineer_planning_rate",
+      label: "Engineer hourly or daily planning rate",
+      workspace: "Products & Services",
+      sectionLabel: "Workforce & capacity",
+      fieldLabel: "Editable planning rate",
+      tab: "products_services",
+      section: "workforce",
+    };
+  }
+  if (/material|subcontract|cost treatment|offering is costed|standard cost/.test(text)) {
+    return {
+      id: "material_subcontractor_costs",
+      label: "Classify how each offering is costed; add estimates only where a standard cost applies",
+      workspace: "Products & Services",
+      sectionLabel: "Offerings",
+      fieldLabel: "How is this costed?",
+      tab: "products_services",
+      section: "offerings",
+      actionLabel: "Review offering cost treatment",
+    };
+  }
+  if (/gross margin|target margin|minimum acceptable margin/.test(text)) {
+    return {
+      id: "target_margin",
+      label: "Agree a target gross margin and minimum safety floor with the Finance Pilot",
+      workspace: "Products & Services",
+      sectionLabel: "Finance",
+      fieldLabel: "Guided Finance decision",
+      tab: "products_services",
+      section: "finance",
+      actionLabel: "Discuss with Finance Pilot",
+    };
+  }
+  if (/average job cost|job cost by service|true job cost/.test(text)) {
+    return {
+      id: "job_cost_by_service",
+      label: "Add the known estimate to the relevant shared work record",
+      workspace: "Work & Schedule",
+      sectionLabel: "Job or quote",
+      fieldLabel: "Quotes & invoices → Job / quote estimate",
+      tab: "work_schedule",
+      section: "board",
+      actionLabel: "Open Work & Schedule",
+    };
+  }
+  if (/minimum profitable job|minimum job value/.test(text)) {
+    return {
+      id: "minimum_profitable_job",
+      label: "Minimum profitable job value",
+      workspace: "Products & Services",
+      sectionLabel: "Finance",
+      fieldLabel: "12-month financial targets",
+      tab: "products_services",
+      section: "finance",
+    };
+  }
+  if (/campaign budget|spend limit|maximum spend|starter budget/.test(text)) {
+    return {
+      id: "campaign_budget",
+      label: "Campaign budget and maximum spend limit",
+      workspace: "Finance",
+      sectionLabel: "Financial targets",
+      fieldLabel: "Campaign spend limit",
+      tab: "finance",
+      section: "targets",
+    };
+  }
+  return null;
+}
+
+function getAionBoardroomKnownRequirementStateV1(value = "") {
+  const definition = getAionBoardroomRequirementDefinitionV1(value);
+  if (!definition) return { resolved: false, definition: null, evidence: [] };
+  const model = getAionCurrentOperatingModelForBoardroomV1();
+  const currency = model.currency || "EUR";
+  const money = (amount) => formatAionBoardroomMoneyV2(amount, currency);
+  const positive = (value) => Number.isFinite(Number(value)) && Number(value) > 0;
+  const evidence = [];
+  let resolved = false;
+
+  if (definition.id === "engineer_planning_rate") {
+    safeArray(model.labour_resources).forEach((row) => {
+      const planningRate = row?.cost_rate ?? row?.planning_rate;
+      if (!positive(planningRate)) return;
+      const basis = ({ hourly: "hour", daily: "day", monthly: "month", per_job: "job" })[row.cost_basis] || row.cost_basis || "unit";
+      evidence.push(`${row.person_name || "Workforce planning cost"}: ${money(planningRate)} per ${basis}`);
+    });
+    const capacityRate = model.capacity_model?.engineer_planning_rate;
+    if (!evidence.length && capacityRate && Object.keys(capacityRate).length) {
+      evidence.push(`Engineer planning rate saved in the operating model`);
+    }
+    resolved = evidence.length > 0;
+  }
+
+  if (definition.id === "material_subcontractor_costs") {
+    const offerings = safeArray(model.offerings);
+    const sharedWork = safeArray(window.AionWorkScheduleWorkspace?.state?.data?.items);
+    offerings.forEach((row) => {
+      if (positive(row?.material_cost_per_unit) || positive(row?.other_direct_cost_per_unit)) {
+        evidence.push(`${row.name || "Offering"}: direct material/subcontractor cost saved`);
+      }
+    });
+    safeArray(model.bills_of_materials).forEach((row) => {
+      if (positive(row?.unit_cost)) evidence.push(`${row.material_name || "Material"}: ${money(row.unit_cost)} per ${row.unit || "unit"}`);
+    });
+    safeArray(model.job_cost_items).forEach((row) => {
+      if (["materials", "subcontractor", "other_direct"].includes(String(row?.category || "")) && (positive(row?.estimated_cost) || positive(row?.actual_cost))) {
+        evidence.push(`${row.description || "Job cost"}: ${money(row.actual_cost || row.estimated_cost)}`);
+      }
+    });
+    sharedWork.forEach((row) => {
+      const estimate = row?.cost_estimate || {};
+      if (positive(estimate.material_cost) || positive(estimate.external_cost)) {
+        evidence.push(`${row.title || "Shared work record"}: material/external estimate saved in Work & Schedule`);
+      }
+    });
+    const classified = offerings.length > 0 && offerings.every((row) => {
+      const treatment = String(row?.cost_treatment || (row?.pricing_basis === "quote" ? "quoted_per_job" : ""));
+      if (["labour_only", "quoted_per_job", "no_direct_costs"].includes(treatment)) return true;
+      if (treatment === "standard_estimate") {
+        return positive(row?.material_cost_per_unit) || positive(row?.labour_cost_per_unit) || positive(row?.other_direct_cost_per_unit);
+      }
+      return false;
+    });
+    if (classified) evidence.push("Every offering has a clear cost treatment; variable work is routed to Work & Schedule");
+    resolved = classified;
+  }
+
+  const targets = safeArray(model.financial_targets);
+  if (definition.id === "target_margin") {
+    const target = targets.find((row) => /target gross margin/i.test(String(row?.name || "")) && positive(row?.target_value));
+    const floor = targets.find((row) => /minimum acceptable (?:gross )?margin|minimum gross margin/i.test(String(row?.name || "")) && positive(row?.target_value));
+    if (target && floor) {
+      evidence.push(`${target.name}: ${target.target_value}%`);
+      evidence.push(`${floor.name}: ${floor.target_value}%`);
+    }
+    resolved = Boolean(target && floor);
+  }
+  if (definition.id === "minimum_profitable_job") {
+    targets.forEach((row) => {
+      if (/minimum profitable job|minimum job value/i.test(String(row?.name || "")) && positive(row?.target_value)) evidence.push(`${row.name}: ${money(row.target_value)}`);
+    });
+    resolved = evidence.length > 0;
+  }
+  if (definition.id === "campaign_budget") {
+    targets.forEach((row) => {
+      if (/campaign|marketing.*budget|spend limit/i.test(String(row?.name || "")) && positive(row?.target_value)) evidence.push(`${row.name}: ${money(row.target_value)}`);
+    });
+    resolved = evidence.length > 0;
+  }
+  if (definition.id === "job_cost_by_service") {
+    if (model.capacity_model?.average_job_cost_by_service) evidence.push("Average job cost by service is saved");
+    safeArray(model.job_economics).forEach((row) => {
+      if (positive(row?.estimated_total_cost) || positive(row?.actual_total_cost)) evidence.push(`${row.name || row.job_name || "Job"}: cost model saved`);
+    });
+    safeArray(window.AionWorkScheduleWorkspace?.state?.data?.items).forEach((row) => {
+      const estimate = row?.cost_estimate || {};
+      if (positive(estimate.material_cost) || positive(estimate.labour_cost) || positive(estimate.external_cost)) {
+        evidence.push(`${row.title || "Shared work record"}: quote/job estimate saved`);
+      }
+    });
+    resolved = evidence.length > 0;
+  }
+
+  return { resolved, definition, evidence: uniqueAionLinesV1(evidence) };
+}
+
+function reconcileAionBoardroomRequirementLinesV1(lines = []) {
+  const resolved = [];
+  const missing = [];
+  uniqueAionLinesV1(lines).forEach((line) => {
+    const state = getAionBoardroomKnownRequirementStateV1(line);
+    if (state.definition && state.resolved) resolved.push({ line, ...state });
+    else missing.push(state.definition?.label || line);
+  });
+  return { missing, resolved };
+}
+
+function renderAionBoardroomRequirementLocationV1(line = "") {
+  const state = getAionBoardroomKnownRequirementStateV1(line);
+  const item = state.definition;
+  if (!item) return "";
+  const finance = window.AionOperatingModelWorkspace?.state?.financeModel || {};
+  const metricValue = (key) => {
+    const record = finance?.authoritative_metrics?.[key] || finance?.metrics?.[key];
+    const value = record && typeof record === "object" ? record.value : record;
+    return Number.isFinite(Number(value)) ? Number(value) : null;
+  };
+  const existingEvidence = item.id === "material_subcontractor_costs" && metricValue("direct_costs") != null
+    ? `Historical direct costs are already recorded at ${formatAionBoardroomMoneyV2(metricValue("direct_costs"), "EUR")}. The remaining decision is how each offering should be treated—not filling every cell.`
+    : item.id === "target_margin" && metricValue("gross_margin_percent") != null
+      ? `Historical gross margin is ${metricValue("gross_margin_percent").toFixed(1)}%. Use it as evidence for a Finance discussion; do not guess a target.`
+      : "";
+  return `
+    <div style="margin:5px 0 10px;padding:9px 10px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;color:#713f12;">
+      <div style="font-size:12px;"><strong>Missing from:</strong> ${escapeHtml(item.workspace)} → ${escapeHtml(item.sectionLabel)} → ${escapeHtml(item.fieldLabel)}</div>
+      ${existingEvidence ? `<div style="margin-top:5px;font-size:12px;color:#854d0e;">${escapeHtml(existingEvidence)}</div>` : ""}
+      <button type="button" data-aion-open-discovery-workspace="${escapeHtml(item.tab)}" data-aion-open-discovery-section="${escapeHtml(item.section)}" style="margin-top:7px;border:1px solid #d4a72c;border-radius:7px;background:#fff;color:#713f12;padding:7px 10px;font-weight:850;cursor:pointer;">${escapeHtml(item.actionLabel || `Open ${item.sectionLabel}`)}</button>
+    </div>
+  `;
+}
+
 
 /* AION PATCH: Founder feedback gate resolution v1
  * Purpose:
@@ -49066,6 +52124,17 @@ function parseAionFounderFeedbackGateAnswersV1(text = "") {
     "define target gross margin and minimum acceptable margin",
   ];
 
+  // Reconcile the provider/founder-feedback view with the saved operating
+  // model before telling the owner that information is missing. This prevents
+  // stale Board rounds from re-requesting HR-linked labour rates (or any other
+  // structured fact) that has already been saved in Products & Services.
+  const financeReconciliation = reconcileAionBoardroomRequirementLinesV1(answers.finance.remaining);
+  answers.finance.remaining = financeReconciliation.missing;
+  financeReconciliation.resolved.forEach((item) => {
+    item.evidence.forEach((evidence) => answers.finance.answered.push(`already in the Business Map: ${evidence}`));
+  });
+  answers.finance.answered = uniqueAionLinesV1(answers.finance.answered);
+
   for (const dept of ["operations", "sales", "finance"]) {
     if (answers[dept].answered.length && answers[dept].remaining.length) {
       answers[dept].status = "partially_answered";
@@ -49089,38 +52158,41 @@ function renderAionFounderFeedbackGateResolutionHtmlV1(result = {}) {
     <div
       data-aion-founder-feedback-gate-resolution="true"
       style="
-        margin-top:12px;
-        border:1px solid rgba(34,197,94,0.48);
-        background:#071f13;
-        color:#bbf7d0;
-        padding:14px;
-        font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
-        font-size:12px;
-        line-height:1.48;
-        box-shadow:inset 4px 0 0 #22c55e;
+        margin-top:16px;
+        border:1px solid #bbf7d0;
+        border-radius:14px;
+        background:#f0fdf4;
+        color:#14532d;
+        padding:18px;
+        font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+        font-size:13px;
+        line-height:1.5;
       "
     >
-      <div style="font-weight:900;color:#86efac;letter-spacing:0.08em;text-transform:uppercase;">
-        &gt; Founder Feedback Applied To Discovery Gates
+      <div style="font-size:11px;font-weight:900;color:#15803d;letter-spacing:.12em;text-transform:uppercase;">
+        Your answers have been applied
       </div>
-      <div>&gt; The board has captured founder answers and converted them into partial gate resolution.</div>
+      <div style="margin-top:5px;color:#166534;">The Board used your answers to resolve part of the missing information.</div>
 
       ${["operations", "sales", "finance"].map((dept) => {
         const item = answers[dept];
         if (!item.answered.length) return "";
         return `
-          <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(34,197,94,0.22);">
-            <div style="color:#ffffff;font-weight:900;">&gt; ${escapeHtml(dept.toUpperCase())}: ${escapeHtml(item.status)}</div>
-            <div style="color:#86efac;">&gt; Captured answers</div>
-            ${item.answered.map((line) => `<div>&gt; + ${escapeHtml(line)}</div>`).join("")}
-            <div style="margin-top:5px;color:#fde68a;">&gt; Still required before confident launch</div>
-            ${item.remaining.map((line) => `<div>&gt; ? ${escapeHtml(line)}</div>`).join("")}
+          <div style="margin-top:12px;border:1px solid #dcfce7;border-radius:11px;background:#fff;padding:13px;">
+            <div style="color:#14532d;font-weight:900;text-transform:capitalize;">${escapeHtml(dept)} · ${escapeHtml(String(item.status).replace(/_/g, " "))}</div>
+            <div style="margin-top:8px;color:#166534;font-weight:800;">Captured</div>
+            <ul style="margin:5px 0 0;padding-left:20px;">${item.answered.map((line) => `<li style="margin:4px 0;">${escapeHtml(line)}</li>`).join("")}</ul>
+            ${item.remaining.length ? `
+              <div style="margin-top:9px;color:#a16207;font-weight:800;">Still needed before launch</div>
+              <ul style="margin:5px 0 0;padding-left:20px;color:#713f12;">${item.remaining.map((line) => `<li style="margin:4px 0;">${escapeHtml(line)}</li>`).join("")}</ul>
+              ${item.remaining.map((line) => renderAionBoardroomRequirementLocationV1(line)).join("")}
+            ` : `<div style="margin-top:6px;color:#15803d;font-weight:800;">No outstanding structured inputs in this section.</div>`}
           </div>
         `;
       }).join("")}
 
-      <div style="margin-top:10px;color:#fde68a;">
-        &gt; Gate decision: partially resolved. Micro-test may be planned as approval-gated draft only; live campaign still needs the remaining checks above.
+      <div style="margin-top:12px;border-top:1px solid #bbf7d0;padding-top:12px;color:#166534;font-weight:750;">
+        Partially resolved: a draft micro-test can be planned, but live activity still requires the checks above and your approval.
       </div>
     </div>
   `;
@@ -49132,10 +52204,12 @@ function buildAionBoardroomPushbackGateV1(result = {}) {
   const parsed = getAionParsedLiveProviderPayloadsV1(result);
   const consensus = result.consensus || {};
 
-  const providerMissing = uniqueAionLinesV1([
+  const providerMissingRaw = uniqueAionLinesV1([
     ...parsed.flatMap((item) => safeArray(item.missing_inputs || item.missing_data)),
     ...safeArray(consensus.open_questions),
   ]);
+  const providerReconciliation = reconcileAionBoardroomRequirementLinesV1(providerMissingRaw);
+  const providerMissing = providerReconciliation.missing;
 
   const providerRisks = uniqueAionLinesV1([
     ...parsed.flatMap((item) => safeArray(item.risks)),
@@ -49246,18 +52320,37 @@ function buildAionBoardroomPushbackGateV1(result = {}) {
     });
   }
 
+  const reconciledGates = gates
+    .map((gate) => {
+      const reconciliation = reconcileAionBoardroomRequirementLinesV1(gate.required_inputs);
+      const resolvedEvidence = reconciliation.resolved.flatMap((item) => item.evidence);
+      return {
+        ...gate,
+        challenge: resolvedEvidence.length
+          ? `The Board found ${resolvedEvidence.join("; ")} in the current Business Map. Complete only the remaining inputs below before launch.`
+          : gate.challenge,
+        required_inputs: reconciliation.missing,
+        resolved_inputs: reconciliation.resolved,
+      };
+    })
+    .filter((gate) => safeArray(gate.required_inputs).length > 0);
+
   const decision =
-    gates.some((gate) => gate.severity === "hard_gate")
+    reconciledGates.some((gate) => gate.severity === "hard_gate")
       ? "push_back_before_launch"
-      : gates.length
+      : reconciledGates.length
         ? "review_required_before_launch"
         : "no_pushback_gate_detected";
 
   return {
     schema_version: "aion.boardroom_pushback_gate.v1",
     decision,
-    gates,
+    gates: reconciledGates,
     provider_missing_inputs: providerMissing,
+    resolved_business_map_inputs: [
+      ...providerReconciliation.resolved,
+      ...reconciledGates.flatMap((gate) => safeArray(gate.resolved_inputs)),
+    ],
     provider_risks: providerRisks,
   };
 }
@@ -49270,37 +52363,48 @@ function renderAionBoardroomPushbackGateHtmlV1(result = {}) {
     <div
       data-aion-boardroom-pushback-gate="true"
       style="
-        margin-top:12px;
-        border:1px solid rgba(251,191,36,0.50);
+        margin-top:16px;
+        border:1px solid #fde68a;
+        border-radius:14px;
         background:#fffbeb;
         color:#713f12;
-        padding:14px;
-        font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
-        font-size:12px;
-        line-height:1.48;
-        box-shadow:inset 4px 0 0 #f59e0b;
+        padding:18px;
+        font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+        font-size:13px;
+        line-height:1.5;
       "
     >
-      <div style="font-weight:900;color:#b45309;letter-spacing:0.08em;text-transform:uppercase;">
-        &gt; AI Pushback / Discovery Gate
+      <div style="display:flex;align-items:center;gap:9px;">
+        <span style="display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#f59e0b;color:#fff;font-weight:900;">!</span>
+        <div style="font-size:12px;font-weight:900;color:#92400e;letter-spacing:.1em;text-transform:uppercase;">Board needs more information</div>
       </div>
-      <div>&gt; Decision: ${escapeHtml(pushback.decision || "")}</div>
-      <div>&gt; Reason: the live board found missing discovery needed before confident execution.</div>
+      <div style="margin-top:8px;color:#713f12;">The Board can continue planning, but it will not recommend live execution until these important gaps are resolved.</div>
 
       ${safeArray(pushback.gates).map((gate, index) => `
-        <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(251,191,36,0.22);">
-          <div style="color:#422006;font-weight:900;">&gt; Gate ${index + 1}: ${escapeHtml(gate.gate || "")}</div>
-          <div>&gt; Owner: ${escapeHtml(gate.owner || "Boardroom")}</div>
-          <div>&gt; Severity: ${escapeHtml(gate.severity || "review_gate")}</div>
-          <div style="margin-top:5px;color:#9a3412;">&gt; Board challenge: ${escapeHtml(gate.challenge || "")}</div>
-          <div style="margin-top:5px;color:#92400e;">&gt; Required before launch</div>
-          ${safeArray(gate.required_inputs).map((line) => `<div>&gt; + ${escapeHtml(line)}</div>`).join("") || "<div>&gt; + discovery input required</div>"}
+        <div style="margin-top:13px;border:1px solid #fef3c7;border-radius:11px;background:#fff;padding:14px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div style="color:#422006;font-size:15px;font-weight:900;">${index + 1}. ${escapeHtml(gate.gate || "Information required")}</div>
+            <span style="border-radius:999px;background:#fef3c7;color:#92400e;padding:5px 9px;font-size:11px;font-weight:900;">Owner: ${escapeHtml(gate.owner || "Boardroom")}</span>
+          </div>
+          <div style="margin-top:8px;color:#9a3412;">${escapeHtml(gate.challenge || "")}</div>
+          <div style="margin-top:10px;color:#92400e;font-weight:900;">Required before launch</div>
+          <ul style="margin:6px 0 0;padding-left:20px;">${safeArray(gate.required_inputs).map((line) => `<li style="margin:4px 0;">${escapeHtml(line)}</li>`).join("") || "<li>Additional business information</li>"}</ul>
+          ${safeArray(gate.required_inputs).map((line) => renderAionBoardroomRequirementLocationV1(line)).join("")}
         </div>
       `).join("")}
 
+      ${safeArray(pushback.resolved_business_map_inputs).length ? `
+        <div style="margin-top:12px;border:1px solid #bbf7d0;border-radius:10px;background:#f0fdf4;padding:12px;color:#166534;">
+          <div style="font-weight:900;">Already found in the current Business Map</div>
+          ${safeArray(pushback.resolved_business_map_inputs).flatMap((item) => safeArray(item.evidence)).map((line) => `<div style="margin-top:4px;">✓ ${escapeHtml(line)}</div>`).join("")}
+        </div>
+      ` : ""}
+
       ${safeArray(pushback.provider_missing_inputs).length ? `
-        <div style="margin-top:10px;color:#b45309;font-weight:900;">&gt; Provider-raised missing inputs</div>
-        ${safeArray(pushback.provider_missing_inputs).slice(0, 10).map((line) => `<div>&gt; ? ${escapeHtml(line)}</div>`).join("")}
+        <details style="margin-top:12px;border-top:1px solid #fde68a;padding-top:10px;">
+          <summary style="cursor:pointer;color:#92400e;font-weight:850;">View all adviser-raised missing inputs</summary>
+          <ul style="margin:8px 0 0;padding-left:20px;">${safeArray(pushback.provider_missing_inputs).slice(0, 10).map((line) => `<li style="margin:4px 0;">${escapeHtml(line)}</li>`).join("")}</ul>
+        </details>
       ` : ""}
     </div>
   `;
@@ -49605,26 +52709,24 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
   const html = [];
 
   html.push(`
-    <div
+    <details
       data-aion-discovery-question-inbox="true"
       style="
-        margin-top:12px;
-        border:1px solid rgba(56,189,248,0.52);
-        background:#f7fbfd;
-        color:#29465b;
-        padding:14px;
-        font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
-        font-size:12px;
-        line-height:1.48;
-        box-shadow:inset 4px 0 0 #38bdf8;
+        margin-top:16px;
+        border:1px solid #bae6fd;
+        border-radius:14px;
+        background:#f0f9ff;
+        color:#1e3a5f;
+        padding:16px 18px;
+        font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+        font-size:13px;
+        line-height:1.5;
       "
     >
-      <div style="font-weight:900;color:#0369a1;letter-spacing:0.08em;text-transform:uppercase;">
-        &gt; ${source?.journey_stage === "baseline_first_meeting" ? "Optional next-step questions" : "Discovery Question Inbox"}
-      </div>
-      <div>&gt; Answered: ${answeredCount} / ${questions.length}</div>
-      <div>&gt; Purpose: route the few highest-value missing facts to the system that owns them. You do not need to complete them in this meeting.</div>
-      <div>&gt; Do not type operating facts into meeting minutes when they belong in Finance, HR, Operations, Marketing, Sales, Support or Products &amp; Services.</div>
+      <summary style="cursor:pointer;font-weight:900;color:#075985;">
+        ${source?.journey_stage === "baseline_first_meeting" ? "Optional questions to complete later" : "Questions to resolve"} · ${answeredCount} of ${questions.length} answered
+      </summary>
+      <div style="margin-top:9px;color:#475569;">These questions are routed to the workspace that owns the information. You do not need to complete them during this meeting.</div>
   `);
 
   groups.forEach((group, groupIndex) => {
@@ -49794,7 +52896,7 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
     `);
   });
 
-  html.push(`</div>`);
+  html.push(`</details>`);
   return html.join("");
 }
 
@@ -49813,6 +52915,9 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
       const section = routeButton.getAttribute("data-aion-open-discovery-section") || "";
       if (destination === "products_services" && window.AionOperatingModelWorkspace?.state && section) {
         window.AionOperatingModelWorkspace.state.activeTab = section;
+      }
+      if (destination === "work_schedule" && window.AionWorkScheduleWorkspace?.state && section) {
+        window.AionWorkScheduleWorkspace.state.ui.view = section;
       }
       if (typeof window.aionOpenLiveAgentsDepartmentO16A === "function") {
         window.aionOpenLiveAgentsDepartmentO16A(destination);
@@ -49902,73 +53007,90 @@ function renderAionVisibleAskBoardResultHtmlV1() {
 
   const responses = safeArray(result.council_responses);
   const consensus = result.consensus || {};
+  const succeededCount = Number(result.succeeded_count || responses.filter((item) => !String(item?.view || "").startsWith("Unavailable:")).length || 0);
+  const providerCount = Number(result.provider_count || responses.length || 0);
+  const decisionLabel = String(consensus.decision || "Review ready")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  const plan = safeArray(consensus.plan);
+  const openQuestions = safeArray(consensus.open_questions);
+  const risks = safeArray(consensus.risks);
 
   return `
     <div
       data-aion-visible-ask-board-result="true"
       style="
-        margin-top:12px;
-        border:1px solid rgba(34,197,94,0.34);
+        margin-top:16px;
+        border:1px solid #dbe3ee;
+        border-radius:18px;
         background:#ffffff;
-        color:#29465b;
-        padding:14px;
-        font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
-        font-size:12px;
-        line-height:1.48;
-        box-shadow:inset 4px 0 0 #22c55e;
+        color:#10213a;
+        padding:24px;
+        font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+        font-size:14px;
+        line-height:1.55;
+        box-shadow:0 14px 34px rgba(15,23,42,0.07);
       "
     >
-      <div style="font-weight:900; color:#0f766e; letter-spacing:0.08em; text-transform:uppercase;">
-        &gt; Ask the Board result · live provider fanout
-      </div>
-      <div>&gt; Session: ${escapeHtml(result.session_id || "")}</div>
-      <div>&gt; Business: ${escapeHtml(result.business_name || "")}</div>
-      <div>&gt; Department focus: ${escapeHtml(result.department || "")}</div>
-      <div>&gt; Boundary: ${escapeHtml(result.execution_boundary || "")}</div>
-      <div>&gt; Result hash: ${escapeHtml(result.result_hash || "")}</div>
-
-      <div style="margin-top:10px;border:1px solid #8fc5d8;background:#edf8fc;padding:10px;color:#29465b;">
-        <div style="font-weight:900;color:#0369a1;">&gt; ROUND 1 COMPLETE · CONTINUE THIS MEETING</div>
-        <div>&gt; Answer relevant discovery questions or add founder feedback, then select <strong>Debate Plan</strong>.</div>
-        <div>&gt; The top button now says Restart Board Analysis because using it again deliberately starts a new Round 1 and unresolved evidence may produce similar conclusions.</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:11px;font-weight:900;color:#0f766e;letter-spacing:.16em;text-transform:uppercase;">Board meeting · Round 1</div>
+          <div style="margin-top:5px;font-size:25px;line-height:1.15;font-weight:900;color:#0f172a;">Board review complete</div>
+          <div style="margin-top:6px;color:#64748b;">${escapeHtml(result.business_name || "Business review")} · ${escapeHtml(result.department || "Boardroom")}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900;">${escapeHtml(String(succeededCount))} of ${escapeHtml(String(providerCount))} advisers responded</span>
+          <span style="border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900;">Approval required</span>
+        </div>
       </div>
 
-      <div style="margin-top:10px; color:#102a43; font-weight:900;">&gt; Consensus</div>
-      <div>&gt; ${escapeHtml(consensus.summary || "")}</div>
+      <div style="margin-top:20px;border:1px solid #bfdbfe;border-radius:14px;background:#eff6ff;padding:16px 18px;color:#1e3a5f;">
+        <div style="font-size:12px;font-weight:900;color:#1d4ed8;letter-spacing:.08em;text-transform:uppercase;">What happens next</div>
+        <div style="margin-top:5px;font-weight:750;">Review the Board's conclusion, answer only the important missing questions, then choose <strong>Debate Plan</strong>.</div>
+        <div style="margin-top:4px;color:#5b6f8d;font-size:13px;">Restart Board Analysis begins a fresh Round 1; use it only when the business evidence has changed.</div>
+      </div>
+
+      <section style="margin-top:20px;border:1px solid #e2e8f0;border-radius:14px;padding:18px;">
+        <div style="font-size:11px;font-weight:900;color:#64748b;letter-spacing:.14em;text-transform:uppercase;">Board conclusion</div>
+        <div style="margin-top:7px;font-size:17px;line-height:1.5;font-weight:750;color:#0f172a;">${escapeHtml(consensus.summary || "The Board has completed its initial review.")}</div>
+        <div style="margin-top:12px;display:inline-flex;align-items:center;gap:7px;border-radius:999px;background:#f1f5f9;color:#334155;padding:7px 11px;font-size:12px;font-weight:800;">
+          <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></span>${escapeHtml(decisionLabel)}
+        </div>
+      </section>
 
       ${typeof renderAionBoardroomPushbackGateHtmlV1 === "function" ? renderAionBoardroomPushbackGateHtmlV1(result) : ""}
       ${typeof renderAionFounderFeedbackGateResolutionHtmlV1 === "function" ? renderAionFounderFeedbackGateResolutionHtmlV1(result) : ""}
       ${typeof renderAionDiscoveryQuestionInboxHtmlV1 === "function" ? renderAionDiscoveryQuestionInboxHtmlV1(result, "ask_board") : ""}
 
-      <div style="margin-top:10px; color:#0369a1; font-weight:900;">
-        &gt; ${result.live_provider_fanout ? "Connected provider responses" : "Council responses"} · ${responses.length}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:16px;">
+        <section style="border:1px solid #bbf7d0;border-radius:14px;background:#f0fdf4;padding:16px;">
+          <div style="font-size:11px;font-weight:900;color:#15803d;letter-spacing:.12em;text-transform:uppercase;">Recommended plan</div>
+          ${plan.length ? `<ol style="margin:10px 0 0;padding-left:20px;color:#14532d;">${plan.map((line) => `<li style="margin:7px 0;padding-left:3px;">${escapeHtml(line)}</li>`).join("")}</ol>` : `<div style="margin-top:8px;color:#64748b;">No plan items were agreed in this round.</div>`}
+        </section>
+        <section style="border:1px solid #fde68a;border-radius:14px;background:#fffbeb;padding:16px;">
+          <div style="font-size:11px;font-weight:900;color:#a16207;letter-spacing:.12em;text-transform:uppercase;">Questions to resolve</div>
+          ${openQuestions.length ? `<ul style="margin:10px 0 0;padding-left:20px;color:#713f12;">${openQuestions.map((line) => `<li style="margin:7px 0;padding-left:3px;">${escapeHtml(line)}</li>`).join("")}</ul>` : `<div style="margin-top:8px;color:#64748b;">No open questions.</div>`}
+        </section>
+        <section style="border:1px solid #fecdd3;border-radius:14px;background:#fff1f2;padding:16px;">
+          <div style="font-size:11px;font-weight:900;color:#be123c;letter-spacing:.12em;text-transform:uppercase;">Risks to watch</div>
+          ${risks.length ? `<ul style="margin:10px 0 0;padding-left:20px;color:#881337;">${risks.map((line) => `<li style="margin:7px 0;padding-left:3px;">${escapeHtml(line)}</li>`).join("")}</ul>` : `<div style="margin-top:8px;color:#64748b;">No material risks were raised.</div>`}
+        </section>
       </div>
-      <div>&gt; Live provider fanout: ${result.live_provider_fanout ? "yes" : "no"} · simulated responses: ${result.simulated_responses ? "yes" : "no"}</div>
-      ${typeof result.succeeded_count !== "undefined" ? `<div>&gt; Succeeded providers: ${escapeHtml(result.succeeded_count)} / ${escapeHtml(result.provider_count || responses.length)}</div>` : ""}
-      ${safeArray(result.missing_or_unavailable).length ? `
-        <div style="margin-top:6px;color:#fbbf24;">&gt; Unavailable / failed providers</div>
-        ${safeArray(result.missing_or_unavailable).map((item) => `
-          <div>&gt; ${escapeHtml(item.label || item.provider_id || "Provider")}: ${escapeHtml(item.reason || item.status || "unavailable")}</div>
-        `).join("")}
-      ` : ""}
-      ${responses.map((item) => `
-        <div style="margin-top:7px;">
-          <span style="color:#102a43; font-weight:900;">${escapeHtml(item.member || "Member")}:</span>
-          ${escapeHtml(item.view || "")}
-          <div style="color:#15803d;">&gt; action: ${escapeHtml(item.action || "")}</div>
+
+      <details style="margin-top:16px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;padding:12px 14px;">
+        <summary style="cursor:pointer;color:#334155;font-weight:850;">View adviser responses and technical meeting details</summary>
+        <div style="margin-top:14px;display:grid;gap:12px;">
+          ${responses.map((item) => `
+            <div style="border:1px solid #e2e8f0;border-radius:10px;background:#fff;padding:13px;">
+              <div style="font-weight:900;color:#0f172a;">${escapeHtml(item.member || "Board adviser")}</div>
+              <div style="margin-top:5px;color:#475569;">${escapeHtml(item.view || "No response supplied.")}</div>
+              ${item.action ? `<div style="margin-top:7px;color:#166534;font-weight:750;">Suggested action: ${escapeHtml(item.action)}</div>` : ""}
+            </div>
+          `).join("")}
+          ${safeArray(result.missing_or_unavailable).length ? `<div style="color:#92400e;"><strong>Unavailable advisers:</strong> ${safeArray(result.missing_or_unavailable).map((item) => `${escapeHtml(item.label || item.provider_id || "Provider")} — ${escapeHtml(item.reason || item.status || "unavailable")}`).join("; ")}</div>` : ""}
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#64748b;overflow-wrap:anywhere;">Session ${escapeHtml(result.session_id || "")} · ${escapeHtml(result.execution_boundary || "Approval gated")} · ${escapeHtml(result.result_hash || "")}</div>
         </div>
-      `).join("")}
-
-      <div style="margin-top:10px; color:#15803d; font-weight:900;">&gt; Agreed plan</div>
-      ${safeArray(consensus.plan).map((line, index) => `<div>&gt; ${index + 1}. ${escapeHtml(line)}</div>`).join("")}
-
-      <div style="margin-top:10px; color:#b45309; font-weight:900;">&gt; Open questions</div>
-      ${safeArray(consensus.open_questions).map((line) => `<div>&gt; ? ${escapeHtml(line)}</div>`).join("")}
-
-      <div style="margin-top:10px; color:#be123c; font-weight:900;">&gt; Risks</div>
-      ${safeArray(consensus.risks).map((line) => `<div>&gt; ! ${escapeHtml(line)}</div>`).join("")}
-
-      <div style="margin-top:10px; color:#102a43;">&gt; Decision: ${escapeHtml(consensus.decision || "")}</div>
+      </details>
       ${typeof renderAionFounderFeedbackBoxV3 === "function" ? renderAionFounderFeedbackBoxV3(
         "ask_board",
         "after Round 1 consensus",
@@ -51703,23 +54825,24 @@ function renderAionFounderFeedbackBoxV3(roundKey, title, helperText, nextButtonH
     <div
       data-aion-founder-feedback-box="${escapeHtml(roundKey)}"
       style="
-        margin-top:9px;
-        border:1px solid rgba(168,85,247,0.5);
-        background:rgba(88,28,135,0.18);
-        color:#f3e8ff;
-        padding:12px;
+        margin-top:16px;
+        border:1px solid #ddd6fe;
+        border-radius:14px;
+        background:#faf5ff;
+        color:#3b0764;
+        padding:18px;
       "
     >
-      <div style="font-weight:900;color:#d8b4fe;letter-spacing:0.08em;text-transform:uppercase;">
-        &gt; Founder feedback · ${escapeHtml(title || roundKey)}
+      <div style="font-size:11px;font-weight:900;color:#7e22ce;letter-spacing:.12em;text-transform:uppercase;">
+        Your input · ${escapeHtml(title || roundKey)}
       </div>
-      <div style="margin-top:4px;color:#e9d5ff;">
-        &gt; ${escapeHtml(helperText || "Add corrections, objections, extra instructions, or missing context before the next round.")}
+      <div style="margin-top:5px;color:#6b21a8;">
+        ${escapeHtml(helperText || "Add corrections, objections, extra instructions, or missing context before the next round.")}
       </div>
 
       ${existing.length ? `
-        <div style="margin-top:8px;color:#ffffff;font-weight:900;">&gt; Saved founder notes</div>
-        ${existing.map((entry) => `<div style="color:#f3e8ff;">&gt; [${escapeHtml(entry.created_at || "")}] ${escapeHtml(entry.text || "")}</div>`).join("")}
+        <div style="margin-top:10px;color:#581c87;font-weight:900;">Saved notes</div>
+        ${existing.map((entry) => `<div style="margin-top:5px;color:#6b21a8;">${escapeHtml(entry.text || "")}</div>`).join("")}
       ` : ""}
 
       <textarea
@@ -51731,14 +54854,15 @@ function renderAionFounderFeedbackBoxV3(roundKey, title, helperText, nextButtonH
           min-height:72px;
           resize:vertical;
           box-sizing:border-box;
-          background:#1e1033;
-          color:#f5e8ff;
-          border:1px solid rgba(216,180,254,0.55);
+          background:#ffffff;
+          color:#3b0764;
+          border:1px solid #d8b4fe;
+          border-radius:10px;
           outline:none;
-          padding:10px;
-          font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
-          font-size:12px;
-          line-height:1.36;
+          padding:12px;
+          font-family:inherit;
+          font-size:13px;
+          line-height:1.45;
         "
       ></textarea>
 
@@ -51747,7 +54871,7 @@ function renderAionFounderFeedbackBoxV3(roundKey, title, helperText, nextButtonH
           type="button"
           class="aion-council-session-action"
           data-aion-round-feedback-save="${escapeHtml(roundKey)}"
-          style="border-color:rgba(216,180,254,0.75);background:#3b0764;color:#f5e8ff;"
+          style="border:1px solid #c084fc;border-radius:9px;background:#ffffff;color:#6b21a8;padding:10px 14px;font-weight:900;"
         >
           Save Founder Feedback
         </button>
@@ -51949,79 +55073,73 @@ function renderBoardroomCouncilSessionTerminal() {
     : `<div>&gt; none added yet</div>`;
 
   const terminalExpandedHtml = `
-    <div style="margin:0 0 12px;border:1px solid #bfdbfe;background:#eff6ff;padding:14px;">
-      <div style="font-weight:900;color:#1d4ed8;">${journeyStage === "baseline_first_meeting" ? "Baseline meeting" : "Business activation follow-up"}</div>
-      <div style="margin-top:4px;color:#475569;">${journeyStage === "baseline_first_meeting" ? "A complete company profile is not required today. The Board will work from verified evidence and turn gaps into paced tasks." : "Review progress, choose the next highest-value department and keep the workload bounded."}</div>
-      <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;color:#334155;font-weight:800;">
-        Next Board meeting
-        <input type="date" data-aion-next-board-meeting-date="true" value="${escapeHtml(nextMeetingDate)}" style="border:1px solid #93c5fd;background:#fff;padding:7px 9px;color:#0f172a;">
-        <button type="button" data-aion-save-next-board-meeting="true" style="border:0;background:#2563eb;color:#fff;padding:8px 12px;font-weight:900;cursor:pointer;">Save date</button>
-      </label>
-    </div>
-    <div
+    <section
       data-aion-council-session-terminal-log="true"
-      style="
-        margin-top:0;
-        border:1px solid rgba(17,17,17,0.18);
-        background:#f7fbfd;
-        padding:12px;
-        font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
-        font-size:12px;
-        line-height:1.68;
-        color:#29465b;
-        min-height:250px;
-        max-height:390px;
-        overflow:auto;
-        box-shadow:inset 4px 0 0 #0284c7;
-      "
+      style="margin:0 0 14px;border:1px solid #dbe3ee;border-radius:16px;background:#fff;padding:20px;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0f172a;box-shadow:0 10px 28px rgba(15,23,42,.06);"
     >
-      <div>&gt; Boardroom Context Packet</div>
-      <div>&gt; Business context map: ${escapeHtml(businessContextStatus)}</div>
-      <div>&gt; Department discovery loaded: ${escapeHtml(useful)}</div>
-      <div>&gt; Missing department discovery: ${escapeHtml(missing)}</div>
-      <div>&gt; Council members staged: ${escapeHtml(providerNames)}</div>
-      <div>&gt; Execution boundary: ${escapeHtml(executionStatus)} · no live execution from this terminal</div>
-      <div>&nbsp;</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#0f766e;">Meeting brief</div>
+          <div style="margin-top:5px;font-size:22px;font-weight:900;line-height:1.2;">${journeyStage === "baseline_first_meeting" ? "Baseline business review" : "Business activation follow-up"}</div>
+          <div style="margin-top:6px;max-width:760px;color:#64748b;line-height:1.5;">${journeyStage === "baseline_first_meeting" ? "The Board will work from the verified information already available. Missing information will become focused follow-up tasks, not a barrier to starting." : "The Board will review progress, identify the most valuable next actions and keep the workload manageable."}</div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:#334155;font-size:13px;font-weight:800;">
+          Next meeting
+          <input type="date" data-aion-next-board-meeting-date="true" value="${escapeHtml(nextMeetingDate)}" style="border:1px solid #cbd5e1;border-radius:9px;background:#fff;padding:8px 10px;color:#0f172a;">
+          <button type="button" data-aion-save-next-board-meeting="true" style="border:0;border-radius:9px;background:#2563eb;color:#fff;padding:9px 13px;font-weight:900;cursor:pointer;">Save</button>
+        </label>
+      </div>
 
-      <div>&gt; Business context detail:</div>
-      ${businessContextLines.map((line) => `<div>${escapeHtml(line)}</div>`).join("")}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:20px;">
+        <div style="border:1px solid #dbeafe;border-radius:13px;background:#eff6ff;padding:15px;">
+          <div style="font-size:11px;font-weight:900;color:#1d4ed8;letter-spacing:.1em;text-transform:uppercase;">Board advisers</div>
+          <div style="margin-top:7px;font-size:22px;font-weight:900;color:#172554;">${escapeHtml(String(snapshot.connectedProviders.length))}</div>
+          <div style="margin-top:3px;color:#475569;font-size:13px;">${escapeHtml(providerNames)}</div>
+        </div>
+        <div style="border:1px solid #bbf7d0;border-radius:13px;background:#f0fdf4;padding:15px;">
+          <div style="font-size:11px;font-weight:900;color:#15803d;letter-spacing:.1em;text-transform:uppercase;">Departments ready</div>
+          <div style="margin-top:7px;font-size:22px;font-weight:900;color:#14532d;">${escapeHtml(String(snapshot.usefulDepartments.length))}</div>
+          <div style="margin-top:3px;color:#475569;font-size:13px;">${escapeHtml(useful)}</div>
+        </div>
+        <div style="border:1px solid ${snapshot.missingDepartments.length ? "#fde68a" : "#bbf7d0"};border-radius:13px;background:${snapshot.missingDepartments.length ? "#fffbeb" : "#f0fdf4"};padding:15px;">
+          <div style="font-size:11px;font-weight:900;color:${snapshot.missingDepartments.length ? "#a16207" : "#15803d"};letter-spacing:.1em;text-transform:uppercase;">Information gaps</div>
+          <div style="margin-top:7px;font-size:22px;font-weight:900;color:${snapshot.missingDepartments.length ? "#713f12" : "#14532d"};">${escapeHtml(String(snapshot.missingDepartments.length))}</div>
+          <div style="margin-top:3px;color:#475569;font-size:13px;">${snapshot.missingDepartments.length ? escapeHtml(missing) : "No department gaps detected"}</div>
+        </div>
+        <div style="border:1px solid #ddd6fe;border-radius:13px;background:#f5f3ff;padding:15px;">
+          <div style="font-size:11px;font-weight:900;color:#6d28d9;letter-spacing:.1em;text-transform:uppercase;">Governance</div>
+          <div style="margin-top:7px;font-size:16px;font-weight:900;color:#4c1d95;">Approval gated</div>
+          <div style="margin-top:3px;color:#475569;font-size:13px;">Nothing is executed without your approval.</div>
+        </div>
+      </div>
 
-      <div>&nbsp;</div>
-      <div>&gt; Department context attachment detail:</div>
-      ${safeArray(departmentContextLines).map((line) => `<div>${escapeHtml(line)}</div>`).join("")}
+      ${snapshot.missingDepartments.length ? `
+        <div style="margin-top:14px;border:1px solid #fde68a;border-radius:12px;background:#fffbeb;padding:13px 15px;color:#713f12;">
+          <strong>Useful to complete later:</strong> ${escapeHtml(missing)}. You can still continue with this meeting now.
+        </div>
+      ` : ""}
 
-      <div>&nbsp;</div>
-      <div>&gt; Department runtime source detail:</div>
-      ${sourceLines.map((item) => `<div>${escapeHtml(item.line)}</div>`).join("")}
-
-      <div>&nbsp;</div>
-      <div>&gt; User-added board context:</div>
-      ${userContextHtml}
-
-      <div>&nbsp;</div>
-      ${
-        readAionBoardroomSessionArtifacts().length
-          ? `
-            <div>&gt; Previous boardroom sessions:</div>
-            ${readAionBoardroomSessionArtifacts().slice(-5).map((record) => `
-              <div>&gt; ${escapeHtml(record.session_id || record.artifact_id)} · ${escapeHtml(record.storage_path || "business_container_pointer_pending")}</div>
-            `).join("")}
-            <div>&nbsp;</div>
-          `
-          : ""
-      }
-      
-
-
-      <div>&gt; Context packet summary:</div>
-      <div>&gt; Council Members: ${escapeHtml(String(snapshot.connectedProviders.length))} · ${escapeHtml(providerNames)}</div>
-      <div>&gt; Context Loaded: ${escapeHtml(String(snapshot.usefulDepartments.length))} · ${escapeHtml(useful)}</div>
-      <div>&gt; Missing Inputs: ${escapeHtml(String(snapshot.missingDepartments.length))} · ${escapeHtml(missing)}</div>
-      <div>&gt; User Context Entries: ${escapeHtml(String(userContextEntries.length))}</div>
-      <div>&gt; Execution: approval · Pilot waits for user approval</div>
-      <div>&gt; Source revisions: Business Map ${escapeHtml(String(snapshot.sourceRevisions?.business_map ?? "unknown"))} · Department Intelligence ${escapeHtml(String(snapshot.sourceRevisions?.department_intelligence ?? "unknown"))} · Finance ${escapeHtml(String(snapshot.sourceRevisions?.finance ?? "unknown"))} · Operating Model ${escapeHtml(String(snapshot.sourceRevisions?.operating_model ?? "unknown"))}</div>
-    </div>
-
+      <details style="margin-top:16px;border-top:1px solid #e2e8f0;padding-top:14px;">
+        <summary style="cursor:pointer;color:#475569;font-weight:850;">View technical context and evidence sources</summary>
+        <div style="margin-top:12px;border-radius:12px;background:#f8fafc;padding:14px;max-height:340px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:11px;line-height:1.65;color:#475569;">
+          <div><strong>Business context map:</strong> ${escapeHtml(businessContextStatus)}</div>
+          <div><strong>Execution boundary:</strong> ${escapeHtml(executionStatus)}</div>
+          <div style="margin-top:9px;"><strong>Business context</strong></div>
+          ${businessContextLines.map((line) => `<div>${escapeHtml(String(line).replace(/^>\s*/, ""))}</div>`).join("")}
+          <div style="margin-top:9px;"><strong>Department evidence</strong></div>
+          ${safeArray(departmentContextLines).map((line) => `<div>${escapeHtml(String(line).replace(/^>\s*/, ""))}</div>`).join("")}
+          <div style="margin-top:9px;"><strong>Runtime sources</strong></div>
+          ${sourceLines.map((item) => `<div>${escapeHtml(String(item.line).replace(/^>\s*/, ""))}</div>`).join("")}
+          <div style="margin-top:9px;"><strong>User-added context</strong></div>
+          ${userContextHtml}
+          ${readAionBoardroomSessionArtifacts().length ? `
+            <div style="margin-top:9px;"><strong>Previous sessions</strong></div>
+            ${readAionBoardroomSessionArtifacts().slice(-5).map((record) => `<div>${escapeHtml(record.session_id || record.artifact_id)} · ${escapeHtml(record.storage_path || "business_container_pointer_pending")}</div>`).join("")}
+          ` : ""}
+          <div style="margin-top:9px;"><strong>Source revisions:</strong> Business Map ${escapeHtml(String(snapshot.sourceRevisions?.business_map ?? "unknown"))} · Department Intelligence ${escapeHtml(String(snapshot.sourceRevisions?.department_intelligence ?? "unknown"))} · Finance ${escapeHtml(String(snapshot.sourceRevisions?.finance ?? "unknown"))} · Operating Model ${escapeHtml(String(snapshot.sourceRevisions?.operating_model ?? "unknown"))}</div>
+        </div>
+      </details>
+    </section>
   `;
 
   return `
@@ -52043,10 +55161,6 @@ function renderBoardroomCouncilSessionTerminal() {
         margin-bottom:0;
       "
     >
-      ${typeof window.aionRenderOriginalBusinessMapGovernanceV2 === "function"
-        ? window.aionRenderOriginalBusinessMapGovernanceV2()
-        : ""}
-
       ${renderAionBoardMeetingArchiveStripV1()}
 
       <div
@@ -52066,7 +55180,7 @@ function renderBoardroomCouncilSessionTerminal() {
           color:rgba(17,17,17,0.48);
           font-weight:900;
         ">
-          Boardroom Terminal · context packet
+          Board meeting
         </div>
 
       </div>
@@ -54378,14 +57492,22 @@ async function aionOperationsConversationRequest(path, payload = {}) {
   }
 }
 
+function getAionDepartmentPilotModelPreference() {
+  const selected = window.getTessarisActiveModelSelection?.() || {};
+  return {
+    preferred_provider: selected.provider_id || null,
+    preferred_model: selected.model_id || null,
+  };
+}
+
 function renderAionOperationsConversationTurn(item = {}) {
   const mine = String(item.role || "") === "user";
   const bubble = document.createElement("div");
   bubble.style.cssText = mine
-    ? "align-self:flex-end;max-width:88%;background:#4f46e5;color:#fff;padding:14px 16px;line-height:1.5;border-radius:16px 4px 16px 16px;"
-    : "max-width:88%;background:#eef2ff;color:#172554;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;";
+    ? "align-self:flex-end;max-width:88%;background:#2563eb;color:#fff;padding:14px 16px;line-height:1.5;border-radius:16px 4px 16px 16px;"
+    : "max-width:88%;background:#eef5ff;color:#14213d;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;";
   const label = mine ? "You" : "Operations Pilot";
-  const labelColor = mine ? "#e0e7ff" : "#4338ca";
+  const labelColor = mine ? "#dbeafe" : "#2563eb";
   const receipt = item.mission_receipt && typeof item.mission_receipt === "object" ? item.mission_receipt : {};
   const proposal = item.proposal && typeof item.proposal === "object" ? item.proposal : (receipt.proposal || {});
   const selection = receipt.model_selection && typeof receipt.model_selection === "object" ? receipt.model_selection : {};
@@ -54399,7 +57521,7 @@ function renderAionOperationsConversationTurn(item = {}) {
     researchJob?.status ? `Research ${String(researchJob.status).replaceAll("_", " ")}` : "",
     approval?.approval_state ? `Approval ${String(approval.approval_state).replaceAll("_", " ")}` : "",
   ].filter(Boolean);
-  bubble.innerHTML = `<strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:${labelColor};">${label}</strong>${escapeHtml(String(item.content || ""))}${details.length ? `<div style="margin-top:9px;padding-top:8px;border-top:1px solid rgba(67,56,202,.18);font-size:10px;color:#6366f1;letter-spacing:.04em;">${details.map(escapeHtml).join(" · ")}</div>` : ""}`;
+  bubble.innerHTML = `<strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:${labelColor};">${label}</strong>${escapeHtml(String(item.content || ""))}${details.length ? `<div style="margin-top:9px;padding-top:8px;border-top:1px solid rgba(37,99,235,.18);font-size:10px;color:#526780;letter-spacing:.04em;">${details.map(escapeHtml).join(" · ")}</div>` : ""}`;
   return bubble;
 }
 
@@ -54462,13 +57584,13 @@ function renderAionPeopleConversationTurn(item = {}) {
   const mine = String(item.role || "") === "user";
   const bubble = document.createElement("div");
   bubble.style.cssText = mine
-    ? "align-self:flex-end;max-width:88%;background:#0f766e;color:#fff;padding:14px 16px;line-height:1.5;border-radius:16px 4px 16px 16px;"
-    : "max-width:88%;background:#f0fdfa;color:#134e4a;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #99f6e4;";
+    ? "align-self:flex-end;max-width:88%;background:#2563eb;color:#fff;padding:14px 16px;line-height:1.5;border-radius:16px 4px 16px 16px;"
+    : "max-width:88%;background:#eef5ff;color:#14213d;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;";
   const label = mine ? "You" : "People Pilot";
-  const labelColor = mine ? "#ccfbf1" : "#0f766e";
+  const labelColor = mine ? "#dbeafe" : "#2563eb";
   const action = !mine && item.people_action && typeof item.people_action === "object" ? item.people_action : null;
   const actionStatus = action?.status ? String(action.status).replaceAll("_", " ") : "";
-  bubble.innerHTML = `<strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:${labelColor};">${label}</strong><span style="white-space:pre-wrap;">${escapeHtml(String(item.content || ""))}</span>${actionStatus ? `<div style="margin-top:9px;padding-top:8px;border-top:1px solid #99f6e4;font-size:10px;color:#0f766e;letter-spacing:.06em;text-transform:uppercase;">People record · ${escapeHtml(actionStatus)}</div>` : ""}`;
+  bubble.innerHTML = `<strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:${labelColor};">${label}</strong><span style="white-space:pre-wrap;">${escapeHtml(String(item.content || ""))}</span>${actionStatus ? `<div style="margin-top:9px;padding-top:8px;border-top:1px solid #c8d8fb;font-size:10px;color:#526780;letter-spacing:.06em;text-transform:uppercase;">People record · ${escapeHtml(actionStatus)}</div>` : ""}`;
   return bubble;
 }
 
@@ -54476,15 +57598,49 @@ function renderAionSupportConversationTurn(item = {}) {
   const mine = String(item.role || "") === "user";
   const bubble = document.createElement("div");
   bubble.style.cssText = mine
-    ? "align-self:flex-end;max-width:88%;background:#67558f;color:#fff;padding:14px 16px;line-height:1.5;border-radius:16px 4px 16px 16px;"
-    : "max-width:88%;background:#f5f3ff;color:#35265b;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #ddd6fe;";
+    ? "align-self:flex-end;max-width:88%;background:#2563eb;color:#fff;padding:14px 16px;line-height:1.5;border-radius:16px 4px 16px 16px;"
+    : "max-width:88%;background:#eef5ff;color:#14213d;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;";
   const label = mine ? "You" : "Support Pilot";
-  const labelColor = mine ? "#ede9fe" : "#67558f";
+  const labelColor = mine ? "#dbeafe" : "#2563eb";
   const receipt = item.mission_receipt && typeof item.mission_receipt === "object" ? item.mission_receipt : {};
   const approval = item.required_approval || receipt.required_approval;
   const approvalState = approval?.approval_state ? String(approval.approval_state).replaceAll("_", " ") : "";
-  bubble.innerHTML = `<strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:${labelColor};">${label}</strong><span style="white-space:pre-wrap;">${escapeHtml(String(item.content || ""))}</span>${approvalState ? `<div style="margin-top:9px;padding-top:8px;border-top:1px solid #ddd6fe;font-size:10px;color:#67558f;letter-spacing:.06em;text-transform:uppercase;">Approval · ${escapeHtml(approvalState)}</div>` : ""}`;
+  bubble.innerHTML = `<strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:${labelColor};">${label}</strong><span style="white-space:pre-wrap;">${escapeHtml(String(item.content || ""))}</span>${approvalState ? `<div style="margin-top:9px;padding-top:8px;border-top:1px solid #c8d8fb;font-size:10px;color:#526780;letter-spacing:.06em;text-transform:uppercase;">Approval · ${escapeHtml(approvalState)}</div>` : ""}`;
   return bubble;
+}
+
+function renderAionMarketingConversationTurn(item = {}) {
+  const mine = String(item.role || "") === "user";
+  const bubble = document.createElement("div");
+  bubble.style.cssText = mine
+    ? "align-self:flex-end;max-width:88%;background:#2563eb;color:#fff;padding:14px 16px;line-height:1.5;border-radius:16px 4px 16px 16px;"
+    : "max-width:88%;background:#eef5ff;color:#14213d;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;";
+  const label = mine ? "You" : "Marketing Pilot";
+  const labelColor = mine ? "#dbeafe" : "#2563eb";
+  const results = Array.isArray(item.tool_results) ? item.tool_results : [];
+  const approvals = Array.isArray(item.approval_requests) ? item.approval_requests : [];
+  const metadata = [
+    results.length ? `${results.length} internal result${results.length === 1 ? "" : "s"}` : "",
+    approvals.length ? `${approvals.length} awaiting approval` : "",
+  ].filter(Boolean);
+  bubble.innerHTML = `<strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:${labelColor};">${label}</strong><span style="white-space:pre-wrap;">${escapeHtml(String(item.content || ""))}</span>${metadata.length ? `<div style="margin-top:9px;padding-top:8px;border-top:1px solid #c8d8fb;font-size:10px;color:#526780;letter-spacing:.06em;text-transform:uppercase;">${metadata.map(escapeHtml).join(" · ")}</div>` : ""}`;
+  return bubble;
+}
+
+async function hydrateAionMarketingConversation(centre) {
+  const thread = centre?.querySelector?.("[data-aion-marketing-pilot-thread]");
+  if (!thread || thread.dataset.hydrating === "true") return;
+  thread.dataset.hydrating = "true";
+  try {
+    const result = await aionOperationsConversationRequest("history", { department_id: "marketing", limit: 50 });
+    const turns = Array.isArray(result.turns) ? result.turns : [];
+    if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionMarketingConversationTurn, "#2563eb"));
+    thread.scrollTop = thread.scrollHeight;
+  } catch (error) {
+    console.warn("[AION] Marketing conversation history unavailable", error);
+  } finally {
+    thread.dataset.hydrating = "false";
+  }
 }
 
 async function hydrateAionSupportConversation(centre) {
@@ -54494,7 +57650,7 @@ async function hydrateAionSupportConversation(centre) {
   try {
     const result = await aionOperationsConversationRequest("history", { department_id: "support", limit: 50 });
     const turns = Array.isArray(result.turns) ? result.turns : [];
-    if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionSupportConversationTurn, "#67558f"));
+    if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionSupportConversationTurn, "#94a3b8"));
     thread.scrollTop = thread.scrollHeight;
   } catch (error) {
     console.warn("[AION] Support conversation history unavailable", error);
@@ -54562,7 +57718,7 @@ async function hydrateAionPeopleConversation(centre) {
   try {
     const result = await aionOperationsConversationRequest("history", { department_id: "people", limit: 50 });
     const turns = Array.isArray(result.turns) ? result.turns : [];
-    if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionPeopleConversationTurn, "#0f766e"));
+    if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionPeopleConversationTurn, "#94a3b8"));
     setAionPeopleActiveProfile(centre, turns);
     thread.scrollTop = thread.scrollHeight;
   } catch (error) {
@@ -54580,7 +57736,7 @@ async function hydrateAionOperationsConversation(centre) {
     const result = await aionOperationsConversationRequest("history", { department_id: "operations", limit: 50 });
     const turns = Array.isArray(result.turns) ? result.turns : [];
     if (turns.length) {
-      thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionOperationsConversationTurn, "#4f46e5"));
+      thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionOperationsConversationTurn, "#94a3b8"));
       thread.scrollTop = thread.scrollHeight;
     }
   } catch (error) {
@@ -54599,14 +57755,14 @@ function renderAionOperationsDepartmentTurn(item = {}) {
   const created = String(item.created_at || "");
   const timestamp = created ? new Date(created).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "";
   const row = document.createElement("article");
-  row.style.cssText = `align-self:${fromCoo ? "flex-end" : "flex-start"};max-width:94%;border:1px solid ${fromCoo ? "#c7d2fe" : "#99f6e4"};background:${fromCoo ? "#eef2ff" : "#f0fdfa"};padding:12px 14px;color:#0f172a;box-shadow:0 1px 2px rgba(15,23,42,.05);`;
+  row.style.cssText = `align-self:${fromCoo ? "flex-end" : "flex-start"};max-width:94%;border:1px solid ${fromCoo ? "#bfd2fb" : "#d9e2ec"};background:${fromCoo ? "#eef5ff" : "#f7f9fc"};padding:12px 14px;color:#14213d;border-radius:14px;box-shadow:0 1px 2px rgba(15,23,42,.04);`;
   row.innerHTML = `
     <div style="display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:7px;">
-      <strong style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:${fromCoo ? "#4338ca" : "#0f766e"};">${escapeHtml(String(item.sender || (fromCoo ? "Operations Pilot" : "Department Pilot")))}</strong>
+      <strong style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:${fromCoo ? "#2563eb" : "#526780"};">${escapeHtml(String(item.sender || (fromCoo ? "Operations Pilot" : "Department Pilot")))}</strong>
       <span style="font-size:9px;color:#64748b;white-space:nowrap;">${escapeHtml(timestamp)}</span>
     </div>
     <div style="white-space:pre-wrap;line-height:1.5;font-size:13px;">${escapeHtml(String(item.content || ""))}</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;padding-top:8px;border-top:1px solid ${fromCoo ? "#c7d2fe" : "#99f6e4"};font-size:9px;color:#64748b;letter-spacing:.05em;text-transform:uppercase;">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;padding-top:8px;border-top:1px solid ${fromCoo ? "#bfd2fb" : "#d9e2ec"};font-size:9px;color:#66758a;letter-spacing:.05em;text-transform:uppercase;">
       <span>${escapeHtml(type)}</span>
       ${sources.length ? `<span>· ${sources.length} evidence source${sources.length === 1 ? "" : "s"}</span>` : ""}
       ${model.provider ? `<span>· ${escapeHtml(String(model.provider))}${model.model ? ` / ${escapeHtml(String(model.model))}` : ""}</span>` : ""}
@@ -54619,7 +57775,7 @@ function setAionOperationsChannelState(centre, message, tone = "neutral") {
   const status = centre?.querySelector?.("[data-aion-operations-channel-state]");
   if (!status) return;
   status.textContent = String(message || "");
-  status.style.color = tone === "error" ? "#b91c1c" : tone === "working" ? "#4338ca" : "#64748b";
+  status.style.color = tone === "error" ? "#b91c1c" : tone === "working" ? "#2563eb" : "#66758a";
 }
 
 async function hydrateAionOperationsDepartmentChannel(centre, departmentId, options = {}) {
@@ -54634,7 +57790,7 @@ async function hydrateAionOperationsDepartmentChannel(centre, departmentId, opti
     if (centre.dataset.aionOperationsActiveChannel !== department) return;
     const turns = Array.isArray(result.turns) ? result.turns : [];
     if (turns.length) {
-      thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionOperationsDepartmentTurn, "#0f766e"));
+      thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionOperationsDepartmentTurn, "#94a3b8"));
       thread.scrollTop = thread.scrollHeight;
       setAionOperationsChannelState(centre, `${turns.length} recorded message${turns.length === 1 ? "" : "s"} · persistent business record`);
     } else {
@@ -54692,6 +57848,9 @@ async function hydrateAionOperationsExecutiveStatus(centre, { autoRun = true } =
 }
 
 document.addEventListener("click", (event) => {
+  const departmentFunctionalSection = event.target?.closest?.("[data-aion-department-functional-section]");
+  const financeFunctionalSection = event.target?.closest?.("[data-aion-finance-functional-section]");
+  const openKpiBoardroom = event.target?.closest?.("[data-aion-department-kpi-boardroom]");
   const channel = event.target?.closest?.("[data-aion-operations-channel]");
   const openOperationsDashboard = event.target?.closest?.("[data-aion-operations-dashboard]");
   const openOperationsPackage = event.target?.closest?.("[data-aion-operations-open-package]");
@@ -54701,6 +57860,47 @@ document.addEventListener("click", (event) => {
   const openSalesPackage = event.target?.closest?.("[data-aion-sales-open-package]");
   const open = event.target?.closest?.("[data-aion-unified-department-conversation]");
   const close = event.target?.closest?.("[data-aion-unified-pilot-close]");
+  if (openKpiBoardroom) {
+    event.preventDefault();
+    event.stopPropagation();
+    const department = String(openKpiBoardroom.dataset.aionDepartmentKpiBoardroom || "").trim();
+    window.__aionBoardroomKpiDepartmentV1 = department;
+    try { localStorage.setItem("aion.boardroom.kpiDepartment.v1", department); } catch {}
+    if (typeof window.setAionSidebarActiveTabHardV1 === "function") {
+      window.setAionSidebarActiveTabHardV1("boardroom");
+    } else {
+      state.activeTab = "boardroom";
+      if (typeof requestRender === "function") requestRender();
+      else if (typeof render === "function") render();
+    }
+    return;
+  }
+  if (departmentFunctionalSection) {
+    event.preventDefault();
+    event.stopPropagation();
+    const department = String(departmentFunctionalSection.dataset.aionDepartment || "").trim();
+    const section = String(departmentFunctionalSection.dataset.aionDepartmentFunctionalSection || "workspace").trim();
+    if (department && ["workspace", "performance"].includes(section)) {
+      window.__aionDepartmentFunctionalSectionsV1 = {
+        ...(window.__aionDepartmentFunctionalSectionsV1 || {}),
+        [department]: section,
+      };
+      try { localStorage.setItem(`aion.${department}.functionalSection.v1`, section); } catch {}
+      if (typeof requestRender === "function") requestRender();
+      else if (typeof render === "function") render();
+    }
+    return;
+  }
+  if (financeFunctionalSection) {
+    event.preventDefault();
+    event.stopPropagation();
+    const section = String(financeFunctionalSection.dataset.aionFinanceFunctionalSection || "overview");
+    window.__aionFinanceFunctionalSectionV1 = section;
+    try { localStorage.setItem("aion.finance.functionalSection.v1", section); } catch {}
+    if (typeof requestRender === "function") requestRender();
+    else if (typeof render === "function") render();
+    return;
+  }
   if (openOperationsDashboard) {
     event.preventDefault();
     event.stopPropagation();
@@ -54851,9 +58051,9 @@ document.addEventListener("mousedown", (event) => {
   const setSplit = (clientX) => {
     const bounds = split.getBoundingClientRect();
     const raw = ((clientX - bounds.left) / bounds.width) * 100;
-    const next = Math.max(35, Math.min(65, Math.round(raw)));
+    const next = Math.max(28, Math.min(65, Math.round(raw)));
     split.setAttribute("data-aion-operations-split", String(next));
-    split.style.gridTemplateColumns = `minmax(360px,${next}fr) 30px minmax(310px,${100 - next}fr)`;
+    split.style.gridTemplateColumns = `minmax(320px,${next}fr) 30px minmax(560px,${100 - next}fr)`;
   };
   const onMove = (moveEvent) => setSplit(moveEvent.clientX);
   const onUp = () => {
@@ -54877,9 +58077,9 @@ document.addEventListener("mousedown", (event) => {
   const setSplit = (clientX) => {
     const bounds = split.getBoundingClientRect();
     const raw = ((clientX - bounds.left) / bounds.width) * 100;
-    const next = Math.max(32, Math.min(68, Math.round(raw)));
+    const next = Math.max(28, Math.min(65, Math.round(raw)));
     split.setAttribute("data-aion-people-split", String(next));
-    split.style.gridTemplateColumns = `minmax(320px,${next}fr) 30px minmax(520px,${100 - next}fr)`;
+    split.style.gridTemplateColumns = `minmax(320px,${next}fr) 30px minmax(560px,${100 - next}fr)`;
   };
   const onMove = (moveEvent) => setSplit(moveEvent.clientX);
   const onUp = () => {
@@ -54983,6 +58183,31 @@ document.addEventListener("mousedown", (event) => {
     const raw = ((clientX - bounds.left) / bounds.width) * 100;
     const next = Math.max(30, Math.min(62, Math.round(raw)));
     split.setAttribute("data-aion-legal-split", String(next));
+    split.style.gridTemplateColumns = `minmax(330px,${next}fr) 30px minmax(620px,${100 - next}fr)`;
+  };
+  const onMove = (moveEvent) => setSplit(moveEvent.clientX);
+  const onUp = () => {
+    window.removeEventListener("mousemove", onMove);
+    window.removeEventListener("mouseup", onUp);
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  };
+  document.body.style.cursor = "col-resize";
+  document.body.style.userSelect = "none";
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp, { once: true });
+  event.preventDefault();
+}, true);
+
+document.addEventListener("mousedown", (event) => {
+  const handle = event.target?.closest?.("[data-aion-procurement-split-handle]");
+  if (!handle || event.button !== 0) return;
+  const split = handle.closest("[data-aion-procurement-split]");
+  if (!split) return;
+  const setSplit = (clientX) => {
+    const bounds = split.getBoundingClientRect();
+    const next = Math.max(30, Math.min(62, Math.round(((clientX - bounds.left) / bounds.width) * 100)));
+    split.setAttribute("data-aion-procurement-split", String(next));
     split.style.gridTemplateColumns = `minmax(330px,${next}fr) 30px minmax(620px,${100 - next}fr)`;
   };
   const onMove = (moveEvent) => setSplit(moveEvent.clientX);
@@ -55224,7 +58449,97 @@ document.addEventListener("click", (event) => {
   })();
 }, true);
 
+document.addEventListener("click", (event) => {
+  const example = event.target?.closest?.("[data-aion-procurement-example]");
+  if (!example) return;
+  const centre = example.closest("[data-aion-procurement-command-centre]");
+  const input = centre?.querySelector?.("[data-aion-procurement-pilot-input]");
+  if (!input) return;
+  event.preventDefault();
+  input.value = String(example.dataset.aionProcurementExample || "");
+  input.focus();
+  input.setSelectionRange?.(input.value.length, input.value.length);
+}, true);
+
 document.addEventListener("submit", (event) => {
+  const marketingForm = event.target?.closest?.("[data-aion-marketing-pilot-form]");
+  if (marketingForm) {
+    event.preventDefault();
+    const centre = marketingForm.closest("[data-aion-marketing-command-centre]");
+    const thread = centre?.querySelector("[data-aion-marketing-pilot-thread]");
+    const input = marketingForm.querySelector("[data-aion-marketing-pilot-input]");
+    const text = String(input?.value || "").trim();
+    if (!text || !centre || !thread || input.disabled) return;
+    appendAionDatedConversationTurn(thread, { role: "user", content: text }, renderAionMarketingConversationTurn, "#2563eb");
+    const status = appendAionDatedConversationTurn(thread, { role: "assistant", content: "Understanding the request and checking Marketing data and tools…" }, renderAionMarketingConversationTurn, "#2563eb");
+    thread.scrollTop = thread.scrollHeight;
+    input.value = "";
+    input.disabled = true;
+    void (async () => {
+      try {
+        const result = await aionOperationsConversationRequest("turn", {
+          department_id: "marketing", user_text: text, attachments: [],
+          ...getAionDepartmentPilotModelPreference(),
+        });
+        const turns = Array.isArray(result?.history?.turns) ? result.history.turns : [];
+        if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionMarketingConversationTurn, "#2563eb"));
+        else {
+          status.remove();
+          appendAionDatedConversationTurn(thread, result?.conversation?.turn || { role: "assistant", content: "No Marketing response was returned." }, renderAionMarketingConversationTurn, "#2563eb");
+        }
+        const toolResults = result?.conversation?.tool_results || [];
+        const contentPlan = toolResults.find?.((item) => item?.tool === "marketing.create_content_plan")?.artifact?.payload;
+        if (contentPlan) {
+          const lab = getAionMarketingCreativeLabState();
+          lab.plan = contentPlan;
+          lab.status = "ready";
+          desktopStore.setMarketingField("brief", text);
+          desktopStore.persistCache();
+        }
+        thread.scrollTop = thread.scrollHeight;
+      } catch (error) {
+        status.remove();
+        appendAionDatedConversationTurn(thread, { role: "assistant", content: `The Marketing Pilot could not complete that request: ${String(error?.message || error)}` }, renderAionMarketingConversationTurn, "#2563eb");
+      } finally {
+        input.disabled = false;
+        input.focus();
+      }
+    })();
+    return;
+  }
+  const procurementForm = event.target?.closest?.("[data-aion-procurement-pilot-form]");
+  if (procurementForm) {
+    event.preventDefault();
+    const centre = procurementForm.closest("[data-aion-procurement-command-centre]");
+    const thread = centre?.querySelector("[data-aion-procurement-pilot-thread]");
+    const input = procurementForm.querySelector("[data-aion-procurement-pilot-input]");
+    const text = String(input?.value || "").trim();
+    if (!text || !centre || !thread) return;
+    appendAionDatedConversationTurn(thread, { role: "user", content: text }, renderAionProcurementConversationTurn, "#2563eb");
+    const status = appendAionDatedConversationTurn(thread, { role: "assistant", content: "Reviewing the shared stock record, supplier evidence and approval boundary…" }, renderAionProcurementConversationTurn, "#2563eb");
+    thread.scrollTop = thread.scrollHeight;
+    input.value = "";
+    input.disabled = true;
+    void (async () => {
+      try {
+        const result = await aionOperationsConversationRequest("turn", { department_id: "procurement", user_text: text, attachments: [] });
+        const turns = Array.isArray(result?.history?.turns) ? result.history.turns : [];
+        if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionProcurementConversationTurn, "#2563eb"));
+        else {
+          status.remove();
+          appendAionDatedConversationTurn(thread, result?.conversation?.turn || { role: "assistant", content: "The Procurement Pilot recorded the request as an approval-gated draft." }, renderAionProcurementConversationTurn, "#2563eb");
+        }
+        thread.scrollTop = thread.scrollHeight;
+      } catch (error) {
+        status.remove();
+        appendAionDatedConversationTurn(thread, { role: "assistant", content: `The Procurement Pilot could not answer: ${String(error?.message || error)}` }, renderAionProcurementConversationTurn, "#2563eb");
+      } finally {
+        input.disabled = false;
+        input.focus();
+      }
+    })();
+    return;
+  }
   const legalForm = event.target?.closest?.("[data-aion-legal-pilot-form]");
   if (legalForm) {
     event.preventDefault();
@@ -55280,7 +58595,7 @@ document.addEventListener("submit", (event) => {
     input.disabled = true;
     void (async () => {
       try {
-        const result = await aionOperationsConversationRequest("turn", { department_id: "sales", user_text: text, attachments });
+        const result = await aionOperationsConversationRequest("turn", { department_id: "sales", user_text: text, attachments, ...getAionDepartmentPilotModelPreference() });
         const turns = Array.isArray(result?.history?.turns) ? result.history.turns : [];
         if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionSalesConversationTurn, "#0f766e"));
         else {
@@ -55310,20 +58625,20 @@ document.addEventListener("submit", (event) => {
     const attachments = (() => { try { return JSON.parse(supportForm.dataset.aionSupportAttachments || "[]"); } catch { return []; } })();
     const text = String(input?.value || "").trim();
     if (!text || !centre || !thread) return;
-    appendAionDatedConversationTurn(thread, { role: "user", content: text }, renderAionSupportConversationTurn, "#67558f");
-    const status = appendAionDatedConversationTurn(thread, { role: "assistant", content: "Reviewing the customer timeline, approved policy and support authority…" }, renderAionSupportConversationTurn, "#67558f");
+    appendAionDatedConversationTurn(thread, { role: "user", content: text }, renderAionSupportConversationTurn, "#94a3b8");
+    const status = appendAionDatedConversationTurn(thread, { role: "assistant", content: "Reviewing the customer timeline, approved policy and support authority…" }, renderAionSupportConversationTurn, "#94a3b8");
     status.setAttribute("data-aion-support-pilot-working", "true");
     thread.scrollTop = thread.scrollHeight;
     input.value = "";
     input.disabled = true;
     void (async () => {
       try {
-        const result = await aionOperationsConversationRequest("turn", { department_id: "support", user_text: text, attachments });
+        const result = await aionOperationsConversationRequest("turn", { department_id: "support", user_text: text, attachments, ...getAionDepartmentPilotModelPreference() });
         const turns = Array.isArray(result?.history?.turns) ? result.history.turns : [];
-        if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionSupportConversationTurn, "#67558f"));
+        if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionSupportConversationTurn, "#94a3b8"));
         else {
           status.remove();
-          appendAionDatedConversationTurn(thread, result?.conversation?.turn || { role: "assistant", content: "No Support response was returned." }, renderAionSupportConversationTurn, "#67558f");
+          appendAionDatedConversationTurn(thread, result?.conversation?.turn || { role: "assistant", content: "No Support response was returned." }, renderAionSupportConversationTurn, "#94a3b8");
         }
         supportForm.dataset.aionSupportAttachments = "[]";
         const attachButton = supportForm.querySelector("[data-aion-support-pilot-attach]");
@@ -55331,7 +58646,7 @@ document.addEventListener("submit", (event) => {
         thread.scrollTop = thread.scrollHeight;
       } catch (error) {
         status.remove();
-        appendAionDatedConversationTurn(thread, { role: "assistant", content: `The Support Pilot could not answer: ${String(error?.message || error)}` }, renderAionSupportConversationTurn, "#67558f");
+        appendAionDatedConversationTurn(thread, { role: "assistant", content: `The Support Pilot could not answer: ${String(error?.message || error)}` }, renderAionSupportConversationTurn, "#94a3b8");
       } finally {
         input.disabled = false;
         input.focus();
@@ -55348,20 +58663,20 @@ document.addEventListener("submit", (event) => {
     const attachments = (() => { try { return JSON.parse(peopleForm.dataset.aionPeopleAttachments || "[]"); } catch { return []; } })();
     const text = String(input?.value || "").trim();
     if (!text || !centre || !thread) return;
-    appendAionDatedConversationTurn(thread, { role: "user", content: text }, renderAionPeopleConversationTurn, "#0f766e");
-    const status = appendAionDatedConversationTurn(thread, { role: "assistant", content: "Reviewing the authorised People records…" }, renderAionPeopleConversationTurn, "#0f766e");
+    appendAionDatedConversationTurn(thread, { role: "user", content: text }, renderAionPeopleConversationTurn, "#94a3b8");
+    const status = appendAionDatedConversationTurn(thread, { role: "assistant", content: "Reviewing the authorised People records…" }, renderAionPeopleConversationTurn, "#94a3b8");
     status.setAttribute("data-aion-people-pilot-working", "true");
     thread.scrollTop = thread.scrollHeight;
     input.value = "";
     input.disabled = true;
     void (async () => {
       try {
-        const result = await aionOperationsConversationRequest("turn", { department_id: "people", user_text: text, attachments });
+        const result = await aionOperationsConversationRequest("turn", { department_id: "people", user_text: text, attachments, ...getAionDepartmentPilotModelPreference() });
         const turns = Array.isArray(result?.history?.turns) ? result.history.turns : [];
-        if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionPeopleConversationTurn, "#0f766e"));
+        if (turns.length) thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionPeopleConversationTurn, "#94a3b8"));
         else {
           status.remove();
-          appendAionDatedConversationTurn(thread, result?.conversation?.turn || { role: "assistant", content: "No People response was returned." }, renderAionPeopleConversationTurn, "#0f766e");
+          appendAionDatedConversationTurn(thread, result?.conversation?.turn || { role: "assistant", content: "No People response was returned." }, renderAionPeopleConversationTurn, "#94a3b8");
         }
         if (result?.conversation?.people_action?.organization_revision && window.AionHrPeopleWorkspace?.load) {
           await window.AionHrPeopleWorkspace.load(false);
@@ -55373,7 +58688,7 @@ document.addEventListener("submit", (event) => {
         thread.scrollTop = thread.scrollHeight;
       } catch (error) {
         status.remove();
-        appendAionDatedConversationTurn(thread, { role: "assistant", content: `The People Pilot could not answer: ${String(error?.message || error)}` }, renderAionPeopleConversationTurn, "#0f766e");
+        appendAionDatedConversationTurn(thread, { role: "assistant", content: `The People Pilot could not answer: ${String(error?.message || error)}` }, renderAionPeopleConversationTurn, "#94a3b8");
       } finally {
         input.disabled = false;
         input.focus();
@@ -55414,19 +58729,19 @@ document.addEventListener("submit", (event) => {
   const centre = form.closest("[data-aion-operations-command-centre]");
   const thread = centre?.querySelector("[data-aion-operations-coo-thread]");
   if (thread) {
-    appendAionDatedConversationTurn(thread, { role: "user", content: text }, renderAionOperationsConversationTurn, "#4f46e5");
+    appendAionDatedConversationTurn(thread, { role: "user", content: text }, renderAionOperationsConversationTurn, "#94a3b8");
     const status = document.createElement("div");
     status.style.cssText = "max-width:88%;background:#f1f5f9;color:#475569;padding:12px 14px;line-height:1.5;border-radius:4px 16px 16px 16px;";
-    status.innerHTML = "<strong style=\"display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#4338ca;\">Operations Pilot</strong>Checking the relevant business evidence and COO mission boundary…";
+    status.innerHTML = "<strong style=\"display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#2563eb;\">Operations Pilot</strong>Checking the relevant business evidence and COO mission boundary…";
     thread.append(status); thread.scrollTop = thread.scrollHeight;
   }
   input.value = "";
   void (async () => {
     try {
-      const result = await aionOperationsConversationRequest("turn", { department_id: "operations", user_text: text });
+      const result = await aionOperationsConversationRequest("turn", { department_id: "operations", user_text: text, ...getAionDepartmentPilotModelPreference() });
       const turns = Array.isArray(result?.history?.turns) ? result.history.turns : [];
       if (thread && turns.length) {
-        thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionOperationsConversationTurn, "#4f46e5"));
+        thread.replaceChildren(...renderAionDatedConversationTurns(turns, renderAionOperationsConversationTurn, "#94a3b8"));
         thread.scrollTop = thread.scrollHeight;
       }
     } catch (error) {
@@ -55434,6 +58749,15 @@ document.addEventListener("submit", (event) => {
     }
   })();
 }, true);
+
+document.addEventListener("keydown", (event) => {
+  const input = event.target?.closest?.("[data-aion-marketing-pilot-input]");
+  if (!input || event.key !== "Enter" || event.shiftKey || event.isComposing) return;
+  const form = input.closest("[data-aion-marketing-pilot-form]");
+  if (!form || !String(input.value || "").trim()) return;
+  event.preventDefault();
+  form.requestSubmit();
+});
 
 document.addEventListener("keydown", (event) => {
   const input = event.target?.closest?.("[data-aion-sales-pilot-input]");
@@ -55483,17 +58807,490 @@ document.addEventListener("keydown", (event) => {
 
 function renderFinanceWorkspaceSurface(selectedRuns, selectedAgentCard) {
   const financeWorkspace =
-    window.AionFinancePilot && typeof window.AionFinancePilot.render === "function"
-      ? window.AionFinancePilot.render()
-      : renderAionFinanceDataSetupPanelV2();
+    typeof window.renderAionDepartmentPilotRuntime === "function"
+      ? window.renderAionDepartmentPilotRuntime("finance")
+      : window.AionFinancePilot && typeof window.AionFinancePilot.render === "function"
+        ? window.AionFinancePilot.render()
+        : renderAionFinanceDataSetupPanelV2();
   return `
-    <div data-aion-finance-live-agents-workspace-v2="true" data-aion-shared-department-pilot="true" data-aion-shared-department="finance" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#ffffff!important;">
+    <div data-aion-finance-live-agents-workspace-v2="true" data-aion-shared-department-pilot="true" data-aion-shared-department="finance" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#f7f9fc!important;">
       ${renderFinancePilotCommandCentre(financeWorkspace)}
     </div>
   `;
 }
 
+function getAionFinanceFunctionalSectionV1() {
+  const selected = String(window.__aionFinanceFunctionalSectionV1 || "").trim();
+  if (["overview", "performance", "foundations"].includes(selected)) return selected;
+  try {
+    const stored = String(localStorage.getItem("aion.finance.functionalSection.v1") || "").trim();
+    if (["overview", "performance", "foundations"].includes(stored)) return stored;
+  } catch {}
+  return "overview";
+}
+
+function getAionDepartmentFunctionalSectionV1(department = "") {
+  const key = String(department || "").trim();
+  const selected = String(window.__aionDepartmentFunctionalSectionsV1?.[key] || "").trim();
+  if (["workspace", "performance"].includes(selected)) return selected;
+  try {
+    const stored = String(localStorage.getItem(`aion.${key}.functionalSection.v1`) || "").trim();
+    if (["workspace", "performance"].includes(stored)) return stored;
+  } catch {}
+  return "workspace";
+}
+
+function renderAionDepartmentFunctionalTabsV1(department = "", workspaceLabel = "Workspace") {
+  const key = String(department || "").trim();
+  const active = getAionDepartmentFunctionalSectionV1(key);
+  const tab = (section, label) => `<button type="button" data-aion-department-functional-section="${section}" data-aion-department="${escapeHtml(key)}" aria-pressed="${active === section}">${escapeHtml(label)}</button>`;
+  return `<nav class="aion-department-functional-tabs" aria-label="${escapeHtml(workspaceLabel)} sections">
+    ${tab("workspace", workspaceLabel)}
+    ${tab("performance", "Performance")}
+  </nav>`;
+}
+
+function renderAionDepartmentGenericPerformanceV1(department = {}) {
+  const label = String(department.label || "Department");
+  const automations = safeArray(department.automations).slice(0, 5);
+  const rows = (items, empty, renderItem) => items.length
+    ? items.map(renderItem).join("")
+    : `<p class="aion-department-performance-empty">${escapeHtml(empty)}</p>`;
+  return `<div class="aion-department-performance-grid">
+    <section><header><span>Automations</span><strong>${automations.length} shown</strong></header>${rows(automations, `No ${label} automation is currently recorded.`, (item) => `<article><strong>${escapeHtml(item.name || item.title || "Automation")}</strong><span>${escapeHtml(item.status || "Status not reported")}</span></article>`)}</section>
+    <section><header><span>Run health</span><strong>${escapeHtml(String(department.runs?.completed || 0))} completed</strong></header><article><strong>${escapeHtml(String(department.runs?.failed || 0))} failed runs</strong><span>${escapeHtml(department.summary || "Waiting for the next verified Operations update.")}</span></article></section>
+  </div>`;
+}
+
+function renderAionDepartmentTargetsAndQueueV1(department = {}) {
+  const key = String(department.key || "").trim();
+  const label = String(department.label || runtimeShared.getDepartmentLabel(key) || "Department");
+  const kpis = safeArray(department.kpis);
+  const tasks = safeArray(department.tasks).filter((task) => task.status !== "completed");
+  const kpiValue = (value, unit = "") => `${String(value ?? "—")}${String(unit || "")}`;
+  return `<div class="aion-department-accountability" data-aion-department-accountability="${escapeHtml(key)}">
+    <section class="aion-department-targets" data-aion-department-targets-results="true">
+      <header>
+        <div><span>TARGETS AND ACTUAL RESULTS</span><h4>${escapeHtml(label)} KPIs</h4><p>Targets are set by the founder or Boardroom. Actual results are updated by accountable agents and verified outcomes.</p></div>
+        <b>${kpis.length ? `${kpis.length} ACTIVE` : "NOT CONFIGURED"}</b>
+      </header>
+      ${kpis.length ? `<div class="aion-department-kpi-table">
+        <div class="aion-department-kpi-head"><span>Measure</span><span>Target</span><span>Actual</span><span>Evidence</span></div>
+        ${kpis.map((kpi) => `<article data-status="${escapeHtml(kpi.status || "in_progress")}">
+          <span><strong>${escapeHtml(kpi.label || "KPI")}</strong><small>Set by ${escapeHtml(kpi.targetOwner || "Founder / Boardroom")}</small></span>
+          <b>${escapeHtml(kpiValue(kpi.target, kpi.unit))}</b>
+          <b>${escapeHtml(kpiValue(kpi.actual, kpi.unit))}</b>
+          <span><small>${escapeHtml(kpi.evidence || "Awaiting verified outcome")}</small></span>
+        </article>`).join("")}
+      </div>` : `<div class="aion-department-kpi-empty">
+        <div><strong>KPIs not configured</strong><span>No founder or Boardroom target has been recorded for ${escapeHtml(label)} yet.</span></div>
+        <button type="button" data-aion-department-kpi-boardroom="${escapeHtml(key)}">Open Boardroom to define measurable KPIs</button>
+      </div>`}
+    </section>
+    <section class="aion-department-work-queue" data-aion-department-work-queue="true">
+      <header>
+        <div><span>DAILY OPERATING RHYTHM</span><h4>${escapeHtml(label)} work queue</h4><p>${escapeHtml(department.summary || "Accountable work for this department.")}</p></div>
+        <b>${tasks.length} OPEN</b>
+      </header>
+      ${tasks.length ? `<div class="aion-department-work-list">${tasks.map((task) => `<article>
+        <span><strong>${escapeHtml(task.title || "Department action")}</strong><small>${escapeHtml(task.detail || task.source || "Boardroom instruction")}</small></span>
+        <span><small>Accountable</small><strong>${escapeHtml(task.owner || `${label} agent`)}</strong></span>
+        <span><small>Due</small><strong>${escapeHtml(task.due ? formatDateTime(task.due) : "Not scheduled")}</strong></span>
+        <i data-status="${escapeHtml(task.status || "in_progress")}">${escapeHtml(String(task.status || "in progress").replaceAll("_", " "))}</i>
+      </article>`).join("")}</div>` : `<div class="aion-department-work-empty"><strong>No open work</strong><span>No daily tasks are currently assigned to ${escapeHtml(label)}.</span></div>`}
+    </section>
+  </div>`;
+}
+
+function renderAionDepartmentPerformanceOverviewV1(departmentKey = "") {
+  const requestedKey = String(departmentKey || "").trim();
+  const modelKey = requestedKey === "people" ? "hr" : requestedKey;
+  const executiveModel = getAionExecutiveDashboardModelV1();
+  const department = executiveModel.departments.find((item) => item.key === modelKey) || {
+    key: modelKey,
+    label: requestedKey === "people" ? "People" : requestedKey.replaceAll("_", " "),
+    summary: "Performance evidence and accountable work for this department.",
+    openTasks: 0,
+    tasks: [],
+    kpis: [],
+    automations: [],
+    runs: { completed: 0, failed: 0 },
+  };
+  const specialised = modelKey === "sales" ? renderAionSalesFunctionSnapshotV1(department)
+    : modelKey === "finance" ? renderAionFinanceFunctionSnapshotV1(department)
+      : modelKey === "support" ? renderAionSupportFunctionSnapshotV1(department)
+        : modelKey === "hr" ? renderAionPeopleFunctionSnapshotV1(department)
+          : renderAionDepartmentGenericPerformanceV1(department);
+  return `<section class="aion-department-performance" data-aion-department-performance="${escapeHtml(requestedKey)}">
+    <div class="aion-department-performance-heading"><div><span>PERFORMANCE &amp; ACCOUNTABILITY</span><h3>${escapeHtml(department.label)} function snapshot</h3><p>${escapeHtml(department.summary || "Verified department evidence and accountable work in one place.")}</p></div><b>LIVE BUSINESS EVIDENCE</b></div>
+    <div class="aion-department-performance-metrics">
+      <article><span>Open actions</span><strong>${escapeHtml(String(department.openTasks || 0))}</strong><small>Accountable work</small></article>
+      <article><span>Active KPIs</span><strong>${escapeHtml(String(department.kpis?.length || 0))}</strong><small>Measured outcomes</small></article>
+      <article><span>Automations</span><strong>${escapeHtml(String(department.automations?.length || 0))}</strong><small>Department workflows</small></article>
+      <article><span>Completed runs</span><strong>${escapeHtml(String(department.runs?.completed || 0))}</strong><small>Recorded outcomes</small></article>
+    </div>
+    ${renderAionDepartmentTargetsAndQueueV1(department)}
+    ${specialised}
+  </section>`;
+}
+
+function renderAionDepartmentTabbedWorkspaceV1(department = "", workspaceLabel = "Workspace", workspaceMarkup = "") {
+  const active = getAionDepartmentFunctionalSectionV1(department);
+  return `<div class="aion-department-functional-workspace" data-aion-department-functional-workspace="${escapeHtml(department)}">
+    ${renderAionDepartmentFunctionalTabsV1(department, workspaceLabel)}
+    <div data-aion-department-functional-view="workspace" ${active === "workspace" ? "" : "hidden"}>${workspaceMarkup}</div>
+    ${active === "performance" ? `<div data-aion-department-functional-view="performance">${renderAionDepartmentPerformanceOverviewV1(department)}</div>` : ""}
+  </div>`;
+}
+
+function renderAionFinanceFoundationsV1() {
+  const operatingModel = window.AionOperatingModelWorkspace;
+  if (!operatingModel) {
+    return `<section style="padding:24px;color:#66758a;">Financial foundations are loading…</section>`;
+  }
+  if (!operatingModel.state?.loaded && !operatingModel.state?.loading) {
+    window.setTimeout?.(() => operatingModel.load?.(), 0);
+  }
+  const modelState = operatingModel.state || {};
+  const status = modelState.error
+    ? `<span class="om-error">${escapeHtml(modelState.error)}</span>`
+    : modelState.savedAt
+      ? `<span class="om-saved">Saved to the Business Map and Boardroom at ${escapeHtml(modelState.savedAt)}</span>`
+      : `<span>Changes remain a draft until saved.</span>`;
+  return `<section class="om-shell" data-aion-finance-foundations="true" style="min-height:100%;background:#fff;">
+    <section class="om-terminal" style="border-top:0;">
+      <div class="om-context"><div><span>FINANCIAL FOUNDATIONS</span><strong>Terms, recurring costs, borrowing and agreed targets</strong></div><b>SHARED SOURCE OF TRUTH</b></div>
+      <div class="om-guidance-card"><strong>Keep one reliable financial record.</strong><span>Accounting evidence, owner-confirmed terms and Board-agreed targets saved here update the same Business Map used by the Finance Pilot and Boardroom.</span></div>
+      <div class="om-content">${operatingModel.renderFinanceFoundations?.() || ""}</div>
+      <footer><div>${status}</div><button class="om-save" data-om-save="true" ${modelState.saving ? "disabled" : ""}>${modelState.saving ? "Saving…" : "Save & update Boardroom"}</button></footer>
+    </section>
+  </section>`;
+}
+
+function renderAionFinanceFunctionalWorkspaceV1(financeWorkspace = "") {
+  const active = getAionFinanceFunctionalSectionV1();
+  return `<div data-aion-finance-functional-switcher="true" style="min-height:100%;background:#f7f9fc;">
+    <nav aria-label="Finance workspace sections" style="position:sticky;top:0;z-index:6;display:flex;gap:8px;padding:12px 18px;border-bottom:1px solid #d9e2ec;background:#f7f9fc;">
+      <button type="button" data-aion-finance-functional-section="overview" aria-pressed="${active === "overview"}" style="border:1px solid ${active === "overview" ? "#2563eb" : "#d9e2ec"};border-radius:999px;background:${active === "overview" ? "#eef5ff" : "#fff"};color:${active === "overview" ? "#2563eb" : "#475569"};padding:9px 13px;font-weight:850;cursor:pointer;">Overview &amp; evidence</button>
+      <button type="button" data-aion-finance-functional-section="performance" aria-pressed="${active === "performance"}" style="border:1px solid ${active === "performance" ? "#2563eb" : "#d9e2ec"};border-radius:999px;background:${active === "performance" ? "#eef5ff" : "#fff"};color:${active === "performance" ? "#2563eb" : "#475569"};padding:9px 13px;font-weight:850;cursor:pointer;">Performance</button>
+      <button type="button" data-aion-finance-functional-section="foundations" aria-pressed="${active === "foundations"}" style="border:1px solid ${active === "foundations" ? "#2563eb" : "#d9e2ec"};border-radius:999px;background:${active === "foundations" ? "#eef5ff" : "#fff"};color:${active === "foundations" ? "#2563eb" : "#475569"};padding:9px 13px;font-weight:850;cursor:pointer;">Financial foundations</button>
+    </nav>
+    <div data-aion-finance-functional-view="${active}">${active === "foundations" ? renderAionFinanceFoundationsV1() : active === "performance" ? renderAionDepartmentPerformanceOverviewV1("finance") : financeWorkspace}</div>
+  </div>`;
+}
+
+function ensureAionDepartmentComposerStyles() {
+  if (document.getElementById("aion-department-composer-styles")) return;
+  const style = document.createElement("style");
+  style.id = "aion-department-composer-styles";
+  style.textContent = `
+    .aion-department-command-centre {
+      --tessaris-shell:#0b1739;
+      --tessaris-action:#2563eb;
+      --tessaris-signal:#22d3ee;
+      --tessaris-soft:#eef5ff;
+      --tessaris-page:#f7f9fc;
+      --tessaris-panel:#ffffff;
+      --tessaris-border:#d9e2ec;
+      --tessaris-text:#14213d;
+      --tessaris-muted:#66758a;
+      --aion-department-accent:var(--tessaris-action)!important;
+      --aion-action-accent:var(--tessaris-action)!important;
+      font-family:Inter,"SF Pro Text","SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+      background:var(--tessaris-page)!important;
+      border-top-color:var(--tessaris-action)!important;
+      color:var(--tessaris-text)!important;
+    }
+    .aion-department-command-centre,
+    .aion-department-command-centre *:not(code):not(pre):not(kbd):not(samp) {
+      font-family:Inter,"SF Pro Text","SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+    }
+    .aion-department-command-centre button,
+    .aion-department-command-centre textarea,
+    .aion-department-command-centre input,
+    .aion-department-command-centre select,
+    .aion-department-command-centre details { border-radius:12px!important; font-family:inherit!important; }
+    .aion-department-command-centre .aion-command-centre-shell {
+      border:1px solid var(--tessaris-border)!important;
+      border-radius:18px!important;
+      overflow:hidden!important;
+      box-shadow:0 1px 2px rgba(15,23,42,.035),0 14px 38px rgba(15,23,42,.035)!important;
+    }
+    .aion-department-command-centre .aion-soft-button {
+      border:1px solid var(--tessaris-border)!important;
+      border-radius:11px!important;
+      background:#fff!important;
+      box-shadow:0 1px 2px rgba(15,23,42,.04)!important;
+      transition:border-color .16s ease,background .16s ease,transform .16s ease!important;
+    }
+    .aion-department-command-centre .aion-soft-button:hover {
+      border-color:var(--tessaris-action)!important;
+      background:var(--tessaris-soft)!important;
+      color:var(--tessaris-action)!important;
+      transform:translateY(-1px);
+    }
+    .aion-department-command-centre .aion-primary-action {
+      border:0!important;
+      border-radius:12px!important;
+      background:var(--tessaris-action)!important;
+      color:#fff!important;
+      min-height:40px!important;
+      padding:0 15px!important;
+      box-shadow:0 2px 7px rgba(15,23,42,.14)!important;
+      font-size:9px!important;
+      font-weight:900!important;
+      letter-spacing:.08em!important;
+      text-transform:uppercase!important;
+      cursor:pointer!important;
+    }
+    .aion-department-command-centre [data-aion-operations-channel][aria-selected="true"] {
+      border-color:var(--tessaris-action)!important;
+      background:var(--tessaris-soft)!important;
+      color:var(--tessaris-action)!important;
+    }
+    .aion-department-command-centre [data-aion-operations-channel][aria-selected="false"] {
+      border-color:var(--tessaris-border)!important;
+      background:#fff!important;
+      color:#475569!important;
+    }
+    .aion-department-composer {
+      display:grid!important;
+      grid-template-columns:minmax(0,1fr) auto!important;
+      align-items:end!important;
+      gap:8px!important;
+      padding:7px!important;
+      border:1px solid var(--tessaris-border)!important;
+      border-radius:17px!important;
+      background:#fff!important;
+      box-shadow:0 2px 8px rgba(15,23,42,.045)!important;
+    }
+    .aion-department-composer:focus-within {
+      border-color:var(--tessaris-action)!important;
+      box-shadow:0 0 0 3px rgba(37,99,235,.12)!important;
+    }
+    .aion-department-composer textarea {
+      min-width:0!important;
+      min-height:42px!important;
+      max-height:140px!important;
+      padding:10px 11px!important;
+      border:0!important;
+      border-radius:12px!important;
+      background:transparent!important;
+      color:var(--tessaris-text)!important;
+      resize:none!important;
+      outline:0!important;
+      box-shadow:none!important;
+      line-height:1.4!important;
+    }
+    .aion-department-composer textarea::placeholder { color:#8a94a3!important; }
+    .aion-department-composer .aion-composer-actions {
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:7px;
+    }
+    .aion-department-composer .aion-composer-tool {
+      width:40px!important;
+      height:40px!important;
+      display:inline-flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      padding:0!important;
+      border:1px solid var(--tessaris-border)!important;
+      border-radius:12px!important;
+      background:var(--tessaris-page)!important;
+      color:var(--tessaris-muted)!important;
+      font-size:15px!important;
+      cursor:pointer!important;
+    }
+    .aion-department-composer .aion-composer-tool:hover {
+      border-color:var(--tessaris-action)!important;
+      color:var(--tessaris-action)!important;
+    }
+    .aion-department-composer .aion-composer-secondary {
+      min-height:40px!important;
+      padding:0 13px!important;
+      border:1px solid var(--tessaris-border)!important;
+      border-radius:12px!important;
+      background:var(--tessaris-page)!important;
+      color:#344054!important;
+      font-size:10px!important;
+      font-weight:800!important;
+      letter-spacing:.04em!important;
+      white-space:nowrap!important;
+      cursor:pointer!important;
+    }
+    .aion-department-composer .aion-composer-send {
+      min-height:40px!important;
+      padding:0 15px!important;
+      border:0!important;
+      border-radius:12px!important;
+      background:var(--tessaris-action)!important;
+      color:#fff!important;
+      box-shadow:0 2px 6px rgba(37,99,235,.24)!important;
+      font-size:10px!important;
+      font-weight:900!important;
+      letter-spacing:.08em!important;
+      text-transform:uppercase!important;
+      white-space:nowrap!important;
+      cursor:pointer!important;
+    }
+    .aion-department-composer .aion-composer-send:hover { filter:brightness(.96); }
+    .aion-department-command-centre > header > div > div:first-child,
+    .aion-department-command-centre [data-aion-operations-channel-title],
+    .aion-department-command-centre h2,
+    .aion-department-command-centre h3,
+    .aion-department-command-centre strong { color:var(--tessaris-text)!important; }
+    .aion-department-command-centre > header > div > div:first-child { color:var(--tessaris-action)!important; }
+    .aion-department-command-centre > header button,
+    .aion-department-command-centre [data-aion-finance-open-package],
+    .aion-department-command-centre [data-aion-sales-open-package],
+    .aion-department-command-centre [data-aion-support-open-package],
+    .aion-department-command-centre [data-aion-people-open-package] {
+      border:1px solid var(--tessaris-border)!important;
+      border-radius:12px!important;
+      background:#fff!important;
+      color:var(--tessaris-text)!important;
+      box-shadow:0 1px 2px rgba(11,23,57,.05)!important;
+    }
+    .aion-department-command-centre > header button:hover { border-color:var(--tessaris-action)!important;color:var(--tessaris-action)!important;background:var(--tessaris-soft)!important; }
+    .aion-department-command-centre [data-aion-finance-split],
+    .aion-department-command-centre [data-aion-sales-split],
+    .aion-department-command-centre [data-aion-support-split],
+    .aion-department-command-centre [data-aion-people-split] {
+      border:1px solid var(--tessaris-border)!important;
+      border-radius:18px!important;
+      overflow:hidden!important;
+      box-shadow:0 1px 2px rgba(11,23,57,.035),0 14px 38px rgba(11,23,57,.035)!important;
+    }
+    .aion-department-command-centre [data-aion-finance-pilot-pane],
+    .aion-department-command-centre [data-aion-sales-pilot-pane],
+    .aion-department-command-centre [data-aion-support-pilot-pane],
+    .aion-department-command-centre [data-aion-people-pilot-pane],
+    .aion-department-command-centre [data-aion-operations-pilot-pane] { background:#fbfcfe!important; }
+    .aion-department-command-centre details,
+    .aion-department-command-centre [data-aion-operations-channel-panel] {
+      border-color:var(--tessaris-border)!important;
+      background:var(--tessaris-panel)!important;
+      color:var(--tessaris-text)!important;
+    }
+    .aion-department-command-centre details button { border-color:var(--tessaris-border)!important;background:var(--tessaris-page)!important;color:var(--tessaris-text)!important; }
+    .aion-department-command-centre details summary span:last-child,
+    .aion-department-command-centre [role="separator"] { color:var(--tessaris-action)!important; }
+    .aion-department-command-centre [role="separator"] { border-color:#b9cdfd!important;background:var(--tessaris-soft)!important;box-shadow:none!important; }
+    .aion-department-command-centre [data-aion-finance-pilot-thread] > div,
+    .aion-department-command-centre [data-aion-sales-pilot-thread] > div,
+    .aion-department-command-centre [data-aion-support-pilot-thread] > div,
+    .aion-department-command-centre [data-aion-people-pilot-thread] > div,
+    .aion-department-command-centre [data-aion-operations-pilot-thread] > div {
+      background:var(--tessaris-soft)!important;
+      border-color:#c8d8fb!important;
+      color:var(--tessaris-text)!important;
+    }
+    .aion-department-command-centre [data-aion-finance-pilot-thread] > div strong,
+    .aion-department-command-centre [data-aion-sales-pilot-thread] > div strong,
+    .aion-department-command-centre [data-aion-support-pilot-thread] > div strong,
+    .aion-department-command-centre [data-aion-people-pilot-thread] > div strong,
+    .aion-department-command-centre [data-aion-operations-pilot-thread] > div strong { color:var(--tessaris-action)!important; }
+    .aion-department-command-centre [data-aion-finance-workspace-pane],
+    .aion-department-command-centre [data-aion-sales-workspace-pane],
+    .aion-department-command-centre [data-aion-support-workspace-pane],
+    .aion-department-command-centre [data-aion-people-workspace-pane],
+    .aion-department-command-centre [data-aion-operations-workspace-pane] { background:var(--tessaris-page)!important; }
+    html body .aion-department-command-centre .srw-shell,
+    html body .aion-department-command-centre .scw-shell,
+    html body .aion-department-command-centre .hrw-shell,
+    html body .aion-department-command-centre [data-aion-finance-workspace="true"] {
+      --ink:var(--tessaris-text)!important;
+      --muted:var(--tessaris-muted)!important;
+      --line:var(--tessaris-border)!important;
+      --teal:var(--tessaris-action)!important;
+      --green:var(--tessaris-action)!important;
+      border-color:var(--tessaris-border)!important;
+      background:var(--tessaris-panel)!important;
+      color:var(--tessaris-text)!important;
+    }
+    html body .aion-department-command-centre .srw-shell,
+    html body .aion-department-command-centre .scw-shell { border-radius:16px!important;overflow:hidden!important; }
+    html body .aion-department-command-centre .srw-shell button,
+    html body .aion-department-command-centre .scw-shell button,
+    html body .aion-department-command-centre .hrw-shell button,
+    html body .aion-department-command-centre [data-aion-finance-workspace="true"] button { border-radius:11px!important; }
+    html body .aion-department-command-centre .srw-shell button.primary,
+    html body .aion-department-command-centre .scw-shell button.primary,
+    html body .aion-department-command-centre .hrw-shell button.primary,
+    html body .aion-department-command-centre [data-aion-finance-workspace="true"] [data-aion-finance-continue],
+    html body .aion-department-command-centre [data-aion-finance-workspace="true"] [data-aion-finance-finalise] {
+      background:var(--tessaris-action)!important;
+      border-color:var(--tessaris-action)!important;
+      color:#fff!important;
+    }
+    html body .aion-department-command-centre .srw-shell > header span,
+    html body .aion-department-command-centre .srw-title span,
+    html body .aion-department-command-centre .scw-shell > header span,
+    html body .aion-department-command-centre .hrw-shell > header span,
+    html body .aion-department-command-centre .hrw-section-head > div > span { color:var(--tessaris-action)!important; }
+    html body .aion-department-command-centre .srw-deal-flow,
+    html body .aion-department-command-centre .srw-console,
+    html body .aion-department-command-centre .srw-commercial-workbench,
+    html body .aion-department-command-centre .scw-board,
+    html body .aion-department-command-centre .scw-panel,
+    html body .aion-department-command-centre .hrw-content,
+    html body .aion-department-command-centre .hrw-connected-people,
+    html body .aion-department-command-centre .hrw-operations,
+    html body .aion-department-command-centre .hrw-policy {
+      border-color:var(--tessaris-border)!important;
+      border-radius:15px!important;
+      background:var(--tessaris-panel)!important;
+    }
+    html body .aion-department-command-centre .srw-shell input,
+    html body .aion-department-command-centre .srw-shell select,
+    html body .aion-department-command-centre .srw-shell textarea,
+    html body .aion-department-command-centre .scw-shell input,
+    html body .aion-department-command-centre .scw-shell select,
+    html body .aion-department-command-centre .scw-shell textarea,
+    html body .aion-department-command-centre .hrw-shell input,
+    html body .aion-department-command-centre .hrw-shell select,
+    html body .aion-department-command-centre .hrw-shell textarea,
+    html body .aion-department-command-centre [data-aion-finance-workspace="true"] input,
+    html body .aion-department-command-centre [data-aion-finance-workspace="true"] select,
+    html body .aion-department-command-centre [data-aion-finance-workspace="true"] textarea {
+      border-color:var(--tessaris-border)!important;
+      border-radius:11px!important;
+      color:var(--tessaris-text)!important;
+      background:#fff!important;
+    }
+    html body .aion-department-command-centre .hrw-tabs button.active,
+    html body .aion-department-command-centre .srw-commercial-modes button.active,
+    html body .aion-department-command-centre [aria-pressed="true"] {
+      background:var(--tessaris-soft)!important;
+      border-color:var(--tessaris-action)!important;
+      color:var(--tessaris-action)!important;
+    }
+    .aion-department-composer.aion-department-composer--stacked {
+      grid-template-columns:1fr!important;
+    }
+    .aion-department-composer.aion-department-composer--stacked .aion-composer-actions {
+      padding:0 2px 1px;
+    }
+    @media(max-width:720px) {
+      .aion-department-composer { grid-template-columns:1fr!important; }
+      .aion-department-composer .aion-composer-actions { justify-content:flex-end; }
+    }
+    @media(max-width:1100px) {
+      [data-aion-operations-command-centre] [data-aion-operations-split] {
+        display:block!important;
+        height:auto!important;
+        overflow:auto!important;
+      }
+      [data-aion-operations-command-centre] [data-aion-operations-split-handle] { display:none!important; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function renderFinancePilotCommandCentre(financeWorkspace = "") {
+  ensureAionDepartmentComposerStyles();
   window.setTimeout?.(() => {
     const centre = document.querySelector("[data-aion-finance-command-centre]");
     const shell = centre?.closest?.("[data-aion-finance-live-agents-workspace-v2]");
@@ -55503,7 +59300,7 @@ function renderFinancePilotCommandCentre(financeWorkspace = "") {
     window.AionDepartmentPilotBackend?.refreshVisibleQueue?.();
   }, 160);
   return `
-    <section data-aion-finance-command-centre="true" style="background:#f8fbff;border-top:4px solid #0284c7;padding:24px 0 0;box-sizing:border-box;">
+    <section class="aion-department-command-centre" data-aion-finance-command-centre="true" style="--aion-department-accent:#2563eb;background:#f7f9fc;border-top:4px solid #2563eb;padding:24px 0 0;box-sizing:border-box;">
       <style>
         [data-aion-finance-workspace-pane] [data-aion-shared-department-pilot="true"]{margin:0!important;max-width:none!important}
         [data-aion-finance-workspace-pane] [data-aion-pilot-role="finance"]{border:0!important;border-left:0!important;min-height:100%!important;box-shadow:none!important}
@@ -55522,6 +59319,69 @@ function renderFinancePilotCommandCentre(financeWorkspace = "") {
         [data-aion-finance-conversation-thread] .aion-finance-conversation-day{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;width:100%;margin:16px 0 6px;color:#0284c7;font-size:9px;font-weight:950;letter-spacing:.13em;text-transform:uppercase}
         [data-aion-finance-conversation-thread] .aion-finance-conversation-day span{height:4px;background:#0284c7;opacity:.72}
         [data-aion-finance-conversation-thread] .aion-finance-conversation-day strong{border:1px solid #0284c7;background:#fff;color:#0369a1!important;padding:6px 9px;white-space:nowrap}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-shell,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-shell{
+          --ink:#14213d!important;--muted:#66758a!important;--line:#d9e2ec!important;--blue:#2563eb!important;--teal:#2563eb!important;--green:#2563eb!important;
+          border:1px solid #d9e2ec!important;border-radius:16px!important;background:#fff!important;color:#14213d!important;box-shadow:0 12px 30px rgba(15,23,42,.05)!important;overflow:hidden!important
+        }
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-shell>header,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-hero,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-shell>nav,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-tabs{border-color:#d9e2ec!important;background:#fff!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-shell>header span,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-month span,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-panel header span,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-hero span,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-heading span,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-empty>span,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-panel header span{color:#2563eb!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-shell button,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-shell button{
+          border:1px solid #cbd7e6!important;border-radius:11px!important;background:#fff!important;color:#2563eb!important;box-shadow:none!important
+        }
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-shell button:hover,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-shell button:hover{border-color:#9bb8f7!important;background:#eef5ff!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-shell button.primary,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-shell button.primary{
+          border-color:#2563eb!important;background:#2563eb!important;color:#fff!important;box-shadow:0 8px 18px rgba(37,99,235,.18)!important
+        }
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-tabs button.active{border-color:#2563eb!important;background:#eef5ff!important;color:#2563eb!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-metrics,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-metrics{background:#f7f9fc!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-metrics article,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-metrics article{border-color:#d9e2ec!important;border-radius:12px!important;background:#fff!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-metrics .waiting,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-metrics .ready{border-left-color:#2563eb!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-list article,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-document{border-color:#d9e2ec!important;border-left-color:#2563eb!important;border-radius:12px!important;background:#fff!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-document.status-approved_for_accounting{border-left-color:#2563eb!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-doc-icon{border-radius:10px!important;background:#eef5ff!important;color:#2563eb!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-hero>div:last-child{
+          border:1px solid #bfd2fb!important;border-radius:11px!important;background:#eef5ff!important
+        }
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-hero b,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-hero small{color:#2563eb!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-channels article,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-accounting-providers article,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-provider-grid article{border-color:#d9e2ec!important;border-radius:12px!important;background:#f7f9fc!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-channels article.enabled,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-accounting-providers article.ready,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-provider-grid article.ready{border-top-color:#2563eb!important;background:#eef5ff!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-ledger-summary article,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-policy,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-route,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-provider-choice,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-reader{border-left-color:#2563eb!important;background:#eef5ff!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-reader span{color:#2563eb!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-good,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-no-write,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-posted{color:#2563eb!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-empty,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-empty,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-file{border-color:#bfd2fb!important;border-radius:12px!important;background:#f7f9fc!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-month{border-left-color:#d99a16!important;border-radius:12px!important;background:#fff9e8!important}
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fsw-panel,
+        [data-aion-finance-command-centre] [data-aion-finance-workspace-pane] .fiw-panel{border-radius:18px 0 0 18px!important;background:#fff!important}
         @media(max-width:1180px){[data-aion-finance-command-centre] [data-aion-finance-split]{grid-template-columns:1fr!important;display:block!important;overflow:auto!important}[data-aion-finance-command-centre] [data-aion-finance-split-handle]{display:none!important}[data-aion-finance-pilot-pane],[data-aion-finance-workspace-pane]{min-height:720px!important;height:auto!important}}
       </style>
       <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:18px;box-sizing:border-box;">
@@ -55530,13 +59390,13 @@ function renderFinancePilotCommandCentre(financeWorkspace = "") {
       </header>
       <div data-aion-finance-split="34" style="display:grid;grid-template-columns:minmax(330px,34fr) 30px minmax(620px,66fr);min-height:calc(100vh - 190px);height:calc(100vh - 190px);border-top:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;background:#fff;overflow:hidden;box-sizing:border-box;">
         <section data-aion-finance-pilot-pane="true" style="min-width:0;height:100%;overflow:hidden;background:#f7fafc;padding:20px;display:flex;flex-direction:column;box-sizing:border-box;">
-          <div style="display:flex;align-items:center;gap:11px;padding-bottom:14px;border-bottom:1px solid #cbd5e1;"><span style="width:11px;height:11px;border-radius:50%;background:#0284c7;box-shadow:0 0 0 4px #e0f2fe;"></span><div><strong style="color:#0f172a;">Finance Pilot</strong><div style="color:#64748b;font-size:12px;margin-top:3px;">Financial evidence, analysis and controlled execution adviser</div></div><span style="margin-left:auto;border:1px solid #86efac;background:#f0fdf4;color:#166534;padding:4px 7px;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;">Read-only chat</span></div>
-          <details style="margin-top:14px;border:1px solid #bae6fd;background:#f0f9ff;color:#0c4a6e;padding:10px 12px;"><summary style="cursor:pointer;font-size:11px;font-weight:900;">What can I ask Finance Pilot?</summary><p style="font-size:11px;line-height:1.5;margin:10px 0 0;">Ask about cash, revenue, margins, costs, outstanding invoices, evidence or a founder briefing. Answers are grounded in authorised Finance records and show their reliability.</p></details>
-          <div data-aion-finance-conversation-thread="true" style="flex:1;min-height:0;padding:16px 0;display:flex;flex-direction:column;gap:10px;overflow:auto;"><div style="max-width:90%;background:#edf8fc;color:#0c4a6e;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #bae6fd;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#0369a1;">Finance Pilot</strong>Ask me about the financial position, evidence, forecasts or approved Finance work. I will distinguish verified facts from assumptions and will not take an external action from this chat.</div></div>
-          <div style="display:flex;align-items:flex-end;gap:8px;padding-top:14px;border-top:1px solid #cbd5e1;"><textarea data-aion-finance-pilot-input="true" rows="2" placeholder="Ask about revenue, margins, costs, cash or evidence…" style="flex:1;resize:vertical;border:1px solid #94a3b8;background:#fff;color:#0f172a;padding:10px;font:inherit;"></textarea><button type="button" data-aion-finance-pilot-send="true" style="border:0;background:#0284c7;color:#fff;padding:12px 16px;font-size:10px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">Ask Finance</button></div>
+          <div style="display:flex;align-items:center;gap:11px;padding-bottom:14px;border-bottom:1px solid #d9e2ec;"><span style="width:11px;height:11px;border-radius:50%;background:#2563eb;box-shadow:0 0 0 4px #eef5ff;"></span><div><strong style="color:#14213d;">Finance Pilot</strong><div style="color:#66758a;font-size:12px;margin-top:3px;">Financial evidence, analysis and controlled execution adviser</div></div><span style="margin-left:auto;border:1px solid #bfd2fb;background:#eef5ff;color:#2563eb;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;">Read-only chat</span></div>
+          <details style="margin-top:14px;border:1px solid #d9e2ec;border-radius:12px;background:#fff;color:#14213d;padding:10px 12px;"><summary style="cursor:pointer;font-size:11px;font-weight:900;">What can I ask Finance Pilot?</summary><p style="font-size:11px;line-height:1.5;margin:10px 0 0;">Ask about cash, revenue, margins, costs, outstanding invoices, evidence or a founder briefing. Answers are grounded in authorised Finance records and show their reliability.</p></details>
+          <div data-aion-finance-conversation-thread="true" style="flex:1;min-height:0;padding:16px 0;display:flex;flex-direction:column;gap:10px;overflow:auto;"><div style="max-width:90%;background:#eef5ff;color:#14213d;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#2563eb;">Finance Pilot</strong>Ask me about the financial position, evidence, forecasts or approved Finance work. I will distinguish verified facts from assumptions and will not take an external action from this chat.</div></div>
+          <div class="aion-department-composer" style="margin-top:14px;"><textarea data-aion-finance-pilot-input="true" rows="2" placeholder="Ask about revenue, margins, costs, cash or evidence…"></textarea><div class="aion-composer-actions"><button class="aion-composer-send" type="button" data-aion-finance-pilot-send="true">Ask Finance&nbsp; ↑</button></div></div>
         </section>
-        <div aria-label="Drag to resize Finance Command Centre panes" style="border-left:1px solid #dbe3ef;border-right:1px solid #dbe3ef;background:#f8fafc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-finance-split-handle="true" aria-label="Drag to resize panes" title="Drag left or right to resize" style="width:18px;height:76px;border:1px solid #7dd3fc;border-radius:9px;background:#f0f9ff;color:#0369a1;box-shadow:0 1px 3px rgba(2,132,199,.18);display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
-        <section data-aion-finance-workspace-pane="true" style="min-width:0;height:100%;overflow:auto;background:#f8fafc;"><div data-aion-finance-functional-workspace="true">${financeWorkspace}</div></section>
+        <div aria-label="Drag to resize Finance Command Centre panes" style="border-left:1px solid #d9e2ec;border-right:1px solid #d9e2ec;background:#f7f9fc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-finance-split-handle="true" aria-label="Drag to resize panes" title="Drag left or right to resize" style="width:18px;height:76px;border:1px solid #bfd2fb;border-radius:9px;background:#eef5ff;color:#2563eb;box-shadow:none;display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
+        <section data-aion-finance-workspace-pane="true" style="min-width:0;height:100%;overflow:auto;background:#f8fafc;"><div data-aion-finance-functional-workspace="true">${renderAionFinanceFunctionalWorkspaceV1(financeWorkspace)}</div></section>
       </div>
     </section>
   `;
@@ -55544,37 +59404,38 @@ function renderFinancePilotCommandCentre(financeWorkspace = "") {
 
 function renderSalesWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return `
-    <div data-aion-sales-live-agents-workspace-o14d="true" data-aion-shared-department-pilot="true" data-aion-shared-department="sales" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;min-width:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#ffffff!important;">
+    <div data-aion-sales-live-agents-workspace-o14d="true" data-aion-shared-department-pilot="true" data-aion-shared-department="sales" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;min-width:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#f7f9fc!important;">
       ${renderSalesPilotCommandCentre()}
     </div>
   `;
 }
 
 function renderSalesPilotCommandCentre() {
+  ensureAionDepartmentComposerStyles();
   window.setTimeout?.(() => hydrateAionSalesConversation(document.querySelector("[data-aion-sales-command-centre]")), 0);
   return `
-    <section data-aion-sales-command-centre="true" data-aion-shared-department-pilot="true" data-aion-shared-department="sales" style="background:#f8fbff;border-top:4px solid #0f766e;padding:24px 0 0;box-sizing:border-box;">
+    <section class="aion-department-command-centre" data-aion-sales-command-centre="true" data-aion-shared-department-pilot="true" data-aion-shared-department="sales" style="--aion-department-accent:#2563eb;background:#f7f9fc;border-top:4px solid #2563eb;padding:24px 0 0;box-sizing:border-box;">
       <style>
         [data-aion-sales-workspace-pane] .srw-shell{border:0!important;min-height:100%!important;margin:0!important;background:#fff!important;box-sizing:border-box!important}
-        [data-aion-sales-workspace-pane] .srw-shell .primary{background:#0f766e!important;border-color:#0f766e!important;color:#fff!important;box-shadow:none!important}
+        [data-aion-sales-workspace-pane] .srw-shell .primary{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;box-shadow:none!important}
         [data-aion-sales-workspace-pane] .srw-shell button:not(.primary){background:#fff!important;box-shadow:none!important}
-        [data-aion-sales-workspace-pane] .srw-shell button:hover{border-color:#0f766e!important}
+        [data-aion-sales-workspace-pane] .srw-shell button:hover{border-color:#2563eb!important}
         [data-aion-sales-workspace-pane] .srw-call-centre,[data-aion-sales-workspace-pane] .srw-deal-flow{margin-left:14px!important;margin-right:14px!important}
         @media(max-width:1180px){[data-aion-sales-command-centre] [data-aion-sales-split]{grid-template-columns:1fr!important;display:block!important;overflow:auto!important}[data-aion-sales-command-centre] [data-aion-sales-split-handle]{display:none!important}[data-aion-sales-pilot-pane],[data-aion-sales-workspace-pane]{min-height:720px!important;height:auto!important}}
       </style>
       <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:18px;box-sizing:border-box;">
-        <div style="padding-left:20px;"><div style="color:#0f766e;font-size:10px;letter-spacing:.22em;font-weight:950;">PILOT · SALES COMMAND CENTRE</div><h2 style="margin:8px 0 0;color:#0f172a;">Sales coordination</h2></div>
-        <button type="button" data-aion-sales-open-package="true" style="border:1px solid rgba(15,118,110,.32);background:#fff;color:#0f766e;padding:9px 12px;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Open package</button>
+        <div style="padding-left:20px;"><div style="color:#2563eb;font-size:10px;letter-spacing:.22em;font-weight:950;">PILOT · SALES COMMAND CENTRE</div><h2 style="margin:8px 0 0;color:#14213d;">Sales coordination</h2></div>
+        <button type="button" data-aion-sales-open-package="true" style="border:1px solid #d9e2ec;border-radius:11px;background:#fff;color:#14213d;padding:9px 12px;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Open package</button>
       </header>
       <div data-aion-sales-split="34" style="display:grid;grid-template-columns:minmax(330px,34fr) 30px minmax(620px,66fr);min-height:calc(100vh - 190px);height:calc(100vh - 190px);border-top:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;background:#fff;overflow:hidden;box-sizing:border-box;">
         <section data-aion-sales-pilot-pane="true" style="min-width:0;height:100%;overflow:hidden;background:#f7fafc;padding:20px;display:flex;flex-direction:column;box-sizing:border-box;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid #b8ddd8;">
-            <div style="display:flex;align-items:center;gap:11px;"><span style="width:11px;height:11px;border-radius:50%;background:#0f766e;box-shadow:0 0 0 4px #ccfbf1;"></span><div><strong style="color:#0f172a;">Sales Pilot</strong><div style="color:#64748b;font-size:12px;margin-top:3px;">Pipeline, qualification and conversion adviser</div></div></div>
-            <span style="border:1px solid #99f6e4;background:#fff;color:#0f766e;padding:6px 8px;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">Approval gated</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid #d9e2ec;">
+            <div style="display:flex;align-items:center;gap:11px;"><span style="width:11px;height:11px;border-radius:50%;background:#2563eb;box-shadow:0 0 0 4px #eef5ff;"></span><div><strong style="color:#14213d;">Sales Pilot</strong><div style="color:#66758a;font-size:12px;margin-top:3px;">Pipeline, qualification and conversion adviser</div></div></div>
+            <span style="border:1px solid #bfd2fb;border-radius:999px;background:#eef5ff;color:#2563eb;padding:6px 8px;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">Approval gated</span>
           </div>
-          <details data-aion-sales-help="true" style="margin-top:12px;border:1px solid #99f6e4;background:#fff;border-radius:10px;color:#134e4a;">
-            <summary style="cursor:pointer;list-style:none;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:800;"><span>What can I ask Sales Pilot to do?</span><span aria-hidden="true" style="font-size:16px;color:#0f766e;">＋</span></summary>
-            <div style="padding:0 13px 13px;border-top:1px solid #ccfbf1;">
+          <details data-aion-sales-help="true" style="margin-top:12px;border:1px solid #d9e2ec;background:#fff;border-radius:10px;color:#14213d;">
+            <summary style="cursor:pointer;list-style:none;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:800;"><span>What can I ask Sales Pilot to do?</span><span aria-hidden="true" style="font-size:16px;color:#2563eb;">＋</span></summary>
+            <div style="padding:0 13px 13px;border-top:1px solid #d9e2ec;">
               <p style="margin:10px 0;color:#64748b;font-size:11px;line-height:1.45;">Ask naturally about leads, opportunities, customer history, qualification, follow-up or conversion. External messages and bookings remain controlled.</p>
               <div style="display:grid;grid-template-columns:1fr;gap:7px;">
                 <button type="button" data-aion-sales-example="Summarise the most important new leads and tell me which should be contacted first." style="text-align:left;border:1px solid #b8ddd8;background:#f8fffe;color:#134e4a;padding:9px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:11px;"><strong>Prioritise the pipeline</strong><br><span style="color:#64748b;">Urgency, value, qualification and next action</span></button>
@@ -55584,12 +59445,12 @@ function renderSalesPilotCommandCentre() {
             </div>
           </details>
           <div data-aion-sales-pilot-thread="true" style="flex:1;min-height:0;padding:20px 0;display:flex;flex-direction:column;gap:12px;overflow:auto;">
-            <div style="max-width:88%;background:#f0fdfa;color:#134e4a;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #99f6e4;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#0f766e;">Sales Pilot</strong>Ask me to review the pipeline, qualify an enquiry, prepare a follow-up or explain what should happen next. I will use the shared customer and opportunity record, show missing evidence and keep external actions behind approval.</div>
+            <div style="max-width:88%;background:#eef5ff;color:#14213d;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#2563eb;">Sales Pilot</strong>Ask me to review the pipeline, qualify an enquiry, prepare a follow-up or explain what should happen next. I will use the shared customer and opportunity record, show missing evidence and keep external actions behind approval.</div>
           </div>
-          <form data-aion-sales-pilot-form="true" data-aion-sales-attachments="[]" style="display:flex;align-items:flex-end;gap:8px;padding-top:14px;border-top:1px solid #b8ddd8;"><textarea data-aion-sales-pilot-input="true" rows="2" placeholder="Message Sales Pilot…" style="flex:1;resize:vertical;border:1px solid #6fb7ae;background:#fff;color:#0f172a;padding:10px;font:inherit;"></textarea><button type="button" data-aion-sales-pilot-attach="true" aria-label="Attach customer or sales evidence" title="Attach customer or sales evidence" style="border:1px solid #0f766e;background:#fff;color:#0f766e;padding:11px 12px;font-size:16px;cursor:pointer;">📎</button><button type="button" data-aion-sales-pilot-voice="true" aria-label="Speak to Sales Pilot" title="Speak to Sales Pilot" style="border:1px solid #0f766e;background:#fff;color:#0f766e;padding:11px 12px;font-size:16px;cursor:pointer;">🎙</button><button type="submit" style="border:0;background:#0f766e;color:#fff;padding:12px 16px;font-size:10px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">Send</button></form>
+          <form class="aion-department-composer" data-aion-sales-pilot-form="true" data-aion-sales-attachments="[]" style="margin-top:14px;"><textarea data-aion-sales-pilot-input="true" rows="2" placeholder="Message Sales Pilot…"></textarea><div class="aion-composer-actions"><button class="aion-composer-tool" type="button" data-aion-sales-pilot-attach="true" aria-label="Attach customer or sales evidence" title="Attach customer or sales evidence">＋</button><button class="aion-composer-tool" type="button" data-aion-sales-pilot-voice="true" aria-label="Speak to Sales Pilot" title="Speak to Sales Pilot">●</button><button class="aion-composer-send" type="submit">Send&nbsp; ↑</button></div></form>
         </section>
-        <div aria-label="Drag to resize Sales Command Centre panes" style="border-left:1px solid #dbe3ef;border-right:1px solid #dbe3ef;background:#f8fafc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-sales-split-handle="true" aria-label="Drag to resize panes" title="Drag left or right to resize" style="width:18px;height:76px;border:1px solid #99f6e4;border-radius:9px;background:#f0fdfa;color:#0f766e;box-shadow:0 1px 3px rgba(15,118,110,.18);display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
-        <section data-aion-sales-workspace-pane="true" style="min-width:0;height:100%;overflow:auto;background:#f8fafc;"><div data-aion-sales-revenue-mount="true"></div></section>
+        <div aria-label="Drag to resize Sales Command Centre panes" style="border-left:1px solid #d9e2ec;border-right:1px solid #d9e2ec;background:#f7f9fc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-sales-split-handle="true" aria-label="Drag to resize panes" title="Drag left or right to resize" style="width:18px;height:76px;border:1px solid #bfd2fb;border-radius:9px;background:#eef5ff;color:#2563eb;box-shadow:none;display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
+        <section data-aion-sales-workspace-pane="true" style="min-width:0;height:100%;overflow:auto;background:#f8fafc;">${renderAionDepartmentTabbedWorkspaceV1("sales", "Sales workspace", '<div data-aion-sales-revenue-mount="true"></div>')}</section>
       </div>
     </section>
   `;
@@ -55611,9 +59472,26 @@ function renderLegalWorkspaceSurface(selectedRuns, selectedAgentCard) {
 }
 
 function renderLegalPilotCommandCentre() {
+  ensureAionDepartmentComposerStyles();
   return `
-    <section data-aion-legal-command-centre="true" data-aion-shared-department-pilot="true" data-aion-shared-department="legal" style="background:#fbf9fc;border-top:4px solid #7c3f63;padding:24px 0 0;box-sizing:border-box;">
+    <section class="aion-department-command-centre" data-aion-legal-command-centre="true" data-aion-shared-department-pilot="true" data-aion-shared-department="legal" style="--aion-department-accent:#7c3f63;background:#fbf9fc;border-top:4px solid #7c3f63;padding:24px 0 0;box-sizing:border-box;">
       <style>
+        [data-aion-legal-command-centre]{--aion-department-accent:#2563eb!important;background:#f7f9fc!important;border-top-color:#2563eb!important;color:#14213d!important;font-family:Inter,"SF Pro Text","SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+        [data-aion-legal-command-centre]>header>div:first-child>div:first-child{color:#2563eb!important}
+        [data-aion-legal-command-centre]>header span{border-color:#bfd2fb!important;border-radius:999px!important;background:#eef5ff!important;color:#2563eb!important}
+        [data-aion-legal-command-centre] [data-aion-legal-split]{border:1px solid #d9e2ec!important;border-radius:18px!important;box-shadow:0 1px 2px rgba(11,23,57,.04)!important;overflow:hidden!important}
+        [data-aion-legal-command-centre] [data-aion-legal-pilot-pane]{background:#fbfcfe!important}
+        [data-aion-legal-command-centre] [data-aion-legal-pilot-pane]>div:first-child{border-color:#d9e2ec!important}
+        [data-aion-legal-command-centre] [data-aion-legal-pilot-pane]>div:first-child>div span{background:#2563eb!important;box-shadow:0 0 0 4px #eef5ff!important}
+        [data-aion-legal-command-centre] [data-aion-legal-pilot-pane]>div:first-child>span{border-color:#bfd2fb!important;border-radius:999px!important;background:#eef5ff!important;color:#2563eb!important}
+        [data-aion-legal-command-centre] [data-aion-legal-help]{border-color:#d9e2ec!important;color:#14213d!important}
+        [data-aion-legal-command-centre] [data-aion-legal-help] summary span:last-child{color:#2563eb!important}
+        [data-aion-legal-command-centre] [data-aion-legal-help]>div{border-color:#d9e2ec!important}
+        [data-aion-legal-command-centre] [data-aion-legal-help] button{border-color:#d9e2ec!important;border-radius:9px!important;background:#f7f9fc!important;color:#14213d!important}
+        [data-aion-legal-command-centre] [data-aion-legal-pilot-thread]>div{border-color:#c8d8fb!important;background:#eef5ff!important;color:#14213d!important}
+        [data-aion-legal-command-centre] [data-aion-legal-pilot-thread]>div strong{color:#2563eb!important}
+        [data-aion-legal-command-centre] [data-aion-legal-split-handle]{border-color:#bfd2fb!important;background:#eef5ff!important;color:#2563eb!important;box-shadow:none!important}
+        [data-aion-legal-command-centre] [data-aion-legal-workspace-pane]{background:#f7f9fc!important}
         @media(max-width:1180px){[data-aion-legal-command-centre] [data-aion-legal-split]{grid-template-columns:1fr!important;display:block!important;overflow:auto!important}[data-aion-legal-command-centre] [data-aion-legal-split-handle]{display:none!important}[data-aion-legal-pilot-pane],[data-aion-legal-workspace-pane]{min-height:720px!important;height:auto!important}}
       </style>
       <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:18px;box-sizing:border-box;">
@@ -55625,7 +59503,7 @@ function renderLegalPilotCommandCentre() {
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid #ead3e0;"><div style="display:flex;align-items:center;gap:11px;"><span style="width:11px;height:11px;border-radius:50%;background:#7c3f63;box-shadow:0 0 0 4px #f5ddea;"></span><div><strong style="color:#0f172a;">Legal Pilot</strong><div style="color:#64748b;font-size:12px;margin-top:3px;">Contracts, terms and issue-triage adviser</div></div></div><span style="border:1px solid #d8abc5;background:#fff;color:#7c3f63;padding:6px 8px;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">Approval gated</span></div>
           <details data-aion-legal-help="true" style="margin-top:12px;border:1px solid #e6bed5;background:#fff;border-radius:10px;color:#542b47;"><summary style="cursor:pointer;list-style:none;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:800;"><span>What can I ask Legal Pilot to do?</span><span aria-hidden="true" style="font-size:16px;color:#7c3f63;">＋</span></summary><div style="padding:0 13px 13px;border-top:1px solid #f1dce8;"><p style="margin:10px 0;color:#64748b;font-size:11px;line-height:1.45;">Upload received terms, an email, contract or complaint. Legal Pilot can explain, compare, extract obligations and prepare drafts; it does not act as your lawyer.</p><div style="display:grid;gap:7px;"><button type="button" data-aion-legal-example="Review the attached terms. Summarise obligations, unusual clauses, deadlines and points that need qualified legal advice." style="text-align:left;border:1px solid #e6bed5;background:#fffafd;color:#542b47;padding:9px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:11px;"><strong>Review received terms</strong><br><span style="color:#64748b;">Obligations, risk, deadlines and questions</span></button><button type="button" data-aion-legal-example="Prepare customer service terms for this job using the business record and quote. Keep the draft unsent." style="text-align:left;border:1px solid #e6bed5;background:#fffafd;color:#542b47;padding:9px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:11px;"><strong>Prepare job terms</strong><br><span style="color:#64748b;">Business-aware draft, approval required</span></button><button type="button" data-aion-legal-example="Triage this complaint and tell me whether it involves litigation risk, privacy, safety, employment or an urgent deadline." style="text-align:left;border:1px solid #e6bed5;background:#fffafd;color:#542b47;padding:9px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:11px;"><strong>Triage a complaint</strong><br><span style="color:#64748b;">Escalation and evidence checklist</span></button></div></div></details>
           <div data-aion-legal-pilot-thread="true" style="flex:1;min-height:0;padding:20px 0;display:flex;flex-direction:column;gap:12px;overflow:auto;"><div style="max-width:88%;background:#fbf1f7;color:#542b47;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #e6bed5;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#7c3f63;">Legal Pilot</strong>Bring me a contract, customer complaint, supplier terms, policy or proposed agreement. I can organise the matter, identify issues, compare it with the business's approved terms and prepare a controlled draft. Consequential decisions and external sending remain with an authorised person.</div></div>
-          <form data-aion-legal-pilot-form="true" data-aion-legal-attachments="[]" style="display:flex;align-items:flex-end;gap:8px;padding-top:14px;border-top:1px solid #ead3e0;"><textarea data-aion-legal-pilot-input="true" rows="2" placeholder="Ask Legal Pilot or upload a document…" style="flex:1;resize:vertical;border:1px solid #c184a8;background:#fff;color:#0f172a;padding:10px;font:inherit;"></textarea><button type="button" data-aion-legal-pilot-attach="true" aria-label="Attach legal document or correspondence" title="Attach legal document or correspondence" style="border:1px solid #7c3f63;background:#fff;color:#7c3f63;padding:11px 12px;font-size:16px;cursor:pointer;">📎</button><button type="submit" style="border:0;background:#7c3f63;color:#fff;padding:12px 16px;font-size:10px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">Send</button></form>
+          <form class="aion-department-composer" data-aion-legal-pilot-form="true" data-aion-legal-attachments="[]" style="margin-top:14px;"><textarea data-aion-legal-pilot-input="true" rows="2" placeholder="Ask Legal Pilot or upload a document…"></textarea><div class="aion-composer-actions"><button class="aion-composer-tool" type="button" data-aion-legal-pilot-attach="true" aria-label="Attach legal document or correspondence" title="Attach legal document or correspondence">＋</button><button class="aion-composer-send" type="submit">Send&nbsp; ↑</button></div></form>
         </section>
         <div aria-label="Drag to resize Legal Command Centre panes" style="border-left:1px solid #dbe3ef;border-right:1px solid #dbe3ef;background:#f8fafc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-legal-split-handle="true" aria-label="Drag to resize panes" title="Drag left or right to resize" style="width:18px;height:76px;border:1px solid #d8abc5;border-radius:9px;background:#fff3f9;color:#7c3f63;box-shadow:0 1px 3px rgba(124,63,99,.18);display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
         <section data-aion-legal-workspace-pane="true" style="min-width:0;height:100%;overflow:auto;background:#f8fafc;">${window.AionLegalWorkspace?.render?.() || "<div style='padding:24px;'>Legal workspace is loading…</div>"}</section>
@@ -55633,9 +59511,34 @@ function renderLegalPilotCommandCentre() {
     </section>`;
 }
 
+function renderAionProcurementConversationTurn(item = {}) {
+  const isUser = String(item?.role || "assistant").toLowerCase() === "user";
+  const content = String(item?.content || item?.message || "").trim();
+  return `<div style="max-width:88%;${isUser ? "align-self:flex-end;background:#2563eb;color:#fff;border-radius:16px 4px 16px 16px;" : "align-self:flex-start;background:#eef5ff;color:#14213d;border:1px solid #c8d8fb;border-radius:4px 16px 16px 16px;"}padding:12px 14px;line-height:1.5;"><strong style="display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;${isUser ? "color:#fff;" : "color:#2563eb;"}">${isUser ? "You" : "Procurement Pilot"}</strong>${escapeHtml(content).replace(/\n/g, "<br>")}</div>`;
+}
+
+function renderProcurementWorkspaceSurface() {
+  ensureAionDepartmentComposerStyles();
+  return `<div data-aion-procurement-live-agents-workspace="true" data-aion-shared-department-pilot="true" data-aion-shared-department="procurement" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#f7f9fc!important;">
+    <section class="aion-department-command-centre" data-aion-procurement-command-centre="true" style="border-top:4px solid #2563eb;padding-top:24px;box-sizing:border-box;">
+      <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin:0 0 18px;padding:0 20px;box-sizing:border-box;"><div><div style="color:#2563eb;font-size:10px;letter-spacing:.22em;font-weight:950;">PILOT · STOCK &amp; PROCUREMENT COMMAND CENTRE</div><h2 style="margin:8px 0 0;color:#14213d;">Stock &amp; procurement coordination</h2></div><span style="border:1px solid #bfd2fb;border-radius:999px;background:#eef5ff;color:#2563eb;padding:7px 10px;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;">Approval gated</span></header>
+      <div data-aion-procurement-split="34" style="display:grid;grid-template-columns:minmax(330px,34fr) 30px minmax(620px,66fr);min-height:calc(100vh - 190px);height:calc(100vh - 190px);border:1px solid #d9e2ec;border-radius:18px;background:#fff;overflow:hidden;box-sizing:border-box;">
+        <section data-aion-procurement-pilot-pane="true" style="min-width:0;height:100%;overflow:hidden;background:#fbfcfe;padding:20px;display:flex;flex-direction:column;box-sizing:border-box;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid #d9e2ec;"><div style="display:flex;align-items:center;gap:11px;"><span style="width:11px;height:11px;border-radius:50%;background:#2563eb;box-shadow:0 0 0 4px #eef5ff;"></span><div><strong style="color:#14213d;">Procurement Pilot</strong><div style="color:#66758a;font-size:12px;margin-top:3px;">Stock, sourcing and buying adviser</div></div></div><span style="border:1px solid #bfd2fb;border-radius:999px;background:#eef5ff;color:#2563eb;padding:6px 8px;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">Drafts only</span></div>
+          <details data-aion-procurement-help="true" style="margin-top:12px;border:1px solid #d9e2ec;background:#fff;border-radius:10px;color:#14213d;"><summary style="cursor:pointer;list-style:none;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:800;"><span>What can I ask Procurement Pilot?</span><span aria-hidden="true" style="font-size:16px;color:#2563eb;">＋</span></summary><div style="padding:0 13px 13px;border-top:1px solid #d9e2ec;"><p style="margin:10px 0;color:#64748b;font-size:11px;line-height:1.45;">Ask about shortages, reorder needs, supplier comparisons, lead times or cash required. The Pilot can prepare recommendations and drafts but cannot silently contact suppliers, pay or order.</p><div style="display:grid;gap:7px;"><button type="button" data-aion-procurement-example="Review current stock and tell me what is at risk of running out, when it is needed and why." class="secondary-btn">Review shortages</button><button type="button" data-aion-procurement-example="Compare the recorded suppliers, lead times, payment terms and estimated cash for the items awaiting review." class="secondary-btn">Compare suppliers</button><button type="button" data-aion-procurement-example="Prepare a purchasing plan for the draft list. Do not contact a supplier or place an order." class="secondary-btn">Prepare buying plan</button></div></div></details>
+          <div data-aion-procurement-pilot-thread="true" style="flex:1;min-height:0;padding:20px 0;display:flex;flex-direction:column;gap:12px;overflow:auto;"><div style="max-width:88%;background:#eef5ff;color:#14213d;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#2563eb;">Procurement Pilot</strong>Ask me to review stock, identify shortages, compare suppliers or prepare an approval-gated buying plan. I use the same Stock &amp; Procurement record that updates the Business Map and Boardroom.</div></div>
+          <form class="aion-department-composer" data-aion-procurement-pilot-form="true" style="margin-top:14px;"><textarea data-aion-procurement-pilot-input="true" rows="2" placeholder="Message Procurement Pilot…"></textarea><div class="aion-composer-actions"><button class="aion-composer-send" type="submit">Send&nbsp; ↑</button></div></form>
+        </section>
+        <div style="border-left:1px solid #d9e2ec;border-right:1px solid #d9e2ec;background:#f7f9fc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-procurement-split-handle="true" aria-label="Drag to resize panes" style="width:18px;height:76px;border:1px solid #bfd2fb;border-radius:9px;background:#eef5ff;color:#2563eb;display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
+        <section data-aion-procurement-workspace-pane="true" style="min-width:0;height:100%;overflow:auto;background:#f7f9fc;">${window.AionProcurementWorkspace?.render?.() || "<div style='padding:24px;'>Stock &amp; Procurement workspace is loading…</div>"}</section>
+      </div>
+    </section>
+  </div>`;
+}
+
 function renderOperationsWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return `
-    <div data-aion-operations-live-agents-workspace-o14d="true" data-aion-shared-department-pilot="true" data-aion-shared-department="operations" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#ffffff!important;">
+    <div data-aion-operations-live-agents-workspace-o14d="true" data-aion-shared-department-pilot="true" data-aion-shared-department="operations" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#f7f9fc!important;">
       ${renderOperationsCommandCentre()}
     </div>
   `;
@@ -55649,7 +59552,9 @@ function renderOperationsWorkspaceSurface(selectedRuns, selectedAgentCard) {
 // ${renderDepartmentCompactDirectorCard("operations")}
 
 function renderOperationsCommandCentre() {
+  ensureAionDepartmentComposerStyles();
   const channels = ["Sales", "Marketing", "Finance", "Support", "People"];
+  const functionalSection = getAionDepartmentFunctionalSectionV1("operations");
   window.setTimeout?.(() => {
     const centre = document.querySelector("[data-aion-operations-command-centre]");
     hydrateAionOperationsConversation(centre);
@@ -55666,30 +59571,34 @@ function renderOperationsCommandCentre() {
     }, 300000);
   }, 0);
   return `
-    <section data-aion-operations-command-centre="true" style="background:#f8fbff;border-top:4px solid #4f46e5;padding:24px 0 0;">
+    <section class="aion-department-command-centre" data-aion-operations-command-centre="true" style="--aion-department-accent:#2563eb;background:#f7f9fc;border-top:4px solid #2563eb;padding:24px 0 0;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:18px;">
-        <div style="padding-left:20px;"><div style="color:#4338ca;font-size:10px;letter-spacing:.22em;font-weight:950;">PILOT · OPERATIONS COMMAND CENTRE</div><h2 style="margin:8px 0 0;color:#0f172a;">COO coordination</h2></div>
+        <div style="padding-left:20px;"><div style="color:#2563eb;font-size:10px;letter-spacing:.22em;font-weight:950;">PILOT · OPERATIONS COMMAND CENTRE</div><h2 style="margin:8px 0 0;color:#14213d;">COO coordination</h2></div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <button type="button" data-aion-operations-dashboard="true" data-tab="operations_flow" aria-label="Open Operations Flow dashboard" style="border:1px solid rgba(79,70,229,.32);background:#fff;color:#4338ca;padding:9px 12px;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Dashboard</button>
-          <button type="button" data-aion-operations-open-package="true" style="border:1px solid rgba(15,118,110,.30);background:#fff;color:#0f766e;padding:9px 12px;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Open package</button>
+          <button class="aion-soft-button" type="button" data-aion-operations-dashboard="true" data-tab="operations_flow" aria-label="Open Operations Flow dashboard" style="color:#2563eb;padding:10px 14px;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">Dashboard</button>
+          <button class="aion-soft-button" type="button" data-aion-operations-open-package="true" style="color:#14213d;padding:10px 14px;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">Open package</button>
         </div>
       </div>
-      <div data-aion-operations-split="52" style="display:grid;grid-template-columns:minmax(360px,52fr) 30px minmax(310px,48fr);border-top:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;background:#fff;min-height:calc(100vh - 190px);height:calc(100vh - 190px);">
-        <section style="padding:20px;display:flex;flex-direction:column;min-width:0;">
-          <div style="display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid #e2e8f0;"><span style="width:11px;height:11px;border-radius:50%;background:#4f46e5;"></span><div><strong style="color:#0f172a;">Operations Pilot</strong><div style="color:#64748b;font-size:12px;margin-top:3px;">Your cross-business coordinator</div></div></div>
+      <div class="aion-command-centre-shell" data-aion-operations-split="34" style="display:grid;grid-template-columns:minmax(320px,34fr) 30px minmax(560px,66fr);background:#fff;min-height:calc(100vh - 190px);height:calc(100vh - 190px);">
+        <section style="padding:20px;display:flex;flex-direction:column;min-width:0;background:#fafafa;">
+          <div style="display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid #d9e2ec;"><span style="width:11px;height:11px;border-radius:50%;background:#2563eb;box-shadow:0 0 0 4px #eef5ff;"></span><div><strong style="color:#14213d;">Operations Pilot</strong><div style="color:#66758a;font-size:12px;margin-top:3px;">Your cross-business coordinator</div></div></div>
           <div data-aion-operations-coo-thread="true" style="flex:1;padding:22px 0;display:flex;flex-direction:column;gap:12px;overflow:auto;">
-            <div style="max-width:88%;background:#eef2ff;color:#172554;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#4338ca;">Operations Pilot</strong>I’m ready to coordinate the business. Ask a normal question, request an investigation, or tell me the outcome you need. I will show what I found, what I prepared, and any approval required.</div>
+            <div style="max-width:88%;background:#eef5ff;color:#14213d;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#2563eb;">Operations Pilot</strong>I’m ready to coordinate the business. Ask a normal question, request an investigation, or tell me the outcome you need. I will show what I found, what I prepared, and any approval required.</div>
           </div>
-          <form data-aion-operations-coo-form="true" style="display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid #e2e8f0;"><textarea data-aion-operations-coo-input="true" rows="2" placeholder="Message Operations Pilot…" style="flex:1;resize:vertical;border:1px solid #94a3b8;padding:10px;font:inherit;color:#0f172a;"></textarea><button type="submit" style="border:0;background:#4f46e5;color:#fff;padding:11px 16px;font-size:10px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">Send</button><button type="button" data-aion-unified-department-conversation="operations" style="border:1px solid #94a3b8;background:#fff;color:#0f172a;padding:10px 11px;font-size:9px;letter-spacing:.12em;font-weight:950;text-transform:uppercase;cursor:pointer;white-space:nowrap;">Talk to Pilot</button></form>
+          <form class="aion-department-composer aion-department-composer--stacked" data-aion-operations-coo-form="true"><textarea data-aion-operations-coo-input="true" rows="2" placeholder="Message Operations Pilot…"></textarea><div class="aion-composer-actions"><button class="aion-composer-secondary" type="button" data-aion-unified-department-conversation="operations">Open full chat</button><button class="aion-composer-send" type="submit">Send&nbsp; ↑</button></div></form>
         </section>
-        <div aria-label="Drag to resize Operations Command Centre panes" style="border-left:1px solid #dbe3ef;border-right:1px solid #dbe3ef;background:#f8fafc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-operations-split-handle="true" aria-label="Drag to resize panes" title="Drag left or right to resize" style="width:18px;height:76px;border:1px solid #a5b4fc;border-radius:9px;background:#eef2ff;color:#4338ca;box-shadow:0 1px 3px rgba(67,56,202,.18);display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
-        <section style="padding:20px;min-width:0;background:#fbfdff;display:flex;flex-direction:column;overflow:hidden;">
+        <div aria-label="Drag to resize Operations Command Centre panes" style="border-left:1px solid #d9e2ec;border-right:1px solid #d9e2ec;background:#f7f9fc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-operations-split-handle="true" aria-label="Drag to resize panes" title="Drag left or right to resize" style="width:18px;height:76px;border:1px solid #bfd2fb;border-radius:9px;background:#eef5ff;color:#2563eb;box-shadow:0 1px 3px rgba(37,99,235,.12);display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
+        <section data-aion-operations-workspace-pane="true" style="min-width:0;background:#fbfdff;display:flex;flex-direction:column;overflow:auto;">
+          ${renderAionDepartmentFunctionalTabsV1("operations", "Operations workspace")}
+          <div data-aion-operations-functional-workspace="true" style="padding:20px;min-height:0;flex:1;display:${functionalSection === "workspace" ? "flex" : "none"};flex-direction:column;overflow:hidden;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-            <div><div style="color:#0f766e;font-size:10px;letter-spacing:.18em;font-weight:950;">LIVE EXECUTIVE CHANNELS</div><h3 style="margin:7px 0 5px;color:#0f172a;font-size:20px;">COO ↔ Department Pilots</h3><div data-aion-operations-briefing-schedule="true" style="font-size:11px;color:#64748b;">Daily · 08:00 · local time</div><div data-aion-operations-briefing-mode="true" style="font-size:10px;color:#0f766e;margin-top:3px;">Vault model · role-separated departments</div></div>
-            <button type="button" data-aion-operations-run-briefing="true" style="border:1px solid #0f766e;background:#0f766e;color:#fff;padding:9px 11px;font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;">Run morning briefing</button>
+            <div><div style="color:#2563eb;font-size:10px;letter-spacing:.18em;font-weight:950;">LIVE EXECUTIVE CHANNELS</div><h3 style="margin:7px 0 5px;color:#14213d;font-size:20px;">COO ↔ Department Pilots</h3><div data-aion-operations-briefing-schedule="true" style="font-size:11px;color:#66758a;">Daily · 08:00 · local time</div><div data-aion-operations-briefing-mode="true" style="font-size:10px;color:#66758a;margin-top:3px;">Vault model · role-separated departments</div></div>
+            <button class="aion-primary-action" type="button" data-aion-operations-run-briefing="true" style="--aion-action-accent:#2563eb;">Run morning briefing</button>
           </div>
-          <div role="tablist" data-aion-operations-channel-list="true" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;">${channels.map((name, index) => `<button type="button" data-aion-operations-channel="${name.toLowerCase()}" data-aion-operations-channel-label="${name}" aria-selected="${index === 0 ? "true" : "false"}" style="border:1px solid ${index === 0 ? "#4f46e5" : "#cbd5e1"};background:${index === 0 ? "#eef2ff" : "#fff"};color:${index === 0 ? "#3730a3" : "#334155"};padding:8px 10px;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;">${name}</button>`).join("")}</div>
-          <div data-aion-operations-channel-panel="true" style="border:1px solid #dbe3ef;background:#fff;padding:16px;min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden;"><div data-aion-operations-channel-title="true" style="font-weight:900;color:#0f172a;font-size:17px;">Sales channel</div><p data-aion-operations-channel-summary="true" style="color:#64748b;line-height:1.45;margin:7px 0 10px;font-size:12px;">Persistent instructions, updates, decisions and evidence between Operations Pilot and Sales Pilot.</p><div data-aion-operations-channel-thread="true" style="flex:1;min-height:220px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:10px 2px;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;"></div><div data-aion-operations-channel-state="true" style="font-size:10px;color:#64748b;margin:8px 0;">Loading protected department record…</div><form data-aion-operations-channel-form="true" style="display:flex;gap:8px;align-items:flex-end;"><textarea data-aion-operations-channel-input="true" rows="2" placeholder="Message Sales Pilot as COO…" style="flex:1;resize:vertical;border:1px solid #94a3b8;padding:9px;font:inherit;font-size:12px;color:#0f172a;"></textarea><button type="submit" style="border:0;background:#0f766e;color:#fff;padding:11px 14px;font-size:9px;font-weight:950;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;">Send</button></form></div>
+          <div role="tablist" data-aion-operations-channel-list="true" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;">${channels.map((name, index) => `<button class="aion-soft-button" type="button" data-aion-operations-channel="${name.toLowerCase()}" data-aion-operations-channel-label="${name}" aria-selected="${index === 0 ? "true" : "false"}" style="border-color:${index === 0 ? "#2563eb" : "#d9e2ec"}!important;background:${index === 0 ? "#eef5ff" : "#fff"}!important;color:${index === 0 ? "#2563eb" : "#66758a"};padding:8px 12px;font-size:10px;font-weight:800;letter-spacing:.04em;cursor:pointer;">${name}</button>`).join("")}</div>
+          <div data-aion-operations-channel-panel="true" style="border:1px solid #d9e2ec;background:#fff;border-radius:16px;padding:18px;min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.03);"><div data-aion-operations-channel-title="true" style="font-weight:900;color:#14213d;font-size:17px;">Sales channel</div><p data-aion-operations-channel-summary="true" style="color:#66758a;line-height:1.45;margin:7px 0 10px;font-size:12px;">Persistent instructions, updates, decisions and evidence between Operations Pilot and Sales Pilot.</p><div data-aion-operations-channel-thread="true" style="flex:1;min-height:220px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:10px 2px;border-top:1px solid #d9e2ec;border-bottom:1px solid #d9e2ec;"></div><div data-aion-operations-channel-state="true" style="font-size:10px;color:#66758a;margin:8px 0;">Loading protected department record…</div><form class="aion-department-composer" data-aion-operations-channel-form="true" style="--aion-department-accent:#2563eb;"><textarea data-aion-operations-channel-input="true" rows="2" placeholder="Message Sales Pilot as COO…"></textarea><div class="aion-composer-actions"><button class="aion-composer-send" type="submit">Send&nbsp; ↑</button></div></form></div>
+          </div>
+          ${functionalSection === "performance" ? renderAionDepartmentPerformanceOverviewV1("operations") : ""}
         </section>
       </div>
     </section>
@@ -55702,54 +59611,66 @@ function renderSupportCompactDirectorCard() {
 
 function renderSupportWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return `
-    <div data-aion-support-live-agents-workspace-o14d="true" data-aion-shared-department-pilot="true" data-aion-shared-department="support" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#ffffff!important;">
+    <div data-aion-support-live-agents-workspace-o14d="true" data-aion-shared-department-pilot="true" data-aion-shared-department="support" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#f7f9fc!important;">
       ${renderSupportPilotCommandCentre()}
     </div>
   `;
 }
 
 function renderSupportPilotCommandCentre() {
+  ensureAionDepartmentComposerStyles();
   window.setTimeout?.(() => hydrateAionSupportConversation(document.querySelector("[data-aion-support-command-centre]")), 0);
+  window.setTimeout?.(() => window.AionSupportCaseWorkspace?.mountVisibleWorkspace?.(), 0);
   return `
-    <section data-aion-support-command-centre="true" data-aion-shared-department-pilot="true" data-aion-shared-department="support" style="background:#f8fbff;border-top:4px solid #67558f;padding:24px 0 0;box-sizing:border-box;">
+    <section class="aion-department-command-centre" data-aion-support-command-centre="true" data-aion-shared-department-pilot="true" data-aion-shared-department="support" style="--aion-department-accent:#2563eb;background:#f7f9fc;border-top:4px solid #2563eb;padding:24px 0 0;box-sizing:border-box;">
       <style>
-        [data-aion-support-workspace-pane] .scw-shell{border:0!important;min-height:100%!important;padding:18px!important;background:#f8fbfd!important;box-sizing:border-box!important}
+        [data-aion-support-workspace-pane]{position:relative!important;overflow:hidden!important}
+        [data-aion-support-workspace-pane] [data-aion-support-case-mount]{height:100%!important;min-height:0!important}
+        html body [data-aion-support-command-centre] [data-aion-support-workspace-pane] .scw-shell{position:relative!important;height:100%!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;scrollbar-gutter:stable!important;border:0!important;padding:18px!important;background:#f8fbfd!important;box-sizing:border-box!important}
         [data-aion-support-workspace-pane] .scw-shell>header{align-items:flex-start!important}
         [data-aion-support-workspace-pane] .scw-metrics{grid-template-columns:repeat(5,minmax(105px,1fr))!important}
         [data-aion-support-workspace-pane] .scw-studio{grid-template-columns:minmax(0,1fr)!important}
-        [data-aion-support-workspace-pane] .scw-shell .primary{background:#67558f!important;border-color:#67558f!important;color:#fff!important;box-shadow:none!important}
+        [data-aion-support-workspace-pane] .scw-shell .primary{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;box-shadow:none!important}
         [data-aion-support-workspace-pane] .scw-shell button:not(.primary){background:#fff!important;border-color:#b8c3d1!important;color:#1f2937!important;box-shadow:none!important}
-        [data-aion-support-workspace-pane] .scw-shell button:hover{border-color:#67558f!important}
+        [data-aion-support-workspace-pane] .scw-shell button:hover{border-color:#2563eb!important}
+        [data-aion-support-workspace-pane] .scw-studio,[data-aion-support-workspace-pane] .scw-detail{border-left-color:#2563eb!important}
+        [data-aion-support-workspace-pane] .scw-studio span,[data-aion-support-workspace-pane] .scw-board>div>span,[data-aion-support-workspace-pane] .scw-panel header span{color:#2563eb!important}
+        [data-aion-support-workspace-pane] .scw-badges b{background:#eef5ff!important;color:#14213d!important}
+        [data-aion-support-workspace-pane] .scw-detail,[data-aion-support-workspace-pane] .scw-studio{border-color:#d9e2ec!important;border-left-color:#2563eb!important;border-radius:14px!important}
+        [data-aion-support-workspace-pane] .scw-detail{position:absolute!important;inset:0!important;z-index:20!important;margin:0!important;padding:22px!important;overflow:auto!important;background:#fff!important;border-radius:0!important;box-shadow:-12px 0 32px rgba(11,23,57,.10)!important;outline:none!important}
+        [data-aion-support-workspace-pane] .scw-detail>header{position:sticky!important;top:-22px!important;z-index:2!important;margin:-22px -22px 16px!important;padding:22px!important;background:#fff!important;border-bottom:1px solid #d9e2ec!important}
+        [data-aion-support-workspace-pane] .scw-detail>header [data-scw-close]{width:42px!important;height:42px!important;padding:0!important;display:grid!important;place-items:center!important;border-radius:12px!important;background:#f7f9fc!important;color:#14213d!important;font-size:20px!important}
+        [data-aion-support-workspace-pane] .scw-panel{border-color:#2563eb!important}
         @media(max-width:1180px){[data-aion-support-command-centre] [data-aion-support-split]{grid-template-columns:1fr!important;display:block!important;overflow:auto!important}[data-aion-support-command-centre] [data-aion-support-split-handle]{display:none!important}[data-aion-support-pilot-pane],[data-aion-support-workspace-pane]{min-height:720px!important;height:auto!important}}
       </style>
       <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:18px;box-sizing:border-box;">
-        <div style="padding-left:20px;"><div style="color:#67558f;font-size:10px;letter-spacing:.22em;font-weight:950;">PILOT · SUPPORT COMMAND CENTRE</div><h2 style="margin:8px 0 0;color:#0f172a;">Support coordination</h2></div>
-        <button type="button" data-aion-support-open-package="true" style="border:1px solid rgba(103,85,143,.34);background:#fff;color:#67558f;padding:9px 12px;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Open package</button>
+        <div style="padding-left:20px;"><div style="color:#2563eb;font-size:10px;letter-spacing:.22em;font-weight:950;">PILOT · SUPPORT COMMAND CENTRE</div><h2 style="margin:8px 0 0;color:#14213d;">Support coordination</h2></div>
+        <button type="button" data-aion-support-open-package="true" style="border:1px solid #d9e2ec;background:#fff;color:#14213d;padding:9px 12px;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Open package</button>
       </header>
       <div data-aion-support-split="34" style="display:grid;grid-template-columns:minmax(330px,34fr) 30px minmax(620px,66fr);min-height:calc(100vh - 190px);height:calc(100vh - 190px);border-top:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;background:#fff;overflow:hidden;box-sizing:border-box;">
-        <section data-aion-support-pilot-pane="true" style="min-width:0;height:100%;overflow:hidden;background:#faf9ff;padding:20px;display:flex;flex-direction:column;box-sizing:border-box;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid #ddd6fe;">
-            <div style="display:flex;align-items:center;gap:11px;"><span style="width:11px;height:11px;border-radius:50%;background:#67558f;box-shadow:0 0 0 4px #ede9fe;"></span><div><strong style="color:#0f172a;">Support Pilot</strong><div style="color:#64748b;font-size:12px;margin-top:3px;">Customer, case and resolution adviser</div></div></div>
-            <span style="border:1px solid #c4b5fd;background:#fff;color:#67558f;padding:6px 8px;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">Approval gated</span>
+        <section data-aion-support-pilot-pane="true" style="min-width:0;height:100%;overflow:hidden;background:#fbfcfe;padding:20px;display:flex;flex-direction:column;box-sizing:border-box;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid #d9e2ec;">
+            <div style="display:flex;align-items:center;gap:11px;"><span style="width:11px;height:11px;border-radius:50%;background:#2563eb;box-shadow:0 0 0 4px #eef5ff;"></span><div><strong style="color:#14213d;">Support Pilot</strong><div style="color:#66758a;font-size:12px;margin-top:3px;">Customer, case and resolution adviser</div></div></div>
+            <span style="border:1px solid #bfd2fb;background:#eef5ff;color:#2563eb;padding:6px 8px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">Approval gated</span>
           </div>
-          <details data-aion-support-help="true" style="margin-top:12px;border:1px solid #ddd6fe;background:#fff;border-radius:10px;color:#35265b;">
-            <summary style="cursor:pointer;list-style:none;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:800;"><span>What can I ask Support Pilot to do?</span><span aria-hidden="true" style="font-size:16px;color:#67558f;">＋</span></summary>
-            <div style="padding:0 13px 13px;border-top:1px solid #ede9fe;">
+          <details data-aion-support-help="true" style="margin-top:12px;border:1px solid #d9e2ec;background:#fff;border-radius:10px;color:#14213d;">
+            <summary style="cursor:pointer;list-style:none;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:800;"><span>What can I ask Support Pilot to do?</span><span aria-hidden="true" style="font-size:16px;color:#2563eb;">＋</span></summary>
+            <div style="padding:0 13px 13px;border-top:1px solid #d9e2ec;">
               <p style="margin:10px 0;color:#64748b;font-size:11px;line-height:1.45;">Speak naturally. Pilot can investigate and prepare work, but sending replies, refunds and controlled actions remain governed.</p>
               <div style="display:grid;grid-template-columns:1fr;gap:7px;">
-                <button type="button" data-aion-support-example="Summarise the urgent support cases and tell me which need human review first." style="text-align:left;border:1px solid #ddd6fe;background:#faf9ff;color:#35265b;padding:9px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:11px;"><strong>Triage the queue</strong><br><span style="color:#64748b;">Urgency, overdue cases and human handoff</span></button>
-                <button type="button" data-aion-support-example="Prepare a grounded reply to the selected customer using our approved terms and support evidence." style="text-align:left;border:1px solid #ddd6fe;background:#faf9ff;color:#35265b;padding:9px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:11px;"><strong>Prepare a response</strong><br><span style="color:#64748b;">Uses approved policy and remains unsent</span></button>
-                <button type="button" data-aion-support-example="Review this complaint for refund, legal, safety, vulnerability or data-rights escalation." style="text-align:left;border:1px solid #ddd6fe;background:#faf9ff;color:#35265b;padding:9px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:11px;"><strong>Check escalation risk</strong><br><span style="color:#64748b;">Refund, legal, safety and privacy boundaries</span></button>
+                <button type="button" data-aion-support-example="Summarise the urgent support cases and tell me which need human review first." style="text-align:left;border:1px solid #d9e2ec;background:#f7f9fc;color:#14213d;padding:9px 10px;border-radius:9px;cursor:pointer;font:inherit;font-size:11px;"><strong>Triage the queue</strong><br><span style="color:#66758a;">Urgency, overdue cases and human handoff</span></button>
+                <button type="button" data-aion-support-example="Prepare a grounded reply to the selected customer using our approved terms and support evidence." style="text-align:left;border:1px solid #d9e2ec;background:#f7f9fc;color:#14213d;padding:9px 10px;border-radius:9px;cursor:pointer;font:inherit;font-size:11px;"><strong>Prepare a response</strong><br><span style="color:#66758a;">Uses approved policy and remains unsent</span></button>
+                <button type="button" data-aion-support-example="Review this complaint for refund, legal, safety, vulnerability or data-rights escalation." style="text-align:left;border:1px solid #d9e2ec;background:#f7f9fc;color:#14213d;padding:9px 10px;border-radius:9px;cursor:pointer;font:inherit;font-size:11px;"><strong>Check escalation risk</strong><br><span style="color:#66758a;">Refund, legal, safety and privacy boundaries</span></button>
               </div>
             </div>
           </details>
           <div data-aion-support-pilot-thread="true" style="flex:1;min-height:0;padding:20px 0;display:flex;flex-direction:column;gap:12px;overflow:auto;">
-            <div style="max-width:88%;background:#f5f3ff;color:#35265b;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #ddd6fe;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#67558f;">Support Pilot</strong>Ask me to review customer cases, explain what needs attention, prepare a grounded response or identify the correct handoff. I will use the protected case timeline and approved business policy, and show when human approval is required.</div>
+            <div style="max-width:88%;background:#eef5ff;color:#14213d;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#2563eb;">Support Pilot</strong>Ask me to review customer cases, explain what needs attention, prepare a grounded response or identify the correct handoff. I will use the protected case timeline and approved business policy, and show when human approval is required.</div>
           </div>
-          <form data-aion-support-pilot-form="true" data-aion-support-attachments="[]" style="display:flex;align-items:flex-end;gap:8px;padding-top:14px;border-top:1px solid #ddd6fe;"><textarea data-aion-support-pilot-input="true" rows="2" placeholder="Message Support Pilot…" style="flex:1;resize:vertical;border:1px solid #a78bfa;background:#fff;color:#0f172a;padding:10px;font:inherit;"></textarea><button type="button" data-aion-support-pilot-attach="true" aria-label="Attach customer or support evidence" title="Attach customer or support evidence" style="border:1px solid #67558f;background:#fff;color:#67558f;padding:11px 12px;font-size:16px;cursor:pointer;">📎</button><button type="button" data-aion-support-pilot-voice="true" aria-label="Speak to Support Pilot" title="Speak to Support Pilot" style="border:1px solid #67558f;background:#fff;color:#67558f;padding:11px 12px;font-size:16px;cursor:pointer;">🎙</button><button type="submit" style="border:0;background:#67558f;color:#fff;padding:12px 16px;font-size:10px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">Send</button></form>
+          <form class="aion-department-composer" data-aion-support-pilot-form="true" data-aion-support-attachments="[]" style="margin-top:14px;"><textarea data-aion-support-pilot-input="true" rows="2" placeholder="Message Support Pilot…"></textarea><div class="aion-composer-actions"><button class="aion-composer-tool" type="button" data-aion-support-pilot-attach="true" aria-label="Attach customer or support evidence" title="Attach customer or support evidence">＋</button><button class="aion-composer-tool" type="button" data-aion-support-pilot-voice="true" aria-label="Speak to Support Pilot" title="Speak to Support Pilot">●</button><button class="aion-composer-send" type="submit">Send&nbsp; ↑</button></div></form>
         </section>
-        <div aria-label="Drag to resize Support Command Centre panes" style="border-left:1px solid #dbe3ef;border-right:1px solid #dbe3ef;background:#f8fafc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-support-split-handle="true" aria-label="Drag to resize panes" title="Drag left or right to resize" style="width:18px;height:76px;border:1px solid #c4b5fd;border-radius:9px;background:#f5f3ff;color:#67558f;box-shadow:0 1px 3px rgba(103,85,143,.18);display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
-        <section data-aion-support-workspace-pane="true" style="min-width:0;height:100%;overflow:auto;background:#f8fafc;"><div data-aion-support-case-mount="true"></div></section>
+        <div aria-label="Drag to resize Support Command Centre panes" style="border-left:1px solid #d9e2ec;border-right:1px solid #d9e2ec;background:#f7f9fc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-support-split-handle="true" aria-label="Drag to resize panes" title="Drag left or right to resize" style="width:18px;height:76px;border:1px solid #bfd2fb;border-radius:9px;background:#eef5ff;color:#2563eb;box-shadow:0 1px 3px rgba(37,99,235,.12);display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
+        <section data-aion-support-workspace-pane="true" style="min-width:0;height:100%;overflow:auto;background:#f8fafc;">${renderAionDepartmentTabbedWorkspaceV1("support", "Case centre", '<div data-aion-support-case-mount="true"></div>')}</section>
       </div>
     </section>
   `;
@@ -55757,51 +59678,60 @@ function renderSupportPilotCommandCentre() {
 
 function renderHRWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return `
-    <div data-aion-people-live-agents-workspace="true" data-aion-shared-department-pilot="true" data-aion-shared-department="people" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#ffffff!important;">
+    <div data-aion-people-live-agents-workspace="true" data-aion-shared-department-pilot="true" data-aion-shared-department="people" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#f7f9fc!important;">
       ${renderPeoplePilotCommandCentre()}
     </div>
   `;
 }
 
 function renderPeoplePilotCommandCentre() {
+  ensureAionDepartmentComposerStyles();
   window.setTimeout?.(() => hydrateAionPeopleConversation(document.querySelector("[data-aion-people-command-centre]")), 0);
   return `
-    <section data-aion-people-command-centre="true" data-aion-shared-department-pilot="true" data-aion-shared-department="people" style="background:#f8fbff;border-top:4px solid #0f766e;padding:24px 0 0;box-sizing:border-box;">
+    <section class="aion-department-command-centre" data-aion-people-command-centre="true" data-aion-shared-department-pilot="true" data-aion-shared-department="people" style="--aion-department-accent:#2563eb;background:#f7f9fc;border-top:4px solid #2563eb;padding:24px 0 0;box-sizing:border-box;">
       <style>
         [data-aion-people-workspace-pane] [data-aion-o18ad-department="hr"]{max-width:none!important;margin:0!important}
         [data-aion-people-workspace-pane] .hrw-shell{padding:18px!important;min-height:100%!important}
         [data-aion-people-workspace-pane] .hrw-content{padding:20px!important}
         [data-aion-people-workspace-pane] .hrw-people-grid{grid-template-columns:minmax(0,1fr)!important}
+        [data-aion-people-command-centre]{font-family:Inter,"SF Pro Text","SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;background:#f7f8fa!important}
+        [data-aion-people-command-centre] button,[data-aion-people-command-centre] textarea,[data-aion-people-command-centre] input,[data-aion-people-command-centre] select{border-radius:10px!important;font-family:inherit!important}
+        [data-aion-people-command-centre] [data-aion-people-split]{border:1px solid #e0e4e9!important;border-radius:18px!important;box-shadow:0 1px 2px rgba(15,23,42,.03)!important}
+        [data-aion-people-command-centre] [data-aion-people-pilot-pane]{background:#fafafa!important}
+        [data-aion-people-command-centre] [data-aion-people-pilot-thread]>div{border-radius:16px!important}
+        [data-aion-people-command-centre] [data-aion-people-active-profile]{border-radius:10px!important}
+        [data-aion-people-command-centre] [data-aion-people-pilot-form]{gap:9px!important}
+        [data-aion-people-workspace-pane]{background:#f7f8fa!important}
         @media(max-width:1100px){[data-aion-people-command-centre] [data-aion-people-split]{grid-template-columns:1fr!important;display:block!important;overflow:auto!important}[data-aion-people-command-centre] [data-aion-people-split-handle]{display:none!important}[data-aion-people-pilot-pane],[data-aion-people-workspace-pane]{min-height:720px!important;height:auto!important}}
       </style>
       <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:18px;box-sizing:border-box;">
-        <div style="padding-left:20px;"><div style="color:#0f766e;font-size:10px;letter-spacing:.22em;font-weight:950;">PILOT · PEOPLE COMMAND CENTRE</div><h2 style="margin:8px 0 0;color:#0f172a;">People coordination</h2></div>
-        <button type="button" data-aion-people-open-package="true" style="border:1px solid rgba(15,118,110,.30);background:#fff;color:#0f766e;padding:9px 12px;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Open package</button>
+        <div style="padding-left:20px;"><div style="color:#2563eb;font-size:10px;letter-spacing:.22em;font-weight:950;">PILOT · PEOPLE COMMAND CENTRE</div><h2 style="margin:8px 0 0;color:#14213d;">People coordination</h2></div>
+        <button type="button" data-aion-people-open-package="true" style="border:1px solid #d9e2ec;background:#fff;color:#14213d;padding:9px 12px;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Open package</button>
       </header>
-      <div data-aion-people-split="32" style="display:grid;grid-template-columns:minmax(320px,32fr) 30px minmax(520px,68fr);min-height:calc(100vh - 190px);height:calc(100vh - 190px);border-top:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;background:#fff;overflow:hidden;box-sizing:border-box;">
+      <div data-aion-people-split="34" style="display:grid;grid-template-columns:minmax(320px,34fr) 30px minmax(560px,66fr);min-height:calc(100vh - 190px);height:calc(100vh - 190px);border-top:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;background:#fff;overflow:hidden;box-sizing:border-box;">
         <section data-aion-people-pilot-pane="true" style="min-width:0;height:100%;overflow:hidden;background:#f7fafc;padding:20px;display:flex;flex-direction:column;box-sizing:border-box;">
-          <div style="display:flex;align-items:center;gap:11px;padding-bottom:14px;border-bottom:1px solid #cbd5e1;"><span style="width:11px;height:11px;border-radius:50%;background:#0f766e;box-shadow:0 0 0 4px #ccfbf1;"></span><div><strong style="color:#0f172a;">People Pilot</strong><div style="color:#64748b;font-size:12px;margin-top:3px;">Organisation, workforce and authority adviser</div></div></div>
-          <details data-aion-people-help="true" style="margin-top:12px;border:1px solid #99f6e4;background:#fff;border-radius:10px;color:#134e4a;">
-            <summary style="cursor:pointer;list-style:none;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:800;"><span>What can I ask People Pilot to do?</span><span aria-hidden="true" style="font-size:16px;color:#0f766e;">＋</span></summary>
-            <div style="padding:0 13px 13px;border-top:1px solid #ccfbf1;">
+          <div style="display:flex;align-items:center;gap:11px;padding-bottom:14px;border-bottom:1px solid #d9e2ec;"><span style="width:11px;height:11px;border-radius:50%;background:#2563eb;box-shadow:0 0 0 4px #eef5ff;"></span><div><strong style="color:#14213d;">People Pilot</strong><div style="color:#66758a;font-size:12px;margin-top:3px;">Organisation, workforce and authority adviser</div></div></div>
+          <details data-aion-people-help="true" style="margin-top:12px;border:1px solid #d9e2ec;background:#fff;border-radius:10px;color:#14213d;">
+            <summary style="cursor:pointer;list-style:none;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:800;"><span>What can I ask People Pilot to do?</span><span aria-hidden="true" style="font-size:16px;color:#2563eb;">＋</span></summary>
+            <div style="padding:0 13px 13px;border-top:1px solid #d9e2ec;">
               <p style="margin:10px 0;color:#64748b;font-size:11px;line-height:1.45;">Speak naturally. These are examples, not commands you must copy. Select one to place it in the message box.</p>
               <div style="display:grid;grid-template-columns:1fr;gap:7px;">
-                <button type="button" data-aion-people-example="Add a new employee called Rebecca Newman. Her email is rebecca@example.com and she starts on 16 October 2027." style="text-align:left;border:1px solid #d5e7e5;background:#f8fffe;color:#134e4a;padding:9px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:11px;"><strong>Add somebody</strong><br><span style="color:#64748b;">“Add a new employee called Rebecca Newman…”</span></button>
-                <button type="button" data-aion-people-example="Rebecca Newman will be on paid holiday on 7 October 2027." style="text-align:left;border:1px solid #d5e7e5;background:#f8fffe;color:#134e4a;padding:9px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:11px;"><strong>Record time away</strong><br><span style="color:#64748b;">Paid holiday, unpaid leave or sickness</span></button>
-                <button type="button" data-aion-people-example="Update Rebecca Newman. Her job title is Operations Manager and she reports to Kevin Robinson." style="text-align:left;border:1px solid #d5e7e5;background:#f8fffe;color:#134e4a;padding:9px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:11px;"><strong>Update a profile</strong><br><span style="color:#64748b;">Contact details, role, manager, department or dates</span></button>
-                <button type="button" data-aion-people-example="James Bellamu is paid 9.50 per hour and works 7.5 hours per day." style="text-align:left;border:1px solid #d5e7e5;background:#f8fffe;color:#134e4a;padding:9px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:11px;"><strong>Record employment costs</strong><br><span style="color:#64748b;">Hourly rate, hours, bonus, commission or cost centre</span></button>
+                <button type="button" data-aion-people-example="Add a new employee called Rebecca Newman. Her email is rebecca@example.com and she starts on 16 October 2027." style="text-align:left;border:1px solid #d9e2ec;background:#f7f9fc;color:#14213d;padding:9px 10px;border-radius:9px;cursor:pointer;font:inherit;font-size:11px;"><strong>Add somebody</strong><br><span style="color:#66758a;">“Add a new employee called Rebecca Newman…”</span></button>
+                <button type="button" data-aion-people-example="Rebecca Newman will be on paid holiday on 7 October 2027." style="text-align:left;border:1px solid #d9e2ec;background:#f7f9fc;color:#14213d;padding:9px 10px;border-radius:9px;cursor:pointer;font:inherit;font-size:11px;"><strong>Record time away</strong><br><span style="color:#66758a;">Paid holiday, unpaid leave or sickness</span></button>
+                <button type="button" data-aion-people-example="Update Rebecca Newman. Her job title is Operations Manager and she reports to Kevin Robinson." style="text-align:left;border:1px solid #d9e2ec;background:#f7f9fc;color:#14213d;padding:9px 10px;border-radius:9px;cursor:pointer;font:inherit;font-size:11px;"><strong>Update a profile</strong><br><span style="color:#66758a;">Contact details, role, manager, department or dates</span></button>
+                <button type="button" data-aion-people-example="James Bellamu is paid 9.50 per hour and works 7.5 hours per day." style="text-align:left;border:1px solid #d9e2ec;background:#f7f9fc;color:#14213d;padding:9px 10px;border-radius:9px;cursor:pointer;font:inherit;font-size:11px;"><strong>Record employment costs</strong><br><span style="color:#66758a;">Hourly rate, hours, bonus, commission or cost centre</span></button>
               </div>
               <p style="margin:9px 0 0;color:#64748b;font-size:10px;line-height:1.4;">You can also attach an employee document or use the microphone. Pilot asks for anything essential that is missing before changing the record.</p>
             </div>
           </details>
           <div data-aion-people-pilot-thread="true" style="flex:1;min-height:0;padding:20px 0;display:flex;flex-direction:column;gap:12px;overflow:auto;">
-            <div style="max-width:88%;background:#f0fdfa;color:#134e4a;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #99f6e4;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#0f766e;">People Pilot</strong>Delegate the People administration to me. Tell me to add or update a person, record leave, check capacity, reporting lines or authority. I will use the authorised records, ask only for missing facts and show exactly what changed.</div>
+            <div style="max-width:88%;background:#eef5ff;color:#14213d;padding:14px 16px;line-height:1.5;border-radius:4px 16px 16px 16px;border:1px solid #c8d8fb;"><strong style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#2563eb;">People Pilot</strong>Delegate the People administration to me. Tell me to add or update a person, record leave, check capacity, reporting lines or authority. I will use the authorised records, ask only for missing facts and show exactly what changed.</div>
           </div>
-          <div hidden data-aion-people-active-profile="true" style="margin:0 0 10px;padding:8px 10px;border:1px solid #99f6e4;background:#ecfdf5;color:#115e59;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:11px;"><strong></strong><span style="color:#64748b;"></span></div>
-          <form data-aion-people-pilot-form="true" data-aion-people-attachments="[]" style="display:flex;align-items:flex-end;gap:8px;padding-top:14px;border-top:1px solid #cbd5e1;"><textarea data-aion-people-pilot-input="true" rows="2" placeholder="Delegate People admin…" style="flex:1;resize:vertical;border:1px solid #94a3b8;background:#fff;color:#0f172a;padding:10px;font:inherit;"></textarea><button type="button" data-aion-people-pilot-attach="true" aria-label="Attach employee or People document" title="Attach employee or People document" style="border:1px solid #0f766e;background:#fff;color:#0f766e;padding:11px 12px;font-size:16px;cursor:pointer;">📎</button><button type="button" data-aion-people-pilot-voice="true" aria-label="Speak to People Pilot" title="Speak to People Pilot" style="border:1px solid #0f766e;background:#fff;color:#0f766e;padding:11px 12px;font-size:16px;cursor:pointer;">🎙</button><button type="submit" style="border:0;background:#0f766e;color:#fff;padding:12px 16px;font-size:10px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">Send</button></form>
+          <div hidden data-aion-people-active-profile="true" style="margin:0 0 10px;padding:8px 10px;border:1px solid #c8d8fb;background:#eef5ff;color:#2563eb;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:11px;"><strong></strong><span style="color:#66758a;"></span></div>
+          <form class="aion-department-composer" data-aion-people-pilot-form="true" data-aion-people-attachments="[]" style="margin-top:14px;"><textarea data-aion-people-pilot-input="true" rows="2" placeholder="Delegate People admin…"></textarea><div class="aion-composer-actions"><button class="aion-composer-tool" type="button" data-aion-people-pilot-attach="true" aria-label="Attach employee or People document" title="Attach employee or People document">＋</button><button class="aion-composer-tool" type="button" data-aion-people-pilot-voice="true" aria-label="Speak to People Pilot" title="Speak to People Pilot">●</button><button class="aion-composer-send" type="submit">Send&nbsp; ↑</button></div></form>
         </section>
-        <div aria-label="Drag to resize People Command Centre panes" style="border-left:1px solid #dbe3ef;border-right:1px solid #dbe3ef;background:#f8fafc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-people-split-handle="true" aria-label="Drag to resize panes" title="Drag left or right to resize" style="width:18px;height:76px;border:1px solid #99f6e4;border-radius:9px;background:#f0fdfa;color:#0f766e;box-shadow:0 1px 3px rgba(15,118,110,.18);display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
-        <section data-aion-people-workspace-pane="true" style="min-width:0;height:100%;overflow:auto;background:#f8fafc;"><div data-aion-hr-people-mount="true" data-aion-hr-directory-page-size="1"></div></section>
+        <div aria-label="Drag to resize People Command Centre panes" style="border-left:1px solid #d9e2ec;border-right:1px solid #d9e2ec;background:#f7f9fc;display:flex;justify-content:center;align-items:center;"><div role="separator" tabindex="0" data-aion-people-split-handle="true" aria-label="Drag to resize panes" title="Drag left or right to resize" style="width:18px;height:76px;border:1px solid #bfd2fb;border-radius:9px;background:#eef5ff;color:#2563eb;box-shadow:0 1px 3px rgba(37,99,235,.12);display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;cursor:col-resize;user-select:none;">⋮<br>⋮</div></div>
+        <section data-aion-people-workspace-pane="true" style="min-width:0;height:100%;overflow:auto;background:#f8fafc;">${renderAionDepartmentTabbedWorkspaceV1("people", "People workspace", '<div data-aion-hr-people-mount="true" data-aion-hr-directory-page-size="1"></div>')}</section>
       </div>
     </section>
   `;
@@ -56280,6 +60210,29 @@ function renderLiveAgentsSubviewTabs() {
   const departmentKey = getSelectedLiveDepartmentKey();
   const showCalendar = departmentKey === "marketing";
 
+  if (showCalendar) {
+    const tabs = [
+      [LIVE_AGENT_VIEWS.STREAM, "Overview"],
+      [LIVE_AGENT_VIEWS.CAMPAIGNS, "Campaigns"],
+      [LIVE_AGENT_VIEWS.CALENDAR, "Calendar"],
+      [LIVE_AGENT_VIEWS.CREATE, "Create"],
+      [LIVE_AGENT_VIEWS.APPROVALS, "Review"],
+      [LIVE_AGENT_VIEWS.LIBRARY, "Library"],
+    ];
+    return `
+      <nav class="live-agents-subtabs" aria-label="Marketing workspace">
+        ${tabs.map(([view, label]) => `
+          <button
+            type="button"
+            class="live-agents-subtab ${activeView === view ? "live-agents-subtab-active" : ""}"
+            data-live-agents-view="${escapeHtml(view)}"
+            aria-current="${activeView === view ? "page" : "false"}"
+          >${escapeHtml(label)}</button>
+        `).join("")}
+      </nav>
+    `;
+  }
+
   return `
     <div class="live-agents-subtabs">
       <button
@@ -56324,6 +60277,87 @@ function renderLiveAgentsSubviewTabs() {
       </button>
     </div>
   `;
+}
+
+if (!window.__tessarisMarketingWorkspaceNavigationOwner) {
+  window.__tessarisMarketingWorkspaceNavigationOwner = true;
+  const openMarketingWorkspaceView = (event, viewButton) => {
+    const nextView = String(viewButton?.dataset?.liveAgentsView || "").trim();
+    const allowed = new Set(Object.values(LIVE_AGENT_VIEWS));
+    if (!allowed.has(nextView)) return false;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+    state.liveAgentsView = nextView;
+    const marketingScope = getSelectedLiveDepartmentKey() === "marketing";
+    if (marketingScope) {
+      window.__tessarisMarketingWorkspaceView = nextView;
+      state.activeTab = "live_agents";
+      state.activeZone = "marketing";
+      state.selectedLiveAgentDepartment = "marketing";
+      state.liveAgentsSelectedDepartment = "marketing";
+    }
+    safeAionDesktopPatch({
+      liveAgentsView: nextView,
+      ...(marketingScope ? {
+        activeTab: "live_agents",
+        activeZone: "marketing",
+        selectedLiveAgentDepartment: "marketing",
+        liveAgentsSelectedDepartment: "marketing",
+      } : {}),
+    });
+    desktopStore.persistCache();
+    requestRender();
+    return true;
+  };
+
+  window.addEventListener("pointerdown", (event) => {
+    const viewButton = event.target?.closest?.("[data-aion-marketing-command-centre] [data-live-agents-view]");
+    if (viewButton) openMarketingWorkspaceView(event, viewButton);
+  }, true);
+
+  window.addEventListener("click", (event) => {
+    const viewButton = event.target?.closest?.("[data-live-agents-view]");
+    if (viewButton) {
+      openMarketingWorkspaceView(event, viewButton);
+      return;
+    }
+
+    const workspaceViewButton = event.target?.closest?.("[data-marketing-calendar-workspace-view]");
+    if (workspaceViewButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      const nextWorkspaceView = workspaceViewButton.dataset.marketingCalendarWorkspaceView === "board" ? "board" : "calendar";
+      safeAionDesktopPatch({ marketingCalendarWorkspaceView: nextWorkspaceView });
+      desktopStore.persistCache();
+      requestRender();
+      return;
+    }
+
+    const weekShiftButton = event.target?.closest?.("[data-marketing-calendar-week-shift]");
+    if (weekShiftButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      const shift = Number(weekShiftButton.dataset.marketingCalendarWeekShift || 0);
+      const nextWeek = marketingAddDays(marketingStartOfWeek(state.marketingCalendarWeek || new Date()), shift);
+      safeAionDesktopPatch({ marketingCalendarWeek: marketingDateKey(nextWeek) });
+      desktopStore.persistCache();
+      requestRender();
+      return;
+    }
+
+    const todayButton = event.target?.closest?.("[data-marketing-calendar-week-today]");
+    if (todayButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      safeAionDesktopPatch({ marketingCalendarWeek: marketingDateKey(marketingStartOfWeek(new Date())) });
+      desktopStore.persistCache();
+      requestRender();
+    }
+  }, true);
 }
 
 function renderMinimalDepartmentSwitcher() {
@@ -56670,6 +60704,39 @@ function renderAionPilotMarketingArtifactCard(item = {}) {
   `;
 }
 
+function aionMarketingCanvasClearStorageKey() {
+  return `aionDesktop.marketing.canvasCleared.${String(getActiveWorkspaceId() || state.workspaceId || "workspace")}`;
+}
+
+function aionMarketingCanvasGlobalClearStorageKey() {
+  return "aionDesktop.marketing.canvasCleared";
+}
+
+function isAionMarketingCanvasDurablyCleared() {
+  try {
+    return localStorage.getItem(aionMarketingCanvasClearStorageKey()) === "true"
+      || localStorage.getItem(aionMarketingCanvasGlobalClearStorageKey()) === "true";
+  } catch (_) {
+    return false;
+  }
+}
+
+function setAionMarketingCanvasDurablyCleared(cleared) {
+  try {
+    const key = aionMarketingCanvasClearStorageKey();
+    const globalKey = aionMarketingCanvasGlobalClearStorageKey();
+    if (cleared) {
+      localStorage.setItem(key, "true");
+      localStorage.setItem(globalKey, "true");
+    } else {
+      localStorage.removeItem(key);
+      localStorage.removeItem(globalKey);
+    }
+  } catch (_) {
+    // The normalized marketing form remains the fallback when storage is unavailable.
+  }
+}
+
 function getAionMarketingCreativeLabState() {
   if (!window.__aionMarketingCreativeLab) {
     window.__aionMarketingCreativeLab = {
@@ -56720,6 +60787,20 @@ function getAionMarketingCreativeLabState() {
       campaignDraft: null,
       campaignResult: null,
       campaignError: "",
+      designStyle: "product_showcase",
+      creationMethod: "original_photo",
+      templateOverrides: {},
+      brandedTemplates: [],
+      selectedBrandedTemplateId: "",
+      templateBuilderOpen: false,
+      templateBuilderDescription: "",
+      templateBuilderInspirationNotes: "",
+      templateBuilderAssets: [],
+      templateBuilderDraft: null,
+      templateBuilderName: "",
+      templateBuilderGenerationIndex: 0,
+      templateBuilderBusy: false,
+      templateBuilderError: "",
       strategySource: "boardroom",
       campaignType: "proof_project",
       subjectOfferingId: "",
@@ -56732,6 +60813,7 @@ function getAionMarketingCreativeLabState() {
       editorCarouselText: "",
       editorSchedule: "",
       editorImageUrl: "",
+      savedLibraryItems: [],
       draggingClipId: "",
       timeline: null,
       status: "idle",
@@ -56739,8 +60821,14 @@ function getAionMarketingCreativeLabState() {
     };
   }
   const storedForm = state.marketingForm || {};
+  if (!Array.isArray(window.__aionMarketingCreativeLab.savedLibraryItems)) window.__aionMarketingCreativeLab.savedLibraryItems = [];
+  if (!Array.isArray(window.__aionMarketingCreativeLab.brandedTemplates)) window.__aionMarketingCreativeLab.brandedTemplates = [];
+  if (!window.__aionMarketingCreativeLab.libraryHydrated) {
+    window.__aionMarketingCreativeLab.savedLibraryItems = Array.isArray(storedForm.savedLibraryItems) ? storedForm.savedLibraryItems : [];
+    window.__aionMarketingCreativeLab.libraryHydrated = true;
+  }
   if (!window.__aionMarketingCreativeLab.strategyHydrated) {
-    for (const field of ["strategySource", "campaignType", "subjectOfferingId", "campaignAngle", "proofClaim", "assetReadiness", "strategyAssets", "assetRequestPrepared"]) {
+    for (const field of ["designStyle", "creationMethod", "templateOverrides", "brandedTemplates", "selectedBrandedTemplateId", "strategySource", "campaignType", "subjectOfferingId", "campaignAngle", "proofClaim", "assetReadiness", "strategyAssets", "assetRequestPrepared"]) {
       if (storedForm[field] !== undefined) window.__aionMarketingCreativeLab[field] = storedForm[field];
     }
     window.__aionMarketingCreativeLab.strategyHydrated = true;
@@ -56751,10 +60839,20 @@ function getAionMarketingCreativeLabState() {
   const storedRun = storedForm.aionCampaignLatestRun;
   const activeWorkspaceId = String(getActiveWorkspaceId() || "");
   const storedWorkspaceId = String(storedRun?.workspace_id || storedRun?.workspaceId || "");
-  if (!window.__aionMarketingCreativeLab.campaignResult && storedRun && (!storedWorkspaceId || storedWorkspaceId === activeWorkspaceId)) {
+  const canvasWasCleared = Boolean(storedForm.aionCampaignCanvasCleared) || isAionMarketingCanvasDurablyCleared();
+  if (!canvasWasCleared && !window.__aionMarketingCreativeLab.campaignResult && storedRun && (!storedWorkspaceId || storedWorkspaceId === activeWorkspaceId)) {
     window.__aionMarketingCreativeLab.campaignResult = storedRun;
     window.__aionMarketingCreativeLab.campaignRunId = storedRun.id || "";
-    window.__aionMarketingCreativeLab.campaignStage = storedRun.status === "completed" ? "complete" : "brief";
+    window.__aionMarketingCreativeLab.campaignStage = storedRun.status === "completed"
+      ? "complete"
+      : storedRun.status === "waiting_approval"
+        ? "approval"
+        : "brief";
+    window.__aionMarketingCreativeLab.campaignMessage = storedRun.status === "completed"
+      ? "Content draft created. Review and schedule it below."
+      : storedRun.status === "waiting_approval"
+        ? "Facebook draft created and ready for review."
+        : "Ready for instructions.";
   }
   return window.__aionMarketingCreativeLab;
 }
@@ -56762,7 +60860,7 @@ function getAionMarketingCreativeLabState() {
 function persistAionMarketingCampaignState(lab) {
   desktopStore.setMarketingField("aionCampaignPlan", lab.plan || null);
   desktopStore.setMarketingField("aionCampaignLatestRun", compactAionMarketingRun(lab.campaignResult));
-  for (const field of ["strategySource", "campaignType", "subjectOfferingId", "campaignAngle", "proofClaim", "assetReadiness", "strategyAssets", "assetRequestPrepared"]) {
+  for (const field of ["designStyle", "creationMethod", "templateOverrides", "brandedTemplates", "selectedBrandedTemplateId", "strategySource", "campaignType", "subjectOfferingId", "campaignAngle", "proofClaim", "assetReadiness", "strategyAssets", "assetRequestPrepared", "savedLibraryItems"]) {
     desktopStore.setMarketingField(field, lab[field]);
   }
   desktopStore.persistCacheSoon(100);
@@ -57058,49 +61156,82 @@ function renderAionMarketingConnectionsCentre() {
   </section>`;
 }
 
-function aionMarketingCampaignPayload(brief) {
+function aionMarketingCampaignPayload(brief, { includeExistingSources = false } = {}) {
   const form = state.marketingForm || {};
   const workspaceId = String(getActiveWorkspaceId() || state.workspaceId || "workspace");
   const selectedChannels = getAionMarketingCreativeLabState().platforms.map((value) => String(value).replaceAll("_", " "));
-  const staleOffer = /spring telecom upgrade/i.test(String(form.offer || ""));
   const foundation = buildBrandFoundationPayload() || {};
   const inferredOffer = String(brief || "").match(/target(?:ing|ed at)\s+(.+?)(?:\s+in\s+[A-ZÁÉÍÓÚÑ]|\s+for\s+|[.,]|$)/i)?.[1]?.trim() || "the approved product or service";
-  const staleAudience = /core service towns|local service buyer/i.test(String(form.targetAudience || ""));
+  const audience = cleanMarketingLegacySeed("targetAudience", form.targetAudience)
+    || cleanMarketingLegacySeed("targetAudience", foundation.target_customers || foundation.target_audience);
+  const funnelGoal = cleanMarketingLegacySeed("funnelGoal", form.funnelGoal);
+  const offer = cleanMarketingLegacySeed("offer", form.offer);
+  const selectedPersonaIds = Array.isArray(form.selectedPersonaIds) ? form.selectedPersonaIds.map(String) : [];
+  const selectedPersonaProfiles = (typeof getAionAudiencePersonas === "function" ? getAionAudiencePersonas() : [])
+    .filter((item) => selectedPersonaIds.includes(String(item.id)));
+  const persona = selectedPersonaProfiles.map((item) => item.name).join(", ") || cleanMarketingLegacySeed("persona", form.persona);
+  const selectedOffering = getAionMarketingSelectedOffering();
+  const catalogueAsset = aionMarketingOfferingAsset(selectedOffering);
+  const existingSourceAssets = includeExistingSources ? getAionMarketingExistingSourceAssets() : [];
+  const sourceAssets = [...(catalogueAsset ? [catalogueAsset] : []), ...existingSourceAssets, ...buildCreativeAssetsPayload(), ...(Array.isArray(getAionMarketingCreativeLabState().strategyAssets) ? getAionMarketingCreativeLabState().strategyAssets : [])]
+    .filter((asset, index, items) => index === items.findIndex((candidate) => String(candidate?.id || candidate?.url || candidate?.file_path || "") === String(asset?.id || asset?.url || asset?.file_path || "")));
+  const activeModel = window.getTessarisActiveModelSelection?.() || null;
+  const activeTemplateKey = getAionMarketingCreativeLabState().createTemplate || "facebook_feed";
+  const activeSpecification = getMarketingCreateSpecification(activeTemplateKey);
+  const activeBrandedTemplate = getAionMarketingCreativeLabState().creationMethod === "brand_template" ? getSelectedMarketingBrandedTemplate() : null;
   return {
     workspace_id: workspaceId,
     brief,
+    selected_provider: activeModel?.provider_id || undefined,
+    selected_model: activeModel?.model_id || undefined,
     objective: String(form.objective || "Generate qualified enquiries"),
-    funnel_goal: String(form.funnelGoal || "Lead capture"),
-    target_audience: String((staleAudience ? "" : form.targetAudience) || foundation.target_customers || foundation.target_audience || "The business's priority customer"),
-    persona: String(form.persona || "Qualified local buyer"),
-    offer: staleOffer ? inferredOffer : String(form.offer || inferredOffer),
+    funnel_goal: String(funnelGoal || "Not specified"),
+    target_audience: String(audience || "Not specified"),
+    persona: String(persona || "Not specified"),
+    offer: String(offer || inferredOffer),
     channels: selectedChannels.length ? selectedChannels : ["Facebook"],
-    hashtags: splitLines(form.hashtags || ""), keywords: splitLines(form.keywords || ""),
+    hashtags: splitLines(cleanMarketingLegacySeed("hashtags", form.hashtags)), keywords: splitLines(cleanMarketingLegacySeed("keywords", form.keywords)),
     hard_rules: [...new Set(["Do not publish automatically.", ...splitLines(form.hardRules || "")])],
-    guidance_notes: splitLines(form.guidanceNotes || ""), campaign_notes: splitLines(form.campaignNotes || ""),
-    creative_assets: [...buildCreativeAssetsPayload(), ...(Array.isArray(getAionMarketingCreativeLabState().strategyAssets) ? getAionMarketingCreativeLabState().strategyAssets : [])], creative_direction: {
+    guidance_notes: splitLines(cleanMarketingLegacySeed("guidanceNotes", form.guidanceNotes)), campaign_notes: splitLines(cleanMarketingLegacySeed("campaignNotes", form.campaignNotes)),
+    creative_assets: sourceAssets, creative_direction: {
       ...buildCreativeDirectionPayload(),
+      content_format: MARKETING_CREATE_TEMPLATES[getAionMarketingCreativeLabState().createTemplate]?.format || "image",
+      platform_template: activeTemplateKey,
+      design_template: getAionMarketingCreativeLabState().designStyle || "product_showcase",
+      creation_method: getAionMarketingCreativeLabState().creationMethod || "original_photo",
+      canvas_size: activeSpecification.canvasSize,
+      aspect_ratio: activeSpecification.aspectRatio,
+      copy_structure: activeSpecification.copyStructure,
+      creative_direction: activeSpecification.creativeDirection,
+      branded_template: activeBrandedTemplate ? { ...activeBrandedTemplate } : undefined,
       boardroom_source: "marketing_assignment_package",
       campaign_type: getAionMarketingCreativeLabState().campaignType,
       subject_offering_id: getAionMarketingCreativeLabState().subjectOfferingId,
+      subject_offering_name: selectedOffering?.name || "",
+      product_url: String(form.destinationUrl || selectedOffering?.product_url || selectedOffering?.url || ""),
+      product_image_url: String(selectedOffering?.primary_image_url || selectedOffering?.image_url || ""),
+      catalogue_source: String(selectedOffering?.catalogue_source || selectedOffering?.catalog_source || selectedOffering?.import_source || ""),
+      external_product_id: String(selectedOffering?.external_id || selectedOffering?.sku || ""),
       campaign_angle: getAionMarketingCreativeLabState().campaignAngle,
       proof_claim: getAionMarketingCreativeLabState().proofClaim,
       asset_readiness: getAionMarketingCreativeLabState().assetReadiness,
+      selected_personas: selectedPersonaProfiles,
     },
     brand_foundation: (() => {
+      const guide = getMarketingCreateFoundationGuide();
       return {
         business_name: foundation.business_name || foundation.name || "",
         website: foundation.website || foundation.website_url || "",
         business_type: foundation.business_type || "",
         products_services: foundation.products_services || foundation.offer_summary || "",
-        target_customers: foundation.target_customers || foundation.target_audience || "",
-        tone_of_voice: foundation.tone_of_voice || foundation.voice_tone || "",
+        target_customers: foundation.target_customers || foundation.target_audience || guide.audience,
+        tone_of_voice: foundation.tone_of_voice || foundation.voice_tone || guide.tone,
         service_area: foundation.service_area || "",
-        brand_notes: foundation.brand_notes || "",
+        brand_notes: foundation.brand_notes || `${guide.message}. ${guide.visual}`,
       };
     })(),
-    brandFoundationState: {},
-    brand_map: {},
+    brandFoundationState: foundation,
+    brand_map: foundation.brand_map || foundation.brandMap || {},
   };
 }
 
@@ -57119,6 +61250,14 @@ function compactAionMarketingRun(run) {
     updated_at: run.updated_at,
     scheduled_for: run.scheduled_for,
     approval_request_id: run.approval_request_id,
+    input_payload: {
+      brief: run.input_payload?.brief,
+      selected_provider: run.input_payload?.selected_provider,
+      selected_model: run.input_payload?.selected_model,
+      creative_assets: Array.isArray(run.input_payload?.creative_assets) ? run.input_payload.creative_assets : [],
+      creative_direction: run.input_payload?.creative_direction || {},
+      marketing_strategy: run.input_payload?.marketing_strategy || {},
+    },
     context: {
       business_name: context.business_name,
       approval_packet: context.approval_packet,
@@ -57132,6 +61271,12 @@ function compactAionMarketingRun(run) {
       draft_carousel: result.draft_carousel,
     },
   };
+}
+
+function getAionMarketingExistingSourceAssets() {
+  const lab = getAionMarketingCreativeLabState();
+  const assets = lab.campaignResult?.input_payload?.creative_assets;
+  return Array.isArray(assets) ? assets.filter((asset) => asset && (asset.url || asset.file_path)) : [];
 }
 
 function inferAionMarketingPlatformsFromBrief(brief) {
@@ -57149,6 +61294,31 @@ function getAionMarketingOfferings() {
   const workspace = window.AionOperatingModelWorkspace;
   if (workspace && !workspace.state?.loaded && !workspace.state?.loading) setTimeout(() => workspace.load?.(), 0);
   return Array.isArray(workspace?.state?.model?.offerings) ? workspace.state.model.offerings.filter((item) => String(item?.name || "").trim()) : [];
+}
+
+function getAionMarketingSelectedOffering() {
+  const lab = getAionMarketingCreativeLabState();
+  return getAionMarketingOfferings().find((item) => String(item.id || item.name) === String(lab.subjectOfferingId || "")) || null;
+}
+
+function resolveAionCatalogueImageUrl(value) {
+  const resolver = window.AionOperatingModelWorkspace?.resolveImageUrl;
+  return typeof resolver === "function" ? resolver(value) : String(value || "");
+}
+
+function aionMarketingOfferingAsset(offering) {
+  if (!offering) return null;
+  const imageUrl = resolveAionCatalogueImageUrl(offering.primary_image_url || offering.image_url || offering.primary_image_file_path).trim();
+  if (!imageUrl) return null;
+  return {
+    id: `catalogue_${String(offering.id || offering.external_id || offering.name || "offering")}`,
+    type: "product",
+    label: String(offering.name || "Catalogue product"),
+    url: imageUrl,
+    file_path: String(offering.primary_image_file_path || ""),
+    notes: "Primary catalogue image for the selected product or service.",
+    mime_type: "image/*",
+  };
 }
 
 function aionMarketingAssetRequirements(campaignType) {
@@ -57216,10 +61386,12 @@ function getAionMarketingBoardroomBrief() {
   };
 }
 
-function composeAionMarketingProductionBrief(cmoInstruction = "") {
+function composeAionMarketingProductionBrief(cmoInstruction = "", { includeExistingSources = false } = {}) {
   const lab = getAionMarketingCreativeLabState();
   const boardroom = getAionMarketingBoardroomBrief();
   const offering = getAionMarketingOfferings().find((item) => String(item.id || item.name) === String(lab.subjectOfferingId || ""));
+  const catalogueAsset = aionMarketingOfferingAsset(offering);
+  const existingSourceAssets = includeExistingSources ? getAionMarketingExistingSourceAssets() : [];
   return [
     "BOARDROOM MEETING-MINUTES BRIEF (governing):",
     boardroom.body,
@@ -57228,12 +61400,15 @@ function composeAionMarketingProductionBrief(cmoInstruction = "") {
     "CMO EXECUTION DETAIL:",
     `Campaign approach: ${lab.campaignType || "not selected"}`,
     `Product/service: ${offering?.name || "not selected"}`,
+    `Approved price: ${offering?.price === "" || offering?.price == null ? "not recorded" : `${offering.price} ${window.AionOperatingModelWorkspace?.state?.model?.currency || "EUR"}`}`,
+    `Destination page: ${offering?.product_url || offering?.url || "not recorded"}`,
+    `Catalogue source: ${offering?.catalogue_source || offering?.import_source || "Tessaris manual catalogue"}`,
     `CMO angle: ${lab.campaignAngle || "to be developed from the Boardroom brief"}`,
     `Proof required: ${lab.proofClaim || "no unsupported claim permitted"}`,
     `Owner refinement: ${String(cmoInstruction || "").trim() || "none"}`,
     "",
     "EVIDENCE AND AUTHORITY:",
-    `Original assets: ${Array.isArray(lab.strategyAssets) ? lab.strategyAssets.length : 0}`,
+    `Original assets: ${(Array.isArray(lab.strategyAssets) ? lab.strategyAssets.length : 0) + (catalogueAsset ? 1 : 0) + existingSourceAssets.length}`,
     `Evidence readiness: ${lab.assetReadiness || "needs_assets"}`,
     "Do not replace the Boardroom objective with the owner refinement. Do not invent prices, results, customer claims or project evidence.",
   ].join("\n");
@@ -57247,7 +61422,9 @@ function renderAionMarketingDirectorBrief() {
   if (!lab.subjectOfferingId && selected) lab.subjectOfferingId = String(selected.id || selected.name);
   const requirements = aionMarketingAssetRequirements(lab.campaignType);
   const assets = Array.isArray(lab.strategyAssets) ? lab.strategyAssets : [];
-  const evidenceReady = lab.assetReadiness === "verified_sources" || assets.length > 0;
+  const catalogueAsset = aionMarketingOfferingAsset(selected);
+  const existingSourceAssets = getAionMarketingExistingSourceAssets();
+  const evidenceReady = lab.assetReadiness === "verified_sources" || assets.length > 0 || Boolean(catalogueAsset) || existingSourceAssets.length > 0;
   const subjectLabel = selected?.name || "No product or service selected";
   const margin = Number(selected?.price || 0) - Number(selected?.material_cost_per_unit || 0) - Number(selected?.labour_cost_per_unit || 0) - Number(selected?.other_direct_cost_per_unit || 0);
   const recommendation = lab.campaignType === "proof_project"
@@ -57260,39 +61437,67 @@ function renderAionMarketingDirectorBrief() {
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
         <label class="field-label">Campaign approach<select class="input" data-aion-strategy-field="campaignType"><option value="proof_project" ${lab.campaignType === "proof_project" ? "selected" : ""}>Real project / customer proof</option><option value="product_service" ${lab.campaignType === "product_service" ? "selected" : ""}>Product or service</option><option value="educational" ${lab.campaignType === "educational" ? "selected" : ""}>Useful education</option><option value="founder_story" ${lab.campaignType === "founder_story" ? "selected" : ""}>Founder story</option><option value="team_story" ${lab.campaignType === "team_story" ? "selected" : ""}>Team story</option><option value="brand_story" ${lab.campaignType === "brand_story" ? "selected" : ""}>Brand story</option><option value="offer" ${lab.campaignType === "offer" ? "selected" : ""}>Specific offer</option></select></label>
         <label class="field-label">Product or service<select class="input" data-aion-strategy-field="subjectOfferingId"><option value="">Choose from Products & Services</option>${offerings.map((item) => `<option value="${escapeHtml(String(item.id || item.name))}" ${String(item.id || item.name) === String(lab.subjectOfferingId) ? "selected" : ""}>${escapeHtml(item.name)}${item.price ? ` · ${escapeHtml(String(item.price))}` : ""}</option>`).join("")}</select></label>
-        <label class="field-label">Evidence readiness<select class="input" data-aion-strategy-field="assetReadiness"><option value="needs_assets" ${lab.assetReadiness === "needs_assets" ? "selected" : ""}>We need original assets</option><option value="assets_uploaded" ${lab.assetReadiness === "assets_uploaded" ? "selected" : ""}>Original assets uploaded</option><option value="verified_sources" ${lab.assetReadiness === "verified_sources" ? "selected" : ""}>Verified source material is sufficient</option></select></label>
+        <label class="field-label">Evidence readiness<select class="input" data-aion-strategy-field="assetReadiness"><option value="needs_assets" ${lab.assetReadiness === "needs_assets" && !catalogueAsset ? "selected" : ""}>We need original assets</option><option value="assets_uploaded" ${(lab.assetReadiness === "assets_uploaded" || catalogueAsset) && lab.assetReadiness !== "verified_sources" ? "selected" : ""}>Original assets uploaded${catalogueAsset ? " · product image found" : ""}</option><option value="verified_sources" ${lab.assetReadiness === "verified_sources" ? "selected" : ""}>Verified source material is sufficient</option></select></label>
       </div>
       <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:12px;"><label class="field-label">CMO angle and key message<textarea class="input" data-aion-strategy-input="campaignAngle" placeholder="Example: Show the real installation, explain white versus matt black, name the approved starting price and invite a site assessment.">${escapeHtml(lab.campaignAngle || "")}</textarea></label><label class="field-label">Claim or outcome that must be proven<textarea class="input" data-aion-strategy-input="proofClaim" placeholder="Example: completed project, exact specification, approved customer result or current price.">${escapeHtml(lab.proofClaim || "")}</textarea></label></div>
-      <section style="border:1px solid #bae6fd;background:#f8fcff;padding:15px;"><div style="display:flex;justify-content:space-between;gap:12px;align-items:start;"><div><div class="field-label">3 · Asset request from the CMO</div><strong>AION needs original evidence before it manufactures content</strong></div><span class="badge">${evidenceReady ? "EVIDENCE READY" : "WAITING FOR BUSINESS"}</span></div><ul style="margin:10px 0 12px;padding-left:20px;line-height:1.7;">${requirements.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul><div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap;"><label class="secondary-btn" style="cursor:pointer;">Upload photos, video or documents<input type="file" multiple accept="image/*,video/*,.pdf,.doc,.docx" data-aion-strategy-assets style="display:none;"></label><button type="button" class="secondary-btn" data-aion-prepare-asset-request>Prepare request for founder/team</button><span class="helper-text">${assets.length ? `${assets.length} original asset(s) attached` : "No original assets attached yet"}</span></div>${lab.assetRequestPrepared ? `<div style="margin-top:10px;border-left:4px solid #f59e0b;background:#fffbeb;padding:10px;">Asset request prepared. Collect these materials from the founder, team or customer before approving production.</div>` : ""}</section>
+      <section style="border:1px solid #bae6fd;background:#f8fcff;padding:15px;"><div style="display:flex;justify-content:space-between;gap:12px;align-items:start;"><div><div class="field-label">3 · Asset request from the CMO</div><strong>AION needs original evidence before it manufactures content</strong></div><span class="badge">${evidenceReady ? "EVIDENCE READY" : "WAITING FOR BUSINESS"}</span></div><ul style="margin:10px 0 12px;padding-left:20px;line-height:1.7;">${requirements.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul><div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap;"><label class="secondary-btn" style="cursor:pointer;">Upload photos, video or documents<input type="file" multiple accept="image/*,video/*,.pdf,.doc,.docx" data-aion-strategy-assets style="display:none;"></label><button type="button" class="secondary-btn" data-aion-prepare-asset-request>Prepare request for founder/team</button><span class="helper-text">${catalogueAsset ? `The saved ${escapeHtml(subjectLabel)} product image will be used automatically` : existingSourceAssets.length ? `${existingSourceAssets.length} source image(s) remain attached to this draft` : assets.length ? `${assets.length} original asset(s) attached` : "No usable source image is attached. Add one here or under Product / service details."}</span></div>${lab.assetRequestPrepared && !evidenceReady ? `<div style="margin-top:10px;border-left:4px solid #f59e0b;background:#fffbeb;padding:10px;">Asset request prepared. Collect these materials from the founder, team or customer before approving production.</div>` : ""}</section>
       <div style="border-left:4px solid ${evidenceReady ? "#16a34a" : "#f59e0b"};background:${evidenceReady ? "#f0fdf4" : "#fffbeb"};padding:12px;"><strong>${evidenceReady ? "Ready for the CMO to write the detailed production brief" : "Campaign production is intentionally paused"}</strong><div class="helper-text">${evidenceReady ? "AION may plan and draft from the Boardroom brief plus these verified assets. Publishing remains approval-gated." : "AION may recommend the strategy and request assets, but it will not create generic AI visuals and call them finished marketing."}</div></div>
     </div>
   </section>`;
 }
 
-async function launchAionMarketingCampaign(brief, mode = "aion") {
+async function launchAionMarketingCampaign(brief, mode = "aion", { regenerate = false } = {}) {
   const value = String(brief || "").trim();
   const lab = getAionMarketingCreativeLabState();
-  if (!value) { lab.campaignError = "Tell AION what outcome you want first."; requestRender(); return; }
-  const hasOriginalAssets = Array.isArray(lab.strategyAssets) && lab.strategyAssets.length > 0;
-  if (lab.assetReadiness === "needs_assets" && !hasOriginalAssets) {
-    lab.campaignError = "The CMO has paused production because this campaign needs original photos, video or verified source material. Upload the requested evidence or explicitly confirm that verified sources are sufficient.";
+  if (!value) { lab.campaignError = "Add the key message or idea before creating the draft."; requestRender(); return null; }
+  const activeModel = window.getTessarisActiveModelSelection?.() || null;
+  if (!activeModel?.provider_id || !activeModel?.model_id) {
+    lab.campaignError = "Choose a connected model from the MODEL menu in the top bar before creating or regenerating this draft.";
+    requestRender();
+    return null;
+  }
+  const selectedOffering = getAionMarketingSelectedOffering();
+  const catalogueAsset = aionMarketingOfferingAsset(selectedOffering);
+  const existingSourceAssets = regenerate ? getAionMarketingExistingSourceAssets() : [];
+  const hasOriginalAssets = (Array.isArray(lab.strategyAssets) && lab.strategyAssets.length > 0) || Boolean(catalogueAsset) || existingSourceAssets.length > 0;
+  const evidenceLedCampaign = ["proof_project", "product_service", "offer"].includes(lab.campaignType);
+  if (evidenceLedCampaign && lab.assetReadiness === "needs_assets" && !hasOriginalAssets) {
+    lab.campaignError = "No usable source image is attached. Add a product image under Product / service details, upload a file here, or confirm that verified source material is sufficient.";
     lab.assetRequestPrepared = true;
     requestRender();
     document.querySelector("[data-aion-marketing-director-brief]")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
-    return;
+    return null;
   }
-  if (["proof_project", "product_service", "offer"].includes(lab.campaignType) && !lab.subjectOfferingId) {
+  if (["proof_project", "product_service", "offer"].includes(lab.campaignType) && !lab.subjectOfferingId && existingSourceAssets.length === 0) {
     lab.campaignError = "Choose the real product or service this campaign concerns before production starts.";
     requestRender();
-    return;
+    return null;
   }
-  const productionBrief = composeAionMarketingProductionBrief(value);
-  const inferredPlatforms = inferAionMarketingPlatformsFromBrief(`${value}\n${productionBrief}`);
-  if (inferredPlatforms.length) lab.platforms = inferredPlatforms;
-  const payload = aionMarketingCampaignPayload(productionBrief);
+  const productionBrief = composeAionMarketingProductionBrief(value, { includeExistingSources: regenerate });
+  const selectedTemplate = MARKETING_CREATE_TEMPLATES[lab.createTemplate] || MARKETING_CREATE_TEMPLATES.facebook_feed;
+  if (mode === "manual") {
+    // The explicit platform and format controls are authoritative. Do not let
+    // words in the brief replace a platform the user can already see selected.
+    lab.platforms = [selectedTemplate.platform];
+    lab.formats = [selectedTemplate.format];
+  } else {
+    const inferredPlatforms = inferAionMarketingPlatformsFromBrief(`${value}\n${productionBrief}`);
+    if (inferredPlatforms.length) lab.platforms = inferredPlatforms;
+  }
+  const payload = aionMarketingCampaignPayload(productionBrief, { includeExistingSources: regenerate });
+  const isRegeneration = Boolean(lab.campaignResult);
   lab.brief = value; lab.campaignStage = "planning"; lab.campaignMessage = "AION is turning the outcome into a campaign plan.";
-  lab.campaignError = ""; lab.campaignRunId = ""; lab.campaignApprovalId = ""; lab.campaignDraft = null; lab.campaignResult = null;
-  desktopStore.setMarketingField("brief", value); desktopStore.persistCache(); requestRender();
+  lab.campaignError = "";
+  if (!isRegeneration) {
+    lab.campaignRunId = "";
+    lab.campaignApprovalId = "";
+    lab.campaignDraft = null;
+    lab.campaignResult = null;
+  }
+  desktopStore.setMarketingField("brief", value);
+  desktopStore.setMarketingField("aionCampaignCanvasCleared", false);
+  setAionMarketingCanvasDurablyCleared(false);
+  desktopStore.persistCache(); requestRender();
   try {
     const planResult = await apiPost("/api/aion/marketing/creative/plan", {
       brief: productionBrief, objective: payload.objective, audience: payload.target_audience, offer: payload.offer,
@@ -57309,10 +61514,44 @@ async function launchAionMarketingCampaign(brief, mode = "aion") {
     lab.campaignDraft = run.context?.approval_packet || run.result_payload?.approval_packet || null;
     lab.campaignStage = run.status === "waiting_approval" ? "approval" : run.status === "completed" ? "complete" : "generating";
     lab.campaignMessage = lab.campaignStage === "approval" ? "Campaign draft ready. Review the exact copy below, then approve production." : "AION is continuing the campaign build.";
-    lab.campaignResult = compactAionMarketingRun(run); persistAionMarketingCampaignState(lab); requestRender();
+    lab.campaignResult = compactAionMarketingRun(run);
+    lab.createRecordExpanded = true;
+    persistAionMarketingCampaignState(lab);
+    requestRender();
+    setTimeout(() => document.querySelector("[data-aion-marketing-current-record]")?.scrollIntoView?.({ behavior: "smooth", block: "start" }), 80);
+    return run;
   } catch (error) {
     lab.campaignStage = "error"; lab.campaignError = String(error?.message || error); lab.campaignMessage = "AION could not complete this stage."; requestRender();
+    return null;
   }
+}
+
+async function regenerateAionMarketingCampaign(brief) {
+  const lab = getAionMarketingCreativeLabState();
+  const runId = String(lab.campaignResult?.id || lab.campaignRunId || "").trim();
+  if (!runId) {
+    lab.campaignError = "Open a content record before regenerating it.";
+    requestRender();
+    return null;
+  }
+
+  try {
+    const workspaceId = encodeURIComponent(String(getActiveWorkspaceId() || state.workspaceId || "workspace"));
+    const payload = await apiGet(`/api/local-node/runs/${encodeURIComponent(runId)}?workspace_id=${workspaceId}&marketing_view=true`);
+    const hydrated = payload?.item || payload;
+    if (!hydrated?.id) throw new Error("The current content record could not be loaded.");
+    lab.campaignResult = compactAionMarketingRun(hydrated);
+    lab.campaignRunId = hydrated.id;
+    lab.campaignApprovalId = hydrated.approval_request_id || "";
+    lab.campaignError = "";
+    persistAionMarketingCampaignState(lab);
+  } catch (error) {
+    lab.campaignError = `The current draft could not be prepared for regeneration. ${String(error?.message || error)}`;
+    requestRender();
+    return null;
+  }
+
+  return launchAionMarketingCampaign(brief, "manual", { regenerate: true });
 }
 
 async function approveAionMarketingCampaign() {
@@ -57360,16 +61599,330 @@ function renderAionMarketingCampaignJourney() {
   </div>`;
 }
 
+const MARKETING_CREATE_TEMPLATES = Object.freeze({
+  facebook_feed: { label: "Facebook single image", formatLabel: "Single image post", platformKey: "facebook", platform: "facebook_feed", format: "image", size: "1200 × 1500 px", ratio: "4:5 portrait", copy: "A clear opening line, useful context and one direct next step.", media: "One strong image or a simple proof-led graphic." },
+  facebook_carousel: { label: "Facebook carousel", formatLabel: "Carousel", platformKey: "facebook", platform: "facebook_feed", format: "carousel", size: "1200 × 1500 px", ratio: "4:5 per card", copy: "Hook first, then one useful point per card and a final CTA.", media: "A consistent sequence of designed cards using verified evidence." },
+  facebook_story: { label: "Facebook Story", formatLabel: "Story", platformKey: "facebook", platform: "facebook_stories", format: "story", size: "1080 × 1920 px", ratio: "9:16 vertical", copy: "One immediate message with a short, clear action.", media: "Full-screen vertical creative with safe text margins." },
+  instagram_feed: { label: "Instagram single image", formatLabel: "Single image post", platformKey: "instagram", platform: "instagram_feed", format: "image", size: "1080 × 1350 px", ratio: "4:5 portrait", copy: "A short hook, scannable caption and focused call to action.", media: "Clean, brand-consistent visual with a strong focal point." },
+  instagram_carousel: { label: "Instagram carousel", formatLabel: "Carousel", platformKey: "instagram", platform: "instagram_feed", format: "carousel", size: "1080 × 1350 px", ratio: "4:5 per slide", copy: "Hook on slide one, one idea per slide, then a final action.", media: "A consistent series of up to ten proof or explainer cards." },
+  instagram_story: { label: "Instagram Story", formatLabel: "Story", platformKey: "instagram", platform: "instagram_stories", format: "story", size: "1080 × 1920 px", ratio: "9:16 vertical", copy: "A concise hook and one tappable next step.", media: "Full-screen vertical composition with interface-safe margins." },
+  linkedin_feed: { label: "LinkedIn single image", formatLabel: "Single image post", platformKey: "linkedin", platform: "linkedin_feed", format: "image", size: "1200 × 1500 px", ratio: "4:5 portrait", copy: "Insight-led copy with a useful point of view and restrained CTA.", media: "Professional proof, a clear diagram or a simple branded visual." },
+  linkedin_carousel: { label: "LinkedIn carousel", formatLabel: "Carousel / document", platformKey: "linkedin", platform: "linkedin_feed", format: "carousel", size: "1200 × 1500 px", ratio: "4:5 per page", copy: "Teach one idea in a concise professional sequence.", media: "A document-style sequence with clear hierarchy and verified proof." },
+  google_business: { label: "Google Business update", formatLabel: "Single image update", platformKey: "google", platform: "google_business", format: "image", size: "1200 × 900 px", ratio: "4:3 landscape", copy: "A concise local update with the service, place and next step clear.", media: "Real service, product, premises or team photography works best." },
+  facebook_video: { label: "Facebook Reel / video", formatLabel: "Reel / video", platformKey: "facebook", platform: "facebook_reels", format: "video", size: "1080 × 1920 px", ratio: "9:16 vertical", copy: "Lead with the result, tell one concise story and finish with one direct next step.", media: "Short vertical video with captions, a clear subject and safe text margins." },
+  instagram_reel: { label: "Instagram Reel", formatLabel: "Reel / video", platformKey: "instagram", platform: "instagram_reels", format: "video", size: "1080 × 1920 px", ratio: "9:16 vertical", copy: "Use an immediate hook, one short story or demonstration, then one CTA.", media: "Original vertical footage or a governed AI-assisted sequence; keep key text away from screen edges." },
+  tiktok_video: { label: "TikTok video", formatLabel: "Video", platformKey: "tiktok", platform: "tiktok", format: "video", size: "1080 × 1920 px", ratio: "9:16 vertical", copy: "Start in the action, keep the language natural and make the point quickly.", media: "Fast-paced vertical video with readable captions and an authentic opening frame." },
+  youtube_short: { label: "YouTube Short", formatLabel: "Short", platformKey: "youtube", platform: "youtube_shorts", format: "video", size: "1080 × 1920 px", ratio: "9:16 vertical", copy: "Promise one useful outcome, deliver it clearly and close with a relevant CTA.", media: "Vertical video designed for sound-on and sound-off viewing, with a clear first frame." },
+  linkedin_video: { label: "LinkedIn video", formatLabel: "Video", platformKey: "linkedin", platform: "linkedin_video", format: "video", size: "1080 × 1350 px", ratio: "4:5 portrait", copy: "Lead with a professional insight, proof or practical lesson and use a restrained CTA.", media: "A concise expert-led, demonstration or proof video with accurate captions." },
+});
+
+const MARKETING_PLATFORM_FORMATS = Object.freeze({
+  facebook: { label: "Facebook", formats: ["facebook_feed", "facebook_carousel", "facebook_story", "facebook_video"] },
+  instagram: { label: "Instagram", formats: ["instagram_feed", "instagram_carousel", "instagram_story", "instagram_reel"] },
+  linkedin: { label: "LinkedIn", formats: ["linkedin_feed", "linkedin_carousel", "linkedin_video"] },
+  google: { label: "Google Business", formats: ["google_business"] },
+  tiktok: { label: "TikTok", formats: ["tiktok_video"] },
+  youtube: { label: "YouTube", formats: ["youtube_short"] },
+});
+
+function getMarketingCreateSpecification(templateKey) {
+  const key = MARKETING_CREATE_TEMPLATES[templateKey] ? templateKey : "facebook_feed";
+  const template = MARKETING_CREATE_TEMPLATES[key];
+  const lab = getAionMarketingCreativeLabState();
+  const overrides = lab.templateOverrides && typeof lab.templateOverrides === "object" ? lab.templateOverrides : {};
+  const custom = overrides[key] && typeof overrides[key] === "object" ? overrides[key] : {};
+  return {
+    canvasSize: String(custom.canvasSize ?? template.size),
+    aspectRatio: String(custom.aspectRatio ?? template.ratio),
+    copyStructure: String(custom.copyStructure ?? template.copy),
+    creativeDirection: String(custom.creativeDirection ?? template.media),
+    customized: Boolean(overrides[key]),
+  };
+}
+
+const MARKETING_DESIGN_STYLES = Object.freeze({
+  product_showcase: { label: "Product showcase", description: "Image-led, restrained text and a clear product focus.", recommended: true, swatches: ["#f8fafc", "#0f766e", "#07111f"] },
+  minimal_editorial: { label: "Minimal editorial", description: "Generous space, clean typography and a premium magazine feel.", swatches: ["#ffffff", "#dbe4ec", "#172033"] },
+  bold_promotion: { label: "Bold promotion", description: "High contrast, energetic hierarchy and a prominent action.", swatches: ["#2563eb", "#f59e0b", "#07111f"] },
+  customer_story: { label: "Customer story", description: "Human, proof-led treatment with a softer editorial card.", swatches: ["#f5efe3", "#0f766e", "#263238"] },
+  proof_focus: { label: "Proof focused", description: "Structured facts, specification or results without visual clutter.", swatches: ["#eff6ff", "#2563eb", "#14213d"] },
+  brand_led: { label: "Brand led", description: "Strong brand frame, logo space and consistent campaign identity.", swatches: ["#07111f", "#7c3aed", "#ffffff"] },
+});
+
+const MARKETING_CREATION_METHODS = Object.freeze({
+  original_photo: { label: "Use original photo", description: "Preserve the real image and apply the selected design." },
+  brand_template: { label: "Select a branded template", description: "Apply one of your saved, reusable branded layouts." },
+  generate_new: { label: "Generate a new visual", description: "Requires a connected image-capable provider." },
+});
+
+function marketingTemplateSafeColour(value, fallback) {
+  const colour = String(value || "").trim();
+  return /^#[0-9a-f]{6}$/i.test(colour) ? colour : fallback;
+}
+
+function marketingTemplateSafeFont(value, fallback = "Inter") {
+  const font = String(value || "").replace(/[^a-z0-9 _-]/gi, "").trim();
+  return font || fallback;
+}
+
+function getMarketingBrandedTemplates(templateKey = "") {
+  const lab = getAionMarketingCreativeLabState();
+  const key = String(templateKey || lab.createTemplate || "facebook_feed");
+  return (Array.isArray(lab.brandedTemplates) ? lab.brandedTemplates : []).filter((item) => String(item?.platformTemplate || "") === key);
+}
+
+function getSelectedMarketingBrandedTemplate() {
+  const lab = getAionMarketingCreativeLabState();
+  return (Array.isArray(lab.brandedTemplates) ? lab.brandedTemplates : []).find((item) => String(item?.id || "") === String(lab.selectedBrandedTemplateId || "")) || null;
+}
+
+function renderMarketingBrandedTemplatePreview(template, { emptyMessage = "Describe the template and generate a preview." } = {}) {
+  if (!template) return `<div style="min-height:460px;border:1px dashed #cbd5e1;border-radius:18px;background:#f8fafc;display:grid;place-items:center;padding:30px;text-align:center;"><div><div class="surface-eyebrow">TEMPLATE PREVIEW</div><div class="panel-title" style="margin-top:8px;">Nothing generated yet</div><div class="helper-text" style="margin-top:6px;max-width:340px;">${escapeHtml(emptyMessage)}</div></div></div>`;
+  const primary = marketingTemplateSafeColour(template.primary_color, "#14213d");
+  const secondary = marketingTemplateSafeColour(template.secondary_color, "#f8fafc");
+  const accent = marketingTemplateSafeColour(template.accent_color, "#2563eb");
+  const lab = getAionMarketingCreativeLabState();
+  const headline = escapeHtml(template.sample_headline || "Your headline goes here");
+  const body = escapeHtml(template.sample_body || "Reusable supporting copy for this post format.");
+  const headlineFont = marketingTemplateSafeFont(template.headline_font);
+  const bodyFont = marketingTemplateSafeFont(template.body_font);
+  const variant = ["split", "full_bleed", "framed", "modular", "minimal"].includes(String(template.layout_variant || "").toLowerCase()) ? String(template.layout_variant).toLowerCase() : "split";
+  const specification = getMarketingCreateSpecification(lab.createTemplate || "facebook_feed");
+  const ratio = String(specification.aspectRatio || "").startsWith("9:16") ? "9/16" : String(specification.aspectRatio || "").startsWith("4:3") ? "4/3" : String(specification.aspectRatio || "").startsWith("1:1") ? "1/1" : "4/5";
+  const image = `<div aria-label="Template image placeholder" style="width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(145deg,${secondary} 0 28%,${accent}33 28% 55%,${primary} 55% 100%);"><div style="position:absolute;inset:12%;border:1px dashed rgba(255,255,255,.68);border-radius:14px;display:grid;place-items:center;color:#fff;font:850 11px ${bodyFont},sans-serif;letter-spacing:.14em;text-shadow:0 1px 3px rgba(0,0,0,.35);">CONTENT IMAGE AREA</div></div>`;
+  const cta = `<span style="display:inline-flex;padding:10px 14px;border-radius:999px;background:${accent};color:#fff;font:850 11px ${bodyFont},sans-serif;">CALL TO ACTION</span>`;
+  const previewByVariant = {
+    split: `<div style="height:56%;overflow:hidden;">${image}</div><div style="height:44%;padding:28px;background:${secondary};color:${primary};border-top:8px solid ${accent};"><div style="font:850 30px/1.08 ${headlineFont},sans-serif;">${headline}</div><div style="font:400 14px/1.45 ${bodyFont},sans-serif;margin:12px 0 18px;opacity:.8;">${body}</div>${cta}</div>`,
+    full_bleed: `<div style="position:absolute;inset:0;">${image}</div><div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 25%,${primary}ee 100%);"></div><div style="position:absolute;left:30px;right:30px;bottom:34px;color:#fff;"><div style="font:850 34px/1.05 ${headlineFont},sans-serif;">${headline}</div><div style="font:400 14px/1.45 ${bodyFont},sans-serif;margin:12px 0 18px;">${body}</div>${cta}</div>`,
+    framed: `<div style="position:absolute;inset:0;padding:28px;background:${secondary};"><div style="height:58%;border:10px solid ${primary};border-radius:16px;overflow:hidden;">${image}</div><div style="padding:24px 5px 0;color:${primary};"><div style="font:850 28px/1.08 ${headlineFont},sans-serif;">${headline}</div><div style="display:flex;justify-content:space-between;align-items:end;gap:14px;margin-top:16px;"><div style="font:400 13px/1.4 ${bodyFont},sans-serif;opacity:.8;">${body}</div>${cta}</div></div></div>`,
+    modular: `<div style="position:absolute;inset:0;display:grid;grid-template-columns:42% 58%;background:${secondary};"><div style="background:${primary};color:#fff;padding:30px 22px;display:flex;flex-direction:column;justify-content:space-between;"><span style="font:800 11px ${bodyFont},sans-serif;letter-spacing:.14em;">BRAND</span><div><div style="font:850 28px/1.05 ${headlineFont},sans-serif;">${headline}</div><div style="margin-top:18px;">${cta}</div></div></div><div style="display:grid;grid-template-rows:62% 38%;"><div style="overflow:hidden;">${image}</div><div style="padding:22px;background:${accent};color:#fff;font:600 14px/1.45 ${bodyFont},sans-serif;">${body}</div></div></div>`,
+    minimal: `<div style="position:absolute;inset:0;background:${secondary};padding:36px;color:${primary};"><div style="width:58%;height:34%;margin-left:auto;border-radius:90px 0 0 90px;overflow:hidden;">${image}</div><div style="width:74%;margin-top:46px;"><div style="width:54px;height:6px;background:${accent};margin-bottom:20px;"></div><div style="font:850 32px/1.08 ${headlineFont},sans-serif;">${headline}</div><div style="font:400 14px/1.5 ${bodyFont},sans-serif;margin:14px 0 22px;opacity:.75;">${body}</div>${cta}</div></div>`,
+  };
+  return `<div style="display:grid;gap:14px;"><div style="max-width:460px;width:100%;aspect-ratio:${ratio};margin:0 auto;border-radius:18px;overflow:hidden;border:1px solid #d9e2ec;background:${secondary};position:relative;box-shadow:0 18px 44px rgba(15,23,42,.12);">${previewByVariant[variant]}</div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;"><div class="list-item"><div class="field-label">TYPE</div><div class="list-item-sub">${escapeHtml(template.headline_font || "Not specified")}</div></div><div class="list-item"><div class="field-label">LAYOUT</div><div class="list-item-sub">${escapeHtml(template.text_layout || "Not specified")}</div></div><div class="list-item"><div class="field-label">IMAGE</div><div class="list-item-sub">${escapeHtml(template.image_treatment || "Not specified")}</div></div></div></div>`;
+}
+
+function renderMarketingTemplateInspirationAssets(assets) {
+  const items = Array.isArray(assets) ? assets : [];
+  return `<div><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;"><div class="field-label">INSPIRATION IMAGES</div><label class="secondary-btn" style="display:inline-flex;width:auto!important;min-width:0!important;padding:8px 11px!important;cursor:pointer;">${items.length ? "+ Add more" : "+ Add inspiration"}<input type="file" accept="image/*" multiple data-marketing-template-builder-assets style="display:none;"></label></div>${items.length ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px;margin-top:10px;">${items.map((asset, index) => `<article style="border:1px solid #d9e2ec;border-radius:12px;background:#fff;overflow:hidden;"><div style="height:108px;background:#eef2f7;display:grid;place-items:center;overflow:hidden;">${asset.url || asset.file_path ? `<img src="${escapeHtml(asset.url || asset.file_path)}" alt="${escapeHtml(asset.label || `Inspiration ${index + 1}`)}" style="width:100%;height:100%;object-fit:cover;">` : `<span class="helper-text">Preview unavailable</span>`}</div><div style="padding:9px;"><div title="${escapeHtml(asset.label || "Reference image")}" style="font-size:11px;font-weight:750;color:#14213d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(asset.label || `Reference image ${index + 1}`)}</div><button type="button" data-marketing-remove-template-asset="${escapeHtml(asset.id || String(index))}" data-marketing-remove-template-asset-index="${escapeHtml(index)}" style="border:0;background:transparent;color:#b42318;font-size:10px;font-weight:800;padding:7px 0 0;cursor:pointer;">Remove</button></div></article>`).join("")}</div><div class="helper-text" style="margin-top:8px;">${escapeHtml(items.length)} image${items.length === 1 ? "" : "s"} attached. These are used as inspiration only.</div>` : `<div style="margin-top:10px;padding:18px;border:1px dashed #cbd5e1;border-radius:12px;background:#f8fafc;text-align:center;"><div class="helper-text">No inspiration images attached. You can generate from the written direction alone.</div></div>`}</div>`;
+}
+
+function renderMarketingBrandTemplateBuilder() {
+  const lab = getAionMarketingCreativeLabState();
+  const key = MARKETING_CREATE_TEMPLATES[lab.createTemplate] ? lab.createTemplate : "facebook_feed";
+  const format = MARKETING_CREATE_TEMPLATES[key];
+  const specification = getMarketingCreateSpecification(key);
+  const assets = Array.isArray(lab.templateBuilderAssets) ? lab.templateBuilderAssets : [];
+  const draft = lab.templateBuilderDraft && typeof lab.templateBuilderDraft === "object" ? lab.templateBuilderDraft : null;
+  return `<div data-marketing-template-builder="true" style="display:grid;gap:16px;">
+    <section class="panel" style="margin:0;padding:16px 20px;min-height:0;">
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+        <div style="min-width:0;"><div class="surface-eyebrow">BRANDED TEMPLATE STUDIO</div><div class="panel-title" style="font-size:22px;margin-top:5px;line-height:1.2;">Create a consistent ${escapeHtml(format.label)} template</div><div class="helper-text" style="margin-top:5px;max-width:760px;line-height:1.4;">Describe the look you want and add optional inspiration. Your selected model will create a reusable design system for this exact platform and format.</div></div>
+      </div>
+    </section>
+    <div style="display:grid;grid-template-columns:minmax(420px,.9fr) minmax(460px,1.1fr);gap:18px;align-items:start;">
+      <section class="panel large-panel" style="margin:0;display:grid;gap:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div class="list-item"><div class="field-label">PLATFORM / FORMAT</div><div class="list-item-title">${escapeHtml(format.label)}</div></div><div class="list-item"><div class="field-label">CANVAS</div><div class="list-item-title">${escapeHtml(specification.canvasSize)} · ${escapeHtml(specification.aspectRatio)}</div></div></div>
+        <label class="field-label">Describe the template you want<textarea class="input input-textarea" data-marketing-template-builder-description placeholder="Example: Premium editorial look, strong product photography, rounded cream cards, a small logo in the top right and a clear blue CTA.">${escapeHtml(lab.templateBuilderDescription || "")}</textarea></label>
+        <label class="field-label">Inspiration notes<textarea class="input input-textarea input-textarea-small" data-marketing-template-builder-inspiration-notes placeholder="What do you like about the examples? Mention colours, spacing, type, shapes or image treatment.">${escapeHtml(lab.templateBuilderInspirationNotes || "")}</textarea></label>
+        ${renderMarketingTemplateInspirationAssets(assets)}
+        ${lab.templateBuilderError ? `<div role="alert" style="border-left:4px solid #dc2626;background:#fef2f2;padding:12px;color:#991b1b;font-weight:700;">${escapeHtml(lab.templateBuilderError)}</div>` : ""}
+        <button type="button" class="primary-btn" data-marketing-generate-brand-template ${lab.templateBuilderBusy ? "disabled aria-busy=\"true\"" : ""}>${lab.templateBuilderBusy ? "Generating template…" : draft ? "Regenerate template" : "Generate template"}</button>
+      </section>
+      <section class="panel large-panel" style="margin:0;display:grid;gap:14px;">
+        <div><div class="surface-eyebrow">LIVE PREVIEW</div><div class="helper-text" style="margin-top:5px;">This preview uses a neutral image placeholder. Inspiration images guide the style only and are never inserted into the saved template.</div></div>
+        ${renderMarketingBrandedTemplatePreview(draft)}
+        ${draft ? `<label class="field-label">Template name<input class="input" data-marketing-template-builder-name value="${escapeHtml(lab.templateBuilderName || draft.name_suggestion || "")}" placeholder="Name this template"/></label><div style="display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;"><button type="button" class="secondary-btn" data-marketing-generate-brand-template ${lab.templateBuilderBusy ? "disabled" : ""}>Regenerate</button><button type="button" class="primary-btn" data-marketing-save-brand-template>Save template</button></div>` : ""}
+      </section>
+    </div>
+  </div>`;
+}
+
+async function generateMarketingBrandTemplate() {
+  const lab = getAionMarketingCreativeLabState();
+  const description = String(lab.templateBuilderDescription || "").trim();
+  const activeModel = window.getTessarisActiveModelSelection?.() || null;
+  if (!description) { lab.templateBuilderError = "Describe the template you want before generating it."; requestRender(); return; }
+  if (!activeModel?.provider_id || !activeModel?.model_id) { lab.templateBuilderError = "Choose a connected model from the MODEL menu before generating a template."; requestRender(); return; }
+  const key = MARKETING_CREATE_TEMPLATES[lab.createTemplate] ? lab.createTemplate : "facebook_feed";
+  const format = MARKETING_CREATE_TEMPLATES[key];
+  const specification = getMarketingCreateSpecification(key);
+  const previousTemplate = lab.templateBuilderDraft && typeof lab.templateBuilderDraft === "object" ? { ...lab.templateBuilderDraft } : null;
+  const generationIndex = previousTemplate ? Number(lab.templateBuilderGenerationIndex || 0) + 1 : 0;
+  lab.templateBuilderBusy = true;
+  lab.templateBuilderError = "";
+  requestRender();
+  try {
+    const result = await apiPost("/api/local-node/marketing/brand-templates/generate", {
+      workspace_id: String(getActiveWorkspaceId() || state.workspaceId || "workspace"),
+      selected_provider: activeModel.provider_id,
+      selected_model: activeModel.model_id,
+      platform_template: key,
+      platform_label: MARKETING_PLATFORM_FORMATS[marketingCreatePlatformKey(key)]?.label || "Social",
+      format_label: format.formatLabel || format.label,
+      canvas_size: specification.canvasSize,
+      aspect_ratio: specification.aspectRatio,
+      description,
+      inspiration_notes: String(lab.templateBuilderInspirationNotes || ""),
+      inspiration_assets: Array.isArray(lab.templateBuilderAssets) ? lab.templateBuilderAssets : [],
+      brand_foundation: buildBrandFoundationPayload() || {},
+      previous_template: previousTemplate,
+      generation_index: generationIndex,
+    });
+    lab.templateBuilderDraft = result?.template || null;
+    lab.templateBuilderGenerationIndex = generationIndex;
+    lab.templateBuilderName = String(result?.template?.name_suggestion || lab.templateBuilderName || "");
+    if (!lab.templateBuilderDraft) throw new Error("The model did not return a usable template.");
+  } catch (error) {
+    lab.templateBuilderError = String(error?.message || error);
+  } finally {
+    lab.templateBuilderBusy = false;
+    requestRender();
+  }
+}
+
+function saveMarketingBrandTemplate() {
+  const lab = getAionMarketingCreativeLabState();
+  const draft = lab.templateBuilderDraft;
+  const name = String(lab.templateBuilderName || draft?.name_suggestion || "").trim();
+  if (!draft || !name) { lab.templateBuilderError = "Generate the template and give it a name before saving."; requestRender(); return; }
+  const key = MARKETING_CREATE_TEMPLATES[lab.createTemplate] ? lab.createTemplate : "facebook_feed";
+  const saved = { ...draft, id: `brand_template_${Date.now()}`, name, platformTemplate: key, createdAt: new Date().toISOString() };
+  lab.brandedTemplates = [...(Array.isArray(lab.brandedTemplates) ? lab.brandedTemplates : []), saved];
+  lab.selectedBrandedTemplateId = saved.id;
+  lab.creationMethod = "brand_template";
+  lab.templateBuilderOpen = false;
+  persistAionMarketingCampaignState(lab);
+  desktopStore.persistCache();
+  requestRender();
+}
+
+function marketingCreateMediaType(template) {
+  return template?.format === "video" ? "video" : "image";
+}
+
+function marketingCreatePlatformKey(templateKey) {
+  const template = MARKETING_CREATE_TEMPLATES[templateKey] || {};
+  if (template.platformKey) return template.platformKey;
+  const value = String(template.platform || templateKey || "").toLowerCase();
+  if (value.includes("instagram")) return "instagram";
+  if (value.includes("linkedin")) return "linkedin";
+  if (value.includes("google")) return "google";
+  if (value.includes("tiktok")) return "tiktok";
+  if (value.includes("youtube")) return "youtube";
+  return "facebook";
+}
+
+const MARKETING_LEGACY_SEEDED_VALUES = Object.freeze({
+  brief: ["Draft a Facebook post and simple carousel for spring telecom upgrade offer."],
+  targetAudience: [
+    "Local homeowners and small business owners in core service towns.",
+    "Local homeowners and small business owners in core service towns",
+    "Local homeowners and small business owners",
+  ],
+  persona: ["Local service buyer"],
+  funnelGoal: ["Lead capture"],
+  offer: ["Spring telecom upgrade offer", "Local business visibility and conversion support"],
+  channels: ["Facebook\nInstagram"],
+  hashtags: ["#LocalBusiness\n#TrustedServices\n#LeadGeneration", "#LocalBusiness"],
+  keywords: ["local telecom upgrade\nsmall business connectivity\ntrusted local installer", "local business\ntrusted local services"],
+  guidanceNotes: ["Keep the tone clean, useful, and confident.\nLean into trusted local-business language.\nPrefer simple visuals and clear calls to action."],
+  campaignNotes: ["Current focus: spring telecom upgrade offer.\nPush reliability, clarity, and local service trust.\nAvoid weekend publishing for now."],
+  tone: ["Professional, Useful, Confident, Local, Not pushy", "Sophisticated, knowledgeable, clear, trusted, and cost effective."],
+  visual: ["Clean, professional, local-service creative with strong offer clarity and minimal clutter."],
+});
+
+function cleanMarketingLegacySeed(field, value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  const normalized = text.replace(/\r\n/g, "\n").replace(/\s+/g, " ").trim().toLowerCase();
+  const seeded = MARKETING_LEGACY_SEEDED_VALUES[field] || [];
+  const isSeeded = seeded.some((item) => String(item).replace(/\r\n/g, "\n").replace(/\s+/g, " ").trim().toLowerCase() === normalized);
+  return isSeeded ? "" : text;
+}
+
+function marketingCreateText(value, fallback = "Not yet defined") {
+  if (Array.isArray(value)) {
+    const joined = value.map((item) => typeof item === "string" ? item : item?.name || item?.title || item?.label || "").filter(Boolean).join(", ");
+    return joined || fallback;
+  }
+  if (value && typeof value === "object") return String(value.name || value.title || value.value || value.summary || fallback);
+  return String(value || fallback).trim() || fallback;
+}
+
+function getMarketingCreateFoundationGuide() {
+  const foundation = buildBrandFoundationPayload() || {};
+  const brandMap = foundation.brand_map || foundation.brandMap || getBrandMap() || {};
+  const voice = brandMap.brandVoice || brandMap.brand_voice || {};
+  const audience = brandMap.audience || {};
+  const messaging = brandMap.messaging || brandMap.messagingFramework || brandMap.messaging_framework || {};
+  const visual = brandMap.creativeDirection || brandMap.creative_direction || brandMap.visualIdentity || brandMap.visual_identity || {};
+  return {
+    audience: cleanMarketingLegacySeed("targetAudience", marketingCreateText(foundation.targetAudience || foundation.target_audience || audience.primaryAudience || audience.primary_audience, "")),
+    tone: cleanMarketingLegacySeed("tone", marketingCreateText(foundation.tone_of_voice || foundation.voice_tone || voice.toneOfVoice || voice.tone_of_voice || voice.communicationStyle || voice.communication_style, "")),
+    message: marketingCreateText(messaging.primaryMessage || messaging.primary_message || messaging.coreMessage || messaging.core_message || messaging.valueProposition || messaging.value_proposition, ""),
+    visual: cleanMarketingLegacySeed("visual", marketingCreateText(visual.direction || visual.visualRules || visual.visual_rules, "")),
+  };
+}
+
 function renderAionMarketingManualQuickStudio() {
   const form = state.marketingForm || {};
-  return `<section class="panel large-panel" id="manual-marketing-studio" style="background:#fff;border:2px solid #0ea5e9;border-top-width:4px;margin-top:18px;">
-    <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;background:#f8fcff;border-bottom:1px solid #bae6fd;padding:18px;"><div><div style="color:#087f5b;font-size:10px;letter-spacing:.22em;font-weight:950;">MANUAL CREATION</div><div class="panel-title" style="margin-top:7px;">Create with full control</div><div class="helper-text">Use the same brand, generation, approval and publishing pipeline while choosing every input yourself.</div></div><span class="badge">OPTIONAL</span></div>
-    <label class="field-label" style="margin-top:12px;">Campaign brief<textarea id="marketingBriefInput" class="input input-textarea">${escapeHtml(form.brief || "")}</textarea></label>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;"><label class="field-label">Objective<input id="marketingObjectiveInput" class="input" value="${escapeHtml(form.objective || "Generate qualified enquiries")}"/></label><label class="field-label">Audience<input id="marketingAudienceInput" class="input" value="${escapeHtml(form.targetAudience || "")}"/></label><label class="field-label">Offer<input id="marketingOfferInput" class="input" value="${escapeHtml(/spring telecom/i.test(String(form.offer || "")) ? "" : form.offer || "")}"/></label></div>
-    <label class="field-label">Channels<textarea id="marketingChannelsInput" class="input input-textarea input-textarea-small">${escapeHtml(form.channels || "Facebook")}</textarea></label>
-    <label class="field-label">Add real product, project or reference images<input id="marketingCreativeAssetUploadInput" class="input" type="file" accept="image/*" multiple/></label>
-    ${renderMarketingCreativeAssetList()}
-    <button type="button" class="primary-btn" data-aion-run-manual-marketing style="margin-top:12px;">Create draft with these inputs</button>
+  const lab = getAionMarketingCreativeLabState();
+  const guide = getMarketingCreateFoundationGuide();
+  const selectedKey = MARKETING_CREATE_TEMPLATES[lab.createTemplate] ? lab.createTemplate : (MARKETING_CREATE_TEMPLATES[form.createTemplate] ? form.createTemplate : "facebook_feed");
+  const selected = MARKETING_CREATE_TEMPLATES[selectedKey];
+  const selectedSpecification = getMarketingCreateSpecification(selectedKey);
+  const selectedMediaType = marketingCreateMediaType(selected);
+  const selectedPlatformKey = marketingCreatePlatformKey(selectedKey);
+  const selectedPlatform = MARKETING_PLATFORM_FORMATS[selectedPlatformKey] || MARKETING_PLATFORM_FORMATS.facebook;
+  const visibleTemplates = selectedPlatform.formats.map((key) => [key, MARKETING_CREATE_TEMPLATES[key]]).filter(([, template]) => template);
+  const objectiveOptions = ["Generate enquiries", "Promote a product or service", "Promote an offer", "Build brand awareness", "Share news or an update", "Educate and build trust"];
+  const objective = objectiveOptions.includes(String(form.objective || "")) ? String(form.objective) : "Generate enquiries";
+  const availablePersonas = typeof getAionAudiencePersonas === "function" ? getAionAudiencePersonas() : [];
+  const selectedPersonaIds = Array.isArray(form.selectedPersonaIds) ? form.selectedPersonaIds.map(String) : [];
+  const selectedPersonas = availablePersonas.filter((persona) => selectedPersonaIds.includes(String(persona.id)));
+  const selectedPersonaAudience = selectedPersonas.map((persona) => persona.name).join(", ");
+  if (selectedPersonaAudience) guide.audience = selectedPersonaAudience;
+  const audienceValue = selectedPersonaAudience ? "" : (cleanMarketingLegacySeed("targetAudience", form.targetAudience) || guide.audience);
+  const ctaValue = cleanMarketingLegacySeed("funnelGoal", form.funnelGoal);
+  const offerValue = cleanMarketingLegacySeed("offer", form.offer);
+  const briefValue = cleanMarketingLegacySeed("brief", form.brief);
+  const notesValue = cleanMarketingLegacySeed("campaignNotes", form.campaignNotes);
+  const offerings = getAionMarketingOfferings();
+  const selectedOffering = offerings.find((item) => String(item.id || item.name) === String(lab.subjectOfferingId || "")) || null;
+  const promotesCatalogueItem = objective === "Promote a product or service";
+  const destinationValue = String(form.destinationUrl || selectedOffering?.product_url || selectedOffering?.url || "");
+  const selectedOfferingImage = resolveAionCatalogueImageUrl(selectedOffering?.primary_image_url || selectedOffering?.image_url || selectedOffering?.primary_image_file_path);
+  const personaAudienceCardHtml = availablePersonas.length
+    ? `<div class="list-item" data-marketing-persona-selector style="display:grid;align-content:start;gap:9px;overflow:visible;"><div class="list-item-title">Audience</div><details style="position:relative;"><summary class="input" data-marketing-persona-summary style="display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:42px;padding:9px 11px;cursor:pointer;list-style:none;font-size:13px;font-weight:650;"><span data-marketing-persona-summary-text>${escapeHtml(selectedPersonaAudience || "Select audience")}</span><span aria-hidden="true">⌄</span></summary><div style="position:absolute;z-index:30;left:0;right:0;top:calc(100% + 5px);min-width:240px;padding:8px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;box-shadow:0 14px 30px rgba(15,23,42,.14);display:grid;gap:5px;">${availablePersonas.map((persona) => { const checked = selectedPersonaIds.includes(String(persona.id)); return `<label style="display:flex;gap:9px;align-items:flex-start;padding:8px;border-radius:8px;cursor:pointer;background:${checked ? "#eff6ff" : "#fff"};"><input type="checkbox" data-marketing-persona-select="${escapeHtml(persona.id)}" ${checked ? "checked" : ""} style="margin-top:2px;"/><span><strong style="display:block;font-size:12px;">${escapeHtml(persona.name)}</strong><span class="helper-text" style="display:block;margin-top:2px;">${escapeHtml(persona.summary || persona.goals || "Saved customer persona")}</span></span></label>`; }).join("")}</div></details><div class="list-item-sub" data-marketing-persona-selection-description>${escapeHtml(selectedPersonaAudience ? `${selectedPersonas.length} saved persona${selectedPersonas.length === 1 ? "" : "s"} selected` : "Choose one or more saved personas")}</div><button type="button" class="secondary-btn" data-aion-business-context-subtab="audience" style="width:auto!important;justify-self:start;padding:7px 10px!important;font-size:10px!important;">Manage audiences</button></div>`
+    : `<div class="list-item" data-marketing-persona-selector style="display:grid;align-content:start;gap:9px;"><div class="list-item-title">Audience</div><div class="list-item-sub">No saved audience personas yet.</div><button type="button" class="secondary-btn" data-aion-business-context-subtab="audience" style="width:auto!important;justify-self:start;padding:8px 11px!important;font-size:10px!important;">+ Create audience</button></div>`;
+  const createBusy = ["planning", "generating"].includes(String(lab.campaignStage || ""));
+  const createHasResult = Boolean(getAionMarketingEditableRun());
+  const designStyle = MARKETING_DESIGN_STYLES[lab.designStyle] ? lab.designStyle : "product_showcase";
+  const creationMethod = MARKETING_CREATION_METHODS[lab.creationMethod] ? lab.creationMethod : "original_photo";
+  const availableBrandedTemplates = getMarketingBrandedTemplates(selectedKey);
+  const selectedBrandedTemplate = availableBrandedTemplates.find((item) => String(item.id || "") === String(lab.selectedBrandedTemplateId || "")) || null;
+  const createStatusTone = lab.campaignError ? "#b91c1c" : createHasResult ? "#166534" : "#1d4ed8";
+  const createStatusBackground = lab.campaignError ? "#fef2f2" : createHasResult ? "#f0fdf4" : "#eff6ff";
+  lab.createTemplate = selectedKey;
+  lab.createMediaType = selectedMediaType;
+  lab.designStyle = designStyle;
+  lab.creationMethod = creationMethod;
+  lab.platforms = [selected.platform];
+  lab.formats = [selected.format];
+  return `<section class="panel large-panel" id="manual-marketing-studio" style="background:#fff;border:1px solid #d9e2ec;border-top:4px solid #2563eb;margin-top:18px;padding:0;overflow:hidden;">
+    <header style="display:flex;justify-content:space-between;gap:12px;align-items:start;background:#f8fbff;border-bottom:1px solid #d9e2ec;padding:18px 20px;"><div><div class="surface-eyebrow">GUIDED CONTENT CREATOR</div><div class="panel-title" style="margin-top:7px;">What would you like to create?</div><div class="helper-text">Choose a format first. Tessaris applies its layout, copy guidance and the active Brand Foundation automatically.</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><button type="button" class="secondary-btn" data-aion-clear-marketing-canvas>Clear canvas</button><span class="badge">BRAND RULES ON</span></div></header>
+    <div style="padding:18px 20px;display:grid;gap:18px;">
+      <div><div class="field-label">1 · Choose the platform</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;align-items:stretch;" role="group" aria-label="Platform">${Object.entries(MARKETING_PLATFORM_FORMATS).map(([key, platform]) => { const active = selectedPlatformKey === key; return `<button type="button" class="secondary-btn marketing-platform-choice" style="width:auto!important;min-width:0!important;flex:0 0 auto!important;background:${active ? "#2563eb" : "#fff"}!important;border-color:${active ? "#2563eb" : "#d9e2ec"}!important;color:${active ? "#fff" : "#14213d"}!important;box-shadow:none!important;" data-marketing-create-platform="${escapeHtml(key)}" aria-pressed="${active}">${escapeHtml(platform.label)}</button>`; }).join("")}</div><div class="field-label" style="margin-top:16px;">Format</div><div class="helper-text" style="margin-top:5px;">Formats change by platform. Selecting one controls the number of cards, dimensions, copy rules and visual design brief sent to the model.</div><div data-marketing-create-template-grid style="display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:9px;margin-top:10px;">${visibleTemplates.map(([key, template]) => `<button type="button" data-marketing-create-template="${escapeHtml(key)}" aria-pressed="${key === selectedKey ? "true" : "false"}" style="text-align:left;padding:13px;border:1px solid ${key === selectedKey ? "#2563eb" : "#d9e2ec"};border-radius:12px;background:${key === selectedKey ? "#eef5ff" : "#fff"};color:#14213d;cursor:pointer;box-shadow:${key === selectedKey ? "0 0 0 2px rgba(37,99,235,.08)" : "none"};"><strong style="display:block;font-size:13px;">${escapeHtml(template.formatLabel || template.label)}</strong><span style="display:block;margin-top:5px;color:#66758a;font-size:11px;">${escapeHtml(template.ratio)}</span></button>`).join("")}</div></div>
+      <section data-marketing-create-specification style="border:1px solid #c8d8fb;border-radius:14px;background:#f5f8ff;padding:16px 18px;"><div style="display:flex;align-items:center;justify-content:space-between;gap:16px;"><div style="min-width:0;"><div class="field-label">Platform guidance</div><div class="helper-text" style="margin-top:4px;max-width:720px;">Recommended values are supplied automatically. Adjust them only when this format needs a different treatment.</div></div><button type="button" class="secondary-btn" data-marketing-reset-specification style="width:auto!important;min-width:0!important;flex:0 0 auto!important;padding:8px 12px!important;font-size:11px!important;" ${selectedSpecification.customized ? "" : "disabled"}>Reset to recommended</button></div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px;"><label class="field-label" style="margin:0;">Canvas size<input class="input" data-marketing-specification-field="canvasSize" value="${escapeHtml(selectedSpecification.canvasSize)}" placeholder="${escapeHtml(selected.size)}" style="margin-top:6px;height:42px;padding:9px 11px;font-size:14px;font-weight:600;"/></label><label class="field-label" style="margin:0;">Aspect ratio<input class="input" data-marketing-specification-field="aspectRatio" value="${escapeHtml(selectedSpecification.aspectRatio)}" placeholder="${escapeHtml(selected.ratio)}" style="margin-top:6px;height:42px;padding:9px 11px;font-size:14px;font-weight:600;"/></label><label class="field-label" style="margin:0;">Copy structure<textarea class="input input-textarea input-textarea-small" data-marketing-specification-field="copyStructure" placeholder="${escapeHtml(selected.copy)}" style="margin-top:6px;min-height:84px;padding:10px 11px;font-size:14px;font-weight:500;line-height:1.45;resize:vertical;">${escapeHtml(selectedSpecification.copyStructure)}</textarea></label><label class="field-label" style="margin:0;">Creative direction<textarea class="input input-textarea input-textarea-small" data-marketing-specification-field="creativeDirection" placeholder="${escapeHtml(selected.media)}" style="margin-top:6px;min-height:84px;padding:10px 11px;font-size:14px;font-weight:500;line-height:1.45;resize:vertical;">${escapeHtml(selectedSpecification.creativeDirection)}</textarea></label></div></section>
+      <section data-marketing-design-style-picker style="display:grid;gap:12px;"><div><div class="field-label">2 · Choose the look</div><div class="helper-text" style="margin-top:5px;">Choose a layout style. Your Brand Foundation supplies the colours and identity automatically.</div></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;">${Object.entries(MARKETING_DESIGN_STYLES).map(([key, style]) => { const active = key === designStyle; return `<button type="button" data-marketing-design-style="${escapeHtml(key)}" aria-pressed="${active}" style="min-height:104px;text-align:left;padding:14px;border:1px solid ${active ? "#2563eb" : "#d6dee8"};border-radius:12px;background:${active ? "#f4f8ff" : "#fff"};color:#14213d;cursor:pointer;box-shadow:${active ? "0 0 0 2px rgba(37,99,235,.08)" : "none"};"><span style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;"><strong style="font-size:13px;line-height:1.3;">${escapeHtml(style.label)}</strong>${active ? `<span aria-hidden="true" style="display:grid;place-items:center;width:20px;height:20px;flex:0 0 20px;border-radius:50%;background:#2563eb;color:#fff;font-size:12px;">✓</span>` : ""}</span><span style="display:block;margin-top:7px;color:#66758a;font-size:11px;line-height:1.4;">${escapeHtml(style.description)}</span>${style.recommended ? `<span style="display:block;margin-top:8px;color:#2563eb;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Recommended</span>` : ""}</button>`; }).join("")}</div><div><div class="field-label">How should the visual be made?</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:stretch;">${Object.entries(MARKETING_CREATION_METHODS).map(([key, method]) => { const active = key === creationMethod; return `<button type="button" class="secondary-btn marketing-creation-method-choice" style="width:auto!important;min-width:0!important;flex:0 0 auto!important;background:${active ? "#2563eb" : "#fff"}!important;border-color:${active ? "#2563eb" : "#d9e2ec"}!important;color:${active ? "#fff" : "#14213d"}!important;box-shadow:none!important;" data-marketing-creation-method="${escapeHtml(key)}" aria-pressed="${active}" title="${escapeHtml(method.description)}">${escapeHtml(method.label)}</button>`; }).join("")}</div><div class="helper-text" style="margin-top:7px;">${escapeHtml(MARKETING_CREATION_METHODS[creationMethod].description)}</div>${creationMethod === "brand_template" ? `<div style="margin-top:10px;padding:12px;border:1px solid #d9e2ec;border-radius:12px;background:#f8fafc;display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:10px;align-items:end;"><label class="field-label" style="margin:0;">Branded template<select class="input" data-marketing-branded-template-select><option value="">${availableBrandedTemplates.length ? "Choose a saved template" : "No templates saved for this format"}</option>${availableBrandedTemplates.map((item) => `<option value="${escapeHtml(item.id)}" ${String(item.id) === String(selectedBrandedTemplate?.id || "") ? "selected" : ""}>${escapeHtml(item.name || "Untitled template")}</option>`).join("")}</select></label><button type="button" class="secondary-btn" data-marketing-open-template-builder style="width:auto!important;">+ Create branded template</button></div>` : ""}</div></section>
+      <input id="marketingChannelsInput" type="hidden" value="${escapeHtml(selected.label)}"/>
+      <div><div class="field-label">2 · Purpose and audience</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:9px;"><label class="field-label">What should this content achieve?<select id="marketingObjectiveInput" class="input" data-marketing-content-objective>${objectiveOptions.map((item) => `<option value="${escapeHtml(item)}" ${objective === item ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}</select></label><label class="field-label">Additional audience detail <span style="font-weight:500;text-transform:none;letter-spacing:0;">(optional)</span><input id="marketingAudienceInput" class="input" value="${escapeHtml(audienceValue)}" placeholder="Add campaign-specific context if needed"/></label><label class="field-label">Call to action<input id="marketingFunnelGoalInput" class="input" value="${escapeHtml(ctaValue)}" placeholder="e.g. View product or Book a free quote"/></label><label class="field-label">Offer or proof to include<input id="marketingOfferInput" class="input" value="${escapeHtml(offerValue)}" placeholder="Optional offer, fact, testimonial or result"/></label></div>${promotesCatalogueItem ? `<section style="display:grid;grid-template-columns:minmax(220px,1fr) minmax(300px,1.5fr);gap:12px;margin-top:12px;padding:14px;border:1px solid #bfdbfe;border-radius:14px;background:#f8fbff;"><label class="field-label">Product or service<select class="input" data-marketing-product-offering><option value="">Choose from Products &amp; Services</option>${offerings.map((item) => `<option value="${escapeHtml(String(item.id || item.name))}" ${String(item.id || item.name) === String(lab.subjectOfferingId || "") ? "selected" : ""}>${escapeHtml(item.name)}${item.price !== "" && item.price != null ? ` · ${escapeHtml(String(item.price))} ${escapeHtml(window.AionOperatingModelWorkspace?.state?.model?.currency || "EUR")}` : ""}</option>`).join("")}</select><span class="helper-text">${offerings.length ? "Uses the saved catalogue record as the source of truth." : "Add products or services first, or import a catalogue."}</span></label><div>${selectedOffering ? `<div style="display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;"><div style="width:76px;height:76px;border:1px solid #cbd5e1;border-radius:10px;overflow:hidden;background:#fff;display:grid;place-items:center;">${selectedOfferingImage ? `<img src="${escapeHtml(selectedOfferingImage)}" alt="${escapeHtml(selectedOffering.name || "Product")}" style="width:100%;height:100%;object-fit:cover;">` : `<span class="helper-text" style="text-align:center;">No image</span>`}</div><div><strong>${escapeHtml(selectedOffering.name || "Selected offering")}</strong><div class="helper-text">${escapeHtml(selectedOffering.catalogue_source || selectedOffering.import_source || "Created in Tessaris")}${selectedOffering.external_id || selectedOffering.sku ? ` · ${escapeHtml(selectedOffering.external_id || selectedOffering.sku)}` : ""}</div><div class="helper-text">${selectedOffering.product_url || selectedOffering.url ? "Product page linked" : "Product page not yet added"}</div></div></div>` : `<div class="helper-text" style="padding:12px;">Select the exact catalogue item so its approved name, price, image and destination remain attached to this content.</div>`}</div><label class="field-label" style="grid-column:1/-1;">Destination link<input id="marketingDestinationUrlInput" class="input" type="url" value="${escapeHtml(destinationValue)}" placeholder="Product page or booking URL"/></label></section>` : ""}</div>
+      <div><div class="field-label">3 · Content direction</div><label class="field-label" style="margin-top:9px;">Key message or idea<textarea id="marketingBriefInput" class="input input-textarea" placeholder="What should the audience understand, feel or do?">${escapeHtml(briefValue)}</textarea></label><label class="field-label">Supporting notes<textarea id="marketingCampaignNotesInput" class="input input-textarea input-textarea-small" placeholder="News, location, facts, exclusions or anything the creator must know">${escapeHtml(notesValue)}</textarea></label></div>
+      <section style="border:1px solid #d9e2ec;border-radius:14px;background:#fff;padding:14px;overflow:visible;"><div style="display:flex;align-items:start;justify-content:space-between;gap:12px;flex-wrap:wrap;"><div><div class="field-label">Brand Foundation applied automatically</div><div class="helper-text">Choose the audience for this content. Tone of voice, core messaging and visual rules remain governed by Brand Foundation.</div></div><button type="button" class="secondary-btn" data-aion-business-context-open-branding="true">Open Brand Foundation</button></div><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:12px;align-items:stretch;overflow:visible;">${personaAudienceCardHtml}<div class="list-item"><div class="list-item-title">Tone of voice</div><div class="list-item-sub">${escapeHtml(guide.tone || "Not set in Brand Foundation")}</div></div><div class="list-item"><div class="list-item-title">Core message</div><div class="list-item-sub">${escapeHtml(guide.message || "Not set in Brand Foundation")}</div></div><div class="list-item"><div class="list-item-title">Visual rules</div><div class="list-item-sub">${escapeHtml(guide.visual || "Not set in Brand Foundation")}</div></div></div></section>
+      <label class="field-label">4 · ${selectedMediaType === "video" ? "Add source video, product footage or visual references" : "Add real product, project or reference images"}<input id="marketingCreativeAssetUploadInput" class="input" type="file" accept="${selectedMediaType === "video" ? "video/*,image/*" : "image/*"}" multiple/></label><div class="helper-text">${selectedMediaType === "video" ? "You can provide original clips, still references or leave this empty for a governed AI-assisted video draft. Paid rendering remains separately approval-gated." : "Use original business imagery where available. Any AI-assisted image remains a draft until reviewed."}</div>${renderMarketingCreativeAssetList()}
+      ${(createBusy || createHasResult || lab.campaignError) ? `<div data-aion-marketing-create-status role="status" aria-live="polite" style="border-left:4px solid ${createStatusTone};background:${createStatusBackground};padding:12px 14px;color:${createStatusTone};"><strong>${escapeHtml(lab.campaignError || lab.campaignMessage || (createHasResult ? "Content draft created and ready for review." : "Creating the content draft…"))}</strong>${createHasResult ? `<div class="helper-text" style="margin-top:4px;">The draft is open below. It remains unpublished until it passes review and approval.</div>` : ""}</div>` : ""}
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;"><div class="helper-text">Generate creates a separate post. Regenerate creates a new version of the open draft with its attached evidence. Neither action publishes.</div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;"><button type="button" class="primary-btn" data-aion-run-manual-marketing style="width:auto;" ${createBusy ? "disabled aria-busy=\"true\"" : ""}>${createBusy ? "Generating draft…" : `Generate ${escapeHtml(selected.label)} draft`}</button>${createHasResult ? `<button type="button" class="secondary-btn" data-aion-regenerate-marketing-draft style="width:auto;" ${createBusy ? "disabled aria-busy=\"true\"" : ""}>${createBusy ? "Regenerating…" : "Regenerate current draft"}</button>` : ""}</div></div>
+    </div>
   </section>`;
 }
 
@@ -57392,6 +61945,78 @@ function getAionMarketingEditableRun() {
   return source;
 }
 
+function captureAionMarketingCreatorInputs() {
+  const values = {
+    objective: String(document.getElementById("marketingObjectiveInput")?.value || state.marketingForm?.objective || "Generate enquiries"),
+    targetAudience: String(document.getElementById("marketingAudienceInput")?.value || ""),
+    funnelGoal: String(document.getElementById("marketingFunnelGoalInput")?.value || ""),
+    offer: String(document.getElementById("marketingOfferInput")?.value || ""),
+    campaignNotes: String(document.getElementById("marketingCampaignNotesInput")?.value || ""),
+    destinationUrl: String(document.getElementById("marketingDestinationUrlInput")?.value || state.marketingForm?.destinationUrl || ""),
+    brief: String(document.getElementById("marketingBriefInput")?.value || state.marketingForm?.brief || "").trim(),
+  };
+  Object.entries(values).forEach(([field, value]) => desktopStore.setMarketingField(field, value));
+  desktopStore.persistCache();
+  return values;
+}
+
+function applyAionMarketingTemplateToOpenDraft(template, key) {
+  const lab = getAionMarketingCreativeLabState();
+  const run = getAionMarketingEditableRun();
+  if (!run || !template) return;
+  const postPackage = getRunPostPackage(run) || {};
+  postPackage.channels = [template.platform];
+  postPackage.channel = template.platform;
+  postPackage.format = template.format;
+  postPackage.visual_type = template.format === "carousel" ? "carousel" : template.format;
+  if (template.format !== "carousel") {
+    const firstCard = Array.isArray(postPackage.carousel) ? postPackage.carousel[0] : null;
+    postPackage.carousel = firstCard ? [firstCard] : [];
+    postPackage.content_blocks = postPackage.carousel;
+    postPackage.carousel_cards = [];
+    postPackage.generated_carousel_cards = [];
+    postPackage.generated_images = [];
+    state.selectedFacebookCardIndex = 0;
+  }
+  run.result_payload = { ...(run.result_payload || {}), post_package: postPackage };
+  run.context = { ...(run.context || {}), post_package: postPackage };
+  lab.campaignResult = run;
+  lab.createTemplate = key;
+  persistAionMarketingCampaignState(lab);
+}
+
+function clearAionMarketingCanvas() {
+  const lab = getAionMarketingCreativeLabState();
+  for (const field of ["objective", "targetAudience", "funnelGoal", "offer", "campaignNotes", "destinationUrl", "brief", "aionCampaignPlan", "aionCampaignLatestRun", "campaignType", "subjectOfferingId", "campaignAngle", "proofClaim", "strategyAssets", "creativeAssets"]) {
+    desktopStore.setMarketingField(field, ["aionCampaignPlan", "aionCampaignLatestRun"].includes(field) ? null : (["strategyAssets", "creativeAssets"].includes(field) ? [] : ""));
+  }
+  desktopStore.setMarketingField("aionCampaignCanvasCleared", true);
+  setAionMarketingCanvasDurablyCleared(true);
+  Object.assign(lab, {
+    plan: null,
+    campaignDraft: null,
+    campaignResult: null,
+    campaignRunId: "",
+    campaignApprovalId: "",
+    campaignStage: "brief",
+    campaignMessage: "Canvas cleared. Start a new content brief when you are ready.",
+    campaignError: "",
+    subjectOfferingId: "",
+    campaignAngle: "",
+    proofClaim: "",
+    strategyAssets: [],
+    assetRequestPrepared: false,
+    editorCaption: "",
+    editorCarouselText: "",
+    editorSchedule: "",
+    editorImageUrl: "",
+    platforms: [MARKETING_CREATE_TEMPLATES[lab.createTemplate]?.platform || "facebook_feed"],
+    formats: [MARKETING_CREATE_TEMPLATES[lab.createTemplate]?.format || "image"],
+  });
+  state.selectedFacebookCardIndex = 0;
+  desktopStore.persistCache();
+}
+
 function renderAionMarketingContentStudio() {
   const lab = getAionMarketingCreativeLabState();
   const run = getAionMarketingEditableRun();
@@ -57401,35 +62026,490 @@ function renderAionMarketingContentStudio() {
   const isPlaceholder = imageGeneration.provider === "tessaris_local";
   const isOwnedMedia = imageGeneration.provider === "tessaris_owned_media" || imageGeneration.provider === "uploaded_business_asset";
   const caption = lab.editorCaption || postPackage.caption || "";
-  const carousel = lab.editorCarouselText || (postPackage.carousel || []).map((item) => typeof item === "string" ? item : item.headline || item.body || "").filter(Boolean).join("\n");
-  const schedule = Array.isArray(lab.plan?.campaign_schedule) ? lab.plan.campaign_schedule : [];
+  const currentTemplateKey = String(lab.createTemplate || "facebook_feed");
+  const currentTemplate = MARKETING_CREATE_TEMPLATES[currentTemplateKey] || MARKETING_CREATE_TEMPLATES.facebook_feed;
+  const isCurrentCarousel = currentTemplate.format === "carousel";
+  const rawDesignBriefCards = Array.isArray(postPackage.carousel) ? postPackage.carousel : [];
+  const designBriefCards = isCurrentCarousel ? rawDesignBriefCards : rawDesignBriefCards.slice(0, 1);
+  const carousel = lab.editorCarouselText || designBriefCards.map((item) => typeof item === "string" ? item : item.headline || item.body || "").filter(Boolean).join("\n");
+  const currentRunId = String(run.id || lab.campaignRunId || "");
+  const currentLibraryItem = (Array.isArray(lab.savedLibraryItems) ? lab.savedLibraryItems : []).find((item) =>
+    String(item.sourceRunId || "") === currentRunId && String(item.templateKey || "") === currentTemplateKey
+  );
   return `<section class="panel large-panel" id="marketing-content-calendar" style="background:#fff;border:2px solid #0ea5e9;border-top-width:4px;margin-top:18px;">
-    <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;flex-wrap:wrap;background:#f8fcff;border-bottom:1px solid #bae6fd;padding:18px;"><div><div style="color:#087f5b;font-size:10px;letter-spacing:.22em;font-weight:950;">CONTENT STUDIO & CALENDAR</div><div class="panel-title" style="margin-top:7px;">See the actual post, edit it and schedule the campaign</div><div class="helper-text">Real business evidence stays at the centre. AION crops, clips, adapts and tests that owned material for each channel; synthetic generation is optional and visibly identified.</div></div><span class="badge">DRAFT · NOT PUBLISHED</span></div>
-    <div style="display:grid;grid-template-columns:minmax(320px,.8fr) minmax(420px,1.2fr);gap:16px;margin-top:14px;align-items:start;">
-      <div>${renderFacebookPostMockup(run, { activeIndex: Number(state.selectedFacebookCardIndex || 0) })}</div>
-      <div style="display:grid;gap:10px;">
+    <div style="display:grid;grid-template-columns:1fr;gap:16px;align-items:start;">
+      <div style="max-width:760px;width:100%;margin:0 auto;">${renderFacebookPostMockup(run, { activeIndex: Number(state.selectedFacebookCardIndex || 0), templateKey: lab.createTemplate || "facebook_feed" })}</div>
+      <div style="display:grid;gap:10px;max-width:960px;width:100%;margin:0 auto;">
+        <section style="border:1px solid #d9e2ec;border-radius:14px;padding:14px;background:#f8fafc;"><div class="field-label">Change the design</div><div class="helper-text" style="margin-top:4px;">Choose another layout, then regenerate this draft. Its brief, source image and approval history stay attached.</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;">${Object.entries(MARKETING_DESIGN_STYLES).map(([key, style]) => `<button type="button" class="${key === lab.designStyle ? "primary-btn" : "secondary-btn"}" data-marketing-design-style="${escapeHtml(key)}">${escapeHtml(style.label)}</button>`).join("")}</div><button type="button" class="secondary-btn" data-aion-regenerate-marketing-draft style="margin-top:10px;">Apply style and regenerate current draft</button></section>
+        <section style="border:1px solid #c8d8fb;border-radius:14px;padding:14px;background:#eef5ff;"><div class="field-label">Finish this content</div><div class="helper-text" style="margin-top:4px;">Save a reusable copy, prepare a manual channel post, or place this draft on the Marketing calendar.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button type="button" class="secondary-btn" data-aion-save-current-to-library>${currentLibraryItem ? "Saved to Library ✓" : "Save to Library"}</button><button type="button" class="secondary-btn" data-aion-manual-post-current>Post manually</button><button type="button" class="primary-btn" data-aion-schedule-current-content>Schedule on calendar</button></div>${currentLibraryItem ? `<div class="helper-text" style="margin-top:8px;color:#166534;">Saved ${escapeHtml(formatDateTime(currentLibraryItem.savedAt))}. Saving again updates this Library item.</div>` : ""}</section>
         <label class="field-label">Post copy<textarea class="input input-textarea" data-aion-content-editor-caption>${escapeHtml(caption)}</textarea></label>
-        <label class="field-label">Carousel cards <span class="helper-text">one card per line</span><textarea class="input input-textarea" data-aion-content-editor-carousel>${escapeHtml(carousel)}</textarea></label>
+        <details style="border:1px solid #d9e2ec;border-radius:12px;background:#fff;padding:12px;"><summary style="cursor:pointer;font-weight:900;">Structured design brief · ${escapeHtml(designBriefCards.length || 1)} ${isCurrentCarousel ? "cards" : "creative"}</summary><div style="display:grid;gap:9px;margin-top:10px;">${designBriefCards.map((card, index) => { const item = typeof card === "object" && card ? card : { headline: String(card || "") }; return `<article style="border-left:3px solid #2563eb;background:#f8fafc;padding:10px;"><strong>${escapeHtml(item.headline || `Card ${index + 1}`)}</strong>${item.supporting_copy || item.body ? `<div class="helper-text">${escapeHtml(item.supporting_copy || item.body)}</div>` : ""}<div class="helper-text" style="margin-top:6px;"><b>Purpose:</b> ${escapeHtml(item.purpose || "Not supplied")} · <b>Focal point:</b> ${escapeHtml(item.image_focal_point || "Not supplied")} · <b>Crop:</b> ${escapeHtml(item.crop || "Not supplied")} · <b>Text:</b> ${escapeHtml(item.text_position || "Not supplied")} · <b>Typography:</b> ${escapeHtml(item.typography_hierarchy || "Not supplied")} · <b>Colours:</b> ${escapeHtml(Array.isArray(item.brand_colours) ? item.brand_colours.join(", ") : item.brand_colours || "Not supplied")} · <b>Logo:</b> ${escapeHtml(item.logo_position || "Not supplied")} · <b>CTA:</b> ${escapeHtml(item.cta_treatment || "Not supplied")} · <b>Template:</b> ${escapeHtml(item.selected_template || lab.designStyle || "Not supplied")} · <b>Verified facts:</b> ${escapeHtml(Array.isArray(item.verified_facts_used) ? item.verified_facts_used.join("; ") : item.verified_facts_used || "None")}</div></article>`; }).join("") || `<div class="helper-text">Regenerate this draft to create the structured design brief for the selected format.</div>`}</div></details>
+        ${isCurrentCarousel ? `<label class="field-label">Carousel headlines <span class="helper-text">one card per line</span><textarea class="input input-textarea" data-aion-content-editor-carousel>${escapeHtml(carousel)}</textarea></label>` : ""}
         <label class="field-label">First publication date and time<input class="input" type="datetime-local" value="${escapeHtml(lab.editorSchedule || "")}" data-aion-content-editor-schedule/></label>
         <label class="field-label">Replace the generated visual with your own image<input class="input" type="file" accept="image/*" data-aion-content-editor-image/></label>
         <div style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="secondary-btn" data-aion-apply-content-edits>Update preview</button>${imageGeneration.status === "failed" ? `<button type="button" class="primary-btn" data-aion-retry-campaign-image>Retry image creation</button>` : ""}<button type="button" class="secondary-btn" data-aion-scroll-creative-tools>Open advanced creative tools</button></div>
-        ${imageGeneration.status === "failed" ? `<div style="border-left:4px solid #dc2626;background:#fef2f2;padding:10px;"><strong>Image creation failed</strong><div class="helper-text">${escapeHtml(imageGeneration.error || "The render provider did not return an image.")}</div></div>` : isPlaceholder ? `<div style="border-left:4px solid #f59e0b;background:#fffbeb;padding:10px;"><strong>Layout placeholder—not finished marketing</strong><div class="helper-text">The composition is available for review, but real project, product, founder or team evidence must replace it before campaign approval.</div></div>` : `<div style="border-left:4px solid #16a34a;background:#f0fdf4;padding:10px;"><strong>${isOwnedMedia ? "Original business media adapted" : "AI-assisted visual ready for review"}</strong><div class="helper-text">Use the carousel arrows on the preview to inspect every card. Source and provider provenance remain attached.</div></div>`}
+        ${imageGeneration.status === "failed" ? `<div style="border-left:4px solid #dc2626;background:#fef2f2;padding:10px;"><strong>Image creation failed</strong><div class="helper-text">${escapeHtml(imageGeneration.error || "The render provider did not return an image.")}</div></div>` : isPlaceholder ? `<div style="border-left:4px solid #f59e0b;background:#fffbeb;padding:10px;"><strong>Layout placeholder—not finished marketing</strong><div class="helper-text">The composition is available for review, but real project, product, founder or team evidence must replace it before campaign approval.</div></div>` : `<div style="border-left:4px solid #16a34a;background:#f0fdf4;padding:10px;"><strong>${isOwnedMedia ? "Original business media adapted" : "AI-assisted visual ready for review"}</strong><div class="helper-text">${isCurrentCarousel ? "Use the carousel arrows to inspect every card. " : ""}Source and provider provenance remain attached.</div></div>`}
       </div>
     </div>
-    ${schedule.length ? `<div style="margin-top:18px;border-top:1px solid #dbe4ec;padding-top:14px;"><div class="panel-title">Seven-day calendar</div><div style="display:grid;grid-template-columns:repeat(7,minmax(145px,1fr));gap:7px;overflow-x:auto;margin-top:10px;">${schedule.map((item) => `<div style="border:1px solid #cbd5e1;background:#f8fafc;padding:10px;min-height:125px;"><strong>Day ${escapeHtml(item.day)}</strong><div style="font-size:11px;font-weight:800;margin-top:5px;">${escapeHtml(item.theme)}</div><div class="helper-text">${escapeHtml(item.platform_label)} · ${escapeHtml(item.format)}</div><div style="font-size:10px;color:#475569;margin-top:6px;">${escapeHtml(item.direction)}</div></div>`).join("")}</div></div>` : ""}
   </section>`;
+}
+
+function renderMarketingCampaignCommand() {
+  const pilotState = getAionPilotFrontendInteractionState();
+  return `
+    <section class="panel large-panel" data-aion-marketing-automation-studio="true" style="background:#fff;border:1px solid #d9e2ec;border-top:4px solid #2563eb;margin-top:18px;">
+      <div style="display:flex;justify-content:space-between;gap:16px;align-items:start;background:#eef5ff;border-bottom:1px solid #d9e2ec;padding:18px;flex-wrap:wrap;">
+        <div><div style="color:#2563eb;font-size:10px;letter-spacing:.22em;font-weight:950;">CAMPAIGN WORKFLOW</div><div class="panel-title" style="margin-top:7px;">Turn one instruction into a governed campaign</div><div class="helper-text" style="max-width:780px;margin-top:5px;">Boardroom, Operations, the business owner and connected AI assistants all create the same campaign record. The request, brand rules, evidence, schedule and approvals remain attached.</div></div>
+        <span class="badge">APPROVAL GATED</span>
+      </div>
+      <div style="padding:18px;">
+        <label style="display:grid;gap:7px;color:#334e68;font-size:11px;font-weight:850;">What should Marketing achieve?<textarea data-aion-phase23y-persistent-pilot-terminal-input class="input" style="min-height:92px;resize:vertical;" placeholder="Example: Prepare three Facebook posts each week for HomeFixed, using real project evidence and the approved Brand Foundation.">${escapeHtml(pilotState.last_request || "")}</textarea></label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;"><button type="button" class="primary-btn" data-aion-phase23y-persistent-pilot-start>Plan campaign</button><button type="button" class="secondary-btn live-agents-view-btn" data-live-agents-view="${escapeHtml(LIVE_AGENT_VIEWS.CREATE)}">Create one item now</button><span class="helper-text">Nothing is published and no advertising money is spent without approval.</span></div>
+        ${renderAionMarketingCampaignJourney()}
+      </div>
+    </section>
+  `;
+}
+
+function getMarketingWorkspaceSnapshot(selectedRuns = []) {
+  const lab = getAionMarketingCreativeLabState();
+  const schedule = Array.isArray(lab?.plan?.campaign_schedule) ? lab.plan.campaign_schedule : [];
+  const marketingRuns = (Array.isArray(selectedRuns) ? selectedRuns : []).filter((run) =>
+    String(run?.department_key || run?.department || "").toLowerCase() === "marketing" || String(run?.workflow_name || "").toLowerCase().includes("marketing")
+  );
+  const approvals = (Array.isArray(state.approvals) ? state.approvals : []).filter((approval) =>
+    String(approval?.department_key || approval?.department || approval?.context?.department || "").toLowerCase() === "marketing"
+  );
+  const pendingApprovals = approvals.filter((approval) => ["pending", "waiting", "waiting_approval", "requested"].includes(String(approval?.status || "").toLowerCase()));
+  return { lab, schedule, marketingRuns, approvals, pendingApprovals };
+}
+
+function renderMarketingPerformanceOverviewV1() {
+  const executiveModel = getAionExecutiveDashboardModelV1();
+  const marketingDepartment = executiveModel.departments.find((department) => department.key === "marketing") || {
+    key: "marketing",
+    label: "Marketing",
+    summary: "Marketing performance evidence and cross-functional coordination.",
+    openTasks: 0,
+    kpis: [],
+    automations: [],
+    runs: { completed: 0 },
+  };
+  const completedRuns = Number(marketingDepartment.runs?.completed || 0);
+  return `
+    <section class="panel large-panel marketing-overview-performance" data-aion-marketing-performance-overview="true">
+      <div class="marketing-overview-heading marketing-overview-performance-heading">
+        <div>
+          <div class="surface-eyebrow">PERFORMANCE & ACCOUNTABILITY</div>
+          <div class="panel-title">Marketing function snapshot</div>
+          <div class="helper-text">Verified channel performance, agent intelligence and cross-functional decisions now live with the Marketing team.</div>
+        </div>
+        <span class="badge">LIVE BUSINESS EVIDENCE</span>
+      </div>
+      <div class="marketing-overview-metrics marketing-overview-accountability-metrics">
+        <article><span>Open actions</span><strong>${escapeHtml(marketingDepartment.openTasks || 0)}</strong><small>Accountable work</small></article>
+        <article><span>Active KPIs</span><strong>${escapeHtml(marketingDepartment.kpis?.length || 0)}</strong><small>Measured outcomes</small></article>
+        <article><span>Automations</span><strong>${escapeHtml(marketingDepartment.automations?.length || 0)}</strong><small>Marketing workflows</small></article>
+        <article><span>Completed runs</span><strong>${escapeHtml(completedRuns)}</strong><small>Recorded outcomes</small></article>
+      </div>
+      ${renderAionDepartmentTargetsAndQueueV1(marketingDepartment)}
+      ${renderAionMarketingFunctionSnapshotV1(marketingDepartment)}
+    </section>
+  `;
+}
+
+function renderMarketingOverviewSurface(selectedRuns = [], selectedAgentCard = null) {
+  const snapshot = getMarketingWorkspaceSnapshot(selectedRuns);
+  const boardroom = getAionMarketingBoardroomBrief();
+  const activeCampaign = snapshot.lab.campaignResult || snapshot.lab.campaignDraft || null;
+  const nextItems = snapshot.schedule.slice(0, 4);
+  return `
+    <div class="marketing-overview" data-aion-marketing-overview="true">
+      <section class="panel large-panel marketing-overview-hero">
+        <div class="marketing-overview-heading"><div><div class="surface-eyebrow">MARKETING CONTROL CENTRE</div><div class="panel-title">What needs attention</div><div class="helper-text">Your campaigns, upcoming content and approvals in one place.</div></div><button type="button" class="primary-btn live-agents-view-btn marketing-overview-primary-action" data-live-agents-view="${escapeHtml(LIVE_AGENT_VIEWS.CAMPAIGNS)}">Start or open campaign</button></div>
+        <div class="aion-marketing-overview-metrics marketing-overview-metrics">
+          <article><span>Active campaigns</span><strong>${escapeHtml(activeCampaign ? 1 : 0)}</strong><small>${escapeHtml(activeCampaign ? "In progress" : "Ready to plan")}</small></article>
+          <article><span>Next 7 days</span><strong>${escapeHtml(snapshot.schedule.length)}</strong><small>Planned content</small></article>
+          <article class="${snapshot.pendingApprovals.length ? "needs-attention" : ""}"><span>Needs review</span><strong>${escapeHtml(snapshot.pendingApprovals.length)}</strong><small>Approval required</small></article>
+          <article><span>Activity</span><strong>${escapeHtml(snapshot.marketingRuns.length)}</strong><small>Recorded runs</small></article>
+        </div>
+      </section>
+      <div class="aion-marketing-overview-grid marketing-overview-grid">
+        <section class="panel large-panel marketing-overview-card"><div class="marketing-overview-card-head"><div><div class="surface-eyebrow">GOVERNING DIRECTION</div><div class="panel-title">Boardroom assignment</div></div><button type="button" class="secondary-btn marketing-overview-secondary-action" data-aion-o18t-open-marketing-package="true">Open package</button></div><p>${escapeHtml(String(boardroom?.objective || boardroom?.summary || boardroom?.brief || "No current Boardroom marketing assignment. Start a campaign directly or ask the Boardroom to set the objective."))}</p><div class="helper-text">The original direction stays attached to the campaign record.</div></section>
+        <section class="panel large-panel marketing-overview-card"><div class="marketing-overview-card-head"><div><div class="surface-eyebrow">NEXT SEVEN DAYS</div><div class="panel-title">Content readiness</div></div><button type="button" class="secondary-btn live-agents-view-btn marketing-overview-secondary-action" data-live-agents-view="${escapeHtml(LIVE_AGENT_VIEWS.CALENDAR)}">Open calendar</button></div>${nextItems.length ? `<div class="marketing-overview-schedule">${nextItems.map((item, index) => `<div><strong>${escapeHtml(item.theme || item.title || `Content item ${index + 1}`)}</strong><span>${escapeHtml(item.platform_label || item.platform || "Channel to confirm")} · ${escapeHtml(item.format || "Format to confirm")}</span></div>`).join("")}</div>` : `<div class="marketing-overview-empty"><strong>Nothing planned yet</strong><span>Create a campaign, then add its content to the calendar.</span></div>`}</section>
+      </div>
+      ${snapshot.pendingApprovals.length ? `<section class="panel large-panel marketing-overview-review"><div class="marketing-overview-review-copy"><span>${escapeHtml(snapshot.pendingApprovals.length)}</span><div><div class="panel-title">Item${snapshot.pendingApprovals.length === 1 ? "" : "s"} waiting for review</div><div class="helper-text">Check the creative and approve or reject it before publishing.</div></div></div><button type="button" class="primary-btn live-agents-view-btn marketing-overview-primary-action" data-live-agents-view="${escapeHtml(LIVE_AGENT_VIEWS.APPROVALS)}">Review content</button></section>` : ""}
+      ${renderMarketingPerformanceOverviewV1()}
+    </div>
+  `;
+}
+
+function renderMarketingCampaignsSurface(selectedRuns = [], selectedAgentCard = null) {
+  return `<div data-aion-marketing-campaigns="true">${renderDepartmentCompactDirectorCard("marketing")}${renderAionMarketingDirectorBrief()}${renderMarketingCampaignCommand()}<section class="panel large-panel" style="margin-top:18px;"><div style="display:flex;align-items:start;justify-content:space-between;gap:12px;flex-wrap:wrap;"><div><div class="surface-eyebrow">CAMPAIGN ACTIVITY</div><div class="panel-title" style="margin-top:6px;">History and production record</div><div class="helper-text">Technical runs are retained here for traceability instead of occupying the main navigation.</div></div><button type="button" class="secondary-btn live-agents-view-btn" data-live-agents-view="${escapeHtml(LIVE_AGENT_VIEWS.RUNS)}">View activity</button></div></section></div>`;
+}
+
+function marketingDateOnly(value) {
+  const candidate = value ? new Date(value) : new Date();
+  const date = Number.isNaN(candidate.getTime()) ? new Date() : candidate;
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function marketingAddDays(value, amount) {
+  const date = marketingDateOnly(value);
+  date.setDate(date.getDate() + Number(amount || 0));
+  return date;
+}
+
+function marketingStartOfWeek(value) {
+  const date = marketingDateOnly(value);
+  const mondayOffset = (date.getDay() + 6) % 7;
+  return marketingAddDays(date, -mondayOffset);
+}
+
+function marketingDateKey(value) {
+  const date = marketingDateOnly(value);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function marketingFormatShortDate(value) {
+  return marketingDateOnly(value).toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function marketingProductionStage(status, scheduledFor) {
+  const value = String(status || "").toLowerCase();
+  if (["published", "posted", "live"].includes(value)) return "published";
+  if (["scheduled"].includes(value)) return "scheduled";
+  if (["approved", "completed", "complete"].includes(value)) return "approved";
+  if (["waiting_approval", "pending_approval", "review", "pending"].includes(value)) return "review";
+  if (["running", "generating", "draft", "queued", "in_progress"].includes(value)) return "drafting";
+  if (scheduledFor && new Date(scheduledFor).getTime() > Date.now()) return "scheduled";
+  return "planned";
+}
+
+function getMarketingProductionItems(selectedRuns = []) {
+  const { schedule } = getMarketingWorkspaceSnapshot(selectedRuns);
+  const today = marketingDateOnly(new Date());
+  const planned = schedule.map((item, index) => {
+    const dayOffset = Math.max(0, Number(item?.day || index + 1) - 1);
+    const scheduledFor = item?.scheduled_for || item?.scheduled_at || item?.date || marketingAddDays(today, dayOffset).toISOString();
+    return {
+      id: `plan-${item?.id || index}`,
+      runId: "",
+      title: item?.theme || item?.title || `Planned content ${index + 1}`,
+      channel: item?.platform_label || item?.platform || "Channel to confirm",
+      format: item?.format || "Format to confirm",
+      scheduledFor,
+      stage: marketingProductionStage(item?.status || "planned", scheduledFor),
+      source: "Campaign plan",
+    };
+  });
+  const runs = (Array.isArray(selectedRuns) ? selectedRuns : []).map((run, index) => {
+    const normalized = normalizeMarketingCalendarRun(run);
+    const runId = run?.id || run?.queue_item_id || "";
+    return {
+      id: `run-${runId || index}`,
+      runId,
+      title: normalized.title,
+      channel: getChannelMeta(normalized.channel).label,
+      format: Array.isArray(normalized.carousel) && normalized.carousel.length > 1 ? "Carousel" : "Single creative",
+      scheduledFor: normalized.scheduledFor,
+      stage: marketingProductionStage(normalized.status, normalized.scheduledFor),
+      source: "Marketing production",
+    };
+  });
+  return [...planned, ...runs].sort((a, b) => new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime());
+}
+
+function renderMarketingProductionCard(item) {
+  const action = item.runId
+    ? `<button type="button" class="secondary-btn live-run-select-btn" data-run-id="${escapeHtml(item.runId)}" style="margin-top:10px;padding:7px 10px;font-size:11px;">Open record</button>`
+    : "";
+  return `<article style="border:1px solid #d9e2ec;border-left:4px solid #2563eb;border-radius:12px;background:#fff;padding:12px;min-width:0;box-shadow:0 6px 16px rgba(30,64,175,.05);">
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:start;"><span class="badge">${escapeHtml(String(item.channel || "General").toUpperCase())}</span><span class="helper-text" style="white-space:nowrap;">${escapeHtml(marketingFormatShortDate(item.scheduledFor))}</span></div>
+    <strong style="display:block;margin-top:9px;color:#14213d;line-height:1.35;">${escapeHtml(item.title)}</strong>
+    <div class="helper-text" style="margin-top:5px;">${escapeHtml(item.format)} · ${escapeHtml(item.source)}</div>${action}
+  </article>`;
+}
+
+function renderMarketingWorkInProgress(items) {
+  const lanes = [
+    ["planned", "Ideas & planned"],
+    ["drafting", "Creating"],
+    ["review", "Needs review"],
+    ["approved", "Approved"],
+    ["scheduled", "Scheduled"],
+    ["published", "Published"],
+  ];
+  return `<section class="panel large-panel" style="padding:0;overflow:hidden;">
+    <div style="padding:18px 20px;border-bottom:1px solid #d9e2ec;"><div class="surface-eyebrow">CONTENT PIPELINE</div><div class="panel-title" style="font-size:22px;margin-top:6px;">Work in progress</div><div class="helper-text" style="margin-top:5px;">Move every item from an agreed idea to approved, scheduled and published content without losing its brief or evidence.</div></div>
+    <div style="display:grid;grid-template-columns:repeat(6,minmax(210px,1fr));gap:10px;overflow-x:auto;padding:14px;background:#f7f9fc;">
+      ${lanes.map(([key, label]) => {
+        const laneItems = items.filter((item) => item.stage === key);
+        return `<section style="border-top:4px solid #2563eb;border-radius:12px;background:#f8fafc;min-height:360px;padding:12px;">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;"><strong>${escapeHtml(label)}</strong><span class="badge">${escapeHtml(laneItems.length)}</span></div>
+          <div style="display:grid;gap:10px;margin-top:12px;">${laneItems.length ? laneItems.map(renderMarketingProductionCard).join("") : `<div class="empty-state" style="padding:24px 8px;background:transparent;border-style:dashed;">No content here</div>`}</div>
+        </section>`;
+      }).join("")}
+    </div>
+  </section>`;
+}
+
+function renderMarketingWeeklyCalendar(items) {
+  const anchor = marketingStartOfWeek(state.marketingCalendarWeek || new Date());
+  const days = Array.from({ length: 7 }, (_, index) => marketingAddDays(anchor, index));
+  const end = days[6];
+  const range = `${anchor.toLocaleDateString(undefined, { month: "long", day: "numeric" })} – ${end.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}`;
+  return `<section class="panel large-panel" style="padding:0;overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;padding:18px 20px;border-bottom:1px solid #d9e2ec;"><div><div class="surface-eyebrow">WEEKLY CONTENT SCHEDULE</div><div class="panel-title" style="font-size:22px;margin-top:6px;">${escapeHtml(range)}</div></div><div style="display:flex;gap:7px;"><button type="button" class="secondary-btn" data-marketing-calendar-week-shift="-7" aria-label="Previous week">‹</button><button type="button" class="secondary-btn" data-marketing-calendar-week-today="true">Today</button><button type="button" class="secondary-btn" data-marketing-calendar-week-shift="7" aria-label="Next week">›</button></div></div>
+    <div style="display:grid;grid-template-columns:repeat(7,minmax(175px,1fr));overflow-x:auto;background:#f7f9fc;">
+      ${days.map((day) => {
+        const key = marketingDateKey(day);
+        const dayItems = items.filter((item) => marketingDateKey(item.scheduledFor) === key);
+        const isToday = key === marketingDateKey(new Date());
+        return `<section style="min-height:520px;border-right:1px solid #d9e2ec;background:${isToday ? "#eef5ff" : "#f9fbfe"};">
+          <div style="display:flex;justify-content:space-between;gap:8px;padding:12px;border-bottom:1px solid #d9e2ec;color:${isToday ? "#1d4ed8" : "#14213d"};"><strong>${escapeHtml(marketingFormatShortDate(day))}</strong><span class="badge">${escapeHtml(dayItems.length)}</span></div>
+          <div style="display:grid;gap:10px;padding:10px 10px 14px;">${dayItems.length ? dayItems.map(renderMarketingProductionCard).join("") : `<div class="empty-state" style="padding:18px 10px;background:transparent;border-style:dashed;">No content scheduled</div>`}</div>
+        </section>`;
+      }).join("")}
+    </div>
+  </section>`;
+}
+
+function renderMarketingCalendarWorkspace(selectedRuns = [], selectedAgentCard = null) {
+  const { lab, schedule } = getMarketingWorkspaceSnapshot(selectedRuns);
+  const platforms = Array.isArray(lab.platforms) ? lab.platforms : [];
+  const workspaceView = state.marketingCalendarWorkspaceView === "board" ? "board" : "calendar";
+  const items = getMarketingProductionItems(selectedRuns);
+  return `
+    <div data-aion-marketing-calendar-workspace="true" style="display:grid;gap:14px;">
+      <section class="panel large-panel" style="border-top:4px solid #2563eb;">
+        <div><div class="surface-eyebrow">ROLLING CONTENT PLAN</div><div class="panel-title" style="font-size:22px;margin-top:6px;">Keep the next seven days ready</div><div class="helper-text" style="margin-top:6px;">Create the content first, then approve it and allocate it to the calendar. Edited or approved content is never silently replaced.</div></div>
+        <div class="badge-row" style="margin-top:14px;"><span class="badge">${escapeHtml(schedule.length)} PLANNED</span>${platforms.map((platform) => `<span class="badge">${escapeHtml(String(platform).replaceAll("_", " "))}</span>`).join("")}</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:16px;"><button type="button" class="secondary-btn ${workspaceView === "board" ? "boardroom-view-btn-active" : ""}" data-marketing-calendar-workspace-view="board">Work in progress</button><button type="button" class="secondary-btn ${workspaceView === "calendar" ? "boardroom-view-btn-active" : ""}" data-marketing-calendar-workspace-view="calendar">Calendar</button><button type="button" class="primary-btn live-agents-view-btn" data-live-agents-view="${escapeHtml(LIVE_AGENT_VIEWS.CREATE)}" style="width:auto!important;min-width:0!important;min-height:0!important;flex:0 0 auto!important;display:inline-flex!important;padding:9px 13px!important;font-size:12px!important;line-height:1!important;">+ Create content</button></div>
+      </section>
+      ${workspaceView === "board" ? renderMarketingWorkInProgress(items) : renderMarketingWeeklyCalendar(items)}
+    </div>
+  `;
+}
+
+function renderMarketingCreateSurface(selectedRuns = [], selectedAgentCard = null) {
+  if (getAionMarketingCreativeLabState().templateBuilderOpen) {
+    return `<div data-aion-marketing-create="true" data-aion-marketing-template-builder-page="true">${renderMarketingBrandTemplateBuilder()}</div>`;
+  }
+  const hasEditableItem = Boolean(getAionMarketingEditableRun());
+  const briefPercent = Math.max(38, Math.min(68, Number(state.marketingCreateBriefPercent || 52)));
+  const currentRecord = hasEditableItem
+    ? `<section data-aion-marketing-current-record class="panel large-panel" style="margin:0;"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;"><div><div class="surface-eyebrow">CURRENT CONTENT RECORD</div><div class="panel-title" style="margin-top:6px;">Draft ready for review</div><div class="helper-text">Review, edit and schedule this content item. Its source product, evidence and approval trail remain attached.</div></div><span class="badge">DRAFT · OPEN</span></div><div style="margin-top:14px;">${renderAionMarketingContentStudio()}</div></section>`
+    : `<section data-aion-marketing-current-record class="panel large-panel" style="margin:0;min-height:320px;display:grid;place-items:center;text-align:center;"><div><div class="surface-eyebrow">CURRENT CONTENT RECORD</div><div class="panel-title" style="margin-top:7px;">Your draft will open here</div><div class="helper-text" style="max-width:420px;margin-top:7px;">Complete the brief on the left and generate a draft. The preview, edits, schedule and approval trail will stay together in this pane.</div></div></section>`;
+  return `
+    <div data-aion-marketing-create="true">
+      <style>
+        [data-aion-marketing-create-brief-pane] #manual-marketing-studio{margin-top:0!important}
+        [data-aion-marketing-create-record-pane] #marketing-content-calendar{margin-top:0!important}
+        @media(max-width:1180px){[data-aion-marketing-create-split]{display:block!important;height:auto!important}[data-aion-marketing-create-split-handle]{display:none!important}[data-aion-marketing-create-brief-pane],[data-aion-marketing-create-record-pane]{height:auto!important;max-height:none!important;overflow:visible!important;margin-bottom:16px!important}}
+      </style>
+      <div data-aion-marketing-create-split="${escapeHtml(briefPercent)}" style="display:grid;grid-template-columns:minmax(460px,${escapeHtml(briefPercent)}fr) 28px minmax(440px,${escapeHtml(100 - briefPercent)}fr);height:calc(100vh - 190px);min-height:680px;overflow:hidden;align-items:stretch;">
+        <section data-aion-marketing-create-brief-pane="true" style="min-width:0;height:100%;overflow:auto;padding:0 10px 40px 0;box-sizing:border-box;">${renderAionMarketingManualQuickStudio()}</section>
+        <div data-aion-marketing-create-split-handle="true" role="separator" tabindex="0" aria-label="Resize creator and current content record" aria-orientation="vertical" aria-valuemin="38" aria-valuemax="68" aria-valuenow="${escapeHtml(briefPercent)}" style="border-left:1px solid #d9e2ec;border-right:1px solid #d9e2ec;background:#f7f9fc;display:flex;justify-content:center;align-items:center;cursor:col-resize;touch-action:none;"><span aria-hidden="true" style="width:18px;height:76px;border:1px solid #bfd2fb;border-radius:9px;background:#eef5ff;color:#2563eb;display:flex;align-items:center;justify-content:center;font-weight:950;font-size:16px;line-height:.55;letter-spacing:-3px;user-select:none;">⋮<br>⋮</span></div>
+        <section data-aion-marketing-create-record-pane="true" style="min-width:0;height:100%;overflow:auto;padding:0 0 40px 10px;box-sizing:border-box;">${currentRecord}<details class="panel large-panel" style="margin-top:16px;" data-aion-marketing-advanced-production="true"><summary style="cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;"><div><div class="surface-eyebrow">ADVANCED PRODUCTION</div><div class="panel-title" style="margin-top:6px;">Generation providers and detailed creative controls</div><div class="helper-text">Use only when specialist rendering is required. Provider choice stays behind the requested capability.</div></div><span class="badge">OPTIONAL</span></summary><div style="margin-top:14px;">${renderAionMarketingCreativeLab()}</div></details></section>
+      </div>
+    </div>`;
+}
+
+(function installMarketingCreateSplitter() {
+  if (window.__tessarisMarketingCreateSplitterInstalled) return;
+  window.__tessarisMarketingCreateSplitterInstalled = true;
+  let activeSplit = null;
+  let activeHandle = null;
+  let pendingPercent = 52;
+  const clampPercent = (value) => Math.max(38, Math.min(68, Math.round(Number(value || 52))));
+  const applyPercent = (split, handle, value) => {
+    if (!split) return;
+    const percent = clampPercent(value);
+    split.dataset.aionMarketingCreateSplit = String(percent);
+    split.style.gridTemplateColumns = `minmax(460px,${percent}fr) 28px minmax(440px,${100 - percent}fr)`;
+    handle?.setAttribute("aria-valuenow", String(percent));
+    pendingPercent = percent;
+  };
+  const savePercent = () => {
+    safeAionDesktopPatch({ marketingCreateBriefPercent: pendingPercent });
+    desktopStore.persistCache();
+  };
+  const finishResize = () => {
+    if (!activeSplit) return;
+    savePercent();
+    activeSplit = null;
+    activeHandle = null;
+    document.body.style.removeProperty("cursor");
+    document.body.style.removeProperty("user-select");
+  };
+  window.addEventListener("pointerdown", (event) => {
+    const handle = event.target?.closest?.("[data-aion-marketing-create-split-handle]");
+    if (!handle) return;
+    const split = handle.closest("[data-aion-marketing-create-split]");
+    if (!split || window.innerWidth <= 1180) return;
+    event.preventDefault();
+    activeSplit = split;
+    activeHandle = handle;
+    pendingPercent = clampPercent(split.dataset.aionMarketingCreateSplit || state.marketingCreateBriefPercent || 52);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    handle.setPointerCapture?.(event.pointerId);
+  }, true);
+  window.addEventListener("pointermove", (event) => {
+    if (!activeSplit) return;
+    event.preventDefault();
+    const bounds = activeSplit.getBoundingClientRect();
+    if (!bounds.width) return;
+    applyPercent(activeSplit, activeHandle, ((event.clientX - bounds.left) / bounds.width) * 100);
+  }, true);
+  window.addEventListener("pointerup", finishResize, true);
+  window.addEventListener("pointercancel", finishResize, true);
+  window.addEventListener("keydown", (event) => {
+    const handle = event.target?.closest?.("[data-aion-marketing-create-split-handle]");
+    if (!handle || !["ArrowLeft", "ArrowRight", "Home"].includes(event.key)) return;
+    event.preventDefault();
+    const split = handle.closest("[data-aion-marketing-create-split]");
+    const current = clampPercent(split?.dataset.aionMarketingCreateSplit || state.marketingCreateBriefPercent || 52);
+    const next = event.key === "Home" ? 52 : current + (event.key === "ArrowLeft" ? -2 : 2);
+    applyPercent(split, handle, next);
+    savePercent();
+  }, true);
+  window.addEventListener("dblclick", (event) => {
+    const handle = event.target?.closest?.("[data-aion-marketing-create-split-handle]");
+    if (!handle) return;
+    event.preventDefault();
+    const split = handle.closest("[data-aion-marketing-create-split]");
+    applyPercent(split, handle, 52);
+    savePercent();
+  }, true);
+})();
+
+function renderMarketingVisualLibrarySurface(selectedRuns = []) {
+  const lab = getAionMarketingCreativeLabState();
+  const savedItems = (Array.isArray(lab.savedLibraryItems) ? lab.savedLibraryItems : []).map((item) => ({
+    ...item,
+    status: "saved",
+    platform: item.platform || MARKETING_CREATE_TEMPLATES[item.templateKey]?.platform || "facebook_feed",
+    date: item.savedAt || "",
+  }));
+  const scheduledItems = (Array.isArray(lab.plan?.campaign_schedule) ? lab.plan.campaign_schedule : []).map((item) => ({
+    id: String(item.id || "scheduled_" + (item.run_id || item.scheduled_for || Date.now())),
+    title: item.title || item.theme || item.platform_label || "Scheduled content",
+    caption: item.caption || item.direction || item.theme || "",
+    imageUrl: item.image_url || "",
+    templateKey: item.template_key || "",
+    platform: item.platform || "facebook_feed",
+    status: ["published", "posted", "live"].includes(String(item.status || "").toLowerCase()) ? "posted" : "scheduled",
+    date: item.scheduled_for || "",
+  }));
+  const postedItems = (Array.isArray(selectedRuns) ? selectedRuns : []).flatMap((run) => {
+    const resultPayload = getRunResultPayload(run);
+    const postPackage = getRunPostPackage(run) || {};
+    const publishResult = asRecord(resultPayload.publish_result) || asRecord(postPackage.publish_result) || {};
+    const publicationStatus = String(run.publication_status || publishResult.status || "").toLowerCase();
+    if (!["published", "posted", "live"].includes(publicationStatus)) return [];
+    return [{
+      id: "posted_" + String(run.id || Date.now()),
+      title: String(postPackage.title || postPackage.caption || "Published content").split(/[.!?\n]/)[0].slice(0, 90),
+      caption: String(postPackage.caption || ""),
+      imageUrl: getRunGeneratedImageUrl(run) || "",
+      platform: String(postPackage.channel || postPackage.channels?.[0] || run.platform || "facebook_feed"),
+      status: "posted",
+      date: publishResult.published_at || run.published_at || run.updated_at || "",
+    }];
+  });
+  const itemMap = new Map();
+  [...scheduledItems, ...postedItems, ...savedItems].forEach((item) => itemMap.set(String(item.id), item));
+  const items = Array.from(itemMap.values()).sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+  const normalizePlatform = (value) => {
+    const platform = String(value || "").toLowerCase();
+    if (platform.includes("instagram")) return "instagram";
+    if (platform.includes("linkedin")) return "linkedin";
+    if (platform.includes("google")) return "google";
+    if (platform.includes("tiktok")) return "tiktok";
+    if (platform.includes("youtube")) return "youtube";
+    return "facebook";
+  };
+  const platformLabels = { facebook: "Facebook", instagram: "Instagram", linkedin: "LinkedIn", google: "Google Business", tiktok: "TikTok", youtube: "YouTube" };
+  const availablePlatforms = [...new Set(items.map((item) => normalizePlatform(item.platform || item.templateKey)))];
+  const statusFilter = ["all", "saved", "scheduled", "posted"].includes(String(state.marketingLibraryStatusFilter || "")) ? String(state.marketingLibraryStatusFilter) : "all";
+  const platformFilter = ["all", ...availablePlatforms].includes(String(state.marketingLibraryPlatformFilter || "")) ? String(state.marketingLibraryPlatformFilter) : "all";
+  const visibleItems = items.filter((item) => (statusFilter === "all" || item.status === statusFilter) && (platformFilter === "all" || normalizePlatform(item.platform || item.templateKey) === platformFilter));
+  const statusLabels = { all: "All", saved: "Saved", scheduled: "Scheduled", posted: "Posted" };
+  const counts = {
+    all: items.length,
+    saved: items.filter((item) => item.status === "saved").length,
+    scheduled: items.filter((item) => item.status === "scheduled").length,
+    posted: items.filter((item) => item.status === "posted").length,
+  };
+  const statusFilters = Object.keys(statusLabels).map((key) =>
+    "<button type=\"button\" class=\"marketing-library-filter-button" + (statusFilter === key ? " is-active" : "") + "\" data-marketing-library-status-filter=\"" + escapeHtml(key) + "\">" + escapeHtml(statusLabels[key]) + " <span>" + escapeHtml(counts[key]) + "</span></button>"
+  ).join("");
+  const platformFilters = "<button type=\"button\" class=\"marketing-library-filter-button" + (platformFilter === "all" ? " is-active" : "") + "\" data-marketing-library-platform-filter=\"all\">All platforms</button>" + availablePlatforms.map((key) =>
+    "<button type=\"button\" class=\"marketing-library-filter-button" + (platformFilter === key ? " is-active" : "") + "\" data-marketing-library-platform-filter=\"" + escapeHtml(key) + "\">" + escapeHtml(platformLabels[key] || key) + "</button>"
+  ).join("");
+  const cards = visibleItems.map((item) => {
+    const platform = normalizePlatform(item.platform || item.templateKey);
+    const title = item.title || String(item.caption || "Marketing content").split(/[.!?\n]/)[0];
+    const statusLabel = statusLabels[item.status] || "Saved";
+    const image = item.imageUrl
+      ? "<img src=\"" + escapeHtml(toRuntimeAssetUrl(item.imageUrl)) + "\" alt=\"" + escapeHtml(title) + "\" style=\"display:block;width:100%;height:auto;max-height:520px;object-fit:cover;background:#e8eef8;\" />"
+      : "<div style=\"min-height:220px;display:flex;align-items:flex-end;padding:18px;background:linear-gradient(145deg,#dbeafe,#eff6ff 55%,#d1fae5);color:#14213d;\"><strong style=\"font-size:22px;line-height:1.15;\">" + escapeHtml(title || "Saved marketing content") + "</strong></div>";
+    const tone = item.status === "posted" ? ["#dcfce7", "#166534"] : item.status === "scheduled" ? ["#fef3c7", "#92400e"] : ["#dbeafe", "#1d4ed8"];
+    return "<article data-marketing-library-card=\"" + escapeHtml(item.id) + "\" data-marketing-library-card-status=\"" + escapeHtml(item.status) + "\" data-marketing-library-card-platform=\"" + escapeHtml(platform) + "\" style=\"display:inline-block;width:100%;break-inside:avoid;margin:0 0 14px;border:1px solid #d9e2ec;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,.06);\">" + image +
+      "<div style=\"padding:13px 14px 15px;\"><div style=\"display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;\"><span class=\"badge\">" + escapeHtml(platformLabels[platform] || platform) + "</span><span class=\"badge\" style=\"background:" + tone[0] + ";color:" + tone[1] + ";\">" + escapeHtml(statusLabel) + "</span></div>" +
+      "<div style=\"font-weight:900;font-size:15px;line-height:1.25;margin-top:10px;\">" + escapeHtml(title || "Marketing content") + "</div>" +
+      (item.caption ? "<div class=\"helper-text\" style=\"margin-top:7px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap;\">" + escapeHtml(item.caption) + "</div>" : "") +
+      (item.date ? "<div class=\"helper-text\" style=\"margin-top:10px;\">" + escapeHtml(formatDateTime(item.date)) + "</div>" : "") + "</div></article>";
+  }).join("");
+  return "<section class=\"panel large-panel marketing-content-library\" data-marketing-visual-library=\"true\">" +
+    "<div class=\"marketing-library-heading\"><div><div class=\"surface-eyebrow\">CONTENT LIBRARY</div><div class=\"panel-title\">Saved, scheduled and posted content</div><div class=\"helper-text\">Browse your finished creative by status and platform.</div></div><button type=\"button\" class=\"primary-btn live-agents-view-btn marketing-library-create-button\" data-live-agents-view=\"" + escapeHtml(LIVE_AGENT_VIEWS.CREATE) + "\">+ Create content</button></div>" +
+    "<div class=\"marketing-library-toolbar\">" +
+      "<div class=\"marketing-library-filter-group\"><span class=\"marketing-library-filter-label\">Status</span><div class=\"marketing-library-filter-row\" aria-label=\"Filter content by status\">" + statusFilters + "</div></div>" +
+      "<div class=\"marketing-library-filter-group\"><span class=\"marketing-library-filter-label\">Platform</span><div class=\"marketing-library-filter-row\" aria-label=\"Filter content by platform\">" + platformFilters + "</div></div>" +
+    "</div>" +
+    (cards ? "<div data-marketing-library-board=\"true\" style=\"columns:4 250px;column-gap:14px;margin-top:18px;\">" + cards + "</div>" : "<div class=\"marketing-library-empty\"><strong>No content here yet</strong><span>Save a draft from Create, or choose another status or platform.</span></div>") +
+    "</section>";
+}
+
+function renderMarketingLibrarySurface(selectedRuns = [], selectedAgentCard = null) {
+  const foundation = typeof buildBrandFoundationPayload === "function" ? (buildBrandFoundationPayload() || {}) : {};
+  const assets = Array.isArray(getAionMarketingCreativeLabState().strategyAssets) ? getAionMarketingCreativeLabState().strategyAssets : [];
+  return `
+    <div data-aion-marketing-library="true" style="display:grid;gap:14px;">
+      ${renderMarketingVisualLibrarySurface(selectedRuns)}
+      <section class="panel large-panel" style="border-top:4px solid #2563eb;"><div style="display:flex;align-items:start;justify-content:space-between;gap:16px;flex-wrap:wrap;"><div><div class="surface-eyebrow">MARKETING LIBRARY</div><div class="panel-title" style="font-size:22px;margin-top:6px;">Approved brand, templates and source assets</div><div class="helper-text" style="margin-top:6px;">Marketing Pilot and connected AI tools use these rules automatically whenever they create content.</div></div><button type="button" class="secondary-btn" data-aion-business-context-open-branding="true">Open Brand Foundation</button></div></section>
+      <div class="aion-marketing-library-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start;">
+        <section class="panel large-panel"><div class="surface-eyebrow">BRAND FOUNDATION</div><div class="panel-title" style="margin-top:6px;">Voice and identity</div><div class="list-wrap" style="margin-top:12px;"><div class="list-item"><div class="list-item-title">Business</div><div class="list-item-sub">${escapeHtml(foundation.business_name || foundation.name || "Not yet defined")}</div></div><div class="list-item"><div class="list-item-title">Tone of voice</div><div class="list-item-sub">${escapeHtml(foundation.tone_of_voice || foundation.voice_tone || "Not yet defined")}</div></div><div class="list-item"><div class="list-item-title">Priority audience</div><div class="list-item-sub">${escapeHtml(foundation.target_customers || foundation.target_audience || "Not yet defined")}</div></div></div></section>
+        <section class="panel large-panel"><div class="surface-eyebrow">CONTENT RECIPES</div><div class="panel-title" style="margin-top:6px;">Reusable templates</div><div class="list-wrap" style="margin-top:12px;"><div class="list-item"><div class="list-item-title">Real project proof</div><div class="list-item-sub">Problem → work → evidence → result → enquiry</div></div><div class="list-item"><div class="list-item-title">Service explainer</div><div class="list-item-sub">Customer question → answer → approved claim → action</div></div><div class="list-item"><div class="list-item-title">Offer carousel</div><div class="list-item-sub">Hook → benefits → proof → next step</div></div></div><div class="helper-text" style="margin-top:10px;">Recipes define format and evidence requirements; they do not grant permission to publish.</div></section>
+        <section class="panel large-panel"><div class="surface-eyebrow">SOURCE ASSETS</div><div class="panel-title" style="margin-top:6px;">Campaign evidence</div>${assets.length ? `<div class="list-wrap" style="margin-top:12px;">${assets.slice(0, 6).map((asset) => `<div class="list-item"><div class="list-item-title">${escapeHtml(asset.name || asset.label || "Marketing asset")}</div><div class="list-item-sub">${escapeHtml(asset.type || "Approved source")}</div></div>`).join("")}</div>` : `<div class="empty-state" style="margin-top:12px;">No campaign source assets have been attached yet.</div>`}</section>
+      </div>
+      <section class="panel large-panel"><div style="display:flex;align-items:start;justify-content:space-between;gap:14px;flex-wrap:wrap;"><div><div class="surface-eyebrow">CHANNELS AND PROVIDERS</div><div class="panel-title" style="margin-top:6px;">Manage connections outside the creative workflow</div><div class="helper-text">Users request an image, voiceover or vertical video. Provider credentials, availability and cost controls belong in Connections.</div></div><button type="button" class="secondary-btn app-tab" data-tab="vault">Open Connections</button></div></section>
+    </div>
+  `;
 }
 
 function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
   const lab = getAionMarketingCreativeLabState();
-  if (!lab.campaignResult && Array.isArray(selectedRuns)) {
-    const activeWorkspaceId = String(getActiveWorkspaceId() || "");
-    const latestCampaignRun = selectedRuns.find((run) => {
+  const activeWorkspaceId = String(getActiveWorkspaceId() || "");
+  const canvasWasCleared = Boolean((state.marketingForm || {}).aionCampaignCanvasCleared) || isAionMarketingCanvasDurablyCleared();
+  const latestCampaignRun = Array.isArray(selectedRuns) ? selectedRuns.find((run) => {
       const workspaceMatches = !run?.workspace_id || String(run.workspace_id) === activeWorkspaceId;
       const isMarketing = String(run?.department_key || "").toLowerCase() === "marketing" || String(run?.workflow_name || "").toLowerCase().includes("marketing");
       return workspaceMatches && isMarketing && ["completed", "waiting_approval"].includes(String(run?.status || ""));
-    });
-    if (latestCampaignRun) {
+    }) : null;
+  const currentSourceAssets = Array.isArray(lab.campaignResult?.input_payload?.creative_assets) ? lab.campaignResult.input_payload.creative_assets : [];
+  const latestSourceAssets = Array.isArray(latestCampaignRun?.input_payload?.creative_assets) ? latestCampaignRun.input_payload.creative_assets : [];
+  const shouldHydrateLatestRun = !canvasWasCleared && latestCampaignRun && (
+    !lab.campaignResult ||
+    (String(lab.campaignResult?.id || "") === String(latestCampaignRun.id || "") && currentSourceAssets.length === 0 && latestSourceAssets.length > 0)
+  );
+  if (shouldHydrateLatestRun) {
       lab.campaignResult = compactAionMarketingRun(latestCampaignRun);
       lab.campaignRunId = latestCampaignRun.id || "";
       lab.campaignApprovalId = latestCampaignRun.approval_request_id || "";
@@ -57441,7 +62521,7 @@ function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
         void apiGet(`/api/local-node/runs/${encodeURIComponent(latestCampaignRun.id)}?workspace_id=${workspaceId}&marketing_view=true`)
           .then((payload) => {
             const hydrated = payload?.item || payload;
-            if (!hydrated?.id) return;
+            if (!hydrated?.id || isAionMarketingCanvasDurablyCleared()) return;
             lab.campaignResult = compactAionMarketingRun(hydrated);
             lab.campaignRunId = hydrated.id;
             lab.campaignApprovalId = hydrated.approval_request_id || "";
@@ -57450,7 +62530,23 @@ function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
           })
           .catch((error) => { lab.campaignError = String(error?.message || error); requestRender(); });
       }
-    }
+  }
+  const currentRunId = String(lab.campaignResult?.id || lab.campaignRunId || "").trim();
+  const hydratedSourceAssets = Array.isArray(lab.campaignResult?.input_payload?.creative_assets) ? lab.campaignResult.input_payload.creative_assets : [];
+  if (!canvasWasCleared && currentRunId && hydratedSourceAssets.length === 0 && window.__aionMarketingRunHydrationId !== currentRunId) {
+    window.__aionMarketingRunHydrationId = currentRunId;
+    const workspaceId = encodeURIComponent(activeWorkspaceId || "workspace");
+    void apiGet(`/api/local-node/runs/${encodeURIComponent(currentRunId)}?workspace_id=${workspaceId}&marketing_view=true`)
+      .then((payload) => {
+        const hydrated = payload?.item || payload;
+        if (!hydrated?.id || isAionMarketingCanvasDurablyCleared()) return;
+        lab.campaignResult = compactAionMarketingRun(hydrated);
+        lab.campaignRunId = hydrated.id;
+        lab.campaignApprovalId = hydrated.approval_request_id || "";
+        persistAionMarketingCampaignState(lab);
+        requestRender();
+      })
+      .catch((error) => { lab.campaignError = String(error?.message || error); requestRender(); });
   }
   const artifacts = getAionPilotMarketingWorkspaceArtifacts();
   const groupedArtifacts = groupAionPilotMarketingArtifacts(artifacts);
@@ -57488,18 +62584,18 @@ function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
     `;
 
   return `
-    <div data-aion-phase23y-pilot-marketing-workspace data-aion-shared-department-pilot="true" data-aion-shared-department="marketing">
+    <div data-aion-phase23y-pilot-marketing-workspace data-aion-marketing-automation-studio="true" data-aion-shared-department-pilot="true" data-aion-shared-department="marketing">
       <style>
         [data-aion-phase23y-pilot-marketing-workspace] .primary-btn {
-          background:#0284c7 !important;
-          border-color:#0284c7 !important;
+          background:#2864eb !important;
+          border-color:#2864eb !important;
           color:#ffffff !important;
-          box-shadow:none !important;
+          box-shadow:0 5px 13px rgba(40,100,235,.18) !important;
         }
         [data-aion-phase23y-pilot-marketing-workspace] .primary-btn:hover,
         [data-aion-phase23y-pilot-marketing-workspace] .primary-btn:focus {
-          background:#0369a1 !important;
-          border-color:#0369a1 !important;
+          background:#1f55d5 !important;
+          border-color:#1f55d5 !important;
           color:#ffffff !important;
         }
         [data-aion-phase23y-pilot-marketing-workspace] .primary-btn:disabled {
@@ -57508,36 +62604,7 @@ function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
           color:#64748b !important;
         }
       </style>
-      ${renderDepartmentCompactDirectorCard("marketing")}
-      ${renderAionO14KCollapsedPackageDockUnderBoardroom("marketing")}
-
-      ${renderAionMarketingDirectorBrief()}
-
-      <div class="panel large-panel" data-aion-marketing-automation-studio="true" style="background:#ffffff;border:2px solid #0ea5e9;border-top-width:4px;margin-top:18px;">
-        <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;background:#f8fcff;border-bottom:1px solid #bae6fd;padding:18px;"><div><div style="color:#087f5b;font-size:10px;letter-spacing:.22em;font-weight:950;">AION CAMPAIGN COMMAND</div>
-        <div class="panel-title" style="margin-top:7px;">Tell AION the result; AION runs the campaign build</div></div><div style="display:flex;gap:7px;"><button type="button" class="primary-btn">AION runs it</button><button type="button" class="secondary-btn" data-aion-scroll-manual-marketing>Create manually</button></div></div>
-        <div class="helper-text">
-          The Boardroom package sets the objective and commercial reason. The CMO adds the campaign approach, product/service, story, audience, evidence and required original assets. A direct instruction is treated as a proposal against that strategy—not permission to generate unsupported content. Nothing is published without approval.
-        </div>
-
-        <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-top:14px;">
-          <label style="display:grid;gap:7px;color:#334e68;font-size:11px;font-weight:850;">
-            What result should Marketing produce?
-            <textarea data-aion-phase23y-persistent-pilot-terminal-input class="input" style="min-height:82px;resize:vertical;" placeholder="Example: Create a two-week Facebook and Instagram campaign for HomeFixed bathroom renovations in Almería, aimed at homeowners ready to request a quote.">${escapeHtml(pilotState.last_request || "")}</textarea>
-          </label>
-          <button type="button" class="primary-btn" data-aion-phase23y-persistent-pilot-start style="min-height:44px;padding:0 20px;">Plan & create campaign</button>
-        </div>
-        ${renderAionMarketingCampaignJourney()}
-      </div>
-
-      ${renderAionMarketingContentStudio()}
-
-      ${renderAionMarketingCreativeLab()}
-
-      ${renderAionMarketingManualQuickStudio()}
-
-      ${renderAionMarketingConnectionsCentre()}
-
+      ${renderMarketingOverviewSurface(selectedRuns, selectedAgentCard)}
     </div>
   `;
 }
@@ -57659,6 +62726,80 @@ if (!window.__aionPhase23YMarketingWorkspaceHandlersInstalled) {
 
   document.addEventListener("change", (event) => {
     const lab = getAionMarketingCreativeLabState();
+    if (event.target?.matches?.("[data-marketing-persona-select]")) {
+      const selectedIds = Array.from(document.querySelectorAll("[data-marketing-persona-select]:checked"))
+        .map((input) => String(input.dataset.marketingPersonaSelect || ""))
+        .filter(Boolean);
+      const selectedPersonas = getAionAudiencePersonas().filter((persona) => selectedIds.includes(String(persona.id)));
+      desktopStore.setMarketingField("selectedPersonaIds", selectedIds);
+      desktopStore.persistCache();
+      const audienceNames = selectedPersonas.map((persona) => persona.name).join(", ");
+      const summary = document.querySelector("[data-marketing-persona-summary-text]");
+      const description = document.querySelector("[data-marketing-persona-selection-description]");
+      if (summary) summary.textContent = audienceNames || "Select audience";
+      if (description) description.textContent = selectedPersonas.length
+        ? `${selectedPersonas.length} saved persona${selectedPersonas.length === 1 ? "" : "s"} selected`
+        : "Choose one or more saved personas";
+      const label = event.target.closest("label");
+      if (label) label.style.background = event.target.checked ? "#eff6ff" : "#fff";
+      return;
+    }
+    if (event.target?.matches?.("[data-marketing-branded-template-select]")) {
+      lab.selectedBrandedTemplateId = String(event.target.value || "");
+      persistAionMarketingCampaignState(lab);
+      requestRender();
+      return;
+    }
+    if (event.target?.matches?.("[data-marketing-template-builder-assets]")) {
+      const files = Array.from(event.target.files || []);
+      if (!files.length) return;
+      const form = new FormData();
+      files.forEach((file) => form.append("files", file));
+      const workspaceId = encodeURIComponent(String(getActiveWorkspaceId() || state.workspaceId || "workspace"));
+      lab.templateBuilderBusy = true;
+      lab.templateBuilderError = "";
+      requestRender();
+      void fetch(`http://127.0.0.1:8080/api/local-node/marketing/assets/upload?workspace_id=${workspaceId}`, { method: "POST", body: form })
+        .then(async (response) => { const body = await response.json(); if (!response.ok) throw new Error(body?.detail || "Inspiration upload failed"); return body; })
+        .then((body) => { lab.templateBuilderAssets = [...(lab.templateBuilderAssets || []), ...(body?.items || []).map((item) => ({ ...item, type: "reference" }))]; })
+        .catch((error) => { lab.templateBuilderError = String(error?.message || error); })
+        .finally(() => { lab.templateBuilderBusy = false; requestRender(); });
+      return;
+    }
+    if (event.target?.matches?.("[data-marketing-content-objective]")) {
+      const objective = String(event.target.value || "Generate enquiries");
+      const campaignType = objective === "Promote a product or service"
+        ? "product_service"
+        : objective === "Promote an offer"
+          ? "offer"
+        : objective === "Educate and build trust"
+          ? "educational"
+          : "brand_story";
+      lab.campaignType = campaignType;
+      lab.assetReadiness = ["offer", "product_service"].includes(campaignType) ? "needs_assets" : "verified_sources";
+      desktopStore.setMarketingField("objective", objective);
+      desktopStore.setMarketingField("campaignType", campaignType);
+      desktopStore.setMarketingField("assetReadiness", lab.assetReadiness);
+      persistAionMarketingCampaignState(lab);
+      requestRender();
+      return;
+    }
+    if (event.target?.matches?.("[data-marketing-product-offering]")) {
+      const offeringId = String(event.target.value || "");
+      lab.subjectOfferingId = offeringId;
+      lab.campaignType = "product_service";
+      const offering = getAionMarketingOfferings().find((item) => String(item.id || item.name) === offeringId) || null;
+      lab.assetReadiness = offering?.primary_image_url || offering?.image_url || offering?.primary_image_file_path ? "assets_uploaded" : "needs_assets";
+      if (offering) {
+        const currency = window.AionOperatingModelWorkspace?.state?.model?.currency || "EUR";
+        const currentOffer = cleanMarketingLegacySeed("offer", state.marketingForm?.offer);
+        if (!currentOffer) desktopStore.setMarketingField("offer", `${offering.name}${offering.price !== "" && offering.price != null ? ` · ${offering.price} ${currency}` : ""}`);
+        desktopStore.setMarketingField("destinationUrl", String(offering.product_url || offering.url || ""));
+      }
+      persistAionMarketingCampaignState(lab);
+      requestRender();
+      return;
+    }
     const connectionTier = event.target?.dataset?.aionConnectionTier;
     if (connectionTier) {
       aionMarketingConnectionState.tiers[connectionTier] = String(event.target.value || "analytics");
@@ -57780,6 +62921,31 @@ if (!window.__aionPhase23YMarketingWorkspaceHandlersInstalled) {
   }, true);
 
   document.addEventListener("input", (event) => {
+    if (event.target?.matches?.("[data-marketing-template-builder-description]")) {
+      getAionMarketingCreativeLabState().templateBuilderDescription = String(event.target.value || "");
+      return;
+    }
+    if (event.target?.matches?.("[data-marketing-template-builder-inspiration-notes]")) {
+      getAionMarketingCreativeLabState().templateBuilderInspirationNotes = String(event.target.value || "");
+      return;
+    }
+    if (event.target?.matches?.("[data-marketing-template-builder-name]")) {
+      getAionMarketingCreativeLabState().templateBuilderName = String(event.target.value || "");
+      return;
+    }
+    if (event.target?.matches?.("[data-marketing-specification-field]")) {
+      const lab = getAionMarketingCreativeLabState();
+      const templateKey = MARKETING_CREATE_TEMPLATES[lab.createTemplate] ? lab.createTemplate : "facebook_feed";
+      const field = String(event.target.dataset.marketingSpecificationField || "");
+      if (!["canvasSize", "aspectRatio", "copyStructure", "creativeDirection"].includes(field)) return;
+      lab.templateOverrides = lab.templateOverrides && typeof lab.templateOverrides === "object" ? lab.templateOverrides : {};
+      lab.templateOverrides[templateKey] = { ...(lab.templateOverrides[templateKey] || {}), [field]: String(event.target.value || "") };
+      desktopStore.setMarketingField("templateOverrides", lab.templateOverrides);
+      desktopStore.persistCache();
+      const resetButton = document.querySelector("[data-marketing-reset-specification]");
+      if (resetButton) resetButton.disabled = false;
+      return;
+    }
     if (event.target?.matches?.("[data-aion-strategy-input]")) {
       const lab = getAionMarketingCreativeLabState();
       const field = String(event.target.dataset.aionStrategyInput || "");
@@ -57902,6 +63068,150 @@ if (!window.__aionPhase23YMarketingWorkspaceHandlersInstalled) {
   document.addEventListener("click", (event) => {
     const workspaceId = encodeURIComponent(String(getActiveWorkspaceId() || "workspace"));
     const lab = getAionMarketingCreativeLabState();
+    const libraryStatusFilter = event.target?.closest?.("[data-marketing-library-status-filter]");
+    if (libraryStatusFilter) {
+      event.preventDefault(); event.stopPropagation();
+      state.marketingLibraryStatusFilter = String(libraryStatusFilter.dataset.marketingLibraryStatusFilter || "all");
+      safeAionDesktopPatch({ marketingLibraryStatusFilter: state.marketingLibraryStatusFilter });
+      requestRender();
+      return;
+    }
+    const libraryPlatformFilter = event.target?.closest?.("[data-marketing-library-platform-filter]");
+    if (libraryPlatformFilter) {
+      event.preventDefault(); event.stopPropagation();
+      state.marketingLibraryPlatformFilter = String(libraryPlatformFilter.dataset.marketingLibraryPlatformFilter || "all");
+      safeAionDesktopPatch({ marketingLibraryPlatformFilter: state.marketingLibraryPlatformFilter });
+      requestRender();
+      return;
+    }
+    const clearCanvas = event.target?.closest?.("[data-aion-clear-marketing-canvas]");
+    if (clearCanvas) {
+      event.preventDefault(); event.stopPropagation();
+      clearAionMarketingCanvas();
+      safeAionDesktopMessage("Marketing canvas cleared. Saved Library content was not removed.", "success");
+      requestRender();
+      return;
+    }
+    const saveCurrentToLibrary = event.target?.closest?.("[data-aion-save-current-to-library]");
+    if (saveCurrentToLibrary) {
+      event.preventDefault(); event.stopPropagation();
+      const run = getAionMarketingEditableRun();
+      const postPackage = run ? (getRunPostPackage(run) || {}) : {};
+      const caption = String(lab.editorCaption || postPackage.caption || "").trim();
+      const template = MARKETING_CREATE_TEMPLATES[lab.createTemplate] || MARKETING_CREATE_TEMPLATES.facebook_feed;
+      if (!run || !caption) {
+        safeAionDesktopMessage("Create a draft before saving it to the Library.", "warning");
+        return;
+      }
+      const savedItem = {
+        id: "saved_content_" + String(run.id || Date.now()) + "_" + String(lab.createTemplate || "facebook_feed"),
+        title: template.label + " · " + (caption.split(/[.!?\n]/)[0] || "Saved content").slice(0, 70),
+        channel: template.label,
+        platform: template.platform,
+        format: template.format,
+        caption,
+        imageUrl: getRunGeneratedImageUrl(run) || "",
+        templateKey: lab.createTemplate || "facebook_feed",
+        sourceRunId: String(run.id || lab.campaignRunId || ""),
+        status: "saved",
+        savedAt: new Date().toISOString(),
+      };
+      lab.savedLibraryItems = [
+        savedItem,
+        ...(Array.isArray(lab.savedLibraryItems) ? lab.savedLibraryItems : []).filter((item) => String(item.id || "") !== savedItem.id),
+      ].slice(0, 100);
+      lab.strategyAssets = [{
+        id: savedItem.id,
+        type: "Saved content",
+        label: savedItem.title,
+        url: savedItem.imageUrl,
+        notes: savedItem.caption,
+      }, ...(Array.isArray(lab.strategyAssets) ? lab.strategyAssets : []).filter((item) => String(item.id || "") !== savedItem.id)];
+      lab.campaignMessage = "Saved to the Marketing Library.";
+      persistAionMarketingCampaignState(lab);
+      safeAionDesktopMessage("Content saved to the Marketing Library.", "success");
+      requestRender();
+      return;
+    }
+    const manualPostCurrent = event.target?.closest?.("[data-aion-manual-post-current]");
+    if (manualPostCurrent) {
+      event.preventDefault(); event.stopPropagation();
+      const run = getAionMarketingEditableRun();
+      const postPackage = run ? (getRunPostPackage(run) || {}) : {};
+      const caption = String(lab.editorCaption || postPackage.caption || "").trim();
+      const templateKey = String(lab.createTemplate || "facebook_feed");
+      const channelUrls = {
+        facebook_feed: "https://www.facebook.com/",
+        instagram_feed: "https://www.instagram.com/",
+        instagram_carousel: "https://www.instagram.com/",
+        linkedin_feed: "https://www.linkedin.com/feed/",
+        google_business: "https://business.google.com/",
+        facebook_video: "https://www.facebook.com/",
+        instagram_reel: "https://www.instagram.com/",
+        tiktok_video: "https://www.tiktok.com/",
+        youtube_short: "https://studio.youtube.com/",
+        linkedin_video: "https://www.linkedin.com/feed/",
+      };
+      if (!caption) {
+        safeAionDesktopMessage("Create a draft before preparing a manual post.", "warning");
+        return;
+      }
+      Promise.resolve(navigator.clipboard?.writeText?.(caption))
+        .catch(() => null)
+        .then(() => window.aionDesktop?.openExternalUrl?.(channelUrls[templateKey] || channelUrls.facebook_feed))
+        .then(() => safeAionDesktopMessage("Post copy copied. Complete the post in the channel you opened; Tessaris has not published it.", "success"))
+        .catch((error) => safeAionDesktopMessage("The channel could not be opened: " + String(error?.message || error), "error"));
+      return;
+    }
+    const scheduleCurrentContent = event.target?.closest?.("[data-aion-schedule-current-content]");
+    if (scheduleCurrentContent) {
+      event.preventDefault(); event.stopPropagation();
+      const scheduleValue = String(document.querySelector("[data-aion-content-editor-schedule]")?.value || lab.editorSchedule || "").trim();
+      const run = getAionMarketingEditableRun();
+      if (!run) {
+        safeAionDesktopMessage("Create a draft before scheduling it.", "warning");
+        return;
+      }
+      if (!scheduleValue) {
+        safeAionDesktopMessage("Choose the first publication date and time, then schedule the content.", "warning");
+        document.querySelector("[data-aion-content-editor-schedule]")?.focus?.();
+        return;
+      }
+      const template = MARKETING_CREATE_TEMPLATES[lab.createTemplate] || MARKETING_CREATE_TEMPLATES.facebook_feed;
+      const postPackage = getRunPostPackage(run) || {};
+      const scheduledFor = new Date(scheduleValue).toISOString();
+      const itemId = "scheduled_content_" + String(run.id || Date.now());
+      const existingSchedule = Array.isArray(lab.plan?.campaign_schedule) ? lab.plan.campaign_schedule : [];
+      lab.editorSchedule = scheduleValue;
+      lab.plan = {
+        ...(lab.plan || {}),
+        campaign_schedule: [
+          ...existingSchedule.filter((item) => String(item.id || "") !== itemId),
+          {
+            id: itemId,
+            title: String(postPackage.caption || template.label).slice(0, 90),
+            theme: String(postPackage.caption || template.label).split(/[.!?\n]/)[0].slice(0, 90),
+            platform: template.platform,
+            platform_label: template.label,
+            format: template.format,
+            template_key: lab.createTemplate || "facebook_feed",
+            caption: String(lab.editorCaption || postPackage.caption || ""),
+            image_url: getRunGeneratedImageUrl(run) || "",
+            scheduled_for: scheduledFor,
+            status: "scheduled",
+            run_id: run.id || "",
+          },
+        ],
+      };
+      if (lab.campaignResult) lab.campaignResult.scheduled_for = scheduledFor;
+      persistAionMarketingCampaignState(lab);
+      state.liveAgentsView = LIVE_AGENT_VIEWS.CALENDAR;
+      safeAionDesktopPatch({ liveAgentsView: LIVE_AGENT_VIEWS.CALENDAR });
+      desktopStore.persistCache();
+      safeAionDesktopMessage("Content scheduled on the Marketing calendar. It has not been published.", "success");
+      requestRender();
+      return;
+    }
     const prepareAssetRequest = event.target?.closest?.("[data-aion-prepare-asset-request]");
     if (prepareAssetRequest) {
       event.preventDefault(); event.stopPropagation();
@@ -58202,7 +63512,12 @@ if (!window.__aionPhase23YMarketingWorkspaceHandlersInstalled) {
       event.preventDefault();
       event.stopPropagation();
 
-      const input = document.querySelector("[data-aion-phase23y-persistent-pilot-terminal-input]");
+      const inputScope = startPilotTask.closest(
+        "[data-aion-marketing-pilot-pane], [data-aion-marketing-automation-studio]",
+      );
+      const input = inputScope?.querySelector?.(
+        "[data-aion-phase23y-persistent-pilot-terminal-input]",
+      ) || document.querySelector("[data-aion-phase23y-persistent-pilot-terminal-input]");
       const value = String(input?.value || "").trim();
 
       if (value) {
@@ -58222,15 +63537,225 @@ if (!window.__aionPhase23YMarketingWorkspaceHandlersInstalled) {
       return;
     }
 
+    const openTemplateBuilder = event.target?.closest?.("[data-marketing-open-template-builder]");
+    if (openTemplateBuilder) {
+      event.preventDefault();
+      event.stopPropagation();
+      const lab = getAionMarketingCreativeLabState();
+      lab.templateBuilderOpen = true;
+      lab.templateBuilderError = "";
+      requestRender();
+      return;
+    }
+
+    const closeTemplateBuilder = event.target?.closest?.("[data-marketing-close-template-builder]");
+    if (closeTemplateBuilder) {
+      event.preventDefault();
+      event.stopPropagation();
+      getAionMarketingCreativeLabState().templateBuilderOpen = false;
+      requestRender();
+      return;
+    }
+
+    const generateBrandTemplate = event.target?.closest?.("[data-marketing-generate-brand-template]");
+    if (generateBrandTemplate) {
+      event.preventDefault();
+      event.stopPropagation();
+      void generateMarketingBrandTemplate();
+      return;
+    }
+
+    const removeTemplateAsset = event.target?.closest?.("[data-marketing-remove-template-asset]");
+    if (removeTemplateAsset) {
+      event.preventDefault();
+      event.stopPropagation();
+      const lab = getAionMarketingCreativeLabState();
+      const id = String(removeTemplateAsset.dataset.marketingRemoveTemplateAsset || "");
+      const index = Number(removeTemplateAsset.dataset.marketingRemoveTemplateAssetIndex || -1);
+      lab.templateBuilderAssets = (Array.isArray(lab.templateBuilderAssets) ? lab.templateBuilderAssets : []).filter((asset, assetIndex) => {
+        if (id && String(asset?.id || "") === id) return false;
+        return assetIndex !== index;
+      });
+      requestRender();
+      return;
+    }
+
+    const saveBrandTemplate = event.target?.closest?.("[data-marketing-save-brand-template]");
+    if (saveBrandTemplate) {
+      event.preventDefault();
+      event.stopPropagation();
+      saveMarketingBrandTemplate();
+      return;
+    }
+
     const approveCampaign = event.target?.closest?.("[data-aion-approve-current-campaign]");
     if (approveCampaign) { event.preventDefault(); event.stopPropagation(); void approveAionMarketingCampaign(); return; }
+
+    const resetSpecification = event.target?.closest?.("[data-marketing-reset-specification]");
+    if (resetSpecification) {
+      event.preventDefault();
+      event.stopPropagation();
+      const lab = getAionMarketingCreativeLabState();
+      const templateKey = MARKETING_CREATE_TEMPLATES[lab.createTemplate] ? lab.createTemplate : "facebook_feed";
+      lab.templateOverrides = lab.templateOverrides && typeof lab.templateOverrides === "object" ? lab.templateOverrides : {};
+      delete lab.templateOverrides[templateKey];
+      desktopStore.setMarketingField("templateOverrides", lab.templateOverrides);
+      desktopStore.persistCache();
+      requestRender();
+      return;
+    }
+
+    const createPlatformButton = event.target?.closest?.("[data-marketing-create-platform]");
+    if (createPlatformButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const platformKey = String(createPlatformButton.dataset.marketingCreatePlatform || "facebook");
+      const platform = MARKETING_PLATFORM_FORMATS[platformKey];
+      if (!platform) return;
+      const lab = getAionMarketingCreativeLabState();
+      const currentTemplate = MARKETING_CREATE_TEMPLATES[lab.createTemplate] || MARKETING_CREATE_TEMPLATES.facebook_feed;
+      const equivalentKey = platform.formats.find((key) => MARKETING_CREATE_TEMPLATES[key]?.format === currentTemplate.format);
+      const key = equivalentKey || platform.formats[0];
+      const template = MARKETING_CREATE_TEMPLATES[key];
+      const currentInputs = captureAionMarketingCreatorInputs();
+      const hadOpenDraft = Boolean(getAionMarketingEditableRun());
+      lab.createTemplate = key;
+      lab.createMediaType = marketingCreateMediaType(template);
+      lab.platforms = [template.platform];
+      lab.formats = [template.format];
+      desktopStore.setMarketingField("createMediaType", lab.createMediaType);
+      desktopStore.setMarketingField("createTemplate", key);
+      desktopStore.setMarketingField("channels", template.label);
+      desktopStore.persistCache();
+      if (hadOpenDraft) {
+        applyAionMarketingTemplateToOpenDraft(template, key);
+        lab.campaignMessage = "Repurposing the open draft for " + template.label + "…";
+        lab.campaignError = "";
+        requestRender();
+        const sourceBrief = currentInputs.brief || String(getRunPostPackage(lab.campaignResult)?.caption || "").trim();
+        void regenerateAionMarketingCampaign(sourceBrief);
+        return;
+      }
+      requestRender();
+      return;
+    }
+
+    const createMediaTypeButton = event.target?.closest?.("[data-marketing-create-media-type]");
+    if (createMediaTypeButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const mediaType = String(createMediaTypeButton.dataset.marketingCreateMediaType || "image") === "video" ? "video" : "image";
+      const defaultKey = mediaType === "video" ? "instagram_reel" : "facebook_feed";
+      const template = MARKETING_CREATE_TEMPLATES[defaultKey];
+      const lab = getAionMarketingCreativeLabState();
+      lab.createMediaType = mediaType;
+      lab.createTemplate = defaultKey;
+      lab.platforms = [template.platform];
+      lab.formats = [template.format];
+      desktopStore.setMarketingField("createMediaType", mediaType);
+      desktopStore.setMarketingField("createTemplate", defaultKey);
+      desktopStore.setMarketingField("channels", template.label);
+      desktopStore.persistCache();
+      requestRender();
+      return;
+    }
+
+    const createTemplateButton = event.target?.closest?.("[data-marketing-create-template]");
+    if (createTemplateButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const key = String(createTemplateButton.dataset.marketingCreateTemplate || "");
+      const template = MARKETING_CREATE_TEMPLATES[key];
+      if (!template) return;
+      const currentInputs = captureAionMarketingCreatorInputs();
+      const lab = getAionMarketingCreativeLabState();
+      const hadOpenDraft = Boolean(getAionMarketingEditableRun());
+      lab.createTemplate = key;
+      lab.createMediaType = marketingCreateMediaType(template);
+      lab.platforms = [template.platform];
+      lab.formats = [template.format];
+      desktopStore.setMarketingField("createMediaType", lab.createMediaType);
+      desktopStore.setMarketingField("createTemplate", key);
+      desktopStore.setMarketingField("channels", template.label);
+      desktopStore.persistCache();
+      if (hadOpenDraft) {
+        applyAionMarketingTemplateToOpenDraft(template, key);
+        lab.campaignMessage = "Repurposing the open draft for " + template.label + "…";
+        lab.campaignError = "";
+        requestRender();
+        const sourceBrief = currentInputs.brief || String(getRunPostPackage(lab.campaignResult)?.caption || "").trim();
+        void regenerateAionMarketingCampaign(sourceBrief);
+        return;
+      }
+      requestRender();
+      return;
+    }
+
+    const designStyleButton = event.target?.closest?.("[data-marketing-design-style]");
+    if (designStyleButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const key = String(designStyleButton.dataset.marketingDesignStyle || "");
+      if (!MARKETING_DESIGN_STYLES[key]) return;
+      const lab = getAionMarketingCreativeLabState();
+      lab.designStyle = key;
+      desktopStore.setMarketingField("designStyle", key);
+      desktopStore.persistCache();
+      requestRender();
+      return;
+    }
+
+    const creationMethodButton = event.target?.closest?.("[data-marketing-creation-method]");
+    if (creationMethodButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const key = String(creationMethodButton.dataset.marketingCreationMethod || "");
+      if (!MARKETING_CREATION_METHODS[key]) return;
+      const lab = getAionMarketingCreativeLabState();
+      lab.creationMethod = key;
+      desktopStore.setMarketingField("creationMethod", key);
+      desktopStore.persistCache();
+      requestRender();
+      return;
+    }
+
+    const regenerateCampaign = event.target?.closest?.("[data-aion-regenerate-marketing-draft]");
+    if (regenerateCampaign) {
+      event.preventDefault();
+      event.stopPropagation();
+      desktopStore.setMarketingField("objective", String(document.getElementById("marketingObjectiveInput")?.value || state.marketingForm?.objective || "Generate enquiries"));
+      desktopStore.setMarketingField("targetAudience", String(document.getElementById("marketingAudienceInput")?.value || ""));
+      desktopStore.setMarketingField("funnelGoal", String(document.getElementById("marketingFunnelGoalInput")?.value || ""));
+      desktopStore.setMarketingField("offer", String(document.getElementById("marketingOfferInput")?.value || ""));
+      desktopStore.setMarketingField("campaignNotes", String(document.getElementById("marketingCampaignNotesInput")?.value || ""));
+      desktopStore.setMarketingField("destinationUrl", String(document.getElementById("marketingDestinationUrlInput")?.value || state.marketingForm?.destinationUrl || ""));
+      desktopStore.persistCache();
+      const value = String(document.getElementById("marketingBriefInput")?.value || state.marketingForm?.brief || "").trim();
+      void regenerateAionMarketingCampaign(value);
+      return;
+    }
 
     const manualCampaign = event.target?.closest?.("[data-aion-run-manual-marketing]");
     if (manualCampaign) {
       event.preventDefault(); event.stopPropagation();
+      const lab = getAionMarketingCreativeLabState();
+      const objective = String(document.getElementById("marketingObjectiveInput")?.value || state.marketingForm?.objective || "Generate enquiries");
+      lab.campaignType = objective === "Promote a product or service" ? "product_service" : objective === "Promote an offer" ? "offer" : objective === "Educate and build trust" ? "educational" : "brand_story";
+      const selectedOffering = getAionMarketingSelectedOffering();
+      lab.assetReadiness = ["offer", "product_service"].includes(lab.campaignType)
+        ? (selectedOffering?.primary_image_url || selectedOffering?.image_url || selectedOffering?.primary_image_file_path ? "assets_uploaded" : "needs_assets")
+        : "verified_sources";
+      desktopStore.setMarketingField("objective", objective);
+      desktopStore.setMarketingField("targetAudience", String(document.getElementById("marketingAudienceInput")?.value || ""));
+      desktopStore.setMarketingField("funnelGoal", String(document.getElementById("marketingFunnelGoalInput")?.value || ""));
+      desktopStore.setMarketingField("offer", String(document.getElementById("marketingOfferInput")?.value || ""));
+      desktopStore.setMarketingField("campaignNotes", String(document.getElementById("marketingCampaignNotesInput")?.value || ""));
+      desktopStore.setMarketingField("destinationUrl", String(document.getElementById("marketingDestinationUrlInput")?.value || state.marketingForm?.destinationUrl || ""));
+      desktopStore.setMarketingField("campaignType", lab.campaignType);
+      desktopStore.setMarketingField("assetReadiness", lab.assetReadiness);
       const value = String(document.getElementById("marketingBriefInput")?.value || state.marketingForm?.brief || "").trim();
       void launchAionMarketingCampaign(value, "manual");
-      document.querySelector("[data-aion-marketing-automation-studio]")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      setTimeout(() => document.querySelector("[data-aion-marketing-create-status]")?.scrollIntoView?.({ behavior: "smooth", block: "center" }), 40);
       return;
     }
 
@@ -58974,7 +64499,6 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
   const AION_CANONICAL_MAIN_ROUTES_V3 = new Set([
     "boardroom",
     "communications",
-    "dashboard",
     "work_schedule",
     "business_context",
     "marketing_stream",
@@ -58998,7 +64522,7 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
     const aliases = {
       boardroom: "boardroom",
       communications: "communications",
-      dashboard: "dashboard",
+      dashboard: "boardroom",
       work_schedule: "work_schedule",
       business_context: "business_context",
       business: "business_context",
@@ -59357,6 +64881,18 @@ function renderAionCustomDepartmentWorkspaceV1(departmentKey) {
   `;
 }
 
+function renderAionProjectManagementWorkspaceV1() {
+  try {
+    if (!window.AionProjectManagementWorkspace || typeof window.AionProjectManagementWorkspace.render !== "function") {
+      return `<section style="padding:32px;background:#fff;color:#172536"><h2 style="margin:0 0 8px">Project Management is loading…</h2><p style="margin:0;color:#64748b">The Project Pilot workspace will appear automatically.</p></section>`;
+    }
+    return window.AionProjectManagementWorkspace.render();
+  } catch (error) {
+    console.error("[AION] Project Management workspace render failed", error);
+    return `<section style="padding:32px;background:#fff;color:#172536"><h2 style="margin:0 0 8px">Project Management needs attention</h2><p style="margin:0;color:#64748b">${escapeHtml(error?.message || "The workspace could not be displayed.")}</p></section>`;
+  }
+}
+
 function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
   const activeView = getLiveAgentsView();
   const departmentKey = getSelectedLiveDepartmentKey();
@@ -59400,8 +64936,20 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
   }
 
   if (departmentKey === "marketing") {
+    if (activeView === LIVE_AGENT_VIEWS.CAMPAIGNS) {
+      return renderMarketingCampaignsSurface(selectedRuns, scopedSelectedAgentCard);
+    }
+
     if (activeView === LIVE_AGENT_VIEWS.CALENDAR) {
-      return renderLiveAgentCalendarView(selectedRuns, scopedSelectedAgentCard);
+      return renderMarketingCalendarWorkspace(selectedRuns, scopedSelectedAgentCard);
+    }
+
+    if (activeView === LIVE_AGENT_VIEWS.CREATE) {
+      return renderMarketingCreateSurface(selectedRuns, scopedSelectedAgentCard);
+    }
+
+    if (activeView === LIVE_AGENT_VIEWS.LIBRARY) {
+      return renderMarketingLibrarySurface(selectedRuns, scopedSelectedAgentCard);
     }
 
     if (activeView === LIVE_AGENT_VIEWS.RUNS) {
@@ -59431,13 +64979,21 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
     return renderLegalWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
   }
 
+  if (departmentKey === "procurement") {
+    return renderProcurementWorkspaceSurface();
+  }
+
   if (departmentKey === "cybersecurity") {
     return `<div data-aion-cybersecurity-live-agents-workspace="true" data-aion-shared-department-pilot="true" data-aion-shared-department="cybersecurity" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#fff!important;">${window.AionCybersecurityWorkspace?.render?.() || "<div style='padding:24px'>Cybersecurity workspace is loading…</div>"}</div>`;
   }
 
+  if (departmentKey === "projects") {
+    return `<div data-aion-project-management-workspace="true" data-aion-shared-department-pilot="true" data-aion-shared-department="projects" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:hidden!important;box-sizing:border-box!important;padding:16px 32px 24px!important;background:#f7f9fc!important;">${renderAionProjectManagementWorkspaceV1()}</div>`;
+  }
+
   if (departmentKey === "products_services") {
     if (window.AionOperatingModelWorkspace && typeof window.AionOperatingModelWorkspace.render === "function") {
-      return `<section data-aion-shared-department-pilot="true" data-aion-shared-department="products_services">${window.AionOperatingModelWorkspace.render()}</section>`;
+      return `<div data-aion-products-services-workspace="true" data-aion-shared-department-pilot="true" data-aion-shared-department="products_services" style="position:fixed!important;top:88px!important;left:64px!important;right:0!important;bottom:0!important;z-index:4!important;overflow:auto!important;box-sizing:border-box!important;padding:16px 32px 80px!important;background:#f7f9fc!important;">${renderAionDepartmentTabbedWorkspaceV1("products_services", "Operating model", window.AionOperatingModelWorkspace.render())}</div>`;
     }
     return renderGenericDepartmentWorkspaceSurface(departmentKey, selectedAgentCard);
   }
@@ -59564,7 +65120,7 @@ function renderLiveAgentRunRow(run) {
 }
 
 function renderLiveAgentsExecutiveDepartmentNavO14P(activeDepartment) {
-  return renderAionDepartmentPilotsStickyHeaderV1(activeDepartment);
+  return "";
 }
 
 const AION_DEPARTMENTS_HUB_CORE_V1 = [
@@ -59581,28 +65137,28 @@ const AION_DEPARTMENTS_HUB_SPECIALIST_V1 = [
   { slug: "legal", icon: "Le", name: "Legal support", group: "Protection & assurance", colour: "#7c3f63", harness: "Contracts, terms and issue triage" },
   { slug: "cybersecurity", icon: "Cy", name: "Cybersecurity", group: "Protection & assurance", colour: "#184f75", harness: "Local security review and response" },
   { slug: "it", icon: "IT", name: "IT & systems", group: "Protection & assurance", colour: "#245e86", harness: "Devices, access and service operations" },
-  { slug: "compliance", icon: "Co", name: "Compliance & privacy", group: "Protection & assurance", colour: "#655091", harness: "Controls, privacy and evidence" },
-  { slug: "risk", icon: "Ri", name: "Risk", group: "Protection & assurance", colour: "#6d526f", harness: "Risk register and mitigations" },
-  { slug: "health-safety", icon: "HS", name: "Health & safety", group: "Protection & assurance", colour: "#9a4d3c", harness: "Guidance, checks and incident records" },
-  { slug: "business-continuity", icon: "BC", name: "Business continuity", group: "Protection & assurance", colour: "#4b5d72", harness: "Resilience and recovery planning" },
-  { slug: "procurement", icon: "Pc", name: "Procurement", group: "Growth & delivery", colour: "#087c64", harness: "Sourcing, comparisons and negotiation" },
+  { slug: "compliance", icon: "Co", name: "Compliance & privacy", group: "Protection & assurance", colour: "#655091", harness: "Controls, privacy and evidence", hidden: true },
+  { slug: "risk", icon: "Ri", name: "Risk", group: "Protection & assurance", colour: "#6d526f", harness: "Risk register and mitigations", hidden: true },
+  { slug: "health-safety", icon: "HS", name: "Health & safety", group: "Protection & assurance", colour: "#9a4d3c", harness: "Guidance, checks and incident records", hidden: true },
+  { slug: "business-continuity", icon: "BC", name: "Business continuity", group: "Protection & assurance", colour: "#4b5d72", harness: "Resilience and recovery planning", hidden: true },
+  { slug: "procurement", icon: "S&P", name: "Stock & procurement", group: "Growth & delivery", colour: "#087c64", harness: "Stock control, sourcing, comparisons and approval-gated purchasing" },
   { slug: "projects", icon: "PM", name: "Project management", group: "Growth & delivery", colour: "#216b61", harness: "Goals, teams, budgets and delivery" },
   { slug: "design", icon: "De", name: "Design & creative", group: "Growth & delivery", colour: "#b13786", harness: "Brand, product and creative production" },
   { slug: "engineering", icon: "En", name: "Software engineering", group: "Growth & delivery", colour: "#395f9e", harness: "Build, test and technical delivery" },
-  { slug: "data", icon: "Da", name: "Data & analytics", group: "Growth & delivery", colour: "#376b9d", harness: "Metrics, analysis and decision support" },
-  { slug: "strategy", icon: "St", name: "Strategy", group: "Growth & delivery", colour: "#694e94", harness: "Planning, scenarios and priorities" },
+  { slug: "data", icon: "Da", name: "Data & analytics", group: "Growth & delivery", colour: "#376b9d", harness: "Metrics, analysis and decision support", hidden: true },
+  { slug: "strategy", icon: "St", name: "Strategy", group: "Growth & delivery", colour: "#694e94", harness: "Planning, scenarios and priorities", hidden: true },
   { slug: "communications-pr", icon: "PR", name: "Communications & PR", group: "Growth & delivery", colour: "#aa4658", harness: "Reputation, media and communications" },
-  { slug: "partnerships", icon: "Pa", name: "Partnerships", group: "Growth & delivery", colour: "#4e708d", harness: "Partners, alliances and channels" },
+  { slug: "partnerships", icon: "Pa", name: "Partnerships", group: "Growth & delivery", colour: "#4e708d", harness: "Partners, alliances and channels", hidden: true },
   { slug: "research-development", icon: "RD", name: "Research & development", group: "Growth & delivery", colour: "#5057a0", harness: "Research, experiments and innovation" },
-  { slug: "quality", icon: "QA", name: "Quality assurance", group: "Corporate stewardship", colour: "#33736f", harness: "Standards, checks and improvement" },
-  { slug: "internal-audit", icon: "IA", name: "Internal audit", group: "Corporate stewardship", colour: "#525e75", harness: "Independent checks and evidence" },
-  { slug: "governance", icon: "CG", name: "Corporate governance", group: "Corporate stewardship", colour: "#5b536f", harness: "Decisions, authority and oversight" },
-  { slug: "tax", icon: "Tx", name: "Tax coordination", group: "Corporate stewardship", colour: "#49697c", harness: "Tax preparation and adviser hand-off" },
-  { slug: "treasury", icon: "Tr", name: "Treasury", group: "Corporate stewardship", colour: "#386b5a", harness: "Liquidity, exposure and controls" },
-  { slug: "insurance", icon: "In", name: "Insurance", group: "Corporate stewardship", colour: "#45668a", harness: "Coverage, renewals and claims support" },
-  { slug: "facilities", icon: "Fa", name: "Facilities", group: "Corporate stewardship", colour: "#6d684d", harness: "Sites, assets and workplace services" },
-  { slug: "learning-development", icon: "LD", name: "Learning & development", group: "Corporate stewardship", colour: "#7a5a8c", harness: "Skills, training and capability" },
-  { slug: "sustainability", icon: "ES", name: "Sustainability & ESG", group: "Corporate stewardship", colour: "#337257", harness: "Impact, evidence and reporting" },
+  { slug: "quality", icon: "QA", name: "Quality assurance", group: "Corporate stewardship", colour: "#33736f", harness: "Standards, checks and improvement", hidden: true },
+  { slug: "internal-audit", icon: "IA", name: "Internal audit", group: "Corporate stewardship", colour: "#525e75", harness: "Independent checks and evidence", hidden: true },
+  { slug: "governance", icon: "CG", name: "Corporate governance", group: "Corporate stewardship", colour: "#5b536f", harness: "Decisions, authority and oversight", hidden: true },
+  { slug: "tax", icon: "Tx", name: "Tax coordination", group: "Corporate stewardship", colour: "#49697c", harness: "Tax preparation and adviser hand-off", hidden: true },
+  { slug: "treasury", icon: "Tr", name: "Treasury", group: "Corporate stewardship", colour: "#386b5a", harness: "Liquidity, exposure and controls", hidden: true },
+  { slug: "insurance", icon: "In", name: "Insurance", group: "Corporate stewardship", colour: "#45668a", harness: "Coverage, renewals and claims support", hidden: true },
+  { slug: "facilities", icon: "Fa", name: "Facilities", group: "Corporate stewardship", colour: "#6d684d", harness: "Sites, assets and workplace services", hidden: true },
+  { slug: "learning-development", icon: "LD", name: "Learning & development", group: "Corporate stewardship", colour: "#7a5a8c", harness: "Skills, training and capability", hidden: true },
+  { slug: "sustainability", icon: "ES", name: "Sustainability & ESG", group: "Corporate stewardship", colour: "#337257", harness: "Impact, evidence and reporting", hidden: true },
 ];
 
 function normaliseAionDepartmentHubMatchV1(value = "") {
@@ -59656,33 +65212,44 @@ function installAionDepartmentsHubStylesV1() {
   const style = document.createElement("style");
   style.id = "aion-departments-hub-styles-v1";
   style.textContent = `
-    .aion-departments-hub { max-width:1560px; margin:24px auto 0; padding:0 8px 72px; color:#172536; }
-    .aion-departments-hub-hero { display:flex; align-items:flex-end; justify-content:space-between; gap:28px; padding:28px 30px; border-top:4px solid #128a88; border-bottom:1px solid #dce4ea; background:#f7fafc; }
-    .aion-departments-hub-eyebrow, .aion-departments-hub-section-label { color:#137d78; font-size:10px; line-height:1; font-weight:900; letter-spacing:.2em; text-transform:uppercase; }
-    .aion-departments-hub-hero h1 { margin:8px 0 7px; font-size:34px; line-height:1.05; letter-spacing:-.035em; }
-    .aion-departments-hub-hero p { margin:0; max-width:760px; color:#64748b; font-size:14px; line-height:1.5; }
-    .aion-departments-hub-count { min-width:145px; padding:12px 14px; border:1px solid #cad6df; background:#fff; text-align:center; color:#536273; font-size:11px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
-    .aion-departments-hub-count strong { display:block; margin-bottom:3px; color:#172536; font-size:24px; letter-spacing:0; }
-    .aion-departments-hub-section { margin-top:28px; }
-    .aion-departments-hub-section-heading { display:flex; align-items:end; justify-content:space-between; gap:20px; margin-bottom:13px; padding:0 2px 10px; border-bottom:1px solid #dbe3e9; }
-    .aion-departments-hub-section-heading h2 { margin:6px 0 0; font-size:22px; letter-spacing:-.02em; }
-    .aion-departments-hub-section-heading p { margin:0; max-width:650px; color:#69788a; font-size:12px; text-align:right; }
-    .aion-departments-hub-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px; }
-    .aion-departments-hub-tile { position:relative; min-height:156px; display:grid; grid-template-columns:58px minmax(0,1fr); align-content:start; gap:14px; padding:18px; border:1px solid #d7e0e7; border-top:3px solid var(--tile-accent,#c8d3dc); border-radius:2px; background:#fff; color:#172536; font:inherit; text-align:left; transition:border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
-    .aion-departments-hub-tile.is-actionable { cursor:pointer; border-top-color:#148a87; }
-    .aion-departments-hub-tile.is-actionable:hover { transform:translateY(-2px); border-color:#82bdb8; box-shadow:0 12px 26px rgba(27,52,71,.1); }
-    .aion-departments-hub-tile.is-planned { cursor:default; opacity:.82; }
-    .aion-departments-hub-icon { width:56px; height:56px; display:grid; place-items:center; border-radius:12px; background:color-mix(in srgb,var(--aion-department-colour) 13%,white); border:1px solid color-mix(in srgb,var(--aion-department-colour) 28%,white); color:var(--aion-department-colour); font-size:22px; font-weight:900; letter-spacing:-.04em; }
+    [data-aion-departments-hub-shell="true"] { min-height:100vh; padding:32px 32px 96px 96px !important; background:#f7f9fc !important; color:#0b1730; font-family:var(--tessaris-font-sans,Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif) !important; }
+    .aion-departments-hub-hero { max-width:1560px; margin:52px auto 0; padding:26px 30px; display:flex; align-items:center; justify-content:space-between; gap:24px; border:1px solid #d9e2ec; border-top:4px solid #2563eb; border-radius:18px; background:#fff; box-shadow:0 8px 24px rgba(11,23,48,.05); }
+    .aion-departments-hub-hero-kicker { color:#2563eb; font-size:11px; line-height:1; font-weight:850; letter-spacing:.2em; text-transform:uppercase; }
+    .aion-departments-hub-hero h1 { margin:8px 0 0; color:#0b1730; font-size:30px; line-height:1.08; font-weight:800; letter-spacing:-.035em; }
+    .aion-departments-hub-hero p { margin:9px 0 0; max-width:720px; color:#66758a; font-size:14px; line-height:1.5; }
+    .aion-departments-hub-hero-status { flex:0 0 auto; display:inline-flex; align-items:center; gap:9px; padding:11px 15px; border:1px solid #bfd3ff; border-radius:999px; background:#eef5ff; color:#1d4ed8; font-size:10px; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
+    .aion-departments-hub-hero-status::before { content:""; width:8px; height:8px; border-radius:50%; background:#2563eb; box-shadow:0 0 0 4px rgba(37,99,235,.1); }
+    .aion-departments-hub { max-width:1560px; margin:0 auto; padding:24px 0 72px; color:#0b1730; }
+    .aion-departments-hub-section { margin-top:26px; padding:24px; border:1px solid #d9e2ec; border-radius:18px; background:#fff; box-shadow:0 8px 24px rgba(11,23,48,.04); }
+    .aion-departments-hub-section:first-child { margin-top:0; }
+    .aion-departments-hub-section-heading { display:flex; align-items:end; justify-content:space-between; gap:20px; margin-bottom:18px; padding:0 2px 16px; border-bottom:1px solid #e2e8f0; }
+    .aion-departments-hub-section-title { display:flex; align-items:end; gap:18px; min-width:0; }
+    .aion-departments-hub-section-label { color:#2563eb; font-size:10px; line-height:1; font-weight:850; letter-spacing:.2em; text-transform:uppercase; }
+    .aion-departments-hub-section-heading h2 { margin:7px 0 0; color:#0b1730; font-size:23px; line-height:1.1; font-weight:800; letter-spacing:-.025em; }
+    .aion-departments-hub-section-heading p { margin:0; max-width:650px; color:#66758a; font-size:12px; line-height:1.45; text-align:right; }
+    .aion-departments-hub-count { display:inline-flex; align-items:center; gap:8px; margin-bottom:0; padding:7px 11px; border:1px solid #d9e2ec; border-radius:999px; background:#f7f9fc; color:#66758a; font-size:9px; font-weight:800; letter-spacing:.1em; white-space:nowrap; text-transform:uppercase; }
+    .aion-departments-hub-count strong { color:#2563eb; font-size:16px; line-height:1; letter-spacing:-.02em; }
+    .aion-departments-hub-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+    .aion-departments-hub-tile { position:relative; min-height:168px; display:grid; grid-template-columns:54px minmax(0,1fr); align-content:start; gap:14px; padding:18px 18px 38px; border:1px solid #d9e2ec; border-radius:14px; background:#fff; color:#0b1730; font:inherit; text-align:left; overflow:hidden; transition:border-color .16s ease, box-shadow .16s ease, transform .16s ease, background .16s ease; }
+    .aion-departments-hub-tile::before { content:""; position:absolute; inset:0 auto 0 0; width:3px; background:#cbd5e1; }
+    .aion-departments-hub-tile.is-actionable { cursor:pointer; }
+    .aion-departments-hub-tile.is-actionable::before { background:#2563eb; }
+    html body [data-aion-departments-hub-shell="true"] .aion-departments-hub-tile.is-actionable:hover { transform:translateY(-2px) !important; border-color:#8eb3ff !important; background:#eef5ff !important; color:#0b1730 !important; box-shadow:0 12px 28px rgba(37,99,235,.12) !important; }
+    .aion-departments-hub-tile.is-actionable:focus-visible { outline:3px solid rgba(37,99,235,.22); outline-offset:2px; border-color:#2563eb; }
+    .aion-departments-hub-tile.is-planned { cursor:default; background:#fbfcfe; opacity:.78; }
+    .aion-departments-hub-icon { width:52px; height:52px; display:grid; place-items:center; border-radius:13px; background:#eef5ff; border:1px solid #cfe0ff; color:#2563eb; font-size:19px; font-weight:850; letter-spacing:-.035em; }
     .aion-departments-hub-copy { min-width:0; display:flex; flex-direction:column; }
-    .aion-departments-hub-name { padding-top:2px; color:#182536; font-size:15px; font-weight:850; line-height:1.18; }
-    .aion-departments-hub-summary { margin-top:6px; color:#68788b; font-size:11px; line-height:1.38; }
-    .aion-departments-hub-model { margin-top:8px; color:#33485d; font-size:10px; font-weight:800; line-height:1.35; }
-    .aion-departments-hub-note { width:max-content; margin-top:7px; padding:3px 6px; background:#f1eaf0; color:#7c3f63; font-size:8px; font-weight:900; letter-spacing:.09em; text-transform:uppercase; }
-    .aion-departments-hub-state { position:absolute; right:13px; bottom:11px; color:#7c8793; font-size:8px; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
-    .aion-departments-hub-state.is-connected { color:#11786d; }
-    .aion-departments-hub-group + .aion-departments-hub-group { margin-top:22px; }
-    .aion-departments-hub-group h3 { margin:0 0 10px 2px; color:#57687a; font-size:11px; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
-    @media (max-width:900px) { .aion-departments-hub-hero, .aion-departments-hub-section-heading { align-items:flex-start; flex-direction:column; } .aion-departments-hub-section-heading p { text-align:left; } .aion-departments-hub-grid { grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); } }
+    .aion-departments-hub-name { padding-top:1px; color:#0b1730; font-size:15px; font-weight:800; line-height:1.22; }
+    .aion-departments-hub-summary { margin-top:6px; color:#66758a; font-size:11px; line-height:1.42; }
+    .aion-departments-hub-model { margin-top:9px; color:#43536a; font-size:10px; font-weight:700; line-height:1.4; }
+    .aion-departments-hub-note { width:max-content; margin-top:8px; padding:4px 7px; border:1px solid #cfe0ff; border-radius:999px; background:#eef5ff; color:#1d4ed8; font-size:8px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .aion-departments-hub-state { position:absolute; right:14px; bottom:12px; display:inline-flex; align-items:center; gap:6px; color:#7b8798; font-size:8px; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
+    .aion-departments-hub-state::before { content:""; width:6px; height:6px; border-radius:50%; background:#94a3b8; }
+    .aion-departments-hub-state.is-connected { color:#1d4ed8; }
+    .aion-departments-hub-state.is-connected::before { background:#2563eb; }
+    .aion-departments-hub-group + .aion-departments-hub-group { margin-top:26px; padding-top:24px; border-top:1px solid #e2e8f0; }
+    .aion-departments-hub-group h3 { margin:0 0 12px 2px; color:#43536a; font-size:10px; font-weight:850; letter-spacing:.15em; text-transform:uppercase; }
+    @media (max-width:900px) { [data-aion-departments-hub-shell="true"] { padding-left:78px !important; padding-right:16px !important; } .aion-departments-hub-hero { align-items:flex-start; flex-direction:column; padding:22px; } .aion-departments-hub-section { padding:20px; } .aion-departments-hub-section-heading { align-items:flex-start; flex-direction:column; } .aion-departments-hub-section-title { align-items:flex-start; flex-direction:column; gap:9px; } .aion-departments-hub-section-heading p { text-align:left; } .aion-departments-hub-grid { grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); } }
   `;
   document.head.appendChild(style);
 }
@@ -59690,6 +65257,7 @@ function installAionDepartmentsHubStylesV1() {
 function renderAionDepartmentsHubV1() {
   installAionDepartmentsHubStylesV1();
   const customDepartments = getAionDesktopCustomDepartmentsV1();
+  const visibleSpecialists = AION_DEPARTMENTS_HUB_SPECIALIST_V1.filter((specialist) => !specialist.hidden);
   const boardMembers = typeof getAionStickyBoardMembersV1 === "function"
     ? getAionStickyBoardMembersV1(typeof getBoardroomSnapshot === "function" ? getBoardroomSnapshot() : {})
     : [];
@@ -59697,28 +65265,29 @@ function renderAionDepartmentsHubV1() {
   const sharedModelLabel = activeModels.length
     ? `${activeModels.length} active Board model${activeModels.length === 1 ? "" : "s"}`
     : "AION core harness";
-  const connectedSpecialists = AION_DEPARTMENTS_HUB_SPECIALIST_V1
+  const connectedSpecialists = visibleSpecialists
     .map((specialist) => ({ specialist, custom: getAionDepartmentsHubCustomMatchV1(specialist, customDepartments) }))
-    .filter((entry) => ["legal", "cybersecurity"].includes(entry.specialist.slug) || entry.custom);
-  const groups = [...new Set(AION_DEPARTMENTS_HUB_SPECIALIST_V1.map((item) => item.group))];
+    .filter((entry) => ["legal", "cybersecurity", "procurement", "projects"].includes(entry.specialist.slug) || entry.custom);
+  const groups = [...new Set(visibleSpecialists.map((item) => item.group))];
 
   return `
     <div class="surface-shell aion-phase23y-live-agents-white-shell" data-aion-departments-hub-shell="true" style="min-height:100vh;max-width:none!important;margin:0!important;padding:32px 32px 96px 96px;background:#fff;">
       ${renderAppTabs()}
-      ${renderAionDepartmentPilotsStickyHeaderV1("")}
+      <header class="aion-departments-hub-hero">
+        <div>
+          <div class="aion-departments-hub-hero-kicker">Pilot · departments command centre</div>
+          <h1>Department coordination</h1>
+          <p>Open a live department workspace or review the specialist capabilities available to this business.</p>
+        </div>
+        <div class="aion-departments-hub-hero-status">${AION_DEPARTMENTS_HUB_CORE_V1.length + connectedSpecialists.length} connected</div>
+      </header>
       <main class="aion-departments-hub" data-aion-departments-hub="true">
-        <header class="aion-departments-hub-hero">
-          <div>
-            <div class="aion-departments-hub-eyebrow">Pilot · business capability centre</div>
-            <h1>Departments</h1>
-            <p>Open a connected business function or see which specialist departments can be added. Core shortcuts remain in the header for immediate access.</p>
-          </div>
-          <div class="aion-departments-hub-count"><strong>${AION_DEPARTMENTS_HUB_CORE_V1.length + connectedSpecialists.length}</strong>connected departments</div>
-        </header>
-
         <section class="aion-departments-hub-section" aria-labelledby="aion-core-departments-heading">
           <div class="aion-departments-hub-section-heading">
-            <div><div class="aion-departments-hub-section-label">Core business</div><h2 id="aion-core-departments-heading">Connected departments</h2></div>
+            <div class="aion-departments-hub-section-title">
+              <div><div class="aion-departments-hub-section-label">Core business</div><h2 id="aion-core-departments-heading">Connected departments</h2></div>
+              <div class="aion-departments-hub-count"><strong>${AION_DEPARTMENTS_HUB_CORE_V1.length + connectedSpecialists.length}</strong>connected departments</div>
+            </div>
             <p>These are ready now. Each opens its existing department workspace and Pilot.</p>
           </div>
           <div class="aion-departments-hub-grid">
@@ -59760,18 +65329,23 @@ function renderAionDepartmentsHubV1() {
             <div class="aion-departments-hub-group">
               <h3>${escapeHtml(group)}</h3>
               <div class="aion-departments-hub-grid">
-                ${AION_DEPARTMENTS_HUB_SPECIALIST_V1.filter((item) => item.group === group).map((specialist) => {
+                ${visibleSpecialists.filter((item) => item.group === group).map((specialist) => {
                   const custom = getAionDepartmentsHubCustomMatchV1(specialist, customDepartments);
                   const isLegalWorkspace = specialist.slug === "legal";
                   const isCybersecurityWorkspace = specialist.slug === "cybersecurity";
-                  const isBuiltInWorkspace = isLegalWorkspace || isCybersecurityWorkspace;
+                  const isProcurementWorkspace = specialist.slug === "procurement";
+                  const isProjectWorkspace = specialist.slug === "projects";
+                  const isBuiltInWorkspace = isLegalWorkspace || isCybersecurityWorkspace || isProcurementWorkspace || isProjectWorkspace;
                   return renderAionDepartmentHubTileV1({
                     icon: specialist.icon,
                     name: specialist.name,
                     colour: specialist.colour,
                     summary: specialist.harness,
-                    model: isLegalWorkspace ? "Legal Pilot · controlled drafting and matter harness" : isCybersecurityWorkspace ? "Security Pilot · local read-only guard foundation" : custom ? (custom.pilot_title || "Custom specialist harness") : "Specialist model · harness not installed",
-                    route: isBuiltInWorkspace ? specialist.slug : "",
+                    model: isLegalWorkspace ? "Legal Pilot · controlled drafting and matter harness" : isCybersecurityWorkspace ? "Security Pilot · local read-only guard foundation" : isProcurementWorkspace ? "Procurement Pilot · stock, sourcing and approval-gated purchasing" : isProjectWorkspace ? "Project Pilot · goals, budgets and delivery control" : custom ? (custom.pilot_title || "Custom specialist harness") : "Specialist model · harness not installed",
+                    route: isLegalWorkspace ? "legal" : "",
+                    ...(isCybersecurityWorkspace ? { route: "cybersecurity" } : {}),
+                    ...(isProcurementWorkspace ? { route: "procurement" } : {}),
+                    ...(isProjectWorkspace ? { route: "projects" } : {}),
                     customId: isBuiltInWorkspace ? "" : custom?.id || "",
                     connected: isBuiltInWorkspace || Boolean(custom),
                     planned: !isBuiltInWorkspace && !custom,
@@ -60507,6 +66081,17 @@ function attachEvents() {
       const target = event.target;
       if (!target) return;
 
+      const chatExternalLink = target.closest("[data-aion-chat-external-url]");
+      if (chatExternalLink) {
+        event.preventDefault();
+        event.stopPropagation();
+        const url = getAionSafeExternalChatUrlV1(
+          chatExternalLink.getAttribute("data-aion-chat-external-url") || "",
+        );
+        if (url) await window.aionDesktop?.openExternalUrl?.(url);
+        return;
+      }
+
       const tabButton = target.closest("[data-tab]");
       if (tabButton) {
         event.preventDefault();
@@ -60531,10 +66116,29 @@ function attachEvents() {
         return;
       }
 
+      const aionChatModelButton = target.closest("[data-aion-chat-select-model]");
+      if (aionChatModelButton) {
+        event.preventDefault();
+        const nextEngine = setAionChatSelectedEngineV1(
+          aionChatModelButton.getAttribute("data-aion-chat-select-model") || "",
+        );
+        safeAionDesktopPatch({
+          aionChatEngine: nextEngine,
+          desktopAssistantProvider: nextEngine,
+        });
+        syncAionChatSelectionToToolbarV1(nextEngine);
+        desktopStore.persistCacheSoon(100);
+        requestRender();
+        return;
+      }
+
       const aionChatModeButton = target.closest("[data-aion-chat-mode]");
       if (aionChatModeButton) {
         const nextMode =
           aionChatModeButton.dataset.aionChatMode || "business_workspace";
+        if (nextMode === "general_ai" && getAionBoardMeetingChatContextV1()) {
+          setAionBoardMeetingChatContextV1(null);
+        }
 
         safeAionDesktopPatch({
           aionChatMode: nextMode,
@@ -60547,6 +66151,28 @@ function attachEvents() {
         desktopStore.persistCacheSoon(300);
         requestRender();
         return;
+      }
+
+      const aionChatMeetingButton = target.closest("[data-aion-chat-meeting-action]");
+      if (aionChatMeetingButton) {
+        event.preventDefault();
+        const action = aionChatMeetingButton.getAttribute("data-aion-chat-meeting-action") || "";
+        if (action === "leave") {
+          setAionBoardMeetingChatContextV1(null);
+          safeAionDesktopPatch({
+            message: "The AI has left the Board meeting context.",
+            messageTone: "neutral",
+          });
+          requestRender();
+          return;
+        }
+        if (action === "return") {
+          const nextTab = setActiveTab("boardroom");
+          safeAionDesktopPatch({ activeTab: nextTab });
+          desktopStore.persistCacheSoon(50);
+          requestRender();
+          return;
+        }
       }
 
       const aionChatActionButton = target.closest("[data-aion-chat-action]");
@@ -63426,14 +69052,82 @@ if (action === "capture-browser-approval-checkpoint") {
         return;
       }
 
+      const marketingCalendarWorkspaceViewButton = target.closest(
+        "[data-marketing-calendar-workspace-view]",
+      );
+      if (marketingCalendarWorkspaceViewButton) {
+        const nextView = marketingCalendarWorkspaceViewButton.dataset.marketingCalendarWorkspaceView === "board"
+          ? "board"
+          : "calendar";
+        safeAionDesktopPatch({ marketingCalendarWorkspaceView: nextView });
+        desktopStore.persistCache();
+        requestRender();
+        return;
+      }
+
+      const marketingCalendarWeekShiftButton = target.closest(
+        "[data-marketing-calendar-week-shift]",
+      );
+      if (marketingCalendarWeekShiftButton) {
+        const shift = Number(marketingCalendarWeekShiftButton.dataset.marketingCalendarWeekShift || 0);
+        const nextWeek = marketingAddDays(marketingStartOfWeek(state.marketingCalendarWeek || new Date()), shift);
+        safeAionDesktopPatch({ marketingCalendarWeek: marketingDateKey(nextWeek) });
+        desktopStore.persistCache();
+        requestRender();
+        return;
+      }
+
+      const marketingCalendarTodayButton = target.closest(
+        "[data-marketing-calendar-week-today]",
+      );
+      if (marketingCalendarTodayButton) {
+        safeAionDesktopPatch({ marketingCalendarWeek: marketingDateKey(marketingStartOfWeek(new Date())) });
+        desktopStore.persistCache();
+        requestRender();
+        return;
+      }
+
       const facebookCardButton = target.closest(
         "[data-facebook-card-index], [data-facebook-card-nav]",
       );
       if (facebookCardButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        const currentPreview = facebookCardButton.closest(
+          "[data-facebook-post-mockup]",
+        );
+        const previewKey = currentPreview?.dataset.facebookPostMockup || "";
+        const previewTop = currentPreview?.getBoundingClientRect?.().top;
         const index = Number(facebookCardButton.dataset.facebookCardIndex || 0);
         safeAionDesktopPatch({ selectedFacebookCardIndex: index });
         desktopStore.persistCache();
         requestRender();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const nextPreview = Array.from(
+              document.querySelectorAll("[data-facebook-post-mockup]"),
+            ).find((element) => element.dataset.facebookPostMockup === previewKey);
+            if (!nextPreview || !Number.isFinite(previewTop)) return;
+
+            let scrollHost = nextPreview.parentElement;
+            while (scrollHost && scrollHost !== document.body) {
+              const style = window.getComputedStyle(scrollHost);
+              const canScroll =
+                /(auto|scroll)/.test(style.overflowY) &&
+                scrollHost.scrollHeight > scrollHost.clientHeight;
+              if (canScroll) break;
+              scrollHost = scrollHost.parentElement;
+            }
+
+            const delta = nextPreview.getBoundingClientRect().top - previewTop;
+            if (Math.abs(delta) < 1) return;
+            if (scrollHost && scrollHost !== document.body) {
+              scrollHost.scrollTop += delta;
+            } else {
+              window.scrollBy({ top: delta, left: 0, behavior: "auto" });
+            }
+          });
+        });
         return;
       }
 
@@ -63637,6 +69331,7 @@ if (action === "capture-browser-approval-checkpoint") {
         const nextView =
           liveAgentsViewButton.dataset.liveAgentsView ||
           LIVE_AGENT_VIEWS.STREAM;
+        state.liveAgentsView = nextView;
         safeAionDesktopPatch({ liveAgentsView: nextView });
         ensureLiveAgentSelection({
           preferredView: nextView,
@@ -64018,6 +69713,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
   const aionChatEngineInput = document.getElementById("aionChatEngineInput");
   const aionChatPromptInput = document.getElementById("aionChatPromptInput");
+  const aionChatAttachBtn = document.getElementById("aionChatAttachBtn");
   const aionChatRunBtn = document.getElementById("aionChatRunBtn");
   const aionChatClearBtn = document.getElementById("aionChatClearBtn");
 
@@ -64025,11 +69721,13 @@ if (action === "capture-browser-approval-checkpoint") {
     aionChatEngineInput.dataset.bound = "1";
     aionChatEngineInput.addEventListener("change", (e) => {
       const nextEngine = getInputValue(e) || "gemma4";
+      setAionChatSelectedEngineV1(nextEngine);
 
       safeAionDesktopPatch({
         aionChatEngine: nextEngine,
         desktopAssistantProvider: nextEngine,
       });
+      syncAionChatSelectionToToolbarV1(nextEngine);
 
       desktopStore.persistCacheSoon(300);
       requestRender();
@@ -64048,21 +69746,90 @@ if (action === "capture-browser-approval-checkpoint") {
 
       desktopStore.persistCacheSoon(300);
     });
+    aionChatPromptInput.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
+      event.preventDefault();
+      document.getElementById("aionChatRunBtn")?.click();
+    });
   }
+
+  if (aionChatAttachBtn && !aionChatAttachBtn.dataset.bound) {
+    aionChatAttachBtn.dataset.bound = "1";
+    aionChatAttachBtn.addEventListener("click", async () => {
+      const result = await window.aionDesktop?.chooseChatAttachments?.();
+      if (!result?.ok || !Array.isArray(result.attachments)) {
+        if (!result?.canceled) {
+          safeAionDesktopPatch({
+            message: "Tessaris could not attach the selected item. Check that it is still available locally and try again.",
+            messageTone: "warning",
+          });
+          requestRender();
+        }
+        return;
+      }
+      const byPath = new Map(getAionChatAttachmentsV1().map((item) => [item.path, item]));
+      result.attachments.forEach((item) => {
+        if (item?.path) byPath.set(item.path, item);
+      });
+      const nextAttachments = [...byPath.values()].slice(0, 20);
+      state.aionChatAttachments = nextAttachments;
+      safeAionDesktopPatch({ aionChatAttachments: nextAttachments });
+      desktopStore.persistCacheSoon(100);
+      requestRender();
+    });
+  }
+
+  document.querySelectorAll("[data-aion-chat-remove-attachment]").forEach((button) => {
+    if (button.dataset.bound) return;
+    button.dataset.bound = "1";
+    button.addEventListener("click", () => {
+      const id = String(button.dataset.aionChatRemoveAttachment || "");
+      const nextAttachments = getAionChatAttachmentsV1().filter((item) => String(item.id || item.path || "") !== id);
+      state.aionChatAttachments = nextAttachments;
+      safeAionDesktopPatch({ aionChatAttachments: nextAttachments });
+      desktopStore.persistCacheSoon(100);
+      requestRender();
+    });
+  });
 
   if (aionChatRunBtn && !aionChatRunBtn.dataset.bound) {
     aionChatRunBtn.dataset.bound = "1";
     aionChatRunBtn.addEventListener("click", async () => {
       const mode = state.aionChatMode || "business_workspace";
-      const engine = state.aionChatEngine || state.desktopAssistantProvider || "gemma4";
+      const connectedModels = getAionConnectedChatModelsV1().models;
+      const engine = getAionChatSelectedEngineV1(connectedModels);
+      const activeModel = connectedModels.find((model) => model.id === engine) || null;
       const prompt = state.aionChatPrompt || state.desktopAssistantPrompt || "";
+      const attachments = getAionChatAttachmentsV1();
+      const meetingContext = getAionBoardMeetingChatContextV1();
+      const chatWorkspaceId = getAionChatWorkspaceIdV1();
 
-      if (!prompt.trim()) return;
+      if (!prompt.trim() || !activeModel) return;
+
+      const chatSessionId = getAionChatActiveSessionIdV3(engine);
+      const priorMessages = getAionChatMessagesV1(engine, chatSessionId);
+      const userMessage = {
+        role: "user",
+        content: prompt.trim(),
+        attachments,
+        model: engine,
+        at: new Date().toISOString(),
+      };
+      setAionChatMessagesV1([...priorMessages, userMessage], engine, chatSessionId);
+      const recentConversation = priorMessages.slice(-12)
+        .map((message) => `${message.role === "assistant" ? "Assistant" : "User"}: ${String(message.content || "")}`)
+        .join("\n\n");
+      const requestPrompt = recentConversation
+        ? `Continue this conversation with the new user message.\n\n${recentConversation}\n\nUser: ${prompt.trim()}`
+        : prompt.trim();
 
       safeAionDesktopPatch({
         loading: true,
-        aionChatOutput: "Thinking...",
-        desktopAssistantOutput: "Thinking...",
+        aionChatPrompt: "",
+        aionChatAttachments: [],
+        desktopAssistantPrompt: "",
+        aionChatOutput: "",
+        desktopAssistantOutput: "",
         message:
           mode === "business_workspace"
             ? "Aion is packaging workspace context..."
@@ -64079,15 +69846,18 @@ if (action === "capture-browser-approval-checkpoint") {
                 provider: engine,
                 engine,
                 mode: "business_workspace",
-                prompt,
+                prompt: requestPrompt,
+                attachments,
+                messages: [...priorMessages, userMessage].slice(-20),
                 active_tab: "aion_chat",
                 context_mode: "business_workspace",
 
-                instruction:
-                  "You are the reasoning engine inside Aion. Aion is the business context and orchestration layer. Use the supplied workspace context to answer the user's question. Do not pretend to be Aion itself. Answer clearly and practically.",
+                instruction: meetingContext
+                  ? "You are a connected AI Board member who has entered an active Tessaris Board meeting. The Board meeting context below is authoritative for this conversation: use the current Business Map, meeting notes, department intelligence, decisions and unresolved questions when answering. State uncertainties and challenge weak assumptions when useful. Do not claim an external action occurred. Do not pretend to be Aion itself."
+                  : "You are the reasoning engine inside Aion. Aion is the business context and orchestration layer. Use the supplied workspace context to answer the user's question. Do not pretend to be Aion itself. Answer clearly and practically.",
 
                 workspace_context: {
-                  workspace_id: state.workspaceId || "",
+                  workspace_id: chatWorkspaceId,
                   node_id: state.nodeId || "",
                   dashboard_summary: state.dashboardSummary || {},
                   boardroom_snapshot: state.boardroomSnapshot || {},
@@ -64101,17 +69871,37 @@ if (action === "capture-browser-approval-checkpoint") {
                   runs: Array.isArray(state.runs) ? state.runs.slice(0, 80) : [],
                   approvals: Array.isArray(state.approvals) ? state.approvals.slice(0, 80) : [],
                   audit: Array.isArray(state.audit) ? state.audit.slice(0, 40) : [],
+                  board_meeting_context: meetingContext ? {
+                    active: true,
+                    joined_at: meetingContext.joined_at || "",
+                    provider_id: meetingContext.provider_id || engine,
+                    model_label: meetingContext.model_label || activeModel.label,
+                    role: meetingContext.role || "Connected Board member",
+                    session_id: meetingContext.session_id || "",
+                    session_type: meetingContext.session_type || "board_member_chat",
+                    meeting_title: meetingContext.meeting_title || "Current Board meeting",
+                    boardroom_snapshot: meetingContext.boardroom_snapshot || {},
+                    session_packet: meetingContext.session_packet || {},
+                  } : null,
+                  chat_attachments: attachments,
                 },
               }
             : {
                 provider: engine,
                 engine,
                 mode: "general_ai",
-                prompt,
+                prompt: requestPrompt,
+                attachments,
+                messages: [...priorMessages, userMessage].slice(-20),
                 active_tab: "aion_chat",
                 context_mode: "general_ai",
                 instruction:
                   "Answer the user's question directly. Do not use business workspace context unless it is explicitly provided in the prompt.",
+                workspace_context: {
+                  workspace_id: chatWorkspaceId,
+                  node_id: state.nodeId || "",
+                  chat_attachments: attachments,
+                },
               };
 
         let result;
@@ -64120,6 +69910,12 @@ if (action === "capture-browser-approval-checkpoint") {
           result = await apiPost("/api/local-node/aion/chat", payload);
         } catch (_) {
           result = await apiPost("/api/local-node/assistant/ask", payload);
+        }
+
+        if (result?.ok === false) {
+          const providerError = new Error(result?.user_message || result?.text || "The selected model could not respond.");
+          providerError.code = result?.error_code || "provider_unavailable";
+          throw providerError;
         }
 
         const text =
@@ -64131,6 +69927,23 @@ if (action === "capture-browser-approval-checkpoint") {
           result?.item?.text ||
           result?.item?.output ||
           "No AI response returned.";
+
+        const returnedComputerPlan = result?.computer_plan || null;
+        if (returnedComputerPlan?.auto_execute === true && returnedComputerPlan?.state === "ready") {
+          window.__aionComputerPendingAutoRunPlanIdV1 = String(returnedComputerPlan.plan_id || "");
+        }
+        setAionChatMessagesV1([
+          ...getAionChatMessagesV1(engine, chatSessionId),
+          {
+            role: "assistant",
+            content: String(text),
+            model: engine,
+            modelLabel: activeModel.label,
+            browserPlan: result?.browser_plan || null,
+            computerPlan: returnedComputerPlan,
+            at: new Date().toISOString(),
+          },
+        ], engine, chatSessionId);
 
         safeAionDesktopPatch({
           aionChatOutput: text,
@@ -64146,6 +69959,18 @@ if (action === "capture-browser-approval-checkpoint") {
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Aion request failed.";
+
+        setAionChatMessagesV1([
+          ...getAionChatMessagesV1(engine, chatSessionId),
+          {
+            role: "assistant",
+            kind: "provider_error",
+            content: getAionFriendlyChatFailureV1(message, activeModel.label),
+            model: engine,
+            modelLabel: activeModel.label,
+            at: new Date().toISOString(),
+          },
+        ], engine, chatSessionId);
 
         safeAionDesktopPatch({
           aionChatOutput: message,
@@ -64163,8 +69988,11 @@ if (action === "capture-browser-approval-checkpoint") {
   if (aionChatClearBtn && !aionChatClearBtn.dataset.bound) {
     aionChatClearBtn.dataset.bound = "1";
     aionChatClearBtn.addEventListener("click", () => {
+      const engine = getAionChatSelectedEngineV1(getAionConnectedChatModelsV1().models);
+      createAionChatSessionV3(engine);
       safeAionDesktopPatch({
         aionChatPrompt: "",
+        aionChatAttachments: [],
         aionChatOutput: "",
         desktopAssistantPrompt: "",
         desktopAssistantOutput: "",
@@ -64174,6 +70002,184 @@ if (action === "capture-browser-approval-checkpoint") {
       requestRender();
     });
   }
+
+  document.querySelectorAll("[data-aion-chat-select-session]").forEach((button) => {
+    if (button.dataset.bound) return;
+    button.dataset.bound = "1";
+    button.addEventListener("click", () => {
+      const engine = getAionChatSelectedEngineV1(getAionConnectedChatModelsV1().models);
+      const sessionId = String(button.dataset.aionChatSelectSession || "");
+      if (!selectAionChatSessionV3(engine, sessionId)) return;
+      safeAionDesktopPatch({
+        aionChatPrompt: "",
+        aionChatAttachments: [],
+        aionChatOutput: "",
+        desktopAssistantPrompt: "",
+        desktopAssistantOutput: "",
+      });
+      desktopStore.persistCacheSoon(100);
+      requestRender();
+    });
+  });
+
+  document.querySelectorAll("[data-aion-chat-delete-session]").forEach((button) => {
+    if (button.dataset.bound) return;
+    button.dataset.bound = "1";
+    button.addEventListener("click", () => {
+      const engine = getAionChatSelectedEngineV1(getAionConnectedChatModelsV1().models);
+      const sessionId = String(button.dataset.aionChatDeleteSession || "");
+      const title = String(button.dataset.aionChatDeleteTitle || "this chat");
+      const confirmed = window.confirm(`Delete “${title}”?\n\nThis removes this chat history from this Mac and cannot be undone.`);
+      if (!confirmed || !deleteAionChatSessionV3(engine, sessionId)) return;
+      safeAionDesktopPatch({
+        aionChatPrompt: "",
+        aionChatAttachments: [],
+        aionChatOutput: "",
+        desktopAssistantPrompt: "",
+        desktopAssistantOutput: "",
+      });
+      desktopStore.persistCacheSoon(100);
+      requestRender();
+    });
+  });
+
+  document.querySelectorAll("[data-aion-browser-plan-run]").forEach((button) => {
+    if (button.dataset.bound) return;
+    button.dataset.bound = "1";
+    button.addEventListener("click", async () => {
+      const planId = String(button.dataset.aionBrowserPlanRun || "");
+      const engine = getAionChatSelectedEngineV1(getAionConnectedChatModelsV1().models);
+      const messages = getAionChatMessagesV1(engine);
+      const messageIndex = messages.findIndex((item) => item?.browserPlan?.plan_id === planId);
+      if (messageIndex < 0) return;
+      let plan = messages[messageIndex].browserPlan;
+      const approvalSteps = safeArray(plan.approval_step_ids);
+      if (approvalSteps.length) {
+        const approved = window.confirm(`Allow AION to run ${approvalSteps.length} approved browser action${approvalSteps.length === 1 ? "" : "s"}?\n\n${plan.objective || "Browser task"}\n\nThe exact steps shown in the chat will be authorised for one execution only.`);
+        if (!approved) return;
+      }
+      button.disabled = true;
+      button.textContent = approvalSteps.length ? "Approving…" : "Opening isolated browser…";
+      try {
+        const workspaceId = getAionChatWorkspaceIdV1();
+        if (plan.state === "awaiting_user_approval") {
+          const approvedResult = await apiPost(`/api/local-node/browser-harness/plans/${encodeURIComponent(plan.plan_id)}/approve`, {
+            approved_step_ids: approvalSteps,
+            approved_by: "business_owner",
+            workspace_id: workspaceId,
+          });
+          plan = approvedResult?.plan || plan;
+        }
+        if (!window.aionDesktop?.executeGovernedBrowserPlan) {
+          throw new Error("The governed browser executor is unavailable in this build.");
+        }
+        const execution = await window.aionDesktop.executeGovernedBrowserPlan({
+          grant_id: plan.grant_id,
+          execution_token: plan.execution_token,
+          workspace_id: workspaceId,
+        });
+        if (!execution?.ok) throw new Error(execution?.error || execution?.status || "Browser execution failed.");
+        const nextMessages = [...messages];
+        nextMessages[messageIndex] = {
+          ...nextMessages[messageIndex],
+          browserPlan: {
+            ...plan,
+            state: "completed",
+            execution_token: "",
+            receipt_id: execution?.receipt?.receipt_id || "receipt_saved",
+          },
+        };
+        setAionChatMessagesV1(nextMessages, engine);
+        safeAionDesktopPatch({ message: "Browser task completed and receipt saved", messageTone: "success" });
+        desktopStore.persistCache();
+        requestRender();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = "Try again";
+        safeAionDesktopPatch({ message: String(error?.message || error), messageTone: "error" });
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-aion-computer-plan-run]").forEach((button) => {
+    if (button.dataset.bound) return;
+    button.dataset.bound = "1";
+    button.addEventListener("click", async () => {
+      const planId = String(button.dataset.aionComputerPlanRun || "");
+      const engine = getAionChatSelectedEngineV1(getAionConnectedChatModelsV1().models);
+      const messages = getAionChatMessagesV1(engine);
+      const messageIndex = messages.findIndex((item) => item?.computerPlan?.plan_id === planId);
+      if (messageIndex < 0) return;
+      let plan = messages[messageIndex].computerPlan;
+      const approvalSteps = safeArray(plan.approval_step_ids);
+      if (approvalSteps.length) {
+        const summary = safeArray(plan.steps)
+          .filter((step) => step.approval_required)
+          .map((step) => `${String(step.operation || "change").replaceAll("_", " ")}: ${getAionComputerStepSummaryV1(step)}`)
+          .join("\n");
+        const approved = window.confirm(`Allow AION to make ${approvalSteps.length} approved desktop change${approvalSteps.length === 1 ? "" : "s"}?\n\n${plan.objective || "Desktop task"}\n\n${summary}\n\nThis exact plan is authorised for one execution only.`);
+        if (!approved) return;
+      }
+      button.disabled = true;
+      button.textContent = approvalSteps.length ? "Approving…" : "Working…";
+      try {
+        const workspaceId = getAionChatWorkspaceIdV1();
+        if (plan.state === "awaiting_user_approval") {
+          const approvedResult = await apiPost(`/api/local-node/computer-harness/plans/${encodeURIComponent(plan.plan_id)}/approve`, {
+            approved_step_ids: approvalSteps,
+            approved_by: "business_owner",
+            workspace_id: workspaceId,
+          });
+          plan = approvedResult?.plan || plan;
+        }
+        if (!window.aionDesktop?.executeGovernedComputerPlan) throw new Error("The governed desktop executor is unavailable in this build.");
+        const execution = await window.aionDesktop.executeGovernedComputerPlan({
+          grant_id: plan.grant_id,
+          execution_token: plan.execution_token,
+          workspace_id: workspaceId,
+        });
+        if (!execution?.ok) throw new Error(execution?.error || execution?.status || "Desktop execution failed.");
+        const inspection = safeArray(execution?.steps).find((step) => step?.operation === "inspect_app" && step?.observation);
+        const createdDocument = safeArray(execution?.steps).find((step) => step?.operation === "create_document");
+        const styledDocument = safeArray(execution?.steps).find((step) => step?.operation === "style_document");
+        const inspectionCopy = inspection
+          ? String(inspection.summary || `I inspected ${inspection.app || "the application"}. No changes were made.`)
+          : styledDocument?.saved_path
+            ? `AION styled the Pages document and saved a new copy at ${styledDocument.saved_path}. The original was left unchanged.`
+          : createdDocument?.saved_path
+            ? `AION completed the research and created the Pages document with its source links. It was saved locally at ${createdDocument.saved_path}.`
+            : "AION completed the desktop task. The work receipt is shown below.";
+        const nextMessages = [...messages];
+        nextMessages[messageIndex] = {
+          ...nextMessages[messageIndex],
+          content: inspectionCopy,
+          computerPlan: { ...plan, state: "completed", execution_token: "", receipt_id: execution?.receipt?.receipt_id || "receipt_saved" },
+        };
+        setAionChatMessagesV1(nextMessages, engine);
+        safeAionDesktopPatch({ message: "Desktop task completed and receipt saved", messageTone: "success" });
+        desktopStore.persistCache();
+        requestRender();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = "Try again";
+        safeAionDesktopPatch({ message: String(error?.message || error), messageTone: "error" });
+      }
+    });
+    const autoPlanId = String(button.dataset.aionComputerPlanRun || "");
+    const autoEngine = getAionChatSelectedEngineV1(getAionConnectedChatModelsV1().models);
+    const autoPlan = getAionChatMessagesV1(autoEngine).find((item) => item?.computerPlan?.plan_id === autoPlanId)?.computerPlan;
+    window.__aionComputerAutoRunPlansV1 = window.__aionComputerAutoRunPlansV1 || new Set();
+    if (
+      autoPlan?.auto_execute === true
+      && autoPlan?.state === "ready"
+      && window.__aionComputerPendingAutoRunPlanIdV1 === autoPlanId
+      && !window.__aionComputerAutoRunPlansV1.has(autoPlanId)
+    ) {
+      window.__aionComputerAutoRunPlansV1.add(autoPlanId);
+      window.__aionComputerPendingAutoRunPlanIdV1 = "";
+      window.setTimeout(() => button.click(), 80);
+    }
+  });
 
   const apiBaseInput = document.getElementById("apiBaseInput");
   const webBaseInput = document.getElementById("webBaseInput");
@@ -64675,7 +70681,7 @@ if (action === "capture-browser-approval-checkpoint") {
       const files = asFileListArray(e.target?.files);
       if (!files.length) return;
       const lab = getAionMarketingCreativeLabState();
-      lab.campaignMessage = "Uploading reference images into this business's protected campaign workspace…";
+      lab.campaignMessage = "Uploading creative evidence into this business's protected campaign workspace…";
       requestRender();
       try {
         const form = new FormData();
@@ -64683,7 +70689,7 @@ if (action === "capture-browser-approval-checkpoint") {
         const workspaceId = encodeURIComponent(String(getActiveWorkspaceId() || state.workspaceId || "workspace"));
         const response = await fetch(`http://127.0.0.1:8080/api/local-node/marketing/assets/upload?workspace_id=${workspaceId}`, { method: "POST", body: form });
         const body = await response.json();
-        if (!response.ok || !body?.ok) throw new Error(body?.detail || "Image upload failed");
+        if (!response.ok || !body?.ok) throw new Error(body?.detail || "Creative upload failed");
         const existingAssets = getMarketingCreativeAssetDrafts();
         const nextAssets = (body.items || []).map((item) => ({
           ...item,
@@ -64694,7 +70700,7 @@ if (action === "capture-browser-approval-checkpoint") {
           previewUrl: item.url || "",
         }));
         desktopStore.setMarketingField("creativeAssets", [...existingAssets, ...nextAssets]);
-        lab.campaignMessage = `${nextAssets.length} reference image${nextAssets.length === 1 ? "" : "s"} ready for AION.`;
+        lab.campaignMessage = `${nextAssets.length} creative reference${nextAssets.length === 1 ? "" : "s"} ready for AION.`;
         desktopStore.persistCache();
       } catch (error) {
         lab.campaignError = String(error?.message || error);
@@ -64891,6 +70897,7 @@ if (action === "capture-browser-approval-checkpoint") {
       const approvalId = button.dataset.approvalId;
       const approve = button.dataset.approve === "true";
       const runId = button.dataset.runId || null;
+      const isReviewSurface = button.dataset.reviewSurface === "true";
 
       if (!approvalId) return;
 
@@ -64908,8 +70915,8 @@ if (action === "capture-browser-approval-checkpoint") {
             approve,
             resolved_by: "desktop_user",
             resolution_note: approve
-              ? "Approved from local desktop marketing stream"
-              : "Rejected from local desktop marketing stream",
+              ? "Draft approved from the Marketing review queue. Publishing remains a separate action."
+              : "Draft rejected from the Marketing review queue and returned for changes.",
           },
         );
 
@@ -64924,32 +70931,40 @@ if (action === "capture-browser-approval-checkpoint") {
         safeAionDesktopPatch({
           activeTab: "live_agents",
           activeZone: "marketing",
-          liveAgentsView: LIVE_AGENT_VIEWS.STREAM,
+          liveAgentsView: isReviewSurface
+            ? LIVE_AGENT_VIEWS.APPROVALS
+            : LIVE_AGENT_VIEWS.STREAM,
           liveAgentsStreamTab: approve ? "completed" : "approval",
           selectedLiveRunId: resolvedRunId,
           selectedInspectorTarget: resolvedRunId
             ? { type: "run", id: resolvedRunId }
             : state.selectedInspectorTarget,
           liveAgentsReplayOpen: false,
-          message: approve ? "Content approved" : "Content rejected",
+          message: approve
+            ? "Draft approved — ready to schedule or publish"
+            : "Draft returned for changes",
           messageTone: approve ? "success" : "neutral",
           loading: false,
         });
 
-        ensureLiveAgentSelection({
-          preferredDepartmentKey: "marketing",
-          preferredRunId: resolvedRunId,
-          preferredView: LIVE_AGENT_VIEWS.STREAM,
-          openReplay: false,
-        });
+        if (!isReviewSurface) {
+          ensureLiveAgentSelection({
+            preferredDepartmentKey: "marketing",
+            preferredRunId: resolvedRunId,
+            preferredView: LIVE_AGENT_VIEWS.STREAM,
+            openReplay: false,
+          });
+        }
 
         desktopStore.persistCache();
         requestRender();
 
-        requestAnimationFrame(() => {
-          focusRunInspector();
-          revealReplayForSelectedRun();
-        });
+        if (!isReviewSurface) {
+          requestAnimationFrame(() => {
+            focusRunInspector();
+            revealReplayForSelectedRun();
+          });
+        }
       } catch (error) {
         safeAionDesktopPatch({
           message:
@@ -64964,6 +70979,80 @@ if (action === "capture-browser-approval-checkpoint") {
 }
 
 let renderQueued = false;
+
+function getAionChatRenderSignatureV3() {
+  if (String(state?.activeTab || "") !== "aion_chat") return "";
+
+  const connectionState = getAionConnectedChatModelsV1();
+  const models = safeArray(connectionState?.models);
+  const engine = getAionChatSelectedEngineV1(models);
+  const sessions = engine ? getAionChatSessionsV3(engine).map((chat) => ({
+    id: chat?.id || "",
+    title: chat?.title || "New chat",
+    updated_at: chat?.updated_at || "",
+    message_count: safeArray(chat?.messages).length,
+  })) : [];
+  const activeSessionId = engine ? getAionChatActiveSessionIdV3(engine) : "";
+  const messages = getAionChatMessagesV1(engine).map((message) => ({
+    role: message?.role || "",
+    kind: message?.kind || "",
+    content: message?.content || "",
+    model: message?.model || "",
+    modelLabel: message?.modelLabel || "",
+    browserPlan: message?.browserPlan || null,
+    computerPlan: message?.computerPlan || null,
+    at: message?.at || "",
+  }));
+  const meetingContext = getAionBoardMeetingChatContextV1();
+  const attachments = getAionChatAttachmentsV1().map((item) => ({
+    id: item?.id || "",
+    path: item?.path || "",
+    name: item?.name || "",
+    kind: item?.kind || "file",
+    extension: item?.extension || "",
+    size: Number(item?.size || 0),
+    modified_at: item?.modified_at || "",
+  }));
+  const busy = state?.loading === true && String(state?.message || "").toLowerCase().includes("aion");
+
+  return JSON.stringify({
+    engine,
+    mode: state?.aionChatMode || "business_workspace",
+    models: models.map((model) => ({
+      id: model?.id || "",
+      label: model?.label || "",
+      provider: model?.provider || "",
+      model: model?.model || "",
+      local: model?.local === true,
+      isLead: model?.isLead === true,
+    })),
+    connectionsLoaded: connectionState?.loaded === true,
+    connectionsLoading: connectionState?.loading === true,
+    sessions,
+    activeSessionId,
+    messages,
+    attachments,
+    meetingContext: meetingContext || null,
+    busy,
+  });
+}
+
+function shouldSuppressUnchangedAionChatRenderV3() {
+  if (String(state?.activeTab || "") !== "aion_chat") {
+    window.__aionChatLastRenderSignatureV3 = "";
+    return false;
+  }
+
+  const existingChat = document.querySelector('[data-aion-multi-model-chat="true"]');
+  if (!existingChat) return false;
+
+  const signature = getAionChatRenderSignatureV3();
+  if (!signature || signature !== window.__aionChatLastRenderSignatureV3) return false;
+
+  window.__aionChatSuppressedBackgroundRendersV3 =
+    Number(window.__aionChatSuppressedBackgroundRendersV3 || 0) + 1;
+  return true;
+}
 
 function requestRender() {
   if (window.__aionDraggingConnector) {
@@ -70523,10 +76612,21 @@ function installAionWorkflowCanvasZoomControls() {
 function render() {
   applyAionO25ABFreshStartupRouteOwner();
 
+  // AI Chat owns a long-lived scrolling transcript and composer. Background
+  // health, dashboard and agent heartbeats must not replace that DOM. A real
+  // chat change updates the signature and is rendered normally.
+  if (shouldSuppressUnchangedAionChatRenderV3()) return;
+
   const t0 = performance.now();
 
   const app = document.getElementById("app");
   if (!app) return;
+
+  if (String(state?.activeTab || "") === "aion_chat") {
+    window.__aionChatLastRenderSignatureV3 = getAionChatRenderSignatureV3();
+  } else {
+    window.__aionChatLastRenderSignatureV3 = "";
+  }
 
   const htmlStart = performance.now();
   app.innerHTML = `
@@ -70537,6 +76637,7 @@ function render() {
       ${renderLiveAgentsReplayOverlay()}
     </div>
   `;
+  window.setTimeout(() => window.syncAionPersistentBoardroomHostV2?.(), 0);
   const htmlEnd = performance.now();
 
   const attachStart = performance.now();
@@ -70576,6 +76677,8 @@ installWorkflowArchitectGuidedStepBuilderControls();
   installAionWorkflowInspectorToggle();
   installAionWorkflowCanvasZoomControls();
   const attachEnd = performance.now();
+
+  scrollAionChatToLatestMessageV1();
 
   const isSpatialBoardroom =
     state.activeTab === "boardroom" &&
@@ -70622,14 +76725,12 @@ installWorkflowArchitectGuidedStepBuilderControls();
             String(seat?.id || "") === String(seatId || "") ||
             String(seat?.key || seat?.provider_id || "") === String(zone || "")
           ) || {};
-          window.AionBoardroomSeatConversation?.open?.({
-            seatId,
-            key: zone,
-            teamMode: seatMeta.teamMode || window.__aionSpatialBoardroomTeamMode || "executive",
+          const teamMode = seatMeta.teamMode || window.__aionSpatialBoardroomTeamMode || "executive";
+          handleAionSpatialBoardroomActionV1({
+            type: teamMode === "executive" ? "open_executive_chat" : "open_board_member_chat",
+            member_id: seatMeta.providerId || snapshotSeat.provider_id || snapshotSeat.key || zone,
             label: seatMeta.seatLabel || snapshotSeat.label || zone,
             role: seatMeta.seatRole || snapshotSeat.role || snapshotSeat.stance || "",
-            providerId: seatMeta.providerId || snapshotSeat.provider_id || snapshotSeat.key || zone,
-            snapshot: boardroomSnapshot,
           });
         },
 
@@ -70825,6 +76926,14 @@ function setupBackendStatusListener() {
     if (payload?.ok) {
       const firstReady = !state.backendReady;
 
+      /* Backend health is a heartbeat, not a UI-state change. Rebuilding the
+       * whole renderer for every repeated ready event made AI Chat visibly
+       * flash and could disturb its scroll position. Hydrate once when the
+       * backend becomes ready; ignore identical subsequent heartbeats. */
+      if (!firstReady && state.backendStatus === "ready") {
+        return;
+      }
+
       safeAionDesktopPatch({
         backendReady: true,
         backendStatus: "ready",
@@ -70842,8 +76951,6 @@ function setupBackendStatusListener() {
           await hydrateRecoveredDesktopState();
           await refreshAll();
         })();
-      } else {
-        void refreshAll();
       }
       return;
     }
@@ -105259,7 +111366,6 @@ function renderAionMasterGlyphCanvasPanel() {
 
     const activeId = String(window.__aionActiveWorkflowTabId || "");
     const activeTabType = String(window.__aionActiveWorkflowTab || "main").toLowerCase();
-
     const fragment = document.createDocumentFragment();
 
     ensureWorkflowTabs().forEach((tab) => {
@@ -122472,12 +128578,12 @@ html body .aion-pilot-tracked-change-strip ul {
     html body > .aion-main-sidebar {
       position: fixed !important;
       left: 0 !important;
-      top: 0 !important;
+      top: 54px !important;
       bottom: 0 !important;
       width: 64px !important;
       min-width: 64px !important;
       max-width: 64px !important;
-      height: 100vh !important;
+      height: calc(100vh - 54px) !important;
       margin: 0 !important;
       padding: 0 !important;
       gap: 0 !important;
@@ -122520,6 +128626,15 @@ html body .aion-pilot-tracked-change-strip ul {
       color: #475569 !important;
     }
 
+    html body > .aion-main-sidebar .aion-sidebar-brand-icon {
+      width: 42px !important;
+      height: 42px !important;
+      display: block !important;
+      object-fit: contain !important;
+      pointer-events: none !important;
+      user-select: none !important;
+    }
+
     html body > .aion-main-sidebar .aion-workflow-app-nav {
       width: 64px !important;
       margin: 0 !important;
@@ -122538,7 +128653,7 @@ html body .aion-pilot-tracked-change-strip ul {
 
     html body > .aion-main-sidebar .aion-workflow-nav-btn.active,
     html body > .aion-main-sidebar .aion-workflow-nav-btn.app-tab-active {
-      background: #0f172a !important;
+      background: #2563eb !important;
       color: #ffffff !important;
     }
 
@@ -122693,7 +128808,7 @@ html body .aion-pilot-tracked-change-strip ul {
     }
 
     body.aion-phase19c-workflow-visible .aion-main-sidebar {
-      top: 0 !important;
+      top: 54px !important;
       left: 0 !important;
       margin: 0 !important;
       padding: 0 !important;
@@ -123296,12 +129411,12 @@ html body .aion-pilot-tracked-change-strip ul {
     html body.aion-phase19c-workflow-visible .aion-main-sidebar {
       position: fixed !important;
       left: 0 !important;
-      top: 0 !important;
+      top: 54px !important;
       bottom: 0 !important;
       width: var(--aion-phase25k-sidebar-w) !important;
       min-width: var(--aion-phase25k-sidebar-w) !important;
       max-width: var(--aion-phase25k-sidebar-w) !important;
-      height: 100vh !important;
+      height: calc(100vh - 54px) !important;
       margin: 0 !important;
       transform: none !important;
       z-index: 10000 !important;
@@ -123310,7 +129425,7 @@ html body .aion-pilot-tracked-change-strip ul {
     html body.aion-phase19c-workflow-visible .aion-workflow-canvas-shell {
       position: fixed !important;
       left: var(--aion-phase25k-sidebar-w) !important;
-      top: 0 !important;
+      top: 54px !important;
       right: 0 !important;
       bottom: 0 !important;
       width: calc(100vw - var(--aion-phase25k-sidebar-w)) !important;
@@ -124271,30 +130386,49 @@ html body .aion-pilot-tracked-change-strip ul {
 
 
 /*
- * AION CLEANUP: Unhide workflow tabs for contained Add Step modal v14
- * -------------------------------------------------------------------
- * Removes stale data-aion-hidden-by-modal-v8 from the workflow tabbar.
- * The contained Add Step picker no longer hides workflow tabs.
+ * AION CLEANUP: Keep workflow tabs behind the contained Add Step modal v14
+ * -------------------------------------------------------------------------
+ * The picker is a focused catalogue surface. Hide every historical workflow
+ * tab-strip variant while it is open, then restore the strip on close.
  */
 (function installAionUnhideWorkflowTabsForContainedAddStepModalV14() {
   if (window.__aionUnhideWorkflowTabsForContainedAddStepModalV14Installed === true) return;
   window.__aionUnhideWorkflowTabsForContainedAddStepModalV14Installed = true;
 
   function cleanup() {
-    const nav = document.getElementById("aion-glyph-workflow-top-tabs-v2");
-    if (!nav) return;
+    const pickerOpen = Boolean(document.querySelector(".aion-architect-module-picker, .aion-architect-module-picker-backdrop"));
+    const navs = document.querySelectorAll([
+      "#aion-glyph-workflow-top-tabs-v2",
+      "#aion-master-glyph-workflow-tabs-v2",
+      "#aion-master-glyph-workflow-tab-v1",
+      "[data-aion-workflow-tab-strip='true']",
+      "[data-aion-glyph-workflow-top-tabs='true']",
+      ".aion-glyph-workflow-top-tabs-v2",
+      ".aion-glyph-workflow-top-tabs",
+      ".aion-master-glyph-workflow-tabs",
+      ".aion-glyph-tabs-strip",
+    ].join(", "));
 
-    if (document.querySelector(".aion-architect-module-picker, .aion-architect-module-picker-backdrop")) {
-      nav.removeAttribute("data-aion-hidden-by-modal-v8");
-      nav.style.removeProperty("display");
-      nav.style.removeProperty("visibility");
-      nav.style.removeProperty("opacity");
-      nav.style.removeProperty("pointer-events");
-    }
+    navs.forEach((nav) => {
+      if (pickerOpen) {
+        nav.setAttribute("data-aion-hidden-by-add-step-v14", "true");
+        nav.style.setProperty("display", "none", "important");
+        nav.style.setProperty("visibility", "hidden", "important");
+        nav.style.setProperty("opacity", "0", "important");
+        nav.style.setProperty("pointer-events", "none", "important");
+      } else if (nav.getAttribute("data-aion-hidden-by-add-step-v14") === "true") {
+        nav.removeAttribute("data-aion-hidden-by-add-step-v14");
+        nav.style.removeProperty("display");
+        nav.style.removeProperty("visibility");
+        nav.style.removeProperty("opacity");
+        nav.style.removeProperty("pointer-events");
+      }
+    });
   }
 
   cleanup();
   window.addEventListener("aion:workflow-rendered", () => setTimeout(cleanup, 0));
+  new MutationObserver(() => window.requestAnimationFrame(cleanup)).observe(document.body, { childList: true, subtree: true });
   setTimeout(cleanup, 0);
   setTimeout(cleanup, 100);
 })();
@@ -124929,11 +131063,11 @@ function renderAionVaultBusinessIntegrationsV1() {
       : canConnectHere
         ? `<button type="button" class="primary-btn" data-aion-vault-integration-connect-provider="${escapeHtml(selected.provider_id)}">Connect</button>`
         : selected.available_to_connect
-          ? `<button type="button" class="secondary-btn" disabled title="Provider setup is not installed in this Vault view yet">Connect</button>`
+          ? `<button type="button" class="secondary-btn" disabled title="Provider setup is not installed on the Connections page yet">Connect</button>`
           : `<button type="button" class="secondary-btn" disabled>Planned</button>`;
     return `<article class="aion-vault-integration-group" data-aion-vault-integration-category="${escapeHtml(id)}"><header><strong>${escapeHtml(title)}</strong><p>${escapeHtml(note)}</p></header><div class="aion-vault-integration-picker"><label><span>Provider</span><select data-aion-vault-integration-provider-select="${escapeHtml(id)}">${items.map((provider) => `<option value="${escapeHtml(provider.provider_id)}" ${provider.provider_id === selected.provider_id ? "selected" : ""}>${escapeHtml(provider.label)}${provider.connected ? " · Connected" : provider.recommended ? " · Recommended" : ""}</option>`).join("")}</select></label><div class="aion-vault-integration-selection"><strong>${escapeHtml(selected.label)}</strong><span class="badge">${escapeHtml(status)}</span><p>${escapeHtml(selected.purpose)}</p></div><div class="aion-vault-integration-action">${action}</div></div></article>`;
   }).join("");
-  return `<section class="operations-agents-card aion-vault-canonical-panel aion-vault-business-integrations" data-aion-vault-business-integrations="true"><div class="operations-agents-card-head"><div><div class="eyebrow">Business integrations</div><h2>Choose services by purpose</h2><p class="muted">Mailbox, marketing and transactional delivery are separate jobs. Tessaris only calls a provider after its Vault connection and approval boundary are verified.</p></div><button type="button" class="secondary-btn" data-aion-vault-integrations-refresh="true">${state.loading ? "Checking…" : "Refresh"}</button></div>${state.error ? `<div class="marketing-error">${escapeHtml(state.error)}</div>` : ""}<div class="aion-vault-integration-groups">${groups || `<p class="muted">${state.loading ? "Loading provider catalogue…" : "No provider catalogue is available."}</p>`}</div><div class="aion-vault-integration-boundary"><strong>Payments remain deferred.</strong><span>Connecting an app does not enable live sends, ledger writes or customer notifications. Those actions still require explicit authority and a provider receipt.</span></div></section>`;
+  return `<section class="operations-agents-card aion-vault-canonical-panel aion-vault-business-integrations" data-aion-vault-business-integrations="true"><div class="operations-agents-card-head"><div><div class="eyebrow">Business connections</div><h2>Choose services by purpose</h2><p class="muted">Mailbox, marketing and transactional delivery are separate jobs. Tessaris only calls a provider after its secure connection and approval boundary are verified.</p></div><button type="button" class="secondary-btn" data-aion-vault-integrations-refresh="true">${state.loading ? "Checking…" : "Refresh"}</button></div>${state.error ? `<div class="marketing-error">${escapeHtml(state.error)}</div>` : ""}<div class="aion-vault-integration-groups">${groups || `<p class="muted">${state.loading ? "Loading provider catalogue…" : "No provider catalogue is available."}</p>`}</div><div class="aion-vault-integration-boundary"><strong>Payments remain deferred.</strong><span>Connecting an app does not enable live sends, ledger writes or customer notifications. Those actions still require explicit authority and a provider receipt.</span></div></section>`;
 }
 
 if (!window.__aionVaultBusinessIntegrationsHandlersV1) {
@@ -124969,20 +131103,24 @@ if (!window.__aionVaultBusinessIntegrationsHandlersV1) {
 
 function renderVaultCredentialsSurface() {
   return `
-    <div class="operations-agents-page vault-classic-page aion-vault-canonical-page">
+    <div class="operations-agents-page vault-classic-page aion-vault-canonical-page aion-connections-page">
       <div class="operations-agents-hero aion-vault-canonical-hero">
         <div>
-          <div class="eyebrow">Pilot · Vault command centre</div>
-          <h1>Vault coordination</h1>
-          <p class="muted">Manage the models, business connections and guarded credentials Tessaris is allowed to use.</p>
+          <div class="eyebrow">Tessaris · Connections</div>
+          <h1>Connections</h1>
+          <p class="muted">Connect the AI models and business services Tessaris is allowed to use. Credentials remain securely protected in the local Vault.</p>
         </div>
-        <div class="aion-vault-hero-status" aria-label="Vault operating boundaries">
+        <div class="aion-vault-hero-status" aria-label="Connection operating boundaries">
           <span>Local-first</span>
           <span>Approval gated</span>
         </div>
       </div>
 
       ${renderAppTabs()}
+
+      ${typeof window.aionRenderOriginalBusinessMapGovernanceV2 === "function"
+        ? window.aionRenderOriginalBusinessMapGovernanceV2()
+        : ""}
 
       ${typeof renderAionVaultAiProvidersPanelV1 === "function" ? renderAionVaultAiProvidersPanelV1() : ""}
 
@@ -125124,14 +131262,22 @@ function renderBusinessContextEditableSelect(name, label, value, options = []) {
 
 /* AION SURGICAL RESTORE 20260629: getAionBusinessContextSubtab */
 function getAionBusinessContextSubtab() {
-  return normaliseAionBusinessContextSubtabKey(
+  const storedValue =
     window.__aionBusinessContextSubtab ||
     (typeof state !== "undefined" ? state.activeBusinessContextSubtab : "") ||
     getAionRestoredAppStateSafe().activeBusinessContextSubtab ||
     getAionRestoredAppStateSafe().businessContextActiveSubtab ||
     window.localStorage?.getItem("aion.activeBusinessContextSubtab") ||
-    "key_business_info",
-  );
+    "key_business_info";
+  const normalised = normaliseAionBusinessContextSubtabKey(storedValue);
+  if (normalised !== String(storedValue || "").trim().toLowerCase()) {
+    try {
+      window.__aionBusinessContextSubtab = normalised;
+      state.activeBusinessContextSubtab = normalised;
+      window.localStorage?.setItem("aion.activeBusinessContextSubtab", normalised);
+    } catch {}
+  }
+  return normalised;
 }
 
 
@@ -125141,12 +131287,8 @@ function renderBusinessContextSubtabs() {
   const tabs = [
     ["key_business_info", "Key Business Info"],
     ["brand_foundation", "Brand Foundation"],
+    ["audience", "Audience"],
     ["design_system", "Business Design System"],
-    ["sales", "Sales"],
-    ["marketing", "Marketing"],
-    ["finance", "Finance"],
-    ["operations", "Operations"],
-    ["support", "Support"],
   ];
 
   return `
@@ -125929,6 +132071,155 @@ function renderBusinessDepartmentContextSubtab(departmentKey, foundation = getEd
 }
 
 
+function getAionAudiencePersonas() {
+  const section = getBrandMapSection("customerPersonas") || {};
+  const raw = Array.isArray(section.personas)
+    ? section.personas
+    : Array.isArray(section.personaCards)
+      ? section.personaCards
+      : [];
+  return raw.filter((item) => item && typeof item === "object").map((item, index) => ({
+    id: String(item.id || `persona_${index + 1}`),
+    name: String(item.name || item.title || `Persona ${index + 1}`),
+    summary: String(item.summary || item.description || ""),
+    location: String(item.location || ""),
+    lifeStage: String(item.lifeStage || item.life_stage || ""),
+    goals: String(item.goals || ""),
+    painPoints: String(item.painPoints || item.pain_points || ""),
+    buyingTriggers: String(item.buyingTriggers || item.buying_triggers || ""),
+    objections: String(item.objections || ""),
+    preferredChannels: String(item.preferredChannels || item.preferred_channels || ""),
+    messagingNotes: String(item.messagingNotes || item.messaging_notes || ""),
+    createdAt: String(item.createdAt || item.created_at || ""),
+    updatedAt: String(item.updatedAt || item.updated_at || ""),
+  }));
+}
+
+
+function getAionAudiencePersonaDraft() {
+  if (!window.__aionAudiencePersonaDraft || typeof window.__aionAudiencePersonaDraft !== "object") {
+    window.__aionAudiencePersonaDraft = {
+      id: "",
+      name: "",
+      summary: "",
+      location: "",
+      lifeStage: "",
+      goals: "",
+      painPoints: "",
+      buyingTriggers: "",
+      objections: "",
+      preferredChannels: "",
+      messagingNotes: "",
+    };
+  }
+  return window.__aionAudiencePersonaDraft;
+}
+
+
+function persistAionAudiencePersonas(personas) {
+  window.desktopStore?.setBrandFoundationNestedValue?.("brandMap.customerPersonas.personas", personas);
+  window.desktopStore?.persistCache?.();
+}
+
+
+function renderAionAudiencePersonaField(field, label, value, placeholder, multiline = false) {
+  const control = multiline
+    ? `<textarea class="input input-textarea" data-aion-persona-field="${escapeHtml(field)}" placeholder="${escapeHtml(placeholder)}" style="min-height:96px;resize:vertical;">${escapeHtml(value)}</textarea>`
+    : `<input class="input" data-aion-persona-field="${escapeHtml(field)}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" />`;
+  return `<label class="field-label" style="display:grid;gap:7px;">${escapeHtml(label)}${control}</label>`;
+}
+
+
+function renderBusinessAudienceSubtabContent() {
+  const personas = getAionAudiencePersonas();
+  const draft = getAionAudiencePersonaDraft();
+  const editing = Boolean(draft.id || window.__aionAudiencePersonaEditorOpen);
+  return `
+    <div data-aion-business-audience="true" style="display:grid;gap:16px;">
+      <section class="panel large-panel" style="margin:0;border-top:4px solid #2563eb;">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+          <div><div class="panel-kicker">AUDIENCE & PERSONAS</div><div class="panel-title">Ideal customer profiles</div><p class="muted" style="max-width:820px;line-height:1.55;">Create reusable customer personas here. Marketing can then target one or several personas while keeping the approved brand voice, core message and visual rules unchanged.</p></div>
+          <button type="button" class="primary-btn" data-aion-persona-new>+ Create persona</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px;">
+          ${personas.length ? personas.map((persona) => `<article style="border:1px solid #d9e2ec;border-radius:14px;background:#fff;padding:16px;display:grid;gap:10px;min-width:0;"><div><div class="panel-title" style="font-size:17px;">${escapeHtml(persona.name)}</div><div class="helper-text" style="margin-top:5px;">${escapeHtml(persona.summary || "No summary added yet.")}</div></div>${persona.location || persona.lifeStage ? `<div class="badge-row"><span class="badge">${escapeHtml([persona.location, persona.lifeStage].filter(Boolean).join(" · "))}</span></div>` : ""}<div class="helper-text"><strong>Goals:</strong> ${escapeHtml(persona.goals || "Not defined")}</div><div class="helper-text"><strong>Pain points:</strong> ${escapeHtml(persona.painPoints || "Not defined")}</div><div style="display:flex;gap:8px;margin-top:auto;"><button type="button" class="secondary-btn" data-aion-persona-edit="${escapeHtml(persona.id)}">Edit</button><button type="button" class="secondary-btn" data-aion-persona-remove="${escapeHtml(persona.id)}">Remove</button></div></article>`).join("") : `<div class="empty-state" style="grid-column:1/-1;padding:34px;">No personas saved yet. Create the first ideal customer profile to make audience targeting reusable across Marketing.</div>`}
+        </div>
+      </section>
+      ${editing ? `<section class="panel large-panel" style="margin:0;background:#f8fbff;border:1px solid #bfdbfe;"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;"><div><div class="panel-kicker">${draft.id ? "EDIT PERSONA" : "NEW PERSONA"}</div><div class="panel-title">${draft.id ? escapeHtml(draft.name || "Customer persona") : "Describe the ideal customer"}</div><p class="muted">Focus on buying context and messaging relevance. Avoid collecting unnecessary personal or sensitive data.</p></div><button type="button" class="secondary-btn" data-aion-persona-cancel>Cancel</button></div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;">${renderAionAudiencePersonaField("name", "Persona name", draft.name, "Example: Practical expat homeowner")}${renderAionAudiencePersonaField("summary", "Short description", draft.summary, "Who they are and why they buy", true)}${renderAionAudiencePersonaField("location", "Location / market", draft.location, "Example: Almería province")}${renderAionAudiencePersonaField("lifeStage", "Life stage or business context", draft.lifeStage, "Example: Homeowner planning an upgrade")}${renderAionAudiencePersonaField("goals", "Goals and desired outcomes", draft.goals, "What are they trying to achieve?", true)}${renderAionAudiencePersonaField("painPoints", "Pain points", draft.painPoints, "What frustrates or blocks them?", true)}${renderAionAudiencePersonaField("buyingTriggers", "Buying triggers", draft.buyingTriggers, "What makes them act now?", true)}${renderAionAudiencePersonaField("objections", "Likely objections", draft.objections, "Price, trust, timing, complexity…", true)}${renderAionAudiencePersonaField("preferredChannels", "Preferred channels", draft.preferredChannels, "Facebook, Instagram, Google, email…")}${renderAionAudiencePersonaField("messagingNotes", "Messaging notes", draft.messagingNotes, "Benefits, proof and language that resonate", true)}</div><div class="button-row" style="margin-top:16px;"><button type="button" class="primary-btn" data-aion-persona-save>Save persona</button><span class="helper-text">Saved personas become available immediately in Marketing.</span></div></section>` : ""}
+    </div>
+  `;
+}
+
+
+if (!window.__aionBusinessAudienceHandlersInstalled) {
+  window.__aionBusinessAudienceHandlersInstalled = true;
+  document.addEventListener("input", (event) => {
+    const field = event.target?.closest?.("[data-aion-persona-field]");
+    if (!field) return;
+    getAionAudiencePersonaDraft()[String(field.dataset.aionPersonaField || "")] = String(field.value || "");
+  }, true);
+  document.addEventListener("click", (event) => {
+    const createButton = event.target?.closest?.("[data-aion-persona-new]");
+    if (createButton) {
+      event.preventDefault();
+      window.__aionAudiencePersonaDraft = { id: "", name: "", summary: "", location: "", lifeStage: "", goals: "", painPoints: "", buyingTriggers: "", objections: "", preferredChannels: "", messagingNotes: "" };
+      window.__aionAudiencePersonaEditorOpen = true;
+      requestRender("audience-persona-new");
+      return;
+    }
+    const editButton = event.target?.closest?.("[data-aion-persona-edit]");
+    if (editButton) {
+      event.preventDefault();
+      const persona = getAionAudiencePersonas().find((item) => item.id === String(editButton.dataset.aionPersonaEdit || ""));
+      if (!persona) return;
+      window.__aionAudiencePersonaDraft = { ...persona };
+      window.__aionAudiencePersonaEditorOpen = true;
+      requestRender("audience-persona-edit");
+      return;
+    }
+    const cancelButton = event.target?.closest?.("[data-aion-persona-cancel]");
+    if (cancelButton) {
+      event.preventDefault();
+      window.__aionAudiencePersonaDraft = null;
+      window.__aionAudiencePersonaEditorOpen = false;
+      requestRender("audience-persona-cancel");
+      return;
+    }
+    const saveButton = event.target?.closest?.("[data-aion-persona-save]");
+    if (saveButton) {
+      event.preventDefault();
+      const draft = getAionAudiencePersonaDraft();
+      const name = String(draft.name || "").trim();
+      if (!name) { showToast("Give the persona a name before saving."); return; }
+      const personas = getAionAudiencePersonas();
+      const id = String(draft.id || `persona_${Date.now()}`);
+      const now = new Date().toISOString();
+      const saved = { ...draft, id, name, createdAt: draft.createdAt || now, updatedAt: now };
+      const existingIndex = personas.findIndex((item) => item.id === id);
+      if (existingIndex >= 0) personas.splice(existingIndex, 1, saved); else personas.push(saved);
+      persistAionAudiencePersonas(personas);
+      window.__aionAudiencePersonaDraft = null;
+      window.__aionAudiencePersonaEditorOpen = false;
+      showToast("Persona saved. It is now available in Marketing.");
+      requestRender("audience-persona-saved");
+      return;
+    }
+    const removeButton = event.target?.closest?.("[data-aion-persona-remove]");
+    if (removeButton) {
+      event.preventDefault();
+      const id = String(removeButton.dataset.aionPersonaRemove || "");
+      const persona = getAionAudiencePersonas().find((item) => item.id === id);
+      if (!persona || !window.confirm(`Remove the persona “${persona.name}”?`)) return;
+      persistAionAudiencePersonas(getAionAudiencePersonas().filter((item) => item.id !== id));
+      const selectedIds = Array.isArray(state.marketingForm?.selectedPersonaIds) ? state.marketingForm.selectedPersonaIds : [];
+      if (selectedIds.includes(id)) desktopStore.setMarketingField("selectedPersonaIds", selectedIds.filter((value) => value !== id));
+      showToast("Persona removed.");
+      requestRender("audience-persona-removed");
+    }
+  }, true);
+}
+
+
 /* AION SURGICAL RESTORE 20260629: renderBusinessContextSurface */
 function renderBusinessContextSurface() {
   const foundation = getEditableBusinessContextFoundation();
@@ -125940,10 +132231,10 @@ function renderBusinessContextSurface() {
 
   if (activeSubtab === "brand_foundation") {
     subtabHtml = renderBusinessBrandFoundationSubtabContent();
+  } else if (activeSubtab === "audience") {
+    subtabHtml = renderBusinessAudienceSubtabContent();
   } else if (activeSubtab === "design_system") {
     subtabHtml = renderBusinessDesignSystemSubtabContent();
-  } else if (["sales", "marketing", "finance", "operations", "support"].includes(activeSubtab)) {
-    subtabHtml = renderBusinessDepartmentContextSubtab(activeSubtab, foundation);
   } else {
     subtabHtml = `
       <section class="panel large-panel aion-business-panel aion-business-foundation-panel" data-aion-business-foundation-summary>
@@ -126059,10 +132350,10 @@ function renderBusinessContextSurface() {
     >
       <div class="surface-header">
         <div>
-          <div class="surface-eyebrow">AION Business Operating System</div>
-          <div class="surface-title">Business</div>
+          <div class="surface-eyebrow">PILOT · BUSINESS COMMAND CENTRE</div>
+          <div class="surface-title">Business coordination</div>
           <div class="surface-subtitle">
-            Editable business foundation with internal tabs for key business information, brand foundation and department function context.
+            Shared business foundations used across Pilot, Boardroom and every connected department.
           </div>
         </div>
         <div class="surface-right-meta">
@@ -126220,12 +132511,8 @@ function getApprovedSmallBusinessFoundationContext() {
 const AION_BUSINESS_CONTEXT_SUBTABS = new Set([
   "key_business_info",
   "brand_foundation",
+  "audience",
   "design_system",
-  "sales",
-  "marketing",
-  "finance",
-  "operations",
-  "support",
 ]);
 
 function normaliseAionBusinessContextSubtabKey(rawKey) {
@@ -132591,6 +138878,14 @@ Preview only. Nothing executed.`);
   }
 
   function renderPilotPreviewPanelO13D(stateInput) {
+    // The queue is prepared during app boot, but this internal preview must
+    // never replace the user's startup experience. It can still be opened
+    // deliberately after the workspace is ready.
+    if (window.__tessarisStartupInProgress === true) {
+      closePilotPreviewPanelO13D();
+      return null;
+    }
+
     ensureStylesO13D();
 
     const state = stateInput || buildPilotPreviewStateO13D();
@@ -132706,8 +139001,7 @@ Preview only. Nothing executed.`);
   if (typeof originalBuildAll === "function" && !originalBuildAll.__aionO13DWrapped) {
     const wrappedBuildAll = function wrappedBuildAllDepartmentPilotTaskPacketsO13D(...args) {
       const queue = originalBuildAll.apply(this, args);
-      const state = buildPilotPreviewStateO13D(queue);
-      renderPilotPreviewPanelO13D(state);
+      buildPilotPreviewStateO13D(queue);
       return queue;
     };
     wrappedBuildAll.__aionO13DWrapped = true;
@@ -132718,8 +139012,7 @@ Preview only. Nothing executed.`);
   if (typeof originalBuildActive === "function" && !originalBuildActive.__aionO13DWrapped) {
     const wrappedBuildActive = function wrappedBuildActiveDepartmentPilotTaskPacketsO13D(...args) {
       const queue = originalBuildActive.apply(this, args);
-      const state = buildPilotPreviewStateO13D(queue || undefined);
-      renderPilotPreviewPanelO13D(state);
+      buildPilotPreviewStateO13D(queue || undefined);
       return queue;
     };
     wrappedBuildActive.__aionO13DWrapped = true;
@@ -141306,7 +147599,7 @@ Preview only. Nothing executed.`);
   window.__aionO14LCompactLiveAgentsExecutiveSwitcherInstalled = true;
 
   const STYLE_ID = "aion-o14l-compact-live-agents-style";
-  const DEPARTMENTS = ["marketing", "sales", "finance", "operations", "support", "hr", "products_services", "pilot", "builder"];
+  const DEPARTMENTS = ["marketing", "sales", "finance", "operations", "support", "hr", "products_services", "procurement", "pilot", "builder"];
 
   function activeTabO14L() {
     try {
@@ -141806,7 +148099,7 @@ Preview only. Nothing executed.`);
   if (window.__aionO14MLiveAgentsDepartmentAuthorityLockInstalled === true) return;
   window.__aionO14MLiveAgentsDepartmentAuthorityLockInstalled = true;
 
-  const DEPARTMENTS_O14M = ["marketing", "sales", "finance", "operations", "support", "hr", "products_services", "pilot", "builder"];
+  const DEPARTMENTS_O14M = ["marketing", "sales", "finance", "operations", "support", "hr", "products_services", "procurement", "pilot", "builder"];
   const STYLE_ID_O14M = "aion-o14m-live-agents-authority-style";
 
   function normaliseDeptO14M(value) {
@@ -158852,8 +165145,8 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
 
   function shouldRenderOriginalBusinessMap() {
     const activeTab = String(window.__AION_DESKTOP_STATE__?.activeTab || "");
-    return activeTab === "boardroom" || Boolean(document.querySelector(
-      "[data-aion-boardroom-frontpage-simplified='true'], [data-aion-boardroom-business-map-governance='true']"
+    return activeTab === "vault" || Boolean(document.querySelector(
+      ".aion-vault-canonical-page, [data-aion-connections-business-map='true']"
     ));
   }
 
@@ -158916,11 +165209,12 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
         console.warn("[AION] live Boardroom context envelope unavailable", error);
       }
       try {
-        const providerResponse = await fetch("http://127.0.0.1:8080/api/boardroom/providers/status", { headers: { Accept: "application/json" } }).then((item) => {
+        const providerResponse = await fetch(`http://127.0.0.1:8080/api/boardroom/providers/status?workspace_id=${encodeURIComponent(businessId())}`, { headers: { Accept: "application/json" } }).then((item) => {
           if (!item.ok) throw new Error(`Boardroom provider status failed ${item.status}`);
           return item.json();
         });
         state.providers = safeArray(providerResponse?.providers);
+        state.leadModel = providerResponse?.lead_model || null;
       } catch (error) {
         console.warn("[AION] authoritative Boardroom provider status unavailable", error);
       }
@@ -159046,40 +165340,82 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
 
   function renderMapManager(map) {
     if (!managerOpen || !map) return "";
+    const humaniseEntity = (value = "") => {
+      const raw = String(value || "");
+      if (raw.startsWith("business:")) return "Current business";
+      const parts = raw.split(".");
+      let token = parts.pop() || raw;
+      if (token === "foundation" && parts.length) token = parts.pop() || token;
+      const labels = {
+        products_services: "Products & services",
+        hr: "People",
+        support: "Customer service",
+        fulfillment: "Delivery & fulfilment",
+        revenue: "Revenue streams",
+        service: "Services",
+      };
+      return labels[token] || token.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+    };
+    const humaniseRelationship = (value = "") => {
+      const labels = {
+        offers: "offers",
+        earns_through: "earns through",
+        fulfills_through: "delivers through",
+        has_function: "includes",
+      };
+      const raw = String(value || "relates_to");
+      return labels[raw] || raw.replace(/_/g, " ");
+    };
+    const evidenceLabel = (value = "") => {
+      const raw = String(value || "");
+      if (raw.startsWith("business_structure:")) return "Business structure evidence";
+      return raw ? "Governed source evidence" : "Source evidence pending";
+    };
     const firstByField = new Map();
     const facts = map.facts.map((fact) => {
       const factId = String(fact.fact_id || "");
       const field = String(fact.field || "Unlabelled fact");
       const primaryId = firstByField.get(field);
       if (!primaryId && factId) firstByField.set(field, factId);
-      return `<article style="border:1px solid #d9e2ef;border-radius:12px;padding:12px;background:#f8fafc;">
-        <strong>${escapeHtml(field)}</strong><div style="margin:5px 0;">${escapeHtml(typeof fact.value === "string" ? fact.value : JSON.stringify(fact.value))}</div>
-        <small class="muted">${escapeHtml(fact.review_state || "proposed")} · confidence ${escapeHtml(String(fact.confidence ?? "not recorded"))} · source ${escapeHtml(fact.source_ref || "missing")}</small>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
-          <button class="secondary-btn" data-aion-map-fact-action="approve" data-fact-id="${escapeHtml(factId)}">Approve</button>
+      return `<article style="border:1px solid #dbe4ea;padding:14px 16px;background:#fff;">
+        <div style="display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+          <div><div class="card-label">Fact</div><strong style="display:block;margin-top:4px;">${escapeHtml(humaniseEntity(field))}</strong><div class="muted" style="margin-top:3px;">${escapeHtml(typeof fact.value === "string" ? fact.value : JSON.stringify(fact.value))}</div></div>
+          <span class="badge">${escapeHtml(fact.review_state || "proposed")}</span>
+        </div>
+        <div class="muted" style="margin-top:9px;font-size:11px;">${escapeHtml(evidenceLabel(fact.source_ref))} · confidence ${escapeHtml(String(fact.confidence ?? "not recorded"))}</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px;">
+          <button class="primary-btn" data-aion-map-fact-action="approve" data-fact-id="${escapeHtml(factId)}">Approve</button>
           <button class="secondary-btn" data-aion-map-fact-action="correct" data-fact-id="${escapeHtml(factId)}">Correct</button>
           <button class="secondary-btn" data-aion-map-fact-action="reject" data-fact-id="${escapeHtml(factId)}">Reject</button>
-          <button class="secondary-btn" data-aion-map-fact-action="delete" data-fact-id="${escapeHtml(factId)}">Delete</button>
+          <button class="secondary-btn" style="color:#b42318;border-color:#f0c9c5;" data-aion-map-fact-action="delete" data-fact-id="${escapeHtml(factId)}">Delete</button>
           ${primaryId ? `<button class="secondary-btn" data-aion-map-merge-primary="${escapeHtml(primaryId)}" data-aion-map-merge-duplicate="${escapeHtml(factId)}">Merge duplicate</button>` : ""}
         </div></article>`;
     }).join("") || '<p class="muted">No facts have been recorded yet.</p>';
     const relationships = map.relationships.map((relationship) => {
       const relationshipId = String(relationship.relationship_id || "");
-      return `<article style="border:1px solid #d9e2ef;border-radius:12px;padding:12px;background:#f8fafc;">
-        <strong>${escapeHtml(relationship.from_id || "Unknown")}</strong> ${escapeHtml(String(relationship.relationship_type || "relates to").replace(/_/g, " "))} <strong>${escapeHtml(relationship.to_id || "Unknown")}</strong>
-        <div><small class="muted">${escapeHtml(relationship.review_state || "proposed")} · confidence ${escapeHtml(String(relationship.confidence ?? "not recorded"))} · source ${escapeHtml(relationship.source_ref || "missing")}</small></div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
-          <button class="secondary-btn" data-aion-map-relationship-action="approve" data-relationship-id="${escapeHtml(relationshipId)}">Approve</button>
+      return `<article style="border:1px solid #dbe4ea;padding:14px 16px;background:#fff;">
+        <div style="display:grid;grid-template-columns:minmax(120px,1fr) auto minmax(140px,1fr) auto;gap:12px;align-items:center;">
+          <strong>${escapeHtml(humaniseEntity(relationship.from_id || "Unknown"))}</strong>
+          <span class="muted" style="font-size:12px;">${escapeHtml(humaniseRelationship(relationship.relationship_type))}</span>
+          <strong>${escapeHtml(humaniseEntity(relationship.to_id || "Unknown"))}</strong>
+          <span class="badge">${escapeHtml(relationship.review_state || "proposed")}</span>
+        </div>
+        <div class="muted" style="margin-top:8px;font-size:11px;">${escapeHtml(evidenceLabel(relationship.source_ref))} · confidence ${escapeHtml(String(relationship.confidence ?? "not recorded"))}</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px;">
+          <button class="primary-btn" data-aion-map-relationship-action="approve" data-relationship-id="${escapeHtml(relationshipId)}">Approve</button>
           <button class="secondary-btn" data-aion-map-relationship-action="correct" data-relationship-id="${escapeHtml(relationshipId)}">Correct</button>
           <button class="secondary-btn" data-aion-map-relationship-action="reject" data-relationship-id="${escapeHtml(relationshipId)}">Reject</button>
-          <button class="secondary-btn" data-aion-map-relationship-action="delete" data-relationship-id="${escapeHtml(relationshipId)}">Delete</button>
+          <button class="secondary-btn" style="color:#b42318;border-color:#f0c9c5;" data-aion-map-relationship-action="delete" data-relationship-id="${escapeHtml(relationshipId)}">Delete</button>
         </div></article>`;
     }).join("") || '<p class="muted">No relationships have been recorded yet.</p>';
     const queueCount = Object.values(state.queues?.counts || {}).reduce((sum, value) => sum + Number(value || 0), 0);
-    return `<div style="margin-top:14px;border-top:1px solid #d9e2ef;padding-top:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;"><div><strong>Review and correct the business map</strong><div class="muted">${queueCount} review or discovery items. Changes are revision-checked and receipted.</div></div><button class="secondary-btn" data-aion-normalize-map-relationships="true">Recover existing relationships</button></div>
-      <h4 style="margin:16px 0 8px;">Facts</h4><div style="display:grid;gap:8px;">${facts}</div>
-      <h4 style="margin:16px 0 8px;">Relationships</h4><div style="display:grid;gap:8px;">${relationships}</div>
+    return `<div data-aion-business-map-review-panel="true" style="margin-top:18px;border-top:1px solid #dbe4ea;padding-top:18px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+        <div><div class="panel-title" style="font-size:18px;">Business Map review</div><div class="muted" style="margin-top:4px;">${queueCount} item${queueCount === 1 ? "" : "s"} awaiting review. Every decision is revision-checked and receipted.</div></div>
+        <button class="secondary-btn" data-aion-normalize-map-relationships="true">Repair legacy links</button>
+      </div>
+      ${map.facts.length ? `<div class="card-label" style="margin:18px 0 8px;">Facts</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:9px;">${facts}</div>` : ""}
+      <div class="card-label" style="margin:18px 0 8px;">Relationships</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(430px,1fr));gap:9px;">${relationships}</div>
     </div>`;
   }
 
@@ -159116,29 +165452,95 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   function renderGovernancePanel() {
     const confirmation = getConfirmation();
     const map = confirmation.map;
-    const ratification = getRatification();
-    const facts = map?.facts?.length || 0;
-    const relationships = map?.relationships?.length || 0;
-    const gaps = (map?.unknowns?.length || 0) + (map?.conflicts?.length || 0) + (map?.unanswered_fields?.length || 0) + (map?.department_discovery_gaps?.length || 0);
-    const status = state.loading ? "Loading original Business Map…" : state.error ? `Original Business Map unavailable: ${state.error}` : `Original map ${map?.id || ""} · revision ${map?.revision || 0} · ${facts} facts · ${relationships} relationships · ${gaps} open gaps`;
+    const cards = safeArray(state.connectors?.cards);
+    const byId = (id) => cards.find((card) => String(card?.connector_id || "") === id) || null;
+    const files = byId("files");
+    const fileSummary = files ? connectorSummary(files) : "Available through the governed file store";
+    const connectorLogo = (id = "") => ({
+      gmail: "assets/connections/gmail.svg",
+      calendar: "assets/connections/googlecalendar.svg",
+      crm_sales: "assets/connections/hubspot.svg",
+      xero: "assets/connections/xero.svg",
+      openai: "assets/connections/openai.svg",
+      gemini: "assets/connections/googlegemini.svg",
+    })[String(id || "")] || "";
+    const connectorName = (card = {}) => {
+      if (card.connector_id === "crm_sales" && String(card.health?.provider || "").toLowerCase() === "hubspot") return "HubSpot";
+      return String(card.label || "Connection");
+    };
+    const modelName = (provider = {}) => {
+      if (provider.id === "openai") return "OpenAI";
+      if (provider.id === "gemini") return "Gemini";
+      if (provider.id === "local_model") return "Qwen local";
+      return String(provider.label || provider.id || "AI model");
+    };
+    const connectionMark = ({ id = "", label = "", kind = "app" } = {}) => {
+      const logo = connectorLogo(id);
+      if (logo) return `<span class="aion-boardroom-connection-mark" aria-hidden="true" style="width:44px;height:44px;border:1px solid #dbe4ea;border-radius:50%;display:grid;place-items:center;background:#fff;box-shadow:0 3px 10px rgba(20,40,55,.08);flex:0 0 auto;"><img src="${logo}" alt="" style="width:25px;height:25px;object-fit:contain;"></span>`;
+      if (kind === "files") return `<span class="aion-boardroom-connection-mark" aria-hidden="true" style="width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#e7f6f4;color:#147d78;border:1px solid #bfe3df;flex:0 0 auto;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.8A1.8 1.8 0 0 1 5.8 3h4.1l2 2H18a2 2 0 0 1 2 2v10.2A1.8 1.8 0 0 1 18.2 19H5.8A1.8 1.8 0 0 1 4 17.2Z"/><path d="M4 8h16"/></svg></span>`;
+      if (kind === "mcp") return `<span class="aion-boardroom-connection-mark" aria-hidden="true" style="width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#edf0fb;color:#5552a6;border:1px solid #d7daf1;flex:0 0 auto;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="7" r="2.2"/><circle cx="12" cy="17" r="2.2"/><path d="M8 8.1l2.8 6.6M16 8.1l-2.8 6.6M8.3 7h7.4"/></svg></span>`;
+      const initials = id === "openai" ? "AI" : id === "local_model" ? "Q" : String(label || id || "AI").split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+      return `<span class="aion-boardroom-connection-mark" aria-hidden="true" style="width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:${id === "openai" ? "#111827" : "#153b58"};color:#fff;border:1px solid #dbe4ea;font-weight:900;font-size:${initials.length > 1 ? "12px" : "16px"};letter-spacing:.04em;flex:0 0 auto;">${escapeHtml(initials)}</span>`;
+    };
+    const connectionTile = ({ id = "", label = "", detail = "", status = "", kind = "app", suggested = false, files = false, healthy = true, availableProvider = "" } = {}) => `<button type="button" class="aion-boardroom-connection-tile${suggested ? " is-suggested" : ""}${availableProvider ? " is-available-integration" : ""}" ${availableProvider ? `data-aion-available-accounting-provider="${escapeHtml(availableProvider)}"` : files ? 'data-aion-business-connector="files"' : 'data-aion-open-vault-connections="true"'} style="appearance:none;text-align:left;border:0;background:${suggested ? "#f8fafc" : "transparent"};padding:6px 4px;min-width:190px;display:flex;align-items:center;gap:11px;cursor:pointer;font:inherit;color:inherit;box-shadow:none;">
+      ${connectionMark({ id, label, kind })}
+      <span style="min-width:0;display:block;">
+        <span style="display:flex;align-items:center;gap:7px;"><strong style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(label)}</strong>${suggested ? '<span aria-hidden="true" style="width:17px;height:17px;border-radius:50%;display:grid;place-items:center;background:#eef0f8;color:#5552a6;font-weight:900;font-size:13px;">+</span>' : `<span aria-hidden="true" style="width:7px;height:7px;border-radius:50%;background:${healthy ? "#22a77a" : "#e09400"};"></span>`}</span>
+        <small class="muted" style="display:block;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">${escapeHtml(detail || status)}</small>
+      </span>
+    </button>`;
+    const connectedApps = cards.filter((card) => card?.connector_id !== "files" && card?.connected === true);
+    const suggestedApps = cards.filter((card) => card?.connector_id !== "files" && card?.connected !== true);
+    const connectedAppIds = new Set(connectedApps.map((card) => String(card?.connector_id || "").trim().toLowerCase()));
+    const availableAccountingApps = safeArray(window.AionFinanceDiscoverySchema?.accountingPlatforms)
+      .filter((provider) => provider && !["other", "none"].includes(String(provider.id || "").trim().toLowerCase()))
+      .filter((provider) => !connectedAppIds.has(String(provider.id || "").trim().toLowerCase()));
+    const connectedModels = safeArray(state.providers).filter((provider) => provider?.connected === true || provider?.id === "local_model");
+    const modelTile = (provider) => `<div style="display:flex;align-items:center;gap:5px;border:1px solid ${provider?.is_lead ? "#2f67e8" : "transparent"};border-radius:12px;padding:2px 5px;">
+      ${connectionTile({ id: provider.id, label: modelName(provider), detail: provider.id === "local_model" ? (provider.connected === true ? "Private local model · live" : "Installed · not responding") : String(provider.model || "AI model"), kind: "model", healthy: provider.connected === true })}
+      ${provider.connected === true ? `<button type="button" class="secondary-btn" data-aion-set-lead-model="${escapeHtml(provider.id)}" style="white-space:nowrap;padding:7px 9px;font-size:11px;" ${provider.is_lead ? "disabled" : ""}>${provider.is_lead ? "Lead model" : "Use as lead"}</button>` : ""}
+    </div>`;
+    const iconRow = (title, items, emptyText = "Nothing connected yet") => `<div class="aion-boardroom-connection-row" style="display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:center;padding:12px 0;border-top:1px solid #e3e9ee;">
+      <div><div class="card-label">${escapeHtml(title)}</div></div>
+      <div class="aion-boardroom-connection-items" style="display:flex;gap:9px;align-items:center;overflow-x:auto;padding:2px 1px 4px;">${items || `<span class="muted" style="font-size:12px;">${escapeHtml(emptyText)}</span>`}</div>
+    </div>`;
+    const reviewQueueCount = Object.values(state.queues?.counts || {}).reduce((sum, value) => sum + Number(value || 0), 0);
+    const mapStatus = state.loading
+      ? "Preparing meeting context"
+      : state.error
+        ? "Meeting context will refresh automatically"
+        : confirmation.valid
+          ? `Business Map r${Number(map?.revision || 0)} ready`
+          : "Business Map will be confirmed when the meeting starts";
     return `
-      <section data-aion-boardroom-business-map-governance="true" style="margin:0 0 12px;border:2px solid #0ea5e9;border-top-width:4px;background:#fff;padding:16px;">
-        <div class="panel-kicker">DISCOVERY → ORIGINAL BUSINESS MAP → BOARD → ACTION</div>
-        <div class="panel-title">Founder-confirmed Business Map and meeting sequence</div>
-        <p class="muted" style="margin:5px 0 0;">The Board reads the original persisted BusinessMapContainer used by AION and Department Pilots. Confirmation binds to its exact revision and receipt hash; no parallel map is created.</p>
-        <div class="notice ${state.error || gaps ? "warning" : "success"}" style="margin-top:12px;">${escapeHtml(status)}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-          <span class="badge">Stage · ${escapeHtml(workflowStage().replace(/_/g, " "))}</span>
-          <span class="badge">Board analysis · ${window.__aionVisibleAskBoardResult?.result_hash ? "complete" : confirmation.valid ? "ready" : "locked"}</span>
-          <span class="badge">Debate · ${window.__aionBoardroomDebateRound?.result_hash ? "complete" : "waiting"}</span>
-          <span class="badge">Founder direction · ${ratification.valid ? "ratified" : "waiting"}</span>
+      <section data-aion-connections-business-map="true" data-aion-boardroom-business-connections="true" style="margin:0 0 14px;border:1px solid #dbe4ea;background:#fff;padding:22px 24px;">
+        <div class="aion-boardroom-business-connections-head" style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;">
+          <div>
+            <div class="panel-kicker" style="color:#167d79;">Business connections</div>
+            <div class="panel-title" style="margin-top:4px;">Your Board works from connected business evidence</div>
+            <p class="muted" style="margin:7px 0 0;max-width:820px;">Files, business systems and approved agent connections are managed securely in Connections. Board meetings use their governed evidence automatically.</p>
+          </div>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
-          <button type="button" class="primary-btn" data-aion-confirm-original-business-map="true" ${!map?.source_payload_hash ? "disabled" : ""}>${confirmation.valid ? `Original map revision ${map.revision} confirmed` : confirmation.stale ? "Reconfirm updated original map" : "Confirm original Business Map"}</button>
-          <button type="button" class="secondary-btn" data-aion-refresh-original-business-map="true">Refresh original map</button>
-          <button type="button" class="secondary-btn" data-aion-toggle-business-map-manager="true">${managerOpen ? "Close map editor" : "Review and edit map"}</button>
-          ${window.__aionBoardroomDebateRound?.result_hash && !ratification.valid ? '<button type="button" class="primary-btn" data-aion-ratify-board-direction="true">Ratify Board direction</button>' : ""}
-        </div>${renderMapManager(map)}${renderConnectorOnboarding()}
+        <div class="aion-boardroom-business-connections-list" style="margin-top:18px;border-bottom:1px solid #e3e9ee;">
+          ${iconRow("Connected apps", connectedApps.map((card) => connectionTile({ id: card.connector_id, label: connectorName(card), detail: card.connector_id === "xero" ? "Accounting evidence" : "Sales and customer evidence" })).join(""), "Connect an app in Connections")}
+          ${iconRow("Connect new", suggestedApps.map((card) => connectionTile({ id: card.connector_id, label: connectorName(card), detail: card.connector_id === "calendar" ? "Suggested calendar" : "Suggested business email", suggested: true })).join(""), "No suggested apps")}
+          ${iconRow("Available integrations", availableAccountingApps.map((provider) => connectionTile({ id: provider.id, label: provider.label, detail: `${provider.description} · Not connected`, suggested: true, availableProvider: provider.id })).join(""), "No additional accounting integrations available")}
+          ${iconRow("Files", connectionTile({ id: "files", label: "Business files", detail: fileSummary, kind: "files", files: true }))}
+          ${iconRow("MCP connections", connectionTile({ id: "mcp", label: "MCP tools", detail: "Managed securely in Connections", kind: "mcp" }))}
+          ${iconRow("AI models", connectedModels.map(modelTile).join(""), "Connect an AI model, then choose its lead role")}
+        </div>
+        <div class="aion-connections-map-status" style="display:flex;align-items:center;gap:9px;margin-top:14px;color:#526579;font-size:12px;">
+          <span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:#22a77a;"></span>
+          <span>${escapeHtml(mapStatus)} · credentials and private content remain protected securely</span>
+        </div>
+        <div class="aion-connections-map-review" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:17px;padding-top:16px;border-top:1px solid #dbe4ea;">
+          <div>
+            <strong>Business Map review</strong>
+            <div class="muted" style="margin-top:3px;">${reviewQueueCount ? `${reviewQueueCount} relationship or discovery item${reviewQueueCount === 1 ? "" : "s"} waiting for review.` : "No Business Map items currently need attention."}</div>
+          </div>
+          <button type="button" class="secondary-btn" data-aion-toggle-business-map-manager="true">${managerOpen ? "Close review" : "Review Business Map"}</button>
+        </div>
+        ${renderMapManager(map)}
       </section>`;
   }
 
@@ -159173,6 +165575,61 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   window.aionRenderOriginalBusinessMapGovernanceV2 = renderGovernancePanel;
 
   window.addEventListener("click", async (event) => {
+    const setLeadModel = event.target?.closest?.("[data-aion-set-lead-model]");
+    if (setLeadModel) {
+      event.preventDefault();
+      event.stopPropagation();
+      setLeadModel.disabled = true;
+      try {
+        const response = await fetch("http://127.0.0.1:8080/api/boardroom/providers/lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ workspace_id: businessId(), provider_id: String(setLeadModel.dataset.aionSetLeadModel || "") }),
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(String(body?.detail || "That model is not live yet."));
+        safeAionDesktopPatch?.({ message: "Lead AI model updated for this workspace.", messageTone: "success" });
+        await loadOriginalBusinessMap();
+        requestRender?.();
+      } catch (error) {
+        safeAionDesktopPatch?.({ message: String(error?.message || error), messageTone: "warning" });
+        setLeadModel.disabled = false;
+      }
+      return;
+    }
+    const availableAccountingProvider = event.target?.closest?.("[data-aion-available-accounting-provider]");
+    if (availableAccountingProvider) {
+      event.preventDefault();
+      event.stopPropagation();
+      const providerId = String(availableAccountingProvider.dataset.aionAvailableAccountingProvider || "").trim();
+      const provider = safeArray(window.AionFinanceDiscoverySchema?.accountingPlatforms)
+        .find((item) => String(item?.id || "") === providerId);
+      window.__aionVaultIntegrationSelectionsV2 = {
+        ...(window.__aionVaultIntegrationSelectionsV2 || {}),
+        accounting: providerId,
+      };
+      try { window.localStorage?.setItem("aion.finance.preferred.accounting_provider", providerId); } catch {}
+      requestRender?.();
+      window.setTimeout(() => {
+        document.querySelector('[data-aion-vault-business-integrations="true"]')?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      }, 80);
+      safeAionDesktopPatch?.({
+        message: `${String(provider?.label || "Accounting provider")} is available for Finance setup but is not connected yet. Review the provider details below to continue.`,
+        messageTone: "success",
+      });
+      return;
+    }
+    const openVaultConnections = event.target?.closest?.("[data-aion-open-vault-connections='true']");
+    if (openVaultConnections) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof window.setAionSidebarActiveTabHardV1 === "function") window.setAionSidebarActiveTabHardV1("vault");
+      else {
+        if (typeof setActiveTab === "function") setActiveTab("vault");
+        requestRender?.();
+      }
+      return;
+    }
     const refreshConnectors = event.target?.closest?.("[data-aion-refresh-business-connectors='true']");
     if (refreshConnectors) { event.preventDefault(); loadOriginalBusinessMap(); return; }
     const connectorButton = event.target?.closest?.("[data-aion-business-connector]");
@@ -159298,6 +165755,15 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   window.setInterval(loadOriginalBusinessMap, 30000);
   window.addEventListener("focus", loadOriginalBusinessMap);
   window.addEventListener("aion:finance-container-synced", loadOriginalBusinessMap);
+  window.addEventListener("aion:operating-model-saved", async () => {
+    // Products & Services is a canonical Business Map input. Refresh both the
+    // persisted map and the Boardroom context envelope immediately after Save,
+    // rather than leaving the meeting to use its previous 30-second snapshot.
+    await loadOriginalBusinessMap();
+    try {
+      if (window.__aionVisibleAskBoardResult && typeof requestRender === "function") requestRender();
+    } catch {}
+  });
   console.info("[AION] original BusinessMapContainer Boardroom bridge installed");
 })();
 /* END AION ORIGINAL BUSINESS MAP → GOVERNED BOARDROOM SEQUENCE V2 */
@@ -159326,7 +165792,7 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
     .aion-document-error-v1{border-left:5px solid #dc2626;color:#991b1b}
     .aion-document-sheet-v1{background:#fff;border:1px solid #cbd5e1;margin-bottom:22px;overflow:auto}.aion-document-sheet-v1 h3{position:sticky;left:0;margin:0;padding:12px 14px;background:#e0f2fe;border-bottom:1px solid #bae6fd;color:#0f172a;font-size:15px}.aion-document-sheet-v1 table{border-collapse:collapse;min-width:100%;font-size:12px}.aion-document-sheet-v1 td{border:1px solid #e2e8f0;padding:7px 9px;white-space:nowrap;color:#1e293b}.aion-document-sheet-v1 tr:first-child td{font-weight:850;background:#f8fafc;position:sticky;top:0}
     .aion-document-text-v1{margin:0;background:#fff;border:1px solid #cbd5e1;padding:22px;white-space:pre-wrap;word-break:break-word;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:#172033}
-    .aion-document-doc-v1{max-width:980px;margin:0 auto;background:#fff;border:1px solid #cbd5e1;padding:54px 64px;min-height:100%;color:#172033;line-height:1.65}.aion-document-doc-v1 p{margin:0 0 14px}.aion-document-doc-v1 table{border-collapse:collapse;width:100%;margin:20px 0}.aion-document-doc-v1 td{border:1px solid #cbd5e1;padding:8px}
+    .aion-document-doc-v1{max-width:980px;margin:0 auto;background:#fff;border:1px solid #dce7ef;padding:48px 58px;min-height:100%;color:#172033;line-height:1.6;box-shadow:0 12px 36px rgba(15,42,67,.05)}.aion-document-doc-v1 p{margin:0 0 12px}.aion-document-doc-v1 table{border-collapse:collapse;width:100%;margin:16px 0;table-layout:fixed}.aion-document-doc-v1 th{padding:9px 10px;background:#f1f6fa;border:1px solid #dce7ef;color:#52687d;font-size:10px;text-transform:uppercase;letter-spacing:.08em;text-align:left}.aion-document-doc-v1 th:first-child{width:68%}.aion-document-doc-v1 th:nth-child(2){width:14%}.aion-document-doc-v1 td{border:1px solid #dce7ef;padding:9px 10px;vertical-align:top;overflow-wrap:anywhere}.aion-document-doc-v1 .aion-minutes-title{font-size:30px;line-height:1.1;letter-spacing:-.035em;color:#0f172a;margin:0 0 8px}.aion-document-doc-v1 .aion-minutes-subtitle{color:#62758a;font-size:13px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid #dce7ef}.aion-document-doc-v1 .aion-minutes-heading{margin:26px 0 10px;color:#0f766e;font-size:11px;text-transform:uppercase;letter-spacing:.14em}.aion-document-doc-v1 .aion-minutes-list{margin:0 0 14px;padding-left:20px}.aion-document-doc-v1 .aion-minutes-list li{margin:6px 0}.aion-document-doc-v1 .aion-minutes-note{margin-top:24px;padding:12px 14px;border-left:3px solid #1687d9;background:#f3f8fc;color:#52687d;font-size:12px}.aion-document-doc-v1 .aion-minutes-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;margin:18px 0;background:#dce7ef;border:1px solid #dce7ef}.aion-document-doc-v1 .aion-minutes-meta div{background:#f8fafc;padding:10px 12px}.aion-document-doc-v1 .aion-minutes-meta span{display:block;color:#718399;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}.aion-document-doc-v1 .aion-minutes-meta strong{display:block;margin-top:4px;color:#24364a;font-size:12px}
     .aion-document-image-v1{display:block;max-width:100%;max-height:calc(94vh - 150px);margin:auto;background:#fff;border:1px solid #cbd5e1}
     .aion-document-pdf-v1{width:100%;height:100%;min-height:720px;border:1px solid #cbd5e1;background:#fff}
     .aion-file-cabinet-row-actions span[aria-label='Protected record']{display:grid;place-items:center;width:30px;height:30px;font-size:14px;opacity:.82}
@@ -159375,13 +165841,28 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
     return `<table><tbody>${(rows || []).map((row) => `<tr>${(row || []).map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
   }
 
+  function renderDocumentBlock(block = {}) {
+    if (block.type === "table") {
+      const rows = Array.isArray(block.rows) ? block.rows : [];
+      const headers = Array.isArray(block.headers) ? block.headers : [];
+      return `<table>${headers.length ? `<thead><tr>${headers.map((cell) => `<th>${esc(cell)}</th>`).join("")}</tr></thead>` : ""}<tbody>${rows.map((row) => `<tr>${(row || []).map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+    }
+    if (block.type === "title") return `<h1 class="aion-minutes-title">${esc(block.text)}</h1>`;
+    if (block.type === "subtitle") return `<div class="aion-minutes-subtitle">${esc(block.text)}</div>`;
+    if (block.type === "heading") return `<h2 class="aion-minutes-heading">${esc(block.text)}</h2>`;
+    if (block.type === "list") return `<ul class="aion-minutes-list">${(block.items || []).map((item) => `<li>${esc(item)}</li>`).join("")}</ul>`;
+    if (block.type === "note") return `<div class="aion-minutes-note">${esc(block.text)}</div>`;
+    if (block.type === "meta") return `<div class="aion-minutes-meta">${(block.items || []).map((item) => `<div><span>${esc(item.label)}</span><strong>${esc(item.value)}</strong></div>`).join("")}</div>`;
+    return `<p>${esc(block.text)}</p>`;
+  }
+
   function renderPayload(root, payload) {
     const body = root.querySelector(".aion-document-body-v1");
     if (!body) return;
     if (payload.kind === "spreadsheet") {
       body.innerHTML = (payload.sheets || []).map((sheet) => `<section class="aion-document-sheet-v1"><h3>${esc(sheet.name)}</h3>${renderTable(sheet.rows)}</section>`).join("") || '<div class="aion-document-loading-v1">This workbook contains no readable cells.</div>';
     } else if (payload.kind === "document") {
-      body.innerHTML = `<article class="aion-document-doc-v1">${(payload.blocks || []).map((block) => block.type === "table" ? renderTable(block.rows) : `<p>${esc(block.text)}</p>`).join("")}</article>`;
+      body.innerHTML = `<article class="aion-document-doc-v1">${(payload.blocks || []).map(renderDocumentBlock).join("")}</article>`;
     } else if (payload.kind === "pdf") {
       body.innerHTML = `<iframe class="aion-document-pdf-v1" title="${esc(payload.name)}" src="${payload.data_url}"></iframe>`;
     } else if (payload.kind === "image") {
@@ -160124,6 +166605,184 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   document.head.appendChild(style);
 })();
 
+/* Tessaris file cabinet visual system. This is presentation-only: the
+   existing governed file, folder and workflow behaviour remains unchanged. */
+(function installTessarisFileCabinetBrandV19() {
+  if (document.getElementById("tessaris-file-cabinet-brand-v19")) return;
+  const style = document.createElement("style");
+  style.id = "tessaris-file-cabinet-brand-v19";
+  style.textContent = `
+    html body .aion-sitewide-file-cabinet-tab .aion-workflow-nav-icon::before {
+      content:none !important; display:none !important;
+    }
+    html body .aion-sitewide-file-cabinet-tab .aion-workflow-nav-icon {
+      width:24px !important; height:24px !important;
+    }
+    html body .aion-sidebar-file-cabinet-icon {
+      display:block !important; width:24px !important; height:24px !important;
+      fill:none !important; stroke:currentColor !important; stroke-width:1.75 !important;
+      stroke-linecap:round !important; stroke-linejoin:round !important;
+    }
+    html body .aion-sitewide-file-cabinet-tab:hover {
+      color:#2563eb !important; background:#eef5ff !important;
+    }
+    html body .aion-sitewide-file-cabinet-tab.aion-file-cabinet-open-v16,
+    html body .aion-sitewide-file-cabinet-tab.active {
+      color:#fff !important; background:#2f66e8 !important;
+    }
+    html body .aion-workflow-file-cabinet {
+      left:64px !important; top:54px !important; bottom:0 !important;
+      height:calc(100vh - 54px) !important; max-height:calc(100vh - 54px) !important;
+    }
+    html body .aion-workflow-file-cabinet.open,
+    html body.aion-file-cabinet-drawer-open-v16 .aion-workflow-file-cabinet {
+      width:min(425px, calc(100vw - 64px)) !important;
+      max-width:min(425px, calc(100vw - 64px)) !important;
+      height:calc(100vh - 54px) !important; max-height:calc(100vh - 54px) !important;
+      background:#f6f8fb !important;
+      border-right:1px solid #d8e2ee !important;
+      box-shadow:18px 0 48px rgba(19,36,58,.16) !important;
+      color:#13243a !important;
+      scrollbar-color:#b9c7d7 transparent !important;
+    }
+    html body .aion-file-cabinet-head {
+      position:sticky !important; top:0 !important; z-index:8 !important;
+      padding:24px 24px 20px !important;
+      border-top:4px solid #2f66e8 !important;
+      border-bottom:1px solid #d8e2ee !important;
+      background:rgba(255,255,255,.98) !important;
+      backdrop-filter:blur(14px) !important;
+    }
+    html body .aion-file-cabinet-head .eyebrow {
+      color:#2f66e8 !important; font-size:10px !important; font-weight:900 !important;
+      letter-spacing:.22em !important;
+    }
+    html body .aion-file-cabinet-head h2 {
+      margin:7px 0 6px !important; color:#101d36 !important;
+      font-size:26px !important; line-height:1.08 !important; letter-spacing:-.035em !important;
+    }
+    html body .aion-file-cabinet-head p {
+      display:flex !important; align-items:center !important; gap:7px !important;
+      margin:0 !important; color:#687b94 !important; font-size:12px !important;
+    }
+    html body .aion-file-cabinet-sync-dot {
+      width:8px !important; height:8px !important; border-radius:999px !important;
+      background:#20b486 !important; box-shadow:0 0 0 4px #e4f7f1 !important;
+    }
+    html body .aion-file-cabinet-head button {
+      width:38px !important; height:38px !important; min-width:38px !important;
+      border:1px solid #d7e0ea !important; border-radius:11px !important;
+      background:#fff !important; color:#31445f !important; font-size:21px !important;
+    }
+    html body .aion-file-cabinet-head button:hover {
+      border-color:#9db9eb !important; background:#eef5ff !important; color:#215edb !important;
+    }
+    html body .aion-file-cabinet-stats {
+      display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+      gap:10px !important; padding:16px 20px 8px !important;
+      background:#f6f8fb !important;
+    }
+    html body .aion-file-cabinet-stats > div {
+      min-width:0 !important; padding:14px 15px !important;
+      border:1px solid #dbe4ee !important; border-radius:13px !important;
+      background:#fff !important; box-shadow:0 3px 10px rgba(19,36,58,.035) !important;
+    }
+    html body .aion-file-cabinet-stats strong {
+      display:block !important; color:#15365f !important; font-size:24px !important;
+      line-height:1 !important; font-weight:850 !important;
+    }
+    html body .aion-file-cabinet-stats span {
+      display:block !important; margin-top:6px !important; color:#71839a !important;
+      font-size:10px !important; font-weight:800 !important; letter-spacing:.07em !important;
+      text-transform:uppercase !important;
+    }
+    html body .aion-file-cabinet-actions {
+      grid-template-columns:1fr 1fr !important; gap:10px !important;
+      padding:10px 20px 18px !important; border-bottom:1px solid #dbe4ee !important;
+      background:#f6f8fb !important;
+    }
+    html body .aion-file-cabinet-actions button {
+      min-height:44px !important; border-radius:11px !important;
+      border:1px solid #b9cdf3 !important; background:#fff !important;
+      color:#215edb !important; font-size:12px !important; font-weight:850 !important;
+    }
+    html body .aion-file-cabinet-actions button:first-child {
+      border-color:#2f66e8 !important; background:#2f66e8 !important; color:#fff !important;
+    }
+    html body .aion-file-cabinet-actions button:hover {
+      transform:translateY(-1px) !important; box-shadow:0 6px 14px rgba(47,102,232,.13) !important;
+    }
+    html body .aion-file-cabinet-current,
+    html body .aion-file-cabinet-tree { padding:18px 20px 4px !important; }
+    html body .aion-file-cabinet-current { background:#fff !important; }
+    html body .aion-file-cabinet-tree { padding-bottom:28px !important; }
+    html body .aion-file-cabinet-section-title {
+      padding:0 2px 10px !important; color:#60748d !important; font-size:10px !important;
+      font-weight:900 !important; letter-spacing:.18em !important;
+    }
+    html body .aion-file-cabinet-current .aion-file-cabinet-file.active {
+      min-height:58px !important; padding:10px 13px !important;
+      border:1px solid #bcd2fb !important; border-radius:13px !important;
+      background:#eef5ff !important; outline:0 !important;
+    }
+    html body .aion-file-cabinet-folder { margin:2px 0 !important; }
+    html body .aion-file-cabinet-folder > summary,
+    html body .aion-file-cabinet-subtree summary {
+      min-height:44px !important; padding:5px 7px !important; border-radius:10px !important;
+      color:#192b43 !important; font-size:13px !important;
+    }
+    html body .aion-file-cabinet-folder > summary:hover,
+    html body .aion-file-cabinet-subtree summary:hover { background:#edf3fb !important; }
+    html body .aion-file-cabinet-caret {
+      color:#71839a !important; font-size:11px !important; transition:transform 120ms ease !important;
+    }
+    html body .aion-file-cabinet-node-main strong {
+      color:#172b47 !important; font-size:13px !important; font-weight:820 !important;
+    }
+    html body .aion-file-cabinet-node-main small {
+      display:block !important; margin-top:3px !important; color:#788aa0 !important;
+      font-size:10px !important; font-weight:650 !important;
+    }
+    html body .aion-file-cabinet-subtree {
+      margin-left:9px !important; padding-left:12px !important; border-left:1px solid #dbe4ee !important;
+    }
+    html body .aion-file-cabinet-file-row {
+      position:relative !important; display:grid !important;
+      grid-template-columns:minmax(0,1fr) auto !important; align-items:center !important;
+    }
+    html body .aion-file-cabinet-file {
+      min-height:44px !important; padding:7px 9px !important; border-radius:10px !important;
+      color:#243a56 !important;
+    }
+    html body .aion-file-cabinet-file:hover { background:#edf3fb !important; }
+    html body .aion-file-cabinet-file > span:first-child {
+      color:#2f66e8 !important; font-size:17px !important;
+    }
+    html body .aion-file-cabinet-empty {
+      margin:6px 0 10px !important; padding:11px 13px !important;
+      border:1px dashed #d3deea !important; border-radius:10px !important;
+      background:#fbfcfe !important; color:#8191a5 !important; font-size:11px !important;
+    }
+    html body .aion-file-cabinet-row-actions button,
+    html body [data-aion-cabinet-new-workflow],
+    html body [data-aion-cabinet-new-folder],
+    html body [data-aion-cabinet-delete] {
+      width:26px !important; height:26px !important; min-width:26px !important; min-height:26px !important;
+      border-color:#ccd8e5 !important; border-radius:7px !important; color:#526981 !important;
+    }
+    @media (max-width:640px) {
+      html body .aion-workflow-file-cabinet.open,
+      html body.aion-file-cabinet-drawer-open-v16 .aion-workflow-file-cabinet {
+        width:calc(100vw - 64px) !important; max-width:calc(100vw - 64px) !important;
+      }
+      html body .aion-file-cabinet-head { padding:20px 18px 16px !important; }
+      html body .aion-file-cabinet-stats { padding-inline:16px !important; gap:7px !important; }
+      html body .aion-file-cabinet-actions { padding-inline:16px !important; }
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
 /* Vault command-centre presentation. This deliberately sits last so the
    historic paper-theme locks cannot pull Vault back into the oversized
    document layout. */
@@ -160293,4 +166952,898 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
     }
   `;
   document.head.appendChild(style);
+})();
+
+/* Re-append the consumer Connections theme after the legacy Vault lock above.
+   The existing element is deliberately cloned so there remains one source of
+   truth for the new visual system while cascade order stays deterministic. */
+(function installAionConnectionsBrandPresentationFinalV1() {
+  const source = document.getElementById("aion-connections-brand-presentation-v1");
+  if (!source || document.getElementById("aion-connections-brand-presentation-final-v1")) return;
+  const finalStyle = source.cloneNode(true);
+  finalStyle.id = "aion-connections-brand-presentation-final-v1";
+  document.head.appendChild(finalStyle);
+})();
+
+/* Marketing must win after every legacy cockpit override above has loaded. */
+(function installAionMarketingSharedCommandCentreFinalRouteAtEnd() {
+  if (typeof renderLiveAgentsWorkspaceBody !== "function") return;
+  if (typeof window.renderMarketingSharedCommandCentre !== "function") return;
+  const previous = renderLiveAgentsWorkspaceBody;
+  renderLiveAgentsWorkspaceBody = function aionMarketingFinalRoute(selectedRuns, selectedAgentCard) {
+    const department = typeof getSelectedLiveDepartmentKey === "function"
+      ? String(getSelectedLiveDepartmentKey() || "").trim().toLowerCase()
+      : "";
+    if (department === "marketing") return window.renderMarketingSharedCommandCentre(selectedRuns, selectedAgentCard);
+    return previous(selectedRuns, selectedAgentCard);
+  };
+  window.renderLiveAgentsWorkspaceBody = renderLiveAgentsWorkspaceBody;
+})();
+
+/* Tessaris Signal — final workflow canvas brand and compact tools treatment. */
+(function installAionWorkflowSignalThemeFinal() {
+  if (window.__aionWorkflowSignalThemeFinalInstalled === true) return;
+  window.__aionWorkflowSignalThemeFinalInstalled = true;
+
+  const style = document.createElement("style");
+  style.id = "aion-workflow-signal-theme-final";
+  style.textContent = `
+    html body.aion-phase19c-workflow-visible .aion-workflow-canvas,
+    html body.aion-phase19c-workflow-visible .aion-workflow-canvas-viewport,
+    html body.aion-phase19c-workflow-visible [data-aion-workflow-canvas-viewport="true"],
+    html body .operations-agents-surface .aion-workflow-canvas,
+    html body .operations-agents-surface .aion-workflow-canvas-viewport {
+      background-color: #f8fafc !important;
+      background-image: none !important;
+      background-size: auto !important;
+    }
+
+    html body.aion-phase19c-workflow-visible #aion-glyph-workflow-top-tabs-v2,
+    html body.aion-phase19c-workflow-visible [data-aion-workflow-tab-strip="true"],
+    html body.aion-phase19c-workflow-visible .aion-glyph-workflow-top-tabs-v2 {
+      background: #f3f6fa !important;
+      border-color: #d9e2ec !important;
+    }
+
+    html body.aion-phase19c-workflow-visible #aion-glyph-workflow-top-tabs-v2 .aion-phase19b-workflow-tab.is-active,
+    html body.aion-phase19c-workflow-visible #aion-glyph-workflow-top-tabs-v2 .aion-phase19b-workflow-tab.active,
+    html body.aion-phase19c-workflow-visible #aion-glyph-workflow-top-tabs-v2 .aion-glyph-top-tab.active,
+    html body.aion-phase19c-workflow-visible [data-aion-workflow-tab-strip="true"] .is-active,
+    html body.aion-phase19c-workflow-visible [data-aion-workflow-tab-strip="true"] .active {
+      border-color: #2563eb !important;
+      background: #2563eb !important;
+      color: #ffffff !important;
+      box-shadow: inset 0 -3px 0 #1d4ed8 !important;
+    }
+
+    html body.aion-phase19c-workflow-visible #aion-glyph-workflow-top-tabs-v2 .is-active *,
+    html body.aion-phase19c-workflow-visible #aion-glyph-workflow-top-tabs-v2 .active *,
+    html body.aion-phase19c-workflow-visible [data-aion-workflow-tab-strip="true"] .is-active *,
+    html body.aion-phase19c-workflow-visible [data-aion-workflow-tab-strip="true"] .active * {
+      color: #ffffff !important;
+    }
+
+    html body .operations-agents-surface .aion-canvas-node .aion-canvas-node-top,
+    html body .operations-agents-surface .aion-canvas-node .aion-canvas-node-icon,
+    html body .operations-agents-surface .aion-canvas-node-teal .aion-canvas-node-top,
+    html body .operations-agents-surface .aion-canvas-node-blue .aion-canvas-node-top,
+    html body .operations-agents-surface .aion-canvas-node-purple .aion-canvas-node-top,
+    html body .operations-agents-surface .aion-canvas-node-red .aion-canvas-node-top,
+    html body .operations-agents-surface .aion-canvas-node-amber .aion-canvas-node-top {
+      border-color: #9fbcff !important;
+      background: #ffffff !important;
+      color: #0b1730 !important;
+      box-shadow: 0 8px 22px rgba(37, 99, 235, .08) !important;
+    }
+
+    /* The icon is the node surface. Keep the surrounding label/status area open
+       so every step reads as one object on the canvas instead of a white tile. */
+    html body .operations-agents-surface .aion-canvas-node,
+    html body .operations-agents-surface [data-aion-workflow-node-id].aion-canvas-node {
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      color: #0b1730 !important;
+      font-family: var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
+    }
+
+    html body .operations-agents-surface .aion-canvas-node-selected .aion-canvas-node-top,
+    html body .operations-agents-surface .aion-canvas-node-selected .aion-canvas-node-icon {
+      border-color: #2563eb !important;
+      background: #ffffff !important;
+      box-shadow: 0 0 0 5px rgba(37, 99, 235, .13), 0 10px 24px rgba(37, 99, 235, .14) !important;
+    }
+
+    html body .operations-agents-surface .aion-canvas-node::before {
+      border-color: #bfd3ff !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    html body .operations-agents-surface .aion-canvas-node::after {
+      background: rgba(37, 99, 235, .08) !important;
+      box-shadow: none !important;
+    }
+
+    html body .operations-agents-surface .aion-canvas-node-selected::before {
+      border-color: #2563eb !important;
+      box-shadow: 0 0 0 6px rgba(37, 99, 235, .10) !important;
+    }
+
+    html body .operations-agents-surface .aion-canvas-node-title,
+    html body .operations-agents-surface .aion-canvas-node strong { color: #0b1730 !important; }
+    html body .operations-agents-surface .aion-canvas-node-meta,
+    html body .operations-agents-surface .aion-canvas-node-status,
+    html body .operations-agents-surface .aion-canvas-node small,
+    html body .operations-agents-surface .aion-canvas-node em { color: #66758a !important; }
+    html body .operations-agents-surface .aion-canvas-connectors path,
+    html body .operations-agents-surface .aion-canvas-connector { stroke: #7aa2f7 !important; }
+
+    /* Workflow document header */
+    html body.aion-phase19c-workflow-visible .aion-workflow-canvas-shell > .aion-workflow-topbar,
+    html body .operations-agents-surface .aion-workflow-canvas-shell > .aion-workflow-topbar {
+      min-height: 48px !important;
+      height: 48px !important;
+      padding: 4px 12px !important;
+      border-bottom: 1px solid #d9e2ec !important;
+      background: rgba(255, 255, 255, .96) !important;
+      box-shadow: 0 8px 24px rgba(11, 23, 48, .05) !important;
+      font-family: var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
+    }
+
+    html body.aion-phase19c-workflow-visible .aion-workflow-breadcrumb-title::before,
+    html body .operations-agents-surface .aion-workflow-breadcrumb-title::before {
+      content: none !important;
+      display: none !important;
+    }
+
+    html body.aion-phase19c-workflow-visible .aion-workflow-title-wrap-compact,
+    html body .operations-agents-surface .aion-workflow-title-wrap-compact,
+    html body.aion-phase19c-workflow-visible .aion-workflow-breadcrumb-title,
+    html body .operations-agents-surface .aion-workflow-breadcrumb-title {
+      width: 100% !important;
+      min-width: 0 !important;
+      display: block !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      font-family: inherit !important;
+    }
+
+    html body.aion-phase19c-workflow-visible .aion-workflow-document-strip,
+    html body .operations-agents-surface .aion-workflow-document-strip {
+      position: static !important;
+      inset: auto !important;
+      width: 100% !important;
+      min-height: 38px !important;
+      height: 38px !important;
+      display: flex !important;
+      align-items: center !important;
+      flex-wrap: nowrap !important;
+      gap: 8px !important;
+      margin: 0 !important;
+      padding: 6px !important;
+      border: 1px solid #d9e2ec !important;
+      border-radius: 14px !important;
+      background: #f3f6fa !important;
+      box-shadow: none !important;
+      font-family: inherit !important;
+      overflow: hidden !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-document-strip > .aion-workflow-document-business,
+    html body.aion-phase19c-workflow-visible .aion-workflow-document-strip > .aion-workflow-document-business {
+      height: 28px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      flex: 0 1 auto !important;
+      max-width: 245px !important;
+      margin: 0 !important;
+      padding: 0 12px !important;
+      border: 1px solid #bfd3ff !important;
+      border-radius: 10px !important;
+      background: #eef5ff !important;
+      color: #1d4ed8 !important;
+      font: 850 10px/1 var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, sans-serif) !important;
+      letter-spacing: .11em !important;
+      text-transform: uppercase !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-document-strip > .aion-workflow-document-divider,
+    html body.aion-phase19c-workflow-visible .aion-workflow-document-strip > .aion-workflow-document-divider {
+      height: 28px !important;
+      display: inline-grid !important;
+      place-items: center !important;
+      margin: 0 !important;
+      padding: 0 2px !important;
+      border: 0 !important;
+      background: transparent !important;
+      color: #8b9aae !important;
+      font: 800 16px/1 var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, sans-serif) !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-title-field-inline,
+    html body.aion-phase19c-workflow-visible .aion-workflow-title-field-inline {
+      min-width: 250px !important;
+      max-width: 520px !important;
+      flex: 1 1 420px !important;
+      height: 28px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      margin: 0 !important;
+      padding: 0 4px 0 10px !important;
+      border: 1px solid #d9e2ec !important;
+      border-radius: 10px !important;
+      background: #ffffff !important;
+      overflow: hidden !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-title-field-inline > span,
+    html body.aion-phase19c-workflow-visible .aion-workflow-title-field-inline > span {
+      flex: 0 0 auto !important;
+      color: #66758a !important;
+      font: 850 9px/1 var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, sans-serif) !important;
+      letter-spacing: .10em !important;
+      text-transform: uppercase !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-title-input.aion-workflow-title-input-inline,
+    html body.aion-phase19c-workflow-visible .aion-workflow-title-input.aion-workflow-title-input-inline {
+      min-width: 120px !important;
+      width: 100% !important;
+      height: 26px !important;
+      flex: 1 1 auto !important;
+      margin: 0 !important;
+      padding: 0 8px !important;
+      border: 0 !important;
+      border-radius: 8px !important;
+      background: transparent !important;
+      color: #0b1730 !important;
+      box-shadow: none !important;
+      font: 750 13px/1 var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, sans-serif) !important;
+      letter-spacing: -.01em !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-title-input.aion-workflow-title-input-inline:focus,
+    html body.aion-phase19c-workflow-visible .aion-workflow-title-input.aion-workflow-title-input-inline:focus {
+      outline: 0 !important;
+      background: #eef5ff !important;
+      box-shadow: inset 0 0 0 1px #9fbcff !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-document-strip > b,
+    html body .operations-agents-surface .aion-workflow-document-strip > strong,
+    html body.aion-phase19c-workflow-visible .aion-workflow-document-strip > b,
+    html body.aion-phase19c-workflow-visible .aion-workflow-document-strip > strong,
+    html body .operations-agents-surface .pilot-team-header-toggle-host > *,
+    html body.aion-phase19c-workflow-visible .pilot-team-header-toggle-host > * {
+      height: 28px !important;
+      min-height: 28px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 !important;
+      padding: 0 11px !important;
+      border: 1px solid #d9e2ec !important;
+      border-radius: 10px !important;
+      background: #ffffff !important;
+      color: #52647a !important;
+      box-shadow: none !important;
+      font: 850 9px/1 var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, sans-serif) !important;
+      letter-spacing: .09em !important;
+      text-transform: uppercase !important;
+      white-space: nowrap !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-document-strip > strong.saved,
+    html body.aion-phase19c-workflow-visible .aion-workflow-document-strip > strong.saved {
+      border-color: #a9d8bd !important;
+      background: #edf9f1 !important;
+      color: #267048 !important;
+    }
+
+    html body .operations-agents-surface .pilot-team-header-toggle-host {
+      display: inline-flex !important;
+      flex: 0 0 auto !important;
+      margin-left: auto !important;
+      font-family: inherit !important;
+    }
+
+    /* Canvas documentation notes */
+    html body .operations-agents-surface .aion-phase19d-note-box,
+    html body.aion-phase19c-workflow-visible .aion-phase19d-note-box {
+      min-height: 176px !important;
+      padding: 14px !important;
+      border: 1px solid #bfd3ff !important;
+      border-top: 4px solid #2563eb !important;
+      border-radius: 18px !important;
+      background: rgba(255, 255, 255, .96) !important;
+      box-shadow: 0 20px 52px rgba(11, 23, 48, .18) !important;
+      backdrop-filter: blur(18px) saturate(145%) !important;
+      color: #0b1730 !important;
+      font-family: var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
+    }
+
+    html body .operations-agents-surface .aion-phase19d-note-label,
+    html body.aion-phase19c-workflow-visible .aion-phase19d-note-label {
+      color: #2563eb !important;
+      font: 900 10px/1 var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, sans-serif) !important;
+      letter-spacing: .16em !important;
+    }
+
+    html body .operations-agents-surface .aion-phase19d-note-close,
+    html body.aion-phase19c-workflow-visible .aion-phase19d-note-close {
+      width: 32px !important;
+      height: 32px !important;
+      border: 1px solid #d9e2ec !important;
+      border-radius: 10px !important;
+      background: #f3f6fa !important;
+      color: #0b1730 !important;
+      box-shadow: none !important;
+      font-family: inherit !important;
+    }
+
+    html body .operations-agents-surface .aion-phase19d-note-close:hover,
+    html body.aion-phase19c-workflow-visible .aion-phase19d-note-close:hover {
+      border-color: #9fbcff !important;
+      background: #eef5ff !important;
+      color: #1d4ed8 !important;
+    }
+
+    html body .operations-agents-surface .aion-phase19d-note-text,
+    html body.aion-phase19c-workflow-visible .aion-phase19d-note-text {
+      min-height: 104px !important;
+      padding: 12px !important;
+      border: 1px solid #d9e2ec !important;
+      border-radius: 12px !important;
+      outline: 0 !important;
+      background: #f7f9fc !important;
+      color: #0b1730 !important;
+      font: 650 14px/1.45 var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, sans-serif) !important;
+    }
+
+    html body .operations-agents-surface .aion-phase19d-note-text:focus,
+    html body.aion-phase19c-workflow-visible .aion-phase19d-note-text:focus {
+      border-color: #2563eb !important;
+      background: #ffffff !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .12) !important;
+    }
+
+    html body .operations-agents-surface .aion-phase19d-note-text::placeholder,
+    html body.aion-phase19c-workflow-visible .aion-phase19d-note-text::placeholder {
+      color: #8b9aae !important;
+      font-weight: 650 !important;
+    }
+
+    html body .operations-agents-surface .aion-phase19d-note-foot,
+    html body.aion-phase19c-workflow-visible .aion-phase19d-note-foot {
+      margin-top: 9px !important;
+      color: #66758a !important;
+      font: 750 10px/1.2 var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, sans-serif) !important;
+    }
+
+    /* Add-step catalogue */
+    html body .aion-architect-module-picker-backdrop {
+      z-index: 9980 !important;
+      padding: 158px 36px 132px 104px !important;
+      background: rgba(11, 23, 48, .20) !important;
+      backdrop-filter: blur(10px) saturate(120%) !important;
+      -webkit-backdrop-filter: blur(10px) saturate(120%) !important;
+    }
+
+    html body.aion-module-picker-open #aion-glyph-workflow-top-tabs-v2,
+    html body.aion-module-picker-open #aion-master-glyph-workflow-tabs-v2,
+    html body.aion-module-picker-open [data-aion-workflow-tab-strip='true'],
+    html body.aion-module-picker-open [data-aion-glyph-workflow-top-tabs='true'],
+    html body.aion-module-picker-open .aion-glyph-workflow-top-tabs-v2,
+    html body.aion-module-picker-open .aion-glyph-workflow-top-tabs,
+    html body.aion-module-picker-open .aion-master-glyph-workflow-tabs,
+    html body.aion-module-picker-open .aion-glyph-tabs-strip,
+    html body:has(.aion-architect-module-picker-backdrop) #aion-glyph-workflow-top-tabs-v2,
+    html body:has(.aion-architect-module-picker-backdrop) #aion-master-glyph-workflow-tabs-v2,
+    html body:has(.aion-architect-module-picker-backdrop) [data-aion-workflow-tab-strip='true'],
+    html body:has(.aion-architect-module-picker-backdrop) [data-aion-glyph-workflow-top-tabs='true'],
+    html body:has(.aion-architect-module-picker-backdrop) .aion-glyph-workflow-top-tabs-v2,
+    html body:has(.aion-architect-module-picker-backdrop) .aion-glyph-workflow-top-tabs,
+    html body:has(.aion-architect-module-picker-backdrop) .aion-master-glyph-workflow-tabs,
+    html body:has(.aion-architect-module-picker-backdrop) .aion-glyph-tabs-strip {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    html body .aion-architect-module-picker {
+      width: min(1120px, calc(100vw - 170px)) !important;
+      height: min(720px, calc(100vh - 305px)) !important;
+      max-height: min(720px, calc(100vh - 305px)) !important;
+      border: 1px solid #bfd3ff !important;
+      border-top: 5px solid #2563eb !important;
+      border-radius: 24px !important;
+      background: #ffffff !important;
+      color: #0b1730 !important;
+      box-shadow: 0 30px 90px rgba(11, 23, 48, .26) !important;
+      font-family: var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
+    }
+
+    html body .aion-architect-module-picker,
+    html body .aion-architect-module-picker * {
+      font-family: var(--tessaris-font-sans, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
+    }
+
+    html body .aion-architect-module-picker-head {
+      min-height: 112px !important;
+      align-items: center !important;
+      padding: 22px 28px !important;
+      border-bottom: 1px solid #d9e2ec !important;
+      background: linear-gradient(135deg, #ffffff 0%, #f7f9fc 100%) !important;
+    }
+
+    html body .aion-architect-module-picker-head h2 {
+      margin: 0 0 7px !important;
+      color: #0b1730 !important;
+      font-size: clamp(28px, 2.2vw, 38px) !important;
+      font-weight: 850 !important;
+      line-height: 1 !important;
+      letter-spacing: -.045em !important;
+    }
+
+    html body .aion-architect-module-picker-head p {
+      max-width: 820px !important;
+      margin: 0 !important;
+      color: #66758a !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      line-height: 1.45 !important;
+    }
+
+    html body .aion-architect-module-picker-head button {
+      width: 42px !important;
+      height: 42px !important;
+      min-width: 42px !important;
+      border: 1px solid #d9e2ec !important;
+      border-radius: 13px !important;
+      background: #ffffff !important;
+      color: #0b1730 !important;
+      box-shadow: 0 8px 22px rgba(11, 23, 48, .08) !important;
+      font-size: 24px !important;
+      font-weight: 800 !important;
+    }
+
+    html body .aion-architect-module-picker-head button:hover {
+      border-color: #9fbcff !important;
+      background: #eef5ff !important;
+      color: #1d4ed8 !important;
+    }
+
+    html body .aion-architect-module-picker-body {
+      grid-template-columns: 270px minmax(0, 1fr) !important;
+      background: #ffffff !important;
+    }
+
+    html body .aion-architect-module-groups {
+      gap: 10px !important;
+      padding: 16px !important;
+      border-right: 1px solid #d9e2ec !important;
+      background: #f3f6fa !important;
+    }
+
+    html body .aion-architect-module-groups button,
+    html body .aion-architect-module-groups button:not(.active) {
+      min-height: 76px !important;
+      align-content: center !important;
+      gap: 5px !important;
+      padding: 13px 15px !important;
+      border: 1px solid #d9e2ec !important;
+      border-radius: 15px !important;
+      background: #ffffff !important;
+      color: #0b1730 !important;
+      box-shadow: 0 2px 7px rgba(11, 23, 48, .04) !important;
+    }
+
+    html body .aion-architect-module-groups button:hover {
+      border-color: #9fbcff !important;
+      background: #f7faff !important;
+      box-shadow: 0 7px 18px rgba(37, 99, 235, .08) !important;
+    }
+
+    html body .aion-architect-module-groups button.active {
+      border-color: #2563eb !important;
+      background: #eef5ff !important;
+      color: #0b1730 !important;
+      box-shadow: inset 5px 0 0 #2563eb, 0 8px 20px rgba(37, 99, 235, .10) !important;
+    }
+
+    html body .aion-architect-module-groups button strong,
+    html body .aion-architect-module-groups button.active strong {
+      color: #0b1730 !important;
+      font-size: 14px !important;
+      font-weight: 800 !important;
+      line-height: 1.2 !important;
+      letter-spacing: -.01em !important;
+    }
+
+    html body .aion-architect-module-groups button small,
+    html body .aion-architect-module-groups button.active small {
+      color: #66758a !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      line-height: 1.3 !important;
+    }
+
+    html body .aion-architect-module-list {
+      gap: 11px !important;
+      padding: 20px 24px 26px !important;
+      background: #ffffff !important;
+    }
+
+    html body .aion-architect-module-search {
+      height: 48px !important;
+      gap: 10px !important;
+      padding: 0 15px !important;
+      border: 1px solid #d9e2ec !important;
+      border-radius: 14px !important;
+      background: #f7f9fc !important;
+      color: #52647a !important;
+      box-shadow: none !important;
+      font-size: 14px !important;
+      font-weight: 650 !important;
+    }
+
+    html body .aion-architect-module-search:focus-within {
+      border-color: #2563eb !important;
+      background: #ffffff !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .11) !important;
+    }
+
+    html body .aion-architect-module-search input {
+      color: #0b1730 !important;
+      font-size: 14px !important;
+      font-weight: 650 !important;
+    }
+
+    html body .aion-architect-module-search input::placeholder { color: #8b9aae !important; }
+
+    html body .aion-architect-module-list > .eyebrow {
+      margin: 3px 2px 0 !important;
+      color: #2563eb !important;
+      font-size: 10px !important;
+      font-weight: 900 !important;
+      letter-spacing: .16em !important;
+      text-transform: uppercase !important;
+    }
+
+    html body .aion-architect-module-row {
+      min-height: 72px !important;
+      grid-template-columns: 50px minmax(0, 1fr) auto !important;
+      gap: 14px !important;
+      padding: 12px 14px !important;
+      border: 1px solid #d9e2ec !important;
+      border-radius: 15px !important;
+      background: #ffffff !important;
+      color: #0b1730 !important;
+      box-shadow: 0 2px 7px rgba(11, 23, 48, .035) !important;
+      transition: border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease !important;
+    }
+
+    html body .aion-architect-module-row:hover {
+      border-color: #9fbcff !important;
+      background: #f7faff !important;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, .10) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    html body .aion-architect-module-icon {
+      width: 42px !important;
+      height: 42px !important;
+      border: 2px solid #7aa2f7 !important;
+      border-radius: 13px !important;
+      background: #ffffff !important;
+      color: #0b1730 !important;
+      box-shadow: 0 5px 14px rgba(37, 99, 235, .08) !important;
+      font-size: 14px !important;
+      font-weight: 850 !important;
+    }
+
+    html body .aion-architect-module-row strong {
+      color: #0b1730 !important;
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      line-height: 1.2 !important;
+      letter-spacing: -.015em !important;
+    }
+
+    html body .aion-architect-module-row small {
+      margin-top: 4px !important;
+      color: #66758a !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      line-height: 1.35 !important;
+    }
+
+    html body .aion-architect-module-row em {
+      padding: 6px 10px !important;
+      border: 1px solid #bfd3ff !important;
+      border-radius: 999px !important;
+      background: #eef5ff !important;
+      color: #1d4ed8 !important;
+      font-size: 9px !important;
+      font-weight: 900 !important;
+      font-style: normal !important;
+      letter-spacing: .10em !important;
+      text-transform: uppercase !important;
+    }
+
+    html body .aion-architect-module-groups,
+    html body .aion-architect-module-list {
+      scrollbar-width: thin !important;
+      scrollbar-color: #bfd3ff transparent !important;
+    }
+
+    html body .aion-architect-module-groups::-webkit-scrollbar,
+    html body .aion-architect-module-list::-webkit-scrollbar { width: 9px !important; }
+    html body .aion-architect-module-groups::-webkit-scrollbar-thumb,
+    html body .aion-architect-module-list::-webkit-scrollbar-thumb {
+      border: 2px solid transparent !important;
+      border-radius: 999px !important;
+      background: #bfd3ff !important;
+      background-clip: padding-box !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated {
+      left: 50% !important;
+      right: auto !important;
+      bottom: 18px !important;
+      width: max-content !important;
+      max-width: calc(100vw - 190px) !important;
+      min-height: 62px !important;
+      gap: 8px !important;
+      padding: 8px !important;
+      overflow: visible !important;
+      border: 1px solid rgba(191, 211, 255, .92) !important;
+      border-radius: 18px !important;
+      background: rgba(255, 255, 255, .90) !important;
+      box-shadow: 0 18px 48px rgba(11, 23, 48, .16) !important;
+      backdrop-filter: blur(20px) saturate(145%) !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-floating-toolbar .aion-workflow-execute-btn {
+      min-width: 190px !important;
+      height: 46px !important;
+      border-radius: 12px !important;
+      background: #0b1730 !important;
+      color: #ffffff !important;
+      box-shadow: none !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-floating-toolbar .aion-workflow-execute-btn:hover {
+      background: #162747 !important;
+    }
+
+    html body .aion-workflow-tools-dropup {
+      position: relative !important;
+      display: block !important;
+      flex: 0 0 auto !important;
+    }
+
+    html body .aion-workflow-tools-dropup > summary {
+      min-width: 108px !important;
+      height: 46px !important;
+      display: grid !important;
+      grid-template-columns: auto auto auto !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 0 13px !important;
+      border: 1px solid #bfd3ff !important;
+      border-radius: 12px !important;
+      background: #eef5ff !important;
+      color: #0b1730 !important;
+      cursor: pointer !important;
+      list-style: none !important;
+      user-select: none !important;
+    }
+    html body .aion-workflow-tools-dropup > summary::-webkit-details-marker { display: none !important; }
+    html body .aion-workflow-tools-dropup > summary strong { font-size: 13px !important; }
+    html body .aion-workflow-tools-dropup[open] > summary,
+    html body .aion-workflow-tools-dropup > summary:hover {
+      border-color: #2563eb !important;
+      background: #e2ecff !important;
+      color: #1d4ed8 !important;
+    }
+
+    html body .aion-workflow-tools-menu {
+      position: absolute !important;
+      left: 0 !important;
+      bottom: calc(100% + 12px) !important;
+      width: 390px !important;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 12px !important;
+      padding: 14px !important;
+      border: 1px solid #bfd3ff !important;
+      border-radius: 16px !important;
+      background: rgba(255, 255, 255, .98) !important;
+      box-shadow: 0 22px 54px rgba(11, 23, 48, .20) !important;
+      backdrop-filter: blur(20px) !important;
+      z-index: 500 !important;
+    }
+
+    html body .aion-saved-workflows-dropup {
+      position: relative !important;
+      display: block !important;
+      flex: 0 0 auto !important;
+      overflow: visible !important;
+      z-index: 520 !important;
+    }
+
+    html body .aion-saved-workflows-dropup > summary {
+      min-width: 108px !important;
+      height: 46px !important;
+      display: grid !important;
+      grid-template-columns: auto auto auto !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 0 13px !important;
+      border: 1px solid #d9e2ec !important;
+      border-radius: 12px !important;
+      background: #f7f9fc !important;
+      color: #52647a !important;
+      cursor: pointer !important;
+      list-style: none !important;
+      user-select: none !important;
+    }
+
+    html body .aion-saved-workflows-dropup > summary::-webkit-details-marker { display: none !important; }
+    html body .aion-saved-workflows-dropup > summary strong {
+      color: inherit !important;
+      font-size: 13px !important;
+      white-space: nowrap !important;
+    }
+    html body .aion-saved-workflows-dropup[open] > summary,
+    html body .aion-saved-workflows-dropup > summary:hover {
+      border-color: #2563eb !important;
+      background: #eef5ff !important;
+      color: #1d4ed8 !important;
+    }
+
+    html body .aion-saved-workflows-dropup .aion-saved-workflows-menu {
+      position: absolute !important;
+      left: 0 !important;
+      bottom: calc(100% + 12px) !important;
+      width: min(410px, calc(100vw - 210px)) !important;
+      max-height: min(500px, calc(100vh - 180px)) !important;
+      display: block !important;
+      overflow-y: auto !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      z-index: 10000 !important;
+    }
+
+    html body .aion-workflow-tools-menu section {
+      display: grid !important;
+      align-content: start !important;
+      gap: 6px !important;
+    }
+
+    html body .aion-workflow-tools-label {
+      padding: 2px 5px 7px !important;
+      color: #66758a !important;
+      font-size: 9px !important;
+      font-weight: 900 !important;
+      letter-spacing: .13em !important;
+      text-transform: uppercase !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-floating-toolbar .aion-workflow-tools-menu button.aion-workflow-mode-btn {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 40px !important;
+      display: grid !important;
+      grid-template-columns: 30px 1fr !important;
+      justify-content: stretch !important;
+      padding: 0 10px !important;
+      border: 1px solid transparent !important;
+      border-radius: 10px !important;
+      background: #f7f9fc !important;
+      color: #0b1730 !important;
+      box-shadow: none !important;
+      text-align: left !important;
+    }
+    html body .operations-agents-surface .aion-workflow-floating-toolbar .aion-workflow-tools-menu button.aion-workflow-mode-btn:hover {
+      border-color: #bfd3ff !important;
+      background: #eef5ff !important;
+      color: #1d4ed8 !important;
+      transform: none !important;
+    }
+    html body .operations-agents-surface .aion-workflow-floating-toolbar .aion-workflow-tools-menu button.aion-workflow-mode-btn.active {
+      border-color: #2563eb !important;
+      background: #e2ecff !important;
+      color: #1d4ed8 !important;
+    }
+    html body .operations-agents-surface .aion-workflow-floating-toolbar .aion-workflow-tools-menu button span {
+      color: inherit !important;
+      font-size: 11px !important;
+      text-align: center !important;
+    }
+    html body .operations-agents-surface .aion-workflow-floating-toolbar .aion-workflow-tools-menu button strong {
+      color: inherit !important;
+      font-size: 11px !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-floating-toolbar > button:not(.aion-workflow-execute-btn) {
+      border-color: #d9e2ec !important;
+      background: #f7f9fc !important;
+      color: #52647a !important;
+      box-shadow: none !important;
+    }
+    html body .operations-agents-surface .aion-workflow-floating-toolbar > button:not(.aion-workflow-execute-btn):hover {
+      border-color: #bfd3ff !important;
+      background: #eef5ff !important;
+      color: #1d4ed8 !important;
+    }
+    html body .operations-agents-surface .aion-workflow-floating-toolbar > button.aion-workflow-publish-toolbar-btn,
+    html body .operations-agents-surface .aion-workflow-floating-toolbar > button.aion-workflow-publish-toolbar-btn.draft {
+      border-color: #2563eb !important;
+      background: #2563eb !important;
+      color: #ffffff !important;
+    }
+    html body .operations-agents-surface .aion-workflow-floating-toolbar > button.aion-workflow-publish-toolbar-btn * { color: #ffffff !important; }
+    html body .operations-agents-surface .aion-workflow-floating-divider { background: #d9e2ec !important; }
+
+    @media (max-width: 1050px) {
+      html body .operations-agents-surface .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated {
+        max-width: calc(100vw - 115px) !important;
+      }
+      html body .operations-agents-surface .aion-workflow-floating-toolbar .aion-workflow-execute-btn { min-width: 150px !important; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  document.addEventListener("click", (event) => {
+    const menu = event.target?.closest?.(".aion-workflow-tools-menu");
+    if (menu && event.target?.closest?.("button")) {
+      window.setTimeout(() => {
+        const details = menu.closest(".aion-workflow-tools-dropup");
+        if (details) details.open = false;
+      }, 0);
+      return;
+    }
+
+    const savedMenu = event.target?.closest?.(".aion-saved-workflows-menu");
+    if (savedMenu && event.target?.closest?.("button")) {
+      window.setTimeout(() => {
+        const details = savedMenu.closest(".aion-saved-workflows-dropup");
+        if (details) details.open = false;
+      }, 0);
+      return;
+    }
+
+    if (event.target?.closest?.(".aion-workflow-tools-dropup")) {
+      document.querySelectorAll(".aion-saved-workflows-dropup[open]").forEach((details) => { details.open = false; });
+      return;
+    }
+    if (event.target?.closest?.(".aion-saved-workflows-dropup")) {
+      document.querySelectorAll(".aion-workflow-tools-dropup[open]").forEach((details) => { details.open = false; });
+      return;
+    }
+
+    document.querySelectorAll(".aion-workflow-tools-dropup[open], .aion-saved-workflows-dropup[open]").forEach((details) => { details.open = false; });
+  }, true);
+})();
+
+/* Re-append the utility icon rules after every historic workflow/sidebar
+   presentation patch so no earlier File Cabinet or SVG rule can win. */
+(function installTessarisSidebarUtilityIconLockFinalV1() {
+  const source = document.getElementById("tessaris-sidebar-utility-icon-lock-v1");
+  if (!source || document.getElementById("tessaris-sidebar-utility-icon-lock-final-v1")) return;
+  const finalStyle = source.cloneNode(true);
+  finalStyle.id = "tessaris-sidebar-utility-icon-lock-final-v1";
+  document.head.appendChild(finalStyle);
 })();

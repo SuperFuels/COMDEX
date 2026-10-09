@@ -233,66 +233,111 @@ class WorkflowFileCabinetRepository:
 
     @staticmethod
     def _boardroom_session_blocks(payload: Dict[str, Any]) -> list[Dict[str, Any]]:
-        """Render a governed Board packet as readable minutes without losing the source JSON."""
+        """Render current and legacy Board packets in one standard minutes layout."""
         blocks: list[Dict[str, Any]] = []
-
-        def paragraph(text: Any) -> None:
-            value = str(text or "").strip()
-            if value:
-                blocks.append({"type": "paragraph", "text": value})
-
-        def list_lines(title: str, values: Any, prefix: str = "") -> None:
-            rows = values if isinstance(values, list) else []
-            if not rows:
-                return
-            paragraph(title)
-            for value in rows:
-                if isinstance(value, dict):
-                    label = value.get("title") or value.get("step") or value.get("member") or value.get("text")
-                    detail = value.get("action") or value.get("position") or value.get("owner") or ""
-                    line = " — ".join(part for part in (str(label or "").strip(), str(detail or "").strip()) if part)
-                else:
-                    line = str(value or "").strip()
-                if line:
-                    paragraph(f"{prefix}{line}")
-
-        session_type = str(payload.get("session_type") or "business_assessment").replace("_", " ").title()
-        paragraph("Board meeting minutes")
-        paragraph(f"{session_type} · {payload.get('generated_at') or 'Date not recorded'}")
-        paragraph(f"Session: {payload.get('session_id') or 'Unknown'}")
-        list_lines("Board members", payload.get("council_members"), "• ")
-
-        context = payload.get("business_context_packet") if isinstance(payload.get("business_context_packet"), dict) else {}
-        list_lines("Business context reviewed", context.get("lines"), "")
-
+        minutes = payload.get("minutes_document") if isinstance(payload.get("minutes_document"), dict) else {}
         result = payload.get("boardroom_council_result") if isinstance(payload.get("boardroom_council_result"), dict) else {}
         consensus = result.get("consensus") if isinstance(result.get("consensus"), dict) else {}
-        summary = consensus.get("consensus_summary") or consensus.get("summary") or result.get("summary")
-        if summary:
-            paragraph("Board conclusion")
-            paragraph(summary)
-        list_lines("Agreements", consensus.get("agreements"), "✓ ")
-        list_lines("Risks", consensus.get("risks"), "! ")
-        list_lines("Open questions", consensus.get("open_questions") or consensus.get("disagreements"), "? ")
-        list_lines("Recommended plan", consensus.get("recommended_plan") or consensus.get("plan"), "• ")
-        list_lines("Board member positions", result.get("council_responses"), "• ")
+        context = payload.get("business_context_packet") if isinstance(payload.get("business_context_packet"), dict) else {}
 
-        debate = payload.get("boardroom_debate_round")
-        if debate:
-            paragraph("Debate and founder direction")
-            paragraph(json.dumps(debate, indent=2, ensure_ascii=False) if isinstance(debate, (dict, list)) else debate)
-        tasks = payload.get("department_task_build")
-        if tasks:
-            paragraph("Delegated departmental work")
-            paragraph(json.dumps(tasks, indent=2, ensure_ascii=False) if isinstance(tasks, (dict, list)) else tasks)
+        def text(value: Any) -> str:
+            return str(value or "").strip().replace("**", "").replace("__", "")
 
-        boundary = payload.get("execution_boundary") if isinstance(payload.get("execution_boundary"), dict) else {}
-        paragraph(
-            "Execution boundary: approval-gated; no live external action was performed."
-            if boundary.get("approval_gated", True)
-            else "Execution boundary recorded in the governed source packet."
-        )
-        paragraph(f"Evidence hash: {payload.get('boardroom_session_packet_hash') or 'not recorded'}")
+        def strings(values: Any, *, limit: int = 10) -> list[str]:
+            rows = values if isinstance(values, list) else []
+            output: list[str] = []
+            for value in rows:
+                if isinstance(value, dict):
+                    label = value.get("title") or value.get("step") or value.get("member") or value.get("name") or value.get("text")
+                    detail = value.get("action") or value.get("position") or value.get("view") or value.get("role") or ""
+                    line = " — ".join(part for part in (text(label), text(detail)) if part)
+                else:
+                    line = text(value).removeprefix(">").strip()
+                if line and line not in output:
+                    output.append(line)
+            return output[:limit]
+
+        def heading(value: str) -> None:
+            blocks.append({"type": "heading", "text": value})
+
+        def paragraph(value: Any) -> None:
+            clean = text(value)
+            if clean:
+                blocks.append({"type": "paragraph", "text": clean})
+
+        def bullet_section(title: str, values: Any, *, empty: str = "None recorded.") -> None:
+            heading(title)
+            items = strings(values)
+            if items:
+                blocks.append({"type": "list", "text": "\n".join(items), "items": items})
+            else:
+                paragraph(empty)
+
+        session_type = text(minutes.get("meeting_type") or payload.get("session_type") or "business_assessment").replace("_", " ").title()
+        generated_at = text(minutes.get("occurred_at") or payload.get("generated_at") or "Date not recorded")
+        session_id = text(minutes.get("session_id") or payload.get("session_id") or "Unknown")
+        blocks.extend([
+            {"type": "title", "text": text(minutes.get("title") or "Board meeting minutes")},
+            {"type": "subtitle", "text": f"{session_type} · {generated_at}"},
+            {"type": "meta", "items": [
+                {"label": "Meeting type", "value": session_type},
+                {"label": "Session record", "value": session_id},
+                {"label": "Record status", "value": "Protected · governed business evidence"},
+                {"label": "Decision boundary", "value": "Founder approval required"},
+            ]},
+        ])
+
+        attendees = minutes.get("attendees") or payload.get("council_members") or []
+        bullet_section("Attendees", attendees, empty="No Board members were recorded.")
+
+        heading("Meeting summary")
+        paragraph(minutes.get("summary") or consensus.get("consensus_summary") or consensus.get("summary") or result.get("summary") or "The Board reviewed the available governed business evidence.")
+
+        bullet_section("Business context reviewed", minutes.get("business_context") or context.get("lines"), empty="No additional business context was recorded.")
+
+        discussion = minutes.get("discussion") or result.get("council_responses") or []
+        bullet_section("Discussion", discussion, empty="No separate Board member positions were recorded.")
+
+        decisions = minutes.get("decisions") or consensus.get("agreements") or []
+        bullet_section("Decisions", decisions, empty=text(minutes.get("decision_status") or consensus.get("decision") or "No final decision was recorded."))
+
+        actions = minutes.get("actions") or consensus.get("recommended_plan") or consensus.get("plan") or payload.get("proposed_pilot_actions") or []
+        heading("Actions")
+        action_rows = []
+        for item in actions if isinstance(actions, list) else []:
+            if isinstance(item, dict):
+                action_rows.append([
+                    text(item.get("action") or item.get("title") or item.get("step") or "Action to review"),
+                    text(item.get("owner") or item.get("department") or "To assign"),
+                    text(item.get("status") or "Proposed · approval required"),
+                ])
+            elif text(item):
+                action_rows.append([text(item), "To assign", "Proposed · approval required"])
+        if action_rows:
+            blocks.append({"type": "table", "headers": ["Action", "Owner", "Status"], "rows": action_rows[:10]})
+        else:
+            paragraph("No actions were recorded.")
+
+        bullet_section("Risks", minutes.get("risks") or consensus.get("risks"), empty="No risks were recorded.")
+        bullet_section("Open questions", minutes.get("open_questions") or consensus.get("open_questions") or consensus.get("disagreements"), empty="No open questions were recorded.")
+
+        provenance = minutes.get("model_provenance") if isinstance(minutes.get("model_provenance"), dict) else {}
+        providers = provenance.get("providers") if isinstance(provenance.get("providers"), list) else []
+        heading("Models and record provenance")
+        if providers:
+            blocks.append({"type": "table", "headers": ["Provider", "Model", "Source", "Status"], "rows": [[text(item.get("name")), text(item.get("model")), text(item.get("source")), text(item.get("status"))] for item in providers if isinstance(item, dict)]})
+        else:
+            paragraph("Model details were not captured in this earlier meeting record.")
+        paragraph(provenance.get("policy") or "Connected Board providers supplied the meeting analysis; older records may not include model-level provenance.")
+
+        evidence = minutes.get("evidence") if isinstance(minutes.get("evidence"), dict) else {}
+        blocks.append({"type": "meta", "items": [
+            {"label": "Business container", "value": text(evidence.get("business_container_id") or payload.get("business_id") or "Not recorded")},
+            {"label": "Business Map revision", "value": text(evidence.get("business_map_revision") or "Not recorded")},
+            {"label": "Evidence hash", "value": text(evidence.get("packet_hash") or payload.get("boardroom_session_packet_hash") or "Not recorded")},
+            {"label": "Minutes schema", "value": text(minutes.get("schema_version") or "Legacy record · standardised on display")},
+        ]})
+        blocks.append({"type": "note", "text": text(minutes.get("governance") or "Approval-gated. No live external action was performed by creating these minutes.")})
         return blocks
 
     @classmethod
@@ -355,7 +400,8 @@ class WorkflowFileCabinetRepository:
             payload = json.loads(path.read_text(encoding="utf-8"))
             if not isinstance(payload, dict):
                 raise ValueError("boardroom_session_payload_invalid")
-            result.update(kind="document", blocks=cls._boardroom_session_blocks(payload))
+            meeting_type = str(payload.get("session_type") or "board meeting").replace("_", " ").title()
+            result.update(kind="document", name=f"Board meeting minutes — {meeting_type}", blocks=cls._boardroom_session_blocks(payload))
         elif suffix in {".json", ".jsonl", ".txt", ".md", ".log", ".yaml", ".yml", ".xml", ".html"}:
             text = path.read_text(encoding="utf-8", errors="replace")
             if suffix == ".json":

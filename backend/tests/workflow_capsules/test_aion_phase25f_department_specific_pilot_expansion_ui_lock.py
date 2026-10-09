@@ -78,7 +78,7 @@ def test_phase25f_mounts_in_marketing_workspace():
     block = text[start:end]
 
     assert 'data-aion-marketing-automation-studio="true"' in block
-    assert "renderMarketingStreamSurface({ embedded: true })" in block
+    assert "renderMarketingOverviewSurface(selectedRuns, selectedAgentCard)" in block
     assert 'renderAionDepartmentPilotPhase25EPanel("marketing")' not in block
     assert 'renderAionDepartmentPilotPhase25FPanel("marketing")' not in block
 

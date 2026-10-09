@@ -449,11 +449,22 @@ class WorkScheduleService:
         documents = []
         for value in item.get("documents") or []:
             documents.append(dict(value) if isinstance(value, Mapping) else {"id": f"legacy_{uuid4().hex}", "name": _safe_name(value), "kind": "legacy_reference", "created_at": ""})
+        raw_estimate = item.get("cost_estimate") if isinstance(item.get("cost_estimate"), Mapping) else {}
+        cost_estimate = {
+            "material_cost": _money(raw_estimate.get("material_cost")),
+            "labour_cost": _money(raw_estimate.get("labour_cost")),
+            "external_cost": _money(raw_estimate.get("external_cost")),
+            "currency": _clean(raw_estimate.get("currency") or "EUR", 8),
+            "note": _clean(raw_estimate.get("note"), 1000),
+            "source": _clean(raw_estimate.get("source") or "shared_work_record", 80),
+            "updated_at": _clean(raw_estimate.get("updated_at"), 80),
+        }
         return {
             **item, "id": _clean(item.get("id") or f"work_{uuid4().hex}", 160), "title": _clean(item.get("title"), 160),
             "customer": _clean(item.get("customer"), 160), "customer_id": _clean(item.get("customer_id"), 160),
             "customer_email": _clean(item.get("customer_email"), 240), "customer_phone": _clean(item.get("customer_phone"), 80),
             "type": _clean(item.get("type") or "job", 40), "status": str(item.get("status") or "new") if str(item.get("status") or "new") in ALLOWED_STATUSES else "new",
+            "offering_id": _clean(item.get("offering_id"), 160), "cost_estimate": cost_estimate,
             "date": date, "time": time, "duration": duration, "assignee": _clean(item.get("assignee"), 160),
             "assignee_ids": [_clean(value, 160) for value in item.get("assignee_ids") or [] if _clean(value, 160)][:100],
             "resource_ids": [_clean(value, 160) for value in item.get("resource_ids") or [] if _clean(value, 160)][:100],

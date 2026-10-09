@@ -60,6 +60,7 @@
     aionChatMode: "aionDesktop.aionChatMode",
     aionChatEngine: "aionDesktop.aionChatEngine",
     aionChatPrompt: "aionDesktop.aionChatPrompt",
+    aionChatAttachments: "aionDesktop.aionChatAttachments",
     aionChatOutput: "aionDesktop.aionChatOutput"
   };
 
@@ -86,6 +87,7 @@
     aionChatMode: "aionDesktop.cache.aionChatMode",
     aionChatEngine: "aionDesktop.cache.aionChatEngine",
     aionChatPrompt: "aionDesktop.cache.aionChatPrompt",
+    aionChatAttachments: "aionDesktop.cache.aionChatAttachments",
     aionChatOutput: "aionDesktop.cache.aionChatOutput"
   };
 
@@ -94,7 +96,7 @@
     webBase: DEFAULT_WEB_BASE,
     workspaceId: DEFAULT_WORKSPACE_ID,
     nodeId: DEFAULT_NODE_ID,
-    activeTab: "dashboard",
+    activeTab: "boardroom",
     boardroomViewMode: "dashboard",
     operationsFlowViewMode: "flat",
     activeZone: "coo",
@@ -109,6 +111,7 @@
     aionChatMode: "business_workspace",
     aionChatEngine: "gemma4",
     aionChatPrompt: "",
+    aionChatAttachments: [],
     aionChatOutput: ""
   };
 
@@ -213,6 +216,7 @@
         "aionChatMode",
         "aionChatEngine",
         "aionChatPrompt",
+        "aionChatAttachments",
         "aionChatOutput",
         "workspaceId",
         "nodeId",
@@ -234,6 +238,7 @@
         "aionChatMode",
         "aionChatEngine",
         "aionChatPrompt",
+        "aionChatAttachments",
         "aionChatOutput"
       ],
       truth: "aion_context_orchestration"
@@ -298,6 +303,25 @@
   function normalizePlainString(value, fallback) {
     if (value == null) return fallback == null ? "" : String(fallback);
     return String(value);
+  }
+
+  function normalizeAionChatAttachments(value) {
+    return asArray(value)
+      .filter(function (item) {
+        return item && typeof item === "object" && typeof item.path === "string" && item.path.trim();
+      })
+      .slice(0, 20)
+      .map(function (item) {
+        return {
+          id: normalizePlainString(item.id || item.path, ""),
+          path: normalizePlainString(item.path, ""),
+          name: normalizePlainString(item.name || item.path.split("/").pop(), "Attachment"),
+          kind: item.kind === "folder" ? "folder" : "file",
+          extension: normalizePlainString(item.extension, ""),
+          size: normalizeNumber(item.size, 0),
+          modified_at: normalizePlainString(item.modified_at, "")
+        };
+      });
   }
 
   function normalizeNumber(value, fallback) {
@@ -378,12 +402,13 @@
 
   function buildDefaultMarketingForm() {
     return {
-      brief: "Draft a Facebook post and simple carousel for spring telecom upgrade offer.",
-      objective: "Drive local enquiries",
-      funnelGoal: "Lead capture",
-      targetAudience: "Local homeowners and small business owners in core service towns.",
-      persona: "Local service buyer",
-      offer: "Spring telecom upgrade offer",
+      brief: "",
+      objective: "Generate enquiries",
+      funnelGoal: "",
+      targetAudience: "",
+      selectedPersonaIds: [],
+      persona: "",
+      offer: "",
 
       assetIntent: "product",
       productName: "",
@@ -402,15 +427,33 @@
       creativeUsageNotes: "",
       creativeUploadedAssets: [],
 
-      channels: "Facebook\nInstagram",
-      hashtags: "#LocalBusiness\n#TrustedServices\n#LeadGeneration",
-      keywords: "local telecom upgrade\nsmall business connectivity\ntrusted local installer",
+      channels: "",
+      hashtags: "",
+      keywords: "",
       hardRules:
-        "Do not publish automatically.\nDo not exceed one main post per day.\nAvoid shouting sales language.",
-      guidanceNotes:
-        "Keep the tone clean, useful, and confident.\nLean into trusted local-business language.\nPrefer simple visuals and clear calls to action.",
-      campaignNotes:
-        "Current focus: spring telecom upgrade offer.\nPush reliability, clarity, and local service trust.\nAvoid weekend publishing for now."
+        "Do not publish automatically.",
+      guidanceNotes: "",
+      campaignNotes: "",
+      destinationUrl: "",
+      createMediaType: "image",
+      createTemplate: "facebook_feed",
+      aionCampaignPlan: null,
+      aionCampaignLatestRun: null,
+      aionCampaignCanvasCleared: false,
+      designStyle: "product_showcase",
+      creationMethod: "original_photo",
+      templateOverrides: {},
+      brandedTemplates: [],
+      selectedBrandedTemplateId: "",
+      strategySource: "boardroom",
+      campaignType: "proof_project",
+      subjectOfferingId: "",
+      campaignAngle: "",
+      proofClaim: "",
+      assetReadiness: "needs_assets",
+      strategyAssets: [],
+      assetRequestPrepared: false,
+      savedLibraryItems: []
     };
   }
 
@@ -506,6 +549,9 @@
       objective: normalizePlainString(firstDefined(next.objective, base.objective), base.objective),
       funnelGoal: normalizePlainString(firstDefined(next.funnelGoal, next.funnel_goal, base.funnelGoal), base.funnelGoal),
       targetAudience: normalizePlainString(firstDefined(next.targetAudience, next.target_audience, base.targetAudience), base.targetAudience),
+      selectedPersonaIds: Array.isArray(firstDefined(next.selectedPersonaIds, next.selected_persona_ids, base.selectedPersonaIds))
+        ? clone(firstDefined(next.selectedPersonaIds, next.selected_persona_ids, base.selectedPersonaIds)).map(function (value) { return String(value || "").trim(); }).filter(Boolean)
+        : [],
       persona: normalizePlainString(firstDefined(next.persona, base.persona), base.persona),
       offer: normalizePlainString(firstDefined(next.offer, base.offer), base.offer),
 
@@ -531,13 +577,77 @@
       keywords: normalizePlainString(firstDefined(next.keywords, base.keywords), base.keywords),
       hardRules: normalizePlainString(firstDefined(next.hardRules, next.hard_rules, base.hardRules), base.hardRules),
       guidanceNotes: normalizePlainString(firstDefined(next.guidanceNotes, next.guidance_notes, base.guidanceNotes), base.guidanceNotes),
-      campaignNotes: normalizePlainString(firstDefined(next.campaignNotes, next.campaign_notes, base.campaignNotes), base.campaignNotes)
+      campaignNotes: normalizePlainString(firstDefined(next.campaignNotes, next.campaign_notes, base.campaignNotes), base.campaignNotes),
+      destinationUrl: normalizePlainString(firstDefined(next.destinationUrl, next.destination_url, base.destinationUrl), base.destinationUrl),
+      createMediaType: normalizePlainString(firstDefined(next.createMediaType, next.create_media_type, base.createMediaType), base.createMediaType) === "video" ? "video" : "image",
+      createTemplate: normalizePlainString(firstDefined(next.createTemplate, next.create_template, base.createTemplate), base.createTemplate),
+      aionCampaignPlan: firstDefined(next.aionCampaignPlan, next.aion_campaign_plan, base.aionCampaignPlan),
+      aionCampaignLatestRun: firstDefined(next.aionCampaignLatestRun, next.aion_campaign_latest_run, base.aionCampaignLatestRun),
+      aionCampaignCanvasCleared: !!firstDefined(next.aionCampaignCanvasCleared, next.aion_campaign_canvas_cleared, base.aionCampaignCanvasCleared),
+      designStyle: normalizePlainString(firstDefined(next.designStyle, next.design_style, base.designStyle), base.designStyle),
+      creationMethod: normalizePlainString(firstDefined(next.creationMethod, next.creation_method, base.creationMethod), base.creationMethod),
+      templateOverrides: normalizeRecord(firstDefined(next.templateOverrides, next.template_overrides, base.templateOverrides), base.templateOverrides),
+      brandedTemplates: Array.isArray(firstDefined(next.brandedTemplates, next.branded_templates, base.brandedTemplates))
+        ? clone(firstDefined(next.brandedTemplates, next.branded_templates, base.brandedTemplates))
+        : [],
+      selectedBrandedTemplateId: normalizePlainString(firstDefined(next.selectedBrandedTemplateId, next.selected_branded_template_id, base.selectedBrandedTemplateId), base.selectedBrandedTemplateId),
+      strategySource: normalizePlainString(firstDefined(next.strategySource, next.strategy_source, base.strategySource), base.strategySource),
+      campaignType: normalizePlainString(firstDefined(next.campaignType, next.campaign_type, base.campaignType), base.campaignType),
+      subjectOfferingId: normalizePlainString(firstDefined(next.subjectOfferingId, next.subject_offering_id, base.subjectOfferingId), base.subjectOfferingId),
+      campaignAngle: normalizePlainString(firstDefined(next.campaignAngle, next.campaign_angle, base.campaignAngle), base.campaignAngle),
+      proofClaim: normalizePlainString(firstDefined(next.proofClaim, next.proof_claim, base.proofClaim), base.proofClaim),
+      assetReadiness: normalizePlainString(firstDefined(next.assetReadiness, next.asset_readiness, base.assetReadiness), base.assetReadiness),
+      strategyAssets: Array.isArray(firstDefined(next.strategyAssets, next.strategy_assets, base.strategyAssets))
+        ? clone(firstDefined(next.strategyAssets, next.strategy_assets, base.strategyAssets))
+        : [],
+      assetRequestPrepared: !!firstDefined(next.assetRequestPrepared, next.asset_request_prepared, base.assetRequestPrepared),
+      savedLibraryItems: Array.isArray(firstDefined(next.savedLibraryItems, next.saved_library_items, base.savedLibraryItems))
+        ? clone(firstDefined(next.savedLibraryItems, next.saved_library_items, base.savedLibraryItems))
+        : []
     };
   }
 
   function buildDefaultBrandIntelligenceMap(marketingForm) {
     var form = normalizeMarketingForm(marketingForm || buildDefaultMarketingForm());
 
+    // A new workspace must not inherit a fictional customer, market, offer or
+    // campaign. Those facts arrive from onboarding or the saved Brand
+    // Foundation; only the approval boundary is safe to provide by default.
+    return {
+      version: "brand_intelligence_map.v2",
+      layout: { style: "single_column_layer_cake", sectionMode: "one_container_per_section", preferredColumns: 1 },
+      brandOverview: { brandName: "", whatYouDo: "", uniqueValueProposition: "", shortDescription: "", businessType: "", serviceArea: "", category: "" },
+      brandGoals: { objective: form.objective || "", primaryGoal: form.objective || "", funnelGoal: form.funnelGoal || "", marketGoal: "", commercialGoal: "", awarenessGoal: "", leadGoal: "", campaignNotes: [], kpis: [] },
+      brandPurpose: { statement: "", customerPromise: "", whyItMatters: "" },
+      brandVision: { statement: "", localAmbition: "", longTermDirection: "" },
+      brandMission: { statement: "" },
+      brandValues: { values: [] },
+      brandPositioning: { positioning: "", differentiation: [] },
+      brandPersonality: { traits: [] },
+      brandVoice: { voice: "", toneOfVoice: [], communicationStyle: "", dos: [], donts: [] },
+      brandStory: { origin: "", journey: "", keyMoments: [], customerReasonToBelieve: "" },
+      tagline: { primary: "", alternatives: [] },
+      audience: { primaryAudience: "", customerType: "", segments: [] },
+      customerPersonas: { primaryPersona: "", personaCards: [], personas: [] },
+      customerJourney: {},
+      painPoints: {},
+      customerPainPoints: {},
+      productsServices: { items: [] },
+      offers: { items: [] },
+      messaging: { primaryMessage: "", messagePillars: [], ctaLibrary: [], prohibitedLanguage: [] },
+      platformStrategy: { activeChannels: splitLines(form.channels), facebook: "", retargetingNotes: "", defaultPlatform: "", platforms: {} },
+      competitorAnalysis: { urls: [] },
+      creativeDirection: { direction: "", visualRules: [], creativeAssets: normalizeCreativeUploadedAssets(form.creativeAssets) },
+      visualIdentity: { defaultFonts: [], fontRules: {}, colourPalette: {}, platformOverrides: {} },
+      contentRules: { hardRules: splitLines(form.hardRules), guidanceNotes: [], campaignNotes: [], approvalRules: ["Do not publish automatically."], publishingRules: [] },
+      campaignPlanning: { currentCampaign: "", funnelStage: "", channels: [], keywords: [], hashtags: [], activeAudiences: [], activePersonas: [], activeProductsServices: [], activeOffers: [] },
+      aiUsageRules: { summary: "", promptOrder: [], outputInstruction: "" },
+      governance: { owner: "Marketing", approvalMode: "draft_and_approval", publishAutonomously: false, reviewCadence: "before_publication", lastReviewedAt: null, updatedBy: "desktop", hardRules: splitLines(form.hardRules), approvalRules: ["Do not publish automatically."], complianceNotes: [] }
+    };
+
+    /* Legacy sample retained below only so older serialized shapes remain
+       readable during migration. It is deliberately unreachable for new
+       workspace defaults. */
     return {
       version: "brand_intelligence_map.v2",
       layout: {
@@ -1701,6 +1811,7 @@
       aionChatMode: DEFAULTS.aionChatMode,
       aionChatEngine: DEFAULTS.aionChatEngine,
       aionChatPrompt: DEFAULTS.aionChatPrompt,
+      aionChatAttachments: clone(DEFAULTS.aionChatAttachments),
       aionChatOutput: DEFAULTS.aionChatOutput,
 
       dashboardSummary: buildDefaultDashboardSummary(DEFAULTS.workspaceId, DEFAULTS.nodeId),
@@ -1726,7 +1837,9 @@
   function normalizeActiveTab(value) {
     const allowed = {
       boardroom: true,
-      dashboard: true,
+      communications: true,
+      work_schedule: true,
+      business_context: true,
       marketing_stream: true,
       brand_foundation: true,
       live_agents: true,
@@ -2037,6 +2150,7 @@
       aionChatMode: normalizeAionChatMode(firstDefined(next.aionChatMode, next.aion_chat_mode, DEFAULTS.aionChatMode)),
       aionChatEngine: normalizeAionChatEngine(firstDefined(next.aionChatEngine, next.aion_chat_engine, DEFAULTS.aionChatEngine)),
       aionChatPrompt: normalizePlainString(firstDefined(next.aionChatPrompt, next.aion_chat_prompt, DEFAULTS.aionChatPrompt), DEFAULTS.aionChatPrompt),
+      aionChatAttachments: normalizeAionChatAttachments(firstDefined(next.aionChatAttachments, next.aion_chat_attachments, DEFAULTS.aionChatAttachments)),
       aionChatOutput: normalizePlainString(firstDefined(next.aionChatOutput, next.aion_chat_output, DEFAULTS.aionChatOutput), DEFAULTS.aionChatOutput),
 
       dashboardSummary: normalizeDashboardSummary(firstDefined(next.dashboardSummary, next.dashboard_summary, null), resolvedWorkspaceId, resolvedNodeId),
@@ -2087,6 +2201,7 @@
       aionChatMode: normalizeAionChatMode(seed.aionChatMode !== undefined ? seed.aionChatMode : DEFAULTS.aionChatMode),
       aionChatEngine: normalizeAionChatEngine(seed.aionChatEngine !== undefined ? seed.aionChatEngine : DEFAULTS.aionChatEngine),
       aionChatPrompt: normalizePlainString(seed.aionChatPrompt !== undefined ? seed.aionChatPrompt : DEFAULTS.aionChatPrompt, DEFAULTS.aionChatPrompt),
+      aionChatAttachments: normalizeAionChatAttachments(seed.aionChatAttachments !== undefined ? seed.aionChatAttachments : DEFAULTS.aionChatAttachments),
       aionChatOutput: normalizePlainString(seed.aionChatOutput !== undefined ? seed.aionChatOutput : DEFAULTS.aionChatOutput, DEFAULTS.aionChatOutput),
 
       bound: false,

@@ -10,8 +10,10 @@ from backend.modules.hexcore.progressive_competency_executor import (
     ProgressiveCompetencyExecutor, _run_program,
 )
 from backend.modules.hexcore.diverse_practical_executor_portfolios import (
-    EVENT_RESOLUTION_PROJECTS, FORECASTING_PROJECTS,
-    event_resolution_runner, forecasting_runner,
+    ENGLISH_PROJECTS, EVENT_RESOLUTION_PROJECTS, FORECASTING_PROJECTS,
+    MATHEMATICS_PROJECTS, PYTHON_PROJECTS, SCIENTIFIC_METHOD_PROJECTS,
+    english_runner, event_resolution_runner, forecasting_runner,
+    mathematics_runner, python_runner, scientific_method_runner,
 )
 
 
@@ -158,6 +160,25 @@ def test_event_resolution_portfolio_contains_eight_source_distinct_hidden_projec
         evidence.append({"kind": "project", "project_family": result["project_family"]})
     assert len(set(families)) == 8
     assert event_resolution_runner(contract, evidence)["status"] == "diverse_project_executor_required"
+
+
+def test_depth_campaign_has_eight_distinct_projects_per_practical_subject():
+    rows = (
+        (MATHEMATICS_PROJECTS, mathematics_runner, ["algebra", "arithmetic", "calculus", "discrete_math"]),
+        (ENGLISH_PROJECTS, english_runner, ["ambiguity", "argument_structure", "clear_generation", "correction"]),
+        (PYTHON_PROJECTS, python_runner, ["architecture", "concurrency", "data_structures", "debugging"]),
+        (SCIENTIFIC_METHOD_PROJECTS, scientific_method_runner,
+         ["causal_inference", "experiment_design", "hypothesis_generation", "literature_synthesis"]),
+    )
+    for cases, runner, subskills in rows:
+        assert len({row.family for row in cases}) == 8
+        evidence = []
+        for _ in cases:
+            result = runner({"requirement": {"kind": "project", "subskills": subskills}}, evidence)
+            assert result["passed"] is True
+            assert result["unfamiliar"] is True
+            evidence.append({"kind": "project", "project_family": result["project_family"]})
+        assert runner({"requirement": {"kind": "project", "subskills": subskills}}, evidence)["status"] == "diverse_project_executor_required"
 
 
 def test_comprehensive_learning_abilities_receive_a_real_scheduler_lane(tmp_path: Path):
@@ -596,6 +617,36 @@ def test_exhausted_diverse_project_portfolio_is_parked_without_false_progress(
     assert next_cycle.get("subject_id") != "python_core"
 
 
+def test_project_blocker_does_not_block_a_different_requirement_kind(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    system.add_practical_blocker(
+        subject_id="scientific_method", subskills=["experiment_design"],
+        reason="project portfolio exhausted", required_authority="new_project_portfolio",
+        blocker_type="executor_capability", contract_id="old-project",
+        requirement_kind="project",
+    )
+    # With no knowledge evidence, the next requirement is a lesson rather than
+    # the blocked project kind, so the subject remains schedulable.
+    system.configure_depth_acceleration(
+        advanced_targets=["scientific_method"], expert_targets=[]
+    )
+    assert system._priority_subject() == "scientific_method"
+
+
+def test_repeated_empty_scheduler_cycles_raise_visible_incident_and_metrics(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    for subject in system.state["subjects"].values():
+        subject["target_level"] = "unassessed"
+    for _ in range(3):
+        action = system.step()["cycle"]["action"]
+    assert action["status"] == "curriculum_stalled_incident"
+    summary = system.summary()
+    assert summary["open_scheduler_incidents"] == 1
+    assert "practice_projects_completed_today" in summary
+    assert "blocked_subjects" in summary
+    assert "minutes_since_last_competency_progress" in summary
+
+
 def test_new_portfolio_version_reissues_parked_contract_without_false_evidence(tmp_path: Path):
     system = _empty_repo(tmp_path)
     system.set_active_subject("python_core")
@@ -630,6 +681,26 @@ def test_new_portfolio_version_reissues_parked_contract_without_false_evidence(t
     assert not any(row.get("status") == "open" and row.get("subject_id") == "python_core"
                    and row.get("blocker_type") == "executor_capability"
                    for row in system.state["blockers"])
+
+
+def test_new_portfolio_clears_legacy_blocker_without_parked_contract(tmp_path: Path):
+    system = _empty_repo(tmp_path)
+    blocker = system.add_practical_blocker(
+        subject_id="mathematics", subskills=["algebra"], reason="legacy portfolio exhausted",
+        required_authority="genuinely_diverse_hidden_project_portfolio",
+        blocker_type="executor_capability",
+    )
+    before = len(system.evidence_for("mathematics"))
+    executor = ProgressiveCompetencyExecutor(
+        system=system, state_path=tmp_path / "executor.json",
+        result_dir=tmp_path / "results/progressive_competency",
+    )
+    assert executor.reconcile_available_blockers() == 0
+    assert len(system.evidence_for("mathematics")) == before
+    resolved = next(row for row in system.state["blockers"]
+                    if row["blocker_id"] == blocker["blocker_id"])
+    assert resolved["status"] == "resolved"
+    assert resolved["resolution"] == "versioned_executor_portfolio_installed"
 
 
 def test_active_unsupported_subject_never_borrows_unrelated_executor(tmp_path: Path):

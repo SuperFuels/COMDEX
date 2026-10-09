@@ -24,7 +24,7 @@
       opacity: 1 !important;
     }
     html body section.aion-pilot-stream-shell[data-aion-pilot-role="finance"] .aion-pilot-stream-header h2 {
-      color: #0f766e !important;
+      color: #2563eb !important;
     }
     html body section.aion-pilot-stream-shell[data-aion-pilot-role="finance"] .aion-pilot-composer-bar,
     html body section.aion-pilot-stream-shell[data-aion-pilot-role="finance"] .aion-pilot-composer-bar textarea {

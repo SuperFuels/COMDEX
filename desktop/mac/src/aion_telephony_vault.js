@@ -97,7 +97,7 @@
           <li><a href="https://www.twilio.com/try-twilio" target="_blank" rel="noreferrer">Create or open your Twilio account ↗</a>, add billing and buy a voice-capable number.</li>
           <li>In <b>Account → API keys &amp; tokens</b>, create a <b>Standard API key</b> called “Tessaris”. Copy the secret now—Twilio shows it once.</li>
           <li>In <b>Elastic SIP Trunking</b>, create a trunk. Set its origination URI to <code>sip:sip.retellai.com</code>, add a credential list, and attach the number to that trunk.</li>
-          <li>Copy the account, key, number and trunk details into Vault below.</li>
+          <li>Copy the account, key, number and trunk details into Connections below.</li>
         </ol>
       </div>
       <form class="tv-form" data-tv-form="twilio">
@@ -113,7 +113,7 @@
         </div>
         <button class="primary-btn" type="submit" ${state.busy ? 'disabled' : ''}>${state.busy === 'twilio' ? 'Checking…' : 'Verify and save Twilio'}</button>
       </form>`}
-      <details class="tv-help"><summary>Why Tessaris needs these details</summary><p>The API key checks the Twilio account. The number and SIP trunk carry calls between Twilio and Retell. Tessaris stores secrets in the Mac system Vault and never displays them again.</p></details>
+      <details class="tv-help"><summary>Why Tessaris needs these details</summary><p>The API key checks the Twilio account. The number and SIP trunk carry calls between Twilio and Retell. Tessaris protects secrets in secure local storage and never displays them again.</p></details>
     </article>`;
   }
 
@@ -158,8 +158,8 @@
       </div>
       ${state.message ? `<div class="tv-notice success">${esc(state.message)}</div>` : ''}
       ${state.error ? `<div class="tv-notice error">${esc(state.error)}</div>` : ''}
-      ${status.completed_steps < 2 && (twilio.credential_present || retell.credential_present) ? `<div class="tv-notice info"><div><strong>Existing phone credentials found in Vault</strong><span>Verify the saved keys before replacing them. This is read-only and will not start a call.</span></div><button type="button" class="secondary-btn" data-tv-refresh="true" ${state.busy ? 'disabled' : ''}>${state.busy === 'refresh' ? 'Checking…' : 'Check existing Vault keys'}</button></div>` : ''}
-      ${state.loading ? `<div class="tv-loading">Checking Vault connections…</div>` : `<div class="tv-steps">${twilioStep(twilio)}${retellStep(retell, twilio, routing)}</div>`}
+      ${status.completed_steps < 2 && (twilio.credential_present || retell.credential_present) ? `<div class="tv-notice info"><div><strong>Existing phone credentials found</strong><span>Verify the saved keys before replacing them. This is read-only and will not start a call.</span></div><button type="button" class="secondary-btn" data-tv-refresh="true" ${state.busy ? 'disabled' : ''}>${state.busy === 'refresh' ? 'Checking…' : 'Check saved credentials'}</button></div>` : ''}
+      ${state.loading ? `<div class="tv-loading">Checking phone connections…</div>` : `<div class="tv-steps">${twilioStep(twilio)}${retellStep(retell, twilio, routing)}</div>`}
       ${status.completed_steps === 2 ? `<div class="tv-next ${routing.ready_to_build_callers ? 'is-ready' : ''}">
         <div><strong>${routing.ready_to_build_callers ? '✓ Ready to build sales callers' : 'One routing check remains'}</strong><span>${routing.ready_to_build_callers ? 'Both services and the telephone route are verified. Go to Sales to create an inbound or outbound caller and mint its contract.' : `Import ${esc(twilio.phone_number || 'the Twilio number')} into Retell, then check the connections again.`}</span></div>
         <button type="button" class="secondary-btn" data-tv-refresh="true" ${state.busy ? 'disabled' : ''}>${state.busy === 'refresh' ? 'Checking…' : 'Check connections again'}</button>

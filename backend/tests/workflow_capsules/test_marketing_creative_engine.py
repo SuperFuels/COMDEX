@@ -75,6 +75,17 @@ def test_one_week_instruction_builds_seven_day_approval_gated_calendar():
     assert all(item["requires_approval"] for item in plan["campaign_schedule"])
 
 
+def test_plan_accepts_every_platform_exposed_by_guided_creator():
+    plan = MarketingCreativeEngine().build_plan({
+        "brief": "Prepare exact platform renditions.",
+        "platforms": ["facebook_stories", "google_business"],
+        "formats": ["image", "video"],
+    })
+    assert {item["platform"] for item in plan["renditions"]} == {
+        "facebook_stories", "google_business"
+    }
+
+
 def test_safe_fallback_copy_uses_business_name_and_human_review_boundary():
     request = SkillRunRequest(
         skill_id="draft_content",

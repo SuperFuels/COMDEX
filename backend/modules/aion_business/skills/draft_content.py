@@ -20,7 +20,7 @@ from backend.modules.aion_business.skills.base import (
 
 
 DEFAULT_LOCAL_PROVIDER = "local"
-DEFAULT_LOCAL_MODEL = "gemma"
+DEFAULT_LOCAL_MODEL = "workspace-selected-local-model"
 DEFAULT_COPY_POLICY_REF = "copy_default"
 
 
@@ -223,6 +223,23 @@ class DraftContentSkill(BaseSkill):
                 return value.strip()
 
         if provider == DEFAULT_LOCAL_PROVIDER:
+            workspace_id = str(
+                request.input_payload.get("workspace_id")
+                or metadata.get("workspace_id")
+                or ""
+            ).strip()
+            if workspace_id:
+                try:
+                    from backend.modules.aion_inference.local_model_selection_store import (
+                        load_local_model_selection,
+                    )
+
+                    selection = load_local_model_selection(workspace_id)
+                    selected = str(selection.get("model_id") or selection.get("model") or "").strip()
+                    if selection.get("source") == "local_model_vault" and selected:
+                        return selected
+                except Exception:
+                    pass
             return DEFAULT_LOCAL_MODEL
 
         return None

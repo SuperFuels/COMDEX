@@ -163,6 +163,12 @@ class ImageGenerationService:
         safe_output_format = self._sanitize_output_format(output_format)
         metadata = dict(metadata or {})
         visual_assets = dict(visual_assets or {})
+        creative_direction = dict(
+            visual_assets.get("creative_direction")
+            or metadata.get("creative_direction")
+            or {}
+        )
+        creation_method = str(creative_direction.get("creation_method") or "original_photo").strip().lower()
         original_image_paths = []
         for asset in list(visual_assets.get("creative_assets") or []):
             if not isinstance(asset, dict):
@@ -200,6 +206,7 @@ class ImageGenerationService:
                 persona=persona,
                 objective=objective,
                 visual_assets=visual_assets,
+                design_brief=slide,
             )
 
             card_file_stem = self._sanitize_file_stem(
@@ -211,9 +218,15 @@ class ImageGenerationService:
                 "card_index": index,
                 "card_type": card_type,
                 "primary_channel": primary_channel,
+                "creative_direction": creative_direction,
+                "design_brief": slide,
             }
 
-            original_source = original_image_paths[(index - 1) % len(original_image_paths)] if original_image_paths else ""
+            original_source = (
+                original_image_paths[(index - 1) % len(original_image_paths)]
+                if original_image_paths and creation_method != "generate_new"
+                else ""
+            )
             result = (
                 self._generate_local_evidence_card(
                     source_path=original_source,
@@ -632,7 +645,7 @@ class ImageGenerationService:
         file_stem: str,
         metadata: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """Turn an owner-supplied photograph into an owned 4:5 campaign rendition."""
+        """Turn an owner-supplied photograph into an owned, template-driven 4:5 rendition."""
         try:
             from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 
@@ -642,57 +655,140 @@ class ImageGenerationService:
             resized = source.resize((int(source.width * scale), int(source.height * scale)), Image.Resampling.LANCZOS)
             left = max(0, (resized.width - width) // 2)
             top = max(0, (resized.height - height) // 2)
-            image = resized.crop((left, top, left + width, top + height))
-            image = ImageEnhance.Contrast(image).enhance(1.05)
-            overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-            overlay_draw = ImageDraw.Draw(overlay)
-            for y in range(height):
-                alpha = int(35 + (y / height) * 175)
-                overlay_draw.line((0, y, width, y), fill=(5, 16, 28, alpha))
-            image = Image.alpha_composite(image.convert("RGBA"), overlay).convert("RGB")
-            draw = ImageDraw.Draw(image)
-            accent = (15, 118, 110)
-            draw.rectangle((0, 0, 18, height), fill=accent)
+            photo = ImageEnhance.Contrast(resized.crop((left, top, left + width, top + height))).enhance(1.04)
+            creative_direction = dict(metadata.get("creative_direction") or {})
+            design_style = str(creative_direction.get("design_template") or "product_showcase").strip().lower()
+            if design_style not in {"product_showcase", "minimal_editorial", "bold_promotion", "customer_story", "proof_focus", "brand_led"}:
+                design_style = "product_showcase"
 
-            def font(size: int):
-                for candidate in ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", "/System/Library/Fonts/SFNS.ttf"):
+            def parse_colour(value: Any, fallback: tuple[int, int, int]) -> tuple[int, int, int]:
+                text = str(value or "").strip().lstrip("#")
+                if len(text) == 6:
+                    try:
+                        return tuple(int(text[index:index + 2], 16) for index in (0, 2, 4))
+                    except ValueError:
+                        pass
+                return fallback
+
+            brand_snapshot = dict(metadata.get("brand_foundation_snapshot") or {})
+            brand_map = dict(metadata.get("brand_map") or metadata.get("brandMap") or {})
+            visual_identity = dict(brand_map.get("visualIdentity") or brand_map.get("visual_identity") or brand_snapshot.get("visual_identity") or {})
+            primary = parse_colour(visual_identity.get("primaryColor") or visual_identity.get("primary_color"), (37, 99, 235))
+            accent = parse_colour(visual_identity.get("accentColor") or visual_identity.get("accent_color"), (14, 165, 164))
+            ink = (10, 24, 43)
+            paper = (248, 250, 252)
+
+            def font(size: int, bold: bool = True):
+                candidates = (
+                    "/System/Library/Fonts/Supplemental/Arial Bold.ttf" if bold else "/System/Library/Fonts/Supplemental/Arial.ttf",
+                    "/System/Library/Fonts/SFNS.ttf",
+                )
+                for candidate in candidates:
                     try:
                         return ImageFont.truetype(candidate, size=size)
                     except Exception:
                         continue
                 return ImageFont.load_default()
 
-            def lines(text: str, limit: int) -> list[str]:
-                output, current = [], ""
+            def wrapped(text: str, max_width: int, typeface: Any, max_lines: int = 4) -> list[str]:
+                draw = ImageDraw.Draw(Image.new("RGB", (1, 1)))
+                output: list[str] = []
+                current = ""
                 for word in str(text or "").split():
                     candidate = f"{current} {word}".strip()
-                    if current and len(candidate) > limit:
-                        output.append(current); current = word
+                    if current and draw.textbbox((0, 0), candidate, font=typeface)[2] > max_width:
+                        output.append(current)
+                        current = word
                     else:
                         current = candidate
-                if current: output.append(current)
+                if current:
+                    output.append(current)
+                output = output[:max_lines]
+                if len(output) == max_lines and len(" ".join(output)) < len(str(text or "").strip()):
+                    output[-1] = output[-1].rstrip(" .") + "…"
                 return output
 
-            draw.text((70, 72), str(brand_name).upper(), font=font(32), fill=(255, 255, 255))
-            draw.rounded_rectangle((70, 900, 954, 1210), radius=28, fill=(7, 17, 31))
-            y = 940
-            for line in lines(headline, 24)[:3]:
-                draw.text((112, y), line, font=font(60), fill=(255, 255, 255)); y += 70
-            if body:
-                y += 10
-                for line in lines(body, 48)[:2]:
-                    draw.text((112, y), line, font=font(28), fill=(226, 232, 240)); y += 38
+            def text_block(draw: Any, xy: tuple[int, int], text: str, *, size: int, colour: tuple[int, int, int], max_width: int, max_lines: int = 4, gap: int = 10, bold: bool = True) -> int:
+                typeface = font(size, bold=bold)
+                x, y = xy
+                for line in wrapped(text, max_width, typeface, max_lines):
+                    draw.text((x, y), line, font=typeface, fill=colour)
+                    y += size + gap
+                return y
+
+            brand_label = str(brand_name or "Business").strip().upper()
+            headline_text = str(headline or body or "").strip()
+            body_text = str(body or "").strip()
+
+            if design_style == "minimal_editorial":
+                image = Image.new("RGB", (width, height), paper)
+                image.paste(photo.crop((0, 0, width, 820)), (0, 0))
+                draw = ImageDraw.Draw(image)
+                draw.rectangle((0, 820, width, 834), fill=accent)
+                draw.text((66, 878), brand_label, font=font(25), fill=primary)
+                y = text_block(draw, (66, 934), headline_text, size=54, colour=ink, max_width=890, max_lines=3, gap=9)
+                if body_text:
+                    text_block(draw, (66, y + 10), body_text, size=27, colour=(71, 85, 105), max_width=880, max_lines=2, gap=7, bold=False)
+            elif design_style == "bold_promotion":
+                image = photo.copy()
+                draw = ImageDraw.Draw(image, "RGBA")
+                draw.rectangle((0, 0, 380, height), fill=(*primary, 238))
+                draw.rectangle((380, 0, 398, height), fill=(*accent, 255))
+                draw.text((50, 62), brand_label, font=font(27), fill=(255, 255, 255))
+                text_block(draw, (50, 280), headline_text, size=63, colour=(255, 255, 255), max_width=292, max_lines=6, gap=8)
+            elif design_style == "customer_story":
+                image = photo.copy()
+                draw = ImageDraw.Draw(image, "RGBA")
+                draw.rounded_rectangle((55, 725, 969, 1215), radius=42, fill=(255, 250, 238, 242))
+                draw.text((105, 775), brand_label, font=font(25), fill=primary)
+                draw.text((105, 830), "“", font=font(78), fill=accent)
+                y = text_block(draw, (165, 850), headline_text, size=48, colour=ink, max_width=720, max_lines=4, gap=10)
+                if body_text:
+                    text_block(draw, (165, y + 12), body_text, size=25, colour=(71, 85, 105), max_width=720, max_lines=2, bold=False)
+            elif design_style == "proof_focus":
+                image = Image.new("RGB", (width, height), paper)
+                image.paste(photo.resize((1024, 735), Image.Resampling.LANCZOS), (0, 0))
+                draw = ImageDraw.Draw(image)
+                draw.rectangle((0, 735, width, 751), fill=primary)
+                draw.text((66, 802), "PROOF / PRODUCT", font=font(24), fill=accent)
+                y = text_block(draw, (66, 858), headline_text, size=50, colour=ink, max_width=885, max_lines=3, gap=10)
+                if body_text:
+                    text_block(draw, (66, y + 16), body_text, size=27, colour=(51, 65, 85), max_width=870, max_lines=3, bold=False)
+                draw.text((66, 1200), brand_label, font=font(24), fill=primary)
+            elif design_style == "brand_led":
+                image = Image.new("RGB", (width, height), primary)
+                image.paste(photo.resize((884, 850), Image.Resampling.LANCZOS), (70, 145))
+                draw = ImageDraw.Draw(image)
+                draw.text((70, 60), brand_label, font=font(32), fill=(255, 255, 255))
+                draw.rectangle((70, 995, 954, 1011), fill=accent)
+                text_block(draw, (70, 1050), headline_text, size=50, colour=(255, 255, 255), max_width=870, max_lines=3, gap=8)
+            else:
+                image = photo.copy().convert("RGBA")
+                overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+                overlay_draw = ImageDraw.Draw(overlay)
+                for y in range(620, height):
+                    alpha = int(((y - 620) / (height - 620)) * 205)
+                    overlay_draw.line((0, y, width, y), fill=(5, 16, 28, alpha))
+                image = Image.alpha_composite(image, overlay).convert("RGB")
+                draw = ImageDraw.Draw(image)
+                draw.rounded_rectangle((54, 54, 300, 108), radius=26, fill=(*primary,))
+                draw.text((78, 67), brand_label[:18], font=font(23), fill=(255, 255, 255))
+                draw.rectangle((58, 940, 68, 1185), fill=accent)
+                y = text_block(draw, (96, 930), headline_text, size=58, colour=(255, 255, 255), max_width=820, max_lines=3, gap=10)
+                if body_text:
+                    text_block(draw, (96, y + 12), body_text, size=27, colour=(226, 232, 240), max_width=810, max_lines=2, bold=False)
+
             buffer = io.BytesIO(); image.save(buffer, format="PNG", optimize=True)
             file_path = self._persist_base64_image(
                 b64_json=base64.b64encode(buffer.getvalue()).decode("ascii"), output_format="png", file_stem=file_stem, metadata=metadata,
             )
             return {
-                "ok": True, "provider": "tessaris_owned_media", "model": "evidence-rendition-v1",
+                "ok": True, "provider": "tessaris_owned_media", "model": f"evidence-rendition-v2:{design_style}",
                 "asset_url": str(file_path), "asset_id": str(file_path), "file_path": str(file_path),
-                "mime_type": "image/png", "metadata": {**metadata, "source_path": source_path},
+                "mime_type": "image/png", "metadata": {**metadata, "source_path": source_path, "design_template": design_style},
             }
         except Exception as exc:
-            return {"ok": False, "provider": "tessaris_owned_media", "model": "evidence-rendition-v1", "error": f"evidence_card_failed:{type(exc).__name__}:{exc}", "metadata": metadata}
+            return {"ok": False, "provider": "tessaris_owned_media", "model": "evidence-rendition-v2", "error": f"evidence_card_failed:{type(exc).__name__}:{exc}", "metadata": metadata}
 
     # -------------------------------------------------------------------------
     # Prompt construction for real carousel slides
@@ -713,11 +809,18 @@ class ImageGenerationService:
         persona: Optional[str],
         objective: Optional[str],
         visual_assets: Dict[str, Any],
+        design_brief: Optional[Dict[str, Any]] = None,
     ) -> str:
         card_type_label = card_type.replace("_", " ").strip()
         visual_direction = self._card_visual_direction(card_type)
         layout_style = self._card_layout_style(card_type)
         asset_guidance = self._build_asset_guidance(visual_assets)
+        design_brief = dict(design_brief or {})
+        structured_direction = "\n".join(
+            f"- {key.replace('_', ' ').title()}: {value}"
+            for key, value in design_brief.items()
+            if key not in {"headline", "body", "supporting_copy", "card_index"} and value not in (None, "", [])
+        )
 
         prompt = f"""
 Create a polished {primary_channel} carousel slide in portrait social format, designed for a 4:5 style composition.
@@ -753,6 +856,9 @@ Campaign context:
 
 Asset guidance:
 {asset_guidance}
+
+Structured design brief:
+{structured_direction or "Use the selected brand template and platform-safe layout."}
 
 Style notes:
 - best-in-class business carousel design
@@ -826,7 +932,7 @@ Output:
 
             if isinstance(item, dict):
                 slides.append(
-                    {
+                    {**item,
                         "headline": str(
                             item.get("headline")
                             or item.get("title")
@@ -837,6 +943,7 @@ Output:
                         ).strip(),
                         "body": str(
                             item.get("body")
+                            or item.get("supporting_copy")
                             or item.get("subtitle")
                             or item.get("copy")
                             or item.get("description")

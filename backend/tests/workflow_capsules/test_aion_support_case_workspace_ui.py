@@ -48,7 +48,7 @@ def test_support_command_centre_has_persistent_dated_chat_and_full_input_control
     assert "function renderAionSupportConversationTurn" in app
     assert "function hydrateAionSupportConversation" in app
     assert 'department_id: "support"' in app
-    assert 'renderAionDatedConversationTurns(turns, renderAionSupportConversationTurn, "#67558f")' in app
+    assert 'renderAionDatedConversationTurns(turns, renderAionSupportConversationTurn, "#94a3b8")' in app
     assert 'data-aion-support-pilot-attach="true"' in app
     assert 'data-aion-support-pilot-voice="true"' in app
     assert "function startAionSupportPilotDictation" in app
@@ -85,7 +85,42 @@ def test_support_workspace_exposes_read_only_dashboard_bridge_and_case_deep_link
 def test_support_visible_load_does_not_redraw_the_app_or_poll_the_mount_each_second():
     support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
     app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
-    assert "if (requireVisibleMount) {\n        render();\n      } else {" in support
+    assert "if (requireVisibleMount || (state.visibleRequested && mount())) {\n        render();\n      } else {" in support
     assert "if (!root.querySelector('[data-aion-support-cases]')) render();" in support
     assert "setInterval(attemptMount, 1000)" not in support
-    assert 'if (state.activeTab === "dashboard") requestRender?.();' in app
+    assert 'if (state.activeTab === "dashboard") requestRender?.();' not in app
+
+
+def test_support_command_centre_explicitly_mounts_the_case_runtime_after_render():
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    renderer = app.split("function renderSupportPilotCommandCentre", 1)[1].split(
+        "function renderHRWorkspaceSurface", 1
+    )[0]
+    assert "AionSupportCaseWorkspace?.mountVisibleWorkspace?.()" in renderer
+    assert "function mountVisibleWorkspace()" in support
+    assert "state.visibleRequested = true" in support
+    assert "requireVisibleMount || (state.visibleRequested && mount())" in support
+
+
+def test_selected_support_case_opens_as_a_right_workspace_overlay():
+    support = (ROOT / "desktop/mac/src/aion_support_case_workspace.js").read_text(encoding="utf-8")
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    assert 'class="scw-detail" role="region" aria-label="Support case details" tabindex="-1"' in support
+    assert 'aria-label="Close case details"' in support
+    assert "[data-aion-support-workspace-pane] .scw-detail{position:absolute!important;inset:0!important" in app
+    assert "[data-aion-support-workspace-pane]{position:relative!important;overflow:hidden!important}" in app
+    assert "state.selectedId=button.dataset.scwCase;" in support
+    assert ".scw-detail')?.focus({ preventScroll: true })" in support
+
+
+def test_support_case_centre_right_pane_remains_vertically_scrollable():
+    app = (ROOT / "desktop/mac/src/app.js").read_text(encoding="utf-8")
+    renderer = app.split("function renderSupportPilotCommandCentre", 1)[1].split(
+        "function renderHRWorkspaceSurface", 1
+    )[0]
+    assert "html body [data-aion-support-command-centre] [data-aion-support-workspace-pane] .scw-shell" in renderer
+    assert "overflow-y:auto!important" in renderer
+    assert "overflow-x:hidden!important" in renderer
+    assert "overscroll-behavior:contain!important" in renderer
+    assert "scrollbar-gutter:stable!important" in renderer

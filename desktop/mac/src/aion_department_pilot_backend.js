@@ -798,10 +798,13 @@
   }
 
   function askFinance(workspaceId, userText) {
+    const selectedModel = global.getTessarisActiveModelSelection?.() || {};
     return request(`/${encodeURIComponent(workspaceId)}/finance/conversation/turn`, {
       method: 'POST',
       body: JSON.stringify({
         user_text: String(userText || '').trim(),
+        preferred_provider: String(selectedModel.provider || '').trim() || null,
+        preferred_model: String(selectedModel.model || selectedModel.model_id || '').trim() || null,
         created_at: new Date().toISOString(),
       }),
     });
@@ -1201,7 +1204,7 @@
       .aion-finance-reconciliation button{padding:9px 12px;border:1px solid #38bdf8;background:#0c4a6e;color:#e0f2fe;font-weight:700;cursor:pointer}.aion-finance-reconciliation-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
       .aion-finance-director{border:1px solid rgba(74,222,128,.55);background:#07111f;padding:14px;margin:0 0 16px;color:#cbd5e1}.aion-finance-director>header{display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid rgba(74,222,128,.25)}.aion-finance-director>header strong{color:#86efac}.aion-finance-director>header span{color:#7dd3fc;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
       .aion-finance-director-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:12px 0}.aion-finance-director-actions label{display:grid;gap:4px;color:#94a3b8;font-size:10px}.aion-finance-director-actions input{padding:8px;background:#0f172a;border:1px solid #38bdf8;color:#f8fafc}.aion-finance-director button{padding:8px 11px;border:1px solid #4ade80;background:#052e1a;color:#dcfce7;font-weight:700;cursor:pointer}.aion-finance-director button:disabled{opacity:.5;cursor:not-allowed}
-      .aion-finance-cash-position{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:stretch;margin:14px 0 18px;padding:14px;border:2px solid #0f766e;background:#ecfdf5}.aion-finance-cash-position>div,.aion-finance-cash-position>label{display:flex;min-width:0;flex-direction:column;gap:5px;padding:12px;background:#fff;border:1px solid #99f6e4}.aion-finance-cash-position small{color:#0f766e!important;font-size:9px;font-weight:950;letter-spacing:.13em}.aion-finance-cash-position strong{font-size:24px!important;color:#064e3b!important}.aion-finance-cash-position span{font-size:9px;color:#64748b}.aion-finance-cash-position input{width:100%;min-width:0;box-sizing:border-box;padding:8px!important;font-size:17px!important;font-weight:900}.aion-finance-cash-input{display:flex;align-items:center;gap:7px}.aion-finance-cash-input b{color:#0f766e}.aion-finance-cash-position>button{grid-column:2/-1;align-self:stretch;min-height:58px;background:#0f766e!important;color:#fff!important;border-color:#0f766e!important;white-space:nowrap}.aion-finance-cash-position>p{grid-column:1/-1;margin:0!important;color:#52667a!important;font-size:10px}
+      .aion-finance-cash-position{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:stretch;margin:14px 0 18px;padding:14px;border:1px solid #c8d8fb;border-radius:15px;background:#eef5ff}.aion-finance-cash-position>div,.aion-finance-cash-position>label{display:flex;min-width:0;flex-direction:column;gap:5px;padding:12px;background:#fff;border:1px solid #d9e2ec;border-radius:11px}.aion-finance-cash-position small{color:#2563eb!important;font-size:9px;font-weight:950;letter-spacing:.13em}.aion-finance-cash-position strong{font-size:24px!important;color:#14213d!important}.aion-finance-cash-position span{font-size:9px;color:#66758a}.aion-finance-cash-position input{width:100%;min-width:0;box-sizing:border-box;padding:8px!important;font-size:17px!important;font-weight:900}.aion-finance-cash-input{display:flex;align-items:center;gap:7px}.aion-finance-cash-input b{color:#2563eb}.aion-finance-cash-position>button{grid-column:2/-1;align-self:stretch;min-height:58px;background:#2563eb!important;color:#fff!important;border-color:#2563eb!important;border-radius:11px!important;white-space:nowrap}.aion-finance-cash-position>p{grid-column:1/-1;margin:0!important;color:#66758a!important;font-size:10px}
       .aion-finance-director-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:10px 0}.aion-finance-director-kpis article{padding:10px;border:1px solid rgba(56,189,248,.25);background:#0f172a}.aion-finance-director-kpis small,.aion-finance-director-kpis strong{display:block}.aion-finance-director-kpis small{color:#94a3b8}.aion-finance-director-kpis strong{color:#f8fafc;font-size:17px;margin-top:5px}
       .aion-finance-signal,.aion-finance-director-proposal,.aion-finance-transaction-match,.aion-finance-counterparty-suggestion,.aion-finance-exception{padding:10px;margin:8px 0;border:1px solid rgba(56,189,248,.24);background:#0f172a}.aion-finance-signal.is-critical{border-color:#ef4444}.aion-finance-signal.is-high{border-color:#f59e0b}.aion-finance-signal strong,.aion-finance-director-proposal strong{color:#fbbf24}.aion-finance-transaction-match>div,.aion-finance-counterparty-suggestion>div,.aion-finance-exception{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.aion-finance-transaction-match>div strong,.aion-finance-counterparty-suggestion>div strong{color:#7dd3fc}.aion-finance-transaction-match>div span,.aion-finance-counterparty-suggestion>div span{color:#86efac}.aion-finance-transaction-match em,.aion-finance-counterparty-suggestion em{display:block;color:#86efac;font-style:normal}.aion-finance-exception pre{flex:1 0 100%;white-space:pre-wrap;color:#cbd5e1;background:#07111f;padding:8px}
       .aion-canonical-pilot-empty{margin:12px 0 0;color:#64748b}
@@ -1211,10 +1214,10 @@
       /* Finance light workspace: align the permanent Finance runtime with the
          Products & Services operating-model design system. */
       html body [data-aion-shared-pilot-terminal="true"][data-aion-pilot-role="finance"]{
-        --fin-ink:#102a43;--fin-muted:#52667a;--fin-line:#cbd9e6;--fin-soft:#f5f9fc;
-        --fin-blue:#0284c7;--fin-blue-soft:#edf8fc;--fin-teal:#0f766e;--fin-green:#15803d;
+        --fin-ink:#14213d;--fin-muted:#66758a;--fin-line:#d9e2ec;--fin-soft:#f7f9fc;
+        --fin-blue:#2563eb;--fin-blue-soft:#eef5ff;--fin-teal:#2563eb;--fin-green:#2563eb;
         background:#fff !important;color:var(--fin-ink) !important;border:1px solid var(--fin-line) !important;
-        border-left:5px solid #0ea5e9 !important;box-shadow:none !important;
+        border-left:5px solid #2563eb !important;box-shadow:none !important;
       }
       html body [data-aion-pilot-role="finance"] .aion-pilot-stream-header,
       html body [data-aion-pilot-role="finance"] .aion-shared-pilot-role-context,
@@ -1235,10 +1238,10 @@
         background:#fff !important;color:var(--fin-ink) !important;border:1px solid #b7c8d6 !important;
       }
       html body [data-aion-pilot-role="finance"] button{
-        background:#fff !important;color:#0369a1 !important;border:1px solid #8fb3c7 !important;
+        background:#fff !important;color:#2563eb !important;border:1px solid #b9c7d8 !important;
         font-weight:800 !important;box-shadow:none !important;
       }
-      html body [data-aion-pilot-role="finance"] button:hover{background:var(--fin-blue-soft) !important;border-color:#38a3c7 !important}
+      html body [data-aion-pilot-role="finance"] button:hover{background:var(--fin-blue-soft) !important;border-color:#2563eb !important}
       html body [data-aion-pilot-role="finance"] button[data-aion-finance-refresh-director],
       html body [data-aion-pilot-role="finance"] button[data-aion-finance-run-task],
       html body [data-aion-pilot-role="finance"] button[type="submit"]{
@@ -1272,19 +1275,19 @@
       html body [data-aion-pilot-role="finance"] .aion-finance-conversation-turn{
         background:var(--fin-soft) !important;color:var(--fin-ink) !important;border-color:var(--fin-line) !important;
       }
-      .aion-finance-statement-package{margin:18px 0;border:2px solid #f59e0b;background:#fff;color:var(--fin-ink)}
+      .aion-finance-statement-package{margin:18px 0;border:1px solid var(--fin-line);border-top:4px solid var(--fin-blue);border-radius:15px;overflow:hidden;background:#fff;color:var(--fin-ink)}
       .aion-finance-statement-package>header{display:flex;justify-content:space-between;gap:20px;padding:18px 20px;border-bottom:1px solid var(--fin-line)}
       .aion-finance-statement-package>header small{color:var(--fin-teal) !important;font-weight:900;letter-spacing:.22em}
       .aion-finance-statement-package>header h3{margin:6px 0 4px;font-family:Inter,system-ui,sans-serif}
-      .aion-finance-statement-package>header p{margin:0}.aion-finance-statement-package>header>span{color:#0369a1;font-weight:900}
+      .aion-finance-statement-package>header p{margin:0}.aion-finance-statement-package>header>span{color:#2563eb;font-weight:900}
       .aion-finance-statement-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:16px;background:var(--fin-soft)}
-      .aion-finance-statement-tabs>section{background:#fff;border:1px solid var(--fin-line);padding:15px}
+      .aion-finance-statement-tabs>section{background:#fff;border:1px solid var(--fin-line);border-radius:12px;padding:15px}
       .aion-finance-statement-tabs h4{display:flex;justify-content:space-between;margin:0 0 12px;padding-bottom:9px;border-bottom:2px solid var(--fin-teal);text-transform:uppercase;letter-spacing:.08em}
-      .aion-finance-statement-tabs h4 em{color:#0369a1;font-size:10px;font-style:normal}
+      .aion-finance-statement-tabs h4 em{color:#2563eb;font-size:10px;font-style:normal}
       .aion-finance-statement-tabs>section>div:not(.aion-finance-statement-grid){display:grid;grid-template-columns:1fr auto;gap:3px 12px;padding:7px 0;border-bottom:1px solid #e1eaf0}
       .aion-finance-statement-tabs>section>div>em{grid-column:1/-1;color:#64748b;font-size:9px;font-style:normal}
       .aion-finance-statement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-      .aion-finance-statement-grid article{background:var(--fin-soft);border:1px solid var(--fin-line);padding:10px}
+      .aion-finance-statement-grid article{background:var(--fin-soft);border:1px solid var(--fin-line);border-radius:9px;padding:10px}
       .aion-finance-statement-grid small,.aion-finance-statement-grid strong{display:block}.aion-finance-statement-grid strong{margin-top:5px}
       .aion-finance-statement-package details{margin-top:12px;color:#b45309}.aion-finance-statement-package footer{display:grid;gap:5px;padding:12px 16px;border-top:1px solid #f5c16c;background:#fffbeb;color:#92400e;font-size:11px}
       @media(max-width:1100px){.aion-finance-statement-tabs{grid-template-columns:1fr}.aion-finance-statement-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}

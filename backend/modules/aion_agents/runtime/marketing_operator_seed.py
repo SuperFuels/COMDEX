@@ -20,7 +20,7 @@ def build_marketing_content_workflow(
         id=workflow_id,
         workspace_id=workspace_id,
         name="Marketing Content Draft v1",
-        version=2,
+        version=3,
         department_key="marketing",
         description=(
             "Generate publish-ready marketing draft content, route through approval, "
@@ -70,12 +70,12 @@ def build_marketing_content_workflow(
             WorkflowStepDefinition(
                 id="draft_carousel",
                 kind="draft_content",
-                name="Draft carousel",
-                next_step_id="approval_gate",
+                name="Draft creative design brief",
+                next_step_id="post_social",
                 config={
                     "task_kind": "draft",
                     "output_key": "draft_carousel",
-                    "content_format": "carousel_5_cards",
+                    "content_format": "selected_platform_format",
                     "requires_publish_ready_copy": True,
                 },
             ),
@@ -83,7 +83,7 @@ def build_marketing_content_workflow(
                 id="approval_gate",
                 kind="approval_checkpoint",
                 name="Approval gate",
-                next_step_id="post_social",
+                next_step_id="complete_run",
                 requires_approval=True,
                 config={
                     "approval_kind": "marketing_publish_review",
@@ -94,8 +94,8 @@ def build_marketing_content_workflow(
             WorkflowStepDefinition(
                 id="post_social",
                 kind="post_social",
-                name="Prepare social post package",
-                next_step_id="complete_run",
+                name="Prepare reviewable creative package",
+                next_step_id="approval_gate",
                 config={
                     "publish_mode": "simulated",
                     "generate_image": True,
@@ -130,7 +130,7 @@ def build_marketing_operator_agent(
         name="Marketing Operator v1",
         department_key="marketing",
         description=(
-            "Bounded marketing operator for publish-ready caption/carousel drafting, "
+            "Bounded marketing operator for publish-ready caption and structured creative drafting, "
             "approval-led execution, and simulated post packaging with image generation metadata."
         ),
         agent_type="operator",
@@ -150,7 +150,7 @@ def build_marketing_operator_agent(
             "allow_image_generation": True,
             "require_approval_for_public_actions": True,
             "default_publish_mode": "simulated",
-            "default_local_model": "gemma",
+            "default_local_model": "workspace-selected-local-model",
             "default_image_provider": "openai",
             "default_image_model": "gpt-image-1",
         },
@@ -158,7 +158,7 @@ def build_marketing_operator_agent(
             "surface": "boardroom",
             "seat_hint": "marketing",
             "default_provider_strategy": "user_selected_or_local_default",
-            "default_local_text_model": "gemma",
+            "default_local_text_model": "workspace-selected-local-model",
             "default_image_provider": "openai",
             "default_image_model": "gpt-image-1",
         },

@@ -404,3 +404,9 @@ desktop/mac/src/app.js.after*
 *.out
 *.toc
 *.synctex.gz
+
+# Machine-local Xcode UI and scheme state
+**/xcuserdata/
+
+# Accidental root-level screenshot produced by a local capture command
+/-*.png

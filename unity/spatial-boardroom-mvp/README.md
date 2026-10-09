@@ -22,9 +22,10 @@ Boardroom; it is not a second business brain.
 
 ## Open and run
 
-1. Connect the SD card named `Install macOS Sonoma`.
-2. Open the project with the portable Unity 6 editor stored at
-   `Tessaris/Unity/Editors/6000.0.79f1/Unity/Unity.app` on that card.
+1. Install Unity `6000.0.79f1` for Apple silicon, or connect the original SD
+   card named `Install macOS Sonoma`.
+2. Double-click `Scripts/open-editor.command`. It prefers the locally installed
+   editor and falls back to the portable editor on the original card.
 3. The project creates `Assets/Scenes/SpatialBoardroom.unity` automatically.
 4. Press Play.
 5. Use `1`–`5` to focus advisers, `O` to call Operations and `Escape` for the
@@ -34,22 +35,20 @@ To produce the native macOS application, use:
 
 `Tessaris > Build Spatial Boardroom > macOS Apple Silicon`
 
-The SD-card copy also includes three double-clickable helpers in `Scripts`:
+The project includes three double-clickable helpers in `Scripts`:
 
-- `open-editor.command` opens the correct portable Unity editor and project.
+- `open-editor.command` opens the exact compatible Unity editor and project.
 - `build-macos.command` creates the standalone application under
   `Builds/macOS` after Unity Personal has been activated.
-- `activate-license.command` applies the `.ulf` response file after it has
-  been saved in `Tessaris/Unity/Licensing`.
+- `activate-license.command` applies a manually issued `.ulf` response file.
 
 ## One-time Unity Personal activation
 
 The free Unity Personal licence is issued to the owner's Unity account. The
-manual activation request is stored beside the editor under
-`Tessaris/Unity/Licensing`. Upload its `.alf` file at Unity's manual activation
-page, download the resulting `.ulf` licence file to the same folder, and apply
-it with Unity's `-manualLicenseFile` command. No Tessaris or business data is
-sent as part of this editor-licensing step.
+preferred route is to sign in through Unity Hub. For manual activation, place
+the `.ulf` response in `~/Library/Unity/TessarisLicensing` and run
+`Scripts/activate-license.command`. No Tessaris or business data is sent as
+part of this editor-licensing step.
 
 ## Tessaris event boundary
 
@@ -87,6 +86,6 @@ characters and environment art are selected.
 
 ## Storage layout
 
-The source-of-truth project also lives in the COMDEX Git repository. Unity's
-large editor, generated Library cache and macOS builds live on the SD card so
-they do not consume the Mac's internal storage or enter Git.
+The source-of-truth project lives in the COMDEX Git repository. Unity's large
+editor, generated Library cache and macOS builds are excluded from Git. The
+helpers support both a local editor and the original portable SD-card editor.

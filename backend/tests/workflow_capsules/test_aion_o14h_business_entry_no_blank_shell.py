@@ -9,10 +9,10 @@ def test_missing_business_entry_mode_does_not_return_blank_selector():
     assert "window.__aionBusinessEntryModeRecoveredO14H = true" in APP
 
 
-def test_dashboard_route_still_reachable_after_recovery():
-    assert 'if (state.activeTab === "dashboard")' in APP
-    assert "return renderDashboardSurface();" in APP
-    assert APP.index("O14H shell recovery") < APP.index('if (state.activeTab === "dashboard")')
+def test_retired_dashboard_route_is_migrated_to_boardroom():
+    assert '{ key: "dashboard", label: "Dashboard" }' not in APP
+    assert 'persistedForcedTab === "dashboard" ? "boardroom" : persistedForcedTab' in APP
+    assert 'state.activeTab = "boardroom";' in APP
 
 
 def test_recovery_sets_stable_business_entry_mode_keys():

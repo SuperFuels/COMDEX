@@ -164,19 +164,65 @@ def _runtime_department_projection(
 
 
 def _boardroom_operating_projection(model: Dict[str, Any]) -> Dict[str, Any]:
-    """Return useful operating facts without exposing confidential HR costing."""
+    """Return useful operating facts without exposing people or confidential HR pay."""
     projected = deepcopy(_object(model))
     projected["labour_resources"] = [
-        {key: item.get(key) for key in (
-            "id", "person_id", "person_name", "engagement_type", "cost_basis", "available_hours_month",
-        )}
+        {
+            "cost_basis": item.get("cost_basis"),
+            "planning_rate": item.get("cost_rate"),
+            "available_hours_month": item.get("available_hours_month"),
+            "source": "operating_model_effective_planning_cost",
+        }
         for item in _list(projected.get("labour_resources")) if isinstance(item, dict)
     ]
     projected["job_labour_assignments"] = []
     projected["job_cost_items"] = []
     projected.setdefault("governance", {})["individual_workforce_costs_redacted"] = True
+    projected["governance"]["effective_planning_costs_available_to_board"] = True
     projected["governance"]["job_economics_are_aggregated"] = True
     return projected
+
+
+def _boardroom_work_schedule_projection(model: Dict[str, Any]) -> Dict[str, Any]:
+    """Expose job economics and progress without customer or site personal data."""
+    items = []
+    for raw in _list(model.get("items")):
+        if not isinstance(raw, dict):
+            continue
+        quote = _object(raw.get("quote"))
+        estimate = _object(raw.get("cost_estimate"))
+        materials = [
+            {
+                "name": item.get("name"), "quantity": item.get("quantity"),
+                "unit": item.get("unit"), "unit_cost": item.get("unit_cost"),
+                "used": bool(item.get("used")),
+            }
+            for item in _list(raw.get("materials")) if isinstance(item, dict)
+        ]
+        time_entries = [
+            {"minutes": item.get("minutes"), "note": item.get("note")}
+            for item in _list(raw.get("time_entries")) if isinstance(item, dict)
+        ]
+        items.append({
+            "id": raw.get("id"), "title": raw.get("title"), "type": raw.get("type"),
+            "status": raw.get("status"), "offering_id": raw.get("offering_id"),
+            "date": raw.get("date"), "duration": raw.get("duration"),
+            "quote": {
+                "status": quote.get("status"), "subtotal": quote.get("subtotal"),
+                "tax": quote.get("tax"), "total": quote.get("total"), "amount": quote.get("amount"),
+            },
+            "cost_estimate": estimate,
+            "materials": materials,
+            "time_entries": time_entries,
+        })
+    return {
+        "schema_version": model.get("schema_version"), "revision": model.get("revision"),
+        "updated_at": model.get("updated_at"), "items": items,
+        "governance": {
+            "canonical_source": "work_schedule", "customer_personal_data_redacted": True,
+            "job_estimates_available_to_board": True,
+        },
+    }
 
 
 def _list(value: Any) -> list[Any]:
@@ -446,7 +492,12 @@ def _project_operating_model_to_business_map(repository: BusinessContainerReposi
         "procurement_queue": _list(model.get("procurement_queue")),
         "production_lines": _list(model.get("production_lines")),
         "labour_resources": [
-            {key: item.get(key) for key in ("id", "person_id", "person_name", "engagement_type", "cost_basis", "available_hours_month")}
+            {
+                "cost_basis": item.get("cost_basis"),
+                "planning_rate": item.get("cost_rate"),
+                "available_hours_month": item.get("available_hours_month"),
+                "source": "operating_model_effective_planning_cost",
+            }
             for item in _list(model.get("labour_resources")) if isinstance(item, dict)
         ],
         "job_economics": _list(model.get("job_economics")),
@@ -883,6 +934,10 @@ def _map_operating_import_rows(rows: list[Dict[str, Any]], category: str) -> lis
                 "pricing_basis": str(_first_value(row, "pricing_basis", "charge_basis", "rate_type") or "per_unit"),
                 "price": _number(_first_value(row, "price", "rate", "charge_rate", "sell_price", "unit_price")),
                 "unit": str(_first_value(row, "unit", "charge_unit", "uom") or "units"),
+                "product_url": _first_value(row, "product_url", "product_page", "page_url", "website_url", "online_store_url", "url"),
+                "primary_image_url": _first_value(row, "primary_image_url", "image_url", "featured_image", "product_image", "image"),
+                "catalogue_source": str(_first_value(row, "catalogue_source", "catalog_source", "source", "provider") or "catalogue_spreadsheet"),
+                "external_id": _first_value(row, "external_id", "provider_product_id", "shopify_product_id", "woocommerce_product_id", "sku"),
                 "expected_monthly_volume": _number(_first_value(row, "expected_monthly_volume", "monthly_volume", "volume")),
                 "material_cost_per_unit": _number(_first_value(row, "material_cost_per_unit", "material_cost", "unit_cost", "cost")),
                 "labour_cost_per_unit": _number(_first_value(row, "labour_cost_per_unit", "labour_cost")),
@@ -2176,6 +2231,12 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
     finance_model = optional("business_financial_model")
     operating_model = optional("business_operating_model")
     boardroom_operating_model = _boardroom_operating_projection(operating_model)
+    work_schedule_path = repository.base_dir / business_id / "work_schedule.json"
+    try:
+        work_schedule = json.loads(work_schedule_path.read_text(encoding="utf-8")) if work_schedule_path.is_file() else {}
+    except (OSError, TypeError, ValueError):
+        work_schedule = {}
+    boardroom_work_schedule = _boardroom_work_schedule_projection(work_schedule)
     evidence_refs = _list(finance_model.get("evidence_refs"))
     department_intelligence = _runtime_department_projection(
         business_id,
@@ -2199,8 +2260,12 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
             "conflicts": _list(business_map.get("conflicts")),
             "revision": business_map.get("revision"),
         },
-        "function_models": {"finance": finance_model, "operating_model": boardroom_operating_model},
+        "function_models": {
+            "finance": finance_model, "operating_model": boardroom_operating_model,
+            "work_schedule": boardroom_work_schedule,
+        },
         "operating_model": boardroom_operating_model,
+        "work_schedule": boardroom_work_schedule,
         "department_intelligence": department_intelligence,
         "evidence_index": evidence_refs,
         "source_revisions": {
@@ -2208,6 +2273,7 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
             "department_intelligence": ledger.get("revision"),
             "finance": finance_model.get("revision"),
             "operating_model": operating_model.get("revision"),
+            "work_schedule": work_schedule.get("revision"),
         },
         "execution_boundary": {
             "approval_gated": True,

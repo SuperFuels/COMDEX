@@ -46,6 +46,8 @@ DEFAULT_PROVIDERS = {
     "payment_provider": {"provider_type": "payment"},
     "booking_provider": {"provider_type": "booking"},
     "crm_provider": {"provider_type": "crm"},
+    "browser_operator": {"provider_type": "governed_browser"},
+    "desktop_operator": {"provider_type": "governed_desktop"},
 }
 
 DEFAULT_CAPABILITIES = {
@@ -72,6 +74,48 @@ DEFAULT_CAPABILITIES = {
         "tool_mode": "read_only_external",
         "risk_level": "medium",
         "requires_payload_approval": False,
+    },
+    "browser_navigate": {
+        "provider": "browser_operator",
+        "tool_mode": "read_only_external",
+        "risk_level": "medium",
+        "requires_payload_approval": False,
+    },
+    "browser_read_page": {
+        "provider": "browser_operator",
+        "tool_mode": "read_only_external",
+        "risk_level": "medium",
+        "requires_payload_approval": False,
+    },
+    "browser_interact": {
+        "provider": "browser_operator",
+        "tool_mode": "approved_live_external",
+        "risk_level": "critical",
+        "requires_payload_approval": True,
+    },
+    "desktop_open_app": {
+        "provider": "desktop_operator",
+        "tool_mode": "safe_internal",
+        "risk_level": "low",
+        "requires_payload_approval": False,
+    },
+    "desktop_read_app": {
+        "provider": "desktop_operator",
+        "tool_mode": "safe_internal",
+        "risk_level": "low",
+        "requires_payload_approval": False,
+    },
+    "desktop_mutate_local": {
+        "provider": "desktop_operator",
+        "tool_mode": "safe_internal",
+        "risk_level": "medium",
+        "requires_payload_approval": False,
+    },
+    "desktop_mutate_app": {
+        "provider": "desktop_operator",
+        "tool_mode": "approved_live_external",
+        "risk_level": "critical",
+        "requires_payload_approval": True,
     },
     "domain_availability_check": {
         "provider": "domain_provider",

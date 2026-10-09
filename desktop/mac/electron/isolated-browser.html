@@ -465,11 +465,26 @@
             }
 
             if (operation === "open_page") {
-              const expected = String(step.target?.url_pattern || step.url_pattern || step.url || "");
+              const expected = String(step.target?.url || step.target?.url_pattern || step.url_pattern || step.url || "");
+              if (!dryRun && expected) {
+                await new Promise((resolve) => {
+                  let settled = false;
+                  const finish = () => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(timer);
+                    webview.removeEventListener("did-finish-load", finish);
+                    resolve();
+                  };
+                  const timer = setTimeout(finish, 15000);
+                  webview.addEventListener("did-finish-load", finish, { once: true });
+                  loadUrl(expected);
+                });
+              }
               results.push({
                 step_id: stepId,
                 operation,
-                status: "validated",
+                status: dryRun ? "validated" : "completed",
                 current_url: webview.getURL(),
                 expected_url: expected,
               });
@@ -492,6 +507,7 @@
                 } catch (error) {
                   return { ok: false, status: "invalid_selector", error: String(error?.message || error) };
                 }
+                if (!element && task.operation === "read_page") element = document.body;
                 if (!element) return { ok: false, status: "target_not_found" };
                 const visible = !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
                 if (!visible) return { ok: false, status: "target_not_visible" };
@@ -501,6 +517,15 @@
                     status: "validated",
                     tag_name: element.tagName?.toLowerCase?.() || "",
                     role: element.getAttribute?.("role") || "",
+                  };
+                }
+                if (task.operation === "read_page") {
+                  return {
+                    ok: true,
+                    status: "completed",
+                    title: document.title || "",
+                    url: window.location.href,
+                    text: String(element.innerText || element.textContent || "").replace(/\s+/g, " ").trim().slice(0, 12000),
                   };
                 }
                 if (["type_text", "fill", "change_field", "select_dropdown"].includes(task.operation)) {

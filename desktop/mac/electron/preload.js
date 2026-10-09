@@ -50,6 +50,18 @@ contextBridge.exposeInMainWorld("aionDesktop", {
     return await ipcRenderer.invoke("aion-custom-departments-list", payload);
   },
 
+  async getPilotStatus() {
+    return await ipcRenderer.invoke("pilot-control-status");
+  },
+
+  async openPilotDashboard() {
+    return await ipcRenderer.invoke("pilot-open-dashboard");
+  },
+
+  async runPilotControl(action = "") {
+    return await ipcRenderer.invoke("pilot-control-action", action);
+  },
+
   async openExternalUrl(url = "") {
     return await ipcRenderer.invoke("aion-open-external-url", url);
   },
@@ -66,6 +78,10 @@ contextBridge.exposeInMainWorld("aionDesktop", {
     return await ipcRenderer.invoke("aion-choose-local-media", payload);
   },
 
+  async chooseChatAttachments() {
+    return await ipcRenderer.invoke("aion-choose-chat-attachments");
+  },
+
   async playLocalVoice(payload = {}) {
     return await ipcRenderer.invoke("aion-play-local-voice", payload);
   },
@@ -80,6 +96,10 @@ contextBridge.exposeInMainWorld("aionDesktop", {
 
   async launchSpatialBoardroom(payload = {}) {
     return await ipcRenderer.invoke("aion-launch-spatial-boardroom", payload);
+  },
+
+  async getSpatialBoardroomEmbed(payload = {}) {
+    return await ipcRenderer.invoke("aion-spatial-boardroom-embed", payload);
   },
 
   async sendSpatialBoardroomEvent(payload = {}) {
@@ -111,6 +131,22 @@ contextBridge.exposeInMainWorld("aionDesktop", {
 
   async replayBrowserSkill(payload = {}) {
     return await ipcRenderer.invoke("aion-replay-browser-skill", payload);
+  },
+
+  async executeGovernedBrowserPlan(payload = {}) {
+    return await ipcRenderer.invoke("aion-execute-governed-browser-plan", payload);
+  },
+
+  async executeGovernedComputerPlan(payload = {}) {
+    return await ipcRenderer.invoke("aion-execute-governed-computer-plan", payload);
+  },
+
+  async getDesktopPermissionSetupStatus() {
+    return await ipcRenderer.invoke("aion-desktop-permissions-status");
+  },
+
+  async prepareDesktopPermissions() {
+    return await ipcRenderer.invoke("aion-desktop-permissions-prepare");
   },
 
   onBrowserRecorderEvent(callback) {

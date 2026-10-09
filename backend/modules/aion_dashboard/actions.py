@@ -10,9 +10,7 @@ from typing import Any, Dict, List, Optional
 
 # Core engines (same as your CLI bridge uses)
 from backend.AION.resonance.resonance_engine import update_resonance, get_resonance
-from backend.modules.aion_cognition.cee_lex_memory import update_lex_memory
-from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
-from backend.modules.aion_cognition.cognitive_exercise_engine_dual import DualModeCEE as CognitiveExerciseEngine
+from backend.modules.aion_cognition.native_lexical_intelligence import NativeLexicalIntelligence
 
 
 # Paths (must match WS + dashboard)
@@ -341,82 +339,29 @@ def teach(
     typ: str = "train",
     mode: str = "aion_actions",
 ) -> Dict[str, Any]:
-    """
-    Runs a real CEE teaching session (same core behavior as your CLI bridge),
-    and logs teach_q + teach_done events for the dashboard.
-    """
+    """Run governed native practice without exposing expected answers."""
     t = (term or "").strip()
     lvl = int(level or 1)
     if not t:
         raise ValueError("term is required")
 
-    engine = CognitiveExerciseEngine()
-
     session_id = f"teach_{t}_{int(_now())}_{random.randint(1000,9999)}"
     log_event("teach_start", {"term": t, "level": lvl, "session_id": session_id, "text": f"teach {t} {lvl}"}, typ=typ, mode=mode)
-
-    lesson = engine.generate_exercise(t, level=lvl)
-
-    # baseline resonance (updated if engine returns SQI/ΔΦ per answer)
-    resonance: Dict[str, Any] = {"ρ": 0.8, "Ī": 0.2, "SQI": 0.85, "ΔΦ": 0.0}
-
-    # RMC update (matches your CLI intent)
-    rmc = ResonantMemoryCache()
-    try:
-        rmc.load()
-    except Exception:
-        pass
-
-    questions = lesson.get("questions", []) or []
-    for q in questions:
-        prompt = str(q.get("prompt", "") or "")
-        expected = str(q.get("answer", "") or "")
-
-        ans = engine.evaluate_answer(q, expected)
-        feedback = str(ans.get("feedback", "") or "")
-
-        if _is_num(ans.get("SQI")):
-            resonance["SQI"] = float(ans["SQI"])
-        if _is_num(ans.get("ΔΦ")):
-            resonance["ΔΦ"] = float(ans["ΔΦ"])
-
-        # persist learning (same as CLI)
-        update_lex_memory(prompt, expected, resonance)
-        try:
-            rmc.update_from_photons([{"λ": t, "φ": resonance.get("ρ", 0.8), "μ": resonance.get("SQI", 0.85)}])
-        except Exception:
-            pass
-
-        log_event(
-            "teach_q",
-            {
-                "term": t,
-                "level": lvl,
-                "session_id": session_id,
-                "question": prompt,
-                "expected": expected,
-                "feedback": feedback,
-                "SQI": resonance.get("SQI"),
-                "ΔΦ": resonance.get("ΔΦ"),
-            },
-            typ=typ,
-            mode=mode,
-        )
-
-    try:
-        rmc.save()
-    except Exception:
-        pass
-
-    summary = str(lesson.get("summary", f"Learned concept '{t}'") or "")
+    repo_root = Path(os.getenv("AION_REPO_ROOT") or Path(__file__).resolve().parents[3])
+    outcome = NativeLexicalIntelligence(repo_root=repo_root).teach_term(t, level=lvl)
+    summary = (
+        f"Native closed-book practice for '{t}': {outcome.get('correct', 0)}/"
+        f"{outcome.get('attempted', 0)} correct."
+    )
     log_event(
         "teach_done",
-        {"term": t, "level": lvl, "session_id": session_id, "summary": summary, "SQI": resonance.get("SQI"), "ΔΦ": resonance.get("ΔΦ")},
+        {"term": t, "level": lvl, "session_id": session_id, "summary": summary,
+         "SQI": outcome.get("score"), "ΔΦ": 0.0},
         typ=typ,
         mode=mode,
     )
-
-    return {"term": t, "level": lvl, "session_id": session_id, "summary": summary, "resonance": resonance}
+    return {"term": t, "level": lvl, "session_id": session_id,
+            "summary": summary, "native_result": outcome}
 
 
 def ask(
@@ -429,8 +374,12 @@ def ask(
     if not q:
         raise ValueError("question is required")
 
-    engine = CognitiveExerciseEngine()
-    answer = engine.query(q)
+    repo_root = Path(os.getenv("AION_REPO_ROOT") or Path(__file__).resolve().parents[3])
+    result = NativeLexicalIntelligence(repo_root=repo_root).answer(q)
+    answer = result.get("answer") or (
+        "I cannot yet answer that through Aion's native English memory. "
+        "The question has been left for later curriculum coverage."
+    )
 
     log_event(
         "ask",
@@ -439,4 +388,5 @@ def ask(
         mode=mode,
     )
 
-    return {"question": q, "answer": str(answer)}
+    return {"question": q, "answer": str(answer), "native_lexical": True,
+            "answered": bool(result.get("answered")), "evidence": result.get("evidence")}

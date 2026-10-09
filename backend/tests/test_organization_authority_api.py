@@ -66,3 +66,6 @@ def test_hr_workspace_is_loaded_after_the_application_bundle():
     assert "+ Add me as owner" in source
     assert "New self-employed person" in source
     assert "data-hrw-access-form" in source
+    assert "Connected people" in source
+    assert "data-hrw-add-person=\"employee\"" in source
+    assert "personAccessState" in source

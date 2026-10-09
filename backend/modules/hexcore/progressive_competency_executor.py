@@ -27,10 +27,12 @@ from backend.modules.hexcore.general_learning_capability_outcome_authority impor
 )
 from backend.modules.hexcore.advanced_python_apprenticeship import run as run_advanced_python
 from backend.modules.hexcore.diverse_practical_executor_portfolios import (
-    event_resolution_runner, forecasting_runner,
+    english_runner, event_resolution_runner, forecasting_runner,
+    mathematics_runner, python_runner, scientific_method_runner,
     runner_has_fresh_family,
     runner_portfolio_version,
 )
+from backend.modules.hexcore.native_english_competency_portfolio import native_english_runner
 
 
 BASE_PROGRAM = r'''
@@ -909,6 +911,36 @@ RUNNERS.update(build_system_project_runners(
 ))
 RUNNERS.update(build_learning_capability_runners())
 RUNNERS.update(build_general_learning_capability_runners())
+
+
+def _install_diverse_project_route(
+    subject_id: str,
+    project_runner: Callable[[dict[str, Any], list[dict[str, Any]]], dict[str, Any]],
+) -> None:
+    """Use a versioned portfolio for novelty-gated projects and the normal runner otherwise."""
+    generic_runner = RUNNERS[subject_id]
+
+    def routed(contract: dict[str, Any], evidence: list[dict[str, Any]]) -> dict[str, Any]:
+        kind = str((contract.get("requirement") or {}).get("kind") or "")
+        if kind == "project" or (
+            subject_id == "english" and kind in {"lesson", "exercise"}
+        ):
+            return project_runner(contract, evidence)
+        return generic_runner(contract, evidence)
+
+    routed.aion_portfolio_version = project_runner.aion_portfolio_version  # type: ignore[attr-defined]
+    routed.aion_portfolio_families = project_runner.aion_portfolio_families  # type: ignore[attr-defined]
+    RUNNERS[subject_id] = routed
+
+
+for _subject_id, _project_runner in {
+    "mathematics": mathematics_runner,
+    "english": native_english_runner,
+    "python": python_runner,
+    "scientific_method": scientific_method_runner,
+}.items():
+    _install_diverse_project_route(_subject_id, _project_runner)
+
 # The generic forecasting suite remains the concept authority.  Projects that
 # require novelty use the source-distinct v2 portfolio instead of manufacturing
 # new family names from repeated executions of the same bounded case.
@@ -976,6 +1008,8 @@ class ProgressiveCompetencyExecutor:
         source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
         portfolio_source = Path(__file__).with_name("diverse_practical_executor_portfolios.py")
         portfolio_hash = hashlib.sha256(portfolio_source.read_bytes()).hexdigest()
+        native_english_source = Path(__file__).with_name("native_english_competency_portfolio.py")
+        native_english_hash = hashlib.sha256(native_english_source.read_bytes()).hexdigest()
         resolved = 0
         for blocker in list(self.system.state.get("blockers") or []):
             reason = str(blocker.get("reason") or "")
@@ -992,8 +1026,16 @@ class ProgressiveCompetencyExecutor:
                 )
                 resolved += 1
         for contract in list(self.system.state.get("contracts") or []):
-            if (contract.get("status") != "blocked_executor_capability"
-                    or contract.get("required_authority") != "genuinely_diverse_hidden_project_portfolio"):
+            required_authority = str(contract.get("required_authority") or "")
+            if contract.get("status") != "blocked_executor_capability":
+                continue
+            if not (
+                required_authority == "genuinely_diverse_hidden_project_portfolio"
+                or (
+                    required_authority == "repaired_or_replaced_verified_executor"
+                    and contract.get("subject_id") == "english"
+                )
+            ):
                 continue
             subject_id = str(contract.get("subject_id") or "")
             runner = RUNNERS.get(subject_id)
@@ -1006,11 +1048,15 @@ class ProgressiveCompetencyExecutor:
             if version is None:
                 continue
             artifact = (
-                portfolio_source
-                if subject_id in {"probabilistic_forecasting_calibration", "event_evidence_resolution_research"}
+                native_english_source if subject_id == "english" else portfolio_source
+                if subject_id in {
+                    "probabilistic_forecasting_calibration", "event_evidence_resolution_research",
+                    "mathematics", "python", "scientific_method",
+                }
                 else source
             )
-            artifact_hash = portfolio_hash if artifact == portfolio_source else source_hash
+            artifact_hash = (native_english_hash if artifact == native_english_source else
+                             portfolio_hash if artifact == portfolio_source else source_hash)
             try:
                 authority_artifact = str(artifact.relative_to(self.system.repo_root))
             except ValueError:
@@ -1022,6 +1068,36 @@ class ProgressiveCompetencyExecutor:
                 authority_artifact=authority_artifact,
                 artifact_hash=artifact_hash,
             )
+            resolved += 1
+        # Early ledgers could persist a portfolio blocker after the associated
+        # contract had already been closed by a concurrent evidence write. A
+        # newly installed versioned portfolio still clears that stale blocker,
+        # but never awards evidence; the scheduler must create a fresh contract.
+        for blocker in list(self.system.state.get("blockers") or []):
+            if (blocker.get("status") != "open"
+                    or blocker.get("blocker_type") != "executor_capability"
+                    or blocker.get("required_authority") != "genuinely_diverse_hidden_project_portfolio"):
+                continue
+            subject_id = str(blocker.get("subject_id") or "")
+            runner = RUNNERS.get(subject_id)
+            if runner is None or not runner_has_fresh_family(
+                    runner, "project", self.system.evidence_for(subject_id)):
+                continue
+            version = runner_portfolio_version(runner)
+            if version is None:
+                continue
+            try:
+                authority_artifact = str(portfolio_source.relative_to(self.system.repo_root))
+            except ValueError:
+                authority_artifact = str(portfolio_source)
+            self.system.resolve_blocker(
+                blocker["blocker_id"], authority_artifact=authority_artifact,
+                artifact_hash=portfolio_hash,
+            )
+            blocker.update({
+                "resolution": "versioned_executor_portfolio_installed",
+                "executor_version": version, "requirement_kind": "project",
+            })
             resolved += 1
         return resolved
 
@@ -1091,6 +1167,7 @@ class ProgressiveCompetencyExecutor:
                 row.get("subject_id") == subject_id
                 and row.get("blocker_type") == "executor_capability"
                 and row.get("status") == "open"
+                and row.get("contract_id") == contract["contract_id"]
                 for row in self.system.state.get("blockers") or []
             )
             if not already:
@@ -1100,6 +1177,8 @@ class ProgressiveCompetencyExecutor:
                     reason=blocker_reason,
                     required_authority=required_authority,
                     blocker_type="executor_capability",
+                    contract_id=contract["contract_id"],
+                    requirement_kind=(contract.get("requirement") or {}).get("kind"),
                 )
             self.system.park_executor_blocked_contract(
                 contract["contract_id"], reason=blocker_reason,
@@ -1149,6 +1228,8 @@ class ProgressiveCompetencyExecutor:
                     reason=result["reason"],
                     required_authority="genuinely_diverse_hidden_project_portfolio",
                     blocker_type="executor_capability",
+                    contract_id=contract["contract_id"],
+                    requirement_kind=(contract.get("requirement") or {}).get("kind"),
                 )
                 self.system.park_executor_blocked_contract(
                     contract["contract_id"], reason=result["reason"],
@@ -1177,8 +1258,10 @@ class ProgressiveCompetencyExecutor:
                 verified=True, source_disjoint=bool(result["gate"]["source_disjoint_transfer"]),
                 retained=requirement["kind"] == "retention",
                 independent_outcome=bool(result["gate"].get("independent_outcome")),
-                unfamiliar=bool(result.get("unfamiliar")), scaffolding=float(result["scaffolding"]), trials=3,
-                authority=["fresh_python_subprocess", "counterexample_mutations", "security_scan"],
+                unfamiliar=bool(result.get("unfamiliar")), scaffolding=float(result["scaffolding"]),
+                trials=int(result.get("trials") or 3),
+                authority=list(result.get("authority") or
+                               ["fresh_python_subprocess", "counterexample_mutations", "security_scan"]),
                 project_family=result.get("project_family"),
                 experience_class=str(result.get("experience_class") or "bounded_practical_execution"),
                 retention_milestone_days=requirement.get("retention_milestone_days"),
@@ -1186,7 +1269,11 @@ class ProgressiveCompetencyExecutor:
             for blocker in list(self.system.state.get("blockers") or []):
                 if (blocker.get("subject_id") == subject_id
                         and blocker.get("blocker_type") == "executor_capability"
-                        and blocker.get("status") == "open"):
+                        and blocker.get("status") == "open"
+                        and (not blocker.get("contract_id")
+                             or blocker.get("contract_id") == contract["contract_id"])
+                        and (not blocker.get("requirement_kind")
+                             or blocker.get("requirement_kind") == requirement.get("kind"))):
                     self.system.resolve_blocker(
                         blocker["blocker_id"], authority_artifact=str(result_path.relative_to(self.system.repo_root)),
                         artifact_hash=artifact_hash,
@@ -1212,6 +1299,7 @@ class ProgressiveCompetencyExecutor:
                     blocker.get("subject_id") == subject_id
                     and blocker.get("blocker_type") == "executor_capability"
                     and blocker.get("status") == "open"
+                    and blocker.get("contract_id") == contract["contract_id"]
                     for blocker in self.system.state.get("blockers") or []
                 )
                 if not already:
@@ -1221,6 +1309,8 @@ class ProgressiveCompetencyExecutor:
                         reason="The same progressive executor contract failed three independent attempts; curriculum rotated pending executor criticism or replacement.",
                         required_authority="repaired_or_replaced_verified_executor",
                         blocker_type="executor_capability",
+                        contract_id=contract["contract_id"],
+                        requirement_kind=(contract.get("requirement") or {}).get("kind"),
                     )
                 self.system.park_executor_blocked_contract(
                     contract["contract_id"],

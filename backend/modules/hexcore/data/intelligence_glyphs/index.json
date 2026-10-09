@@ -1,9 +1,9 @@
 {
-  "canonical_glyph_bytes": 3677281,
-  "compressed_glyph_bytes": 1652593,
-  "compressed_sha256": "9cf9f04ef24d6e4ed6ea6c1851049d84a94de9fba40bca1028b00b361803c76d",
+  "canonical_glyph_bytes": 3824330,
+  "compressed_glyph_bytes": 1722045,
+  "compressed_sha256": "288199cebf9217342595a10a9e9621aa42db457c6cd67b2b5b43c2c2a54c335a",
   "compressed_store": "backend/modules/hexcore/data/intelligence_glyphs/glyphs.json.gz",
-  "created_at": "2026-09-05T03:54:33.258877+00:00",
+  "created_at": "2026-10-09T21:38:46.953027+00:00",
   "curriculum_glyphs": 13,
   "evidence": {
     "ev_0000eb0901e3fb3155c0": {
@@ -123,6 +123,14 @@
       "b": 2329,
       "h": "0026de1ad54293a790aa5c7492f9032bb0e6ee2f2425ad58625f203a6907e56a",
       "p": "results/progressive_competency/competency_contract_1ad2efb75ab3021899cd.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_002b0e933bd237ee4690": {
+      "authority": "progressive_competency_outcome",
+      "b": 3195,
+      "h": "002b0e933bd237ee46900b89051f5f57e04d0a7f1e3865f210425369ff249d64",
+      "p": "results/progressive_competency/competency_contract_89df02e31c4c3aa6abc8.json",
       "reported_only": false,
       "verified": true
     },
@@ -806,6 +814,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_010e3a221187811d6b4e": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "010e3a221187811d6b4eace89f51f73d524a7dcd7a20734d1f49854f1fa7e2a0",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_938acd32a06cdcd5b6.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_010ea6d9013ba397e0bf": {
       "authority": "progressive_competency_outcome",
       "b": 2205,
@@ -1190,6 +1206,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_019b1eb823193956d73f": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "019b1eb823193956d73f0f472338daec6a4060938a8cb18e0ad54ee31e117eae",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_b16beb705381ce0f8e.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_019de40a780cc980eeb4": {
       "authority": "progressive_competency_outcome",
       "b": 3731,
@@ -1339,6 +1363,14 @@
       "b": 2330,
       "h": "01dc50554aa633f849d4bfe7d376d19c77ff5b28f73bedef14219c7519cce53f",
       "p": "results/progressive_competency/competency_contract_9073d4736dfd3a26771a.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_01dccf07d93f11654676": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "01dccf07d93f116546762be425e5f01a910739c41cc3d125e24c0cd32dead1e1",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_43008d9066518cfc0c.json",
       "reported_only": false,
       "verified": true
     },
@@ -2139,6 +2171,14 @@
       "b": 3350,
       "h": "02f3ed342e7c7e8d7b84b37d38d5c76127b04f81d1faef11d1abbda952e59aea",
       "p": "results/aion_situated_cross_domain_projects/situated_project_c187bcd875a52a00ea.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_02f60ff12aaad01c0557": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "02f60ff12aaad01c0557e4998fb475464ead6beb33b3109b3e58fd02c3343dea",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_018ae7618cef417db7.json",
       "reported_only": false,
       "verified": true
     },
@@ -3390,6 +3430,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_05366e395d71c7c45a39": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "05366e395d71c7c45a39676d89f93f1fd4afedfc1ad552b2c27d910427146508",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_201b500d25d8634926.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_053b2d1124bd094cf0dc": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -3486,6 +3534,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_056577ece89defb61e72": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "056577ece89defb61e725e5695ed97a5d15044df99edecb35091a131a8eeae46",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_4c3b7254ad2e8989fe.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_056bcd974560680b7093": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -3547,6 +3603,14 @@
       "b": 2277,
       "h": "0575ebb90e6d534d852679a2c8b815c47b71463d9eb92a88768921f947a3cbf7",
       "p": "results/progressive_competency/competency_contract_f15639aa4bd0e50ed0ae.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_0577b5ed892c8e09e55b": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "0577b5ed892c8e09e55bd89577db36dd1be860b65bbf438e8a944bfddbc5269c",
+      "p": "results/aion_open_objective_families/autonomous_71e5ff13f9a650c1cf.json",
       "reported_only": false,
       "verified": true
     },
@@ -4107,6 +4171,14 @@
       "b": 3352,
       "h": "067239f40e05281df1b6147ac1a564b12b06912f34adf290bb3c89eb0b4f4f07",
       "p": "results/aion_situated_cross_domain_projects/situated_project_497f0d7f05c060dad1.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_0673438d85eb349cf030": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "0673438d85eb349cf0303ece2a3e807640c77c485919f7f1ba3e3cfb2fd32e21",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_040a20ac90b27a9614.json",
       "reported_only": false,
       "verified": true
     },
@@ -5462,6 +5534,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_085bb9933ceab1c98916": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "085bb9933ceab1c98916b5870564dad98eb248a143c86c0bc451a2d0cd0a2663",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_589d660687051d69fa.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_085c7d341d07d3d927e7": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -6422,6 +6502,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_098da623df7579b20cd4": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "098da623df7579b20cd44643e75a541cb43a69a92d66b8ab8c562a6bcc641b63",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_b167c89adab5330add.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_0991f3adf51c3ce22b38": {
       "authority": "progressive_competency_outcome",
       "b": 2277,
@@ -7006,6 +7094,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_0aa68e3eaf2e52930b77": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "0aa68e3eaf2e52930b77405fb2611cf5b961a1799a1cbba5d742a7667afb7888",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_927dccc884cdda8e5b.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_0aa8d6c291bd385d6439": {
       "authority": "progressive_competency_outcome",
       "b": 2194,
@@ -7491,6 +7587,14 @@
       "b": 2275,
       "h": "0b72fadfcf96b05b36ecb6b013f32c5a43fe27ea972d98252179a0b7b30b575a",
       "p": "results/progressive_competency/competency_contract_9a5f3bd27632e0943105.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_0b7394d354c4708a60f4": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "0b7394d354c4708a60f4134cd17f711dee1ed5a45a1fee2c6c677a9641d6a296",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_59e42a3ad068ee5d38.json",
       "reported_only": false,
       "verified": true
     },
@@ -8283,6 +8387,14 @@
       "b": 2276,
       "h": "0cf345c8cc27697c271b5d77bc81b19ee490e97de993536932615c7281390e36",
       "p": "results/progressive_competency/competency_contract_cd8e4cee2e21df799711.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_0cf7c3ba1fd326e5c1a3": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "0cf7c3ba1fd326e5c1a3c42a05f253c4dc74d77ea3a2472979d1dfde82adead6",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_c1a2a2b21aaad67820.json",
       "reported_only": false,
       "verified": true
     },
@@ -10078,6 +10190,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_0f6c62476c7acfd9d182": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "0f6c62476c7acfd9d182de0c8f6d66995493529bb33448168b6761058c26eafa",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_3d484b1ec15067afd4.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_0f71d6ab4ab2913972da": {
       "authority": "progressive_competency_outcome",
       "b": 3638,
@@ -10558,6 +10678,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_1000a6b707d47629a978": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "1000a6b707d47629a978bd40e696a30e678194b17b2dd3fabf0127c07f4adb36",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_96507385a4a17bc327.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_1001cd364565edcdb294": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -10803,6 +10931,14 @@
       "b": 2276,
       "h": "10515fa7bee43393f44b40d00216c86d23aeb89054a0bfe605152181308cd0df",
       "p": "results/progressive_competency/competency_contract_857828efa4d2d33e2b17.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_1052b0dfbd38498b8e8e": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "1052b0dfbd38498b8e8eeb7b0fbe11bc6da6add518ba356a515b8cfcdd464ad4",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_5af0036c824191218c.json",
       "reported_only": false,
       "verified": true
     },
@@ -11291,6 +11427,14 @@
       "b": 2330,
       "h": "10eeb1564eef8ed7a0221884e336f4ca9672b79a9dcea5d7c2190f35e573f8d0",
       "p": "results/progressive_competency/competency_contract_d6c2b937b7d0b1f4236a.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_10f4e16587f17ec1b8d5": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "10f4e16587f17ec1b8d5fd91570697343a0d7a4601348dab8b1420a7463e186f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_7b88f82733848b1e81.json",
       "reported_only": false,
       "verified": true
     },
@@ -11803,6 +11947,14 @@
       "b": 2327,
       "h": "11cabead92990368d4f2a4ab25e4793cad7437ada2a42ccd080eeae4b51faca3",
       "p": "results/progressive_competency/competency_contract_e1ae6d7a4c93670db5aa.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_11cecce2c034dc4ae241": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "11cecce2c034dc4ae2413b769e42272a25e7035e08e8b1b81215a637de4122be",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_44aede3865409e33b3.json",
       "reported_only": false,
       "verified": true
     },
@@ -13262,6 +13414,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_144abe690d0ce9c745b7": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "144abe690d0ce9c745b734085a659be622be342bc3b68af1b7f80707db96da7a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_6cdc84b0b95a0a6d0c.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_144bb30e8e34648a8742": {
       "authority": "progressive_competency_outcome",
       "b": 2276,
@@ -13307,6 +13467,14 @@
       "b": 2277,
       "h": "1456e3d82218d7f8f5d1802eb03943883a3ccaf73005d2effb29812acff37135",
       "p": "results/progressive_competency/competency_contract_ce521713029fd4df93a7.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_145c3389f6425c919038": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "145c3389f6425c919038f5ac6bd0f5919bf5b1039bc480e14b27fa5f28b08181",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_34310596231ce7729b.json",
       "reported_only": false,
       "verified": true
     },
@@ -13446,6 +13614,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_147eed45764ade4b5dd0": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "147eed45764ade4b5dd087f4489143811f36c135b4a1a0d5e31e8c8c6ff20ef4",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_b7b80fbde52f523a7c.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_1484040409188f2eb88b": {
       "authority": "progressive_competency_outcome",
       "b": 2330,
@@ -13475,6 +13651,14 @@
       "b": 2330,
       "h": "148d9366b06ae8ad324751027df7550472befa4a1a71731a12fbea5483189f42",
       "p": "results/progressive_competency/competency_contract_53a3fe3fbb2e80d68300.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_148f9593cbcb180e4217": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "148f9593cbcb180e421703ef1c163e35a4db64e2a37d54a94696463774f2d5db",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_0e9bc9565375c80db7.json",
       "reported_only": false,
       "verified": true
     },
@@ -13558,6 +13742,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_14ae79016115c59e8eca": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "14ae79016115c59e8ecab867cf645802574a32eac23355ac0e17e663f00f0c9f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_51a242aa76a5701942.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_14b1080592197f3dbbe3": {
       "authority": "progressive_competency_outcome",
       "b": 3352,
@@ -13579,6 +13771,14 @@
       "b": 2329,
       "h": "14b3f693870cd6263ba2cca66f1dd987f246ea64fb99d8a16d5bcaa53aa4bf37",
       "p": "results/progressive_competency/competency_contract_94420acfe0a6ccfca68f.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_14b696c7f2886856c43f": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "14b696c7f2886856c43f4a58abea755ad27a4448670736e94a9877f4160efad4",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f5c37ddc4b077f7153.json",
       "reported_only": false,
       "verified": true
     },
@@ -14043,6 +14243,14 @@
       "b": 2331,
       "h": "155316e3aeddcaf9892136651e0c1c83179c01cf29570ceaac57282dc55fe784",
       "p": "results/progressive_competency/competency_contract_468564c4ffb958426fa2.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_155429c682b354d04623": {
+      "authority": "progressive_competency_outcome",
+      "b": 3322,
+      "h": "155429c682b354d046231a09781bbd832b24d3d7792502cf70b1f6cfb43d6035",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_dd2a83ecd0d91df537.json",
       "reported_only": false,
       "verified": true
     },
@@ -14806,6 +15014,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_165ef210de6d37513e19": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "165ef210de6d37513e19a8309723026c78247888d910480e9a1460005ed1008a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_69a7c337ceb82a9d9c.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_16630963b644166d7647": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -15107,6 +15323,14 @@
       "b": 2274,
       "h": "16e11f6ff087207aa31912a2b9a88c8b67578f1225e03865a1a3160bcb84c3d2",
       "p": "results/progressive_competency/competency_contract_b0543406aac1ce8af0b3.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_16e3c5ff567ed6f5cf6d": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "16e3c5ff567ed6f5cf6dca1a913c207292e1110103bb91bc65b37692963bc803",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f7fec72db6e1d56ab5.json",
       "reported_only": false,
       "verified": true
     },
@@ -16115,6 +16339,14 @@
       "b": 2274,
       "h": "1898cbee6b65a7d225cda8bf7f860757a67282475acbc232bc74599d84b87133",
       "p": "results/progressive_competency/competency_contract_d072e635f7ee2fed1c9b.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_189dd419de2992854dc6": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "189dd419de2992854dc6f8886456085f5e6f103482b3db6f586b09f9fbc26600",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_5d9908c305fd02dfd5.json",
       "reported_only": false,
       "verified": true
     },
@@ -17301,6 +17533,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_1a98d4564b8fb630fa83": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "1a98d4564b8fb630fa830fb2e319dfe1a2fc992cdd93730072e605c371596117",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_7f4bd8a371d4af7509.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_1a9b847197f19a672041": {
       "authority": "progressive_competency_outcome",
       "b": 3664,
@@ -17354,6 +17594,14 @@
       "b": 2331,
       "h": "1aa4b03e2de471ec29f0be44278c3990eaa32e33f7ec7ca27d1e8680aa9c2cc5",
       "p": "results/progressive_competency/competency_contract_41f5ffc941399e7abf2e.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_1aa60113dbc722674123": {
+      "authority": "progressive_competency_outcome",
+      "b": 3322,
+      "h": "1aa60113dbc7226741232d559103243d1e95b8515613d8b6557786b3cc552b0f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_213602e0ca8b2b7c81.json",
       "reported_only": false,
       "verified": true
     },
@@ -18026,6 +18274,14 @@
       "b": 3073,
       "h": "1ba7bc1bc2bd2ca4884ffb194d53fa06f42abc6c41c8871af84ec77d88035e59",
       "p": "results/aion_open_objective_families/autonomous_e3cedb7b5ba86a5767.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_1bb16201238a5866a4ed": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "1bb16201238a5866a4ed5f700db50cc72f62d51eaa6aeffceb15040b40d5fc7f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_79708e02efd1528733.json",
       "reported_only": false,
       "verified": true
     },
@@ -20357,6 +20613,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_1ee5cd2bf266cd85cf26": {
+      "authority": "progressive_competency_outcome",
+      "b": 3322,
+      "h": "1ee5cd2bf266cd85cf26cb77532db4d9988e379f772051331bf0ce8e9196df10",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_0c92335bb256900c49.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_1ee7590c01dddc055de8": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -20426,6 +20690,14 @@
       "b": 2327,
       "h": "1f031e996ee6e0974d9206ea28b47c12118f281a223cd4bd6702eb233131c022",
       "p": "results/progressive_competency/competency_contract_6d03c0e3716bb52fcffb.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_1f0452d1134b81c958bf": {
+      "authority": "progressive_competency_outcome",
+      "b": 3305,
+      "h": "1f0452d1134b81c958bf6479900d172ac594ecd0de381a525db1920f86803231",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_d8ba62ebfd417cb025.json",
       "reported_only": false,
       "verified": true
     },
@@ -21186,6 +21458,14 @@
       "b": 2318,
       "h": "203a18cc697cac8fda62587df4665d12a5b9fc4b39c425bae66f06f784335fce",
       "p": "results/progressive_competency/competency_contract_b8a5e3570e281b9f3a86.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_203aede46fc0e5f0389b": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "203aede46fc0e5f0389b5a7500630ea90c4a053ae616c7f729c6ed1ee3e3a4b3",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_709628b1530ddad45a.json",
       "reported_only": false,
       "verified": true
     },
@@ -22045,11 +22325,27 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_215fe0969e735d7fb856": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "215fe0969e735d7fb856ce11578e32ce6c44d7d5abdd14dc58ab6e9d86862c23",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_aaa77294c2bf9e85b2.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_216154dfb9c6140b149f": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
       "h": "216154dfb9c6140b149f8a9fbf56afaa49d85c451fa0e2b1b61cdeda1e187c07",
       "p": "results/progressive_competency/competency_contract_2f91ab874efba95154b3.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_216230eece1e6e0084b1": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "216230eece1e6e0084b11f5f0512fe9b77efd3d214f3a9865bd0f1e1ef4d2ebf",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_362476a8a61265b26d.json",
       "reported_only": false,
       "verified": true
     },
@@ -22178,6 +22474,14 @@
       "b": 2329,
       "h": "217ef4dc5cc62c447fb3c8533be0bcc342e66dce80131de97ceb9a63aef0bbf9",
       "p": "results/progressive_competency/competency_contract_aee5f971802d500a91de.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_2181659c4dfa2654fd98": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "2181659c4dfa2654fd9862d6c091a88c68de57d3427792814861aa2509281476",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_487982bb4078e7e81e.json",
       "reported_only": false,
       "verified": true
     },
@@ -22474,6 +22778,14 @@
       "b": 2329,
       "h": "220a8f33c71dfd3f969bb6385a6713566f508dd6b0c624517cfb57766aecfaf5",
       "p": "results/progressive_competency/competency_contract_f66fb92fdac4a90f98af.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_220c92a757ecbcb8a079": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "220c92a757ecbcb8a07910602ea69e78ee9e60177bceae9f120df609da25a836",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_63fa4f8610a8c1592d.json",
       "reported_only": false,
       "verified": true
     },
@@ -23341,6 +23653,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_232388631e6a1d0ca323": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "232388631e6a1d0ca3234618fce6b55f9ac9d5a16ca994623e3e9ed56dcc736e",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f1999f93b0c43e958e.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_2328229f441e1e10bbac": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -23434,6 +23754,14 @@
       "b": 2276,
       "h": "2343af107c44a9a359c89ee3944b76390e78aa04dc09622aa22fbbd32353492e",
       "p": "results/progressive_competency/competency_contract_7993b8fe2652fb1ceae9.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_2345167feb7305b45f34": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "2345167feb7305b45f3470cc997a3a8a3cbd9514ff81273b5a3d835eccb12858",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_95418a83c89287f5f1.json",
       "reported_only": false,
       "verified": true
     },
@@ -24421,6 +24749,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_249548b54c63741a194e": {
+      "authority": "progressive_competency_outcome",
+      "b": 12695,
+      "h": "249548b54c63741a194e836323d0bc001a8fb4d3cc2a17a094c3cccd690c8687",
+      "p": "results/progressive_competency/competency_contract_bbccdbfb2134ae6450f1.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_2498385d0939a1e8e718": {
       "authority": "progressive_competency_outcome",
       "b": 2330,
@@ -24498,6 +24834,14 @@
       "b": 2161,
       "h": "24ab587bfacf250d990c52f76ed9ca6dc4d5ce20c7a45812a8bec61ed6cdac47",
       "p": "results/progressive_competency/competency_contract_d971100c87ba6e85c393.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_24ab5a074020e493224c": {
+      "authority": "progressive_competency_outcome",
+      "b": 3195,
+      "h": "24ab5a074020e493224ca3bb54745fc2c215458dc6b10407687bb2bab2cc59d7",
+      "p": "results/progressive_competency/competency_contract_3d8c8ca8c8b726ce236b.json",
       "reported_only": false,
       "verified": true
     },
@@ -24594,6 +24938,14 @@
       "b": 2330,
       "h": "24d95775759aa304cf8b9d6957e8251ec047713055cb61fcb420c00a65ba088a",
       "p": "results/progressive_competency/competency_contract_01b5750558159437eecd.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_24dc68b6e84f2b18bebf": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "24dc68b6e84f2b18bebf1736f51fc69c6afce103aad90d58e246ea26c3be0573",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f9cc7ba4addad491a1.json",
       "reported_only": false,
       "verified": true
     },
@@ -24714,6 +25066,14 @@
       "b": 2317,
       "h": "2503ce955f2749478e0550537714daf3a45f83796df781d751d203fc2ccc2440",
       "p": "results/progressive_competency/competency_contract_d2ddf0b05cd35cb89845.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_250425d530aa5bbaf025": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "250425d530aa5bbaf02535cfb66c9f8993cf34e1ef03061b2cec34a69756ffbd",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_3385d7008fbed52081.json",
       "reported_only": false,
       "verified": true
     },
@@ -25466,6 +25826,14 @@
       "b": 2331,
       "h": "260ea44b629d2d5cb09b2f92080462ff1daf69b5b45eb2b3fa39cde6739c1a30",
       "p": "results/progressive_competency/competency_contract_901b46ed8166349260fd.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_2610414c5b95fea10d9f": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "2610414c5b95fea10d9f5e7530fa97074b0e2674b8436fa3b575306d960d4e8d",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_18a02acb6ce9f8b3b7.json",
       "reported_only": false,
       "verified": true
     },
@@ -29141,6 +29509,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_2b7acaa3d306846bf447": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "2b7acaa3d306846bf4474a321ed7de68f95a6c5be3377aca9e6c51506eb080af",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_edc309497e97212a84.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_2b7f5270003b7ac4ad8f": {
       "authority": "progressive_competency_outcome",
       "b": 2277,
@@ -29514,6 +29890,14 @@
       "b": 2275,
       "h": "2bfce881e4fcd55bbc3ac2c691bf61cc2ea48192da42d542653179d60d6310b6",
       "p": "results/progressive_competency/competency_contract_6240a11b600e4d7c8fe7.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_2bfd16af722de7446778": {
+      "authority": "progressive_competency_outcome",
+      "b": 3271,
+      "h": "2bfd16af722de7446778ae44414321739d7228549081aa63d71ee04d191f413d",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_055d493e24df7aa749.json",
       "reported_only": false,
       "verified": true
     },
@@ -30234,6 +30618,14 @@
       "b": 2127,
       "h": "2d3643f95b32014419223b1e150bea207522492bb09913cf2d2b1d548721f0c8",
       "p": "results/progressive_competency/competency_contract_3d04d933eecb4098d7d9.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_2d370eb25c0cacca749a": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "2d370eb25c0cacca749a1c8059f6d2305136abd4cf5f781cdbaf5cbbf2687031",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_e9817c996abd452d2d.json",
       "reported_only": false,
       "verified": true
     },
@@ -31213,6 +31605,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_2edf4d0586eb07d0d4f4": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "2edf4d0586eb07d0d4f43e20946da08ce06ade32f80a7c8f5dcc052fcde34ccd",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_6a6c9a5c5c4c997648.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_2ee18b01693651b5250c": {
       "authority": "progressive_competency_outcome",
       "b": 2330,
@@ -31338,6 +31738,14 @@
       "b": 2327,
       "h": "2f17ef084808191b91e69461a397f22003685abe3b285cb2c6a6ea83fc0a7cba",
       "p": "results/progressive_competency/competency_contract_a7b520c93ecd0b7fe2c8.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_2f190f9284e951fa4b6e": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "2f190f9284e951fa4b6e9eead0e0e3956333647df5b2a04470e8d411df260445",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_ce5af2e6cb427e63a3.json",
       "reported_only": false,
       "verified": true
     },
@@ -31789,6 +32197,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_2fc15dc2023be8fcfa1a": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "2fc15dc2023be8fcfa1ae876b0344b3e9bd1fa8fb5e2d433037a88aa4a2e1826",
+      "p": "results/aion_open_objective_families/autonomous_768e393c1ef80b0d64.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_2fca77405ee435c547a8": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -32010,6 +32426,14 @@
       "b": 3732,
       "h": "2ffb686116840c5c40bac486f18dd14af593488699b91fce2e6b924146d489d7",
       "p": "results/progressive_competency/competency_contract_70926ab28028b1efdc9d.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_2ffd6d95853582cd8c5e": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "2ffd6d95853582cd8c5e2e2bf9c0a29c5a931fef35229d73ae9a8f388a854c6a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_34299ecf3f4d8c8b16.json",
       "reported_only": false,
       "verified": true
     },
@@ -33909,6 +34333,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_32bc060506d0a38c7df3": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "32bc060506d0a38c7df344ec8ce12214a5fa2e365aeb43519aacb5bce73fb2cb",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_a520ee3c5a20c57c35.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_32bc21452c4385529bed": {
       "authority": "progressive_competency_outcome",
       "b": 2277,
@@ -34386,6 +34818,14 @@
       "b": 2203,
       "h": "3369cda186d99c204752be86ed551bc0c0abcd9fdb30b29c2999d31d4a7e86fe",
       "p": "results/progressive_competency/competency_contract_0420c2815ba0a510b27c.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_336cff822ae6684e30bb": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "336cff822ae6684e30bb54b83b99a3c9189a499614c6c0c0d55dd94333eadbfd",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_64c978a10df97cf801.json",
       "reported_only": false,
       "verified": true
     },
@@ -35090,6 +35530,14 @@
       "b": 2331,
       "h": "346ba340d07f42d16f74ca7d45db2f3c2da6e91b219a45b9cde989f145d2f2df",
       "p": "results/progressive_competency/competency_contract_ef46d65390f14a127e52.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_346ea886d08798926262": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "346ea886d08798926262713ff439f7f3bc174e729aaa26114b4c0d388000a4e4",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_60d02511e55edf8fef.json",
       "reported_only": false,
       "verified": true
     },
@@ -36501,6 +36949,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_36983dfcdf61b067fdd8": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "36983dfcdf61b067fdd8913cc0a09ab4611d21e03b014237d51296ad4e11f404",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_498c6c4453f465fed0.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_369a6a928f75db1fe383": {
       "authority": "progressive_competency_outcome",
       "b": 4228,
@@ -36626,6 +37082,14 @@
       "b": 2328,
       "h": "36b4a755faf9fe9b5158586d2a7e38d84ea0db9845a9fc6db668f25110eeb57c",
       "p": "results/progressive_competency/competency_contract_b49cc98e7ef4e20658ee.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_36b668ca14341afdb352": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "36b668ca14341afdb352571ad80b19da82113f9df11cf3a8bef7792bb619c45d",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_41f6e19771ceba263b.json",
       "reported_only": false,
       "verified": true
     },
@@ -37717,6 +38181,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_3837354023ec7ca9569a": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "3837354023ec7ca9569a21ed639da41bf21bb02abdef14d6f593d44a465e4868",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_95bd80daa03fd65c8b.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_3837c35703776d0c405e": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -37754,6 +38226,14 @@
       "b": 2276,
       "h": "3841a257f13b68681d51248ee345dec343890427cae962d2646bce6bdd367d47",
       "p": "results/progressive_competency/competency_contract_c742d5d472121f654784.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_3842f75d939ee2418b52": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "3842f75d939ee2418b5243e3636c924a3d0e98d02e6ffa2e25554307052b010f",
+      "p": "results/aion_open_objective_families/autonomous_6a64e6338a5b47a81d.json",
       "reported_only": false,
       "verified": true
     },
@@ -37938,6 +38418,14 @@
       "b": 2330,
       "h": "3893484fb6d082945c63f159776840cffcb047c3820ec58573cbde9bafbe9439",
       "p": "results/progressive_competency/competency_contract_3b39f875ecd9d2ebee30.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_38956cae1aa8fadfbfb4": {
+      "authority": "progressive_competency_outcome",
+      "b": 2465,
+      "h": "38956cae1aa8fadfbfb4c959d7b35bc5f70c3775cc9594c386a2c4b632b35d90",
+      "p": "results/progressive_competency/competency_contract_ecf0078768c0c0d31cb5.json",
       "reported_only": false,
       "verified": true
     },
@@ -40485,6 +40973,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_3c59360015226f3bc782": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "3c59360015226f3bc78278b10cac55d304c4ca6a09374f147ac855ce06dd1317",
+      "p": "results/aion_open_objective_families/autonomous_8a28b9eea850563376.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_3c5974d2f49dffa9da60": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -40594,6 +41090,14 @@
       "b": 2328,
       "h": "3c8cfdaf5e8a82dc996dbc2fea5de02732f3b344446df2ffc0edf255d1b1a1db",
       "p": "results/progressive_competency/competency_contract_32f74e8beeac9cb2a883.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_3c916b573bb76af14b6b": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "3c916b573bb76af14b6b1f63bf3353376683d6f5e25d11f1b62fefdde2150d33",
+      "p": "results/aion_open_objective_families/autonomous_770c1d6dbc18f040ba.json",
       "reported_only": false,
       "verified": true
     },
@@ -40914,6 +41418,14 @@
       "b": 2222,
       "h": "3d16c1bf58d351e77db7f08437f165c7366efe5cdbb9c26db3f1313943d5a90e",
       "p": "results/progressive_competency/competency_contract_d03ead61fb4172609d73.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_3d16ed8d5ac294652f43": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "3d16ed8d5ac294652f432445456fdfb05947705d3c9c10636cd5be384d2f50dc",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_8f4482b19521bee15f.json",
       "reported_only": false,
       "verified": true
     },
@@ -41733,6 +42245,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_3e5c551c9a585da44040": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "3e5c551c9a585da4404096badf955ee0dbfbd56ccd0c798577a4fd187af121ad",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_13e4211d7f4c32a43c.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_3e5ded3a7e9b503eb476": {
       "authority": "progressive_competency_outcome",
       "b": 2327,
@@ -41994,6 +42514,14 @@
       "b": 2328,
       "h": "3ebc5c22f1f80407343318f87808bc53294a6027af3aa7558d532a208622a12b",
       "p": "results/progressive_competency/competency_contract_c7f40cb9100c5d96513a.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_3ebcd36a6b14a3080e33": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "3ebcd36a6b14a3080e3302c40616322b0da6bc3707e2ad6714ced42b9d1778b7",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_960e30c5ca04ec3f12.json",
       "reported_only": false,
       "verified": true
     },
@@ -42514,6 +43042,14 @@
       "b": 2281,
       "h": "3f791472d7d34d3f4a77e002e0da31ee8a52ce5fae261c816795cb985dc8b4ec",
       "p": "results/progressive_competency/competency_contract_ee98ce5e06d51cb6454f.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_3f7a0b128c6b20ca05bf": {
+      "authority": "progressive_competency_outcome",
+      "b": 3580,
+      "h": "3f7a0b128c6b20ca05bfad3b0074586e7ac69d7e059ddedafaf36774e18b2d04",
+      "p": "results/progressive_competency/competency_contract_faaadd9b2ac774b018a9.json",
       "reported_only": false,
       "verified": true
     },
@@ -43933,6 +44469,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_41b08b4078439290c892": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "41b08b4078439290c892bc657a82e42bf8077f7b444fcaa66caf667bc283c73d",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_1c420409673e5b08e5.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_41b5315ffeb2051de6aa": {
       "authority": "progressive_competency_outcome",
       "b": 3813,
@@ -44034,6 +44578,14 @@
       "b": 2330,
       "h": "41e179346f493ce3582dcdc740598eef7d8e3d8ab23108e526010c6199c33191",
       "p": "results/progressive_competency/competency_contract_0df9a72cbb42da541b57.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_41e43cb133a89f98e94b": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "41e43cb133a89f98e94b4f0f5a5474b3279328b630ba82428df0562e068ad927",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_7208d353aed70b4b84.json",
       "reported_only": false,
       "verified": true
     },
@@ -44450,6 +45002,14 @@
       "b": 2328,
       "h": "427d606759af264d090e0f5003219d9389aba7428f171db8dcef34985a2d32be",
       "p": "results/progressive_competency/competency_contract_123bfed1426d7c5d0bf8.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_427fb4039abb989a0282": {
+      "authority": "progressive_competency_outcome",
+      "b": 2409,
+      "h": "427fb4039abb989a02824ff02b7ba4fbef800d55ee635b3d5053b4b93a809406",
+      "p": "results/progressive_competency/competency_contract_028e3ee4b14a028d8699.json",
       "reported_only": false,
       "verified": true
     },
@@ -45029,6 +45589,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_43391f6ede0a55ea7767": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "43391f6ede0a55ea7767c28977c357817157da6a5b3061f70d85055af54b2124",
+      "p": "results/aion_open_objective_families/autonomous_0880bf3b2450381510.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_433daac3f6db651ce1a2": {
       "authority": "progressive_competency_outcome",
       "b": 2263,
@@ -45122,6 +45690,14 @@
       "b": 2329,
       "h": "435c6fa3eea1452a9f45e7191fde78d8462c6c14baaaca01ed4a37038e03c5a8",
       "p": "results/progressive_competency/competency_contract_9ccfe6d8a2fcc78f4f24.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_435d884763d47c817c97": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "435d884763d47c817c975b18680aa7c65f4323be0310e8a7f0425d3b78ba293f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_326610c91f678fdedc.json",
       "reported_only": false,
       "verified": true
     },
@@ -45498,6 +46074,14 @@
       "b": 2276,
       "h": "43ec5385e987437d638ed54373c9542acfc1fb87bf60b35f9efe9d4a8068a6e0",
       "p": "results/progressive_competency/competency_contract_c5c4d9fba7c68b882f8e.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_43ed678219af44ee22d6": {
+      "authority": "progressive_competency_outcome",
+      "b": 2547,
+      "h": "43ed678219af44ee22d60e0e63653c2a1a3293b202ac70b2cb0982b23a2e65ca",
+      "p": "results/progressive_competency/competency_contract_7d79fc8fa06bd62e0b0f.json",
       "reported_only": false,
       "verified": true
     },
@@ -46053,6 +46637,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_44a29057f0c50a97460c": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "44a29057f0c50a97460cd3f78e077a5cd58724ff0b2782de030e891679926e5a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_45162487b7e8ca9d5f.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_44a6d34a8b3b3e8d8398": {
       "authority": "progressive_competency_outcome",
       "b": 2326,
@@ -46589,6 +47181,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_45649ced11ee1a6300cd": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "45649ced11ee1a6300cdbbb906e2a06bcc5b8d5748b60d181121bc3a533dbdfb",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_2dab49dcb59dfa5588.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_4567f52ec3945cf24665": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -46906,6 +47506,14 @@
       "b": 2283,
       "h": "45c959557de0d45b6ee0d94dbbc60d37b2fc0e4131b6ddcf6bbc29e81474494b",
       "p": "results/progressive_competency/competency_contract_684058883341c75f8c28.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_45c9b24df17c7d9a608e": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "45c9b24df17c7d9a608ef8d3879926d7c104ec550e688be63d0ceb076bb3c5af",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_8f833e2a9e26e96b0b.json",
       "reported_only": false,
       "verified": true
     },
@@ -47309,6 +47917,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_46641f1cefbfc9396630": {
+      "authority": "progressive_competency_outcome",
+      "b": 3579,
+      "h": "46641f1cefbfc9396630d6220b9a121394fea0b5988527dca2a3451924e3854f",
+      "p": "results/progressive_competency/competency_contract_ec03ea2f6083b4efee6b.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_466c0b331f34bbc435ab": {
       "authority": "progressive_competency_outcome",
       "b": 2274,
@@ -47674,6 +48290,14 @@
       "b": 2327,
       "h": "470c3a6dfc2ed987e36c779bfba1c5af2214c78d9212169240e445c9877ba0ac",
       "p": "results/progressive_competency/competency_contract_d40509b94d1259fd6ae8.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_470d25e55cdcb22ba3da": {
+      "authority": "progressive_competency_outcome",
+      "b": 2627,
+      "h": "470d25e55cdcb22ba3da4e07e4b4e47e225f5fbe0d428e95f51c1f6339ffdac9",
+      "p": "results/progressive_competency/competency_contract_224a798aaee52cc82923.json",
       "reported_only": false,
       "verified": true
     },
@@ -48082,6 +48706,14 @@
       "b": 2330,
       "h": "47932381d124ec5d69790f9d4b3aec136749fcf5af582e6674d9d837758b3d21",
       "p": "results/progressive_competency/competency_contract_d19574a826153a3a06b3.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_479466a4b94bc8ef6f34": {
+      "authority": "progressive_competency_outcome",
+      "b": 3339,
+      "h": "479466a4b94bc8ef6f34c0c21533673e3975fbd6625b46cf916222bdad10a8a5",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_ce2a92bb502bb9622d.json",
       "reported_only": false,
       "verified": true
     },
@@ -48605,6 +49237,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_486098c8f915426cf330": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "486098c8f915426cf3305470ddba656eafc3428f7781fe237634791057762f0e",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_9583d679b793217f88.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_486511125c810c6c7b7c": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -48666,6 +49306,14 @@
       "b": 2330,
       "h": "487269f290b0915607faeadf4b1b7545319a017f564d381c898018a0083bd09f",
       "p": "results/progressive_competency/competency_contract_6098cf47fc76f8fccbaf.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_4872d699d90f48b488ba": {
+      "authority": "progressive_competency_outcome",
+      "b": 3199,
+      "h": "4872d699d90f48b488ba927c23b8480df83d6ec8ea945a86814892ba8c21a7fd",
+      "p": "results/progressive_competency/competency_contract_3ed0a119996fa7e905f0.json",
       "reported_only": false,
       "verified": true
     },
@@ -48850,6 +49498,14 @@
       "b": 3366,
       "h": "48bbe67ba9e2812c5c60dec3a2355b0ecf517ff72de85cbe911a5cf61278cc3b",
       "p": "results/aion_situated_cross_domain_projects/situated_project_d1ff63659c80dd0450.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_48bfe5f30e73469ce92d": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "48bfe5f30e73469ce92d0bb2b1bd52af302fa4cd41b4d992a6e86a8ce4c16faa",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_d501f2b2754b722fd1.json",
       "reported_only": false,
       "verified": true
     },
@@ -49762,6 +50418,14 @@
       "b": 2325,
       "h": "49fc9af0a922701c23a7f0fac6596adeefb3b63f10fbd8a89ad41e54d1e42b65",
       "p": "results/progressive_competency/competency_contract_e805427c75afc0329fb7.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_4a00a9407a01fcfed766": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "4a00a9407a01fcfed766544f0c21865d9647cca693aa8a251d64e13e6d0ae4b8",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_12b4d763d56ec3d46d.json",
       "reported_only": false,
       "verified": true
     },
@@ -51965,6 +52629,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_4d76494ba4838fe3491b": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "4d76494ba4838fe3491b13bb51980214d216598e308b7615824134fdcf64a42e",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_7bcf447ddb8dec1c5c.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_4d79299e5fafb4fa348b": {
       "authority": "progressive_competency_outcome",
       "b": 2276,
@@ -52317,6 +52989,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_4e054529b580183e7393": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "4e054529b580183e739309c9f1a1f4452a2577b5778704b5e0cdfc4867190ed3",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_c1eae2ceacb3e23045.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_4e071c257b7d450cf0d7": {
       "authority": "progressive_competency_outcome",
       "b": 3352,
@@ -52338,6 +53018,14 @@
       "b": 2330,
       "h": "4e0897709cb9d1c94e3a17756efd543da151f7251f1907865e41b80ebd6576e6",
       "p": "results/progressive_competency/competency_contract_eff21f3a4a25eef67e92.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_4e0d239d1cd7ed10fd77": {
+      "authority": "progressive_competency_outcome",
+      "b": 3193,
+      "h": "4e0d239d1cd7ed10fd77f00c1b264178686777a6e2d61e4f48455eb87b3045d7",
+      "p": "results/progressive_competency/competency_contract_3a7d22409009f8103e8c.json",
       "reported_only": false,
       "verified": true
     },
@@ -52877,6 +53565,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_4edd0d87ecd8dc2fadb3": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "4edd0d87ecd8dc2fadb302dfe5bccca46edad14491da52f4ffc746bb19462eca",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_6c1189304c6ee2b286.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_4edd7534639f52bdf930": {
       "authority": "progressive_competency_outcome",
       "b": 3350,
@@ -52914,6 +53610,14 @@
       "b": 2328,
       "h": "4ee789f56174b7f47be4fb78f07dd1d64f3cd07a89537f9a7bdc2390c0ce841d",
       "p": "results/progressive_competency/competency_contract_fc9a3f4811d34b89464a.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_4eed91b1f84e7a346a98": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "4eed91b1f84e7a346a9858db0291cb6d105a5e07368dab23615e932c04ca0cae",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_a203d8281786eda7fd.json",
       "reported_only": false,
       "verified": true
     },
@@ -54141,6 +54845,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_50a34150fba36ffe8ce0": {
+      "authority": "progressive_competency_outcome",
+      "b": 3482,
+      "h": "50a34150fba36ffe8ce0423456b95117cd9f403204809fa1e477a4e87638aa90",
+      "p": "results/progressive_competency/competency_contract_aef3bcf00435afff60f4.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_50ac719dda63c089370d": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -55130,6 +55842,14 @@
       "b": 2329,
       "h": "51eb0b2ba742209cc431fcbd3ea1f32a18ef6df5b247870db5bd7bfa3cd30791",
       "p": "results/progressive_competency/competency_contract_99f78ba1d28592c0fd5e.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_51f1f94dfb0d317ea14a": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "51f1f94dfb0d317ea14a1b93d6f8b9abaf98c7f8cc471e6b831aa231a6504caa",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_00959f0d9782bc7f54.json",
       "reported_only": false,
       "verified": true
     },
@@ -56917,6 +57637,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_54caf2b6645e80e68433": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "54caf2b6645e80e68433699cab374e37543d420dccf1bd4e48cfc22a2c8e5faf",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_4deb04bc6c80a45533.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_54cda52214153787a435": {
       "authority": "progressive_competency_outcome",
       "b": 2167,
@@ -57322,6 +58050,14 @@
       "b": 2318,
       "h": "558be8a7a21e4658087d6a5431b4c6e173a44d84d1114f4f5203beb80d2143d7",
       "p": "results/progressive_competency/competency_contract_c21b1688b1e6fb012260.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_559180e1d07728821871": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "559180e1d077288218712ae67718dab984605667a66154b677e4b1429d19a48f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_321d1b81322592e4bd.json",
       "reported_only": false,
       "verified": true
     },
@@ -59805,6 +60541,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_598d9b2fbe6ce61cdedd": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "598d9b2fbe6ce61cdedd3e42d4257e5f7fe9c5e24ac81644015ca5a03d1d6d8a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_58bbd8a44b23010b3b.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_598f352e9a4d626b6073": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -60501,6 +61245,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_5a84ea624bb534937730": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "5a84ea624bb53493773071e6bdd26fcd3fcd28775a78ae588db63cbc68901036",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_2d0b3466164b283ebc.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_5a8ae737e0edc3624cec": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -60714,6 +61466,14 @@
       "b": 2277,
       "h": "5ae043d439c4aaa487a7d4e42b18b490d6aedd28dadf3da708c439fec42f7090",
       "p": "results/progressive_competency/competency_contract_3a5421e05765f2ab5f64.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_5ae0b088ac0f2bb65760": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "5ae0b088ac0f2bb65760b732d6ec53e9f47fecb1c52aa46128946770a02508ef",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_767e5f2fe4fab49167.json",
       "reported_only": false,
       "verified": true
     },
@@ -61901,6 +62661,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_5c8236265e1a935a7472": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "5c8236265e1a935a747248dcab0412ffbd70c66efe8214b0370ea5cd786a36d9",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_aadbbc39efe2d343df.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_5c838d735776dbfde343": {
       "authority": "progressive_competency_outcome",
       "b": 2318,
@@ -62589,6 +63357,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_5dca542a6867f9b4d361": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "5dca542a6867f9b4d361085bf8b3debbaff1b59c48d0235c00b5ed88e74a9c04",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_0ec21793ed57801c31.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_5dcc1b3d41c8d9b56daa": {
       "authority": "progressive_competency_outcome",
       "b": 3028,
@@ -63189,6 +63965,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_5eb5527797aa6e9b2c98": {
+      "authority": "progressive_competency_outcome",
+      "b": 3136,
+      "h": "5eb5527797aa6e9b2c986f7cc4ea07f6c9c529c5b21678a028fedd829e34e768",
+      "p": "results/progressive_competency/competency_contract_1a20d02a58e32a2eb440.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_5eb5eeae3d0f68feee8a": {
       "authority": "progressive_competency_outcome",
       "b": 2275,
@@ -63690,6 +64474,14 @@
       "b": 2328,
       "h": "5f6157d7bfb77756e07c906c57ed10d24794422ce652540546d3f771fb40f949",
       "p": "results/progressive_competency/competency_contract_5127ce3de9aa1406c6b4.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_5f638e521b935e8340ba": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "5f638e521b935e8340ba393916ce605256904ff99ab1c1c991cfda42dd603002",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_4431e2933d989a49ad.json",
       "reported_only": false,
       "verified": true
     },
@@ -64405,6 +65197,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_60634f67af2e018ae97a": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "60634f67af2e018ae97a09462549c516ed406a16a879fc272cf1c9c7727fe444",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_caec9280d88caed35c.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_60635cf6117d5bcf7ae4": {
       "authority": "progressive_competency_outcome",
       "b": 2318,
@@ -64786,6 +65586,14 @@
       "b": 2327,
       "h": "60ce31cfe33f5431e8bc7981affaf076b56d5665926f485455fa9a63d24a5320",
       "p": "results/progressive_competency/competency_contract_e02e56592f2f66fc5f63.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_60cf2708dcc741cf1eba": {
+      "authority": "progressive_competency_outcome",
+      "b": 3513,
+      "h": "60cf2708dcc741cf1ebafe842e80aadd4a722e0aa7bdb470d93bb1c13c63f581",
+      "p": "results/progressive_competency/competency_contract_2e4f80576258cf0f1bf6.json",
       "reported_only": false,
       "verified": true
     },
@@ -65189,6 +65997,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_61769f2338f0a9919fe5": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "61769f2338f0a9919fe55ba44072929611f7560759a2a5a50073ae7706b0a7ef",
+      "p": "results/aion_open_objective_families/autonomous_708a461e7e1b42bd2c.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_617a1b7f601aee9ea323": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -65245,11 +66061,27 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_6191c7bb8215f2320ccf": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "6191c7bb8215f2320ccfcff85e892dfc1e49d0d79b49e376a22f9bce8d1beb02",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_e1dd761d7beca16811.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_619234409b13e1ce6a87": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
       "h": "619234409b13e1ce6a87e8ae2a0b8944b37fe64bd646aa54a487a266385c1b25",
       "p": "results/progressive_competency/competency_contract_d74079bcd1957a6f24ea.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_61951300a275805dfd02": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "61951300a275805dfd029325eb1748483a61c522b709060e26f28317c89ff9b0",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_b0dec6021c00e4979a.json",
       "reported_only": false,
       "verified": true
     },
@@ -66029,6 +66861,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_62fd1fda518cf72e6b11": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "62fd1fda518cf72e6b11c2c08c10080955d3dc51710e3aad8c9a4126afe47d9d",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_b0c7bc8e72b96f12a2.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_62ff405f471e0f91a693": {
       "authority": "progressive_competency_outcome",
       "b": 2139,
@@ -66458,6 +67298,14 @@
       "b": 3352,
       "h": "639271fd79025af16d6e588d739d12e1023ca6776b100276680fe0ba61e31d85",
       "p": "results/aion_situated_cross_domain_projects/situated_project_c24e10ba84ce66f38b.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_639493bf9871d515aa14": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "639493bf9871d515aa143b0440c811043c78e51c74a38b81513c9227fb92005a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_743a42f955b9896a42.json",
       "reported_only": false,
       "verified": true
     },
@@ -67082,6 +67930,14 @@
       "b": 2275,
       "h": "649fa212eff54d5a1c1529aceb4a54c4492b18b751245b626c142fed91a0958d",
       "p": "results/progressive_competency/competency_contract_b1036bca3e942a172abf.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_64a3096f7f23a9f1f8ad": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "64a3096f7f23a9f1f8adc31ccdde9d179c1fa1eaaf7432bb58e2915a80820b92",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_fbfe716c306bb6c047.json",
       "reported_only": false,
       "verified": true
     },
@@ -69061,6 +69917,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_6795749a960d9f3d4b45": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "6795749a960d9f3d4b45a1c31f8c8b6b177bf162bdc1980aaa80242ac62a9924",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_cd514c8ca5a3dca71d.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_6796779bee117e40835d": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -69845,6 +70709,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_688df4799f24eba806cd": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "688df4799f24eba806cdd22c2aebd7ab4f5852cbca3cecf7280c99471baab8df",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_a570b3068aa1627980.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_688e90f822e0da6b6a1b": {
       "authority": "progressive_competency_outcome",
       "b": 2330,
@@ -69938,6 +70810,14 @@
       "b": 2316,
       "h": "68b0c260f3f955045f2aef262ec9ec4caac051cc8a76bce6898278665338628c",
       "p": "results/progressive_competency/competency_contract_dfc4a212b06f44646f61.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_68b14638ab072a18d2ac": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "68b14638ab072a18d2ace11f57af9f3de191420d2d1a9215f0ee902a7c6fb7e8",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_11eee3d93f07cdc7c5.json",
       "reported_only": false,
       "verified": true
     },
@@ -70226,6 +71106,14 @@
       "b": 3911,
       "h": "691911b4d7282ecfebd8922af39d19145ed98e74d4c3a3221c4e21014d71a5db",
       "p": "results/progressive_competency/competency_contract_9752e08b224ba0cb88de.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_691919b449906d3f86e7": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "691919b449906d3f86e7670c3dccbef5e59cf8f74deac939efc20ce24f109302",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_b60b1d5850f788cee6.json",
       "reported_only": false,
       "verified": true
     },
@@ -71234,6 +72122,14 @@
       "b": 2180,
       "h": "6a85b245073a3d08c0ffb323e1548e98759e97839f57cd0ae5558b54c794f1e6",
       "p": "results/progressive_competency/competency_contract_558ea17f8a3b8600f29a.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_6a8803a1f79bc00432fe": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "6a8803a1f79bc00432fec947ffd673319a32722b42a13e1c8ec38f413dc11ae1",
+      "p": "results/aion_open_objective_families/autonomous_aa3f8b752807141b6c.json",
       "reported_only": false,
       "verified": true
     },
@@ -72581,6 +73477,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_6cb18efc2e9f37f334b3": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "6cb18efc2e9f37f334b3bc37e001d63696512071e9bbe2804dd5e14acc43065a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_fac4a12820dab3d7e9.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_6cb21f0e66f4e01a6568": {
       "authority": "progressive_competency_outcome",
       "b": 2330,
@@ -73557,6 +74461,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_6e4b943e79c5b0ddc103": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "6e4b943e79c5b0ddc1035e8a333c5a032f1c200ae04c786a98c5b48f6477638a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f5290929adddd91fe5.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_6e4e89571ab58878fc25": {
       "authority": "progressive_competency_outcome",
       "b": 2092,
@@ -73861,6 +74773,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_6ed2e19f5b431c1193ba": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "6ed2e19f5b431c1193ba1346e963a242728a96d3c30a7e787ad494dd7fce43f9",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_9f2792b120e83106a3.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_6ed42b1a4e5488e2b395": {
       "authority": "progressive_competency_outcome",
       "b": 3352,
@@ -74106,6 +75026,14 @@
       "b": 2326,
       "h": "6f470b8aba5872f4856d2a9d93e44f76386ceb98e3e11d687d2f87df8963ae3b",
       "p": "results/progressive_competency/competency_contract_911b084090f7b2f2952a.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_6f48dda7ba52d365e751": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "6f48dda7ba52d365e751b41bc73e315414decf4d80ab0015112f852090d48a25",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_63e9e40585b481e4f0.json",
       "reported_only": false,
       "verified": true
     },
@@ -74666,6 +75594,14 @@
       "b": 2276,
       "h": "70288aff8ad29f8a412384764775c6f9f9528b4b2fc265a66dc3a6ef97fbd76d",
       "p": "results/progressive_competency/competency_contract_274457bd94bb13671c58.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_702caec0673f4d983ef3": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "702caec0673f4d983ef317d7915d539af669df537d26010397ff3f58322503e1",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_9bd007961b7545dd54.json",
       "reported_only": false,
       "verified": true
     },
@@ -75613,6 +76549,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_71d8e7399989589b9163": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "71d8e7399989589b9163639ea43d736f16e266739e206cae012abc6b20b1bf90",
+      "p": "results/aion_open_objective_families/autonomous_507e1e6a974f09d6a0.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_71dc8460fc4f741f148c": {
       "authority": "progressive_competency_outcome",
       "b": 2413,
@@ -76013,6 +76957,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_7280ef564d345a59f6da": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "7280ef564d345a59f6daac4ddc4962a5a8bc4830964f3274162aefc4510da959",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_977e3d09a646292274.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_7282e9e5b1971aba97d7": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -76130,6 +77082,14 @@
       "b": 2326,
       "h": "72a731db070e0723877e3d686cb43d5e1d4fb97a9046bc2286fa85ce2e25a409",
       "p": "results/progressive_competency/competency_contract_783af8d6d2fc645b8f0a.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_72aaaa5d0d854d7a8b6c": {
+      "authority": "progressive_competency_outcome",
+      "b": 3139,
+      "h": "72aaaa5d0d854d7a8b6c4e338d65a5fd321fb3e27c0ecd1f8d0faff055f52343",
+      "p": "results/progressive_competency/competency_contract_e2e52da9b785d859e5bb.json",
       "reported_only": false,
       "verified": true
     },
@@ -78133,11 +79093,27 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_75fdbd9a6ea824aa7d02": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "75fdbd9a6ea824aa7d021b8a50559185a470d9e366b6d9eadd9a8798ebbe796f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_b580f7ea7fc5be5e8e.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_75fed9965c21817d3ff7": {
       "authority": "progressive_competency_outcome",
       "b": 2327,
       "h": "75fed9965c21817d3ff77459e516fee349aea7b9b290fba36d52d8d8c58d199a",
       "p": "results/progressive_competency/competency_contract_28d76882245cbd769482.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_75ff7f06a618abc1dee8": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "75ff7f06a618abc1dee8b90ff601968b82f4dc938c6c8f4145a22de8042e2b8f",
+      "p": "results/aion_open_objective_families/autonomous_9825708b338bc2b005.json",
       "reported_only": false,
       "verified": true
     },
@@ -79290,6 +80266,14 @@
       "b": 2276,
       "h": "77dcad28aa36f11271bf75490cbf40157bd0c8aae9cf8e373fd4e4dae0a75bd5",
       "p": "results/progressive_competency/competency_contract_f528ba7e29f91524744b.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_77de7bd22515c56f0f61": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "77de7bd22515c56f0f61e68f2ff1c3dda2dbc737db74be4dad416f9b2885bf34",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_4010e577c328b952f6.json",
       "reported_only": false,
       "verified": true
     },
@@ -80677,6 +81661,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_79e55125b54431d095ff": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "79e55125b54431d095ff4ae4e077adb749fd5eb18d594076194a4cb7e186533b",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_cea3e3639ecd9fa195.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_79e9cf9a800d0c6194e1": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -81114,6 +82106,22 @@
       "b": 2207,
       "h": "7a7819c8f99f0bb4d9e846d86c431dbc5ef1a698192a2f9db69b14b8597e7792",
       "p": "results/progressive_competency/competency_contract_abf542b7737ecbac8400.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_7a7d375b11d9330de289": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "7a7d375b11d9330de289216bb0569826cf42bf6e314b44ff4ce5fb67a862053a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_9ba9195db62f3a76c8.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_7a7e78b3aebfd92bebe2": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "7a7e78b3aebfd92bebe2fc2d1df1d63ec5a10b56ba464e2ec7177fcebaa1334f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_c7662e579db1e98739.json",
       "reported_only": false,
       "verified": true
     },
@@ -82341,6 +83349,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_7c3ce2a94f494d7b5032": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "7c3ce2a94f494d7b5032354aed39a01f11b354e4a6ed074bb8b052b42beeea96",
+      "p": "results/aion_open_objective_families/autonomous_2abccdc5ff32a99b71.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_7c4747b18b1065396706": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -83109,6 +84125,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_7d8a13565376c0216761": {
+      "authority": "progressive_competency_outcome",
+      "b": 3305,
+      "h": "7d8a13565376c0216761e500ac91c5484c9f9e9cc66da06733ab1ee38c97bbda",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_e22902f8805c82d8ca.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_7d8cf4b1a7fd43077cdf": {
       "authority": "progressive_competency_outcome",
       "b": 2327,
@@ -83789,6 +84813,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_7e8732e37bed35c53765": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "7e8732e37bed35c53765b257b20fddce97451c3eaa1b5eb42f35ef465d353046",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_2ab59a3a7995a5c8ac.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_7e8797b6e0fb9e2ff51b": {
       "authority": "progressive_competency_outcome",
       "b": 2274,
@@ -83922,6 +84954,14 @@
       "b": 3492,
       "h": "7eb05ea24917ebf70d4a975254d56bcd19edcbe2cb7a2256f45645f6ec15397a",
       "p": "results/progressive_competency/competency_contract_84bbe422cda114c1465e.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_7eb2f0d3217eb2c7d6c1": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "7eb2f0d3217eb2c7d6c19cb0790b6eb1c3a7250e666418d9212573b457d08d70",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_c6beecd2c6c34bd583.json",
       "reported_only": false,
       "verified": true
     },
@@ -84205,6 +85245,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_7f1db0d5eb15d89a7b3d": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "7f1db0d5eb15d89a7b3d824ed8ad9f2f09c67466f9885391c7a42399d71f90e4",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_8dcccf16f15c6124bf.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_7f1e1b362ea9bd2178e7": {
       "authority": "progressive_competency_outcome",
       "b": 2327,
@@ -84258,6 +85306,14 @@
       "b": 2277,
       "h": "7f34f4028177003f672952e4667e0108a68aa835dc4d9d9ee8544957e8ded172",
       "p": "results/progressive_competency/competency_contract_a1cf023e230286e68773.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_7f3582813fb6be80ef55": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "7f3582813fb6be80ef55be04b3b55ab5b01ae0d3a775475ef6237f231d6b92c1",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f02c9819d93d797ccf.json",
       "reported_only": false,
       "verified": true
     },
@@ -84810,6 +85866,14 @@
       "b": 2329,
       "h": "8008519eb75b564c62d91f058273f47d397813e4564f6bbab64f63876cfd9df1",
       "p": "results/progressive_competency/competency_contract_c80c633f7abe82c54f45.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_800bfd10f340d7eba191": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "800bfd10f340d7eba191c0608e0bd8b18789610f9fbb109b60dbf5e72ad33bd4",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_06ce824dc9c4cbc78a.json",
       "reported_only": false,
       "verified": true
     },
@@ -87525,6 +88589,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_83f3bc27c0fc4ba312bb": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "83f3bc27c0fc4ba312bb2989cb2ba2cd7a221c98a05dce858f4d3fac15e6117b",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_155be802a0f5ed6d23.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_83f57159d797e2e268a9": {
       "authority": "progressive_competency_outcome",
       "b": 2327,
@@ -89349,6 +90421,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_86b5a02e27888297713a": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "86b5a02e27888297713a2fd831390efc607e28e388b12eddd4eadcdd1cb2c212",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_8172c4b5a47cf7de9f.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_86b69cbee2616dad1083": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -89370,6 +90450,14 @@
       "b": 2263,
       "h": "86bdebebbc12c6c69253538c151870a59c0f7c1ddfa738f3e0b541416f102d60",
       "p": "results/progressive_competency/competency_contract_cd34627938f3e0d5c2a4.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_86c012ad0483d06595d2": {
+      "authority": "progressive_competency_outcome",
+      "b": 3234,
+      "h": "86c012ad0483d06595d249c418f17dd649df3bea2119e865e135b40c5f249194",
+      "p": "results/progressive_competency/competency_contract_5e9418062dc4548be960.json",
       "reported_only": false,
       "verified": true
     },
@@ -90125,6 +91213,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_8805addade5f9af46eaf": {
+      "authority": "progressive_competency_outcome",
+      "b": 3322,
+      "h": "8805addade5f9af46eafa648f3092b946de69df140f7ace0066aee4adf06b2ce",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_dc9e15a7faacb2879d.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_8806c79b23984c6526b7": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -90226,6 +91322,14 @@
       "b": 2329,
       "h": "8823f15985bd3219f87aefcd3b9be0951d8ef854d0343e26048c763a8ffab40a",
       "p": "results/progressive_competency/competency_contract_4eab744a30e1b4af9a74.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_8825dbf793cb1e2bf300": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "8825dbf793cb1e2bf3001ebed5a0066e1ee7ad8057cdd49fe78f1cde205e150b",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_e1b4cdbb9108a36570.json",
       "reported_only": false,
       "verified": true
     },
@@ -90522,6 +91626,14 @@
       "b": 2185,
       "h": "887029722cfaaf10358b0a4da61a432dddae13de283dc1effc2cdcbd62149a06",
       "p": "results/progressive_competency/competency_contract_ce171dce843f43e00618.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_887349cc4a3c3a202b36": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "887349cc4a3c3a202b36587cd129bf2b21c9461f779c022ef9ea450775b6bb5b",
+      "p": "results/aion_open_objective_families/autonomous_cee94bf5a5dde2eb09.json",
       "reported_only": false,
       "verified": true
     },
@@ -90909,6 +92021,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_8902001643a27acfc052": {
+      "authority": "progressive_competency_outcome",
+      "b": 3233,
+      "h": "8902001643a27acfc052643fa8201e007c5e0f0aa0ecc4fdc4ec36e0cf9c9f1a",
+      "p": "results/progressive_competency/competency_contract_889fb7704d37749025a6.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_89046b2b3c82be6aee67": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -91162,6 +92282,14 @@
       "b": 2328,
       "h": "895a89adc7e1020ca988ef855d238ea3d8f8592a4e697e9ba088e69b52b24a1a",
       "p": "results/progressive_competency/competency_contract_c3b63758290e2220b624.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_895df8f07ed0a0dd2408": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "895df8f07ed0a0dd240867f0ffd42325886b68cce4ac4ced117f42681f09efa1",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_1cfb08379e5eb078f2.json",
       "reported_only": false,
       "verified": true
     },
@@ -92074,6 +93202,14 @@
       "b": 2327,
       "h": "8aaa7d37dcd796bbc3f17f5e774a3f9cb4d55484a57d4070aa9942ccb2d9ec79",
       "p": "results/progressive_competency/competency_contract_d22138cea5dc5dacd750.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_8aafec6f5175c15d53f6": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "8aafec6f5175c15d53f67e7f0bbc074283d96d41e38f78baae7dd3e310bfa2db",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_b8ec84bc290c4a424f.json",
       "reported_only": false,
       "verified": true
     },
@@ -93042,6 +94178,14 @@
       "b": 2145,
       "h": "8c2874a6fed728a23d56e3c3537a7574698238a43a5678a923ad11cc37a6c1c8",
       "p": "results/progressive_competency/competency_contract_eda50c03eb1774590887.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_8c2a3f7a38855e7ef994": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "8c2a3f7a38855e7ef994df3bf31b0d35cf0f464c203358d936e031e9ea3561be",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_de92229298ae23451a.json",
       "reported_only": false,
       "verified": true
     },
@@ -94210,6 +95354,14 @@
       "b": 2143,
       "h": "8e2c2c15eae0d73e579a2c53e7226dc7dcf0263561cf27dfedbfec52eba5d9bb",
       "p": "results/progressive_competency/competency_contract_34feba8637744358ab8f.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_8e2c881843e42ee07f76": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "8e2c881843e42ee07f76fdd8f2a7836b8b6ddd5ce8a8af5a51cb27a4ec1802dc",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_e8452b70e9030a71f4.json",
       "reported_only": false,
       "verified": true
     },
@@ -95869,6 +97021,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_90458a4baa7c6be3f20e": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "90458a4baa7c6be3f20eee9a6570631e3f814a407197f2c21dcec34a623d63fa",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_ae56e89e10193d0465.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_90492fb7d88367142d42": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -96877,6 +98037,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_9228bcb3843fb3e32001": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "9228bcb3843fb3e320015acb66a8f6e146ebc97f88a85f7d5d372576516f2a56",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_e8332e11e017bb76ce.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_922ef6edf21de7fc57db": {
       "authority": "progressive_competency_outcome",
       "b": 2330,
@@ -97674,6 +98842,14 @@
       "b": 2243,
       "h": "933be4b5cfc8ba5d3116f3137d2079b4ede566102b31cbef52515337b0efd59e",
       "p": "results/progressive_competency/competency_contract_482433f3624d1f6719ac.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_933d13ba609c09248b4a": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "933d13ba609c09248b4accd68c59aed9f5ddba9d67a1173e0b586cde5e650763",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_65fb3e70d7752cf2c5.json",
       "reported_only": false,
       "verified": true
     },
@@ -99493,6 +100669,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_95d826ef79b077e36321": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "95d826ef79b077e36321308ca90652f094d37caea37b0532656a8151a192210d",
+      "p": "results/aion_open_objective_families/autonomous_2bebce04ccd98fd75b.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_95dc2fdb17e0424441bb": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -99562,6 +100746,14 @@
       "b": 2340,
       "h": "95fadaec8882328a94aaee25f2cbfe8501890f4601572619043506923b6643fc",
       "p": "results/progressive_competency/competency_contract_e3008bf84af7c73421c7.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_9602bbf6b5abcf10baa4": {
+      "authority": "progressive_competency_outcome",
+      "b": 3322,
+      "h": "9602bbf6b5abcf10baa42abf60f6fe2331c6adb496366a8ce0173ecfc2f182cb",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_6c424e0d2fc33767d0.json",
       "reported_only": false,
       "verified": true
     },
@@ -99842,6 +101034,14 @@
       "b": 3352,
       "h": "968ae74fd3280db12c52b5f10cea3df0471f83be7c6b9536b8916527869d6d37",
       "p": "results/aion_situated_cross_domain_projects/situated_project_be699ebeca52e554ae.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_968c077696cfc204b431": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "968c077696cfc204b431e54d72a5c36d61776d15f9dc2c28adadcc6475d5e27f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_def44d0019c19d8596.json",
       "reported_only": false,
       "verified": true
     },
@@ -100474,6 +101674,14 @@
       "b": 2258,
       "h": "9786f6e143de8cb62309bb7d26aed8b12668c72b1a948905f699f5a23ae5c376",
       "p": "results/progressive_competency/competency_contract_c409ac3fb1e0c16d30d9.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_978ba2a3100b48c0ddfb": {
+      "authority": "progressive_competency_outcome",
+      "b": 3160,
+      "h": "978ba2a3100b48c0ddfb9fcdfc246d71ab1e5a8b643d42d9d9fc3972c34ebfc6",
+      "p": "results/aion_open_objective_families/autonomous_3071e279b03bdf52d8.json",
       "reported_only": false,
       "verified": true
     },
@@ -101429,6 +102637,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_98f6284fc810416ed7c7": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "98f6284fc810416ed7c7d7d950c91a64216bda56a7accec81e0bc6b47bfcf78a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_a92ff0acfcfe3a883a.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_98f69adc52887f330a62": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -101658,6 +102874,14 @@
       "b": 2329,
       "h": "994a70a6f64445a661cc5b9142ae533338f0d32a9dbce33cf1441e20e7619b3a",
       "p": "results/progressive_competency/competency_contract_907edca9415f653d5719.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_994a8ce1044f803906da": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "994a8ce1044f803906da1311b45ae90ba6bd6fddcacadfb54b60a753739db7b1",
+      "p": "results/aion_open_objective_families/autonomous_0d5f00078575df749c.json",
       "reported_only": false,
       "verified": true
     },
@@ -102005,6 +103229,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_99e98c861b5a627fb4cf": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "99e98c861b5a627fb4cf46eb3b44e3a7277c450592137641762dde223dc6bd1b",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f9ad2f9fbf26f8c780.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_99ebab26bfd3aa6d62e1": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -102117,6 +103349,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_9a20c9b16aa39f096299": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "9a20c9b16aa39f096299528499839880b9dc7e5421f0a24767a487e5fc194b0e",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_e9da53bbfd53d15da0.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_9a217aff871f8969fb6e": {
       "authority": "progressive_competency_outcome",
       "b": 2278,
@@ -102194,6 +103434,14 @@
       "b": 2318,
       "h": "9a3e80ff04c912a79f9182fe0f4536945c0aba8baebbc8501845d5694c05a966",
       "p": "results/progressive_competency/competency_contract_11a12be8c777330345f6.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_9a40a4437684457e774f": {
+      "authority": "progressive_competency_outcome",
+      "b": 3160,
+      "h": "9a40a4437684457e774f224eae08109e2fa89f2ba06e5b7adb20feb3e60608e9",
+      "p": "results/aion_open_objective_families/autonomous_ce9ffb7281e5c9496d.json",
       "reported_only": false,
       "verified": true
     },
@@ -103853,6 +105101,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_9cbc343c55934c2df445": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "9cbc343c55934c2df4458d60e7d526f392813e50619483537330b0404c363396",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_47dbf438d1a839d427.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_9cbf07ce17fca3e3a08e": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -104050,6 +105306,14 @@
       "b": 2275,
       "h": "9d1aaa3c363352a61ef2e5608b82f81f3b4b3bb89e2100f9640f14ea66da4f43",
       "p": "results/progressive_competency/competency_contract_fb6ae085ba4fa4449cae.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_9d1f6c6ce20c6a3d8367": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "9d1f6c6ce20c6a3d8367a79b769700c0f9f10c16c6d13278e99ad3f53e66d765",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_048d8110934e278d65.json",
       "reported_only": false,
       "verified": true
     },
@@ -104546,6 +105810,14 @@
       "b": 2329,
       "h": "9dd2101483d699f75e14572c16fece474a1525c0fee5e827f7d9df020292d3b7",
       "p": "results/progressive_competency/competency_contract_ec204556fe4228d0aef5.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_9dd2397ce621277a0021": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "9dd2397ce621277a0021dded7b680a0caa981f7c6b35c45aecc8050632d9e4b0",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_c3e4c4833bd4ea28fa.json",
       "reported_only": false,
       "verified": true
     },
@@ -105517,6 +106789,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_9f5e046f8e9e285310bf": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "9f5e046f8e9e285310bfae818139fc0bcb51a0e6ab293a450be6aad4a6111e56",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_cd14de7aa59568a1e2.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_9f5e1c3be78dd8283fc0": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -106122,6 +107402,14 @@
       "b": 2328,
       "h": "a037879248f68671df0ba73a3301d4a91acd4e0920ed6487c5ad0879e886a8e3",
       "p": "results/progressive_competency/competency_contract_3ad9ebfee4075b166a82.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_a03b5aed661213acdc05": {
+      "authority": "progressive_competency_outcome",
+      "b": 2567,
+      "h": "a03b5aed661213acdc056e5fc341000ca13dc17dc3f35b68ae1e0325da9e872d",
+      "p": "results/progressive_competency/competency_contract_216c558200cf16f5e8a3.json",
       "reported_only": false,
       "verified": true
     },
@@ -106797,6 +108085,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_a11bd086d5652908736d": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "a11bd086d5652908736dc4d7b1137a87c5a65ab442d938eb99a0f72502001cac",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_6b0e5b4b4e9f017c9e.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_a11fe29f989affe255f6": {
       "authority": "progressive_competency_outcome",
       "b": 2276,
@@ -107362,6 +108658,14 @@
       "b": 2327,
       "h": "a208bb9dbf9936dce24e9ee5c2e7e7022825eaa40f232367d81b837c5af2f6ae",
       "p": "results/progressive_competency/competency_contract_0dab3d56b89d1eb22fc7.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_a210b55d8274e963f85d": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "a210b55d8274e963f85dea50aa203596db692be9911e92f0fda39c62f371169a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f8898a90283d419599.json",
       "reported_only": false,
       "verified": true
     },
@@ -107941,6 +109245,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_a2ed028d57534414c2b6": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "a2ed028d57534414c2b67038fb663eeff044bbd4b5f891983914164a559acc13",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_fd6f81a70cd5868a4d.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_a2f79b68bbd14ad91c6b": {
       "authority": "progressive_competency_outcome",
       "b": 2359,
@@ -108378,6 +109690,14 @@
       "b": 2179,
       "h": "a3a4aa790bf8e9b09108fe257598c9da2d689112bb48aa95e49584e6285f6cef",
       "p": "results/progressive_competency/competency_contract_cf7ef791a4a32f37942e.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_a3aa1cbeaecad9a5751d": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "a3aa1cbeaecad9a5751d5f97c35b3c87bbc2a4a7e1eb947f98a3a095beb778da",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_461d3c784c41fa25ca.json",
       "reported_only": false,
       "verified": true
     },
@@ -109010,6 +110330,14 @@
       "b": 2328,
       "h": "a4be1a677a519168e3e64647294bb0bba47650b8b566d8823eb7325bd0489273",
       "p": "results/progressive_competency/competency_contract_14619ab203d147bbb88c.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_a4c6908f0d5e3474764e": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "a4c6908f0d5e3474764e99e128c8a12f64b78c140df8e8a3a5e08c3785b6343e",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_be31f10e63bbeaff77.json",
       "reported_only": false,
       "verified": true
     },
@@ -110005,6 +111333,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_a63dc01f210f7777f589": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "a63dc01f210f7777f5890ee2950b90342de635e306bf1195b4d6c701ea7b5249",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_a35f11a50263b06114.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_a63f82759f8769852cad": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -110386,6 +111722,14 @@
       "b": 2237,
       "h": "a6ac87bfceca1054926899a90f1017910281336d3d8117719afc16d378f5b012",
       "p": "results/progressive_competency/competency_contract_da645bd8b9236e9432c9.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_a6ae9681d047889fc030": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "a6ae9681d047889fc030d7d85b5979b25e92fdc49a83813c821ecbfd9e23d32f",
+      "p": "results/aion_open_objective_families/autonomous_274444c6edf1e5cb2b.json",
       "reported_only": false,
       "verified": true
     },
@@ -111613,6 +112957,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_a86a6ca2dc24cbb1f51b": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "a86a6ca2dc24cbb1f51b0e5f992ffe58ad90cacd7bc9150eac272bd872de1a0a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_34fd5c39cfcf37ab4a.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_a86d187f4f41a8a30b39": {
       "authority": "progressive_competency_outcome",
       "b": 3352,
@@ -112125,6 +113477,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_a9412637d5c87cbf5e2d": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "a9412637d5c87cbf5e2d90ad62fdfd20430266d6ea348180bd3cff96b23294cf",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_88cc9850e6f94da485.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_a9478353900af93a6354": {
       "authority": "progressive_competency_outcome",
       "b": 3352,
@@ -112245,6 +113605,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_a96b7f56ccb878a3c787": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "a96b7f56ccb878a3c78799754713c027879c7eff27466a0c90b169cde14d530a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_2c7e9bf567763bf9bd.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_a970efc2f46342749777": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -112266,6 +113634,14 @@
       "b": 3426,
       "h": "a973a1d1d99291513bf7fcade019a88597eaf69f88a45e0d2d94142651a15029",
       "p": "results/progressive_competency/competency_contract_f61dfd2f1670dbbe0081.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_a974bd65af55394c6b7d": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "a974bd65af55394c6b7dc1884f7881a2a2f97e0f1871fbc9d145ed87f973f254",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_6701f99bd0971f1169.json",
       "reported_only": false,
       "verified": true
     },
@@ -113026,6 +114402,14 @@
       "b": 2330,
       "h": "aa7f9f6f2d0349647594c0f8521bf4846065a7b98f5c27b8e9d922f7442bd534",
       "p": "results/progressive_competency/competency_contract_25524ee14cecd32156a2.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_aa808a4d9a408ecddbc4": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "aa808a4d9a408ecddbc4d2fa25e01786c70346d4e363b55bf21aace4c80bcb24",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_a3ef1327db1b22e328.json",
       "reported_only": false,
       "verified": true
     },
@@ -114220,6 +115604,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_ac17377e5d4e61536436": {
+      "authority": "progressive_competency_outcome",
+      "b": 3322,
+      "h": "ac17377e5d4e61536436aa0be8132bd96057d9eda2c7c7b743ef3909f9adbbc7",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_8f87fa25df341d182f.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_ac173d63cb2aff860271": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -114817,6 +116209,14 @@
       "b": 2379,
       "h": "aceca31918e16b94382a1335d872433c991f1fbd49fda7c13be7eaf5b5d8eb6a",
       "p": "results/progressive_competency/competency_contract_2bd7e5ef7a51727e12e4.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_acf031d4a7880fdd4085": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "acf031d4a7880fdd4085bbae8b3aba51e2ba70c801f4c176e49bc482d6c8f18e",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_7c8dcbae6bc1b94dc2.json",
       "reported_only": false,
       "verified": true
     },
@@ -115876,6 +117276,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_ae8ce6f550997f9ce1e1": {
+      "authority": "progressive_competency_outcome",
+      "b": 2380,
+      "h": "ae8ce6f550997f9ce1e114464941630cf4561a1423d5095cf2dc6fc851883f66",
+      "p": "results/progressive_competency/competency_contract_a2d6cdfebf8f0b64e80e.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_ae8e3fb6537c311f5320": {
       "authority": "progressive_competency_outcome",
       "b": 2275,
@@ -116595,6 +118003,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_af980ced87e8f92e03df": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "af980ced87e8f92e03df2637bb0e5586c11dd59fd8a862e158d72bfee8f9d5dc",
+      "p": "results/aion_open_objective_families/autonomous_3f0243beeeab0278f8.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_af9a899ddd5ba1efab6d": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -116907,6 +118323,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_b017a8669cc2c3e07f57": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b017a8669cc2c3e07f57f46d55857a5bbd2de721ed062797e133baf4cc2c65a0",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_ebc97afc71239f025a.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_b02124d222e4f82a6874": {
       "authority": "progressive_competency_outcome",
       "b": 3369,
@@ -117168,6 +118592,14 @@
       "b": 2331,
       "h": "b09eb8cd7ab8faf77e252de8d063a1907c5d7b16edbd712d1bbb4adc895de2ad",
       "p": "results/progressive_competency/competency_contract_a0a7c40ce22bde2961d3.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_b0a9332b0931f9f7f243": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b0a9332b0931f9f7f2434ac28d7da77eea66879a645a3afe50210d67778bb127",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_bdaf964a0397a1ba27.json",
       "reported_only": false,
       "verified": true
     },
@@ -117440,6 +118872,14 @@
       "b": 3255,
       "h": "b1016e231b1b7622fd68820f4061fc4b713ab7b2233c5ecd8861a466ac4f1060",
       "p": "results/progressive_competency/competency_contract_d845091c780f0652dc2a.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_b10371eee87a372fdacd": {
+      "authority": "progressive_competency_outcome",
+      "b": 3339,
+      "h": "b10371eee87a372fdacd693248033204db6dca3dae7f88c850d872e56400900c",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_2060861ffbfb9f93b3.json",
       "reported_only": false,
       "verified": true
     },
@@ -117963,6 +119403,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_b1d24abad41532ec7831": {
+      "authority": "progressive_competency_outcome",
+      "b": 3322,
+      "h": "b1d24abad41532ec7831111851377b4f406c63edc6b2d8647f300b8271e8c229",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_d58a68f6aeee42fb79.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_b1d7372b467dd6363f51": {
       "authority": "progressive_competency_outcome",
       "b": 2330,
@@ -118160,6 +119608,14 @@
       "b": 2328,
       "h": "b214dfef31dadd86c2d0a93002a01fe9c8fb30fa431267794e988c7ef41135d1",
       "p": "results/progressive_competency/competency_contract_a9d4c4c99082c3ce1660.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_b2153081dbd975dbcea1": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b2153081dbd975dbcea1974cff84de783679efc41c6612bb804367e53a3473d0",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_dc78ccb5d1722f64fc.json",
       "reported_only": false,
       "verified": true
     },
@@ -119195,6 +120651,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_b3d41ccff90e30d2a074": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b3d41ccff90e30d2a0743a464664fe9a504e614df9b94dfad70212568ddc2c8a",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_75b0de16152266715f.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_b3d77b7a8e5c3483d78e": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -119283,6 +120747,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_b3e8da6efc81f506cad9": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "b3e8da6efc81f506cad97eeabc347d3faf070d786affeac4365cdbbad9e6ad7f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_bfa42ed634fe20f9a5.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_b3ed43cca56c7193b0e2": {
       "authority": "progressive_competency_outcome",
       "b": 2276,
@@ -119344,6 +120816,14 @@
       "b": 2330,
       "h": "b40a05d844a5167b656836d9260c2588f565fcda3ec6eb8798522d58456d5071",
       "p": "results/progressive_competency/competency_contract_63143ecc255a43823985.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_b40a91dd255aa6e47287": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b40a91dd255aa6e472872f8de5aa7c42984ae12eb631ddaf964deb1d7f241987",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_45115a74ce8b8236fd.json",
       "reported_only": false,
       "verified": true
     },
@@ -119552,6 +121032,14 @@
       "b": 2329,
       "h": "b453b154c7c45d8cc0575bab48d0c8441d035b4280144e63478b1214d0fc5e0f",
       "p": "results/progressive_competency/competency_contract_c42a5be71314c4035d69.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_b458e2373b1a01fe8f41": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b458e2373b1a01fe8f4137e1a69350883cffe2d8345753df246ae31a1506cc73",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_91c42dfd429d0593c5.json",
       "reported_only": false,
       "verified": true
     },
@@ -120235,6 +121723,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_b565324b5300e4ce0849": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "b565324b5300e4ce0849f0a3850572a32b29f54284d33144d5468d293f6696c0",
+      "p": "results/aion_open_objective_families/autonomous_ed0de800af7fcc8893.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_b565e5bb192f86094756": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -120248,6 +121744,14 @@
       "b": 2317,
       "h": "b569eaf116196c37fa3072fddf5af0aa377c634db7ec7af1433ff79271433609",
       "p": "results/progressive_competency/competency_contract_9fd8523aa306eea01a37.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_b56d7c2f17d7dbd204e0": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b56d7c2f17d7dbd204e08a13d5cea75aba6c1dd96729474faf29846c2aa490f1",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_facb1a117930ec6e3a.json",
       "reported_only": false,
       "verified": true
     },
@@ -120360,6 +121864,14 @@
       "b": 2072,
       "h": "b59034a63ccf3fa9e55a460fe010616e2ce8e9a7349505899e216ce8dab4f64b",
       "p": "results/progressive_competency/competency_contract_b042dc83a06c4056660d.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_b594a13700169fc9a025": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b594a13700169fc9a025b9bb13f84f2ab235ba2848bc2036deeb862231c95291",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_98837c5068d5da1878.json",
       "reported_only": false,
       "verified": true
     },
@@ -121059,6 +122571,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_b6ad6e0f061df7faff15": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b6ad6e0f061df7faff15118e0d0669f88e27f5a51f11374692d3a166ae5881d5",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_a8f6a050370e9c80a1.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_b6adbae36fd0efdfa791": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -121224,6 +122744,14 @@
       "b": 2327,
       "h": "b6f4e76647983169eb1014eb74a552fdb7a340d11b7d841be71c7fb90a1caa36",
       "p": "results/progressive_competency/competency_contract_d34e33dd6eb57d44a163.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_b6fd8cdd6e165f7bd804": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b6fd8cdd6e165f7bd804caebeb390cc307fddb1972929d652b3a2d7da2ca8e1d",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_cd4d9618c3a5d1a5d5.json",
       "reported_only": false,
       "verified": true
     },
@@ -121584,6 +123112,14 @@
       "b": 3350,
       "h": "b76c41db704b65c1871d5487f0084c1f1b44c60199564e9fa60c89560b272a90",
       "p": "results/aion_situated_cross_domain_projects/situated_project_f77c55cfffc2fb4baa.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_b76c7656d05ecf221a80": {
+      "authority": "progressive_competency_outcome",
+      "b": 3322,
+      "h": "b76c7656d05ecf221a806baa4be851232a7b964d5e19c5cdd6720f2fbc536114",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_96d0044b89e02540d9.json",
       "reported_only": false,
       "verified": true
     },
@@ -121968,6 +123504,14 @@
       "b": 2274,
       "h": "b805f4a7b33391f810d2363cecdadca8f2b6b50d5da77ed49c299f278ae6cbf0",
       "p": "results/progressive_competency/competency_contract_93a23273a041ba0f3e2f.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_b80a72555cd31cd3fbba": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b80a72555cd31cd3fbba75c697e68454f35078a270d60b07a25530c50fad2267",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_bdb0d85fb54733cb8d.json",
       "reported_only": false,
       "verified": true
     },
@@ -122547,6 +124091,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_b8ed5cbfbc1cc50c39de": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b8ed5cbfbc1cc50c39de55c563745d48b3cb2f3791eb3ae1fb3a88a12d632a37",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_1929bff36ec27c5136.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_b8f2cf75dd9bf2f60500": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -123008,6 +124560,14 @@
       "b": 2329,
       "h": "b9c1ef2634b6220265f6d5c0e8752f5ed4c59a5e247b21f7ecbe8471e6b8fbdb",
       "p": "results/progressive_competency/competency_contract_57e5a9f668c4372ee702.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_b9c4afa2ac589b76d29b": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "b9c4afa2ac589b76d29b482096d5d762533201e02a490c33700ef5be8f62ad38",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_c77d1b2279a7e3a265.json",
       "reported_only": false,
       "verified": true
     },
@@ -123768,6 +125328,14 @@
       "b": 2328,
       "h": "baf36d8c4c98d1bf3a308bd3a0de1cfa4be49fcea6b13eef4262d28e6dd7a346",
       "p": "results/progressive_competency/competency_contract_288d878f8109ec8be994.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_baf50b5fce9682e855a7": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "baf50b5fce9682e855a719e818c975dcb8e1a5a2a1cea22d02ff67c55fdaa4ff",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_e51caba2e8caab4c37.json",
       "reported_only": false,
       "verified": true
     },
@@ -126051,6 +127619,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_be44f68be5c87842b3bd": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "be44f68be5c87842b3bdee75401a7790565f7681cd63dcdf7220424ff1c2f057",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_411392e9f5d2d345cd.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_be55d8545ae7c8e389a1": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -126216,6 +127792,14 @@
       "b": 3393,
       "h": "be8dfeea8677c105d47e2537b54e9fb71d6e287eab8aa303f6a4b94fecce08ed",
       "p": "results/progressive_competency/competency_contract_fe92da9b7d469a14e3a6.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_be909059570e89d71531": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "be909059570e89d71531fcbad16ba1a2b6be2db172aa50041bb0cb5c042e2d52",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_3e70fd9a4a866121a2.json",
       "reported_only": false,
       "verified": true
     },
@@ -126704,6 +128288,14 @@
       "b": 2278,
       "h": "bf65f883a41299be19985a48addf7f8e0aa10ba3e87447b3297ac5d16b3f079c",
       "p": "results/progressive_competency/competency_contract_54a5a3ed05f89fc45184.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_bf6c380139f9fc8f7976": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "bf6c380139f9fc8f7976fa8e2596f5821dbd093e8969dee5ebcc3fbed872f4de",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_0ef8a4ba6d96c13dbe.json",
       "reported_only": false,
       "verified": true
     },
@@ -128530,6 +130122,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_c235a9fb3a7b4458fcb4": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "c235a9fb3a7b4458fcb4fba0f2b6b300197541e44634f641556d941252d65d88",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_b34e7311825864e200.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_c23b0378f1d55dfb3065": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -130298,6 +131898,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_c4ac2bcbb5166671fb2e": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "c4ac2bcbb5166671fb2eef36045ad4bf0efb74f139b01c753357f74bfeccabd0",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_70c89ed5df7420f020.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_c4b06d29e9e7f463bdcf": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -130495,6 +132103,14 @@
       "b": 2118,
       "h": "c4ee405aab8cfba4e5be7b5a1206225b9be373375a11b8383896d5b37cef034a",
       "p": "results/progressive_competency/competency_contract_2feeaf133ebef1c537dc.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_c4ee85778e4da09e2d71": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "c4ee85778e4da09e2d71665f91d1405e5da3f122b10a5e11bebcce40e69c2996",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_4c11ae238a80fdf003.json",
       "reported_only": false,
       "verified": true
     },
@@ -131266,6 +132882,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_c61edf0bcd72191a6a76": {
+      "authority": "progressive_competency_outcome",
+      "b": 3277,
+      "h": "c61edf0bcd72191a6a76a12571e387c64c69bc442262d69650e8e5e09fa8f917",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_17a61d5d44a54298fe.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_c61f03070ab822976d90": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -131623,6 +133247,14 @@
       "b": 2329,
       "h": "c69cd8507f8b3512c7fc3405672116aaba4d05c2cb123c0d34723c2eb40faefc",
       "p": "results/progressive_competency/competency_contract_84f86a7a819b63d1a4ca.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_c69e4f6df1935534d6eb": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "c69e4f6df1935534d6ebfbb46ac3312a968d322a94572ec46c87b89e72c56fc4",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_4fc05a45fb0660eedc.json",
       "reported_only": false,
       "verified": true
     },
@@ -132026,6 +133658,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_c7425aa58962c2a4de43": {
+      "authority": "progressive_competency_outcome",
+      "b": 2613,
+      "h": "c7425aa58962c2a4de43d581b86464cbdc58a6ef7ef94877456c4d6a909fa3dc",
+      "p": "results/progressive_competency/competency_contract_ba097c10136dc8b972ad.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_c742ce5335bb3f555a75": {
       "authority": "progressive_competency_outcome",
       "b": 2326,
@@ -132194,6 +133834,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_c78007578b99c85c7cfc": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "c78007578b99c85c7cfcae8dc7f3cc2f4334a580900201e9210d117189979419",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_bc9309845c0106f6dc.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_c781763fd908356b8365": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -132255,6 +133903,14 @@
       "b": 2330,
       "h": "c7a0ce0aaa32a228aee23d91fbf63874958494aa2ef4e161d4167a1e9dd2aaec",
       "p": "results/progressive_competency/competency_contract_b1a87302678d15930d1e.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_c7a0d980bb0e909f8429": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "c7a0d980bb0e909f8429275ebecbc87c9c0250c2d64e71328eaa71f62015179e",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_dba6ae678a18e7afca.json",
       "reported_only": false,
       "verified": true
     },
@@ -132814,6 +134470,14 @@
       "b": 2316,
       "h": "c841ca7e52c659817617cbb7e3795222535cb22747f7456d9cd7bde9e10713bf",
       "p": "results/progressive_competency/competency_contract_29160511bfe1f85c03ab.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_c842d4935b207f3412d3": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "c842d4935b207f3412d381149edbcf79253c8e2a6eeb39c8bd974ccdc56011bf",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_2a76dbcc953fceafb3.json",
       "reported_only": false,
       "verified": true
     },
@@ -133590,6 +135254,14 @@
       "b": 2328,
       "h": "c98dc974d8c85fd2226d9b15def4ac0e1fb57436cd33101ccbc58f523260da71",
       "p": "results/progressive_competency/competency_contract_7c623c7a8a773b4365a9.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_c99147bc64381c815104": {
+      "authority": "progressive_competency_outcome",
+      "b": 3322,
+      "h": "c99147bc64381c815104dceceeb26f56a6def6e216747ecbcfbbd2206d698068",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_4dcd4dc34fb3b4f56f.json",
       "reported_only": false,
       "verified": true
     },
@@ -134697,6 +136369,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_cb2d38053f598fe592d4": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "cb2d38053f598fe592d486897725095f5013c42b9a1ecb92199b8b38d1476841",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_8204dea765f8805b2b.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_cb2f6bad816e260032fd": {
       "authority": "progressive_competency_outcome",
       "b": 2278,
@@ -134937,6 +136617,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_cb975e83750290a64db0": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "cb975e83750290a64db0517055fefcc0672b242b6ee3a8385731ab7a2fc666c1",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_546c84a5ab893ef7da.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_cb99c2092abdae77f1c0": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -135038,6 +136726,14 @@
       "b": 2276,
       "h": "cbb7c0935f49375312a0766576feb7915c10932d0d4d60303b552e1ea8e86c6a",
       "p": "results/progressive_competency/competency_contract_8c4bbf9d3d008da1c0d6.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_cbbe10ed25b9cf59e26b": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "cbbe10ed25b9cf59e26b42a893cd020afa94648d9845950cdd80c7029c6fec95",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_06a6734c1c565f38e2.json",
       "reported_only": false,
       "verified": true
     },
@@ -136137,6 +137833,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_cd9618f16ec14005c693": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "cd9618f16ec14005c6939e29ba674d9421a235be916b07c8015662016bc44d73",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f9427116fbdf0f9e50.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_cd984784532cc942c73c": {
       "authority": "progressive_competency_outcome",
       "b": 2327,
@@ -136342,6 +138046,14 @@
       "b": 2279,
       "h": "cdeaf6a997ae44b41687ffee56b3c73cc59c08247482deb93f2e784811b850f5",
       "p": "results/progressive_competency/competency_contract_db22067c44e790b7ecbf.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_cdec342d4359fee7a664": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "cdec342d4359fee7a664fc155b0d88453a96069c31b1714e73f6d56a8549589c",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_2810a8558e69cfb2a4.json",
       "reported_only": false,
       "verified": true
     },
@@ -137329,6 +139041,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_cf32596867cd92efc2e2": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "cf32596867cd92efc2e25405e7686225653c7def989d91b343cda1095f36384b",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_7f29ea8a0f106221ae.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_cf334bc755af623bd994": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -138174,6 +139894,14 @@
       "b": 2276,
       "h": "d0500a6ee89a233fca733823d2adc3ac42f16f2c93759c053d9091db03bdfa81",
       "p": "results/progressive_competency/competency_contract_d249a18df96054160aab.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_d0504a22a0a41481aede": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "d0504a22a0a41481aede31e10ae6740f9e1eb0d8f8642a84102c9caef9297c33",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_db75edacf78af33b0a.json",
       "reported_only": false,
       "verified": true
     },
@@ -139825,6 +141553,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_d2f99a12984938c72c5e": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "d2f99a12984938c72c5ed3ab75a035a6bb6d492da1e6d24d33edb9556ab4a1c1",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_3bb106629758f93d5a.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_d2ff4cff6a3ba48ec451": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -140753,6 +142489,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_d46934586e1eb4d65608": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "d46934586e1eb4d65608af7074260705f5780de789388df6925fa8f41f820c2a",
+      "p": "results/aion_open_objective_families/autonomous_a69ed425d071b6208c.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_d46a665ace80a46db6b5": {
       "authority": "progressive_competency_outcome",
       "b": 2326,
@@ -140814,6 +142558,14 @@
       "b": 2319,
       "h": "d4918148520cf39d8174cee5fa84be637ecd0d891bfdb090832fb5a5e085497e",
       "p": "results/progressive_competency/competency_contract_cddde62a17da94764495.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_d4948a00d81695de69ac": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "d4948a00d81695de69acf667ba191c623f0234b2ed99c26b5137cf4157f85935",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_638ca97d14b3910c03.json",
       "reported_only": false,
       "verified": true
     },
@@ -141094,6 +142846,14 @@
       "b": 2329,
       "h": "d4fa0e04bab54186505620c8db04a187a9102854cd5162d489b8a8c4bd1ba66c",
       "p": "results/progressive_competency/competency_contract_9d5b5031e96851b97047.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_d4fceb6159b2512e7eaf": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "d4fceb6159b2512e7eaf74e8742de18f84ea10e34f466032ba096180ebd9a7b2",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_1b164dbae7e3c75f1e.json",
       "reported_only": false,
       "verified": true
     },
@@ -142577,6 +144337,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_d728485641692de2f8bb": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "d728485641692de2f8bb61f29e025cf6c192f873711d5a7ccaf0de423d4acea5",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_ff2bec28b8adb78c7a.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_d72a5f78fe22230112cd": {
       "authority": "progressive_competency_outcome",
       "b": 2152,
@@ -143782,6 +145550,14 @@
       "b": 2328,
       "h": "d8ef4c0eb4e1ece77ed1b8ca05564863b7e9a10172d9db2e2aa2361c9eacc973",
       "p": "results/progressive_competency/competency_contract_ebee1c8ef6531ab67914.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_d8f3a2b6da3cc7d549df": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "d8f3a2b6da3cc7d549df7490752f811034e141d659809774fa4603d8bd5a378f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_c720a2dfd693ca860a.json",
       "reported_only": false,
       "verified": true
     },
@@ -145209,6 +146985,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_daba4676e009c7c2bf1c": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "daba4676e009c7c2bf1ca655a1034bab06697be1d940c1941969da25e2568915",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_368a97aedb98d5c7e1.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_dabe3a5c4690c375c97c": {
       "authority": "progressive_competency_outcome",
       "b": 3639,
@@ -145918,6 +147702,14 @@
       "b": 2328,
       "h": "dbcc531919613f0342c70870599901ffefa69ed9acdcba03f30f678f9201782f",
       "p": "results/progressive_competency/competency_contract_9f361f1b53d3479eb651.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_dbcf7dee6414a820406f": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "dbcf7dee6414a820406ff7c37eaa4127c7891121b6bc9d6f419396ac4b2841cb",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_c67ad54552447fdd04.json",
       "reported_only": false,
       "verified": true
     },
@@ -147208,6 +149000,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_dd76cfbc7b082ccbf0d0": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "dd76cfbc7b082ccbf0d0a771dea4df11d31db2895f0999c4d8f8084db6c27522",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_7f768ec109f6a07f48.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_dd77f9b73a67da3ce568": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -147224,11 +149024,27 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_dd79bf71b8f65143791d": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "dd79bf71b8f65143791d68d50c4c53366be6c5b3bef4e41484f21e192f8d8b98",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_10422e12cb1b26dd68.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_dd7d11e9a13b03dc3c04": {
       "authority": "progressive_competency_outcome",
       "b": 2330,
       "h": "dd7d11e9a13b03dc3c04366f64328319314e85ba2a569ad15361a48c3df94bf2",
       "p": "results/progressive_competency/competency_contract_3ab623dd1da3b7d848c8.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_dd80f22fd1989fa505cd": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "dd80f22fd1989fa505cdf2a59e91efb8ad152ea36fd1199907dc0b8301f8ebb3",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_ee451d0e1ec0f498c1.json",
       "reported_only": false,
       "verified": true
     },
@@ -147829,6 +149645,14 @@
       "b": 2217,
       "h": "de8275fdfc082f5e393111a056214ee08e50174be46329800d1114ad45220325",
       "p": "results/progressive_competency/competency_contract_1f140a5caec3c3eba73a.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_de82aad77dcd3321f7c0": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "de82aad77dcd3321f7c0107f6e108cde3bc34cd1f8ba70a9bb68e3ae05d3dde8",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_e5bda1bb397fde04a4.json",
       "reported_only": false,
       "verified": true
     },
@@ -148512,6 +150336,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_dfb06337014b1950423a": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "dfb06337014b1950423a1d95264db3c2af726f6b83e2fc694866a09a4b7429f9",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f32f2f2e40a46bfb3b.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_dfb48c9ff3499fec50d3": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -148805,6 +150637,14 @@
       "b": 2327,
       "h": "e02b01c534fbdea3dbf099dd9e71ad6973c71fee3ef1677c9df8151d6b145f5e",
       "p": "results/progressive_competency/competency_contract_7cc7847235bae881ea83.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_e02bc7ca16ea56f39395": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "e02bc7ca16ea56f393958b321e0b4eac19afc18d7b1d3deb4d2f3e5e295d762e",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f70df9bfbadaca1ac7.json",
       "reported_only": false,
       "verified": true
     },
@@ -149221,6 +151061,22 @@
       "b": 2328,
       "h": "e0aeb29978c6d41f6738241203388a3cbd6320021166f95856b5d48567a45da4",
       "p": "results/progressive_competency/competency_contract_e0d332a18d45508f5745.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_e0af1a833bb3872702da": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "e0af1a833bb3872702da0f25cc967b5023485ce12b299cbd6ae6e71652ef1abf",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_b4bbc7498a0773a1d7.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_e0b04675ba4b0fc91508": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "e0b04675ba4b0fc9150823588f75f565b523bf342a41a2625cdf2290d3e0dd5d",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_8b43f23b4ffdf2a223.json",
       "reported_only": false,
       "verified": true
     },
@@ -149728,6 +151584,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_e1476ff132d2b9db1d38": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "e1476ff132d2b9db1d38f77dbd90fc2e20a6d8398905e86d1fc6ea06700999b8",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_ca2258cf8dceea41c0.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_e149f4688328604a16b9": {
       "authority": "progressive_competency_outcome",
       "b": 2277,
@@ -149781,6 +151645,14 @@
       "b": 2328,
       "h": "e157ce9679a63879ddd7dd15204e9dae4f65ef38f1077f144d603978a6f1a105",
       "p": "results/progressive_competency/competency_contract_6210b336fd178f663c6e.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_e1582d67a52cf7cac449": {
+      "authority": "progressive_competency_outcome",
+      "b": 5242,
+      "h": "e1582d67a52cf7cac449466ac8583bb93e21b699778d7eb03fa6d603fe27bf4a",
+      "p": "results/progressive_competency/competency_contract_77fa17ff51fa0876a5e0.json",
       "reported_only": false,
       "verified": true
     },
@@ -151432,6 +153304,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_e3b3e46d8d98b540c049": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "e3b3e46d8d98b540c04970d8a051bef45167190a5f14589afb0a2aaa7e32c182",
+      "p": "results/aion_open_objective_families/autonomous_3b55f8ab4303e831cd.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_e3b5010d8f66d2b074e8": {
       "authority": "progressive_competency_outcome",
       "b": 3352,
@@ -152349,6 +154229,14 @@
       "b": 2329,
       "h": "e5094f4b530445787b9ea9440ddcc8861699bd4ac9962df77069876bf194fe11",
       "p": "results/progressive_competency/competency_contract_4fcc12164e9268a3f813.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_e50a82253146b3a0fe36": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "e50a82253146b3a0fe36e7fc2238d11ff3e52f0dd81dc47dfa519aec410a4a9f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_1d82c28a7f06d3b047.json",
       "reported_only": false,
       "verified": true
     },
@@ -153576,6 +155464,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_e75c859b225b61943244": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "e75c859b225b61943244e6980975bcca1b0740e261279baa23386d578a3d17a1",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_9918ad2c2bf61fdd3b.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_e75eb3d08f9a9bfe10f3": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -153781,6 +155677,14 @@
       "b": 2330,
       "h": "e79491b8a0b7d52a7ac5fe16a9d6686f4178f7991110daeba96a7731cd328bea",
       "p": "results/progressive_competency/competency_contract_78740efb86afd69d6b6c.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_e7a7af4c5fd422c0f413": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "e7a7af4c5fd422c0f4139c656628b5c386e73d71428a6d91ae2d2f9ce27c0159",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_0dfd359b7bf4000c1c.json",
       "reported_only": false,
       "verified": true
     },
@@ -154029,6 +155933,14 @@
       "b": 3073,
       "h": "e813ef4c8b3d2846e78b243b8b39005c49f1962d6d0218600f82e4b6008c13d8",
       "p": "results/aion_open_objective_families/autonomous_0fc4b7535fe5895ce8.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_e814d5aaf27fca230f74": {
+      "authority": "progressive_competency_outcome",
+      "b": 3073,
+      "h": "e814d5aaf27fca230f74decbd852a00149f530132030b51d7371dd4b6a0c4273",
+      "p": "results/aion_open_objective_families/autonomous_3110ab4e331e067860.json",
       "reported_only": false,
       "verified": true
     },
@@ -155200,6 +157112,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_e9b065dd96b49bd7202f": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "e9b065dd96b49bd7202f8badc134841f4d444cf324b37fdfd37aa87b8ec87503",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_5ba03f665c24ef1ab4.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_e9b2c49a7238e84f19a5": {
       "authority": "progressive_competency_outcome",
       "b": 2185,
@@ -155341,6 +157261,14 @@
       "b": 2276,
       "h": "e9e8e3963fb7b76aa7c3c9ea0f97e5137c340644397365ea45901821eef84760",
       "p": "results/progressive_competency/competency_contract_8dbf12d58f9aae7f600b.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_e9ea207ded090a847b21": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "e9ea207ded090a847b212abab842944d92b7e4afeed2f96301b931efd90f6434",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_23a8cce362e91d8aa7.json",
       "reported_only": false,
       "verified": true
     },
@@ -155925,6 +157853,14 @@
       "b": 2259,
       "h": "eacf354267f69ec1a91845297519b198ffe73d324a04c0cd0f6a8e3a2611faad",
       "p": "results/progressive_competency/competency_contract_ef798b33644176401090.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_ead67ee632022bc047f5": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "ead67ee632022bc047f50c82045237e58485f14fc7f6c49c1a40efff9012cfda",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f9a76e8d413a3e9a44.json",
       "reported_only": false,
       "verified": true
     },
@@ -156789,6 +158725,14 @@
       "b": 2329,
       "h": "ebdef5cc13aa19069ff7d5d865798888f4201ff8fb709a7a74d4d94818034e42",
       "p": "results/progressive_competency/competency_contract_6fec6ef58bf897074269.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_ebe0007d65ac851de222": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "ebe0007d65ac851de2221500334a2e95502f872a0c37a66d61baa3144fdc2735",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_2ed2bef439d1240e09.json",
       "reported_only": false,
       "verified": true
     },
@@ -157872,6 +159816,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_ed8c01839e8179bf31a4": {
+      "authority": "progressive_competency_outcome",
+      "b": 3582,
+      "h": "ed8c01839e8179bf31a441c38ae7c89c43f2e1b03a061c0fdd2b31e3b4fdbf31",
+      "p": "results/progressive_competency/competency_contract_73f094fd0650771d81b4.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_ed8e86f087c2819dfc1b": {
       "authority": "progressive_competency_outcome",
       "b": 2327,
@@ -158093,6 +160045,14 @@
       "b": 2330,
       "h": "edc2ee897f7200b9be3392f5f96f1848bb3ec98af0e91e7f763271ff3cfe732f",
       "p": "results/progressive_competency/competency_contract_6d2edebe85999914cd96.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_edc33c7118df601ca84d": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "edc33c7118df601ca84d0a3a5f63765f726c639485a8803ea4d6d289ab20c57b",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_8ee1d1e5d9e2ad25c3.json",
       "reported_only": false,
       "verified": true
     },
@@ -158888,6 +160848,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_ef220abf0b1c21da2a38": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "ef220abf0b1c21da2a38aedbaccf01b5533c5659370278aecd1531fd22e5c592",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_c01d4ef2a5866d3ff2.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_ef2608f9682e94266837": {
       "authority": "progressive_competency_outcome",
       "b": 2329,
@@ -159669,6 +161637,14 @@
       "b": 2328,
       "h": "f0400f849384059d95735e4af67bb9e1dfb0857615dd592a8d11f47352e2a013",
       "p": "results/progressive_competency/competency_contract_52e8fd38dc7874d4988c.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_f043757ac4d4c5d3d4f6": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "f043757ac4d4c5d3d4f663e6fcc87710b266eada7e4317eee247da76df431174",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_83b002eb9dd4003e10.json",
       "reported_only": false,
       "verified": true
     },
@@ -160597,6 +162573,14 @@
       "b": 2328,
       "h": "f1ae410d76e632328df99837555ad077aec3b91fae49550a4687084c6da61651",
       "p": "results/progressive_competency/competency_contract_25f7ba3dcd2585119e5f.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_f1aebc49b68754ae006b": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "f1aebc49b68754ae006b8d698836a95a3d76289c5171bfecbd88c6b14597a602",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_f65623522db4e4329a.json",
       "reported_only": false,
       "verified": true
     },
@@ -162616,6 +164600,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_f4c74caa614d792e3efe": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "f4c74caa614d792e3efe4bca4a75d5978be8edcdd742fec0d7eecb53b17a92e2",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_0451d290b4efe973b1.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_f4c83c9d42d3a36213fa": {
       "authority": "progressive_competency_outcome",
       "b": 3727,
@@ -163005,6 +164997,14 @@
       "b": 2328,
       "h": "f562a84c01073eb0354ae411f46d9072bc56ee0f84e686f96c046e5db1bb5001",
       "p": "results/progressive_competency/competency_contract_78f78afcd1c7aebbc5db.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_f563abc86cd08e78d880": {
+      "authority": "progressive_competency_outcome",
+      "b": 3198,
+      "h": "f563abc86cd08e78d880efc26a4f85f13de76823b242c6949261ba2c336a7a58",
+      "p": "results/progressive_competency/competency_contract_7c975fbe4cfae69bcd8e.json",
       "reported_only": false,
       "verified": true
     },
@@ -163565,6 +165565,14 @@
       "b": 2331,
       "h": "f64264bc2fed5cc3be4fe5fa3f07d05a28a6a094bdcb25492640e5f101648646",
       "p": "results/progressive_competency/competency_contract_7107fd1d3962ecc42238.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_f642ab073d969793329e": {
+      "authority": "progressive_competency_outcome",
+      "b": 3234,
+      "h": "f642ab073d969793329e6065c52ba57e068fc15c4fa22529be8012929c4aeaf0",
+      "p": "results/progressive_competency/competency_contract_00cec84638c7df8c73e0.json",
       "reported_only": false,
       "verified": true
     },
@@ -164256,6 +166264,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_f73e63467343687fbba7": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "f73e63467343687fbba793e27f4ea90663dd6b4eed2cd4bfbdd8083b847ba61f",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_dd8208504207fb417d.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_f73e87e3f6aee92ad7d5": {
       "authority": "progressive_competency_outcome",
       "b": 2328,
@@ -164477,6 +166493,14 @@
       "b": 2330,
       "h": "f77ee2165c8a3b7825713ecc9b4b7630c8dfb4a9662ecc88e4dc4015bffa88cb",
       "p": "results/progressive_competency/competency_contract_24af4445396ebfc53d18.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_f78069417cae50b2a82c": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "f78069417cae50b2a82cd71700deb88b4f6b00520e1a272050b54e57e41a42b0",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_5999dfbeb0b0cf790b.json",
       "reported_only": false,
       "verified": true
     },
@@ -165136,6 +167160,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_f872812cedea3946e00c": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "f872812cedea3946e00c17f8986ad69996dc23be68ec3e8edb609f7cfc04682e",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_3c8a407ed9987de5e2.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_f87314c594972117612c": {
       "authority": "progressive_competency_outcome",
       "b": 3392,
@@ -165237,6 +167269,14 @@
       "b": 2328,
       "h": "f8af22d1a092eb6b6fc5e2b63dd56e10d45ea864ec11e7b438024403696c4751",
       "p": "results/progressive_competency/competency_contract_439f9768f3410433f818.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_f8af28bced1eb4add1dc": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "f8af28bced1eb4add1dcd510ae011252e2bb6b584693a2c5fb25dcd24fea0e29",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_3f1bc1d76f6cb1ed07.json",
       "reported_only": false,
       "verified": true
     },
@@ -165688,6 +167728,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_f95202afa92c9109b6e0": {
+      "authority": "progressive_competency_outcome",
+      "b": 5270,
+      "h": "f95202afa92c9109b6e0c1397411271fb39a2942621ca453232e177ea335c48b",
+      "p": "results/progressive_competency/competency_contract_913b00c63e11fbbc5589.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_f9541b6afa85be5a6a05": {
       "authority": "progressive_competency_outcome",
       "b": 2327,
@@ -165797,6 +167845,14 @@
       "b": 2256,
       "h": "f97838dbf1f91632b45533f91629ec181bf186c41861162847720ac0d93c9882",
       "p": "results/progressive_competency/competency_contract_c066d564f1f1d93c6595.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_f981235e4030c2ac3ee8": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "f981235e4030c2ac3ee8b43d4d0c2644c735c340ffe97f110d0cf0e1bce4ab1c",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_e2af00ddcb41dbe69b.json",
       "reported_only": false,
       "verified": true
     },
@@ -165989,6 +168045,14 @@
       "b": 3909,
       "h": "f9e6bf471be63a785f96f4e3188a0f8a3c3d28b6924c32b84825a0e499541483",
       "p": "results/progressive_competency/competency_contract_34f1ec4095eced3c1b12.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_f9f102f8942320c52b82": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "f9f102f8942320c52b82b5274f9e8e071af63ed2b260b3ca623c235637af1302",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_a6ba4e2ee3ace7c7ed.json",
       "reported_only": false,
       "verified": true
     },
@@ -166472,6 +168536,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_faa4903b45e841afe193": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "faa4903b45e841afe1935c096538b2b60fc531440f5eb5c6da1dafd02c72fdbb",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_5d802bf5311914f3ee.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_faa78011de5e680798ff": {
       "authority": "progressive_competency_outcome",
       "b": 2277,
@@ -166517,6 +168589,14 @@
       "b": 2295,
       "h": "fab8d9db35741420a15260e97331468c2472641a075f0fd4f570384e117fb14f",
       "p": "results/progressive_competency/competency_contract_f7e73f4c365d6138aefb.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_faba427375ca17147ed5": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "faba427375ca17147ed52595b1bbe26fb27abf05c3d3c72fbc7136d1c5e49151",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_d7049f169643711fbf.json",
       "reported_only": false,
       "verified": true
     },
@@ -166845,6 +168925,14 @@
       "b": 2328,
       "h": "fb383f8e3660bd316e0a6a877e216b2d434c4943b8b95338b213c900abb95e75",
       "p": "results/progressive_competency/competency_contract_3099c476da74dcb50985.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_fb3c12061a70b4f8e127": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "fb3c12061a70b4f8e12709713c1d8051b72e5f7b142d79862d2029c38b970046",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_1a8a72df1cbc8406a5.json",
       "reported_only": false,
       "verified": true
     },
@@ -167525,6 +169613,14 @@
       "b": 3073,
       "h": "fc5870845b5e7bcb4be489323820eefb73db8d48f3348eacae0b506f03cdc5b9",
       "p": "results/aion_open_objective_families/autonomous_53c642d85ca0a5e28d.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_fc5b4b8eb7ef6ef74be2": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "fc5b4b8eb7ef6ef74be20355f92feb55b80975af3021d515edefd62136d155b7",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_298ae14346a41bcab6.json",
       "reported_only": false,
       "verified": true
     },
@@ -168816,6 +170912,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_fe3c3a5306bc2215451c": {
+      "authority": "progressive_competency_outcome",
+      "b": 3308,
+      "h": "fe3c3a5306bc2215451c05a825fae981c602b4db354e90d5ce01b73c9e1e8cc8",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_c1c9415b4de73dbaac.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_fe3daf9bb3e519ca34b7": {
       "authority": "progressive_competency_outcome",
       "b": 3352,
@@ -169432,6 +171536,14 @@
       "reported_only": false,
       "verified": true
     },
+    "ev_ff318dd3f45e0c72b9ee": {
+      "authority": "progressive_competency_outcome",
+      "b": 3325,
+      "h": "ff318dd3f45e0c72b9eed032f85aa4dc3e04a685921404683541f510f4bfec41",
+      "p": "results/aion_situated_cross_domain_projects/situated_project_9133ccefacffe67de9.json",
+      "reported_only": false,
+      "verified": true
+    },
     "ev_ff3462b29f693ef1420c": {
       "authority": "progressive_competency_outcome",
       "b": 2278,
@@ -170017,15 +172129,15 @@
       "verified": true
     }
   },
-  "glyph_count": 677,
-  "knowledge_glyphs": 576,
-  "progressive_evidence_records": 30541,
+  "glyph_count": 678,
+  "knowledge_glyphs": 577,
+  "progressive_evidence_records": 31671,
   "progressive_subjects_consolidated": 82,
   "raw_evidence_duplicated_in_glyph_store": false,
-  "raw_source_bytes": 54850551,
+  "raw_source_bytes": 55727043,
   "schema_version": "aion.intelligence_glyph.v1",
   "skill_glyphs": 88,
   "source_evidence_deleted": 0,
-  "verified_source_count": 21252,
-  "working_memory_reduction": 0.9698709863461535
+  "verified_source_count": 21516,
+  "working_memory_reduction": 0.9690985757130519
 }

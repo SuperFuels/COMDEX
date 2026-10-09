@@ -7,7 +7,8 @@ APP_JS = Path(__file__).resolve().parents[3] / "desktop" / "mac" / "src" / "app.
 def test_creative_lab_is_embedded_in_marketing_workspace():
     source = APP_JS.read_text(encoding="utf-8")
     assert "CREATIVE INTELLIGENCE LAB" in source
-    assert "Images, video, clipping and winner learning" in source
+    assert "Campaign production tools" in source
+    assert 'data-aion-marketing-advanced-production="true"' in source
     assert "${renderAionMarketingCreativeLab()}" in source
     assert 'apiPost("/api/aion/marketing/creative/plan"' in source
 
@@ -47,8 +48,8 @@ def test_creative_lab_exposes_exact_approved_render_and_local_export():
 
 def test_unified_campaign_journey_replaces_hidden_legacy_launch_path():
     source = APP_JS.read_text(encoding="utf-8")
-    assert "AION CAMPAIGN COMMAND" in source
-    assert "Plan & create campaign" in source
+    assert "CAMPAIGN WORKFLOW" in source
+    assert "Plan campaign" in source
     assert "renderAionMarketingCampaignJourney" in source
     assert "Approve draft & create assets" in source
     assert "Create with full control" in source

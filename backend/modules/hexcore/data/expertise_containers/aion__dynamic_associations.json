@@ -25735,6 +25735,24 @@
     },
     {
       "confidence": 0.75,
+      "from": "work:aion@wave.tp:subject:english",
+      "id": "association_3473c2c371ae90a1d8c9",
+      "kind": "SHARES_CONCEPT",
+      "signals": [
+        {
+          "kind": "shared_declared_concept",
+          "values": [
+            "syntax"
+          ],
+          "weight": 0.75
+        }
+      ],
+      "status": "supported_association",
+      "to": "work:aion@wave.tp:subject:java",
+      "verified_transfer": false
+    },
+    {
+      "confidence": 0.75,
       "from": "work:aion@wave.tp:subject:portfolio_construction",
       "id": "association_347cf4c883596895d4c7",
       "kind": "ASSOCIATED_WITH",
@@ -28753,6 +28771,24 @@
     },
     {
       "confidence": 0.75,
+      "from": "work:aion@wave.tp:subject:english",
+      "id": "association_9006e25313229c086ae3",
+      "kind": "SHARES_CONCEPT",
+      "signals": [
+        {
+          "kind": "shared_declared_concept",
+          "values": [
+            "syntax"
+          ],
+          "weight": 0.75
+        }
+      ],
+      "status": "supported_association",
+      "to": "work:aion@wave.tp:subject:rust",
+      "verified_transfer": false
+    },
+    {
+      "confidence": 0.75,
       "from": "work:aion@wave.tp:subject:biology_medicine",
       "id": "association_914a455e16b7ffb78bf5",
       "kind": "SHARES_CONCEPT",
@@ -28767,6 +28803,24 @@
       ],
       "status": "supported_association",
       "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+      "verified_transfer": false
+    },
+    {
+      "confidence": 0.75,
+      "from": "work:aion@wave.tp:subject:english",
+      "id": "association_916d7b4b96f5fa084a47",
+      "kind": "SHARES_CONCEPT",
+      "signals": [
+        {
+          "kind": "shared_declared_concept",
+          "values": [
+            "syntax"
+          ],
+          "weight": 0.75
+        }
+      ],
+      "status": "supported_association",
+      "to": "work:aion@wave.tp:subject:go",
       "verified_transfer": false
     },
     {
@@ -31099,6 +31153,24 @@
       ],
       "status": "supported_association",
       "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+      "verified_transfer": false
+    },
+    {
+      "confidence": 0.75,
+      "from": "work:aion@wave.tp:subject:english",
+      "id": "association_ce4ad57415f775a32bc6",
+      "kind": "SHARES_CONCEPT",
+      "signals": [
+        {
+          "kind": "shared_declared_concept",
+          "values": [
+            "syntax"
+          ],
+          "weight": 0.75
+        }
+      ],
+      "status": "supported_association",
+      "to": "work:aion@wave.tp:subject:python",
       "verified_transfer": false
     },
     {
@@ -64731,6 +64803,24 @@
       },
       {
         "confidence": 0.75,
+        "from": "work:aion@wave.tp:subject:english",
+        "id": "association_3473c2c371ae90a1d8c9",
+        "kind": "SHARES_CONCEPT",
+        "signals": [
+          {
+            "kind": "shared_declared_concept",
+            "values": [
+              "syntax"
+            ],
+            "weight": 0.75
+          }
+        ],
+        "status": "supported_association",
+        "to": "work:aion@wave.tp:subject:java",
+        "verified_transfer": false
+      },
+      {
+        "confidence": 0.75,
         "from": "work:aion@wave.tp:subject:portfolio_construction",
         "id": "association_347cf4c883596895d4c7",
         "kind": "ASSOCIATED_WITH",
@@ -67749,6 +67839,24 @@
       },
       {
         "confidence": 0.75,
+        "from": "work:aion@wave.tp:subject:english",
+        "id": "association_9006e25313229c086ae3",
+        "kind": "SHARES_CONCEPT",
+        "signals": [
+          {
+            "kind": "shared_declared_concept",
+            "values": [
+              "syntax"
+            ],
+            "weight": 0.75
+          }
+        ],
+        "status": "supported_association",
+        "to": "work:aion@wave.tp:subject:rust",
+        "verified_transfer": false
+      },
+      {
+        "confidence": 0.75,
         "from": "work:aion@wave.tp:subject:biology_medicine",
         "id": "association_914a455e16b7ffb78bf5",
         "kind": "SHARES_CONCEPT",
@@ -67763,6 +67871,24 @@
         ],
         "status": "supported_association",
         "to": "work:aion@wave.tp:subject:cell_genetic_biology",
+        "verified_transfer": false
+      },
+      {
+        "confidence": 0.75,
+        "from": "work:aion@wave.tp:subject:english",
+        "id": "association_916d7b4b96f5fa084a47",
+        "kind": "SHARES_CONCEPT",
+        "signals": [
+          {
+            "kind": "shared_declared_concept",
+            "values": [
+              "syntax"
+            ],
+            "weight": 0.75
+          }
+        ],
+        "status": "supported_association",
+        "to": "work:aion@wave.tp:subject:go",
         "verified_transfer": false
       },
       {
@@ -70095,6 +70221,24 @@
         ],
         "status": "supported_association",
         "to": "work:aion@wave.tp:subject:operating_distributed_networks",
+        "verified_transfer": false
+      },
+      {
+        "confidence": 0.75,
+        "from": "work:aion@wave.tp:subject:english",
+        "id": "association_ce4ad57415f775a32bc6",
+        "kind": "SHARES_CONCEPT",
+        "signals": [
+          {
+            "kind": "shared_declared_concept",
+            "values": [
+              "syntax"
+            ],
+            "weight": 0.75
+          }
+        ],
+        "status": "supported_association",
+        "to": "work:aion@wave.tp:subject:python",
         "verified_transfer": false
       },
       {

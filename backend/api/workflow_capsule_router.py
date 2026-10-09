@@ -279,6 +279,8 @@ class OperationsConversationTurnRequest(BaseModel):
     department_id: str = "operations"
     user_text: str = Field(min_length=1, max_length=2000)
     attachments: list[str] = Field(default_factory=list, max_length=3)
+    preferred_provider: str | None = None
+    preferred_model: str | None = None
 
 
 class OperationsDepartmentChannelRequest(BaseModel):
@@ -354,6 +356,8 @@ def run_operations_conversation_turn(
         response = _operations_workspace_provider().conversation_turn(
             session.workspace_id, payload.department_id, payload.user_text,
             persona_id=session.person_id, attachments=payload.attachments,
+            preferred_provider=payload.preferred_provider,
+            preferred_model=payload.preferred_model,
         )
     except (OSError, ValueError, PermissionError) as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc

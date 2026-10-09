@@ -38,6 +38,12 @@
       remit: 'People, roles, accountability, permissions, capacity, hiring, training and policy.',
       permissions: ['read_business_context', 'read_hr_graph', 'draft_people_assets', 'stage_hr_work'],
     },
+    products_services: {
+      label: 'Products & Services',
+      pilot_id: 'products_services_pilot',
+      remit: 'Offers, pricing, specifications, delivery models and product decisions.',
+      permissions: ['read_business_context', 'read_operations_graph', 'draft_product_assets', 'stage_product_work'],
+    },
     pilot: {
       label: 'Central',
       pilot_id: 'central_pilot',

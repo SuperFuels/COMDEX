@@ -150,6 +150,33 @@ def test_hash_tampering_is_rejected(monkeypatch, tmp_path):
         service.load_case("acme", case["case_id"])
 
 
+def test_legacy_underscore_workspace_records_load_through_canonical_hyphen_alias(monkeypatch, tmp_path):
+    repository, _ = configure(monkeypatch, tmp_path)
+    service = SupportCaseService(repository)
+    legacy = service.ensure_setup("home-fixed")
+    legacy["workspace_id"] = "home_fixed"
+    service._rehash(legacy, "setup_hash")
+    service._write(service._root("home-fixed") / "agent_setup.json", legacy)
+
+    loaded = service.ensure_setup("home-fixed")
+
+    assert loaded["setup_hash"] == legacy["setup_hash"]
+    assert loaded["workspace_id"] == "home_fixed"
+
+
+def test_workspace_alias_compatibility_does_not_weaken_cross_workspace_isolation(monkeypatch, tmp_path):
+    repository, _ = configure(monkeypatch, tmp_path)
+    service = SupportCaseService(repository)
+    legacy = service.ensure_setup("home-fixed")
+    legacy["workspace_id"] = "home_fixed"
+    service._rehash(legacy, "setup_hash")
+    other_path = service._root("other-business") / "agent_setup.json"
+    other_path.write_text(json.dumps(legacy), encoding="utf-8")
+
+    with pytest.raises(PermissionError, match="cross_workspace_support_record"):
+        service.ensure_setup("other-business")
+
+
 def test_gmail_import_creates_one_case_then_continues_the_same_thread(monkeypatch, tmp_path):
     service = setup_support(monkeypatch, tmp_path)
     first = service.import_gmail_messages(

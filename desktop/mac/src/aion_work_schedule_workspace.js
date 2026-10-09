@@ -6,7 +6,7 @@
   const API_BASE = String(global.__AION_DESKTOP_STATE__?.apiBase || global.__aionDesktopState?.apiBase || 'http://127.0.0.1:8080').replace(/\/+$/, '');
   const STATUSES = ['new', 'quote_required', 'awaiting_approval', 'scheduled', 'en_route', 'in_progress', 'paused', 'completed', 'invoiced', 'paid'];
   const TYPE_LABELS = {
-    job: 'Job', appointment: 'Appointment', visit: 'Visit', survey: 'Survey',
+    job: 'Job', quote: 'Quote / estimate', appointment: 'Appointment', visit: 'Visit', survey: 'Survey',
     consultation: 'Consultation', meeting: 'Meeting', project_task: 'Project task', order: 'Order'
   };
 
@@ -23,6 +23,16 @@
     return bits.length === 3 ? new Date(bits[0], bits[1] - 1, bits[2]) : new Date();
   };
   const uid = (prefix) => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const moneyNumber = (value) => Number.isFinite(Number(value)) ? Number(value) : 0;
+
+  function operatingOfferings() {
+    return (global.AionOperatingModelWorkspace?.state?.model?.offerings || []).filter((row) => row && (row.id || row.name));
+  }
+
+  function estimateTotal(item) {
+    const estimate = item?.cost_estimate || {};
+    return moneyNumber(estimate.material_cost) + moneyNumber(estimate.labour_cost) + moneyNumber(estimate.external_cost);
+  }
 
   function mondayOf(date) {
     const result = new Date(date);
@@ -277,23 +287,55 @@
   function renderNewModal() {
     if (state.ui.modal !== 'new') return '';
     const preset = state.ui.newDraft || {};
-    return `<div class="ws-modal-layer"><button class="ws-modal-backdrop" type="button" data-ws-close aria-label="Close"></button><section class="ws-modal"><header><div><span>NEW SHARED WORK RECORD</span><h2>Schedule a job or appointment</h2><p>Create it once. The customer, office, Pilot and assigned person will all work from this record.</p></div><button type="button" data-ws-close>×</button></header><form data-ws-new-form>
+    const estimate = preset.cost_estimate || {};
+    const offerings = operatingOfferings();
+    return `<div class="ws-modal-layer"><button class="ws-modal-backdrop" type="button" data-ws-close aria-label="Close"></button><section class="ws-modal"><header><div><span>NEW SHARED WORK RECORD</span><h2>Create a job, quote or appointment</h2><p>Create it once. Scheduling, estimates, delivery, evidence, quote and invoice will all use this record.</p></div><button type="button" data-ws-close>×</button></header><form data-ws-new-form>
       <label class="wide">Work title<input required name="title" placeholder="e.g. New roof installation" value="${esc(preset.title)}"></label>
       <label>Customer<input required name="customer" placeholder="Customer or organisation" value="${esc(preset.customer)}"></label>
-      <label>Work type<select name="type">${Object.entries(TYPE_LABELS).map(([key, label]) => `<option value="${key}" ${preset.type === key ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
+      <label>Record type<select name="type" data-ws-new-type>${Object.entries(TYPE_LABELS).map(([key, label]) => `<option value="${key}" ${(preset.type || 'job') === key ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
+      <label class="wide">Product or service<select name="offering_id"><option value="">Not linked yet</option>${offerings.map((row) => `<option value="${esc(row.id || row.name)}" ${String(preset.offering_id || '') === String(row.id || row.name) ? 'selected' : ''}>${esc(row.name || row.id)}</option>`).join('')}</select></label>
       <label>Date<input type="date" name="date" value="${esc(preset.date || isoDate(new Date()))}"></label>
       <label>Start time<input type="time" name="time" value="${esc(preset.time || '09:00')}"></label>
       <label>Duration<select name="duration">${[[30,'30 minutes'],[60,'1 hour'],[90,'1½ hours'],[120,'2 hours'],[240,'Half day'],[480,'Full day']].map(([value,label]) => `<option value="${value}" ${Number(preset.duration || 60) === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
       <label>Assigned person or team<input name="assignee" placeholder="Choose or leave unassigned" value="${esc(preset.assignee)}"></label>
-      <label>Status<select name="status">${['new','quote_required','awaiting_approval','scheduled','in_progress','completed'].map((status) => `<option value="${status}" ${status === (preset.status || 'scheduled') ? 'selected' : ''}>${titleCase(status)}</option>`).join('')}</select></label>
+      <label>Status<select name="status" data-ws-new-status>${['new','quote_required','awaiting_approval','scheduled','in_progress','completed'].map((status) => `<option value="${status}" ${status === (preset.status || (preset.type === 'quote' ? 'quote_required' : 'scheduled')) ? 'selected' : ''}>${titleCase(status)}</option>`).join('')}</select></label>
       <label>Origin<select name="source"><option>Back office</option><option>Website booking</option><option>Sales agent</option><option>Phone</option><option>Email</option><option>Customer portal</option></select></label>
       <label>Repeat<select name="recurrence_frequency"><option value="none">Does not repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
       <label>Number of visits<input type="number" min="1" max="52" name="recurrence_count" value="1"></label>
       <label class="wide">Rooms, vehicles or equipment<input name="resource_ids" placeholder="e.g. Van 1, Surgery 2 (separate with commas)"></label>
       <label class="wide">Location<input name="location" placeholder="Customer site, clinic, office or video call" value="${esc(preset.location)}"></label>
       <label class="wide">Instructions and notes<textarea name="notes" placeholder="Access, requirements, preparation or customer notes">${esc(preset.notes)}</textarea></label>
+      <div class="wide ws-form-section"><span>OPTIONAL QUOTE &amp; COST ESTIMATE</span><strong>Record only what is known</strong><p>Leave unknown amounts blank. They can be updated on this same work record as the quote and job develop.</p></div>
+      <label>Proposed customer price<input type="number" min="0" step="0.01" name="quote_amount" placeholder="Optional" value="${esc(preset.quote?.subtotal || preset.quote?.amount || '')}"></label>
+      <label>Estimated materials<input type="number" min="0" step="0.01" name="estimated_material_cost" placeholder="Optional" value="${esc(estimate.material_cost)}"></label>
+      <label>Estimated labour<input type="number" min="0" step="0.01" name="estimated_labour_cost" placeholder="Optional" value="${esc(estimate.labour_cost)}"></label>
+      <label>Estimated external costs<input type="number" min="0" step="0.01" name="estimated_external_cost" placeholder="Subcontractor, hire, delivery…" value="${esc(estimate.external_cost)}"></label>
       <footer><button type="button" data-ws-close>Cancel</button><button type="submit" class="primary">Create work item</button></footer>
     </form></section></div>`;
+  }
+
+  function renderCommercial(item) {
+    const estimate = item.cost_estimate || {};
+    const total = estimateTotal(item);
+    const proposed = moneyNumber(item.quote?.subtotal || item.quote?.amount);
+    const contribution = proposed ? proposed - total : null;
+    return `<section class="ws-commercial">
+      <article class="ws-cost-estimate"><span>JOB / QUOTE ESTIMATE</span><strong>${total ? `Estimated direct cost · ${esc(total.toFixed(2))}` : 'No cost estimate yet'}</strong>
+        <p>Keep the estimate on this shared work record. Unknown values can remain blank and be replaced by actual time, materials and evidence later.</p>
+        <form data-ws-cost-estimate-form="${esc(item.id)}">
+          <label>Materials<input type="number" min="0" step="0.01" name="material_cost" value="${esc(estimate.material_cost)}" placeholder="Optional"></label>
+          <label>Labour<input type="number" min="0" step="0.01" name="labour_cost" value="${esc(estimate.labour_cost)}" placeholder="Optional"></label>
+          <label>External costs<input type="number" min="0" step="0.01" name="external_cost" value="${esc(estimate.external_cost)}" placeholder="Subcontractor, hire, delivery…"></label>
+          <label>Estimate note<input name="note" value="${esc(estimate.note)}" placeholder="Assumptions or evidence"></label>
+          <button class="primary" type="submit">Save estimate</button>
+        </form>
+        ${contribution == null ? '' : `<small>Indicative contribution before overheads: ${esc(contribution.toFixed(2))}</small>`}
+      </article>
+      <article><span>QUOTE</span><strong>${esc(item.quote?.number || titleCase(item.quote?.status || 'not_created'))}</strong><label>Description<input data-ws-quote-description="${esc(item.id)}" value="${esc(item.title)}"></label><label>Amount before tax<input inputmode="decimal" data-ws-quote-amount="${esc(item.id)}" value="${esc(item.quote?.subtotal || item.quote?.amount || '')}" placeholder="0.00"></label><label>Tax %<input inputmode="decimal" data-ws-quote-tax="${esc(item.id)}" value="${esc(item.quote?.tax_rate || '20')}"></label><button type="button" data-ws-create-quote="${esc(item.id)}">Generate numbered quote PDF</button></article>
+      <article><span>INVOICE</span><strong>${esc(item.invoice?.number || titleCase(item.invoice?.status || 'not_created'))}</strong><label>Description<input data-ws-invoice-description="${esc(item.id)}" value="${esc(item.title)}"></label><label>Amount before tax<input inputmode="decimal" data-ws-invoice-amount="${esc(item.id)}" value="${esc(item.invoice?.subtotal || item.invoice?.amount || '')}" placeholder="0.00"></label><label>Tax %<input inputmode="decimal" data-ws-invoice-tax="${esc(item.id)}" value="${esc(item.invoice?.tax_rate || '20')}"></label><button type="button" data-ws-create-invoice="${esc(item.id)}">Generate numbered invoice PDF</button></article>
+      <article class="ws-payment"><span>CUSTOMER PORTAL</span><strong>Share a limited customer view</strong><p>Customers can review this booking, request a new time or cancellation, and approve or decline a quote. They cannot see the wider schedule.</p><button type="button" data-ws-create-portal="${esc(item.id)}">Create secure customer link</button>${state.ui.portalLink ? `<label>Customer link<input readonly value="${esc(state.ui.portalLink)}"></label>` : ''}</article>
+      <p>Quotes and invoices are numbered drafts with line totals and tax. Sending them and accounting-ledger posting remain approval-controlled.</p>
+    </section>`;
   }
 
   function renderDetailPanel() {
@@ -301,23 +343,27 @@
     if (!item) return '';
     const panelTab = state.ui.panelTab || 'overview';
     const tabs = [['overview','Overview'],['delivery','Checklist, time & materials'],['updates','Work updates'],['documents','Files & evidence'],['signoff','Customer sign-off'],['commercial','Quotes & invoices']];
-    return `<div class="ws-panel-layer"><button class="ws-panel-backdrop" type="button" data-ws-close-item aria-label="Close"></button><aside class="ws-detail-panel">
-      <header><div><span>${esc(TYPE_LABELS[item.type] || titleCase(item.type))} · ${esc(item.id)}</span><h2>${esc(item.title)}</h2><p>${esc(item.customer)}</p></div><button type="button" data-ws-close-item>×</button></header>
-      <div class="ws-detail-status">${statusBadge(item.status)}${item.sample ? '<span class="ws-sample">Sample record</span>' : ''}<select data-ws-status="${esc(item.id)}">${STATUSES.map((status) => `<option value="${status}" ${status === item.status ? 'selected' : ''}>${titleCase(status)}</option>`).join('')}</select></div>
-      <nav>${tabs.map(([key,label]) => `<button type="button" class="${panelTab === key ? 'active' : ''}" data-ws-panel-tab="${key}">${label}</button>`).join('')}</nav>
+    const returnLabels = { board: 'Job board', calendar: 'Calendar', field: 'Field workspace', intake: 'Booking inbox', customers: 'Customers', reminders: 'Reminders', stock: 'Stock & materials' };
+    const customerRecords = state.data.items.filter((row) => String(row.customer || '').trim().toLowerCase() === String(item.customer || '').trim().toLowerCase()).length;
+    return `<section class="ws-detail-panel ws-record-page" aria-label="Work record for ${esc(item.title)}">
+      <header class="ws-record-header"><div class="ws-record-heading"><button type="button" class="ws-record-back" data-ws-close-item>← Back to ${esc(returnLabels[state.ui.view] || 'Work & Schedule')}</button><span>WORK RECORD · ${esc(TYPE_LABELS[item.type] || titleCase(item.type))}</span><h1>${esc(item.title)}</h1><p>${esc(item.customer || 'Customer not recorded')}</p></div><div class="ws-record-controls"><small>Record reference</small><strong>${esc(item.id)}</strong><label>Status<select data-ws-status="${esc(item.id)}">${STATUSES.map((status) => `<option value="${status}" ${status === item.status ? 'selected' : ''}>${titleCase(status)}</option>`).join('')}</select></label></div></header>
+      <div class="ws-record-summary"><article><span>STATUS</span>${statusBadge(item.status)}${item.sample ? '<span class="ws-sample">Sample record</span>' : ''}</article><article><span>CUSTOMER</span><strong>${esc(item.customer || 'Not recorded')}</strong><small>${customerRecords} linked work ${customerRecords === 1 ? 'record' : 'records'}</small></article><article><span>SCHEDULE</span><strong>${esc(item.date || 'Not scheduled')}</strong><small>${esc(item.time || 'Time not set')} · ${esc(item.duration || 0)} minutes</small></article><article><span>ASSIGNED TO</span><strong>${esc(item.assignee || 'Unassigned')}</strong><small>${esc(item.location || 'Location not recorded')}</small></article></div>
+      <nav class="ws-record-tabs" aria-label="Work record sections">${tabs.map(([key,label]) => `<button type="button" class="${panelTab === key ? 'active' : ''}" data-ws-panel-tab="${key}">${label}</button>`).join('')}</nav>
       <div class="ws-detail-body">${panelTab === 'overview' ? `<section class="ws-overview"><dl><div><dt>Date and time</dt><dd>${esc(item.date || 'Not scheduled')} · ${esc(item.time || 'Time not set')}</dd></div><div><dt>Duration</dt><dd>${esc(item.duration || 0)} minutes</dd></div><div><dt>Assigned to</dt><dd>${esc(item.assignee || 'Unassigned')}</dd></div><div><dt>Location</dt><dd>${esc(item.location || 'Not recorded')}</dd></div><div><dt>Origin</dt><dd>${esc(item.source || 'Not recorded')}</dd></div><div><dt>Customer</dt><dd>${esc(item.customer || 'Not recorded')}</dd></div></dl><article><span>WORK INSTRUCTIONS</span><p>${esc(item.notes || 'No instructions have been added.')}</p></article><button type="button" data-ws-duplicate="${esc(item.id)}">Schedule another visit</button></section>` : ''}
       ${panelTab === 'delivery' ? renderDelivery(item) : ''}
       ${panelTab === 'updates' ? `<section class="ws-updates"><div>${(item.updates || []).map((update) => `<article><strong>${esc(update.text)}</strong><span>${esc(update.at)}</span></article>`).join('') || '<p>No work updates yet. Notes from the office or the person doing the work will appear here.</p>'}</div><form data-ws-update-form="${esc(item.id)}"><textarea name="update" required placeholder="Add a note, outcome, measurement or next action"></textarea><button class="primary" type="submit">Add update</button></form></section>` : ''}
       ${panelTab === 'documents' ? `<section class="ws-documents"><div>${(item.documents || []).map((file) => { const document = typeof file === 'string' ? { name: file } : file; return `<article><span>${esc(titleCase(document.kind || 'file'))}</span><strong>${esc(document.name || 'Attached file')}</strong><small>${document.size ? `${Math.ceil(Number(document.size) / 1024)} KB · ` : ''}Attached to this shared work record</small>${document.id && document.stored_name ? `<a href="${endpoint(`/items/${encodeURIComponent(item.id)}/files/${encodeURIComponent(document.id)}`)}" target="_blank" rel="noreferrer">Open file</a>` : ''}</article>`; }).join('') || '<p>No photographs, certificates or documents have been added.</p>'}</div><label class="ws-upload">+ Add photos, certificates or files<input type="file" multiple data-ws-file="${esc(item.id)}"></label><div class="ws-document-actions"><button type="button" data-ws-create-document="service_report" data-ws-document-item="${esc(item.id)}">Create service report</button><button type="button" data-ws-create-document="completion_certificate" data-ws-document-item="${esc(item.id)}">Create completion certificate</button></div><small class="ws-helper">Files and generated PDFs are stored in the business workspace and are available to authorised desktop and mobile users.</small></section>` : ''}
       ${panelTab === 'signoff' ? `<section class="ws-signoff">${item.customerSignature?.dataUrl ? `<div class="ws-signed"><span>CUSTOMER SIGN-OFF RECORDED</span><img src="${esc(item.customerSignature.dataUrl)}" alt="Customer signature"><strong>${esc(item.customerSignature.name || 'Customer')}</strong><small>${esc(item.customerSignature.signedAt || '')}</small><button type="button" data-ws-replace-signature="${esc(item.id)}">Replace signature</button></div>` : `<div class="ws-signoff-copy"><span>COMPLETION CONFIRMATION</span><h3>Ask the customer to sign</h3><p>The signature is stored on this work record with the customer name and time. It confirms attendance or completion; it does not replace contractual acceptance terms.</p></div><label>Customer name<input data-ws-signature-name="${esc(item.id)}" placeholder="Name of person signing"></label><canvas class="ws-signature-pad" data-ws-signature-pad="${esc(item.id)}" width="560" height="180" aria-label="Customer signature pad"></canvas><div class="ws-signature-actions"><button type="button" data-ws-clear-signature="${esc(item.id)}">Clear</button><button type="button" class="primary" data-ws-save-signature="${esc(item.id)}">Save customer sign-off</button></div>`}</section>` : ''}
-      ${panelTab === 'commercial' ? `<section class="ws-commercial"><article><span>QUOTE</span><strong>${esc(item.quote?.number || titleCase(item.quote?.status || 'not_created'))}</strong><label>Description<input data-ws-quote-description="${esc(item.id)}" value="${esc(item.title)}"></label><label>Amount before tax<input inputmode="decimal" data-ws-quote-amount="${esc(item.id)}" value="${esc(item.quote?.subtotal || item.quote?.amount || '')}" placeholder="0.00"></label><label>Tax %<input inputmode="decimal" data-ws-quote-tax="${esc(item.id)}" value="${esc(item.quote?.tax_rate || '20')}"></label><button type="button" data-ws-create-quote="${esc(item.id)}">Generate numbered quote PDF</button></article><article><span>INVOICE</span><strong>${esc(item.invoice?.number || titleCase(item.invoice?.status || 'not_created'))}</strong><label>Description<input data-ws-invoice-description="${esc(item.id)}" value="${esc(item.title)}"></label><label>Amount before tax<input inputmode="decimal" data-ws-invoice-amount="${esc(item.id)}" value="${esc(item.invoice?.subtotal || item.invoice?.amount || '')}" placeholder="0.00"></label><label>Tax %<input inputmode="decimal" data-ws-invoice-tax="${esc(item.id)}" value="${esc(item.invoice?.tax_rate || '20')}"></label><button type="button" data-ws-create-invoice="${esc(item.id)}">Generate numbered invoice PDF</button></article><article class="ws-payment"><span>CUSTOMER PORTAL</span><strong>Share a limited customer view</strong><p>Customers can review this booking, request a new time or cancellation, and approve or decline a quote. They cannot see the wider schedule.</p><button type="button" data-ws-create-portal="${esc(item.id)}">Create secure customer link</button>${state.ui.portalLink ? `<label>Customer link<input readonly value="${esc(state.ui.portalLink)}"></label>` : ''}</article><p>Quotes and invoices are numbered drafts with line totals and tax. Sending them and accounting-ledger posting remain approval-controlled.</p></section>` : ''}</div>
-    </aside></div>`;
+      ${panelTab === 'commercial' ? renderCommercial(item) : ''}</div>
+    </section>`;
   }
 
   function renderSurface(renderSidebar) {
     void hydrate();
     const content = state.ui.view === 'board' ? renderBoard() : state.ui.view === 'field' ? renderFieldWorkspace() : state.ui.view === 'intake' ? renderIntake() : state.ui.view === 'customers' ? renderCustomers() : state.ui.view === 'reminders' ? renderReminders() : state.ui.view === 'stock' ? renderStock() : renderCalendar();
-    return `<div class="surface-shell ws-surface" data-aion-work-schedule="true">${typeof renderSidebar === 'function' ? renderSidebar() : ''}<main class="ws-shell">${renderHeader()}${renderViewTabs()}<form class="ws-pilot-bar" data-ws-pilot-form><div><span>WORK PILOT</span><strong>Delegate the booking and admin</strong><small>Say it naturally: “Book a roof survey for Alex next Tuesday at 10 and assign James.”</small></div><input name="instruction" required placeholder="Tell Work Pilot what to book or change…"><button type="submit" class="primary">Prepare</button></form>${state.ui.pilotMessage ? `<div class="ws-pilot-result">${esc(state.ui.pilotMessage)}</div>` : ''}${state.conflicts.length ? `<section class="ws-conflicts"><strong>Scheduling clashes</strong>${state.conflicts.map((row) => `<button type="button" data-ws-item="${esc(row.item_ids?.[0] || '')}">${esc(row.message)}</button>`).join('')}</section>` : ''}${content}</main>${renderNewModal()}${renderDetailPanel()}</div>`;
+    const workspace = `${renderHeader()}${renderViewTabs()}<form class="ws-pilot-bar" data-ws-pilot-form><div><span>WORK PILOT</span><strong>Delegate the booking and admin</strong><small>Say it naturally: “Book a roof survey for Alex next Tuesday at 10 and assign James.”</small></div><input name="instruction" required placeholder="Tell Work Pilot what to book or change…"><button type="submit" class="primary">Prepare</button></form>${state.ui.pilotMessage ? `<div class="ws-pilot-result">${esc(state.ui.pilotMessage)}</div>` : ''}${state.conflicts.length ? `<section class="ws-conflicts"><strong>Scheduling clashes</strong>${state.conflicts.map((row) => `<button type="button" data-ws-item="${esc(row.item_ids?.[0] || '')}">${esc(row.message)}</button>`).join('')}</section>` : ''}${content}`;
+    const selectedRecord = state.ui.selectedId ? renderDetailPanel() : '';
+    return `<div class="surface-shell ws-surface" data-aion-work-schedule="true">${typeof renderSidebar === 'function' ? renderSidebar() : ''}<main class="ws-shell">${selectedRecord || workspace}</main>${renderNewModal()}</div>`;
   }
 
   function openNew(preset = {}) {
@@ -470,6 +516,14 @@
     document.addEventListener('pointercancel', () => { signatureDrawing = null; }, true);
 
     document.addEventListener('change', (event) => {
+      const newType = event.target?.closest?.('[data-ws-new-type]');
+      if (newType) {
+        const status = newType.form?.querySelector?.('[data-ws-new-status]');
+        if (status && (status.value === 'scheduled' || status.value === 'quote_required')) {
+          status.value = newType.value === 'quote' ? 'quote_required' : 'scheduled';
+        }
+        return;
+      }
       const status = event.target?.closest?.('[data-ws-status]');
       if (status) { const item = workItem(status.dataset.wsStatus); if (item) { item.status = status.value; persist(); rerender(); } return; }
       const checklist = event.target?.closest?.('[data-ws-check-item]');
@@ -537,11 +591,46 @@
       if (create) {
         event.preventDefault();
         const values = Object.fromEntries(new FormData(create).entries());
+        const quoteAmount = values.quote_amount;
+        const costEstimate = {
+          material_cost: values.estimated_material_cost || '',
+          labour_cost: values.estimated_labour_cost || '',
+          external_cost: values.estimated_external_cost || '',
+          currency: global.AionOperatingModelWorkspace?.state?.model?.currency || 'EUR',
+          source: 'shared_work_record',
+          updated_at: new Date().toISOString(),
+        };
+        delete values.quote_amount;
+        delete values.estimated_material_cost;
+        delete values.estimated_labour_cost;
+        delete values.estimated_external_cost;
         values.recurrence = { frequency: values.recurrence_frequency || 'none', count: Number(values.recurrence_count || 1) };
         values.resource_ids = String(values.resource_ids || '').split(',').map((value) => value.trim()).filter(Boolean);
         delete values.recurrence_frequency; delete values.recurrence_count;
-        const item = { id: uid('work'), ...values, duration: Number(values.duration || 60), sample: false, documents: [], updates: [], quote: { status: 'not_created', amount: '' }, invoice: { status: 'not_created', amount: '' } };
+        const item = {
+          id: uid('work'), ...values, duration: Number(values.duration || 60), sample: false,
+          documents: [], updates: [], cost_estimate: costEstimate,
+          quote: { status: quoteAmount ? 'draft' : 'not_created', amount: quoteAmount || '', subtotal: quoteAmount || '' },
+          invoice: { status: 'not_created', amount: '' },
+        };
         state.data.items.push(item); persist(); state.ui.modal = ''; state.ui.newDraft = {}; state.ui.selectedId = item.id; rerender(); return;
+      }
+      const costEstimate = event.target?.closest?.('[data-ws-cost-estimate-form]');
+      if (costEstimate) {
+        event.preventDefault();
+        const item = workItem(costEstimate.dataset.wsCostEstimateForm);
+        const values = Object.fromEntries(new FormData(costEstimate).entries());
+        if (item) {
+          item.cost_estimate = {
+            material_cost: values.material_cost || '', labour_cost: values.labour_cost || '',
+            external_cost: values.external_cost || '', note: values.note || '',
+            currency: global.AionOperatingModelWorkspace?.state?.model?.currency || item.cost_estimate?.currency || 'EUR',
+            source: 'shared_work_record', updated_at: new Date().toISOString(),
+          };
+          addUpdate(item, 'Job and quote estimate updated on the shared work record.');
+          persist(); rerender();
+        }
+        return;
       }
       const update = event.target?.closest?.('[data-ws-update-form]');
       if (update) {

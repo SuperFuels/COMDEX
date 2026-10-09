@@ -58,6 +58,47 @@ def test_selected_local_model_is_exposed_without_private_runtime_details(monkeyp
     assert "model_path" not in result["providers"][0]
 
 
+def test_installed_local_model_is_visible_before_workspace_selection(monkeypatch) -> None:
+    from backend.modules.aion_inference import local_model_selection_store, local_model_vault
+
+    monkeypatch.setattr(local_model_selection_store, "load_local_model_selection", lambda workspace_id: {})
+    monkeypatch.setattr(local_model_vault.LocalModelVault, "snapshot", lambda self: {
+        "models": [{
+            "model_id": "qwen3-8b-fast-local-q4",
+            "selection_status": "selectable",
+            "runtime_profile": {},
+            "installations": [{
+                "model_path": "/Volumes/Models/qwen.gguf",
+                "display_name": "Qwen 3 8B Fast Local",
+                "warehouse": {"verified": True},
+                "runtime_profile": {},
+            }],
+        }],
+    })
+
+    result = router._selected_local_provider("new-workspace")
+
+    assert result["installed"] is True
+    assert result["connected"] is False
+    assert result["workspace_selected"] is False
+    assert result["reason"] == "local_model_available_not_selected"
+
+
+def test_provider_status_does_not_invent_a_default_model(monkeypatch) -> None:
+    from backend.modules.aion_inference import lead_model_selection_store
+
+    monkeypatch.setattr(router, "_provider_status", lambda: [
+        {"id": "openai", "label": "OpenAI", "model": "premium-model", "connected": True},
+    ])
+    monkeypatch.setattr(router, "_selected_local_provider", lambda workspace_id: None)
+    monkeypatch.setattr(lead_model_selection_store, "load_lead_model_selection", lambda workspace_id: {})
+
+    result = router.boardroom_provider_status("new-workspace")
+
+    assert result["lead_model"] is None
+    assert result["providers"][0]["is_lead"] is False
+
+
 def test_selected_local_model_can_answer_as_a_board_member(monkeypatch) -> None:
     valid_content = (
         '{"position":"Ready","recommendations":["Continue"],"risks":["None observed"],'

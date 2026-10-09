@@ -241,7 +241,10 @@
     }).join('');
     const resultLabel = query ? `${rows.length} matching ${rows.length === 1 ? 'lead' : 'leads'}` : `${stageRows.length} ${stageRows.length === 1 ? 'lead' : 'leads'}`;
     const empty = query ? '<div class="srw-empty"><b>No matching clients or leads</b><p>Try a different client name, email, phone number or enquiry.</p></div>' : '<div class="srw-empty"><b>No leads at this stage</b><p>Choose another source or stage.</p></div>';
-    return `<div class="srw-commercial-flow"><div class="srw-unified-filter"><small>Lead source</small><nav class="srw-source-tabs" aria-label="Filter by lead source">${sourceFilters.map(([value, text, count]) => `<button type="button" class="${activeSource === value ? 'active' : ''}" data-srw-source-filter="${esc(value)}">${esc(text)} <span>${count}</span></button>`).join('')}</nav></div><div class="srw-deal-controls"><label class="srw-stage-select"><span>Stage</span><select data-srw-pipeline-filter aria-label="Filter by sales stage">${filters.map(([value, text, count]) => `<option value="${esc(value)}" ${active === value ? 'selected' : ''}>${esc(text)} (${count})</option>`).join('')}</select></label><label class="srw-deal-search"><span>Find client or lead</span><input type="search" data-srw-deal-search value="${esc(state.pipelineSearch)}" placeholder="Start typing a client name…" autocomplete="off"></label><div><small data-srw-deal-count>${esc(resultLabel)}</small><button type="button" data-srw-deal-scroll="-1" aria-label="Previous leads">‹</button><button type="button" data-srw-deal-scroll="1" aria-label="Next leads">›</button></div></div><div class="srw-deal-strip" tabindex="0" aria-label="${esc(resultLabel)}">${cards || empty}</div></div>`;
+    return `<div class="srw-commercial-flow"><div class="srw-unified-filter"><small>Lead source</small><nav class="srw-source-tabs" aria-label="Filter by lead source">${sourceFilters.map(([value, text, count]) => {
+      const isActive = activeSource === value;
+      return `<button type="button" class="${isActive ? 'active' : ''}" aria-pressed="${isActive ? 'true' : 'false'}" ${isActive ? 'style="border-color:#2563eb!important;background:#2563eb!important;color:#fff!important"' : ''} data-srw-source-filter="${esc(value)}">${esc(text)} <span ${isActive ? 'style="background:rgba(255,255,255,.18)!important;color:#fff!important"' : ''}>${count}</span></button>`;
+    }).join('')}</nav></div><div class="srw-deal-controls"><label class="srw-stage-select"><span>Stage</span><select data-srw-pipeline-filter aria-label="Filter by sales stage">${filters.map(([value, text, count]) => `<option value="${esc(value)}" ${active === value ? 'selected' : ''}>${esc(text)} (${count})</option>`).join('')}</select></label><label class="srw-deal-search"><span>Find client or lead</span><input type="search" data-srw-deal-search value="${esc(state.pipelineSearch)}" placeholder="Start typing a client name…" autocomplete="off"></label><div><small data-srw-deal-count>${esc(resultLabel)}</small><button type="button" data-srw-deal-scroll="-1" aria-label="Previous leads">‹</button><button type="button" data-srw-deal-scroll="1" aria-label="Next leads">›</button></div></div><div class="srw-deal-strip" tabindex="0" aria-label="${esc(resultLabel)}">${cards || empty}</div></div>`;
   }
 
   function syncDealCarouselControls() {
@@ -1806,6 +1809,154 @@
     style.textContent += '.srw-caller-setup{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding:16px 18px;background:#f8fafc;border:1px solid #cbd9e6;border-left:4px solid #8b5cf6}.srw-caller-setup>header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.srw-caller-setup>header>div:first-child{min-width:0}.srw-caller-setup>header span{color:#0f766e;font-size:10px;font-weight:900;letter-spacing:.2em}.srw-caller-setup>header p{max-width:820px;margin:7px 0 0!important}.srw-caller-status{display:grid;flex:0 0 min(360px,35%);gap:3px;padding:10px 12px;border-left:4px solid #f59e0b;background:#fffbeb}.srw-caller-status.ready{border-color:#16a34a;background:#f0fdf4}.srw-caller-status.review{border-color:#0ea5e9;background:#f0f9ff}.srw-caller-status small{color:#52677e}.srw-caller-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.srw-caller-steps article{display:flex;align-items:flex-start;gap:9px;padding:11px;border:1px solid #cbd9e6;background:#fff}.srw-caller-steps article>span{display:grid;place-items:center;flex:0 0 26px;width:26px;height:26px;border-radius:50%;background:#e2e8f0;color:#475569;font-size:11px;letter-spacing:0}.srw-caller-steps article.done>span{background:#dcfce7;color:#166534}.srw-caller-steps article.current{border-color:#0ea5e9;background:#f0f9ff}.srw-caller-steps article.current>span{background:#0ea5e9;color:#fff}.srw-caller-steps article>div{display:grid;gap:3px}.srw-caller-steps small{color:#64748b}.srw-caller-actions{margin-top:0}.srw-caller-plan{border-top:1px solid #cbd9e6;padding-top:10px}.srw-caller-plan>summary,.srw-caller-plan>details>summary{cursor:pointer;font-weight:900}.srw-caller-plan-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}.srw-caller-plan-grid article{display:grid;gap:4px;padding:11px;border:1px solid #cbd9e6;background:#fff}.srw-caller-plan-grid span,.srw-caller-plan-grid small{color:#64748b;font-size:9px}.srw-caller-plan>details{padding:10px;border:1px solid #cbd9e6;background:#fff}.srw-caller-console{background:#fff}.srw-call-readiness{display:grid;flex:0 0 min(430px,42%);gap:4px;padding:10px 12px;border-left:4px solid #f59e0b;background:#fffbeb;text-align:left!important}.srw-call-readiness.ready{border-color:#16a34a;background:#f0fdf4}.srw-call-readiness small{color:#52677e}.srw-call-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 14px;border-bottom:1px solid #cbd9e6;background:#f8fafc}.srw-call-metrics article{display:grid;gap:2px;padding:11px;border:1px solid #cbd9e6;background:#fff}.srw-call-metrics strong{font-size:20px}.srw-call-metrics span{font-size:10px;font-weight:900}.srw-call-metrics small{color:#64748b;font-size:9px}.srw-console-column-title{display:flex;align-items:center;justify-content:space-between;gap:10px}.srw-console-column-title>div{display:grid;gap:2px}.srw-console-column-title small{color:#64748b}.srw-console-empty{margin-top:8px;padding:18px;border:1px dashed #94a3b8;background:#fff}.srw-console-empty p{margin-bottom:0!important}.srw-call-technical{border-top:1px solid #cbd9e6;padding:10px 14px}.srw-call-technical>summary{cursor:pointer;font-weight:900}.srw-call-technical>div{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;margin-top:10px}.srw-call-technical span{color:#64748b}.srw-caller-settings form{gap:16px}.srw-caller-form-notice{padding:12px;border-left:4px solid #0ea5e9;background:#f0f9ff}.srw-caller-form-notice p{margin:4px 0 0!important}.srw-caller-form-section{display:grid;gap:12px;padding:14px;border:1px solid #cbd9e6;background:#f8fafc}.srw-caller-form-heading{display:flex;align-items:flex-start;gap:10px}.srw-caller-form-heading>span{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;border-radius:50%;background:#075985;color:#fff!important;font-size:11px!important;letter-spacing:0!important}.srw-caller-form-heading>div{display:grid;gap:3px}.srw-caller-form-heading small{color:#64748b}.srw-caller-check-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.srw-caller-check-grid>label{display:flex!important;align-items:flex-start;gap:8px;padding:9px;border:1px solid #d8e4ec;background:#fff;font-size:10px!important}.srw-caller-check-grid input{flex:0 0 auto;width:auto!important;margin:1px 0 0}.srw-caller-boundary{display:grid;gap:4px;padding:10px;border-left:4px solid #f59e0b;background:#fffbeb}.srw-caller-boundary span{color:#52677e;font-size:10px}.srw-caller-form-advanced{display:grid;gap:12px;padding:14px;border:1px solid #cbd9e6}.srw-caller-form-advanced>summary{cursor:pointer;font-weight:900}.srw-caller-form-advanced[open]>summary{margin-bottom:12px}.srw-caller-form-advanced>label,.srw-caller-form-advanced>.srw-two{margin-top:10px}.srw-caller-settings footer>small{margin-right:auto;color:#64748b;max-width:280px}@media(max-width:900px){.srw-caller-setup>header,.srw-caller-console>header{flex-direction:column}.srw-caller-status,.srw-call-readiness{flex-basis:auto;width:100%}.srw-caller-plan-grid,.srw-call-metrics{grid-template-columns:1fr 1fr}}@media(max-width:600px){.srw-caller-steps,.srw-caller-plan-grid,.srw-caller-check-grid,.srw-call-metrics{grid-template-columns:1fr}.srw-caller-settings .srw-two{grid-template-columns:1fr}.srw-call-technical>div{grid-template-columns:1fr}.srw-caller-settings footer{align-items:stretch;flex-direction:column}.srw-caller-settings footer>small{max-width:none;margin:0}}';
     style.textContent += '.srw-call-centre{display:grid;gap:14px;margin:0 18px 18px;padding:18px;border:1px solid #b7c9d8;border-top:5px solid #8b5cf6;background:#f8fafc}.srw-call-centre>header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.srw-call-centre>header>div{min-width:0}.srw-call-centre>header span{color:#0f766e;font-size:10px;font-weight:900;letter-spacing:.2em}.srw-call-centre>header p{max-width:880px;margin:5px 0 0!important}.srw-call-centre-guide{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.srw-call-centre-guide article{display:grid;grid-template-columns:auto 1fr;gap:2px 9px;padding:11px;border:1px solid #d8e4ec;background:#fff}.srw-call-centre-guide article>span{display:grid;grid-row:1/3;place-items:center;width:27px;height:27px;border-radius:50%;background:#075985;color:#fff;font-size:10px;font-weight:900}.srw-call-centre-guide article>b{font-size:11px}.srw-call-centre-guide article>small{color:#64748b;font-size:9px}.srw-call-centre-summary{display:flex;gap:18px;padding:9px 12px;border:1px solid #d8e4ec;background:#eef6fb;color:#52677e}.srw-call-centre-summary b{color:#102a43}.srw-call-agent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr));gap:10px}.srw-call-agent-card{display:grid;gap:11px;padding:14px;border:1px solid #b7c9d8;border-left:4px solid #f59e0b;background:#fff}.srw-call-agent-card.active{border-left-color:#16a34a}.srw-call-agent-card>header{display:flex;justify-content:space-between;gap:12px}.srw-call-agent-card>header>div{display:grid;gap:3px}.srw-call-agent-card>header span{color:#0f766e;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.srw-call-agent-card>header h4{margin:0;font-size:16px}.srw-call-agent-card>header>b{align-self:start;padding:4px 7px;background:#f1f5f9;color:#475569;font-size:9px;text-transform:uppercase}.srw-call-agent-card.active>header>b{background:#dcfce7;color:#166534}.srw-call-agent-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.srw-call-agent-facts>span{display:grid;gap:3px;min-width:0;padding:8px;background:#f8fafc;color:#64748b;font-size:8px;text-transform:uppercase}.srw-call-agent-facts b{overflow:hidden;color:#102a43;font-size:10px;text-overflow:ellipsis;white-space:nowrap;text-transform:none}.srw-call-agent-card>p{margin:0!important;font-size:10px}.srw-call-agent-card>footer{display:flex;gap:7px;flex-wrap:wrap;padding-top:10px;border-top:1px solid #e2e8f0}.srw-call-centre-empty{display:grid;justify-items:start;gap:7px;padding:22px;border:1px dashed #94a3b8;background:#fff}.srw-call-centre-empty p{margin:0!important}.srw-call-centre-boundary{padding-top:2px}.srw-call-centre-boundary>summary{cursor:pointer;font-weight:900}.srw-call-centre-boundary>div{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}.srw-call-centre-boundary p{margin:0!important;padding:10px;background:#fff;border:1px solid #d8e4ec}.srw-call-agent-builder{width:min(760px,98vw)}.srw-agent-direction{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0;padding:0;border:0}.srw-agent-direction legend{margin-bottom:6px;font-size:10px;font-weight:900}.srw-agent-direction label{display:grid!important;grid-template-columns:auto 1fr;gap:3px 8px;padding:11px;border:1px solid #cbd9e6;background:#fff;cursor:pointer}.srw-agent-direction input{grid-row:1/3;width:auto!important}.srw-agent-direction small{color:#64748b}@media(max-width:900px){.srw-call-centre-guide{grid-template-columns:1fr 1fr}.srw-call-centre-boundary>div{grid-template-columns:1fr}.srw-call-centre>header{flex-direction:column}}@media(max-width:600px){.srw-call-centre{margin:0 10px 10px;padding:12px}.srw-call-centre-guide,.srw-agent-direction,.srw-call-agent-facts{grid-template-columns:1fr}.srw-call-centre-summary{flex-wrap:wrap}}';
     style.textContent += '.srw-call-centre-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.srw-phone-provider-route{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 13px;border-left:4px solid #0ea5e9;background:#eef8fd}.srw-phone-provider-route>div{display:grid;gap:2px}.srw-phone-provider-route span{color:#52677e;font-size:10px}.srw-phone-provider-route button,.srw-call-centre-head-actions button{white-space:nowrap}@media(max-width:900px){.srw-call-centre-head-actions{justify-content:flex-start}.srw-phone-provider-route{align-items:stretch;flex-direction:column}}';
+    style.textContent += '.srw-call-centre{border:1px solid #d9e2ec;border-top:4px solid #2563eb;border-radius:16px;background:#fff;box-shadow:0 12px 30px rgba(15,23,42,.05);overflow:hidden}.srw-call-centre>header span,.srw-call-agent-card>header span,.srw-caller-setup>header span{color:#2563eb}.srw-call-centre-guide article{border-color:#d9e2ec;border-radius:12px;background:#fff}.srw-call-centre-guide article>span,.srw-caller-form-heading>span{background:#2563eb;color:#fff}.srw-phone-provider-route{border-left-color:#2563eb;border-radius:12px;background:#eef5ff}.srw-call-centre-summary{border-color:#d9e2ec;border-radius:12px;background:#f7f9fc}.srw-call-centre-empty{border-color:#b8c8dd;border-radius:12px;background:#fff}.srw-call-centre-boundary p{border-color:#d9e2ec;border-radius:11px}.srw-call-agent-card{border-color:#d9e2ec;border-left-color:#2563eb;border-radius:12px}.srw-call-agent-card.active{border-left-color:#2563eb}.srw-call-agent-card.active>header>b{background:#eef5ff;color:#2563eb}.srw-caller-setup{border-color:#d9e2ec;border-left-color:#2563eb;border-radius:15px;background:#fff}.srw-caller-status.ready,.srw-caller-status.review{border-color:#2563eb;background:#eef5ff}.srw-caller-steps article{border-color:#d9e2ec;border-radius:11px}.srw-caller-steps article.done>span,.srw-caller-steps article.current>span{background:#2563eb;color:#fff}.srw-caller-steps article.current{border-color:#9bb8f7;background:#eef5ff}.srw-caller-form-notice{border-left-color:#2563eb;background:#eef5ff}.srw-caller-form-section,.srw-caller-form-advanced,.srw-agent-direction label,.srw-caller-check-grid>label{border-color:#d9e2ec;border-radius:12px}.srw-call-metrics article,.srw-console-empty{border-color:#d9e2ec;border-radius:11px}.srw-call-readiness.ready{border-color:#2563eb;background:#eef5ff}';
+    style.textContent += `
+      /* Current Tessaris branding: Sales revenue flow */
+      .srw-shell > nav button {
+        border-color: #cbd5e1 !important;
+        border-radius: 12px !important;
+        background: #ffffff !important;
+        color: #17233b !important;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, .04) !important;
+      }
+      .srw-shell > nav button:hover {
+        border-color: #9bb8f7 !important;
+        background: #f8fafc !important;
+        color: #17233b !important;
+      }
+      .srw-shell > nav button.primary {
+        border-color: #2563eb !important;
+        background: #2563eb !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 18px rgba(37, 99, 235, .18) !important;
+      }
+      .srw-unified-revenue-flow {
+        margin: 18px !important;
+        padding: 22px !important;
+        border: 1px solid #d9e2ec !important;
+        border-radius: 18px !important;
+        background: #ffffff !important;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, .045) !important;
+      }
+      .srw-unified-revenue-flow .srw-title {
+        align-items: center !important;
+        margin-bottom: 18px !important;
+        padding-bottom: 14px !important;
+        border-color: #e2e8f0 !important;
+      }
+      .srw-unified-revenue-flow .srw-title span {
+        color: #2563eb !important;
+      }
+      .srw-unified-revenue-flow .srw-title h3,
+      .srw-unified-revenue-flow .srw-deal-card > b {
+        color: #111b34 !important;
+      }
+      .srw-unified-revenue-flow .srw-title > small {
+        color: #64748b !important;
+      }
+      .srw-unified-filter {
+        gap: 8px !important;
+        margin-bottom: 16px !important;
+      }
+      .srw-unified-filter > small,
+      .srw-deal-controls label span {
+        color: #475569 !important;
+      }
+      .srw-unified-filter > nav {
+        gap: 8px !important;
+      }
+      .srw-unified-filter > nav button {
+        min-height: 40px !important;
+        padding: 9px 13px !important;
+        border-color: #cbd5e1 !important;
+        border-radius: 12px !important;
+        background: #ffffff !important;
+        color: #334155 !important;
+        box-shadow: none !important;
+      }
+      .srw-unified-filter > nav button:hover {
+        border-color: #9bb8f7 !important;
+        background: #f8fafc !important;
+        color: #17233b !important;
+      }
+      .srw-unified-filter > nav button.active {
+        border-color: #2563eb !important;
+        background: #2563eb !important;
+        color: #ffffff !important;
+      }
+      .srw-unified-filter > nav button span {
+        background: #eef2f7 !important;
+        color: #475569 !important;
+      }
+      .srw-unified-filter > nav button.active span {
+        background: rgba(255, 255, 255, .18) !important;
+        color: #ffffff !important;
+      }
+      .srw-deal-controls {
+        gap: 14px !important;
+        margin-bottom: 14px !important;
+        padding: 14px !important;
+        border-color: #d9e2ec !important;
+        border-radius: 14px !important;
+        background: #f8fafc !important;
+      }
+      .srw-deal-controls input,
+      .srw-deal-controls select {
+        border-color: #cbd5e1 !important;
+        border-radius: 11px !important;
+        background: #ffffff !important;
+        color: #17233b !important;
+        box-shadow: none !important;
+      }
+      .srw-deal-controls input:focus,
+      .srw-deal-controls select:focus {
+        border-color: #2563eb !important;
+        outline: 3px solid rgba(37, 99, 235, .12) !important;
+      }
+      .srw-deal-controls small {
+        color: #64748b !important;
+      }
+      .srw-deal-controls button {
+        border-color: #cbd5e1 !important;
+        border-radius: 11px !important;
+        background: #ffffff !important;
+        color: #17233b !important;
+      }
+      .srw-deal-controls button:hover {
+        border-color: #2563eb !important;
+        color: #2563eb !important;
+      }
+      .srw-deal-card {
+        min-height: 140px !important;
+        padding: 15px !important;
+        border: 1px solid #d9e2ec !important;
+        border-radius: 14px !important;
+        background: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, .035) !important;
+      }
+      .srw-deal-card:hover {
+        border-color: #9bb8f7 !important;
+        background: #fbfdff !important;
+        transform: translateY(-1px);
+      }
+      .srw-deal-card > b {
+        font-size: 16px !important;
+      }
+      .srw-deal-card > p,
+      .srw-deal-card > header span:last-child,
+      .srw-deal-card > footer small,
+      .srw-deal-card > footer em {
+        color: #64748b !important;
+      }
+      .srw-deal-card > footer {
+        border-color: #e2e8f0 !important;
+      }
+      .srw-stage {
+        border-radius: 999px !important;
+        background: #eef5ff !important;
+        color: #2563eb !important;
+      }
+    `;
     document.head.appendChild(style);
   }
 

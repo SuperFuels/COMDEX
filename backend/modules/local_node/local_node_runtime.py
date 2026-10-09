@@ -4,7 +4,9 @@ from typing import Any, Dict, List, Optional
 from pathlib import Path
 import hashlib
 import json
+import re
 import sqlite3
+from decimal import Decimal, InvalidOperation
 from backend.modules.local_node.contracts_cloud_sync import CloudSyncRemoteCommand
 from backend.modules.local_node.contracts_local_node import (
     DeploymentMode,
@@ -62,6 +64,108 @@ try:
     )
 except Exception:
     BusinessContainerService = None  # type: ignore[misc,assignment]
+
+
+def _verified_unit_total(prompt: str) -> Optional[str]:
+    """Answer a narrow unit-price question without asking an LLM to do arithmetic."""
+    match = re.search(
+        r"(?P<count>\d[\d,]*(?:\.\d+)?)\s+(?:customers?|units?|items?|orders?)\s+"
+        r"(?:at|x|times)\s+(?P<currency>[$£€])?\s*(?P<price>\d[\d,]*(?:\.\d+)?)"
+        r"(?:\s*(?:per|/|each)\s*(?:customer|unit|item|order))?",
+        str(prompt or ""),
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return None
+    try:
+        count = Decimal(match.group("count").replace(",", ""))
+        price = Decimal(match.group("price").replace(",", ""))
+    except (InvalidOperation, AttributeError):
+        return None
+    total = count * price
+    symbol = match.group("currency") or ""
+    rendered = f"{total:,.2f}".rstrip("0").rstrip(".")
+    return f"{match.group('count')} × {symbol}{match.group('price')} = {symbol}{rendered}."
+
+
+def _friendly_provider_failure(provider: str, error: Exception) -> Dict[str, Any]:
+    """Keep provider diagnostics in audit data and return safe copy for the chat UI."""
+    clean_provider = str(provider or "").strip().lower()
+    detail = f"{type(error).__name__}: {error}"
+    lowered = detail.lower()
+    if any(
+        marker in lowered
+        for marker in (
+            "local_model_context_limit_exceeded",
+            "context size",
+            "context window",
+            "too many tokens",
+            "exceeds the available context",
+        )
+    ):
+        return {
+            "error_code": "local_model_context_limit",
+            "user_message": "This conversation is too large for the selected local model. Start a new chat, then try again.",
+            "retryable": True,
+            "detail": detail,
+        }
+    if clean_provider in {"local_model", "local-package", "gemma", "gemma4", "local", "ollama"}:
+        if "not_selected" in lowered:
+            return {
+                "error_code": "local_model_not_selected",
+                "user_message": "This local model is not selected for the current workspace. Open Connections, select it as the lead model, then try again.",
+                "retryable": True,
+                "detail": detail,
+            }
+        return {
+            "error_code": "local_model_unavailable",
+            "user_message": "The local model is installed but its runtime is not ready. Open Connections to start or reselect it, then try again.",
+            "retryable": True,
+            "detail": detail,
+        }
+    if "429" in lowered or "quota" in lowered or "rate limit" in lowered:
+        return {
+            "error_code": "provider_quota_reached",
+            "user_message": "This model has reached its current request limit. Try again later or choose another connected model.",
+            "retryable": True,
+            "detail": detail,
+        }
+    if any(value in lowered for value in ("401", "403", "api key", "unauthor", "forbidden")):
+        return {
+            "error_code": "provider_connection_invalid",
+            "user_message": "This model connection needs attention. Open Connections to check its API key, then try again.",
+            "retryable": False,
+            "detail": detail,
+        }
+    return {
+        "error_code": "provider_unavailable",
+        "user_message": "This model could not respond just now. Check its status in Connections or choose another connected model.",
+        "retryable": True,
+        "detail": detail,
+    }
+
+
+def _attach_governed_web_sources(text: str, evidence: Any) -> str:
+    """Replace model-written source tails with AION's verified source links."""
+    clean_text = re.sub(
+        r"\n\s*(?:The\s+)?Sources(?:\s+are)?\s*:\s*\n.*\Z",
+        "",
+        str(text or "").strip(),
+        flags=re.IGNORECASE | re.DOTALL,
+    ).rstrip()
+    source_lines: List[str] = []
+    for item in list(evidence or [])[:4]:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("url") or "").strip()
+        if not re.match(r"^https?://", url, flags=re.IGNORECASE):
+            continue
+        title = " ".join(str(item.get("title") or "Source").split()).strip()
+        title = title.replace("[", "").replace("]", "")[:180] or "Source"
+        source_lines.append(f"{len(source_lines) + 1}. [{title}]({url})")
+    if not source_lines:
+        return clean_text
+    return f"{clean_text}\n\nSources:\n" + "\n".join(source_lines)
 
 
 class LocalNodeRuntime:
@@ -7278,13 +7382,64 @@ class LocalNodeRuntime:
 
         return "\n".join(parts).strip()
 
+    def _call_gemini_chat(self, *, prompt: str) -> str:
+        import urllib.request
+
+        from backend.modules.vault.ai_provider_key_store import (
+            get_ai_provider_model,
+            get_ai_provider_secret,
+        )
+
+        api_key = str(get_ai_provider_secret("gemini") or "").strip()
+        if not api_key:
+            raise RuntimeError("Gemini API key is not connected.")
+        model = str(get_ai_provider_model("gemini") or "gemini-2.5-flash").strip()
+        request = urllib.request.Request(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+            data=json.dumps({
+                "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.3, "maxOutputTokens": 2048},
+            }).encode("utf-8"),
+            headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=120) as response:
+            data = json.loads(response.read().decode("utf-8"))
+        parts = (data.get("candidates") or [{}])[0].get("content", {}).get("parts", [])
+        content = "\n".join(
+            str(part.get("text") or "")
+            for part in parts
+            if isinstance(part, dict) and part.get("text")
+        ).strip()
+        if not content:
+            raise RuntimeError("Gemini returned an empty response.")
+        return content
+
     def _call_selected_ai_provider(
         self,
         *,
         provider: str,
         prompt: str,
+        workspace_id: Optional[str] = None,
     ) -> str:
         clean_provider = str(provider or "gemma4").strip().lower()
+
+        if clean_provider in {"local_model", "local-package"}:
+            try:
+                from backend.services.aion_mission_mode.pilot_local_model_runtime import (
+                    run_selected_local_chat,
+                    selected_local_runtime_profile_for_workspace,
+                )
+
+                profile = selected_local_runtime_profile_for_workspace(
+                    str(workspace_id or self.config.workspace_id or "home-fixed")
+                )
+                result = run_selected_local_chat(prompt=prompt, runtime_profile=profile)
+                return str(result.get("content") or "").strip()
+            except Exception as exc:
+                raise RuntimeError(
+                    f"Selected local model failed: {type(exc).__name__}: {exc}"
+                ) from exc
 
         if clean_provider in {
             "aion",
@@ -7299,6 +7454,9 @@ class LocalNodeRuntime:
 
         if clean_provider in {"openai", "gpt", "chatgpt"}:
             return self._call_openai_chat(prompt=prompt)
+
+        if clean_provider in {"gemini", "google"}:
+            return self._call_gemini_chat(prompt=prompt)
 
         if clean_provider in {"claude", "anthropic"}:
             return self._call_claude_chat(prompt=prompt)
@@ -7487,6 +7645,16 @@ class LocalNodeRuntime:
             "status": status or {},
         }
 
+        # Workspace snapshots can contain embedded artifacts, images and long
+        # audit histories. Sending that entire payload turned a one-line chat
+        # question into a multi-megabyte model request, exhausting Gemini's
+        # free quota and overflowing the bounded local model context. Keep the
+        # verified facts intact and provide a compact, representative snapshot
+        # for reasoning instead.
+        local_providers = {"local_model", "local-package", "gemma", "gemma4", "local", "ollama"}
+        context_budget = 4_500 if str(provider or "").strip().lower() in local_providers else 12_000
+        compact_context = self._trim_for_prompt(context, max_chars=context_budget)
+
         return (
             "You are the reasoning engine used by Aion Business Desktop.\n"
             "Aion is the business context and orchestration layer. You are only the language/reasoning engine.\n\n"
@@ -7498,7 +7666,7 @@ class LocalNodeRuntime:
             "- Keep the answer practical and concise.\n\n"
             f"Selected provider: {provider}\n\n"
             "BUSINESS CONTEXT JSON:\n"
-            f"{json.dumps(context, ensure_ascii=False, default=str, indent=2)}\n\n"
+            f"{compact_context}\n\n"
             "USER QUESTION:\n"
             f"{prompt}"
         )
@@ -7508,8 +7676,26 @@ class LocalNodeRuntime:
         *,
         provider: str,
         prompt: str,
+        workspace_id: Optional[str] = None,
     ) -> str:
         clean_provider = str(provider or "gemma4").strip().lower()
+
+        if clean_provider in {"local_model", "local-package"}:
+            try:
+                from backend.services.aion_mission_mode.pilot_local_model_runtime import (
+                    run_selected_local_chat,
+                    selected_local_runtime_profile_for_workspace,
+                )
+
+                profile = selected_local_runtime_profile_for_workspace(
+                    str(workspace_id or self.config.workspace_id or "home-fixed")
+                )
+                result = run_selected_local_chat(prompt=prompt, runtime_profile=profile)
+                return str(result.get("content") or "").strip()
+            except Exception as exc:
+                raise RuntimeError(
+                    f"Selected local model failed: {type(exc).__name__}: {exc}"
+                ) from exc
 
         # Aion is not a model. Aion means:
         # business-context/orchestration layer + selected local/cloud reasoning engine.
@@ -7546,6 +7732,9 @@ class LocalNodeRuntime:
 
         if clean_provider in {"openai", "gpt", "chatgpt"}:
             return self._call_openai_chat(prompt=prompt)
+
+        if clean_provider in {"gemini", "google"}:
+            return self._call_gemini_chat(prompt=prompt)
 
         if clean_provider in {"claude", "anthropic"}:
             return self._call_claude_chat(prompt=prompt)
@@ -7628,6 +7817,17 @@ class LocalNodeRuntime:
 
         mode = str(extra.get("mode") or clean_context_mode or "").strip().lower()
 
+        from backend.modules.aion_fabric.chat_attachments import (
+            attachment_context_for_model,
+            prepare_chat_attachments,
+        )
+
+        workspace_context_input = extra.get("workspace_context")
+        raw_attachments = extra.get("attachments")
+        if not isinstance(raw_attachments, list) and isinstance(workspace_context_input, dict):
+            raw_attachments = workspace_context_input.get("chat_attachments")
+        prepared_attachments = prepare_chat_attachments(raw_attachments)
+
         use_business_context = mode in {
             "aion",
             "aion_chat",
@@ -7661,13 +7861,33 @@ class LocalNodeRuntime:
             status=status,
         )
 
-        prompt_lower = clean_prompt.lower()
+        # Conversation history may be included for model continuity. Route
+        # intents from the newest user turn only so an old provider error that
+        # contains words such as "failed" cannot become a queue-status request.
+        intent_prompt = clean_prompt.rsplit("\n\nUser:", 1)[-1].strip()
+        prompt_lower = intent_prompt.lower()
 
         def _has_any(*words: str) -> bool:
             return any(word in prompt_lower for word in words)
 
         def _is_present(value: Any) -> bool:
             return value not in (None, "", [], {})
+
+        verified_total = _verified_unit_total(intent_prompt)
+        if verified_total:
+            return {
+                "ok": True,
+                "text": verified_total,
+                "provider": "tessaris_verified_arithmetic",
+                "requested_provider": clean_provider,
+                "active_tab": clean_active_tab,
+                "context_mode": clean_context_mode,
+                "mode": mode,
+                "used_business_context": False,
+                "workspace_id": self.config.workspace_id,
+                "verified_calculation": True,
+                "at": utc_now_iso(),
+            }
 
         def _fact_response(
             *,
@@ -7710,6 +7930,97 @@ class LocalNodeRuntime:
                 pass
 
             return payload
+
+        # Unambiguous local-app intents are compiled by AION itself. This is
+        # faster and safer than asking a small model to reproduce the control
+        # protocol, while remaining identical for every selected provider.
+        desktop_app_hint: Optional[str] = None
+        try:
+            from backend.modules.aion_fabric.computer_harness import (
+                ComputerHarnessStore,
+                infer_explicit_desktop_app,
+                is_research_pages_request,
+                proposal_from_attachment_request,
+                proposal_from_user_request,
+                proposal_from_research_evidence,
+                research_query_from_pages_request,
+            )
+
+            desktop_app_hint = infer_explicit_desktop_app(intent_prompt)
+            direct_computer_proposal = None
+            direct_tools_used = ["aion_computer_harness"]
+            direct_evidence: list[dict[str, Any]] = []
+            research_pages_request = is_research_pages_request(intent_prompt)
+            direct_computer_proposal = proposal_from_attachment_request(
+                intent_prompt,
+                prepared_attachments,
+            )
+            if direct_computer_proposal is not None:
+                direct_tools_used.insert(0, "aion_chat_attachments")
+            elif research_pages_request:
+                from backend.modules.aion_fabric.research import AionTVResearch
+
+                direct_evidence = AionTVResearch(self.base_dir).collect_public_evidence(
+                    research_query_from_pages_request(intent_prompt)
+                )[:3]
+                direct_computer_proposal = proposal_from_research_evidence(
+                    intent_prompt,
+                    direct_evidence,
+                )
+                if direct_computer_proposal is not None:
+                    direct_tools_used.insert(0, "web.search_and_read")
+            # A composite research-to-document request must never degrade into
+            # the ordinary Pages shortcut (which can only create a blank
+            # document). If research is temporarily unavailable, leave the
+            # request to the normal model/tool path instead.
+            if direct_computer_proposal is None and not research_pages_request:
+                direct_computer_proposal = proposal_from_user_request(intent_prompt)
+            if direct_computer_proposal is not None:
+                direct_computer_plan = ComputerHarnessStore(self.base_dir).create_plan(
+                    proposal=direct_computer_proposal,
+                    provider=clean_provider,
+                    model=clean_provider,
+                    workspace_id=str(self.config.workspace_id),
+                    requested_by="aion_chat",
+                )
+                return _fact_response(
+                    text=(
+                        "I have prepared the desktop steps, but I have not changed anything yet. "
+                        "Review and approve the exact app action below before AION continues."
+                        if direct_computer_plan.get("state") == "awaiting_user_approval"
+                        else "AION is carrying out this local desktop task now. A completion receipt will appear here when it finishes."
+                    ),
+                    extra_payload={
+                        "computer_plan": direct_computer_plan,
+                        "tools_used": direct_tools_used,
+                        "web_evidence": direct_evidence,
+                    },
+                )
+        except (ValueError, PermissionError):
+            pass
+
+        # Public live-data utilities belong to AION rather than to any one
+        # connected model. This keeps weather and time available to Qwen and
+        # every other approved local or API model through the same harness.
+        try:
+            from backend.modules.aion_fabric.live_public_tools import (
+                answer_live_public_question,
+            )
+
+            live_answer = answer_live_public_question(intent_prompt)
+            if live_answer is not None:
+                return _fact_response(
+                    text=str(live_answer.get("text") or ""),
+                    extra_payload={
+                        "tools_used": [str(live_answer.get("tool_name") or "")],
+                        "source_url": live_answer.get("source_url"),
+                        "live_public_data": True,
+                    },
+                )
+        except Exception:
+            # A transient public-data outage must not take down ordinary chat;
+            # the provider-neutral research route remains available below.
+            pass
 
         # Direct factual Aion answers.
         # These must NOT call Gemma/OpenAI/Claude because the values already live in
@@ -7912,9 +8223,39 @@ class LocalNodeRuntime:
 
                 return _fact_response(text="\n".join(text_lines))
 
+        # AION's native English route gets first refusal for the operations it
+        # can prove from its own lexical store. Unhandled questions continue to
+        # the selected local model; native answers do not invoke any model.
+        if mode in {"aion", "aion_chat"} or clean_provider in {"aion", "aion_chat"}:
+            try:
+                from backend.modules.aion_cognition.native_lexical_intelligence import (
+                    NativeLexicalIntelligence,
+                )
+                native_root = Path(__file__).resolve().parents[3]
+                native_answer = NativeLexicalIntelligence(repo_root=native_root).answer(clean_prompt)
+                if native_answer.get("answered"):
+                    return _fact_response(
+                        text=str(native_answer["answer"]),
+                        extra_payload={
+                            "native_lexical": True,
+                            "model_used": False,
+                            "native_mode": native_answer.get("mode"),
+                            "native_confidence": native_answer.get("confidence"),
+                            "native_evidence": native_answer.get("evidence"),
+                        },
+                    )
+            except Exception:
+                # A missing/corrupt optional lexicon must not take down the
+                # desktop assistant; the normal local-provider route remains.
+                pass
+
         if use_business_context:
             final_prompt = self._build_aion_business_context_prompt(
-                prompt=clean_prompt,
+                # The frontend supplies saved turns for intent detection. Do
+                # not replay that whole transcript inside the business prompt:
+                # it duplicates history and can overflow a bounded local
+                # model before the newest question is reached.
+                prompt=intent_prompt,
                 provider=clean_provider,
                 active_tab=clean_active_tab,
                 context_mode=clean_context_mode,
@@ -7936,11 +8277,194 @@ class LocalNodeRuntime:
         else:
             final_prompt = clean_prompt
 
+        attachment_context = attachment_context_for_model(prepared_attachments)
+        if attachment_context:
+            final_prompt = f"{final_prompt}{attachment_context}"
+
+        # Current-information requests use the same AION-owned research tool
+        # regardless of whether the selected approved connection is local,
+        # hosted, open-source, or premium API based.  Providers receive bounded
+        # evidence; they never receive browser credentials or raw tool access.
+        tool_context = None
         try:
+            from backend.modules.aion_fabric.model_tool_runtime import ConnectedModelToolRuntime
+            from backend.modules.aion_fabric.research import AionTVResearch
+
+            research = AionTVResearch(self.base_dir)
+            tool_context = ConnectedModelToolRuntime(
+                evidence_search=lambda query: research.collect_public_evidence(query),
+            ).prepare(intent_prompt)
+            if tool_context is not None:
+                governed_research_prompt = tool_context.render_for_model()
+                final_prompt = (
+                    f"{final_prompt}\n\n{governed_research_prompt}"
+                    if use_business_context
+                    else governed_research_prompt
+                )
+        except Exception:
+            # Research is an optional read capability. A search outage must not
+            # take down ordinary chat or silently grant a model direct access.
+            tool_context = None
+
+        # Every approved connected model receives the same semantic browser
+        # contract. Models may propose a plan, but only AION can validate it,
+        # request approval and issue a one-time execution grant.
+        if desktop_app_hint is None:
+            try:
+                from backend.modules.aion_fabric.browser_harness import browser_tool_prompt
+
+                final_prompt = f"{final_prompt}\n\n{browser_tool_prompt()}"
+            except Exception:
+                pass
+
+        # Desktop application work uses the same provider-neutral planning
+        # boundary. The selected model can describe steps; AION alone may
+        # approve and grant them to the signed desktop executor.
+        try:
+            from backend.modules.aion_fabric.computer_harness import computer_tool_prompt
+
+            desktop_hint = (
+                f" The user explicitly named the macOS desktop app {desktop_app_hint}. "
+                "This is not a website task and you must not return an AION_BROWSER_PLAN."
+                if desktop_app_hint
+                else ""
+            )
+            final_prompt = f"{final_prompt}\n\n{computer_tool_prompt()}{desktop_hint}"
+        except Exception:
+            pass
+
+        failure: Dict[str, Any] = {}
+        browser_plan: Optional[Dict[str, Any]] = None
+        computer_plan: Optional[Dict[str, Any]] = None
+        try:
+            workspace_context = extra.get("workspace_context")
+            selected_workspace_id = (
+                workspace_context.get("workspace_id")
+                if isinstance(workspace_context, dict)
+                else None
+            )
             text = self._call_selected_ai_provider(
                 provider=clean_provider,
                 prompt=final_prompt,
+                workspace_id=str(selected_workspace_id or self.config.workspace_id or "home-fixed"),
             )
+
+            if desktop_app_hint and "<AION_BROWSER_PLAN>" in str(text):
+                from backend.modules.aion_fabric.computer_harness import computer_tool_prompt
+
+                text = self._call_selected_ai_provider(
+                    provider=clean_provider,
+                    prompt=(
+                        f"The user requested work in the macOS desktop app {desktop_app_hint}, not a website. "
+                        "Your browser plan was rejected and nothing ran. Re-plan the original request using the "
+                        "desktop contract only.\n\n"
+                        f"Original request: {intent_prompt[:2000]}\n\n{computer_tool_prompt()}"
+                    ),
+                    workspace_id=str(selected_workspace_id or self.config.workspace_id or "home-fixed"),
+                )
+
+            try:
+                from backend.modules.aion_fabric.browser_harness import (
+                    BrowserHarnessStore,
+                    extract_browser_plan,
+                )
+
+                proposal = None if desktop_app_hint else extract_browser_plan(text)
+                if proposal is not None:
+                    browser_plan = BrowserHarnessStore(self.base_dir).create_plan(
+                        proposal=proposal,
+                        provider=clean_provider,
+                        model=clean_provider,
+                        workspace_id=str(self.config.workspace_id),
+                        requested_by="aion_chat",
+                    )
+                    if browser_plan.get("state") == "awaiting_user_approval":
+                        text = (
+                            "I have prepared the browser steps, but I have not run them. "
+                            "Review and approve the exact typing or click actions below before AION continues."
+                        )
+                    else:
+                        text = (
+                            "I have prepared a read-only browser task in Tessaris's isolated browser. "
+                            "Run it to navigate and collect the page evidence; no external data will be changed."
+                        )
+            except (ValueError, PermissionError):
+                # An invalid model proposal is never executed or silently
+                # relaxed. Treat it as a blocked plan and keep ordinary chat
+                # usable without granting authority.
+                browser_plan = None
+
+            try:
+                from backend.modules.aion_fabric.computer_harness import (
+                    ComputerHarnessStore,
+                    coerce_computer_proposal,
+                    computer_plan_repair_prompt,
+                    extract_computer_plan,
+                )
+
+                computer_proposal = extract_computer_plan(text)
+                if computer_proposal is not None:
+                    computer_proposal = coerce_computer_proposal(computer_proposal, user_request=intent_prompt)
+                    computer_store = ComputerHarnessStore(self.base_dir)
+                    try:
+                        computer_plan = computer_store.create_plan(
+                            proposal=computer_proposal,
+                            provider=clean_provider,
+                            model=clean_provider,
+                            workspace_id=str(self.config.workspace_id),
+                            requested_by="aion_chat",
+                        )
+                    except ValueError as validation_error:
+                        repaired_text = self._call_selected_ai_provider(
+                            provider=clean_provider,
+                            prompt=computer_plan_repair_prompt(
+                                user_request=intent_prompt,
+                                proposal=computer_proposal,
+                                error=str(validation_error),
+                            ),
+                            workspace_id=str(selected_workspace_id or self.config.workspace_id or "home-fixed"),
+                        )
+                        repaired_proposal = extract_computer_plan(repaired_text)
+                        if repaired_proposal is None:
+                            raise ValueError("computer_plan_repair_missing")
+                        repaired_proposal = coerce_computer_proposal(repaired_proposal, user_request=intent_prompt)
+                        computer_plan = computer_store.create_plan(
+                            proposal=repaired_proposal,
+                            provider=clean_provider,
+                            model=clean_provider,
+                            workspace_id=str(self.config.workspace_id),
+                            requested_by="aion_chat",
+                        )
+                    if computer_plan.get("state") == "awaiting_user_approval":
+                        text = (
+                            "I have prepared the desktop steps, but I have not changed anything yet. "
+                            "Review and approve the exact app action below before AION continues."
+                        )
+                    else:
+                        text = "AION is carrying out this local desktop task now. A completion receipt will appear here when it finishes."
+            except (ValueError, PermissionError) as computer_plan_error:
+                computer_plan = None
+                try:
+                    self._append_audit(
+                        event_type="local_node.computer_plan_rejected",
+                        message="A model-proposed desktop plan failed validation",
+                        payload={
+                            "provider": clean_provider,
+                            "error": str(computer_plan_error),
+                            "response_preview": str(text)[:1000],
+                        },
+                        level="warning",
+                    )
+                except Exception:
+                    pass
+                if "AION_COMPUTER_PLAN>" in str(text):
+                    text = (
+                        "AION could not validate the desktop steps proposed by this model, so nothing was run. "
+                        "Please try again with the app and desired outcome stated clearly."
+                    )
+
+            if tool_context is not None:
+                text = _attach_governed_web_sources(text, tool_context.evidence)
 
             if not text:
                 text = "No model response returned."
@@ -7950,13 +8474,9 @@ class LocalNodeRuntime:
 
         except Exception as exc:
             ok = False
-            error_text = f"{type(exc).__name__}: {exc}"
-            text = (
-                "The selected AI provider failed.\n\n"
-                f"Provider: {clean_provider}\n"
-                f"Error: {error_text}\n\n"
-                "Check that Ollama is running for Gemma, or switch to OpenAI/Claude for heavier reasoning."
-            )
+            failure = _friendly_provider_failure(clean_provider, exc)
+            error_text = str(failure["detail"])
+            text = str(failure["user_message"])
 
         self._append_audit(
             event_type="local_node.desktop_assistant_asked",
@@ -7974,6 +8494,10 @@ class LocalNodeRuntime:
                 "prompt_chars": len(final_prompt),
                 "ok": ok,
                 "error": error_text,
+                "tools_used": [tool_context.tool_name] if tool_context is not None else [],
+                "web_evidence_count": len(tool_context.evidence) if tool_context is not None else 0,
+                "browser_plan_id": browser_plan.get("plan_id") if browser_plan else None,
+                "computer_plan_id": computer_plan.get("plan_id") if computer_plan else None,
             },
             level="info" if ok else "error",
         )
@@ -7981,6 +8505,9 @@ class LocalNodeRuntime:
         return {
             "ok": ok,
             "text": text,
+            "user_message": text,
+            "error_code": failure.get("error_code") if not ok else None,
+            "retryable": failure.get("retryable") if not ok else None,
             "provider": clean_provider,
             "active_tab": clean_active_tab,
             "context_mode": clean_context_mode,
@@ -7989,6 +8516,10 @@ class LocalNodeRuntime:
             "target_path": target_path,
             "workspace_id": self.config.workspace_id,
             "facts": aion_facts,
+            "tools_used": [tool_context.tool_name] if tool_context is not None else [],
+            "web_evidence": [dict(item) for item in tool_context.evidence] if tool_context is not None else [],
+            "browser_plan": browser_plan,
+            "computer_plan": computer_plan,
             "at": utc_now_iso(),
         }
 
@@ -8093,6 +8624,8 @@ class LocalNodeRuntime:
         self,
         *,
         brief: str,
+        selected_provider: str | None = None,
+        selected_model: str | None = None,
         objective: str | None = None,
         funnel_goal: str | None = None,
         target_audience: str | None = None,
@@ -8155,9 +8688,13 @@ class LocalNodeRuntime:
 
         payload = {
             "brief": brief,
+            "selected_provider": selected_provider,
+            "selected_model": selected_model,
             "creative_assets": normalized_creative_assets,
             "creative_direction": normalized_creative_direction,
             "marketing_strategy": {
+                "selected_provider": selected_provider,
+                "selected_model": selected_model,
                 "objective": brand_foundation_snapshot.get("objective") or objective,
                 "funnel_goal": brand_foundation_snapshot.get("funnel_goal") or funnel_goal,
                 "target_audience": brand_foundation_snapshot.get("target_audience") or target_audience,

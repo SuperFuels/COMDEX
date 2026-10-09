@@ -1,5 +1,5 @@
 {
-  "apprentice_guidance_hash": "c45875ee9af23b746a5824cd15322631de2ed53848f12c4a809969a4526660fc",
+  "apprentice_guidance_hash": "48793b1a0adfab71a8f1aade0503e3bf3176b4537a0e02ab32785e12d45f21c9",
   "constitutional_purpose": "Develop and use increasingly general intelligence to create beneficial, evidence-backed knowledge and capability; respect human authority, law, consent, safety, provenance and legitimate uncertainty; never treat money, access, infrastructure, influence or self-preservation as terminal goals.",
   "maturity": {
     "current_stage": "apprentice",
@@ -664,6 +664,27 @@
       "target_level": "operational_bounded"
     },
     {
+      "current_level": "operational_bounded",
+      "goal_id": "north_star_6c571a7a222f61b8",
+      "next_missing_subskills": [
+        "lexical_grounding",
+        "semantic_relations",
+        "morphology",
+        "syntax"
+      ],
+      "objective": "Advance English natural-language cognition from operational_bounded toward proficient_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
+      "owner_supplied_lesson_steps": 0,
+      "prerequisites": [],
+      "priority": 1.933334,
+      "proposal_only": true,
+      "requires_independent_authority": true,
+      "requires_retention": true,
+      "requires_transfer": true,
+      "subject": "English natural-language cognition",
+      "subject_id": "english",
+      "target_level": "proficient_bounded"
+    },
+    {
       "current_level": "learning",
       "goal_id": "north_star_283101f9574e2b33",
       "next_missing_subskills": [
@@ -704,26 +725,6 @@
       "subject": "Physics",
       "subject_id": "physics",
       "target_level": "operational_bounded"
-    },
-    {
-      "current_level": "operational_bounded",
-      "goal_id": "north_star_da748701cf5606f6",
-      "next_missing_subskills": [
-        "arithmetic",
-        "discrete_math",
-        "proof"
-      ],
-      "objective": "Advance Mathematics from operational_bounded toward proficient_bounded through unfamiliar practice, independent outcomes, cross-subject transfer and retention.",
-      "owner_supplied_lesson_steps": 0,
-      "prerequisites": [],
-      "priority": 1.75,
-      "proposal_only": true,
-      "requires_independent_authority": true,
-      "requires_retention": true,
-      "requires_transfer": true,
-      "subject": "Mathematics",
-      "subject_id": "mathematics",
-      "target_level": "proficient_bounded"
     }
   ],
   "subjects": {
@@ -1103,7 +1104,7 @@
         "sealed_interpretation",
         "source_spans"
       ],
-      "coverage": 1.0,
+      "coverage": 0.533333,
       "demonstrated_subskills": [
         "ambiguity",
         "argument_structure",
@@ -1183,8 +1184,8 @@
         "failure recovery across the full subject rather than selected subskills"
       ],
       "group": "human_language",
-      "level": "proficient_bounded",
-      "level_index": 3,
+      "level": "operational_bounded",
+      "level_index": 2,
       "mastery_claim_authorized": false,
       "mastery_evidence_gaps": [
         "broad unfamiliar real projects rather than bounded cohorts",
@@ -1194,7 +1195,15 @@
         "adaptive teaching and leadership across the subject",
         "successful invention and transfer beyond the development distribution"
       ],
-      "missing_subskills": [],
+      "missing_subskills": [
+        "lexical_grounding",
+        "semantic_relations",
+        "morphology",
+        "syntax",
+        "sentence_semantics",
+        "reference_resolution",
+        "native_question_answering"
+      ],
       "name": "English natural-language cognition",
       "procedure_count": 4,
       "retention_evidence": true,
@@ -1202,7 +1211,7 @@
       "target_level": "proficient_bounded",
       "target_level_index": 3,
       "transfer_evidence": true,
-      "work_readiness": "substantial_bounded_work_with_independent_checks"
+      "work_readiness": "bounded_work_with_verification"
     },
     "finance_accounting": {
       "authorities": [
@@ -2488,5 +2497,5 @@
       "work_readiness": "not_ready"
     }
   },
-  "updated_at": "2026-09-05T07:37:53.567326+00:00"
+  "updated_at": "2026-10-09T21:32:42.583444+00:00"
 }

@@ -59,7 +59,10 @@ def _ev(path: str, skills: Sequence[str], authorities: Sequence[str]) -> tuple[s
 
 SUBJECTS: tuple[SubjectSpec, ...] = (
     SubjectSpec("english", "English natural-language cognition", "human_language", 1.0, "proficient_bounded",
-        ("instruction_understanding", "long_documents", "argument_structure", "ambiguity", "correction", "clear_generation", "pragmatics", "long_dialogue"),
+        ("lexical_grounding", "semantic_relations", "morphology", "syntax", "sentence_semantics",
+         "reference_resolution", "native_question_answering", "instruction_understanding",
+         "long_documents", "argument_structure", "ambiguity", "correction", "clear_generation",
+         "pragmatics", "long_dialogue"),
         (_ev("results/hexcore_persistent_natural_language_mission_interface.json", ("instruction_understanding","ambiguity","correction","clear_generation"), ("sealed_interpretation",)),
          _ev("results/hexcore_long_document_semantic_memory.json", ("long_documents","long_dialogue"), ("public_books",)),
          _ev("results/hexcore_open_relation_argument_memory.json", ("argument_structure","pragmatics"), ("source_spans",)),

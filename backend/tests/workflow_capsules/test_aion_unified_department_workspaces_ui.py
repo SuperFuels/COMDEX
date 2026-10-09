@@ -90,6 +90,12 @@ def test_people_command_centre_directory_pages_one_record_at_a_time():
     assert "data-hrw-person-next" in HR_JS
 
 
+def test_people_and_operations_share_the_same_starting_split():
+    assert 'data-aion-people-split="34"' in APP_JS
+    assert 'data-aion-operations-split="34"' in APP_JS
+    assert APP_JS.count("grid-template-columns:minmax(320px,34fr) 30px minmax(560px,66fr)") >= 2
+
+
 def test_character_identity_system_blinks_talks_and_listens_without_video_rendering():
     assert "function ensureAionCharacterIdentityStyles" in APP_JS
     assert "function renderAionCharacterFaceOverlay" in APP_JS
@@ -143,6 +149,12 @@ def test_marketing_and_operations_no_longer_embed_the_legacy_terminal_surface():
     operations = APP_JS[operations_start:operations_end]
     assert "renderAionDepartmentScopedPilotSurface" not in operations
     assert 'data-aion-operations-command-centre="true"' in operations
+
+
+def test_operations_defaults_to_one_third_chat_and_two_thirds_function_workspace():
+    assert 'data-aion-operations-split="34"' in APP_JS
+    assert "grid-template-columns:minmax(320px,34fr) 30px minmax(560px,66fr)" in APP_JS
+    assert "Math.max(28, Math.min(65, Math.round(raw)))" in APP_JS
 
 
 def test_hr_person_modal_preserves_unsaved_draft_during_background_refreshes():

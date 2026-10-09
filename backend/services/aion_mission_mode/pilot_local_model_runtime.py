@@ -15,7 +15,7 @@ import threading
 from time import monotonic
 from time import sleep
 from typing import Any, Callable, Mapping
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
@@ -73,6 +73,66 @@ def selected_local_runtime_profile(
     }
 
 
+def selected_local_runtime_profile_for_workspace(workspace_id: str) -> dict[str, Any]:
+    """Resolve the workspace's accepted Vault selection into a runnable profile."""
+    from backend.modules.aion_inference.local_model_selection_store import load_local_model_selection
+    from backend.modules.aion_inference.local_model_vault import LocalModelVault
+
+    requested_workspace_id = str(workspace_id or "home-fixed")
+    selection = load_local_model_selection(requested_workspace_id)
+    # Connections is currently a device-level desktop surface and stores the
+    # owner's approved lead model under the canonical desktop workspace. AI
+    # Chat, however, sends the active business container id. Reuse that
+    # already-approved device selection when the business has no explicit
+    # override; never replace an existing business-specific selection.
+    if selection.get("source") != "local_model_vault" and requested_workspace_id != "home-fixed":
+        canonical_selection = load_local_model_selection("home-fixed")
+        if (
+            canonical_selection.get("source") == "local_model_vault"
+            and canonical_selection.get("selection_status") == "selectable"
+        ):
+            selection = canonical_selection
+    if selection.get("source") != "local_model_vault":
+        raise LocalModelRuntimeError("workspace_local_model_not_selected")
+    model_id = str(selection.get("model_id") or selection.get("model") or "").strip()
+    model = next(
+        (
+            item
+            for item in LocalModelVault().snapshot().get("models") or []
+            if isinstance(item, dict) and str(item.get("model_id") or "") == model_id
+        ),
+        None,
+    )
+    installation = next(
+        (
+            item
+            for item in (model or {}).get("installations") or []
+            if isinstance(item, dict)
+            and str(item.get("model_path") or "").strip()
+            and (item.get("warehouse") or {}).get("verified") is True
+        ),
+        None,
+    )
+    if not model or selection.get("selection_status") != "selectable" or not installation:
+        raise LocalModelRuntimeError("selected_local_model_not_available")
+    runtime = {
+        **dict(model.get("runtime_profile") or {}),
+        **dict(installation.get("runtime_profile") or {}),
+    }
+    return selected_local_runtime_profile(
+        model_id=model_id,
+        adapter=str(runtime.get("adapter") or ""),
+        endpoint=str(runtime.get("endpoint") or ""),
+        model_sha256=str(installation.get("model_sha256") or ""),
+        model_path=str(installation.get("model_path") or ""),
+        finance_arithmetic=str(runtime.get("finance_arithmetic") or ""),
+        chat_template_kwargs=runtime.get("chat_template_kwargs"),
+        max_output_tokens=runtime.get("max_output_tokens"),
+        context_size=runtime.get("context_size"),
+        parallel_slots=runtime.get("parallel_slots"),
+    )
+
+
 def qwen3_fast_local_runtime_profile(*, endpoint: str, model_sha256: str) -> dict[str, Any]:
     digest = str(model_sha256 or "").lower()
     if len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
@@ -128,6 +188,15 @@ def _http_chat_completion(endpoint: str, body: Mapping[str, Any], timeout_second
     try:
         with urlopen(request, timeout=timeout_seconds) as response:  # nosec B310: endpoint is loopback validated
             return json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        try:
+            response_detail = exc.read().decode("utf-8", errors="replace")
+        except Exception:
+            response_detail = ""
+        lowered = response_detail.lower()
+        if any(marker in lowered for marker in ("context size", "context window", "too many tokens", "exceeds")):
+            raise LocalModelRuntimeError("local_model_context_limit_exceeded") from exc
+        raise LocalModelRuntimeError("local_model_runtime_unavailable") from exc
     except (URLError, OSError, json.JSONDecodeError) as exc:
         raise LocalModelRuntimeError("local_model_runtime_unavailable") from exc
 
@@ -170,6 +239,12 @@ def ensure_selected_local_runtime(runtime_profile: Mapping[str, Any]) -> dict[st
     model_path = Path(str(runtime_profile.get("model_path") or "")).resolve()
     if not model_path.is_file():
         raise LocalModelRuntimeError("selected_local_model_file_missing")
+    minimum_free = max(
+        5 * 1024**3,
+        int(os.environ.get("AION_LOCAL_MODEL_MIN_FREE_BYTES", str(20 * 1024**3))),
+    )
+    if shutil.disk_usage(Path.home()).free < minimum_free:
+        raise LocalModelRuntimeError("local_model_paused_resource_pressure")
     expected_hash = str(runtime_profile.get("model_sha256") or "").lower()
     server = shutil.which("llama-server")
     if not server:
@@ -189,6 +264,9 @@ def ensure_selected_local_runtime(runtime_profile: Mapping[str, Any]) -> dict[st
             "--ctx-size", str(int(runtime_profile.get("context_size") or 4_096)),
             "--parallel", str(int(runtime_profile.get("parallel_slots") or 1)),
             "--threads", "6",
+            "--sleep-idle-seconds", str(max(
+                10, int(os.environ.get("AION_LOCAL_MODEL_IDLE_SLEEP_SECONDS", "30"))
+            )),
             "--jinja", "--alias", str(runtime_profile.get("model_id") or "local-model"),
         ]
         _SERVER_PROCESS = subprocess.Popen(  # noqa: S603 - executable resolved by shutil.which
@@ -281,7 +359,8 @@ def run_gpt_oss_harness_locally(
 
 
 def run_selected_local_chat(
-    *, prompt: str, runtime_profile: Mapping[str, Any],
+    *, prompt: str, runtime_profile: Mapping[str, Any], system_prompt: str | None = None,
+    timeout_seconds: float = 180.0,
     transport: Callable[[str, Mapping[str, Any], float], dict[str, Any]] = _http_chat_completion,
 ) -> dict[str, Any]:
     """Run whichever accepted OpenAI-compatible local model the Vault selected."""
@@ -302,7 +381,13 @@ def run_selected_local_chat(
     body = {
         "model": model_id,
         "messages": [
-            {"role": "system", "content": "Return only the requested JSON. Do not show hidden reasoning. Never execute tools or calculate Finance figures; use supplied verified facts."},
+            {
+                "role": "system",
+                "content": str(system_prompt or (
+                    "Answer only the user's request. Do not show hidden reasoning. "
+                    "Never execute tools or calculate Finance figures; use supplied verified facts."
+                )),
+            },
             {"role": "user", "content": str(prompt)},
         ],
         "max_tokens": int(runtime_profile.get("max_output_tokens") or 320),
@@ -311,7 +396,7 @@ def run_selected_local_chat(
     template_kwargs = runtime_profile.get("chat_template_kwargs")
     if isinstance(template_kwargs, Mapping) and template_kwargs:
         body["chat_template_kwargs"] = dict(template_kwargs)
-    response = transport(endpoint, body, 180.0)
+    response = transport(endpoint, body, float(timeout_seconds))
     return {"content": _response_text(response), "provider": "local_model", "model": model_id}
 
 

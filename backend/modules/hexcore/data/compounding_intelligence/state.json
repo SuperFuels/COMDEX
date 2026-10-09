@@ -23,10 +23,14 @@
     },
     {
       "campaign_id": "formal_empirical_model",
-      "commitment_sha256": "1e58dc39d097d4cf8b7674be8277fbaa67324e691efa96a550412dce2de97fe6",
+      "commitment_sha256": "6c94eb76158d96ae2ea0f30652183c4cc75935806ed2dbc84418c248d2bb2d3f",
       "competency_award": false,
       "functional_memory_ready": false,
-      "missing_practical_repetitions": [],
+      "missing_practical_repetitions": [
+        "experimental_design",
+        "hypotheses",
+        "literature_review"
+      ],
       "objective": "Derive a mathematical model, design a falsifying experiment and revise it under conflicting measurements.",
       "required_subjects": [
         "mathematics",
@@ -40,20 +44,28 @@
         "failure attribution before revision",
         "delayed capsule-only reconstruction"
       ],
-      "weakest_subject": "mathematics"
+      "weakest_subject": "scientific_method"
     },
     {
       "campaign_id": "ambiguous_software_mission",
-      "commitment_sha256": "35a38f051cf3290d0bfae31be33d09042dee0e3421eb4f97f0d4f6f0c2b34a68",
+      "commitment_sha256": "eb385e3f530e9a845607afc6892d3db4b802cf73830d65fc5caa6f3c2f5709a2",
       "competency_award": false,
-      "functional_memory_ready": true,
-      "missing_practical_repetitions": [],
+      "functional_memory_ready": false,
+      "missing_practical_repetitions": [
+        "lexical_grounding",
+        "morphology",
+        "native_question_answering",
+        "reference_resolution",
+        "semantic_relations",
+        "sentence_semantics",
+        "syntax"
+      ],
       "objective": "Resolve an ambiguous natural-language software mission, state assumptions and implement only the verified interpretation.",
       "required_subjects": [
         "english",
         "software_engineering"
       ],
-      "status": "ACTIVE",
+      "status": "BLOCKED_MEMORY_OR_EXECUTOR",
       "success_contract": [
         "fresh executable or independently revealed outcome",
         "at least two falsifying counterexamples",
@@ -65,10 +77,14 @@
     },
     {
       "campaign_id": "reproducible_python_science",
-      "commitment_sha256": "5f93e3ddd5cf5f785226e4b2497256bed22700cd2e39cc61283fc346cdb80759",
+      "commitment_sha256": "9fd1b37e957cda2f64108f499fce75dfdb85730a1866b1aa43a8d6a8352df8f3",
       "competency_award": false,
       "functional_memory_ready": false,
-      "missing_practical_repetitions": [],
+      "missing_practical_repetitions": [
+        "experimental_design",
+        "hypotheses",
+        "literature_review"
+      ],
       "objective": "Create a reproducible Python investigation whose causal conclusion survives counterexamples and fresh execution.",
       "required_subjects": [
         "python",
@@ -82,11 +98,11 @@
         "failure attribution before revision",
         "delayed capsule-only reconstruction"
       ],
-      "weakest_subject": "python"
+      "weakest_subject": "scientific_method"
     },
     {
       "campaign_id": "algorithmic_proof_and_measurement",
-      "commitment_sha256": "ebb969cd9d2c12f7d578a1697d48b80a86a02448333a24935d200993520d2e49",
+      "commitment_sha256": "9b01c8eb7241e1d103bf10eca95264662973fd096708f997b6d17852ea32bbef",
       "competency_award": false,
       "functional_memory_ready": true,
       "missing_practical_repetitions": [],
@@ -103,14 +119,22 @@
         "failure attribution before revision",
         "delayed capsule-only reconstruction"
       ],
-      "weakest_subject": "mathematics"
+      "weakest_subject": "algorithms_data_structures"
     },
     {
       "campaign_id": "evidence_bound_explanation",
-      "commitment_sha256": "306f2c59b4ab17a31e41c72875cd9d6364e00c1395b46decc4f78277bb0da2e3",
+      "commitment_sha256": "cda52ffa4b3592f925843714e50281d0bcc31d71f19da51188b98abb95f4fe01",
       "competency_award": false,
       "functional_memory_ready": false,
-      "missing_practical_repetitions": [],
+      "missing_practical_repetitions": [
+        "lexical_grounding",
+        "morphology",
+        "native_question_answering",
+        "reference_resolution",
+        "semantic_relations",
+        "sentence_semantics",
+        "syntax"
+      ],
       "objective": "Investigate a disputed technical claim and produce a clear explanation that separates evidence, inference and uncertainty.",
       "required_subjects": [
         "english",
@@ -223,20 +247,44 @@
       "generation": 12,
       "source_hash": "e900b2ec37d864f61a8c0bff16100e3dfd1b698efcac0f7ba7df744a5d2b610a",
       "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 3,
+      "created_at": "2026-10-06T18:38:41.493861+00:00",
+      "functional_reconstructions": 5,
+      "generation": 13,
+      "source_hash": "16174599da7c0d338f9e0fa9137f35c20fd54bbd6661ee39b73178e0987d97b8",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 2,
+      "created_at": "2026-10-06T19:39:54.957469+00:00",
+      "functional_reconstructions": 4,
+      "generation": 14,
+      "source_hash": "63fa0c40b04bf2c5ead1d92952fc7a6df92341907857b3180f945cd4c7b9b9d6",
+      "substrate": "deterministic_control_retained"
     }
   ],
   "next_compounding_action": {
-    "campaign_id": "algorithmic_proof_and_measurement",
-    "commitment_sha256": "ebb969cd9d2c12f7d578a1697d48b80a86a02448333a24935d200993520d2e49",
+    "campaign_id": "ambiguous_software_mission",
+    "commitment_sha256": "eb385e3f530e9a845607afc6892d3db4b802cf73830d65fc5caa6f3c2f5709a2",
     "competency_award": false,
-    "functional_memory_ready": true,
-    "missing_practical_repetitions": [],
-    "objective": "Prove an algorithmic invariant and compare its predicted complexity with independently measured growth.",
-    "required_subjects": [
-      "algorithms_data_structures",
-      "mathematics"
+    "functional_memory_ready": false,
+    "missing_practical_repetitions": [
+      "lexical_grounding",
+      "morphology",
+      "native_question_answering",
+      "reference_resolution",
+      "semantic_relations",
+      "sentence_semantics",
+      "syntax"
     ],
-    "status": "ACTIVE",
+    "objective": "Resolve an ambiguous natural-language software mission, state assumptions and implement only the verified interpretation.",
+    "required_subjects": [
+      "english",
+      "software_engineering"
+    ],
+    "status": "BLOCKED_MEMORY_OR_EXECUTOR",
     "success_contract": [
       "fresh executable or independently revealed outcome",
       "at least two falsifying counterexamples",
@@ -244,10 +292,10 @@
       "failure attribution before revision",
       "delayed capsule-only reconstruction"
     ],
-    "weakest_subject": "mathematics"
+    "weakest_subject": "english"
   },
   "procedure_id": "procedure_compounding_intelligence_engine_v1",
   "schema_version": "aion.hexcore.compounding_intelligence_state.v1",
   "status": "ACTIVE_NOT_PROMOTED",
-  "updated_at": "2026-09-05T00:18:25.460823+00:00"
+  "updated_at": "2026-10-09T21:09:11.477627+00:00"
 }

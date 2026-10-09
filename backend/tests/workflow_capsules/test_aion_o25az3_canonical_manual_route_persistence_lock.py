@@ -74,6 +74,49 @@ def test_o25az3_marketing_is_allowed_by_early_manual_route_owner():
     assert '"small_business_foundation"' in allowlist
 
 
+def test_o25az3_ai_chat_is_allowed_by_early_manual_route_owner():
+    """Background hydration must not replace a manually selected AI Chat route."""
+    start = APP.index(
+        "function renderMainSurface()"
+    )
+    end = APP.index(
+        "function buildLiveAgentCards",
+        start,
+    )
+    block = APP[start:end]
+
+    allowlist_start = block.index(
+        "const allowedForcedTabs"
+    )
+    allowlist_end = block.index(
+        "];",
+        allowlist_start,
+    )
+    allowlist = block[
+        allowlist_start:allowlist_end
+    ]
+
+    assert '"aion_chat"' in allowlist
+
+
+def test_o25az3_renderer_reload_restores_ai_chat_before_department_default():
+    block = function_block(
+        "applyAionO25ABFreshStartupRouteOwner"
+    )
+
+    chat_restore = block.index(
+        "if (persistedManualChatRoute && !startupRouteAlreadyClaimed)"
+    )
+    department_default = block.index(
+        "else if (completedBusinessPacket && !startupRouteAlreadyClaimed)"
+    )
+
+    assert chat_restore < department_default
+    assert 'state.activeTab = "aion_chat"' in block
+    assert 'window.__aionForcedMainTabV2 = "aion_chat"' in block
+    assert 'routeReason = "persisted_manual_chat_route"' in block
+
+
 def test_o25az3_sidebar_sets_requested_tab_in_runtime_state():
     block = function_block(
         "setAionSidebarActiveTabHardV1"

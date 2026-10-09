@@ -896,19 +896,27 @@ class AionBoardroomWorkspaceProvider:
         *,
         persona_id: str,
         attachments: Sequence[str] | None = None,
+        preferred_provider: str | None = None,
+        preferred_model: str | None = None,
     ) -> Mapping[str, Any]:
-        """Adapt existing read-only departmental conversation authorities.
+        """Run a governed department conversation through its specialist adapter.
 
-        Finance has a permanent evidence-grounded conversation service. Other
-        departments currently expose governed work queues, so their mobile turn is
-        deliberately a deterministic briefing rather than an invented model answer.
+        Each Pilot receives the normal user request, recent conversation, bounded
+        workspace evidence and a department-specific tool catalogue. The model may
+        choose registered tools, while Tessaris retains validation and approval
+        authority and never performs an unapproved external write.
         """
         question = " ".join(str(user_text or "").split())[:2_000]
         department = " ".join(str(department_id or "boardroom").split()).casefold()[:80]
         if not question:
             raise ValueError("workspace conversation text is required")
         if department == "finance" and self.finance_conversations is not None:
-            result = dict(self.finance_conversations.answer(workspace_ref, question))
+            model_preference = {}
+            if preferred_provider:
+                model_preference["preferred_provider"] = preferred_provider
+            if preferred_model:
+                model_preference["preferred_model"] = preferred_model
+            result = dict(self.finance_conversations.answer(workspace_ref, question, **model_preference))
             turn = dict(result.get("turn") or {})
             response = {
                 "conversation_id": f"finance-terminal-{workspace_ref}",
@@ -1152,6 +1160,91 @@ class AionBoardroomWorkspaceProvider:
                 "external_writes_performed": False, "approval_gated": True,
                 "legal_action": result,
             }
+            return self._record_conversation_exchange(workspace_ref, department, question, response)
+
+        if department == "procurement":
+            operating = self.containers.load_optional_dict(workspace_ref, "business_operating_model") or {}
+            inventory = [dict(item) for item in operating.get("inventory_items") or [] if isinstance(item, Mapping)]
+            purchases = [dict(item) for item in operating.get("procurement_queue") or [] if isinstance(item, Mapping)]
+            suppliers = [dict(item) for item in operating.get("suppliers") or [] if isinstance(item, Mapping)]
+            metrics = dict(operating.get("inventory_metrics") or {})
+            shortages = [
+                item for item in inventory
+                if float(item.get("reorder_point") or 0) > 0
+                and float(item.get("quantity_on_hand") or 0) - float(item.get("quantity_reserved") or 0) <= float(item.get("reorder_point") or 0)
+            ]
+            awaiting = [item for item in purchases if str(item.get("status") or "draft") in {"suggested", "draft", "review", "review_required"}]
+            lowered = question.casefold()
+            if any(term in lowered for term in ("shortage", "run out", "reorder", "stock")):
+                if shortages:
+                    detail = "; ".join(
+                        f"{str(item.get('name') or 'Unnamed item')[:80]}: {max(0, float(item.get('quantity_on_hand') or 0) - float(item.get('quantity_reserved') or 0)):g} {str(item.get('unit') or 'units')} available, reorder point {float(item.get('reorder_point') or 0):g}"
+                        for item in shortages[:8]
+                    )
+                    answer = f"The shared stock record has {len(shortages)} item(s) at or below their reorder point: {detail}. I can prepare draft purchase needs, but no supplier contact or order is authorised from this chat."
+                else:
+                    answer = "No recorded stock item is currently at or below its reorder point. This conclusion only covers items with an on-hand quantity and reorder point saved in Stock & Procurement."
+            elif any(term in lowered for term in ("supplier", "compare", "terms", "lead time")):
+                if suppliers:
+                    detail = "; ".join(
+                        f"{str(item.get('name') or 'Unnamed supplier')[:80]} — lead time {str(item.get('lead_time_days') or 'not recorded')} days, terms {str(item.get('payment_terms') or 'not recorded')}"
+                        for item in suppliers[:8]
+                    )
+                    answer = f"Recorded supplier evidence: {detail}. Any unrecorded price, quality or availability remains unknown and should be confirmed before approval."
+                else:
+                    answer = "There are no supplier comparison records yet. Add supplier names, lead times, payment terms and quote evidence in the Suppliers view before asking me to recommend one."
+            else:
+                cash = sum(float(item.get("estimated_cash_required") or 0) for item in awaiting)
+                answer = (
+                    f"The shared Stock & Procurement record contains {len(inventory)} stock item(s), {len(awaiting)} purchase draft(s) awaiting review and {len(suppliers)} supplier record(s). "
+                    f"Estimated cash across the review queue is {cash:,.2f} {str(operating.get('currency') or 'EUR')}. "
+                    "I can review or prepare drafts here; supplier contact, payment and order placement require explicit approval."
+                )
+            evidence = [{
+                "source": "business_operating_model",
+                "revision": operating.get("revision"),
+                "inventory_count": len(inventory),
+                "purchase_count": len(purchases),
+                "supplier_count": len(suppliers),
+                "recorded_stock_value": metrics.get("total_stock_value"),
+            }]
+            response = {
+                "conversation_id": f"department-pilot-procurement-{workspace_ref}",
+                "department_id": "procurement",
+                "turn": {
+                    "turn_id": f"department-turn-{uuid4().hex}", "role": "assistant",
+                    "content": answer, "created_at": utc_now_iso(),
+                },
+                "provider": {"provider": "business_operating_model_projection", "model": None},
+                "evidence": evidence,
+                "reliability": "workspace_record_backed" if operating else "insufficient_evidence",
+                "external_writes_performed": False,
+                "approval_gated": True,
+            }
+            return self._record_conversation_exchange(workspace_ref, department, question, response)
+
+        # Marketing, Sales, Support and Products use one model-led conversation
+        # framework. The model selects from the department's registered tools;
+        # Tessaris validates authority and runs only safe internal work.
+        if department in {"marketing", "sales", "support", "products_services"}:
+            from backend.modules.aion_business.runtime.department_pilot_conversation_service import (
+                DepartmentPilotConversationService,
+            )
+
+            recent = [
+                item for item in self._conversation_store(workspace_ref).get("turns", [])[-20:]
+                if str(item.get("department_id") or "").casefold() == department
+            ]
+            response = DepartmentPilotConversationService(
+                container_repository=self.containers,
+            ).answer(
+                workspace_ref,
+                department,
+                question,
+                recent=recent,
+                preferred_provider=preferred_provider,
+                preferred_model=preferred_model,
+            )
             return self._record_conversation_exchange(workspace_ref, department, question, response)
 
         surface = self.read_surface(workspace_ref, "departments", persona_id=persona_id)
@@ -1407,7 +1500,11 @@ class AionBoardroomWorkspaceProvider:
             "content": str(assistant.get("content") or ""), "created_at": str(assistant.get("created_at") or now),
             "evidence": list(response.get("evidence") or [])[:12], "approval_gated": True,
         }
-        for key in ("mission_receipt", "proposal", "research_job", "required_approval", "delegation_queue", "delegation_receipt", "people_action"):
+        for key in (
+            "mission_receipt", "proposal", "research_job", "required_approval",
+            "delegation_queue", "delegation_receipt", "people_action", "intent",
+            "tool_results", "approval_requests", "provider",
+        ):
             if response.get(key) is not None:
                 assistant_record[key] = response.get(key)
         turns.extend((

@@ -40,6 +40,7 @@ class LocalAdapter:
     ) -> None:
         self.model = model or os.getenv("AION_LOCAL_LLM_MODEL") or os.getenv("OLLAMA_MODEL") or "gemma4:e2b"
         self.tasks = tasks or LocalLLMTasks()
+        self._tasks_injected = tasks is not None
         self.enabled = enabled
 
     def generate(
@@ -79,6 +80,43 @@ class LocalAdapter:
             )
 
         try:
+            workspace_id = str(metadata.get("workspace_id") or "").strip()
+            if workspace_id and not self._tasks_injected:
+                from backend.services.aion_mission_mode.pilot_local_model_runtime import (
+                    run_selected_local_chat,
+                    selected_local_runtime_profile_for_workspace,
+                )
+
+                profile = selected_local_runtime_profile_for_workspace(workspace_id)
+                selected_model = str(profile.get("model_id") or model)
+                response = run_selected_local_chat(
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    runtime_profile={**profile, "max_output_tokens": int(max_tokens or 512)},
+                )
+                content = str(response.get("content") or "").strip()
+                return LocalAdapterResult(
+                    ok=bool(content),
+                    provider="local_model",
+                    model=selected_model,
+                    content=content,
+                    usage={
+                        "provider": "local_model",
+                        "model": selected_model,
+                        "max_tokens_requested": int(max_tokens or 0),
+                        "local_only": True,
+                        "external_writes": "blocked",
+                        "business_state_mutation": "blocked",
+                    },
+                    latency_ms=self._latency_ms(started),
+                    raw={
+                        "metadata": metadata,
+                        "capability": capability,
+                        "safe_local_adapter": True,
+                        "runtime_source": "local_model_vault",
+                    },
+                )
+
             task_prompt = prompt
             if system_prompt:
                 task_prompt = f"{system_prompt.strip()}\n\n{prompt.strip()}"

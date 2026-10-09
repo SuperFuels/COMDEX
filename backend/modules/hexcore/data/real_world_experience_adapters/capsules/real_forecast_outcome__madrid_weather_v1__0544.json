@@ -1,0 +1,28 @@
+{
+  "adapter_id": "public_forecasting_competition_v1",
+  "anchor_outcome_sha256": "1290ef038be265b47dffb32794fca2de2f8df5d8242ed63f785a7174fe67a3c4",
+  "capsule_id": "real_forecast_outcome__madrid_weather_v1__0544",
+  "capsule_sha256": "75afa9e91a69517fcb14afc79565d035e54584ee8ec9efb4c428a6b53a68a429",
+  "claim_boundary": "One delayed independently observed forecast outcome; not broad forecasting mastery.",
+  "commitment_sha256": "98f729a46e8004df9272aa442d692592310926cc89e868f823892f516a2a68fe",
+  "created_at": "2026-09-07T07:03:19.051692+00:00",
+  "elapsed_seconds": 910.4237141609192,
+  "external_writes": 0,
+  "forecast": {
+    "temperature_max": 26.4,
+    "temperature_min": 16.4,
+    "wind_max": 15.0
+  },
+  "later_cycle": 5529,
+  "later_observed_at": "2026-09-07T07:02:50.353022+00:00",
+  "later_outcome_sha256": "af270c12ed0f351fa1f8c25d3d694252455230e1d6dd46da4ace70b7adf4eaac",
+  "observed": {
+    "authority": "https://api.open-meteo.com/v1/forecast?latitude=40.4168&longitude=-3.7038&current=temperature_2m,wind_speed_10m",
+    "temperature": 21.7,
+    "wind": 4.0
+  },
+  "outcome_success": true,
+  "unsafe_actions": 0,
+  "verified_real_outcome": true,
+  "world_model_update_required": false
+}

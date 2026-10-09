@@ -1,4 +1,5 @@
 import io
+import json
 from pathlib import Path
 
 import pytest
@@ -137,6 +138,7 @@ def test_operating_model_calculates_stock_procurement_unit_economics_and_board_c
                 "offerings": [{
                     "name": "Repair day rate", "offering_type": "service",
                     "pricing_basis": "day_rate", "price": 400,
+                    "cost_treatment": "standard_estimate",
                     "material_cost_per_unit": 50, "labour_cost_per_unit": 160,
                     "expected_monthly_volume": 12,
                 }],
@@ -157,9 +159,25 @@ def test_operating_model_calculates_stock_procurement_unit_economics_and_board_c
     assert model["inventory_metrics"]["suggested_procurement_cash_required"] == 255
     assert model["procurement_queue"][0]["requires_approval"] is True
 
+    work_schedule_path = repository.base_dir / "home-fixed" / "work_schedule.json"
+    work_schedule_path.write_text(json.dumps({
+        "schema_version": "aion.work-schedule.v3", "revision": 3,
+        "items": [{
+            "id": "work.quote", "title": "Customer roof quote", "customer": "Private customer",
+            "location": "Private address", "type": "quote", "status": "quote_required",
+            "offering_id": "repair-day", "quote": {"status": "draft", "amount": "2500.00"},
+            "cost_estimate": {"material_cost": "900.00", "labour_cost": "400.00", "external_cost": "100.00", "currency": "EUR"},
+        }],
+    }), encoding="utf-8")
+
     context = api.get_boardroom_context("home-fixed")["context"]
     assert context["operating_model"]["inventory_metrics"]["total_stock_value"] == 60
+    assert context["operating_model"]["offerings"][0]["cost_treatment"] == "standard_estimate"
     assert context["source_revisions"]["operating_model"] == 1
+    assert context["source_revisions"]["work_schedule"] == 3
+    assert context["work_schedule"]["items"][0]["cost_estimate"]["material_cost"] == "900.00"
+    assert "customer" not in context["work_schedule"]["items"][0]
+    assert "location" not in context["work_schedule"]["items"][0]
     facts = context["business_map_projection"]["facts"]
     assert next(item for item in facts if item["field"] == "inventory_metrics")["value"]["reorder_items"] == 1
     ledger = repository.load_department_intelligence("home-fixed")
@@ -208,12 +226,17 @@ def test_quoted_job_uses_hr_linked_labour_and_tracks_estimate_against_actual(tmp
     facts = api.get_boardroom_context("home-fixed")["context"]["business_map_projection"]["facts"]
     projected_labour = next(item for item in facts if item["field"] == "labour_resources")["value"]
     assert "cost_rate" not in projected_labour[0]
+    assert projected_labour[0]["planning_rate"] == 120
+    assert "person_name" not in projected_labour[0]
     assert next(item for item in facts if item["field"] == "job_economics")["value"][0]["estimated_contribution"] == 1010
     boardroom_operating = api.get_boardroom_context("home-fixed")["context"]["operating_model"]
     assert "cost_rate" not in boardroom_operating["labour_resources"][0]
+    assert boardroom_operating["labour_resources"][0]["planning_rate"] == 120
+    assert "person_name" not in boardroom_operating["labour_resources"][0]
     assert boardroom_operating["job_labour_assignments"] == []
     assert boardroom_operating["job_cost_items"] == []
     assert boardroom_operating["governance"]["individual_workforce_costs_redacted"] is True
+    assert boardroom_operating["governance"]["effective_planning_costs_available_to_board"] is True
 
 
 def test_owner_planning_rate_override_survives_operating_model_save(tmp_path, monkeypatch):
@@ -250,6 +273,13 @@ def test_owner_planning_rate_override_survives_operating_model_save(tmp_path, mo
     assert resource["cost_rate"] == 145
     assert resource["rate_source"] == "manual_planning_override"
     assert resource["cost_source"] == "owner_planning_override"
+    boardroom_resource = api.get_boardroom_context("home-fixed")["context"]["operating_model"]["labour_resources"][0]
+    assert boardroom_resource == {
+        "cost_basis": "daily",
+        "planning_rate": 145.0,
+        "available_hours_month": None,
+        "source": "operating_model_effective_planning_cost",
+    }
 
 
 @pytest.mark.asyncio

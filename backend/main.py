@@ -1113,6 +1113,7 @@ from backend.modules.aion_business.api.founder_review_api import (
 )
 from backend.modules.aion_business.api.topology_api import router as aion_business_topology_router
 from backend.modules.aion_business.api.learning_api import router as aion_business_learning_router
+from backend.api.aion_english_intelligence_router import router as aion_english_intelligence_router
 from backend.modules.aion_business.api.task_api import router as aion_business_task_router
 from backend.modules.aion_business.api.workflow_api import router as aion_business_workflow_router
 from backend.modules.aion_business.api.workflow_file_cabinet_api import router as aion_business_workflow_file_cabinet_router
@@ -1132,6 +1133,7 @@ from backend.modules.aion_business.api.medium_business_operating_api import rout
 from backend.modules.aion_business.api.support_case_api import router as aion_support_case_router
 from backend.modules.aion_business.api.legal_signing_api import router as aion_legal_signing_router, public_router as aion_legal_signing_public_router
 from backend.modules.aion_business.api.cybersecurity_guard_api import router as aion_cybersecurity_guard_router
+from backend.modules.aion_business.api.project_management_api import router as aion_project_management_router
 from backend.modules.aion_business.runtime.cybersecurity_guard_service import CybersecurityGuardScheduler
 from backend.modules.aion_business.api.glyphchain_admin_api import router as aion_glyphchain_admin_router
 from backend.modules.aion_business.api.marketing_creative_api import router as aion_marketing_creative_router
@@ -1388,6 +1390,7 @@ app.include_router(aion_akg_demo_router)
 app.include_router(aion_mirror_router)
 app.include_router(aion_homeostasis_alias_router)
 app.include_router(aion_business_learning_router)
+app.include_router(aion_english_intelligence_router)
 app.include_router(aion_business_task_router)
 app.include_router(aion_business_workflow_router)
 app.include_router(aion_business_workflow_file_cabinet_router)
@@ -1408,6 +1411,7 @@ app.include_router(aion_support_case_router)
 app.include_router(aion_legal_signing_router)
 app.include_router(aion_legal_signing_public_router)
 app.include_router(aion_cybersecurity_guard_router)
+app.include_router(aion_project_management_router)
 app.include_router(aion_glyphchain_admin_router)
 app.include_router(aion_marketing_creative_router)
 app.include_router(aion_marketing_connections_router)

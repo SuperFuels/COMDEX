@@ -149,29 +149,40 @@
     overlay.setAttribute("aria-modal", "true");
     overlay.innerHTML = `
       <style>
-        #aionBoardroomSeatConversation{position:fixed;inset:0;z-index:100000;background:rgba(15,42,67,.25);display:flex;justify-content:flex-end;font-family:Inter,system-ui,-apple-system,sans-serif}
-        #aionBoardroomSeatConversation .absc-panel{width:min(520px,94vw);height:100%;background:#fff;border-left:1px solid #b8d9e7;box-shadow:-18px 0 48px rgba(15,42,67,.18);display:flex;flex-direction:column}
-        #aionBoardroomSeatConversation .absc-head{padding:22px 22px 17px;border-bottom:1px solid #d9ebf2;background:#f5fbfd}
-        #aionBoardroomSeatConversation .absc-kicker{font-size:11px;font-weight:900;letter-spacing:.2em;color:#0f766e;text-transform:uppercase}
-        #aionBoardroomSeatConversation h2{margin:7px 0 3px;font-size:26px;color:#102a43}
-        #aionBoardroomSeatConversation .absc-sub{color:#58748a;font-size:13px}
-        #aionBoardroomSeatConversation .absc-close{position:absolute;right:18px;top:16px;border:1px solid #aacddd;background:#fff;width:38px;height:38px;font-size:20px;cursor:pointer}
-        #aionBoardroomSeatConversation .absc-boundary{margin:12px 22px 0;padding:10px 12px;border-left:4px solid #f59e0b;background:#fff8e6;color:#6b4b00;font-size:12px;line-height:1.45}
-        #aionBoardroomSeatConversation .absc-messages{flex:1;overflow:auto;padding:18px 22px;display:flex;flex-direction:column;gap:12px}
-        #aionBoardroomSeatConversation .absc-msg{max-width:88%;padding:12px 14px;border:1px solid #cfe3ec;color:#29465b;line-height:1.48;white-space:pre-wrap}
-        #aionBoardroomSeatConversation .absc-msg.user{align-self:flex-end;background:#eaf6fb;border-color:#90c7dc}
-        #aionBoardroomSeatConversation .absc-msg.assistant{align-self:flex-start;background:#fff}
-        #aionBoardroomSeatConversation .absc-engine{display:block;margin-top:8px;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:#6b8798}
-        #aionBoardroomSeatConversation .absc-suggestions{padding:0 22px 12px;display:flex;gap:8px;flex-wrap:wrap}
-        #aionBoardroomSeatConversation .absc-suggestion{border:1px solid #93bfd0;background:#f6fbfd;color:#29465b;padding:8px 10px;font-weight:750;cursor:pointer}
-        #aionBoardroomSeatConversation .absc-compose{border-top:1px solid #d9ebf2;padding:14px 22px 20px;background:#f8fcfd}
-        #aionBoardroomSeatConversation textarea{width:100%;min-height:84px;box-sizing:border-box;border:1px solid #8fb8c8;padding:12px;font:inherit;color:#102a43;resize:vertical;background:#fff}
+        #aionBoardroomSeatConversation{position:fixed;inset:0;z-index:100000;background:transparent;display:flex;justify-content:flex-end;align-items:stretch;font-family:Inter,system-ui,-apple-system,sans-serif;color:#17233d}
+        #aionBoardroomSeatConversation .absc-panel{position:relative;width:min(510px,calc(100vw - 80px));height:calc(100% - 24px);margin:12px;background:#f7f9fc;border:1px solid #d9e2ec;border-radius:22px;box-shadow:-20px 12px 54px rgba(15,23,42,.22);overflow:hidden;display:flex;flex-direction:column}
+        #aionBoardroomSeatConversation .absc-head{position:relative;padding:24px 72px 20px 24px;border-bottom:1px solid #d9e2ec;background:#fff}
+        #aionBoardroomSeatConversation .absc-kicker{font-size:10px;font-weight:900;letter-spacing:.19em;color:#2f66e8;text-transform:uppercase}
+        #aionBoardroomSeatConversation h2{margin:8px 0 4px;font-size:28px;line-height:1.08;letter-spacing:-.025em;color:#17233d}
+        #aionBoardroomSeatConversation .absc-sub{display:flex;align-items:center;gap:7px;color:#64748b;font-size:12px;font-weight:650}
+        #aionBoardroomSeatConversation .absc-sub:before{content:"";width:8px;height:8px;border-radius:50%;background:#22a77a;box-shadow:0 0 0 4px #e7f7f1}
+        #aionBoardroomSeatConversation .absc-close{position:absolute;z-index:10;right:20px;top:20px;display:grid;place-items:center;border:1px solid #d3dce7;border-radius:12px;background:#f8fafc;color:#475569;width:40px;height:40px;padding:0;font-size:24px;font-weight:500;line-height:1;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+        #aionBoardroomSeatConversation .absc-close:hover{background:#eef3f8;border-color:#b9c6d5;color:#17233d}
+        #aionBoardroomSeatConversation .absc-boundary{margin:16px 20px 0;padding:12px 14px;border:1px solid #f1d6a8;border-left:4px solid #e89b18;border-radius:12px;background:#fffaf0;color:#76551d;font-size:12px;line-height:1.5}
+        #aionBoardroomSeatConversation .absc-boundary strong{color:#4f3a18}
+        #aionBoardroomSeatConversation .absc-messages{flex:1;min-height:0;overflow:auto;padding:18px 20px 14px;display:flex;flex-direction:column;gap:12px;scrollbar-color:#c7d2df transparent}
+        #aionBoardroomSeatConversation .absc-msg{max-width:88%;padding:12px 14px;border:1px solid #d7e0ea;border-radius:16px;color:#26364f;font-size:13px;line-height:1.52;white-space:pre-wrap;box-shadow:0 3px 10px rgba(15,23,42,.04)}
+        #aionBoardroomSeatConversation .absc-msg.user{align-self:flex-end;border-color:#2f66e8;border-bottom-right-radius:5px;background:#2f66e8;color:#fff}
+        #aionBoardroomSeatConversation .absc-msg.assistant{align-self:flex-start;border-bottom-left-radius:5px;background:#fff}
+        #aionBoardroomSeatConversation .absc-engine{display:block;margin-top:9px;font-size:9px;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:#718096}
+        #aionBoardroomSeatConversation .absc-msg.user .absc-engine{color:#dce7ff}
+        #aionBoardroomSeatConversation .absc-suggestions{padding:0 20px 14px;display:flex;gap:8px;flex-wrap:wrap}
+        #aionBoardroomSeatConversation .absc-suggestion{min-height:38px;border:1px solid #ccd7e4;border-radius:12px;background:#fff;color:#314158;padding:9px 12px;font-size:12px;font-weight:750;cursor:pointer;box-shadow:0 2px 7px rgba(15,23,42,.03);transition:border-color .15s,background .15s,color .15s}
+        #aionBoardroomSeatConversation .absc-suggestion:hover{border-color:#9eb7ef;background:#f2f6ff;color:#2455c3}
+        #aionBoardroomSeatConversation .absc-compose{border-top:1px solid #d9e2ec;padding:14px 20px 18px;background:#fff}
+        #aionBoardroomSeatConversation textarea{width:100%;min-height:92px;max-height:190px;box-sizing:border-box;border:1px solid #cbd6e2;border-radius:14px;padding:13px 14px;font:inherit;font-size:13px;line-height:1.45;color:#17233d;resize:vertical;background:#fbfcfe;outline:none;transition:border-color .15s,box-shadow .15s}
+        #aionBoardroomSeatConversation textarea:focus{border-color:#2f66e8;box-shadow:0 0 0 3px rgba(47,102,232,.12);background:#fff}
+        #aionBoardroomSeatConversation textarea::placeholder{color:#94a3b8}
         #aionBoardroomSeatConversation .absc-actions{display:flex;gap:9px;margin-top:10px}
         #aionBoardroomSeatConversation button{font-family:inherit}
-        #aionBoardroomSeatConversation .absc-send{flex:1;border:1px solid #0f6f86;background:#0f6f86;color:#fff;padding:12px;font-weight:900;letter-spacing:.06em;cursor:pointer}
-        #aionBoardroomSeatConversation .absc-mic{border:1px solid #8fb8c8;background:#fff;color:#29465b;padding:12px 16px;font-weight:850;cursor:pointer}
+        #aionBoardroomSeatConversation .absc-send{flex:1;min-height:44px;border:1px solid #2f66e8;border-radius:12px;background:#2f66e8;color:#fff;padding:11px 18px;font-size:13px;font-weight:900;letter-spacing:.04em;cursor:pointer;box-shadow:0 6px 14px rgba(47,102,232,.18)}
+        #aionBoardroomSeatConversation .absc-send:hover{background:#2459d2;border-color:#2459d2}
+        #aionBoardroomSeatConversation .absc-mic{min-height:44px;border:1px solid #cbd6e2;border-radius:12px;background:#fff;color:#314158;padding:11px 16px;font-size:13px;font-weight:800;cursor:pointer}
+        #aionBoardroomSeatConversation .absc-mic:hover{background:#f3f6f9;border-color:#adbdce}
         #aionBoardroomSeatConversation .absc-mic.recording{background:#fff1f2;border-color:#fb7185;color:#9f1239}
-        #aionBoardroomSeatConversation button:disabled{opacity:.55;cursor:wait}
+        #aionBoardroomSeatConversation button:focus-visible{outline:3px solid rgba(47,102,232,.2);outline-offset:2px}
+        #aionBoardroomSeatConversation button:disabled{opacity:.55;cursor:wait;box-shadow:none}
+        @media(max-width:680px){#aionBoardroomSeatConversation .absc-panel{width:100%;height:100%;margin:0;border:0;border-radius:0}#aionBoardroomSeatConversation .absc-head{padding-left:18px}#aionBoardroomSeatConversation .absc-boundary,#aionBoardroomSeatConversation .absc-messages,#aionBoardroomSeatConversation .absc-suggestions,#aionBoardroomSeatConversation .absc-compose{margin-left:0;margin-right:0;padding-left:18px;padding-right:18px}}
       </style>
       <div class="absc-panel">
         <button class="absc-close" type="button" aria-label="Close">×</button>

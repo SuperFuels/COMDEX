@@ -31,6 +31,7 @@ from fastapi.staticfiles import StaticFiles
 from backend.api.boardroom_provider_router import router as boardroom_provider_router
 from backend.api.business_runtime_router import router as business_runtime_router
 from backend.api.local_node_router import router as local_node_router
+from backend.api.aion_english_intelligence_router import router as aion_english_intelligence_router
 from backend.api.vault_router import router as vault_router
 from backend.api.workflow_architect_router import router as workflow_architect_router
 from backend.api import workflow_capsule_router, workflow_glyph_router
@@ -49,6 +50,7 @@ from backend.modules.aion_business.api.medium_business_operating_api import rout
 from backend.modules.aion_business.api.sales_completion_api import router as sales_completion_router
 from backend.modules.aion_business.api.support_case_api import router as support_case_router
 from backend.modules.aion_business.api.cybersecurity_guard_api import router as cybersecurity_guard_router
+from backend.modules.aion_business.api.project_management_api import router as project_management_router
 from backend.modules.aion_business.api.marketing_creative_api import router as marketing_creative_router
 from backend.modules.aion_business.api.marketing_connections_api import router as marketing_connections_router
 from backend.modules.aion_business.api.organization_authority_api import router as organization_authority_router
@@ -157,6 +159,7 @@ for router in (
     vault_router,
     boardroom_provider_router,
     local_node_router,
+    aion_english_intelligence_router,
     business_runtime_router,
     container_bindings_router,
     brand_foundation_router,
@@ -173,6 +176,7 @@ for router in (
     sales_completion_router,
     support_case_router,
     cybersecurity_guard_router,
+    project_management_router,
     marketing_creative_router,
     marketing_connections_router,
     department_pilot_router,

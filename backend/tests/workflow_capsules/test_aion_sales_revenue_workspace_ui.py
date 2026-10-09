@@ -472,3 +472,7 @@ def test_sales_call_centre_is_guided_multi_agent_and_uses_minted_contracts():
     assert '"schema_version": "aion.sales.agent_contract.v1"' in service
     assert '"schema_version": "aion.sales.call_goal_contract.v2"' in service
     assert "inbound_phone_routing_confirmation_required" in service
+    assert ".srw-call-centre{border:1px solid #d9e2ec;border-top:4px solid #2563eb" in sales
+    assert ".srw-call-centre-guide article>span,.srw-caller-form-heading>span{background:#2563eb" in sales
+    assert ".srw-phone-provider-route{border-left-color:#2563eb" in sales
+    assert ".srw-call-agent-card.active>header>b{background:#eef5ff;color:#2563eb}" in sales

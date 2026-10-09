@@ -44,3 +44,26 @@ def test_communications_does_not_mount_inside_spatial_boardroom() -> None:
     boardroom_block = text[boardroom_start:communications_start]
     assert "renderAionCommunicationsSurface" not in boardroom_block
 
+
+def test_communications_uses_the_inset_command_centre_layout() -> None:
+    text = source()
+    styles_start = text.index("function installAionCommunicationsWorkspaceStyles()")
+    styles_end = text.index("installAionCommunicationsWorkspaceStyles();", styles_start)
+    styles = text[styles_start:styles_end]
+
+    assert "padding:16px 32px 80px 96px !important" in styles
+    assert "border-top:4px solid #1687d9" in styles
+    assert ".aion-comms-tabs { display:flex; gap:28px" in styles
+    assert "border-radius:12px !important" in styles
+
+
+def test_communications_styling_keeps_existing_actions_and_routes() -> None:
+    text = source()
+    for action in (
+        "copyAionCommunicationsValue",
+        "openAionCommunicationsRoute('vault')",
+        "openAionCommunicationsRoute('live_agents', 'sales')",
+        "openAionCommunicationsRoute('live_agents', 'support')",
+        "openAionCommunicationsRoute('operations_agents')",
+    ):
+        assert action in text

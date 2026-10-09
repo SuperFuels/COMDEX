@@ -13,6 +13,15 @@ def test_sidebar_p_opens_central_departments_hub():
     assert "return renderAionDepartmentsHubV1();" in APP
 
 
+def test_hub_starts_with_connected_departments_without_the_redundant_intro_banner():
+    assert "Pilot · business capability centre" not in APP
+    assert "Open a connected business function or see which specialist departments can be added." not in APP
+    assert 'class="aion-departments-hub-hero"' not in APP
+    assert 'class="aion-departments-hub-section-title"' in APP
+    assert '<strong>${AION_DEPARTMENTS_HUB_CORE_V1.length + connectedSpecialists.length}</strong>connected departments' in APP
+    assert "padding:72px 8px 72px" in APP
+
+
 def test_sticky_and_hub_shortcuts_still_open_real_department_workspaces():
     assert "window.__aionDepartmentsHubOpenV1 = false" in APP
     assert 'data-aion-departments-hub-open-core="${escapeHtml(route)}"' in APP
@@ -34,7 +43,6 @@ def test_hub_lists_specialists_without_claiming_uninstalled_harnesses_are_connec
         "Legal support",
         "Cybersecurity",
         "IT & systems",
-        "Compliance & privacy",
         "Procurement",
         "Project management",
         "Design & creative",
@@ -47,6 +55,36 @@ def test_hub_lists_specialists_without_claiming_uninstalled_harnesses_are_connec
     assert "getAionDepartmentsHubCustomMatchV1" in APP
 
 
+def test_hub_keeps_retired_specialists_internally_but_hides_them_from_the_frontend():
+    specialist_start = APP.index("const AION_DEPARTMENTS_HUB_SPECIALIST_V1")
+    specialists = APP[specialist_start:APP.index("function normaliseAionDepartmentHubMatchV1", specialist_start)]
+    for name in (
+        "Compliance & privacy",
+        "Risk",
+        "Health & safety",
+        "Business continuity",
+        "Data & analytics",
+        "Strategy",
+        "Partnerships",
+        "Quality assurance",
+        "Internal audit",
+        "Corporate governance",
+        "Tax coordination",
+        "Treasury",
+        "Insurance",
+        "Facilities",
+        "Learning & development",
+        "Sustainability & ESG",
+    ):
+        definition_start = specialists.index(f'name: "{name}"')
+        definition_end = specialists.index(" },", definition_start)
+        assert "hidden: true" in specialists[definition_start:definition_end]
+    assert 'group: "Corporate stewardship"' in specialists
+    assert "const visibleSpecialists = AION_DEPARTMENTS_HUB_SPECIALIST_V1.filter((specialist) => !specialist.hidden);" in APP
+    assert "const groups = [...new Set(visibleSpecialists.map((item) => item.group))];" in APP
+    assert "${visibleSpecialists.filter((item) => item.group === group).map((specialist) => {" in APP
+
+
 def test_recruitment_is_part_of_people_not_a_duplicate_department():
     core_start = APP.index("const AION_DEPARTMENTS_HUB_CORE_V1")
     specialist_start = APP.index("const AION_DEPARTMENTS_HUB_SPECIALIST_V1")
@@ -55,4 +93,3 @@ def test_recruitment_is_part_of_people_not_a_duplicate_department():
     assert 'name: "People"' in core
     assert 'note: "Includes recruitment"' in core
     assert 'name: "Recruitment"' not in specialists
-

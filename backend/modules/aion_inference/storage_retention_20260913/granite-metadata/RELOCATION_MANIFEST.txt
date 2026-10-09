@@ -1,0 +1,34 @@
+AION GRANITE DERIVED LAYER-PACK RELOCATION
+Date: 2026-09-09
+Source: /Volumes/Install macOS Sonoma/AION-Inference/expert-layer-packs
+Destination: /Users/kevinrobinson/AION-Artifact-Archive/2026-09-09-granite-layer-packs
+
+Reason:
+These are historical derived layer-pack variants from completed or stopped
+Granite streaming experiments. They are not the promoted dynamic INT8 bank,
+the source checkpoint, expert shards, Glyph blocks, JSON evidence, or technical
+record. They are relocated intact to free SD capacity for the larger-MoE
+transfer experiment. Evidence files remain on the SD card.
+
+Source inventory before relocation:
+granite-3.1-3b-a800m-fp16-cpu-v1
+  5898764 KiB; 34 files; manifest SHA-256
+  09b1396383102bccae33262c89ad5c137dad330949b020b532631fe105bf5550
+granite-3.1-3b-a800m-fp16-cpu-v2
+  5898760 KiB; 33 files; manifest SHA-256
+  4f15c7cacbf744c5fe12194c23d955f4769668d795c2c30061b4701400ca4e9f
+granite-3.1-3b-a800m-route-aware-corpus3-v1
+  5899052 KiB; 33 files; manifest SHA-256
+  bc2c179bc6fc65d9a3981f96d4ad482429cdb12586092def7e5a76a717bf7648
+granite-3.1-3b-a800m-v1
+  5898748 KiB; 33 files; manifest SHA-256
+  ad3a321cd4fd8e291c986a10fe49f2d9fe623a95a00b9fae8e947a99c1024398
+granite-3.1-3b-a800m-zstd1-shuffle2-route-aware-corpus3-v1
+  4038596 KiB; 33 files; manifest SHA-256
+  1ffd9e448286bc1839902de670474a74e5e537b29218d1e96c290e67fb38eaf8
+granite-3.1-3b-a800m-zstd3-route-aware-corpus3-v1
+  4599664 KiB; 33 files; manifest SHA-256
+  a2944b4b33d3ec3ba5d18b823945ac9444a30d4352529516d21cebeafc41a9c3
+
+The source directories may be removed only after each destination copy has
+the same file count and the recorded manifest SHA-256.

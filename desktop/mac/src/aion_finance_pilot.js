@@ -123,7 +123,7 @@
       }
       html body [data-aion-finance-workspace="true"]>section{
         background:#ffffff !important;color:#102a43 !important;border:1px solid #cbd9e6 !important;
-        border-left:5px solid #0ea5e9 !important;box-shadow:none !important;
+        border-left:5px solid #2563eb !important;box-shadow:none !important;
       }
       html body [data-aion-finance-workspace="true"] p,
       html body [data-aion-finance-workspace="true"] span{color:#52667a !important}
@@ -131,7 +131,7 @@
       html body [data-aion-finance-workspace="true"] [data-aion-finance-accounting],
       html body [data-aion-finance-workspace="true"] [data-aion-finance-evidence]{
         background:#ffffff !important;background-image:none !important;color:#102a43 !important;
-        border:1px solid #cbd9e6 !important;box-shadow:inset 4px 0 0 #0284c7 !important;
+        border:1px solid #d9e2ec !important;box-shadow:inset 4px 0 0 #2563eb !important;
       }
       html body [data-aion-finance-workspace="true"] [data-aion-finance-accounting]:hover,
       html body [data-aion-finance-workspace="true"] [data-aion-finance-evidence]:hover{background:#edf8fc !important}

@@ -181,6 +181,228 @@ print("passed")
 )
 
 
+# These portfolios intentionally use different problem structures, not renamed
+# executions of the generic authority fabric. Each case has its own hidden
+# falsifying mutation and may count once as unfamiliar practical evidence.
+MATHEMATICS_PROJECTS = (
+    _case("math_shortest_path", """
+from heapq import heappop,heappush
+def solve(g,s):
+ d={s:0};q=[(0,s)]
+ while q:
+  cost,node=heappop(q)
+  for target,weight in g.get(node,[]):
+   candidate=cost+weight
+   if candidate<d.get(target,10**9):d[target]=candidate;heappush(q,(candidate,target))
+ return d
+assert solve({'a':[('b',4),('c',1)],'c':[('b',2)]},'a')['b']==3
+""", "candidate=cost+weight", "candidate=weight", "discrete_math proof"),
+    _case("math_symbolic_derivative", """
+def derivative(values):return [power*value for power,value in enumerate(values)][1:]
+assert derivative([5,3,2])==[3,4] and derivative([7])==[]
+""", "power*value", "(power+1)*value", "calculus algebra"),
+    _case("math_bayesian_update", """
+from fractions import Fraction
+def update(prior,hit,false_hit):return prior*hit/(prior*hit+(1-prior)*false_hit)
+assert update(Fraction(1,10),Fraction(4,5),Fraction(1,5))==Fraction(4,13)
+""", "(1-prior)*false_hit", "prior*false_hit", "probability arithmetic"),
+    _case("math_euclidean_invariant", """
+def gcd(a,b):
+ while b:a,b=b,a%b
+ return abs(a)
+assert gcd(84,30)==6 and gcd(-21,14)==7
+""", "a,b=b,a%b", "a,b=b,b%a", "proof arithmetic"),
+    _case("math_population_variance", """
+def variance(values):
+ mean=sum(values)/len(values);return sum((value-mean)**2 for value in values)/len(values)
+assert variance([1,2,3])==2/3
+""", "/len(values)", "/(len(values)-1)", "statistics arithmetic"),
+    _case("math_polynomial_horner", """
+def evaluate(coefficients,x):
+ value=0
+ for coefficient in coefficients:value=value*x+coefficient
+ return value
+assert evaluate([2,-3,1],4)==21
+""", "value*x+coefficient", "value+x+coefficient", "algebra arithmetic"),
+    _case("math_combinatorial_paths", """
+def paths(rows,columns):
+ grid=[[1]*columns for _ in range(rows)]
+ for row in range(1,rows):
+  for column in range(1,columns):grid[row][column]=grid[row-1][column]+grid[row][column-1]
+ return grid[-1][-1]
+assert paths(3,3)==6 and paths(2,4)==4
+""", "grid[row-1][column]+grid[row][column-1]", "grid[row-1][column]", "discrete_math proof"),
+    _case("math_bisection_bound", """
+def root(low,high):
+ for _ in range(60):
+  middle=(low+high)/2
+  if middle*middle<2:low=middle
+  else:high=middle
+ return (low+high)/2
+assert abs(root(1,2)**2-2)<1e-12
+""", "middle*middle<2", "middle*middle>2", "calculus logic"),
+)
+
+ENGLISH_PROJECTS = (
+    _case("english_ambiguity_resolution", """
+def resolve(pronoun,candidates):
+ matches=[row for row in candidates if row['number']==pronoun]
+ return matches[0]['name'] if len(matches)==1 else None
+assert resolve('plural',[{'name':'team','number':'singular'},{'name':'players','number':'plural'}])=='players'
+assert resolve('singular',[{'name':'team','number':'singular'},{'name':'coach','number':'singular'}]) is None
+""", "len(matches)==1", "len(matches)>=1", "ambiguity pragmatics"),
+    _case("english_argument_map", """
+def valid(rows):
+ premises=[row for row in rows if row['role']=='premise'];conclusions=[row for row in rows if row['role']=='conclusion']
+ return bool(premises) and len(conclusions)==1 and conclusions[0].get('supported')
+assert valid([{'role':'premise'},{'role':'conclusion','supported':True}]) and not valid([{'role':'conclusion','supported':True}])
+""", "bool(premises) and", "", "argument_structure clear_generation"),
+    _case("english_instruction_constraints", """
+def follows(text):return len(text.split())<=8 and text.endswith('.')
+assert follows('A concise answer works.') and not follows('An answer without final punctuation')
+""", "and text.endswith('.')", "or text.endswith('.')", "instruction_understanding clear_generation"),
+    _case("english_long_document_evidence", """
+def supported(claim,sections):return sorted(row['id'] for row in sections if claim in row['claims'])
+rows=[{'id':'s1','claims':['a']},{'id':'s2','claims':['b','a']}]
+assert supported('a',rows)==['s1','s2'] and supported('c',rows)==[]
+""", "if claim in row['claims']", "if claim not in row['claims']", "long_documents argument_structure"),
+    _case("english_correction_agreement", """
+def agrees(subject,verb):
+ plural=subject.endswith('s');return (plural and not verb.endswith('s')) or (not plural and verb.endswith('s'))
+assert agrees('robots','learn') and agrees('robot','learns') and not agrees('robots','learns')
+""", "plural and not verb.endswith('s')", "plural and verb.endswith('s')", "correction clear_generation"),
+    _case("english_pragmatic_register", """
+def suitable(text,audience):return audience=='expert' or 'instantiate' not in text.lower()
+assert suitable('Use a small example','general') and not suitable('Instantiate this','general')
+""", "audience=='expert' or", "audience=='general' or", "pragmatics clear_generation"),
+    _case("english_dialogue_state", """
+def unanswered(turns):
+ opened=[]
+ for turn in turns:
+  if turn['kind']=='question':opened.append(turn['id'])
+  elif turn['to'] in opened:opened.remove(turn['to'])
+ return opened
+assert unanswered([{'kind':'question','id':'q1'},{'kind':'answer','to':'q1'}])==[]
+""", "opened.remove(turn['to'])", "opened.append(turn['to'])", "long_dialogue instruction_understanding"),
+    _case("english_concise_revision", """
+def revise(text):
+ for old,new in {'very unique':'unique','in order to':'to','at this point in time':'now'}.items():text=text.replace(old,new)
+ return text
+assert revise('in order to be very unique at this point in time')=='to be unique now'
+""", "text=text.replace(old,new)", "text=text.replace(new,old)", "clear_generation correction"),
+)
+
+PYTHON_PROJECTS = (
+    _case("python_dependency_order", """
+def order(graph):
+ result=[];pending=set(graph)
+ while pending:
+  ready=sorted(node for node in pending if set(graph[node])<=set(result))
+  if not ready:raise ValueError('cycle')
+  result.extend(ready);pending-=set(ready)
+ return result
+assert order({'api':['db'],'db':[]})==['db','api']
+""", "set(graph[node])<=set(result)", "set(graph[node])<set(result)", "architecture packages"),
+    _case("python_worker_pool", """
+from concurrent.futures import ThreadPoolExecutor
+def apply(values):
+ with ThreadPoolExecutor(max_workers=2) as pool:return list(pool.map(lambda x:x*x,values))
+assert apply([1,2,3])==[1,4,9]
+""", "x*x", "x+x", "concurrency testing"),
+    _case("python_lru_cache", """
+from collections import OrderedDict
+data=OrderedDict()
+for key in 'abc':
+ data[key]=key
+ if len(data)>2:data.popitem(last=False)
+assert list(data)==['b','c']
+""", "popitem(last=False)", "popitem(last=True)", "data_structures performance"),
+    _case("python_safe_path", """
+from pathlib import PurePosixPath
+def safe(value):
+ path=PurePosixPath(value);return not path.is_absolute() and '..' not in path.parts
+assert safe('reports/a.txt') and not safe('../secret') and not safe('/etc/passwd')
+""", "and '..' not in path.parts", "or '..' not in path.parts", "security testing"),
+    _case("python_type_contract", """
+def total(values):
+ if not all(isinstance(value,int) and not isinstance(value,bool) for value in values):raise TypeError
+ return sum(values)
+assert total([1,2,3])==6
+try:total([1,True]);raise AssertionError
+except TypeError:pass
+""", "and not isinstance(value,bool)", "or isinstance(value,bool)", "typing syntax"),
+    _case("python_memoized_solver", """
+from functools import lru_cache
+@lru_cache(None)
+def ways(n):return n if n<2 else ways(n-1)+ways(n-2)
+assert ways(20)==6765 and ways.cache_info().hits>0
+""", "ways(n-1)+ways(n-2)", "ways(n-1)+ways(n-1)", "performance debugging"),
+    _case("python_stream_parser", """
+def parse(lines):
+ for line in lines:
+  key,separator,value=line.partition('=')
+  if not separator or not key:raise ValueError
+  yield key.strip(),value.strip()
+assert dict(parse(['a=1','b = 2']))=={'a':'1','b':'2'}
+try:list(parse(['=missing-key']));raise AssertionError
+except ValueError:pass
+""", "if not separator or not key", "if not separator and not key", "syntax packages"),
+    _case("python_retry_boundary", """
+def retry(operation,attempts):
+ for index in range(attempts):
+  try:return operation()
+  except ValueError:
+   if index==attempts-1:raise
+values=iter([None,42])
+def operation():
+ value=next(values)
+ if value is None:raise ValueError
+ return value
+assert retry(operation,2)==42
+""", "if index==attempts-1", "if index<attempts-1", "debugging architecture"),
+)
+
+SCIENTIFIC_METHOD_PROJECTS = (
+    _case("science_randomized_assignment", """
+def assign(ids):return {value:('treatment' if index%2 else 'control') for index,value in enumerate(sorted(ids))}
+assert assign(['d','a','c','b'])=={'a':'control','b':'treatment','c':'control','d':'treatment'}
+""", "index%2", "index%3", "experiment_design experimental_design"),
+    _case("science_confounder_strata", """
+def difference(rows):
+ treatment=[r['value'] for r in rows if r['group']=='treatment'];control=[r['value'] for r in rows if r['group']=='control']
+ return sum(treatment)/len(treatment)-sum(control)/len(control)
+assert difference([{'group':'treatment','value':4},{'group':'control','value':2}])==2
+""", "-sum(control)", "+sum(control)", "causal_inference model_criticism"),
+    _case("science_measurement_calibration", """
+def calibrate(observed,offset,scale):return (observed-offset)/scale
+assert calibrate(12,2,2)==5 and calibrate(2,2,3)==0
+""", "(observed-offset)/scale", "observed-offset/scale", "measurement uncertainty"),
+    _case("science_replication_rule", """
+def replicated(studies):return len(studies)>=2 and all(row==studies[0] for row in studies)
+assert replicated([1,1]) and not replicated([1,-1])
+""", "len(studies)>=2 and", "len(studies)>=1 or", "replication model_criticism"),
+    _case("science_uncertainty_interval", """
+from math import sqrt
+def margin(variance,n):return 1.96*sqrt(variance/n)
+assert round(margin(4,100),3)==.392
+""", "sqrt(variance/n)", "sqrt(variance)/n", "uncertainty measurement"),
+    _case("science_evidence_deduplication", """
+def independent(rows):return len({(row['dataset'],row['team']) for row in rows})
+rows=[{'dataset':'a','team':'x'},{'dataset':'a','team':'x'},{'dataset':'a','team':'y'}]
+assert independent(rows)==2
+""", "(row['dataset'],row['team'])", "row['dataset']", "literature_synthesis literature_review"),
+    _case("science_residual_diagnostic", """
+def biased(predicted,observed):return abs(sum(a-p for p,a in zip(predicted,observed))/len(predicted))>1
+assert biased([1,1,1],[3,3,3]) and not biased([1,2,3],[1,2,3])
+""", ">1", ">3", "model_criticism uncertainty"),
+    _case("science_preregistered_hypothesis", """
+REQUIRED={'outcome','direction','sample_size','analysis'}
+def valid(plan):return REQUIRED<=set(plan) and plan['sample_size']>0
+assert valid({'outcome':'x','direction':'up','sample_size':20,'analysis':'mean'}) and not valid({'outcome':'x','sample_size':20})
+""", "REQUIRED<=set(plan)", "bool(set(plan))", "hypotheses hypothesis_generation experimental_design"),
+)
+
+
 def _execute(source: str) -> dict[str, Any]:
     started = time.perf_counter()
     with tempfile.TemporaryDirectory(prefix="aion_diverse_portfolio_") as directory:
@@ -271,6 +493,36 @@ def event_resolution_runner(contract: dict[str, Any], evidence: list[dict[str, A
 
 
 event_resolution_runner = _decorate(event_resolution_runner, EVENT_RESOLUTION_PROJECTS)
+
+
+def mathematics_runner(contract: dict[str, Any], evidence: list[dict[str, Any]]) -> dict[str, Any]:
+    return _run_portfolio(MATHEMATICS_PROJECTS, contract, evidence, "mathematics project authority v1")
+
+
+mathematics_runner = _decorate(mathematics_runner, MATHEMATICS_PROJECTS)
+
+
+def english_runner(contract: dict[str, Any], evidence: list[dict[str, Any]]) -> dict[str, Any]:
+    return _run_portfolio(ENGLISH_PROJECTS, contract, evidence, "language practice authority v1")
+
+
+english_runner = _decorate(english_runner, ENGLISH_PROJECTS)
+
+
+def python_runner(contract: dict[str, Any], evidence: list[dict[str, Any]]) -> dict[str, Any]:
+    return _run_portfolio(PYTHON_PROJECTS, contract, evidence, "Python project authority v1")
+
+
+python_runner = _decorate(python_runner, PYTHON_PROJECTS)
+
+
+def scientific_method_runner(contract: dict[str, Any], evidence: list[dict[str, Any]]) -> dict[str, Any]:
+    return _run_portfolio(
+        SCIENTIFIC_METHOD_PROJECTS, contract, evidence, "scientific-method project authority v1"
+    )
+
+
+scientific_method_runner = _decorate(scientific_method_runner, SCIENTIFIC_METHOD_PROJECTS)
 
 
 def runner_has_fresh_family(runner: Callable[..., Any], kind: str,

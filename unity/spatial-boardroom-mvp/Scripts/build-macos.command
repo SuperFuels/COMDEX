@@ -2,12 +2,9 @@
 set -euo pipefail
 
 project_dir="${0:A:h:h}"
-unity_bin="/Volumes/Install macOS Sonoma/Tessaris/Unity/Editors/6000.0.79f1/Unity/Unity.app/Contents/MacOS/Unity"
+source "${0:A:h}/resolve-unity.zsh"
 
-if [[ ! -x "$unity_bin" ]]; then
-  print -u2 "Connect the Tessaris SD card before building Spatial Boardroom."
-  exit 1
-fi
+mkdir -p "$project_dir/Logs"
 
 "$unity_bin" \
   -batchmode \

@@ -1,7 +1,7 @@
 (function installAionSupportWorkspace(global) {
   'use strict';
   const API = 'http://127.0.0.1:8080';
-  const state = { workspaceId: '', data: null, voice: null, actorId: '', selectedId: '', panel: '', busy: false, loading: false, loadedAt: 0, error: '', message: '' };
+  const state = { workspaceId: '', data: null, voice: null, actorId: '', selectedId: '', panel: '', busy: false, loading: false, loadedAt: 0, error: '', message: '', visibleRequested: false };
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[ch]));
   const label = (value) => String(value || '').replaceAll('_', ' ').replace(/\b\w/g, (ch) => ch.toUpperCase());
   const businessId = () => global.AionBusinessContainerClient?.resolveBusinessId?.()
@@ -47,7 +47,7 @@
   function detail() {
     const row = selected(); if (!row) return '';
     const drafts = selectedResponses();
-    return `<section class="scw-detail"><header><div><span>${esc(row.case_number)}</span><h3>${esc(row.subject)}</h3><p>${esc(row.customer?.name)} · ${esc(row.customer?.email || row.customer?.phone || 'contact route missing')}</p></div><button data-scw-close>×</button></header><div class="scw-badges"><b>${esc(label(row.category))}</b><b>${esc(label(row.priority))}</b><b>${esc(label(row.status))}</b></div>${row.risk_flags?.length ? `<div class="scw-warning"><b>Escalation flags</b><p>${row.risk_flags.map(label).join(' · ')}</p></div>` : ''}<section><b>Matched business records</b>${row.linked_records?.length ? row.linked_records.map((x) => `<p>${esc(label(x.record_type))} · ${esc(x.record_id)}</p>`).join('') : '<p>No canonical customer/order/job match yet.</p>'}</section><section><b>Conversation evidence</b>${(row.conversation || []).map((event) => `<article><small>${esc(label(event.direction))} · ${esc(label(event.channel))} · ${esc(event.recorded_at)}</small><p>${esc(event.content)}</p><code>${esc(String(event.content_hash || '').slice(0, 24))}</code></article>`).join('')}</section><section><b>Governed reply drafts</b>${drafts.length ? drafts.map((draft) => `<article><small>${esc(label(draft.status))} · ${esc(label(draft.requested_action))}</small><p>${esc(draft.body)}</p><div class="scw-actions">${draft.status === 'exact_approval_required' ? `<button data-scw-approve="${esc(draft.response_id)}" data-scw-hash="${esc(draft.response_hash)}">Approve exact reply</button>` : ''}${draft.status === 'approved_not_sent' && draft.channel === 'email' ? `<button class="primary" data-scw-gmail-draft="${esc(draft.response_id)}" data-scw-hash="${esc(draft.response_hash)}">Create Gmail draft</button>` : ''}</div></article>`).join('') : '<p>No response prepared.</p>'}</section><footer class="scw-actions"><button class="primary" data-scw-panel="response">Prepare grounded reply</button><button data-scw-panel="escalate">Escalate</button><button data-scw-panel="resolve">Record verified resolution</button><button data-scw-close>Close</button></footer></section>`;
+    return `<section class="scw-detail" role="region" aria-label="Support case details" tabindex="-1"><header><div><span>${esc(row.case_number)}</span><h3>${esc(row.subject)}</h3><p>${esc(row.customer?.name)} · ${esc(row.customer?.email || row.customer?.phone || 'contact route missing')}</p></div><button data-scw-close aria-label="Close case details" title="Close case details">×</button></header><div class="scw-badges"><b>${esc(label(row.category))}</b><b>${esc(label(row.priority))}</b><b>${esc(label(row.status))}</b></div>${row.risk_flags?.length ? `<div class="scw-warning"><b>Escalation flags</b><p>${row.risk_flags.map(label).join(' · ')}</p></div>` : ''}<section><b>Matched business records</b>${row.linked_records?.length ? row.linked_records.map((x) => `<p>${esc(label(x.record_type))} · ${esc(x.record_id)}</p>`).join('') : '<p>No canonical customer/order/job match yet.</p>'}</section><section><b>Conversation evidence</b>${(row.conversation || []).map((event) => `<article><small>${esc(label(event.direction))} · ${esc(label(event.channel))} · ${esc(event.recorded_at)}</small><p>${esc(event.content)}</p><code>${esc(String(event.content_hash || '').slice(0, 24))}</code></article>`).join('')}</section><section><b>Governed reply drafts</b>${drafts.length ? drafts.map((draft) => `<article><small>${esc(label(draft.status))} · ${esc(label(draft.requested_action))}</small><p>${esc(draft.body)}</p><div class="scw-actions">${draft.status === 'exact_approval_required' ? `<button data-scw-approve="${esc(draft.response_id)}" data-scw-hash="${esc(draft.response_hash)}">Approve exact reply</button>` : ''}${draft.status === 'approved_not_sent' && draft.channel === 'email' ? `<button class="primary" data-scw-gmail-draft="${esc(draft.response_id)}" data-scw-hash="${esc(draft.response_hash)}">Create Gmail draft</button>` : ''}</div></article>`).join('') : '<p>No response prepared.</p>'}</section><footer class="scw-actions"><button class="primary" data-scw-panel="response">Prepare grounded reply</button><button data-scw-panel="escalate">Escalate</button><button data-scw-panel="resolve">Record verified resolution</button><button data-scw-close>Close</button></footer></section>`;
   }
 
   function panel() {
@@ -71,7 +71,7 @@
   function styles() {
     if (document.getElementById('aion-support-case-styles')) return;
     const style = document.createElement('style'); style.id = 'aion-support-case-styles';
-    style.textContent = `.scw-shell{background:#f8fbfd;color:#18324a;border:1px solid #c8dbe8;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.scw-shell>header,.scw-studio,.scw-detail>header,.scw-panel header,.scw-shell nav{display:flex;justify-content:space-between;gap:18px;align-items:center}.scw-shell>header span,.scw-studio span,.scw-board>div>span,.scw-panel header span{font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#67558f}.scw-shell h2,.scw-shell h3{margin:5px 0;color:#0f172a}.scw-shell p{line-height:1.45}.scw-shell button,.scw-shell select,.scw-shell input,.scw-shell textarea{font:inherit;border:1px solid #9bb7ca;background:#fff;padding:10px;color:#18324a}.scw-shell button{cursor:pointer;font-weight:700}.scw-shell .primary{background:#67558f;color:#fff;border-color:#67558f}.scw-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0}.scw-metrics article,.scw-studio,.scw-board,.scw-detail{background:#fff;border:1px solid #c8dbe8;padding:16px}.scw-metrics strong{font-size:26px;display:block;color:#0f172a}.scw-metrics span,.scw-shell small{display:block;color:#587087;margin-top:5px}.scw-studio{display:grid;grid-template-columns:1fr auto;gap:20px;border-left:5px solid #67558f;margin:18px 0}.scw-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.scw-list{display:grid;gap:8px}.scw-list>button{text-align:left;display:grid;gap:5px}.scw-detail{margin-top:18px;border-left:5px solid #67558f}.scw-badges{display:flex;gap:8px;margin:12px 0}.scw-badges b{background:#f5f3ff;padding:6px 9px}.scw-warning{background:#fff5da;border:1px solid #e8b94f;padding:12px}.scw-detail article{border-top:1px solid #d7e4ec;padding:10px 0}.scw-panel{position:fixed;z-index:10020;right:24px;top:24px;bottom:24px;width:min(680px,calc(100vw - 48px));overflow:auto;background:#fff;border:2px solid #67558f;box-shadow:0 18px 60px #17324855;padding:20px}.scw-panel label{display:grid;gap:5px;margin:12px 0}.scw-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.scw-panel footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.scw-alert{padding:12px;margin:12px 0}.scw-alert.good{background:#e1f5ed}.scw-alert.bad{background:#ffe5e5}.scw-empty{padding:30px;text-align:center}@media(max-width:800px){.scw-metrics{grid-template-columns:repeat(2,1fr)}.scw-two,.scw-studio{grid-template-columns:1fr}}`;
+    style.textContent = `.scw-shell{background:#f7f9fc;color:#14213d;border:1px solid #d9e2ec;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.scw-shell>header,.scw-studio,.scw-detail>header,.scw-panel header,.scw-shell nav{display:flex;justify-content:space-between;gap:18px;align-items:center}.scw-shell>header span,.scw-studio span,.scw-board>div>span,.scw-panel header span{font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#2563eb}.scw-shell h2,.scw-shell h3{margin:5px 0;color:#14213d}.scw-shell p{line-height:1.45}.scw-shell button,.scw-shell select,.scw-shell input,.scw-shell textarea{font:inherit;border:1px solid #b8c3d1;border-radius:11px;background:#fff;padding:10px;color:#14213d}.scw-shell button{cursor:pointer;font-weight:700}.scw-shell .primary{background:#2563eb;color:#fff;border-color:#2563eb}.scw-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0}.scw-metrics article,.scw-studio,.scw-board,.scw-detail{background:#fff;border:1px solid #d9e2ec;border-radius:14px;padding:16px}.scw-metrics strong{font-size:26px;display:block;color:#14213d}.scw-metrics span,.scw-shell small{display:block;color:#66758a;margin-top:5px}.scw-studio{display:grid;grid-template-columns:1fr auto;gap:20px;border-left:5px solid #2563eb;margin:18px 0}.scw-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.scw-list{display:grid;gap:8px}.scw-list>button{text-align:left;display:grid;gap:5px}.scw-detail{margin-top:18px;border-left:5px solid #2563eb}.scw-badges{display:flex;gap:8px;margin:12px 0}.scw-badges b{background:#eef5ff;color:#14213d;padding:6px 9px;border-radius:8px}.scw-warning{background:#fff5da;border:1px solid #e8b94f;border-radius:10px;padding:12px}.scw-detail article{border-top:1px solid #d9e2ec;padding:10px 0}.scw-panel{position:fixed;z-index:10020;right:24px;top:24px;bottom:24px;width:min(680px,calc(100vw - 48px));overflow:auto;background:#fff;border:2px solid #2563eb;border-radius:16px;box-shadow:0 18px 60px #17324855;padding:20px}.scw-panel label{display:grid;gap:5px;margin:12px 0}.scw-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.scw-panel footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.scw-alert{padding:12px;margin:12px 0}.scw-alert.good{background:#e1f5ed}.scw-alert.bad{background:#ffe5e5}.scw-empty{padding:30px;text-align:center}@media(max-width:800px){.scw-metrics{grid-template-columns:repeat(2,1fr)}.scw-two,.scw-studio{grid-template-columns:1fr}}`;
     document.head.appendChild(style);
   }
 
@@ -85,7 +85,7 @@
         request(`/api/aion/support/${encodeURIComponent(id)}/voice`).catch(() => null),
       ]);
       state.data = data; state.voice = voice || null; state.loadedAt = Date.now();
-      if (requireVisibleMount) {
+      if (requireVisibleMount || (state.visibleRequested && mount())) {
         render();
       } else {
         // Only background dashboard hydration announces that its data is ready.
@@ -130,7 +130,11 @@
       return post(`/api/aion/support/${encodeURIComponent(state.workspaceId)}/responses/${encodeURIComponent(button.dataset.scwGmailDraft)}/gmail-draft`,{expected_response_hash:button.dataset.scwHash,approved_by_person_id:state.actorId},'Gmail draft created in the original thread. It has not been sent.');
     }
     if(button.dataset.scwPanel){state.panel=button.dataset.scwPanel;render();return;}
-    if(button.dataset.scwCase){state.selectedId=button.dataset.scwCase;render();}
+    if(button.dataset.scwCase){
+      state.selectedId=button.dataset.scwCase;
+      render();
+      global.requestAnimationFrame?.(() => document.querySelector('[data-aion-support-workspace-pane] .scw-detail')?.focus({ preventScroll: true }));
+    }
   });
   document.addEventListener('submit', async (event) => {
     const form=event.target.closest('[data-aion-support-cases] form'); if(!form)return; event.preventDefault();
@@ -156,6 +160,13 @@
     }
     if (!state.loading) load();
   };
+  function mountVisibleWorkspace() {
+    state.visibleRequested = true;
+    const root = mount();
+    if (!root) return Promise.resolve(null);
+    if (state.data) render();
+    return load(true);
+  }
   new MutationObserver(attemptMount).observe(document.documentElement, { childList: true, subtree: true });
   global.addEventListener('load', attemptMount);
   attemptMount();
@@ -170,5 +181,5 @@
     state.panel = '';
     render();
   }
-  global.AionSupportCaseWorkspace={load,ensureDashboardData,openCase,snapshot:()=>state.data};
+  global.AionSupportCaseWorkspace={load,mountVisibleWorkspace,ensureDashboardData,openCase,snapshot:()=>state.data};
 })(window);

@@ -18,6 +18,7 @@ from email.utils import parseaddr
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.sales_revenue_service import SalesRevenueService
@@ -1030,7 +1031,11 @@ class SupportCaseService:
     def _load(self, path: Path, workspace_id: str, hash_key: str) -> dict[str, Any]:
         if not path.exists(): raise FileNotFoundError(path.stem)
         row = json.loads(path.read_text(encoding="utf-8"))
-        if row.get("workspace_id") != workspace_id: raise PermissionError("cross_workspace_support_record")
+        try:
+            same_workspace = canonical_business_id(row.get("workspace_id")) == canonical_business_id(workspace_id)
+        except ValueError:
+            same_workspace = False
+        if not same_workspace: raise PermissionError("cross_workspace_support_record")
         expected = row.get(hash_key); copy = dict(row); copy.pop(hash_key, None)
         if not hmac.compare_digest(str(expected or ""), canonical_contract_hash(copy)):
             raise ValueError("support_record_integrity_failed")

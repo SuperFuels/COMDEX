@@ -73,6 +73,21 @@ def test_compact_footer_keeps_note_visible_and_shortens_clear_glyphs():
     assert "order: 8 !important;" in compact
 
 
+def test_tools_footer_button_only_shows_the_short_label():
+    text = source()
+    toolbar_start = text.index("function renderAionWorkflowFloatingToolbar()")
+    toolbar_end = text.index("function renderAionWorkflowCanvasPanel", toolbar_start)
+    toolbar = text[toolbar_start:toolbar_end]
+
+    summary_start = toolbar.index('<summary aria-label="Open workflow tools">')
+    summary_end = toolbar.index("</summary>", summary_start)
+    summary = toolbar[summary_start:summary_end]
+
+    assert "<strong>Tools</strong>" in summary
+    assert "<small>" not in summary
+    assert 'mode === "manual" ? "Manual"' not in summary
+
+
 def test_note_insertion_targets_the_direct_footer_add_button():
     text = source()
     assert 'toolbar.querySelector(":scope > .aion-workflow-floating-add")' in text

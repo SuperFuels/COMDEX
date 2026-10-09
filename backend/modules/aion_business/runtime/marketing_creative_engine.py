@@ -17,6 +17,8 @@ PLATFORM_PROFILES: dict[str, dict[str, Any]] = {
     "instagram_stories": {"label": "Instagram Stories", "ratio": "9:16", "width": 1080, "height": 1920, "formats": ["image", "video", "clip"], "preferred_seconds": [6, 15]},
     "facebook_feed": {"label": "Facebook feed", "ratio": "4:5", "width": 1080, "height": 1350, "formats": ["image", "video", "carousel"], "preferred_seconds": [6, 30]},
     "facebook_reels": {"label": "Facebook Reels", "ratio": "9:16", "width": 1080, "height": 1920, "formats": ["video", "clip"], "preferred_seconds": [15, 30]},
+    "facebook_stories": {"label": "Facebook Stories", "ratio": "9:16", "width": 1080, "height": 1920, "formats": ["image", "video", "clip"], "preferred_seconds": [6, 15]},
+    "google_business": {"label": "Google Business Profile", "ratio": "4:3", "width": 1200, "height": 900, "formats": ["image"], "preferred_seconds": [0, 0]},
     "tiktok": {"label": "TikTok", "ratio": "9:16", "width": 1080, "height": 1920, "formats": ["video", "clip"], "preferred_seconds": [21, 30], "source": "https://ads.tiktok.com/help/article/global-app-bundle-video-ad-specifications"},
     "youtube_shorts": {"label": "YouTube Shorts", "ratio": "9:16", "width": 1080, "height": 1920, "formats": ["video", "clip"], "preferred_seconds": [15, 45], "maximum_seconds": 180, "source": "https://support.google.com/youtube/answer/15424877"},
     "linkedin_feed": {"label": "LinkedIn feed", "ratio": "4:5", "width": 1080, "height": 1350, "formats": ["image", "carousel"], "preferred_seconds": [3, 30]},

@@ -6,6 +6,7 @@ import json
 import os
 import time
 import traceback
+from concurrent.futures import Future, ThreadPoolExecutor
 from pathlib import Path
 
 from backend.modules.hexcore.wall_clock_scheduler import wait_for_wall_clock
@@ -101,6 +102,22 @@ from backend.modules.hexcore.standalone_task_governance import (
     governed_standalone_task,
     write_migration_status,
 )
+from backend.modules.aion_cognition.native_english_teacher import (
+    run_teacher_cycle, run_semantic_transfer_academy_cycle,
+    run_native_language_workshop_cycle,
+)
+from backend.modules.aion_cognition.native_english_practice_gym import NativeEnglishPracticeGym
+from backend.modules.aion_cognition.native_reading_academy import NativeReadingAcademy
+
+
+def run_native_english_practice_cycle(*, repo_root: Path, limit: int) -> dict:
+    return NativeEnglishPracticeGym(repo_root=repo_root).run_cycle(limit=limit)
+
+
+def run_native_reading_cycle(*, repo_root: Path, limit: int) -> dict:
+    return NativeReadingAcademy(repo_root=repo_root).run_cycle(limit=limit)
+
+
 def run_service() -> None:
     repo_root = Path(os.getenv("AION_REPO_ROOT", ".")).resolve()
     process_lock = _STARTUP_PROCESS_LOCK or acquire_process_lock(
@@ -109,6 +126,82 @@ def run_service() -> None:
         return
     status_path = repo_root / "results/aion_mastery_curriculum_service_status.json"
     interval = max(5.0, float(os.getenv("AION_MASTERY_CURRICULUM_INTERVAL", "30")))
+    english_teacher_enabled = os.getenv("AION_NATIVE_ENGLISH_TEACHER", "1") not in {
+        "0", "false", "False",
+    }
+    english_teacher_interval = max(
+        60.0, float(os.getenv("AION_NATIVE_ENGLISH_TEACHER_INTERVAL", "300"))
+    )
+    english_teacher_pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="aion-english-teacher")
+    # The core curriculum owns first use of the single local-Qwen lane. The
+    # academy and workshop are supporting practice and must not starve the
+    # teacher that advances the actual curriculum state.
+    english_teacher_future: Future[dict] | None = (
+        english_teacher_pool.submit(run_teacher_cycle, repo_root=repo_root)
+        if english_teacher_enabled else None
+    )
+    english_teacher_outcome: dict = {"status": "starting"}
+    last_english_teacher_epoch = time.time() if english_teacher_enabled else 0.0
+    semantic_academy_interval = max(
+        20.0, float(os.getenv("AION_SEMANTIC_ACADEMY_INTERVAL", "45"))
+    )
+    semantic_academy_future: Future[dict] | None = (
+        english_teacher_pool.submit(run_semantic_transfer_academy_cycle, repo_root=repo_root)
+        if english_teacher_enabled else None
+    )
+    semantic_academy_outcome: dict = {"status": "starting"}
+    last_semantic_academy_epoch = time.time() if english_teacher_enabled else 0.0
+    language_workshop_interval = max(
+        45.0, float(os.getenv("AION_LANGUAGE_WORKSHOP_INTERVAL", "120"))
+    )
+    language_workshop_future: Future[dict] | None = (
+        english_teacher_pool.submit(run_native_language_workshop_cycle, repo_root=repo_root)
+        if english_teacher_enabled else None
+    )
+    language_workshop_outcome: dict = {"status": "starting"}
+    last_language_workshop_epoch = time.time() if english_teacher_enabled else 0.0
+    practice_gym_enabled = os.getenv("AION_ENGLISH_PRACTICE_GYM", "1") not in {
+        "0", "false", "False",
+    }
+    practice_gym_interval = max(
+        20.0, float(os.getenv("AION_ENGLISH_PRACTICE_GYM_INTERVAL", "60"))
+    )
+    practice_gym_batch = max(
+        1, min(100, int(os.getenv("AION_ENGLISH_PRACTICE_GYM_BATCH", "20")))
+    )
+    practice_gym_pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="aion-english-practice")
+    practice_gym_future: Future[dict] | None = (
+        practice_gym_pool.submit(
+            run_native_english_practice_cycle, repo_root=repo_root, limit=practice_gym_batch,
+        ) if practice_gym_enabled else None
+    )
+    practice_gym_outcome: dict = {"status": "starting"}
+    last_practice_gym_epoch = time.time() if practice_gym_enabled else 0.0
+    reading_academy_enabled = os.getenv("AION_READING_ACADEMY", "1") not in {
+        "0", "false", "False",
+    }
+    reading_academy_interval = max(
+        5.0, float(os.getenv("AION_READING_ACADEMY_INTERVAL", "15"))
+    )
+    reading_academy_batch = max(
+        1, min(500, int(os.getenv("AION_READING_ACADEMY_BATCH", "200")))
+    )
+    reading_academy_pool = ThreadPoolExecutor(
+        max_workers=1, thread_name_prefix="aion-native-reading",
+    )
+    reading_academy_future: Future[dict] | None = (
+        reading_academy_pool.submit(
+            run_native_reading_cycle, repo_root=repo_root, limit=reading_academy_batch,
+        ) if reading_academy_enabled else None
+    )
+    reading_academy_outcome: dict = {"status": "starting"}
+    last_reading_academy_epoch = time.time() if reading_academy_enabled else 0.0
+    # The short academy lane gets first use of the shared local-Qwen worker;
+    # the larger five-minute teacher cycle queues behind it at startup.
+    if english_teacher_enabled:
+        english_teacher_future = english_teacher_pool.submit(
+            run_teacher_cycle, repo_root=repo_root,
+        )
     # Live teacher consultation is proposal-only and may be slow or absent.  It
     # must never sit on the critical path of the persistent curriculum loop.
     # Operators can opt in explicitly; the cached deterministic teacher remains
@@ -190,6 +283,86 @@ def run_service() -> None:
     )
     while True:
         try:
+            if reading_academy_future is not None and reading_academy_future.done():
+                try:
+                    reading_academy_outcome = reading_academy_future.result()
+                except Exception as reading_error:
+                    reading_academy_outcome = {
+                        "status": "error", "error": type(reading_error).__name__,
+                        "detail": str(reading_error),
+                    }
+                reading_academy_future = None
+            if (reading_academy_enabled and reading_academy_future is None
+                    and time.time() - last_reading_academy_epoch >= reading_academy_interval):
+                reading_academy_future = reading_academy_pool.submit(
+                    run_native_reading_cycle,
+                    repo_root=repo_root, limit=reading_academy_batch,
+                )
+                last_reading_academy_epoch = time.time()
+            if practice_gym_future is not None and practice_gym_future.done():
+                try:
+                    practice_gym_outcome = practice_gym_future.result()
+                except Exception as practice_error:
+                    practice_gym_outcome = {
+                        "status": "error", "error": type(practice_error).__name__,
+                        "detail": str(practice_error),
+                    }
+                practice_gym_future = None
+            if (practice_gym_enabled and practice_gym_future is None
+                    and time.time() - last_practice_gym_epoch >= practice_gym_interval):
+                practice_gym_future = practice_gym_pool.submit(
+                    run_native_english_practice_cycle,
+                    repo_root=repo_root, limit=practice_gym_batch,
+                )
+                last_practice_gym_epoch = time.time()
+            # Requeue the core teacher before lower-priority Qwen work. All
+            # three still serialize through one worker, so student answers
+            # remain isolated and local inference is never run concurrently.
+            if english_teacher_future is not None and english_teacher_future.done():
+                try:
+                    english_teacher_outcome = english_teacher_future.result()
+                except Exception as teacher_error:
+                    english_teacher_outcome = {
+                        "status": "error", "error": type(teacher_error).__name__,
+                        "detail": str(teacher_error),
+                    }
+                english_teacher_future = None
+            if (english_teacher_enabled and english_teacher_future is None
+                    and time.time() - last_english_teacher_epoch >= english_teacher_interval):
+                english_teacher_future = english_teacher_pool.submit(
+                    run_teacher_cycle, repo_root=repo_root,
+                )
+                last_english_teacher_epoch = time.time()
+            if semantic_academy_future is not None and semantic_academy_future.done():
+                try:
+                    semantic_academy_outcome = semantic_academy_future.result()
+                except Exception as academy_error:
+                    semantic_academy_outcome = {
+                        "status": "error", "error": type(academy_error).__name__,
+                        "detail": str(academy_error),
+                    }
+                semantic_academy_future = None
+            if (english_teacher_enabled and semantic_academy_future is None
+                    and time.time() - last_semantic_academy_epoch >= semantic_academy_interval):
+                semantic_academy_future = english_teacher_pool.submit(
+                    run_semantic_transfer_academy_cycle, repo_root=repo_root,
+                )
+                last_semantic_academy_epoch = time.time()
+            if language_workshop_future is not None and language_workshop_future.done():
+                try:
+                    language_workshop_outcome = language_workshop_future.result()
+                except Exception as workshop_error:
+                    language_workshop_outcome = {
+                        "status": "error", "error": type(workshop_error).__name__,
+                        "detail": str(workshop_error),
+                    }
+                language_workshop_future = None
+            if (english_teacher_enabled and language_workshop_future is None
+                    and time.time() - last_language_workshop_epoch >= language_workshop_interval):
+                language_workshop_future = english_teacher_pool.submit(
+                    run_native_language_workshop_cycle, repo_root=repo_root,
+                )
+                last_language_workshop_epoch = time.time()
             academy_state_path = repo_root / "backend/modules/hexcore/data/guided_foundation_academy/state.json"
             worker = AcademyExecutorAcquisitionWorker(
                 repo_root=repo_root, academy_state_path=academy_state_path,
@@ -705,6 +878,43 @@ def run_service() -> None:
                       "prediction_market_intelligence": prediction_market_outcome or {},
                       "prediction_market_paper_game": prediction_paper_game_outcome or {},
                       "prediction_market_research": prediction_research_outcome or {},
+                      "native_english_teacher": {
+                          **english_teacher_outcome,
+                          "running": bool(english_teacher_future is not None),
+                          "enabled": english_teacher_enabled,
+                          "interval_seconds": english_teacher_interval,
+                          "last_dispatch_epoch": last_english_teacher_epoch,
+                      },
+                      "semantic_transfer_academy_runner": {
+                          **semantic_academy_outcome,
+                          "running": bool(semantic_academy_future is not None),
+                          "enabled": english_teacher_enabled,
+                          "interval_seconds": semantic_academy_interval,
+                          "last_dispatch_epoch": last_semantic_academy_epoch,
+                      },
+                      "native_language_workshop": {
+                          **language_workshop_outcome,
+                          "running": bool(language_workshop_future is not None),
+                          "enabled": english_teacher_enabled,
+                          "interval_seconds": language_workshop_interval,
+                          "last_dispatch_epoch": last_language_workshop_epoch,
+                      },
+                      "native_english_practice_gym": {
+                          **practice_gym_outcome,
+                          "running": bool(practice_gym_future is not None),
+                          "enabled": practice_gym_enabled,
+                          "interval_seconds": practice_gym_interval,
+                          "batch_size": practice_gym_batch,
+                          "last_dispatch_epoch": last_practice_gym_epoch,
+                      },
+                      "native_reading_academy": {
+                          **reading_academy_outcome,
+                          "running": bool(reading_academy_future is not None),
+                          "enabled": reading_academy_enabled,
+                          "interval_seconds": reading_academy_interval,
+                          "batch_size": reading_academy_batch,
+                          "last_dispatch_epoch": last_reading_academy_epoch,
+                      },
                       "progressive_executor_registry": (
                           competency_executor.registry.summary(subjects=competency.state["subjects"])
                           if academy.state.get("primary_academy_complete") else {}

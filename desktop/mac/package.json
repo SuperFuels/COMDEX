@@ -1,7 +1,7 @@
 {
   "name": "tessaris-desktop",
   "productName": "Tessaris",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "description": "Tessaris local desktop shell",
   "main": "electron/main.js",
@@ -16,7 +16,7 @@
     "electron-builder": "^26.15.3"
   },
   "build": {
-    "appId": "ai.tessaris.desktop",
+    "appId": "com.tessaris.desktop",
     "productName": "Tessaris",
     "directories": {
       "buildResources": "assets"
@@ -39,8 +39,22 @@
     "extraMetadata": {
       "main": "electron/main.js"
     },
+    "extraResources": [
+      {
+        "from": "../../unity/spatial-boardroom-mvp/Builds/macOS/Tessaris Spatial Boardroom.app",
+        "to": "native/Tessaris Spatial Boardroom.app"
+      },
+      {
+        "from": "../../unity/spatial-boardroom-mvp/Builds/WebGL",
+        "to": "boardroom-web"
+      }
+    ],
     "mac": {
       "category": "public.app-category.business",
+      "extendInfo": {
+        "LSUIElement": false,
+        "LSBackgroundOnly": false
+      },
       "target": [
         "dmg"
       ],

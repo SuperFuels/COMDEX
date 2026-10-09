@@ -737,13 +737,13 @@ class BusinessContainerService:
         brand_name = (
             identity.get("public_brand_name")
             or identity.get("business_name")
-            or "Costa Conexion"
+            or ""
         )
 
         brand_intelligence_map = self._build_default_brand_intelligence_map(
             workspace_id=workspace_id,
             brand_name=brand_name,
-            channels=channels or ["Website"],
+            channels=channels,
         )
 
         model = BrandFoundationContainer(
@@ -754,17 +754,17 @@ class BusinessContainerService:
                 container_key="brand_foundation",
                 updated_at=_utc_now_iso(),
             ),
-            objective="Drive local enquiries",
-            funnel_goal="Lead capture",
-            target_audience="Local homeowners and small business owners",
-            persona="Local service buyer",
-            offer="Local business visibility and conversion support",
-            channels=channels or ["Website"],
-            hashtags=["#LocalBusiness"],
-            keywords=["local business", "trusted local services"],
+            objective="",
+            funnel_goal="",
+            target_audience="",
+            persona="",
+            offer="",
+            channels=channels,
+            hashtags=[],
+            keywords=[],
             hard_rules=["Do not auto-publish without approval"],
-            guidance_notes=["Keep tone clear, useful, and trusted"],
-            campaign_notes=["Maintain local trust and conversion focus"],
+            guidance_notes=[],
+            campaign_notes=[],
         )
 
         self._apply_brand_intelligence_to_model(
@@ -781,6 +781,51 @@ class BusinessContainerService:
         brand_name: str,
         channels: List[str],
     ) -> Dict[str, Any]:
+        # New workspaces begin without invented customer, market or positioning
+        # facts. Onboarding and the saved Brand Foundation populate these fields.
+        return {
+            "version": "brand_intelligence_map.v2",
+            "workspaceId": workspace_id,
+            "workspace_id": workspace_id,
+            "brandOverview": {
+                "brandName": brand_name,
+                "whatYouDo": "",
+                "uniqueValueProposition": "",
+                "businessType": "",
+            },
+            "brandGoals": {"primaryGoal": "", "commercialGoal": "", "awarenessGoal": ""},
+            "brandPurpose": {"purpose": ""},
+            "brandVision": {"vision": "", "localRadius": ""},
+            "brandMission": {"mission": ""},
+            "brandValues": {"values": []},
+            "brandPositioning": {"positioning": "", "differentiation": []},
+            "brandPersonality": {"traits": []},
+            "brandVoice": {"voice": "", "toneOfVoice": [], "communicationStyle": "", "dos": [], "donts": []},
+            "brandStory": {"origin": "", "journey": "", "keyMoments": [], "customerReasonToBelieve": ""},
+            "tagline": {"primary": "", "alternatives": []},
+            "audience": {"primaryAudience": "", "customerType": "", "segments": []},
+            "customerPersonas": {"personas": []},
+            "platformStrategy": {"activeChannels": channels, "defaultPlatform": "", "platforms": {}},
+            "contentRules": {
+                "hardRules": ["Do not auto-publish without approval"],
+                "guidanceNotes": [],
+                "campaignNotes": [],
+                "approvalRules": ["Do not auto-publish without approval"],
+            },
+            "campaignPlanning": {
+                "currentCampaign": "",
+                "channels": channels,
+                "keywords": [],
+                "hashtags": [],
+                "activeAudiences": [],
+                "activePersonas": [],
+                "activeProductsServices": [],
+                "activeOffers": [],
+            },
+            "governance": {"publishAutonomously": False, "approvalMode": "draft_and_approval"},
+        }
+
+        # Legacy sample shape retained below for migration readability only.
         return {
             "version": "brand_intelligence_map.v2",
             "workspaceId": workspace_id,

@@ -192,7 +192,7 @@ def create_file_cabinet_pointer_for_boardroom_session(record: dict[str, Any]) ->
 
     pointer = {
         "id": f"boardroom_session_pointer_{session_id}",
-        "name": f"Boardroom Session — {session_id}",
+        "name": f"Board meeting minutes — {str(replay.get('session_type') or 'board meeting').replace('_', ' ').title()}",
         "type": "business_container_artifact",
         "document_type": "boardroom_session",
         "target": {

@@ -10,7 +10,7 @@ import urllib.request
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from backend.modules.vault.ai_provider_key_store import (
@@ -22,6 +22,8 @@ from backend.modules.vault.ai_provider_key_store import (
 
 router = APIRouter(prefix="/api/boardroom", tags=["boardroom-providers"])
 _MEETING_ROOT = Path(__file__).resolve().parents[2] / ".runtime" / "local_node" / "boardroom_meetings"
+_LOCAL_MODEL_PROBE_CACHE: Dict[str, Dict[str, Any]] = {}
+_LOCAL_MODEL_PROBE_TTL_SECONDS = 30.0
 
 
 class BoardroomAskRequest(BaseModel):
@@ -61,6 +63,11 @@ class QuoteInterviewRequest(BaseModel):
     currency: str = "GBP"
     current_draft: Dict[str, Any] = Field(default_factory=dict)
     requested_providers: List[str] = Field(default_factory=list)
+
+
+class LeadModelSelectionRequest(BaseModel):
+    workspace_id: str = "home-fixed"
+    provider_id: str
 
 
 def _env_present(name: str) -> bool:
@@ -149,30 +156,81 @@ def _provider_status() -> List[Dict[str, Any]]:
 
 
 def _selected_local_provider(workspace_id: str) -> Optional[Dict[str, Any]]:
-    """Return the workspace's verified local model as a Boardroom provider."""
+    """Return the selected or device-available verified local model."""
     from backend.modules.aion_inference.local_model_selection_store import load_local_model_selection
     from backend.modules.aion_inference.local_model_vault import LocalModelVault
 
     selection = load_local_model_selection(str(workspace_id or "home-fixed"))
-    if selection.get("source") != "local_model_vault":
-        return None
+    workspace_selected = selection.get("source") == "local_model_vault"
     model_id = str(selection.get("model_id") or selection.get("model") or "").strip()
-    model = next(
-        (item for item in LocalModelVault().snapshot().get("models") or []
-         if isinstance(item, dict) and str(item.get("model_id") or "") == model_id),
-        None,
-    )
+    models = [item for item in LocalModelVault().snapshot().get("models") or [] if isinstance(item, dict)]
+    model = next((item for item in models if str(item.get("model_id") or "") == model_id), None)
+    if model is None:
+        model = next(
+            (
+                item for item in models
+                if item.get("selection_status") == "selectable"
+                and any(
+                    isinstance(installation, dict)
+                    and str(installation.get("model_path") or "").strip()
+                    and (installation.get("warehouse") or {}).get("verified") is True
+                    for installation in item.get("installations") or []
+                )
+            ),
+            None,
+        )
+        model_id = str((model or {}).get("model_id") or "").strip()
+        workspace_selected = False
+    if model is None:
+        return None
     installation = next(
         (item for item in (model or {}).get("installations") or []
-         if isinstance(item, dict) and item.get("selectable") is True),
+         if isinstance(item, dict)
+         and str(item.get("model_path") or "").strip()
+         and (item.get("warehouse") or {}).get("verified") is True),
         None,
     )
-    connected = bool(model and model.get("selection_status") == "selectable" and installation)
+    installed = bool(model and model.get("selection_status") == "selectable" and installation)
     runtime = {
         **dict((model or {}).get("runtime_profile") or {}),
         **dict((installation or {}).get("runtime_profile") or {}),
     }
     display_name = str((installation or {}).get("display_name") or model_id or "Local model")
+    connected = False
+    reason = "local_model_available_not_selected"
+    if installed and workspace_selected:
+        cache_key = f"{workspace_id}:{model_id}"
+        cached = _LOCAL_MODEL_PROBE_CACHE.get(cache_key) or {}
+        if time.monotonic() - float(cached.get("checked_at") or 0) < _LOCAL_MODEL_PROBE_TTL_SECONDS:
+            connected = bool(cached.get("connected"))
+            reason = cached.get("reason")
+        else:
+            try:
+                from backend.services.aion_mission_mode.pilot_local_model_runtime import (
+                    run_selected_local_chat,
+                    selected_local_runtime_profile_for_workspace,
+                )
+
+                profile = selected_local_runtime_profile_for_workspace(str(workspace_id or "home-fixed"))
+                result = run_selected_local_chat(
+                    prompt="Say READY.",
+                    system_prompt="Reply briefly.",
+                    runtime_profile={**profile, "max_output_tokens": 16},
+                    timeout_seconds=30.0,
+                )
+                # A completed inference, rather than an installed-file check, is
+                # what earns the green status. Do not require a magic phrase:
+                # small local models can paraphrase even at temperature zero.
+                connected = bool(str(result.get("content") or "").strip())
+                reason = None if connected else "selected_local_model_probe_failed"
+            except Exception as exc:
+                connected = False
+                reason = f"selected_local_model_unreachable:{type(exc).__name__}"
+            _LOCAL_MODEL_PROBE_CACHE[cache_key] = {
+                "checked_at": time.monotonic(),
+                "connected": connected,
+                "reason": reason,
+            }
     return {
         "id": "local_model",
         "label": display_name,
@@ -180,7 +238,10 @@ def _selected_local_provider(workspace_id: str) -> Optional[Dict[str, Any]]:
         "mode": "local_sd",
         "source": "local_model_vault",
         "connected": connected,
-        "reason": None if connected else "selected_local_model_not_available",
+        "installed": installed,
+        "live_verified": connected,
+        "workspace_selected": workspace_selected,
+        "reason": reason,
         "capabilities": {"boardroom": True, "receipt_vision": False},
         "capability_note": "Runs locally from verified storage through the bounded Tessaris model harness.",
         "runtime": runtime,
@@ -756,16 +817,42 @@ def _call_meta(prompt: str, model_override: str | None = None) -> Dict[str, Any]
 
 @router.get("/providers/status")
 def boardroom_provider_status(workspace_id: str = "home-fixed") -> Dict[str, Any]:
+    from backend.modules.aion_inference.lead_model_selection_store import load_lead_model_selection
+
     providers = _provider_status()
     local_provider = _selected_local_provider(workspace_id)
     if local_provider:
         providers.append({key: value for key, value in local_provider.items() if key not in {"runtime", "model_sha256", "model_path"}})
+    lead = load_lead_model_selection(workspace_id)
+    lead_provider_id = str(lead.get("provider_id") or "")
+    for provider in providers:
+        provider["is_lead"] = bool(lead_provider_id and provider.get("id") == lead_provider_id)
     return {
         "schema_version": "aion.boardroom_provider_status.v1",
         "live_provider_registry": True,
         "providers": providers,
         "connected_count": sum(1 for p in providers if p.get("connected")),
+        "lead_model": lead or None,
     }
+
+
+@router.post("/providers/lead")
+def select_boardroom_lead_model(request: LeadModelSelectionRequest) -> Dict[str, Any]:
+    from backend.modules.aion_inference.lead_model_selection_store import save_lead_model_selection
+
+    providers = {item["id"]: item for item in _provider_status()}
+    local_provider = _selected_local_provider(request.workspace_id)
+    if local_provider:
+        providers["local_model"] = local_provider
+    provider = providers.get(str(request.provider_id or "").strip().lower())
+    if not provider or provider.get("connected") is not True:
+        raise HTTPException(status_code=409, detail="lead_model_must_be_connected_and_live")
+    selection = save_lead_model_selection(
+        request.workspace_id,
+        provider_id=str(provider["id"]),
+        model_id=str(provider.get("model") or ""),
+    )
+    return {"ok": True, "lead_model": selection}
 
 
 @router.post("/quote-interview")

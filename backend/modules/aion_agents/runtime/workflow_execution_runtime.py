@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import re
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -615,6 +617,9 @@ class WorkflowExecutionRuntime:
     ) -> Dict[str, Optional[str]]:
         input_payload = dict(run.input_payload or {})
         context = dict(run.context or {})
+        from backend.modules.aion_inference.lead_model_selection_store import load_lead_model_selection
+
+        lead_selection = load_lead_model_selection(run.workspace_id)
 
         selected_provider = (
             step_config.get("selected_provider")
@@ -623,6 +628,7 @@ class WorkflowExecutionRuntime:
             or brand_foundation.get("selected_provider")
             or input_payload.get("selected_provider")
             or context.get("selected_provider")
+            or lead_selection.get("provider_id")
             or (
                 (input_payload.get("model_selection") or {}).get("provider")
                 if isinstance(input_payload.get("model_selection"), dict)
@@ -642,6 +648,7 @@ class WorkflowExecutionRuntime:
             or brand_foundation.get("selected_model")
             or input_payload.get("selected_model")
             or context.get("selected_model")
+            or lead_selection.get("model_id")
             or (
                 (input_payload.get("model_selection") or {}).get("model")
                 if isinstance(input_payload.get("model_selection"), dict)
@@ -738,6 +745,21 @@ class WorkflowExecutionRuntime:
             raw = {}
 
         return {
+            "content_format": raw.get("content_format")
+            or raw.get("contentFormat")
+            or raw.get("format"),
+            "platform_template": raw.get("platform_template")
+            or raw.get("platformTemplate"),
+            "design_template": raw.get("design_template")
+            or raw.get("designTemplate"),
+            "creation_method": raw.get("creation_method")
+            or raw.get("creationMethod"),
+            "canvas_size": raw.get("canvas_size")
+            or raw.get("canvasSize"),
+            "aspect_ratio": raw.get("aspect_ratio")
+            or raw.get("aspectRatio"),
+            "copy_structure": raw.get("copy_structure")
+            or raw.get("copyStructure"),
             "asset_intent": raw.get("asset_intent")
             or raw.get("assetIntent")
             or raw.get("intent"),
@@ -760,6 +782,8 @@ class WorkflowExecutionRuntime:
             "creative_direction": raw.get("creative_direction")
             or raw.get("creativeDirection")
             or raw.get("direction"),
+            "branded_template": raw.get("branded_template")
+            or raw.get("brandedTemplate"),
         }
 
     def _build_creative_asset_prompt_block(self, run: WorkflowRun) -> str:
@@ -772,6 +796,12 @@ class WorkflowExecutionRuntime:
             lines.append("Creative direction:")
             if creative_direction.get("asset_intent"):
                 lines.append(f"- Asset intent: {creative_direction.get('asset_intent')}")
+            if creative_direction.get("canvas_size"):
+                lines.append(f"- Canvas size: {creative_direction.get('canvas_size')}")
+            if creative_direction.get("aspect_ratio"):
+                lines.append(f"- Aspect ratio: {creative_direction.get('aspect_ratio')}")
+            if creative_direction.get("copy_structure"):
+                lines.append(f"- Required copy structure: {creative_direction.get('copy_structure')}")
             if creative_direction.get("product_name"):
                 lines.append(f"- Product / subject: {creative_direction.get('product_name')}")
             if creative_direction.get("offer_price"):
@@ -784,6 +814,11 @@ class WorkflowExecutionRuntime:
                 lines.append(f"- Image usage notes: {creative_direction.get('usage_notes')}")
             if creative_direction.get("style_direction"):
                 lines.append(f"- Style direction: {creative_direction.get('style_direction')}")
+            if creative_direction.get("branded_template"):
+                lines.append(
+                    "- Required branded template: "
+                    + json.dumps(creative_direction.get("branded_template"), ensure_ascii=False)
+                )
 
         if creative_assets:
             lines.append("")
@@ -801,7 +836,7 @@ class WorkflowExecutionRuntime:
 
             lines.append("")
             lines.append("Use these assets as creative inputs. Do not ignore them.")
-            lines.append("If a product asset is supplied, build the carousel around that product.")
+            lines.append("If a product asset is supplied, build the selected single image, story, carousel or video around that product.")
             lines.append("If logo/headshot/reference/background assets are supplied, respect the user's usage notes.")
 
         return "\n".join(lines).strip()
@@ -1270,6 +1305,9 @@ class WorkflowExecutionRuntime:
             or context.get("draft_carousel")
             or []
         )
+        content_format = str(creative_direction.get("content_format") or "image").strip().lower()
+        if content_format not in {"image", "carousel", "story", "video"}:
+            content_format = "carousel" if len(draft_carousel) > 1 else "image"
 
         return {
             "type": "marketing_approval_packet",
@@ -1477,6 +1515,11 @@ class WorkflowExecutionRuntime:
             image_prompt_parts.append(brand_prompt_block)
         if creative_asset_prompt_block:
             image_prompt_parts.append(creative_asset_prompt_block)
+        if draft_carousel:
+            image_prompt_parts.append(
+                "Structured creative design brief: "
+                + json.dumps(draft_carousel, ensure_ascii=False)
+            )
 
         existing_post_package = context.get("post_package")
         existing_generated_image = (
@@ -1536,7 +1579,10 @@ class WorkflowExecutionRuntime:
             "brand_map": brand_map,
             "brandMap": brand_map,
             "scheduled_for": run.created_at,
-            "visual_type": "carousel" if len(draft_carousel) > 1 else "text",
+            "visual_type": content_format,
+            "content_format": content_format,
+            "platform_template": creative_direction.get("platform_template"),
+            "design_template": creative_direction.get("design_template"),
             "selected_provider": selected_provider,
             "selected_model": selected_model,
             "selected_image_provider": image_provider,
@@ -1839,6 +1885,61 @@ class WorkflowExecutionRuntime:
             "error": result.get("error"),
         }
 
+    def _parse_marketing_design_brief(
+        self,
+        drafted_text: str,
+        *,
+        expected_cards: int,
+        design_template: Optional[str],
+        colour_rules: list[str],
+        verified_facts: list[str],
+    ) -> list[Dict[str, Any]]:
+        raw = str(drafted_text or "").strip()
+        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw, flags=re.IGNORECASE).strip()
+        parsed: Any = None
+        try:
+            parsed = json.loads(cleaned)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            parsed = None
+        if isinstance(parsed, dict):
+            parsed = parsed.get("cards") or parsed.get("design_brief") or parsed.get("slides") or [parsed]
+        records = parsed if isinstance(parsed, list) else []
+        if not records:
+            lines = [line.strip("-• \t") for line in raw.splitlines() if line.strip()]
+            records = [{"headline": line} for line in lines]
+        defaults = {
+            "supporting_copy": "",
+            "purpose": "Communicate the selected message clearly",
+            "image_focal_point": "Primary supplied product or subject",
+            "crop": "Platform-safe crop with the focal subject unobstructed",
+            "text_position": "Use the selected template's safe text area",
+            "typography_hierarchy": "Headline first, supporting copy second, CTA last",
+            "brand_colours": colour_rules,
+            "logo_position": "Use the Brand Foundation rule; omit when unset",
+            "cta_treatment": "One clear, restrained action",
+            "selected_template": design_template or "product_showcase",
+            "verified_facts_used": verified_facts,
+        }
+        cards: list[Dict[str, Any]] = []
+        for index, item in enumerate(records[:expected_cards]):
+            record = item if isinstance(item, dict) else {"headline": str(item or "")}
+            headline = str(record.get("headline") or record.get("title") or record.get("hook") or "").strip()
+            supporting_copy = str(record.get("supporting_copy") or record.get("supportingCopy") or record.get("body") or record.get("copy") or "").strip()
+            if not headline and not supporting_copy:
+                continue
+            card = {"card_index": index + 1, "headline": headline, **defaults}
+            card["supporting_copy"] = supporting_copy
+            for key in defaults:
+                value = record.get(key)
+                if value not in (None, "", []):
+                    card[key] = value
+            cards.append(card)
+        while len(cards) < expected_cards:
+            index = len(cards)
+            fallback_headlines = ["A clear reason to stop", "The customer problem", "The useful solution", "Verified proof", "The next step"]
+            cards.append({"card_index": index + 1, "headline": fallback_headlines[min(index, 4)], **defaults})
+        return cards[:expected_cards]
+
     def _simulate_step_output(
         self,
         *,
@@ -1892,6 +1993,16 @@ class WorkflowExecutionRuntime:
 
             creative_assets = self._get_creative_assets(run)
             creative_direction = self._get_creative_direction(run)
+            content_format = str(creative_direction.get("content_format") or "image").strip().lower()
+            expected_cards = 5 if content_format == "carousel" else 1
+            format_instruction = {
+                "carousel": "Use the sequence: Hook / Problem / Solution / Verified proof / CTA.",
+                "story": "Create one complete full-screen vertical story composition with interface-safe margins, not a carousel sequence.",
+                "video": "Create one complete video creative brief. Put the hook, scene progression and closing action in supporting_copy; do not return carousel cards.",
+            }.get(
+                content_format,
+                "Create one complete single-image composition, not a carousel sequence.",
+            )
             creative_asset_prompt_block = self._build_creative_asset_prompt_block(run)
             brand_prompt_block = self._build_brand_prompt_block(
                 marketing_strategy=marketing_strategy,
@@ -1915,6 +2026,8 @@ class WorkflowExecutionRuntime:
             usage_notes = creative_direction.get("usage_notes")
             style_direction = creative_direction.get("style_direction")
             asset_intent = creative_direction.get("asset_intent")
+            design_template = creative_direction.get("design_template")
+            creation_method = creative_direction.get("creation_method")
 
             font_rules = self._string_list(
                 visual_identity.get("font_rules")
@@ -1932,6 +2045,11 @@ class WorkflowExecutionRuntime:
                 or visual_identity.get("colors")
                 or []
             )
+            verified_facts = [
+                str(value).strip()
+                for value in (product_name, offer_price, offer_details)
+                if str(value or "").strip()
+            ]
 
             creative_context_lines = []
             if brand_prompt_block:
@@ -1940,6 +2058,10 @@ class WorkflowExecutionRuntime:
                 creative_context_lines.append(creative_asset_prompt_block)
             if asset_intent:
                 creative_context_lines.append(f"Asset intent: {asset_intent}")
+            if design_template:
+                creative_context_lines.append(f"Selected design template: {design_template}")
+            if creation_method:
+                creative_context_lines.append(f"Selected visual creation method: {creation_method}")
             if product_name:
                 creative_context_lines.append(f"Product / subject: {product_name}")
             if offer_price:
@@ -1995,6 +2117,8 @@ class WorkflowExecutionRuntime:
                     "- Do not say 'Draft request', 'Context', 'Plan', or similar.\n"
                     "- Use the platform strategy, audience objective, brand rules, and creative direction as hard context.\n"
                     "- Use the creative assets and direction as concrete constraints, not optional inspiration.\n"
+                    "- Treat only the supplied product fields, offer details, brand facts, and verified source material as factual claims.\n"
+                    "- Never infer or invent product qualities, warranties, availability, discounts, free services, performance claims, or proof. Omit any claim that was not supplied.\n"
                     "- Mention the product, offer, price, variants, or usage notes when provided and relevant.\n"
                     "- Keep it concise, persuasive, and audience-aware.\n"
                     "- End with a practical CTA.\n"
@@ -2003,7 +2127,7 @@ class WorkflowExecutionRuntime:
 
             elif output_key == "draft_carousel":
                 prompt = (
-                    "Create the final publish-ready 5-card carousel copy.\n\n"
+                    f"Create a structured design brief for exactly {expected_cards} {'social creative' if expected_cards == 1 else 'carousel cards'}. Return strict JSON only.\n\n"
                     f"Brief: {brief}\n"
                     f"Objective: {objective}\n"
                     f"Funnel goal: {funnel_goal}\n"
@@ -2019,15 +2143,18 @@ class WorkflowExecutionRuntime:
                     f"Avoid: {' | '.join(str(x) for x in avoid) if avoid else 'None'}\n"
                     f"{creative_context_block}\n"
                     "Requirements:\n"
-                    "- Produce real carousel card copy, not commentary about the task.\n"
-                    "- Use exactly 5 cards.\n"
-                    "- Each card must be short, direct, and ready to place on artwork.\n"
-                    "- Structure as: Hook / Problem / Solution / Proof / CTA.\n"
+                    "- Return a JSON object with one key named cards containing an array. Do not use markdown fences.\n"
+                    f"- The cards array must contain exactly {expected_cards} {'item' if expected_cards == 1 else 'items'}.\n"
+                    "- Every item must contain: headline, supporting_copy, purpose, image_focal_point, crop, text_position, typography_hierarchy, brand_colours, logo_position, cta_treatment, selected_template, verified_facts_used.\n"
+                    "- headline and supporting_copy must be concise and ready to place on artwork.\n"
+                    f"- {format_instruction}\n"
                     "- Use the platform strategy, audience objective, brand rules, and creative direction as hard context.\n"
-                    "- Respect font and colour rules when wording implies visual emphasis.\n"
-                    "- Build the carousel around the provided product, offer, asset intent, and image usage notes when present.\n"
-                    "- Do not include headings like 'Card 1:' or any extra explanation.\n"
-                    "- Return one card per line only."
+                    "- Make crop, focal point, text position, typography hierarchy, colours, logo and CTA treatment specific enough for a deterministic renderer.\n"
+                    "- Build the selected format around the provided product, offer, asset intent, and image usage notes when present.\n"
+                    "- Treat only the supplied product fields, offer details, brand facts, and verified source material as factual claims.\n"
+                    "- Never infer or invent product qualities, warranties, availability, discounts, free services, performance claims, or proof. Omit any claim that was not supplied.\n"
+                    "- verified_facts_used must list only facts explicitly supplied in the brief, catalogue, Brand Foundation or attached evidence.\n"
+                    "- Use an empty array when there are no verified facts."
                 )
 
             else:
@@ -2056,16 +2183,22 @@ class WorkflowExecutionRuntime:
                 brand_foundation=brand_foundation,
                 step_config=config,
             )
+            if not model_preferences.get("selected_provider"):
+                raise RuntimeError(
+                    "lead_model_not_selected: Choose a connected lead AI model in Connections before generating content."
+                )
 
             skill_input_payload: Dict[str, Any] = {
                 "title": workflow.name,
                 "prompt": prompt,
                 "system_prompt": (
-                    "You are a direct-response marketing copywriter. "
-                    "Produce only final publish-ready copy. "
+                    "You are a senior marketing creative director and direct-response copywriter. "
+                    "Produce final publish-ready copy and deterministic visual design instructions in the exact requested structure. "
                     "Use supplied brand foundation, platform strategy, audience objective, "
                     "creative direction, font rules, colour rules, visual identity, product context, "
                     "image usage notes, offer details, and style direction as hard campaign context. "
+                    "Use only explicitly supplied or verified facts for claims. Never invent product qualities, "
+                    "warranties, availability, discounts, free services, performance claims, or proof. "
                     "Never explain the plan, never echo the instructions, "
                     "and never output meta commentary."
                 ),
@@ -2176,22 +2309,13 @@ class WorkflowExecutionRuntime:
                 }
 
             if output_key == "draft_carousel":
-                carousel = [
-                    line.strip("-• \t")
-                    for line in drafted_text.splitlines()
-                    if line.strip()
-                ]
-
-                if len(carousel) < 5:
-                    carousel = [
-                        carousel[0] if len(carousel) > 0 else f"{brief}",
-                        carousel[1] if len(carousel) > 1 else "Problem",
-                        carousel[2] if len(carousel) > 2 else "Solution",
-                        carousel[3] if len(carousel) > 3 else "Proof",
-                        carousel[4] if len(carousel) > 4 else "CTA",
-                    ]
-
-                carousel = carousel[:5]
+                carousel = self._parse_marketing_design_brief(
+                    drafted_text,
+                    expected_cards=expected_cards,
+                    design_template=str(design_template or "product_showcase"),
+                    colour_rules=colour_rules,
+                    verified_facts=verified_facts,
+                )
                 run.context["draft_carousel"] = carousel
                 run.context["creative_assets"] = creative_assets
                 run.context["creative_direction"] = creative_direction

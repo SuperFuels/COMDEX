@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import ast
 import hashlib
 import json
 import re
@@ -11,7 +12,7 @@ from uuid import uuid4
 
 from fastapi import Request, HTTPException, APIRouter
 from fastapi import File, Query, UploadFile
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel, Field
 
 from backend.modules.local_node.contracts_local_node import (
@@ -20,6 +21,7 @@ from backend.modules.local_node.contracts_local_node import (
     utc_now_iso,
 )
 from backend.modules.local_node.local_node_runtime import LocalNodeRuntime
+from backend.modules.aion_business.contracts.skills import SkillRunRequest
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.workflow_capsules.aion_a2a_commercial_ticket import (
     home_fixed_plumbing_hourly_ticket,
@@ -100,17 +102,30 @@ def _runtime_upload_dir(runtime: LocalNodeRuntime) -> Path:
 
 def _runtime_asset_paths(runtime: LocalNodeRuntime, file_name: str) -> Dict[str, str]:
     file_path = _runtime_upload_dir(runtime) / file_name
-
-    try:
-        relative = file_path.relative_to(Path(runtime.base_dir))
-        runtime_url = f"/runtime/{relative.as_posix()}"
-    except Exception:
-        runtime_url = f"/runtime/uploads/marketing_assets/{file_name}"
+    workspace_id = canonical_business_id(runtime.config.workspace_id)
+    runtime_url = (
+        "http://127.0.0.1:8080/api/local-node/marketing/assets/"
+        f"{_safe_filename(file_name)}?workspace_id={workspace_id}"
+    )
 
     return {
         "file_path": str(file_path),
         "url": runtime_url,
     }
+
+
+@router.get("/marketing/assets/{stored_name}")
+def get_marketing_asset(
+    stored_name: str,
+    workspace_id: str | None = Query(default=None),
+) -> FileResponse:
+    """Serve only files owned by the selected workspace's marketing asset store."""
+    runtime = get_runtime(workspace_id)
+    upload_dir = _runtime_upload_dir(runtime).resolve()
+    candidate = (upload_dir / _safe_filename(stored_name)).resolve()
+    if candidate.parent != upload_dir or not candidate.is_file():
+        raise HTTPException(status_code=404, detail="marketing_asset_not_found")
+    return FileResponse(candidate)
 
 
 class TrainTaskTestRunRequest(BaseModel):
@@ -190,6 +205,48 @@ class ExternalToolDryRunRequest(BaseModel):
     run_id: Optional[str] = None
 
 
+class BrowserHarnessPlanRequest(BaseModel):
+    proposal: Dict[str, Any]
+    provider: str
+    model: Optional[str] = None
+    workspace_id: Optional[str] = None
+    requested_by: str = "aion_chat"
+
+
+class BrowserHarnessApprovalRequest(BaseModel):
+    approved_step_ids: List[str] = Field(default_factory=list)
+    approved_by: str = "business_owner"
+    workspace_id: Optional[str] = None
+
+
+class BrowserHarnessRedeemRequest(BaseModel):
+    grant_id: str
+    execution_token: str
+    workspace_id: Optional[str] = None
+
+
+class BrowserHarnessReceiptRequest(BaseModel):
+    grant_id: str
+    result: Dict[str, Any]
+    workspace_id: Optional[str] = None
+
+
+class ComputerHarnessPlanRequest(BrowserHarnessPlanRequest):
+    pass
+
+
+class ComputerHarnessApprovalRequest(BrowserHarnessApprovalRequest):
+    pass
+
+
+class ComputerHarnessRedeemRequest(BrowserHarnessRedeemRequest):
+    pass
+
+
+class ComputerHarnessReceiptRequest(BrowserHarnessReceiptRequest):
+    pass
+
+
 class ExternalToolWorkflowTestRequest(BaseModel):
     workflow_id: Optional[str] = None
     tool_id: str = "tool.stackone.crm.contact_upsert.v1"
@@ -247,6 +304,13 @@ class CreativeAsset(BaseModel):
 
 
 class CreativeDirection(BaseModel):
+    content_format: Optional[str] = None
+    platform_template: Optional[str] = None
+    design_template: Optional[str] = None
+    creation_method: Optional[str] = None
+    canvas_size: Optional[str] = None
+    aspect_ratio: Optional[str] = None
+    copy_structure: Optional[str] = None
     asset_intent: Optional[str] = None
     product_name: Optional[str] = None
     offer_price: Optional[str] = None
@@ -254,6 +318,18 @@ class CreativeDirection(BaseModel):
     usage_notes: Optional[str] = None
     style_direction: Optional[str] = None
     creative_direction: Optional[str] = None
+    branded_template: Optional[Dict[str, Any]] = None
+    boardroom_source: Optional[str] = None
+    campaign_type: Optional[str] = None
+    subject_offering_id: Optional[str] = None
+    subject_offering_name: Optional[str] = None
+    product_url: Optional[str] = None
+    product_image_url: Optional[str] = None
+    catalogue_source: Optional[str] = None
+    external_product_id: Optional[str] = None
+    campaign_angle: Optional[str] = None
+    proof_claim: Optional[str] = None
+    asset_readiness: Optional[str] = None
 
 
 class LaunchRunRequest(BaseModel):
@@ -271,7 +347,9 @@ class LaunchWorkflowRequest(BaseModel):
 
 class LaunchMarketingSuggestionRequest(BaseModel):
     workspace_id: Optional[str] = None
-    brief: str = "Draft a Facebook post and simple carousel for spring telecom upgrade offer."
+    brief: str = ""
+    selected_provider: Optional[str] = None
+    selected_model: Optional[str] = None
 
     objective: Optional[str] = None
     funnel_goal: Optional[str] = None
@@ -294,6 +372,23 @@ class LaunchMarketingSuggestionRequest(BaseModel):
     brand_foundation_state: Optional[Dict[str, Any]] = None
     brand_map: Optional[Dict[str, Any]] = None
     brandMap: Optional[Dict[str, Any]] = None
+
+
+class GenerateMarketingBrandTemplateRequest(BaseModel):
+    workspace_id: Optional[str] = None
+    selected_provider: str
+    selected_model: Optional[str] = None
+    platform_template: str
+    platform_label: str
+    format_label: str
+    canvas_size: str
+    aspect_ratio: str
+    description: str
+    inspiration_notes: Optional[str] = None
+    inspiration_assets: List[CreativeAsset] = Field(default_factory=list)
+    brand_foundation: Optional[Dict[str, Any]] = None
+    previous_template: Optional[Dict[str, Any]] = None
+    generation_index: int = 0
 
 
 class DesktopAssistantAskRequest(BaseModel):
@@ -454,7 +549,9 @@ def get_marketing_stream() -> Dict[str, Any]:
 @router.post("/assistant/ask")
 def ask_desktop_assistant(request: DesktopAssistantAskRequest) -> Dict[str, Any]:
     payload = _merge_aion_workspace_payload(request)
-    return get_runtime().ask_desktop_assistant(**payload)
+    workspace_context = payload.get("workspace_context") or {}
+    workspace_id = workspace_context.get("workspace_id") if isinstance(workspace_context, dict) else None
+    return get_runtime(workspace_id).ask_desktop_assistant(**payload)
 
 
 @router.post("/aion/chat")
@@ -462,7 +559,9 @@ def aion_chat(request: DesktopAssistantAskRequest) -> Dict[str, Any]:
     payload = _merge_aion_workspace_payload(request)
     payload["active_tab"] = "aion_chat"
     payload["context_mode"] = payload.get("context_mode") or "business_workspace"
-    return get_runtime().ask_desktop_assistant(**payload)
+    workspace_context = payload.get("workspace_context") or {}
+    workspace_id = workspace_context.get("workspace_id") if isinstance(workspace_context, dict) else None
+    return get_runtime(workspace_id).ask_desktop_assistant(**payload)
 
 
 @router.post("/train-tasks/seed/customer-onboarding")
@@ -473,6 +572,179 @@ def seed_customer_onboarding_train_task() -> Dict[str, Any]:
 @router.get("/tools")
 def list_aion_tools() -> Dict[str, Any]:
     return get_runtime().list_tools()
+
+
+def _browser_harness_store(workspace_id: str | None = None):
+    from backend.modules.aion_fabric.browser_harness import BrowserHarnessStore
+
+    runtime = get_runtime(workspace_id)
+    return runtime, BrowserHarnessStore(runtime.base_dir)
+
+
+@router.get("/browser-harness/contract")
+def get_browser_harness_contract() -> Dict[str, Any]:
+    from backend.modules.aion_fabric.browser_harness import browser_tool_contract
+
+    return {"ok": True, "contract": browser_tool_contract()}
+
+
+@router.post("/browser-harness/plans")
+def create_browser_harness_plan(request: BrowserHarnessPlanRequest) -> Dict[str, Any]:
+    runtime, store = _browser_harness_store(request.workspace_id)
+    try:
+        plan = store.create_plan(
+            proposal=request.proposal,
+            provider=request.provider,
+            model=request.model or request.provider,
+            workspace_id=str(runtime.config.workspace_id),
+            requested_by=request.requested_by,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"ok": True, "plan": plan}
+
+
+@router.get("/browser-harness/plans/{plan_id}")
+def get_browser_harness_plan(
+    plan_id: str,
+    workspace_id: str | None = Query(default=None),
+) -> Dict[str, Any]:
+    _, store = _browser_harness_store(workspace_id)
+    plan = store.get_plan(plan_id)
+    if plan is None:
+        raise HTTPException(status_code=404, detail="browser_plan_not_found")
+    return {"ok": True, "plan": plan}
+
+
+@router.post("/browser-harness/plans/{plan_id}/approve")
+def approve_browser_harness_plan(
+    plan_id: str,
+    request: BrowserHarnessApprovalRequest,
+) -> Dict[str, Any]:
+    _, store = _browser_harness_store(request.workspace_id)
+    try:
+        plan = store.approve_plan(
+            plan_id=plan_id,
+            approved_step_ids=request.approved_step_ids,
+            approved_by=request.approved_by,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"ok": True, "plan": plan}
+
+
+@router.post("/browser-harness/grants/redeem")
+def redeem_browser_harness_grant(request: BrowserHarnessRedeemRequest) -> Dict[str, Any]:
+    _, store = _browser_harness_store(request.workspace_id)
+    try:
+        return store.redeem_grant(
+            grant_id=request.grant_id,
+            execution_token=request.execution_token,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+
+
+@router.post("/browser-harness/receipts")
+def create_browser_harness_receipt(request: BrowserHarnessReceiptRequest) -> Dict[str, Any]:
+    _, store = _browser_harness_store(request.workspace_id)
+    try:
+        receipt = store.record_receipt(grant_id=request.grant_id, result=request.result)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"ok": True, "receipt": receipt}
+
+
+def _computer_harness_store(workspace_id: str | None = None):
+    from backend.modules.aion_fabric.computer_harness import ComputerHarnessStore
+
+    runtime = get_runtime(workspace_id)
+    return runtime, ComputerHarnessStore(runtime.base_dir)
+
+
+@router.get("/computer-harness/contract")
+def get_computer_harness_contract() -> Dict[str, Any]:
+    from backend.modules.aion_fabric.computer_harness import computer_tool_contract
+
+    return {"ok": True, "contract": computer_tool_contract()}
+
+
+@router.post("/computer-harness/plans")
+def create_computer_harness_plan(request: ComputerHarnessPlanRequest) -> Dict[str, Any]:
+    runtime, store = _computer_harness_store(request.workspace_id)
+    try:
+        plan = store.create_plan(
+            proposal=request.proposal,
+            provider=request.provider,
+            model=request.model or request.provider,
+            workspace_id=str(runtime.config.workspace_id),
+            requested_by=request.requested_by,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"ok": True, "plan": plan}
+
+
+@router.get("/computer-harness/plans/{plan_id}")
+def get_computer_harness_plan(plan_id: str, workspace_id: str | None = Query(default=None)) -> Dict[str, Any]:
+    _, store = _computer_harness_store(workspace_id)
+    plan = store.get_plan(plan_id)
+    if plan is None:
+        raise HTTPException(status_code=404, detail="computer_plan_not_found")
+    return {"ok": True, "plan": plan}
+
+
+@router.post("/computer-harness/plans/{plan_id}/approve")
+def approve_computer_harness_plan(plan_id: str, request: ComputerHarnessApprovalRequest) -> Dict[str, Any]:
+    _, store = _computer_harness_store(request.workspace_id)
+    try:
+        plan = store.approve_plan(
+            plan_id=plan_id,
+            approved_step_ids=request.approved_step_ids,
+            approved_by=request.approved_by,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"ok": True, "plan": plan}
+
+
+@router.post("/computer-harness/grants/redeem")
+def redeem_computer_harness_grant(request: ComputerHarnessRedeemRequest) -> Dict[str, Any]:
+    _, store = _computer_harness_store(request.workspace_id)
+    try:
+        return store.redeem_grant(grant_id=request.grant_id, execution_token=request.execution_token)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+
+
+@router.post("/computer-harness/receipts")
+def create_computer_harness_receipt(request: ComputerHarnessReceiptRequest) -> Dict[str, Any]:
+    _, store = _computer_harness_store(request.workspace_id)
+    try:
+        receipt = store.record_receipt(grant_id=request.grant_id, result=request.result)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"ok": True, "receipt": receipt}
 
 
 @router.get("/tools/external")
@@ -981,6 +1253,8 @@ def launch_marketing_suggestion(
 
     return runtime.launch_marketing_suggestion(
         brief=request.brief,
+        selected_provider=request.selected_provider,
+        selected_model=request.selected_model,
         objective=request.objective,
         funnel_goal=request.funnel_goal,
         target_audience=request.target_audience,
@@ -1005,6 +1279,165 @@ def launch_marketing_suggestion(
         brand_map=brand_map,
     )
 
+
+@router.post("/marketing/brand-templates/generate")
+def generate_marketing_brand_template(
+    request: GenerateMarketingBrandTemplateRequest,
+) -> Dict[str, Any]:
+    """Create an editable, reusable platform template specification with the selected model."""
+    runtime = get_runtime(request.workspace_id)
+    inspiration = [
+        {
+            "label": item.label or item.id or "Reference image",
+            "notes": item.notes or "",
+            "url": item.url or item.file_path or "",
+        }
+        for item in request.inspiration_assets
+    ]
+    variation_directions = (
+        "image-led editorial split with asymmetric typography",
+        "full-bleed photography with a restrained gradient text overlay",
+        "framed product card with generous negative space",
+        "bold modular grid with a distinct CTA block",
+        "minimal typographic layout with a small inset image",
+    )
+    generation_index = max(0, int(request.generation_index or 0))
+    variation_direction = variation_directions[generation_index % len(variation_directions)]
+    previous_template = request.previous_template or {}
+    variation_request = (
+        "This is a regeneration. Produce a materially different visual direction from the previous template. "
+        "Do not repeat its composition, text placement, image treatment or sample copy. "
+        f"Use this variation direction: {variation_direction}.\n"
+        f"Previous template to avoid: {json.dumps(previous_template, ensure_ascii=False)}\n"
+        if previous_template
+        else f"Use this initial variation direction: {variation_direction}.\n"
+    )
+    prompt = (
+        "Create one reusable branded social-media design template. Return strict JSON only, without markdown fences.\n\n"
+        f"Platform: {request.platform_label}\n"
+        f"Format: {request.format_label}\n"
+        f"Canvas: {request.canvas_size}\n"
+        f"Aspect ratio: {request.aspect_ratio}\n"
+        f"User direction: {request.description}\n"
+        f"Inspiration notes: {request.inspiration_notes or 'None'}\n"
+        f"Inspiration assets: {json.dumps(inspiration, ensure_ascii=False)}\n"
+        f"Brand Foundation: {json.dumps(request.brand_foundation or {}, ensure_ascii=False)}\n\n"
+        f"{variation_request}\n"
+        "Return an object with exactly these string fields: name_suggestion, design_summary, primary_color, "
+        "secondary_color, accent_color, headline_font, body_font, shapes, image_treatment, text_layout, "
+        "logo_position, cta_style, sample_headline, sample_body, layout_variant. "
+        "layout_variant must be one of: split, full_bleed, framed, modular, minimal. Use valid six-digit hex colours. "
+        "Make the design repeatable across future posts, legible for the specified format, and consistent with "
+        "the supplied Brand Foundation. Reference images are inspiration only; do not copy protected branding."
+    )
+    result = runtime.workflow_execution_runtime.draft_content_skill.run(
+        SkillRunRequest(
+            skill_id="draft_content",
+            agent_id="agent_marketing_template_designer_v1",
+            task_id=f"brand_template_{uuid4().hex[:12]}",
+            objective="Create a reusable branded marketing template specification",
+            input_payload={
+                "title": "Branded marketing template",
+                "prompt": prompt,
+                "system_prompt": (
+                    "You are a senior brand designer creating deterministic reusable social-media templates. "
+                    "Follow the requested JSON schema exactly. Use only supplied business facts and return no commentary."
+                ),
+                "capability": "drafting",
+                "workspace_id": runtime.config.workspace_id,
+                "provider": request.selected_provider,
+                "preferred_model": request.selected_model,
+                "metadata": {
+                    "workspace_id": runtime.config.workspace_id,
+                    "platform_template": request.platform_template,
+                    "selected_provider": request.selected_provider,
+                    "selected_model": request.selected_model,
+                },
+            },
+            trace_required=True,
+        )
+    )
+    if not result.ok:
+        raise HTTPException(status_code=502, detail=result.error_code or "brand_template_generation_failed")
+    raw = str((result.output_payload or {}).get("draft") or "").strip()
+    required = (
+        "name_suggestion", "design_summary", "primary_color", "secondary_color", "accent_color",
+        "headline_font", "body_font", "shapes", "image_treatment", "text_layout", "logo_position",
+        "cta_style", "sample_headline", "sample_body", "layout_variant",
+    )
+    cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw, flags=re.IGNORECASE | re.DOTALL).strip()
+    template: Dict[str, Any] = {}
+    candidates = [cleaned]
+    if "{" in cleaned and "}" in cleaned:
+        candidates.append(cleaned[cleaned.find("{") : cleaned.rfind("}") + 1])
+    for candidate in candidates:
+        if not candidate:
+            continue
+        try:
+            parsed = json.loads(candidate)
+            if isinstance(parsed, dict):
+                template = parsed
+                break
+        except (json.JSONDecodeError, TypeError):
+            try:
+                parsed = ast.literal_eval(candidate)
+                if isinstance(parsed, dict):
+                    template = parsed
+                    break
+            except (ValueError, SyntaxError):
+                pass
+    if not template:
+        for key in required:
+            match = re.search(
+                rf"(?im)^[\s\-\*]*[\"']?{re.escape(key)}[\"']?\s*[:=-]\s*[\"']?(.+?)[\"']?\s*,?$",
+                cleaned,
+            )
+            if match:
+                template[key] = match.group(1).strip().rstrip(",").strip("\"'")
+    foundation = request.brand_foundation or {}
+    defaults = {
+        "name_suggestion": f"{request.platform_label} {request.format_label} template",
+        "design_summary": cleaned[:500] or request.description,
+        "primary_color": foundation.get("primary_color") or "#14213d",
+        "secondary_color": foundation.get("secondary_color") or "#f8fafc",
+        "accent_color": foundation.get("accent_color") or "#2563eb",
+        "headline_font": foundation.get("primary_font") or "Inter",
+        "body_font": foundation.get("secondary_font") or foundation.get("primary_font") or "Inter",
+        "shapes": "Clean reusable brand shapes",
+        "image_treatment": "Prominent source image with a consistent branded treatment",
+        "text_layout": "Clear headline, supporting copy and one call to action",
+        "logo_position": "Top right with safe margins",
+        "cta_style": "High-contrast rounded action",
+        "sample_headline": "A clear benefit-led headline",
+        "sample_body": "Concise supporting copy for this format.",
+        "layout_variant": ("split", "full_bleed", "framed", "modular", "minimal")[generation_index % 5],
+    }
+    normalized = {key: str(template.get(key) or defaults[key]).strip() for key in required}
+    allowed_variants = {"split", "full_bleed", "framed", "modular", "minimal"}
+    if normalized["layout_variant"].lower() not in allowed_variants:
+        normalized["layout_variant"] = defaults["layout_variant"]
+    if previous_template:
+        # Make regeneration visibly different even when a deterministic local model repeats itself.
+        prior_variant = str(previous_template.get("layout_variant") or "").lower()
+        if normalized["layout_variant"].lower() == prior_variant:
+            variants = ("split", "full_bleed", "framed", "modular", "minimal")
+            normalized["layout_variant"] = variants[(generation_index + 1) % len(variants)]
+        if normalized["sample_headline"] == str(previous_template.get("sample_headline") or ""):
+            alternate_headlines = (
+                "Designed to stand out",
+                "See the difference",
+                "A smarter way forward",
+                "Built around what matters",
+                "Clear, confident, considered",
+            )
+            normalized["sample_headline"] = alternate_headlines[generation_index % len(alternate_headlines)]
+    return {
+        "ok": True,
+        "template": normalized,
+        "provider": (result.output_payload or {}).get("provider"),
+        "model": (result.output_payload or {}).get("model"),
+        "at": utc_now_iso(),
+    }
 
 @router.post("/marketing/runs/{run_id}/retry-image")
 def retry_marketing_run_image(
@@ -1034,7 +1467,36 @@ def retry_marketing_run_image(
     if request.provider != "openai":
         raise HTTPException(status_code=409, detail="unsupported_image_provider")
     try:
-        raw_result = runtime.workflow_execution_runtime.image_generation_service.generate_marketing_carousel_cards(
+        is_carousel = str(post_package.get("visual_type") or "").lower() == "carousel" or len(list(post_package.get("carousel") or [])) > 1
+        common_metadata = {
+            "workspace_id": run.workspace_id,
+            "workflow_id": run.workflow_id,
+            "workflow_run_id": run.id,
+            "step_id": post_step.id,
+            "retry": True,
+        }
+        if not is_carousel:
+            raw_result = runtime.workflow_execution_runtime.image_generation_service.generate_marketing_image(
+                prompt=str(post_package.get("image_prompt") or post_package.get("caption") or "Create the selected social media creative."),
+                provider=request.provider,
+                model=str(post_package.get("selected_image_model") or "gpt-image-1"),
+                size="1024x1536",
+                background="opaque",
+                output_format="png",
+                file_stem=f"{run.id}_{post_step.id}_retry",
+                metadata=common_metadata,
+            )
+            primary = {
+                "provider": raw_result.get("provider"), "model": raw_result.get("model"),
+                "status": "completed" if raw_result.get("ok") else "failed",
+                "url": raw_result.get("asset_url") or raw_result.get("url") or raw_result.get("file_path"),
+                "asset_url": raw_result.get("asset_url") or raw_result.get("url"),
+                "asset_id": raw_result.get("asset_id"), "file_path": raw_result.get("file_path"),
+                "mime_type": raw_result.get("mime_type"), "error": raw_result.get("error"),
+            }
+            result = {"provider": raw_result.get("provider"), "model": raw_result.get("model"), "status": "completed" if raw_result.get("ok") else "failed", "generated_image": primary, "generated_images": [primary] if raw_result.get("ok") else [], "carousel_cards": [], "error": raw_result.get("error")}
+        else:
+            raw_result = runtime.workflow_execution_runtime.image_generation_service.generate_marketing_carousel_cards(
             caption=str(post_package.get("caption") or post_package.get("draft_caption") or ""),
             carousel=list(post_package.get("carousel") or post_package.get("draft_carousel") or []),
             provider=request.provider,
@@ -1043,13 +1505,7 @@ def retry_marketing_run_image(
             background="opaque",
             output_format="png",
             file_stem_prefix=f"{run.id}_{post_step.id}_retry",
-            metadata={
-                "workspace_id": run.workspace_id,
-                "workflow_id": run.workflow_id,
-                "workflow_run_id": run.id,
-                "step_id": post_step.id,
-                "retry": True,
-            },
+            metadata=common_metadata,
             visual_assets=dict(post_package.get("visual_assets") or {}),
             brand_name=str(post_package.get("brand_name") or post_package.get("business_name") or run_brand.get("business_name") or str(run.workspace_id).replace("-", " ").title() or "Local business"),
             primary_channel=str(post_package.get("primary_channel") or "Facebook"),
@@ -1058,8 +1514,8 @@ def retry_marketing_run_image(
             persona=post_package.get("persona"),
             objective=post_package.get("objective"),
         )
-        cards = list(raw_result.get("cards") or [])
-        generated_images = [
+            cards = list(raw_result.get("cards") or [])
+            generated_images = [
             {
                 "card_index": card.get("card_index"),
                 "card_type": card.get("card_type"),
@@ -1074,9 +1530,9 @@ def retry_marketing_run_image(
                 "error": card.get("error"),
             }
             for card in cards
-        ]
-        primary = next((item for item in generated_images if item.get("status") == "completed"), generated_images[0] if generated_images else None)
-        result = {
+            ]
+            primary = next((item for item in generated_images if item.get("status") == "completed"), generated_images[0] if generated_images else None)
+            result = {
             "provider": (primary or {}).get("provider") or raw_result.get("provider"),
             "model": raw_result.get("model"),
             "status": "completed" if raw_result.get("ok") else "partial",
@@ -1084,7 +1540,7 @@ def retry_marketing_run_image(
             "generated_images": generated_images,
             "carousel_cards": cards,
             "error": raw_result.get("error"),
-        }
+            }
     except Exception as exc:
         post_package["image_generation"] = {
             "provider": request.provider,
@@ -1291,7 +1747,19 @@ def get_run(
                 "updated_at": run.updated_at,
                 "input_payload": {
                     key: (run.input_payload or {}).get(key)
-                    for key in ("brief", "objective", "target_audience", "offer", "channels", "brand_foundation")
+                    for key in (
+                        "brief",
+                        "objective",
+                        "target_audience",
+                        "offer",
+                        "channels",
+                        "brand_foundation",
+                        "selected_provider",
+                        "selected_model",
+                        "creative_assets",
+                        "creative_direction",
+                        "marketing_strategy",
+                    )
                 },
                 "context": {
                     "approval_packet": context.get("approval_packet"),

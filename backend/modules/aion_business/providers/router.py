@@ -258,6 +258,8 @@ class ProviderRouter:
         def add_provider(value: Optional[str]) -> None:
             if isinstance(value, str) and value.strip():
                 normalized = value.strip().lower()
+                if normalized in {"local_model", "local-package"}:
+                    normalized = "local"
                 if normalized not in chain:
                     chain.append(normalized)
 

@@ -14,7 +14,8 @@ def test_dashboard_is_business_command_centre_not_legacy_machine_health():
     assert "Today across the business" in dashboard
     assert "Accountable actions" in dashboard
     assert "Business KPIs" in dashboard
-    assert "Automations" in dashboard
+    assert 'data-aion-executive-automations="true"' not in dashboard
+    assert 'data-aion-saved-workflows-dropup="true"' in APP
     assert "Department work queues" in dashboard
     assert "Node Status" not in dashboard
     assert "Scheduler" not in dashboard

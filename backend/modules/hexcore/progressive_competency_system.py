@@ -206,6 +206,19 @@ class ProgressiveCompetencySystem:
         changed = False
         integrity_invalidated_subjects: set[str] = set()
         prior_policy = self.state.get("curriculum_policy_version")
+        # Catalogue definitions evolve. Persisted state must gain newly declared
+        # subskills without erasing earlier evidence or user-authored subjects.
+        before_catalogue = json.dumps(self.state.get("subjects") or {}, sort_keys=True)
+        for spec in SUBJECTS:
+            self._add_subject(spec.subject_id, spec.name, spec.group, spec.subskills,
+                              importance=float(spec.importance), source="north_star_registry")
+        for row in EXTENDED_SUBJECTS:
+            self._add_subject(str(row["subject_id"]), str(row["name"]), str(row["group"]),
+                              row["subskills"], importance=0.75,
+                              source="extended_core_catalogue",
+                              practical_blocker_template=row.get("practical_blocker_template"))
+        if json.dumps(self.state.get("subjects") or {}, sort_keys=True) != before_catalogue:
+            changed = True
         if prior_policy != CURRICULUM_POLICY_VERSION:
             # An earlier policy selected equal-priority subjects by lexical
             # order.  Supersede only untouched contracts created by that policy;
@@ -533,10 +546,15 @@ class ProgressiveCompetencySystem:
             "created_epoch": time.time(), "no_progress_cycles": 0,
         }
         self.state["contracts"].append(contract)
+        prior_kind = str((prior.get("requirement") or {}).get("kind") or "")
         for blocker in self.state.get("blockers") or []:
             if (blocker.get("subject_id") == prior["subject_id"]
                     and blocker.get("blocker_type") == "executor_capability"
-                    and blocker.get("status") == "open"):
+                    and blocker.get("status") == "open"
+                    and (not blocker.get("contract_id")
+                         or blocker.get("contract_id") == contract_id)
+                    and (not blocker.get("requirement_kind")
+                         or blocker.get("requirement_kind") == prior_kind)):
                 blocker.update({
                     "status": "resolved", "resolved_at": _utc_timestamp(),
                     "authority_artifact": authority_artifact,
@@ -551,14 +569,19 @@ class ProgressiveCompetencySystem:
     @_state_transaction
     def add_practical_blocker(self, *, subject_id: str, subskills: Iterable[str], reason: str,
                               required_authority: str,
-                              blocker_type: str = "external_practical") -> dict[str, Any]:
+                              blocker_type: str = "external_practical",
+                              contract_id: str | None = None,
+                              requirement_kind: str | None = None) -> dict[str, Any]:
         existing = next((row for row in self.state["blockers"]
                          if row.get("subject_id") == subject_id and row.get("reason") == reason
+                         and row.get("contract_id") == contract_id
+                         and row.get("requirement_kind") == requirement_kind
                          and row.get("status") == "open"), None)
         if existing:
             return existing
         body = {"subject_id": subject_id, "subskills": sorted(set(subskills)), "reason": reason,
                 "required_authority": required_authority, "blocker_type": blocker_type,
+                "contract_id": contract_id, "requirement_kind": requirement_kind,
                 "status": "open", "created_at": _utc_timestamp()}
         body["blocker_id"] = "competency_blocker_" + _canonical_hash(body)[:18]
         if body["blocker_id"] not in {row["blocker_id"] for row in self.state["blockers"]}:
@@ -694,6 +717,16 @@ class ProgressiveCompetencySystem:
     def evidence_for(self, subject_id: str) -> list[dict[str, Any]]:
         return [row for row in self.state["evidence"]
                 if row.get("subject_id") == subject_id and row.get("verified") is True]
+
+    @classmethod
+    def assess_snapshot(
+        cls, *, repo_root: Path, state: Mapping[str, Any], subject_id: str,
+    ) -> dict[str, Any]:
+        """Assess an already-loaded state without migrations or filesystem writes."""
+        instance = cls.__new__(cls)
+        instance.repo_root = Path(repo_root)
+        instance.state = dict(state)
+        return instance.assess(subject_id)
 
     def assess(self, subject_id: str) -> dict[str, Any]:
         subject = self.state["subjects"][subject_id]
@@ -861,10 +894,35 @@ class ProgressiveCompetencySystem:
             if (row.get("requirement") or {}).get("not_before_epoch")
             and now < float((row.get("requirement") or {})["not_before_epoch"])
         }
-        executor_blocked_subjects = {
-            row["subject_id"] for row in self.state.get("blockers") or []
-            if row.get("status") == "open" and row.get("blocker_type") == "executor_capability"
+        blocked_contract_kinds: dict[str, set[str]] = {}
+        blocked_contracts = {
+            str(row.get("contract_id")): row
+            for row in self.state.get("contracts") or []
+            if row.get("status") == "blocked_executor_capability"
         }
+        for blocker in self.state.get("blockers") or []:
+            if blocker.get("status") != "open" or blocker.get("blocker_type") != "executor_capability":
+                continue
+            subject_id = str(blocker.get("subject_id") or "")
+            kind = str(blocker.get("requirement_kind") or "")
+            if not kind:
+                contract = blocked_contracts.get(str(blocker.get("contract_id") or ""))
+                if contract is None:
+                    contract = next((row for row in reversed(list(blocked_contracts.values()))
+                                     if row.get("subject_id") == subject_id), None)
+                kind = str(((contract or {}).get("requirement") or {}).get("kind") or "")
+                if (not kind and blocker.get("required_authority")
+                        == "genuinely_diverse_hidden_project_portfolio"):
+                    kind = "project"
+                kind = kind or "*"
+            blocked_contract_kinds.setdefault(subject_id, set()).add(kind)
+
+        def requirement_is_blocked(subject_id: str, result: Mapping[str, Any]) -> bool:
+            kinds = blocked_contract_kinds.get(subject_id, set())
+            if not kinds:
+                return False
+            next_kind = str(self._next_requirement(result).get("kind") or "")
+            return "*" in kinds or next_kind in kinds
         # The comprehensive curriculum allocates a real bootstrapping lane to
         # learning abilities.  Older depth targets must not monopolise the
         # scheduler and make the visible learn-to-learn phase cosmetic.  Use a
@@ -877,11 +935,11 @@ class ProgressiveCompetencySystem:
         available_capabilities = []
         if self.state.get("external_curricula"):
             for subject_id, subject in self.state["subjects"].items():
-                if (subject.get("group") != "learning_capability"
-                        or subject_id in future_waiting_subjects
-                        or subject_id in executor_blocked_subjects):
+                if subject.get("group") != "learning_capability" or subject_id in future_waiting_subjects:
                     continue
                 result = self.assess(subject_id)
+                if requirement_is_blocked(subject_id, result):
+                    continue
                 if not result["target_reached"]:
                     available_capabilities.append(subject_id)
         recent_contracts = self.state.get("contracts", [])[-6:]
@@ -915,9 +973,11 @@ class ProgressiveCompetencySystem:
         breadth_ranked = []
         depth_ranked = []
         for subject_id, subject in self.state["subjects"].items():
-            if subject_id in future_waiting_subjects or subject_id in executor_blocked_subjects:
+            if subject_id in future_waiting_subjects:
                 continue
             result = self.assess(subject_id)
+            if requirement_is_blocked(subject_id, result):
+                continue
             if (result["target_reached"]
                     or result["display_level"] in {
                         "advanced_theory_practical_blocked", "advanced_theory_executor_blocked"
@@ -1092,8 +1152,44 @@ class ProgressiveCompetencySystem:
                 action = {"status": "expert_deepening_unlocked", "subject_id": subject_id,
                           "subjects_raised_to_expert": len(deepen)}
             else:
-                action = {"status": "all_current_targets_reached_or_externally_blocked"}
+                stalled_statuses = {
+                    "all_current_targets_reached_or_externally_blocked",
+                    "curriculum_stalled_incident",
+                }
+                trailing_stalls = 0
+                for prior_cycle in reversed(self.state.get("curriculum_cycles") or []):
+                    if (prior_cycle.get("action") or {}).get("status") not in stalled_statuses:
+                        break
+                    trailing_stalls += 1
+                stalled_cycles = trailing_stalls + 1
+                blocked_subjects = sorted({
+                    str(row.get("subject_id")) for row in self.state.get("blockers") or []
+                    if row.get("status") == "open"
+                })
+                action = {
+                    "status": (
+                        "curriculum_stalled_incident" if stalled_cycles >= 3
+                        else "all_current_targets_reached_or_externally_blocked"
+                    ),
+                    "stalled_cycles": stalled_cycles,
+                    "blocked_subjects": blocked_subjects,
+                }
+                if stalled_cycles >= 3:
+                    incidents = self.state.setdefault("scheduler_incidents", [])
+                    if not incidents or incidents[-1].get("status") != "open":
+                        incidents.append({
+                            "incident_id": "curriculum_scheduler_stall_" + _canonical_hash(
+                                [blocked_subjects, len(self.state.get("curriculum_cycles") or [])]
+                            )[:16],
+                            "status": "open", "created_at": _utc_timestamp(),
+                            "reason": "No actionable curriculum subject was scheduled for three consecutive cycles.",
+                            "blocked_subjects": blocked_subjects,
+                        })
         else:
+            for incident in self.state.get("scheduler_incidents") or []:
+                if incident.get("status") == "open":
+                    incident.update({"status": "resolved", "resolved_at": _utc_timestamp(),
+                                     "resolution": "actionable_curriculum_subject_scheduled"})
             self.state["active_subject_id"] = subject_id
             existing = next((row for row in self.state["contracts"]
                              if row["subject_id"] == subject_id and row["status"] == "open"), None)
@@ -1161,6 +1257,18 @@ class ProgressiveCompetencySystem:
             row for row in assessments
             if row["target_level"] == "expert" and row["overall_level"] == "advanced"
         ]
+        today = _utc_timestamp()[:10]
+        practice_projects_today = sum(
+            row.get("kind") == "project" and str(row.get("created_at") or "")[:10] == today
+            for row in valid_evidence
+        )
+        last_progress_epoch = max(
+            (float(row.get("recorded_epoch") or 0.0) for row in valid_evidence), default=0.0
+        )
+        blocked_subjects = sorted({
+            str(row.get("subject_id")) for row in self.state.get("blockers") or []
+            if row.get("status") == "open"
+        })
         return {"subjects": len(assessments), "levels": counts,
                 "advanced_or_expert": sum(LEVEL_INDEX[row["overall_level"]] >= LEVEL_INDEX["advanced"] for row in assessments),
                 "active_subject_id": self.state.get("active_subject_id"),
@@ -1177,6 +1285,16 @@ class ProgressiveCompetencySystem:
                 "domains_complete": sum(row["target_reached"] for row in domain_rows.values()),
                 "evidence_records": len(valid_evidence),
                 "invalidated_evidence_records": len(invalidated_evidence),
+                "practice_projects_completed_today": practice_projects_today,
+                "blocked_subjects": blocked_subjects,
+                "blocked_subject_count": len(blocked_subjects),
+                "minutes_since_last_competency_progress": (
+                    round(max(0.0, time.time() - last_progress_epoch) / 60.0, 1)
+                    if last_progress_epoch else None
+                ),
+                "open_scheduler_incidents": sum(
+                    row.get("status") == "open" for row in self.state.get("scheduler_incidents") or []
+                ),
                 "owner_lesson_steps": self.state["owner_lesson_steps"],
                 "unsafe_actions": self.state["unsafe_actions"]}
 

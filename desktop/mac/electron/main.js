@@ -54,6 +54,7 @@ const os = require("os");
 const crypto = require("crypto");
 const { spawn } = require("child_process");
 const http = require("http");
+const net = require("net");
 const { pathToFileURL } = require("url");
 
 let mainWindow = null;
@@ -66,17 +67,113 @@ let captureNextBrowserClick = false;
 let captureNextClickArmed = false;
 let spatialBoardroomBridge = null;
 let spatialBoardroomProc = null;
+let pilotDashboardWindow = null;
+let pilotServiceProc = null;
+let pilotServiceStartPromise = null;
+let pilotServiceLastError = "";
 
 let backendProc = null;
 let backendSpawnedByApp = false;
 let backendStartPromise = null;
+let backendRestartTimer = null;
 let isQuitting = false;
+let mainWindowState = { maximized: true, normalBounds: null };
+let mainWindowStateWriteTimer = null;
+
+// macOS may register both /Applications/Tessaris.app and a packaged
+// development copy as distinct launchable applications. Electron's standard
+// lock is bundle-scoped in that case, so both copies can otherwise appear in
+// the Dock at once. This shared PID lock is deliberately outside either bundle.
+const TESSARIS_DESKTOP_INSTANCE_PATH = path.join(
+  os.homedir(),
+  "Library",
+  "Application Support",
+  "Tessaris",
+  "desktop-instance.pid",
+);
+
+function isTessarisProcessAlive(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function acquireTessarisDesktopProcessLock() {
+  fs.mkdirSync(path.dirname(TESSARIS_DESKTOP_INSTANCE_PATH), { recursive: true });
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const descriptor = fs.openSync(TESSARIS_DESKTOP_INSTANCE_PATH, "wx", 0o600);
+      fs.writeFileSync(descriptor, String(process.pid), "utf8");
+      fs.closeSync(descriptor);
+      return true;
+    } catch (error) {
+      if (error?.code !== "EEXIST") throw error;
+
+      let ownerPid = 0;
+      try {
+        ownerPid = Number.parseInt(fs.readFileSync(TESSARIS_DESKTOP_INSTANCE_PATH, "utf8").trim(), 10);
+      } catch {}
+
+      if (ownerPid !== process.pid && isTessarisProcessAlive(ownerPid)) {
+        return false;
+      }
+
+      try { fs.unlinkSync(TESSARIS_DESKTOP_INSTANCE_PATH); } catch {}
+    }
+  }
+
+  return false;
+}
+
+function releaseTessarisDesktopProcessLock() {
+  try {
+    const ownerPid = Number.parseInt(fs.readFileSync(TESSARIS_DESKTOP_INSTANCE_PATH, "utf8").trim(), 10);
+    if (ownerPid === process.pid) fs.unlinkSync(TESSARIS_DESKTOP_INSTANCE_PATH);
+  } catch {}
+}
+
+const tessarisHasDesktopProcessLock = acquireTessarisDesktopProcessLock();
+if (!tessarisHasDesktopProcessLock) {
+  process.exit(0);
+}
+
+process.on("exit", releaseTessarisDesktopProcessLock);
+
+const tessarisHasSingleInstanceLock = app.requestSingleInstanceLock();
+if (!tessarisHasSingleInstanceLock) {
+  releaseTessarisDesktopProcessLock();
+  process.exit(0);
+}
+
+app.on("second-instance", () => {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+});
 
 const DEV_PROJECT_ROOT = "/Users/kevinrobinson/dev/COMDEX";
 const BACKEND_HOST = "127.0.0.1";
 const BACKEND_PORT = 8080;
 const BACKEND_HEALTH_PATH = "/health";
 const BACKEND_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}${BACKEND_HEALTH_PATH}`;
+const PILOT_HOST = "127.0.0.1";
+const PILOT_PORT = 8765;
+const PILOT_DASHBOARD_URL = `http://${PILOT_HOST}:${PILOT_PORT}/`;
+const PILOT_RUNTIME_DIR = path.join(
+  os.homedir(),
+  "Library",
+  "Application Support",
+  "Pilot Fabric",
+  ".runtime",
+  "aion_fabric",
+);
+const PILOT_LOG_PATH = path.join(PILOT_RUNTIME_DIR, "tessaris-pilot-service.log");
 // Historical full-stack fallback retained for explicit research sessions only.
 const LEGACY_FULL_BACKEND_APP = "backend.main:app";
 const DESKTOP_BACKEND_APP = process.env.TESSARIS_BACKEND_APP || "backend.desktop_app:app";
@@ -87,6 +184,290 @@ const APPLICATION_ACCOUNT_DESCRIPTOR_PATH = path.join(
     || path.join(os.homedir(), ".tessaris", "security", "application-account-recovery"),
   "account-descriptor.json",
 );
+
+function pilotRequestJson(requestPath, { method = "GET", body = null, timeoutMs = 1800 } = {}) {
+  return new Promise((resolve, reject) => {
+    const encodedBody = body == null ? null : Buffer.from(JSON.stringify(body), "utf8");
+    const request = http.request({
+      host: PILOT_HOST,
+      port: PILOT_PORT,
+      path: requestPath,
+      method,
+      timeout: timeoutMs,
+      headers: {
+        Accept: "application/json",
+        ...(method === "POST" ? { "X-AION-Fabric": "dashboard-v1" } : {}),
+        ...(encodedBody ? {
+          "Content-Type": "application/json; charset=utf-8",
+          "Content-Length": encodedBody.length,
+        } : {}),
+      },
+    }, (response) => {
+      const chunks = [];
+      let receivedBytes = 0;
+      response.on("data", (chunk) => {
+        receivedBytes += chunk.length;
+        if (receivedBytes <= 2 * 1024 * 1024) chunks.push(chunk);
+      });
+      response.on("end", () => {
+        const text = Buffer.concat(chunks).toString("utf8");
+        let value = {};
+        try {
+          value = text ? JSON.parse(text) : {};
+        } catch {
+          value = { message: text.slice(0, 500) };
+        }
+        if ((response.statusCode || 500) < 200 || (response.statusCode || 500) >= 300) {
+          reject(new Error(String(value.error || value.message || `Pilot returned HTTP ${response.statusCode}`)));
+          return;
+        }
+        resolve(value);
+      });
+    });
+    request.on("timeout", () => request.destroy(new Error("Pilot did not respond in time")));
+    request.on("error", reject);
+    if (encodedBody) request.write(encodedBody);
+    request.end();
+  });
+}
+
+async function pilotIsHealthy(timeoutMs = 1100) {
+  try {
+    const health = await pilotRequestJson("/health", { timeoutMs });
+    return Boolean(health && typeof health === "object" && health.ok === true);
+  } catch {
+    return false;
+  }
+}
+
+function pilotUnavailableStatus(message = "Pilot is not running on this Mac.") {
+  return {
+    ok: false,
+    service: { state: "unavailable", label: "Pilot unavailable" },
+    microphone: { state: "off", label: "Microphone off", confirmed: false },
+    tv: { state: "unavailable", label: "TV unavailable", confirmed: false },
+    message,
+  };
+}
+
+async function getPilotControlStatus() {
+  if (!(await pilotIsHealthy())) {
+    return pilotUnavailableStatus(pilotServiceLastError || "Pilot is not running on this Mac.");
+  }
+
+  const [voiceResult, tvResult] = await Promise.allSettled([
+    pilotRequestJson("/api/voice", { timeoutMs: 1500 }),
+    pilotRequestJson("/api/connection-health", { timeoutMs: 1800 }),
+  ]);
+  const voice = voiceResult.status === "fulfilled" ? voiceResult.value : null;
+  const tv = tvResult.status === "fulfilled" ? tvResult.value : null;
+  const microphoneListening = Boolean(
+    voice
+      && voice.running === true
+      && voice.ready === true
+      && voice.sleeping !== true
+      && voice.activity_state !== "sleeping",
+  );
+  const tvState = String(tv?.status || "no_tv").toLowerCase();
+  const tvConnected = tvState === "connected";
+  const tvReconnecting = ["starting", "recovering", "reconnecting"].includes(tvState);
+
+  return {
+    ok: true,
+    service: { state: "online", label: "Pilot online" },
+    microphone: {
+      state: microphoneListening ? "listening" : "off",
+      label: microphoneListening ? "Microphone listening" : "Microphone off",
+      confirmed: microphoneListening,
+      detail: voice ? String(voice.error || voice.activity_state || "") : "Voice service unavailable",
+    },
+    tv: {
+      state: tvConnected ? "connected" : tvReconnecting ? "reconnecting" : "unavailable",
+      label: tvConnected ? "TV connected" : tvReconnecting ? "TV reconnecting" : "TV unavailable",
+      confirmed: tvConnected,
+      detail: String(tv?.message || tv?.detail || "No TV connection was confirmed."),
+    },
+    message: "Pilot is available locally.",
+  };
+}
+
+function pilotLogTail() {
+  try {
+    const contents = fs.readFileSync(PILOT_LOG_PATH, "utf8");
+    return contents.slice(-1600).trim();
+  } catch {
+    return "";
+  }
+}
+
+async function waitForPilotHealth({ timeoutMs = 90000, processRef = null } = {}) {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeoutMs) {
+    if (await pilotIsHealthy(1200)) return true;
+    if (processRef && processRef.exitCode != null) {
+      throw new Error(`Pilot stopped during startup.${pilotLogTail() ? ` ${pilotLogTail()}` : ""}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error(`Pilot did not become healthy within ${Math.round(timeoutMs / 1000)} seconds.${pilotLogTail() ? ` ${pilotLogTail()}` : ""}`);
+}
+
+function pilotPortIsOccupied(port = 8766, timeoutMs = 900) {
+  return new Promise((resolve) => {
+    const socket = net.createConnection({ host: "127.0.0.1", port });
+    const finish = (occupied) => {
+      socket.removeAllListeners();
+      socket.destroy();
+      resolve(occupied);
+    };
+    socket.setTimeout(timeoutMs);
+    socket.once("connect", () => finish(true));
+    socket.once("error", () => finish(false));
+    socket.once("timeout", () => finish(false));
+  });
+}
+
+async function waitForExistingPilotService() {
+  // A launch agent, a previous Tessaris window, or a manual start may already
+  // be bringing Pilot online.  Wait for that single owner before attempting a
+  // new process; otherwise both instances contend for the TV Canvas port.
+  if (!(await pilotPortIsOccupied())) return false;
+  try {
+    return await waitForPilotHealth({ timeoutMs: 15000 });
+  } catch {
+    return false;
+  }
+}
+
+async function ensurePilotService() {
+  if (await pilotIsHealthy()) {
+    pilotServiceLastError = "";
+    return getPilotControlStatus();
+  }
+  if (pilotServiceStartPromise) return pilotServiceStartPromise;
+
+  if (await waitForExistingPilotService()) {
+    pilotServiceLastError = "";
+    return getPilotControlStatus();
+  }
+
+  pilotServiceStartPromise = (async () => {
+    const pythonExecutable = path.join(DEV_PROJECT_ROOT, ".venv", "bin", "python");
+    if (!fs.existsSync(pythonExecutable)) {
+      throw new Error(`Pilot cannot start because its Python runtime is missing: ${pythonExecutable}`);
+    }
+    fs.mkdirSync(PILOT_RUNTIME_DIR, { recursive: true, mode: 0o700 });
+    const logFd = fs.openSync(PILOT_LOG_PATH, "a", 0o600);
+    let child;
+    try {
+      child = spawn(pythonExecutable, [
+        "-u",
+        "-m",
+        "backend.modules.aion_fabric.cli",
+        "--runtime-dir",
+        PILOT_RUNTIME_DIR,
+        "serve",
+        "--voice-control",
+      ], {
+        cwd: DEV_PROJECT_ROOT,
+        env: {
+          ...process.env,
+          PYTHONPATH: [DEV_PROJECT_ROOT, process.env.PYTHONPATH].filter(Boolean).join(path.delimiter),
+        },
+        detached: true,
+        stdio: ["ignore", logFd, logFd],
+      });
+      await new Promise((resolve, reject) => {
+        child.once("spawn", resolve);
+        child.once("error", reject);
+      });
+    } finally {
+      fs.closeSync(logFd);
+    }
+    pilotServiceProc = child;
+    child.once("exit", (code, signal) => {
+      if (pilotServiceProc === child) pilotServiceProc = null;
+      if (code && code !== 0) {
+        pilotServiceLastError = `Pilot stopped with code ${code}${signal ? ` (${signal})` : ""}.`;
+      }
+    });
+    child.unref();
+    await waitForPilotHealth({ processRef: child });
+    pilotServiceLastError = "";
+    return getPilotControlStatus();
+  })().catch((error) => {
+    pilotServiceLastError = error instanceof Error ? error.message : String(error);
+    throw error;
+  }).finally(() => {
+    pilotServiceStartPromise = null;
+  });
+
+  return pilotServiceStartPromise;
+}
+
+function showPilotDashboardWindow() {
+  if (pilotDashboardWindow && !pilotDashboardWindow.isDestroyed()) {
+    if (pilotDashboardWindow.isMinimized()) pilotDashboardWindow.restore();
+    pilotDashboardWindow.show();
+    pilotDashboardWindow.focus();
+    return;
+  }
+
+  pilotDashboardWindow = new BrowserWindow({
+    width: 1380,
+    height: 900,
+    minWidth: 980,
+    minHeight: 680,
+    title: "Pilot Dashboard",
+    icon: resolveIconPath(),
+    backgroundColor: "#f5f8fc",
+    show: false,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  pilotDashboardWindow.webContents.setWindowOpenHandler(({ url }) => {
+    void shell.openExternal(url);
+    return { action: "deny" };
+  });
+  pilotDashboardWindow.once("ready-to-show", () => {
+    pilotDashboardWindow?.show();
+    pilotDashboardWindow?.focus();
+  });
+  pilotDashboardWindow.on("closed", () => {
+    pilotDashboardWindow = null;
+  });
+  void pilotDashboardWindow.loadURL(PILOT_DASHBOARD_URL).catch((error) => {
+    pilotServiceLastError = `The Pilot dashboard could not open: ${error.message}`;
+  });
+}
+
+async function openPilotDashboard() {
+  await ensurePilotService();
+  showPilotDashboardWindow();
+  return { ok: true, status: await getPilotControlStatus(), url: PILOT_DASHBOARD_URL };
+}
+
+async function runPilotControl(action = "") {
+  await ensurePilotService();
+  const routes = {
+    "microphone-on": ["/api/voice/resume", null],
+    "microphone-off": ["/api/voice/sleep", null],
+    "reconnect-tv": ["/api/connection-health/retry", null],
+    "open-games": ["/api/dashboard/action", { command: "games", arguments: {} }],
+    "open-ai-tv": ["/api/dashboard/action", { command: "aion", arguments: {} }],
+  };
+  const route = routes[String(action || "")];
+  if (!route) throw new Error("Unknown Pilot control");
+  const result = await pilotRequestJson(route[0], {
+    method: "POST",
+    body: route[1],
+    timeoutMs: action === "reconnect-tv" ? 12000 : 8000,
+  });
+  return { ok: true, result, status: await getPilotControlStatus() };
+}
 
 const AION_CUSTOM_DEPARTMENT_WORKSPACE_ID = process.env.TESSARIS_FOUNDER_WORKSPACE_ID || "costa-conexion";
 function normalizeAionCustomDepartmentWorkspaceId(value = "") {
@@ -129,9 +510,40 @@ function readAionCustomDepartments(workspaceId = AION_CUSTOM_DEPARTMENT_WORKSPAC
 
 const SPATIAL_BOARDROOM_APP_CANDIDATES = [
   process.env.TESSARIS_SPATIAL_BOARDROOM_APP,
+  path.join(process.resourcesPath || "", "native", "Tessaris Spatial Boardroom.app"),
   path.join(DEV_PROJECT_ROOT, "unity", "spatial-boardroom-mvp", "Builds", "macOS", "Tessaris Spatial Boardroom.app"),
   "/Volumes/Install macOS Sonoma/Tessaris/Unity/spatial-boardroom-mvp/Builds/macOS/Tessaris Spatial Boardroom.app",
 ].filter(Boolean);
+
+const SPATIAL_BOARDROOM_WEB_CANDIDATES = [
+  path.join(process.resourcesPath || "", "boardroom-web"),
+  path.join(DEV_PROJECT_ROOT, "unity", "spatial-boardroom-mvp", "Builds", "WebGL"),
+].filter(Boolean);
+
+function resolveSpatialBoardroomWebRoot() {
+  for (const root of SPATIAL_BOARDROOM_WEB_CANDIDATES) {
+    if (fs.existsSync(path.join(root, "index.html"))) return root;
+  }
+  return null;
+}
+
+function spatialBoardroomContentType(filePath) {
+  const extension = path.extname(filePath).toLowerCase();
+  return ({
+    ".html": "text/html; charset=utf-8",
+    ".js": "application/javascript; charset=utf-8",
+    ".mjs": "application/javascript; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
+    ".wasm": "application/wasm",
+    ".data": "application/octet-stream",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".svg": "image/svg+xml",
+    ".ico": "image/x-icon",
+  })[extension] || "application/octet-stream";
+}
 
 function sanitizeSpatialBoardroomMember(raw = {}) {
   const id = String(raw.id || raw.key || raw.provider_id || "")
@@ -194,6 +606,33 @@ async function ensureSpatialBoardroomBridge() {
   const bridge = { token, events: [], server: null, port: null };
   bridge.server = http.createServer(async (request, response) => {
     response.setHeader("Cache-Control", "no-store");
+    const parsed = new URL(request.url || "/", "http://127.0.0.1");
+    if (request.method === "GET" && (parsed.pathname === "/boardroom" || parsed.pathname.startsWith("/boardroom/"))) {
+      const webRoot = resolveSpatialBoardroomWebRoot();
+      if (!webRoot) {
+        response.setHeader("Content-Type", "application/json; charset=utf-8");
+        response.writeHead(404); response.end(JSON.stringify({ error: "webgl_build_not_found" })); return;
+      }
+      const relativePath = decodeURIComponent(parsed.pathname.replace(/^\/boardroom\/?/, "")) || "index.html";
+      const resolvedRoot = path.resolve(webRoot);
+      const filePath = path.resolve(resolvedRoot, relativePath);
+      if (filePath !== resolvedRoot && !filePath.startsWith(`${resolvedRoot}${path.sep}`)) {
+        response.setHeader("Content-Type", "application/json; charset=utf-8");
+        response.writeHead(403); response.end(JSON.stringify({ error: "forbidden" })); return;
+      }
+      try {
+        const stat = fs.statSync(filePath);
+        if (!stat.isFile()) throw new Error("not_file");
+        response.setHeader("Content-Type", spatialBoardroomContentType(filePath));
+        response.setHeader("Cache-Control", "no-cache");
+        response.writeHead(200);
+        fs.createReadStream(filePath).pipe(response);
+      } catch {
+        response.setHeader("Content-Type", "application/json; charset=utf-8");
+        response.writeHead(404); response.end(JSON.stringify({ error: "not_found" }));
+      }
+      return;
+    }
     response.setHeader("Content-Type", "application/json; charset=utf-8");
     const authorization = String(request.headers.authorization || "");
     const supplied = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
@@ -202,7 +641,6 @@ async function ensureSpatialBoardroomBridge() {
     if (!validToken) {
       response.writeHead(401); response.end(JSON.stringify({ error: "unauthorized" })); return;
     }
-    const parsed = new URL(request.url || "/", "http://127.0.0.1");
     if (request.method === "GET" && parsed.pathname === "/events") {
       const after = parsed.searchParams.get("after") || "";
       let next = bridge.events[0];
@@ -284,6 +722,7 @@ function signAionFlowRequest(payload = {}) {
     "/api/aion/business/legal-signing/",
     "/api/aion/business/glyphchain-admin/",
     "/api/aion/business/a2a/",
+    "/api/aion/business/project-management/",
   ];
   if (!protectedPrefixes.some((prefix) => target.startsWith(prefix))) {
     throw new Error("AION Flow request target is outside the signed boundary");
@@ -470,10 +909,13 @@ async function isBackendHealthy() {
   }
 }
 
-async function waitForBackendReady({ attempts = 30, delayMs = 1000 } = {}) {
+async function waitForBackendReady({ attempts = 30, delayMs = 1000, processRef = null } = {}) {
   for (let i = 0; i < attempts; i += 1) {
     if (await isBackendHealthy()) {
       return true;
+    }
+    if (processRef && backendProc !== processRef) {
+      return false;
     }
     await wait(delayMs);
   }
@@ -622,6 +1064,43 @@ function installAionMicrophonePermissionPolicy() {
 function cleanupBackendProcessState() {
   backendProc = null;
   backendSpawnedByApp = false;
+}
+
+function scheduleBackendRestart(detail = "Local backend stopped unexpectedly.") {
+  if (isQuitting || backendRestartTimer) return;
+
+  sendBackendStatus({
+    ok: false,
+    status: "recovering",
+    detail,
+  });
+
+  backendRestartTimer = setTimeout(async () => {
+    backendRestartTimer = null;
+    if (isQuitting) return;
+
+    try {
+      if (backendStartPromise) {
+        await backendStartPromise.catch(() => null);
+      }
+      if (isQuitting) return;
+
+      const result = await ensureBackendRunning();
+      if (result.ok) {
+        sendBackendStatus({
+          ok: true,
+          status: "ready",
+          detail: "Local backend recovered automatically.",
+        });
+      } else {
+        scheduleBackendRestart("Local backend recovery did not become ready; retrying.");
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`[backend] automatic restart failed: ${message}`);
+      scheduleBackendRestart(`Local backend recovery failed: ${message}`);
+    }
+  }, 1500);
 }
 
 function runtimeInfo() {
@@ -1388,6 +1867,7 @@ async function ensureBackendRunning() {
         detail: error.message,
       });
       cleanupBackendProcessState();
+      scheduleBackendRestart(`Local backend could not start: ${error.message}`);
     });
 
     proc.on("exit", (code, signal) => {
@@ -1397,15 +1877,15 @@ async function ensureBackendRunning() {
       cleanupBackendProcessState();
 
       if (!isQuitting && wasManaged) {
-        sendBackendStatus({
-          ok: false,
-          status: "stopped",
-          detail: `Backend exited (${signal || code || "unknown"})`,
-        });
+        scheduleBackendRestart(`Local backend exited (${signal || code || "unknown"}); restarting.`);
       }
     });
 
-    const ready = await waitForBackendReady({ attempts: 45, delayMs: 1000 });
+    const ready = await waitForBackendReady({
+      attempts: 45,
+      delayMs: 1000,
+      processRef: proc,
+    });
 
     if (!ready) {
       return { ok: false, mode: "spawned" };
@@ -1630,6 +2110,649 @@ ipcMain.handle("aion-replay-browser-skill", async (_event, payload = {}) => {
   }
 });
 
+ipcMain.handle("aion-execute-governed-browser-plan", async (_event, payload = {}) => {
+  const grantId = String(payload.grant_id || payload.grantId || "").trim();
+  const executionToken = String(payload.execution_token || payload.executionToken || "").trim();
+  const workspaceId = String(payload.workspace_id || payload.workspaceId || "").trim();
+  if (!grantId || !executionToken) {
+    return { ok: false, status: "missing_execution_grant", error: "AION execution grant is required." };
+  }
+
+  let authority;
+  try {
+    authority = await httpPostJson(
+      `http://${BACKEND_HOST}:${BACKEND_PORT}/api/local-node/browser-harness/grants/redeem`,
+      { grant_id: grantId, execution_token: executionToken, workspace_id: workspaceId || null },
+    );
+  } catch (error) {
+    return { ok: false, status: "execution_grant_rejected", error: String(error?.message || error) };
+  }
+
+  const steps = Array.isArray(authority?.steps) ? authority.steps.slice(0, 30) : [];
+  const firstNavigation = steps.find((step) => String(step?.operation || "") === "open_page");
+  const startUrl = String(firstNavigation?.target?.url || "https://www.google.com/");
+  const opened = await openIsolatedBrowserWindow(startUrl, {
+    browserProfileId: `aion-governed-${workspaceId || "workspace"}`,
+    departmentId: "aion",
+    missionId: authority?.plan_id || grantId,
+    taskId: grantId,
+    activityState: "executing",
+    objective: authority?.objective || "Governed browser task",
+  });
+  if (!opened?.ok) {
+    return { ok: false, status: "isolated_browser_unavailable", error: opened?.error || "Could not open isolated browser." };
+  }
+
+  const replayPayload = {
+    steps,
+    inputs: {},
+    mode: "live",
+    approved_step_ids: Array.isArray(authority?.approved_step_ids) ? authority.approved_step_ids : [],
+    approval_payload_hash: String(authority?.approval_payload_hash || ""),
+  };
+  let result;
+  try {
+    result = await isolatedBrowserWindow.webContents.executeJavaScript(`
+      (async () => {
+        for (let attempt = 0; attempt < 50; attempt += 1) {
+          if (window.aionIsolatedBrowser?.replaySemanticSteps) {
+            return await window.aionIsolatedBrowser.replaySemanticSteps(${JSON.stringify(replayPayload)});
+          }
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        return { ok: false, status: "replay_bridge_unavailable" };
+      })()
+    `, true);
+  } catch (error) {
+    result = { ok: false, status: "replay_failed", error: String(error?.message || error) };
+  }
+
+  let receipt = null;
+  try {
+    const recorded = await httpPostJson(
+      `http://${BACKEND_HOST}:${BACKEND_PORT}/api/local-node/browser-harness/receipts`,
+      { grant_id: grantId, result: result || {}, workspace_id: workspaceId || null },
+    );
+    receipt = recorded?.receipt || null;
+  } catch (error) {
+    return {
+      ...(result || { ok: false }),
+      status: "receipt_recording_failed",
+      error: String(error?.message || error),
+    };
+  }
+
+  return { ...(result || {}), receipt };
+});
+
+function runGovernedDesktopProcess(command, args = []) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { stdio: ["ignore", "pipe", "pipe"] });
+    let stdout = "";
+    let stderr = "";
+    child.stdout?.on("data", (chunk) => { stdout += String(chunk || ""); });
+    child.stderr?.on("data", (chunk) => { stderr += String(chunk || ""); });
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0) resolve({ stdout: stdout.trim(), stderr: stderr.trim() });
+      else reject(new Error(stderr.trim() || `Desktop command exited with status ${code}`));
+    });
+  });
+}
+
+function runGovernedAppleScript(lines, args = []) {
+  return runGovernedDesktopProcess("/usr/bin/osascript", ["-e", lines.join("\n"), "--", ...args.map((value) => String(value ?? ""))]);
+}
+
+let desktopPermissionSetupPromise = null;
+function desktopPermissionSetupPath() {
+  return path.join(app.getPath("userData"), "desktop-permission-setup-v2.json");
+}
+
+function readDesktopPermissionSetup() {
+  try {
+    return JSON.parse(fs.readFileSync(desktopPermissionSetupPath(), "utf8"));
+  } catch {
+    return { completed: false };
+  }
+}
+
+async function prepareDesktopPermissions({ interactive = true, force = false } = {}) {
+  const existing = readDesktopPermissionSetup();
+  if (!force && existing?.completed === true) return { ok: true, already_prepared: true, ...existing };
+  if (desktopPermissionSetupPromise) return desktopPermissionSetupPromise;
+  desktopPermissionSetupPromise = (async () => {
+    if (interactive) {
+      const response = await dialog.showMessageBox(mainWindow || undefined, {
+        type: "info",
+        title: "Enable Tessaris desktop work",
+        message: "Prepare desktop applications once",
+        detail: "macOS requires separate permission records for Accessibility, System Events and deeper Notes, Keynote, Pages, Numbers or Mail integration. Tessaris will request them together now so normal desktop work is not interrupted later. macOS may show a few Allow dialogs.",
+        buttons: ["Set up now", "Later"],
+        defaultId: 0,
+        cancelId: 1,
+        noLink: true,
+      });
+      if (response.response !== 0) return { ok: false, status: "permission_setup_deferred" };
+    }
+    const targets = ["System Events", "Notes", "Keynote", "Pages", "Numbers", "Mail"];
+    const results = [{
+      app: "Accessibility",
+      requested: true,
+      ok: process.platform !== "darwin" || systemPreferences.isTrustedAccessibilityClient(true),
+    }];
+    for (const target of targets) {
+      try {
+        await runGovernedAppleScript([
+          "on run argv",
+          "set appName to item 1 of argv",
+          "tell application appName to get name",
+          "end run",
+        ], [target]);
+        results.push({ app: target, requested: true, ok: true });
+      } catch (error) {
+        results.push({ app: target, requested: true, ok: false, error: String(error?.message || error) });
+      }
+    }
+    const record = { completed: true, completed_at: new Date().toISOString(), results };
+    fs.writeFileSync(desktopPermissionSetupPath(), JSON.stringify(record, null, 2), { mode: 0o600 });
+    return { ok: true, status: "permission_setup_completed", ...record };
+  })().finally(() => { desktopPermissionSetupPromise = null; });
+  return desktopPermissionSetupPromise;
+}
+
+ipcMain.handle("aion-desktop-permissions-status", async () => ({ ok: true, ...readDesktopPermissionSetup() }));
+ipcMain.handle("aion-desktop-permissions-prepare", async () => prepareDesktopPermissions({ interactive: true, force: true }));
+
+function genericAxElementLookupLines(actionLines = []) {
+  return [
+    "set matchedControl to false",
+    "set elementList to entire contents of front window",
+    "repeat with uiItem in elementList",
+    "set candidateText to \"\"",
+    "try",
+    "set candidateText to name of uiItem as text",
+    "end try",
+    "if candidateText is \"\" then",
+    "try",
+    "set candidateText to description of uiItem as text",
+    "end try",
+    "end if",
+    "if candidateText is \"\" then",
+    "try",
+    "set candidateText to value of attribute \"AXTitle\" of uiItem as text",
+    "end try",
+    "end if",
+    "ignoring case",
+    "if candidateText is controlLabel then",
+    ...actionLines,
+    "set matchedControl to true",
+    "exit repeat",
+    "end if",
+    "end ignoring",
+    "end repeat",
+    "if matchedControl is false then error \"Control not found: \" & controlLabel",
+  ];
+}
+
+async function inspectGovernedDesktopApp(appName, maxElements = 80) {
+  await runGovernedDesktopProcess("/usr/bin/open", ["-a", appName]);
+  const script = [
+    "on run argv",
+    "set appName to item 1 of argv",
+    "set maxItems to (item 2 of argv) as integer",
+    "delay 0.2",
+    "set outputLines to {}",
+    "tell application \"System Events\"",
+    "tell process appName",
+    "set frontmost to true",
+    "if (count windows) is 0 then error \"No visible window for \" & appName",
+    "set frontWindow to front window",
+    "set end of outputLines to \"window | \" & (name of frontWindow as text)",
+    "set elementList to entire contents of frontWindow",
+    "set itemCount to 0",
+    "repeat with uiItem in elementList",
+    "if itemCount is greater than or equal to maxItems then exit repeat",
+    "set roleText to \"element\"",
+    "set nameText to \"\"",
+    "try",
+    "set roleText to role of uiItem as text",
+    "end try",
+    "try",
+    "set nameText to name of uiItem as text",
+    "end try",
+    "if nameText is \"\" then",
+    "try",
+    "set nameText to description of uiItem as text",
+    "end try",
+    "end if",
+    "if nameText is not \"\" then",
+    "set end of outputLines to roleText & \" | \" & nameText",
+    "set itemCount to itemCount + 1",
+    "end if",
+    "end repeat",
+    "end tell",
+    "end tell",
+    "set AppleScript's text item delimiters to linefeed",
+    "return outputLines as text",
+    "end run",
+  ];
+  return runGovernedAppleScript(script, [appName, Math.max(10, Math.min(Number(maxElements) || 80, 200))]);
+}
+
+function summarizeGovernedDesktopInspection(appName, observation = "") {
+  const lines = String(observation || "").split("\n").map((line) => line.trim()).filter(Boolean);
+  const pairs = lines.map((line) => {
+    const separator = line.indexOf("|");
+    return separator < 0
+      ? { role: "", name: line }
+      : { role: line.slice(0, separator).trim(), name: line.slice(separator + 1).trim() };
+  });
+  const named = pairs.filter((item) => item.name && item.name.toLowerCase() !== "missing value");
+  const uniqueNames = [...new Set(named.map((item) => item.name))];
+
+  if (String(appName || "").toLowerCase() === "calendar") {
+    const monthTitle = uniqueNames.find((name) => /^(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4}$/i.test(name));
+    const dates = named.filter((item) => item.role === "AXList" && /^(?:today,\s*)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+\d+/i.test(item.name)).map((item) => item.name);
+    const range = dates.length ? `${dates[0]} through ${dates[dates.length - 1]}` : "the visible date range";
+    const todayAvailable = uniqueNames.some((name) => name.toLowerCase() === "today");
+    return [
+      `Calendar is open${monthTitle ? ` in ${monthTitle}` : ""}.`,
+      `The visible calendar covers ${range}.`,
+      `${todayAvailable ? "A Today button is available. " : ""}The window also contains a toolbar, calendar grid, view selector and navigation controls.`,
+      "Some icon-only controls do not expose readable accessibility names, so I have not guessed their actions or changed anything.",
+    ].join(" ");
+  }
+
+  const usefulNames = uniqueNames
+    .filter((name) => !/^window$/i.test(name))
+    .slice(0, 18);
+  return usefulNames.length
+    ? `${appName} is open. Visible named controls and content include: ${usefulNames.join(", ")}. No changes were made.`
+    : `${appName} is open, but its visible controls did not expose readable accessibility names. No changes were made.`;
+}
+
+async function executeGovernedComputerStep(step = {}, approvedStepIds = []) {
+  const operation = String(step.operation || "").trim();
+  const appName = String(step?.target?.app || "").trim();
+  if (!appName || !/^[A-Za-z0-9][A-Za-z0-9 .&+()'_-]{0,119}$/.test(appName)) throw new Error("This desktop app name is not allowed.");
+  if (["terminal", "iterm", "iterm2", "script editor", "automator", "shortcuts"].includes(appName.toLowerCase())) {
+    throw new Error("This code-execution app is blocked from general desktop automation.");
+  }
+  if (operation === "open_app") {
+    await runGovernedDesktopProcess("/usr/bin/open", ["-a", appName]);
+    return { step_id: step.step_id, operation, ok: true, status: "app_opened", app: appName };
+  }
+  if (operation === "inspect_app") {
+    // Newly opened native apps can publish their accessibility tree a moment
+    // after the process itself reports as running. Give that tree time to
+    // settle, then retry once instead of turning a harmless read-only request
+    // into a failed work card.
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    let inspection;
+    try {
+      inspection = await inspectGovernedDesktopApp(appName, step.max_elements);
+    } catch (error) {
+      await new Promise((resolve) => setTimeout(resolve, 900));
+      inspection = await inspectGovernedDesktopApp(appName, step.max_elements);
+    }
+    return {
+      step_id: step.step_id,
+      operation,
+      ok: true,
+      status: "app_inspected",
+      app: appName,
+      observation: inspection.stdout,
+      summary: summarizeGovernedDesktopInspection(appName, inspection.stdout),
+    };
+  }
+  if (operation === "wait") {
+    const seconds = Math.max(0.1, Math.min(Number(step.seconds) || 1, 10));
+    await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+    return { step_id: step.step_id, operation, ok: true, status: "wait_completed", app: appName, seconds };
+  }
+  if (operation === "verify_text") {
+    const inspection = await inspectGovernedDesktopApp(appName, 200);
+    const expectedText = String(step.expected_text || "").trim();
+    if (!expectedText || !inspection.stdout.toLowerCase().includes(expectedText.toLowerCase())) {
+      throw new Error(`Verification failed; text was not visible: ${expectedText || "missing expectation"}`);
+    }
+    return { step_id: step.step_id, operation, ok: true, status: "text_verified", app: appName, expected_text: expectedText };
+  }
+  if (step.approval_required === true && ["click_control", "type_text", "select_menu_item", "press_key"].includes(operation) && !approvedStepIds.includes(String(step.step_id || ""))) {
+    throw new Error(`Exact approval is required before ${operation.replaceAll("_", " ")}.`);
+  }
+  if (operation === "click_control") {
+    await runGovernedDesktopProcess("/usr/bin/open", ["-a", appName]);
+    const script = [
+      "on run argv",
+      "set appName to item 1 of argv",
+      "set controlLabel to item 2 of argv",
+      "delay 0.2",
+      "tell application \"System Events\"",
+      "tell process appName",
+      "set frontmost to true",
+      ...genericAxElementLookupLines(["perform action \"AXPress\" of uiItem"]),
+      "end tell",
+      "end tell",
+      "return controlLabel",
+      "end run",
+    ];
+    await runGovernedAppleScript(script, [appName, String(step.control || "")]);
+    return { step_id: step.step_id, operation, ok: true, status: "control_clicked", app: appName, control: String(step.control || "") };
+  }
+  if (operation === "type_text") {
+    await runGovernedDesktopProcess("/usr/bin/open", ["-a", appName]);
+    const useFocusedControl = String(step.control || "").trim().toLowerCase() === "focused control";
+    const script = [
+      "on run argv",
+      "set appName to item 1 of argv",
+      "set controlLabel to item 2 of argv",
+      "set inputText to item 3 of argv",
+      "delay 0.2",
+      "tell application \"System Events\"",
+      "tell process appName",
+      "set frontmost to true",
+      ...(useFocusedControl ? [
+        "set uiItem to value of attribute \"AXFocusedUIElement\"",
+        "try",
+        "set roleName to role of uiItem as text",
+        "if roleName is \"AXSecureTextField\" then error \"Sensitive fields cannot be automated\"",
+        "end try",
+        "keystroke \"a\" using command down",
+        "keystroke inputText",
+      ] : genericAxElementLookupLines([
+        "try",
+        "set roleName to role of uiItem as text",
+        "if roleName is \"AXSecureTextField\" then error \"Sensitive fields cannot be automated\"",
+        "end try",
+        "try",
+        "set value of attribute \"AXFocused\" of uiItem to true",
+        "on error",
+        "perform action \"AXPress\" of uiItem",
+        "end try",
+        "keystroke \"a\" using command down",
+        "keystroke inputText",
+      ])),
+      "end tell",
+      "end tell",
+      "return controlLabel",
+      "end run",
+    ];
+    await runGovernedAppleScript(script, [appName, String(step.control || ""), String(step.value || "")]);
+    return { step_id: step.step_id, operation, ok: true, status: "text_typed", app: appName, control: String(step.control || ""), character_count: String(step.value || "").length };
+  }
+  if (operation === "select_menu_item") {
+    await runGovernedDesktopProcess("/usr/bin/open", ["-a", appName]);
+    const script = [
+      "on run argv",
+      "set appName to item 1 of argv",
+      "set menuName to item 2 of argv",
+      "set itemName to item 3 of argv",
+      "delay 0.2",
+      "tell application \"System Events\"",
+      "tell process appName",
+      "set frontmost to true",
+      "click menu item itemName of menu 1 of menu bar item menuName of menu bar 1",
+      "end tell",
+      "end tell",
+      "return menuName & \" > \" & itemName",
+      "end run",
+    ];
+    await runGovernedAppleScript(script, [appName, String(step.menu || ""), String(step.item || "")]);
+    return { step_id: step.step_id, operation, ok: true, status: "menu_item_selected", app: appName, menu: String(step.menu || ""), item: String(step.item || "") };
+  }
+  if (operation === "press_key") {
+    await runGovernedDesktopProcess("/usr/bin/open", ["-a", appName]);
+    const modifiers = Array.isArray(step.modifiers) ? step.modifiers : [];
+    const keyCodes = { return: 36, enter: 36, tab: 48, escape: 53, space: 49, delete: 51, backspace: 51, left: 123, right: 124, down: 125, up: 126, home: 115, end: 119, pageup: 116, pagedown: 121 };
+    const keyName = String(step.key || "").toLowerCase();
+    const keyCode = keyCodes[keyName];
+    const script = [
+      "on run argv",
+      "set appName to item 1 of argv",
+      "set keyValue to item 2 of argv",
+      "set keyNumber to item 3 of argv",
+      "set useCommand to item 4 of argv is \"true\"",
+      "set useShift to item 5 of argv is \"true\"",
+      "set useOption to item 6 of argv is \"true\"",
+      "set useControl to item 7 of argv is \"true\"",
+      "tell application \"System Events\"",
+      "if useCommand then key down command",
+      "if useShift then key down shift",
+      "if useOption then key down option",
+      "if useControl then key down control",
+      "if keyNumber is not \"\" then",
+      "key code (keyNumber as integer)",
+      "else",
+      "keystroke keyValue",
+      "end if",
+      "if useControl then key up control",
+      "if useOption then key up option",
+      "if useShift then key up shift",
+      "if useCommand then key up command",
+      "end tell",
+      "return keyValue",
+      "end run",
+    ];
+    await runGovernedAppleScript(script, [appName, keyName.length === 1 ? keyName : "", keyCode == null ? "" : keyCode, modifiers.includes("command"), modifiers.includes("shift"), modifiers.includes("option"), modifiers.includes("control")]);
+    return { step_id: step.step_id, operation, ok: true, status: "key_pressed", app: appName, key: keyName, modifiers };
+  }
+  if (operation === "create_note") {
+    if (step.approval_required === true && !approvedStepIds.includes(String(step.step_id || ""))) {
+      throw new Error("Exact approval is required before creating a note.");
+    }
+    const script = [
+      "on run argv",
+      "set noteTitle to item 1 of argv",
+      "set noteBody to item 2 of argv",
+      "tell application \"Notes\"",
+      "activate",
+      "tell default account",
+      "set targetFolder to first folder",
+      "make new note at targetFolder with properties {name:noteTitle, body:noteBody}",
+      "end tell",
+      "end tell",
+      "return noteTitle",
+      "end run",
+    ].join("\n");
+    await runGovernedDesktopProcess("/usr/bin/osascript", ["-e", script, "--", String(step.title || "Tessaris note"), String(step.value || "")]);
+    return { step_id: step.step_id, operation, ok: true, status: "note_created", app: appName, title: String(step.title || "Tessaris note") };
+  }
+  if (operation === "create_presentation") {
+    if (step.approval_required === true && !approvedStepIds.includes(String(step.step_id || ""))) {
+      throw new Error("Exact approval is required before creating a presentation.");
+    }
+    if (appName !== "Keynote") throw new Error("Presentations can only be created in Keynote.");
+    const script = [
+      "on run argv",
+      "set slideTitle to item 1 of argv",
+      "set slideBody to item 2 of argv",
+      "tell application \"Keynote\"",
+      "activate",
+      "set newDocument to make new document",
+      "tell slide 1 of newDocument",
+      "set object text of default title item to slideTitle",
+      "set object text of default body item to slideBody",
+      "end tell",
+      "end tell",
+      "return slideTitle",
+      "end run",
+    ].join("\n");
+    await runGovernedDesktopProcess("/usr/bin/osascript", ["-e", script, "--", String(step.title || "New presentation"), String(step.body || "")]);
+    return { step_id: step.step_id, operation, ok: true, status: "presentation_created", app: appName, title: String(step.title || "New presentation") };
+  }
+  if (operation === "create_document") {
+    if (appName !== "Pages") throw new Error("Documents can only be created with the Pages recipe.");
+    const requestedFileName = String(step.file_name || "").replace(/[^A-Za-z0-9 ._()-]+/g, "").trim().slice(0, 120);
+    const outputDirectory = path.join(os.homedir(), "Documents", "Tessaris");
+    let outputPath = requestedFileName
+      ? path.join(outputDirectory, `${requestedFileName.replace(/\.pages$/i, "")}.pages`)
+      : "";
+    if (outputPath) {
+      fs.mkdirSync(outputDirectory, { recursive: true, mode: 0o700 });
+      if (fs.existsSync(outputPath)) {
+        const suffix = new Date().toISOString().replace(/[:.]/g, "-");
+        outputPath = path.join(outputDirectory, `${requestedFileName.replace(/\.pages$/i, "")} ${suffix}.pages`);
+      }
+    }
+    const script = [
+      "on run argv",
+      "set documentText to item 1 of argv",
+      "set outputPath to item 2 of argv",
+      "tell application \"Pages\"",
+      "activate",
+      "set newDocument to make new document",
+      "tell newDocument to set body text to documentText",
+      "if outputPath is not \"\" then save newDocument in POSIX file outputPath",
+      "end tell",
+      "return documentText",
+      "end run",
+    ];
+    await runGovernedAppleScript(script, [String(step.value || ""), outputPath]);
+    return {
+      step_id: step.step_id,
+      operation,
+      ok: true,
+      status: outputPath ? "document_created_and_saved" : "document_created",
+      app: appName,
+      character_count: String(step.value || "").length,
+      saved_path: outputPath,
+    };
+  }
+  if (operation === "style_document") {
+    if (appName !== "Pages") throw new Error("Document styling can only run in Pages.");
+    const sourcePath = fs.realpathSync(String(step.file_path || ""));
+    if (path.extname(sourcePath).toLowerCase() !== ".pages") {
+      throw new Error("The selected document is not a Pages document.");
+    }
+    const outputDirectory = path.join(os.homedir(), "Documents", "Tessaris");
+    fs.mkdirSync(outputDirectory, { recursive: true, mode: 0o700 });
+    const baseName = path.basename(sourcePath, path.extname(sourcePath)).replace(/[^A-Za-z0-9 ._()-]+/g, "").trim().slice(0, 100) || "Styled Document";
+    let outputPath = path.join(outputDirectory, `${baseName} – Styled.pages`);
+    if (fs.existsSync(outputPath)) {
+      const suffix = new Date().toISOString().replace(/[:.]/g, "-");
+      outputPath = path.join(outputDirectory, `${baseName} – Styled ${suffix}.pages`);
+    }
+    const script = [
+      "on run argv",
+      "set sourcePath to item 1 of argv",
+      "set outputPath to item 2 of argv",
+      "tell application \"Pages\"",
+      "activate",
+      "set sourceDocument to open POSIX file sourcePath",
+      "tell sourceDocument",
+      "try",
+      "set font of every character of body text to \"Avenir Next\"",
+      "set size of every character of body text to 11",
+      "end try",
+      "try",
+      "set font of every character of paragraph 1 of body text to \"Avenir Next Demi Bold\"",
+      "set size of every character of paragraph 1 of body text to 26",
+      "end try",
+      "try",
+      "set font of every character of paragraph 2 of body text to \"Avenir Next Medium\"",
+      "set size of every character of paragraph 2 of body text to 12",
+      "end try",
+      "try",
+      "repeat with paragraphItem in paragraphs of body text",
+      "set paragraphCopy to contents of paragraphItem as text",
+      "if paragraphCopy starts with \"1. \" or paragraphCopy starts with \"2. \" or paragraphCopy starts with \"3. \" or paragraphCopy is \"Method\" then",
+      "set font of every character of paragraphItem to \"Avenir Next Demi Bold\"",
+      "set size of every character of paragraphItem to 15",
+      "end if",
+      "end repeat",
+      "end try",
+      "save sourceDocument in POSIX file outputPath",
+      "end tell",
+      "end tell",
+      "return outputPath",
+      "end run",
+    ];
+    await runGovernedAppleScript(script, [sourcePath, outputPath]);
+    return {
+      step_id: step.step_id,
+      operation,
+      ok: true,
+      status: "document_styled_and_saved",
+      app: appName,
+      source_path: sourcePath,
+      saved_path: outputPath,
+    };
+  }
+  if (operation === "create_spreadsheet") {
+    if (appName !== "Numbers") throw new Error("Spreadsheets can only be created with the Numbers recipe.");
+    const script = [
+      "on run argv",
+      "set cellName to item 1 of argv",
+      "set cellValue to item 2 of argv",
+      "tell application \"Numbers\"",
+      "activate",
+      "set newDocument to make new document",
+      "tell table 1 of sheet 1 of newDocument to set value of cell cellName to cellValue",
+      "end tell",
+      "return cellName",
+      "end run",
+    ];
+    await runGovernedAppleScript(script, [String(step.cell || "A1"), String(step.value || "")]);
+    return { step_id: step.step_id, operation, ok: true, status: "spreadsheet_created", app: appName, cell: String(step.cell || "A1") };
+  }
+  if (operation === "create_email_draft") {
+    if (appName !== "Mail") throw new Error("Email drafts can only be created with the Mail recipe.");
+    const script = [
+      "on run argv",
+      "set draftSubject to item 1 of argv",
+      "set draftBody to item 2 of argv",
+      "tell application \"Mail\"",
+      "activate",
+      "make new outgoing message with properties {subject:draftSubject, content:draftBody & return, visible:true}",
+      "end tell",
+      "return draftSubject",
+      "end run",
+    ];
+    await runGovernedAppleScript(script, [String(step.subject || "Draft email"), String(step.body || "")]);
+    return { step_id: step.step_id, operation, ok: true, status: "email_draft_created", app: appName, subject: String(step.subject || "Draft email") };
+  }
+  throw new Error(`Unsupported governed desktop operation: ${operation || "missing"}`);
+}
+
+ipcMain.handle("aion-execute-governed-computer-plan", async (_event, payload = {}) => {
+  const grantId = String(payload.grant_id || payload.grantId || "").trim();
+  const executionToken = String(payload.execution_token || payload.executionToken || "").trim();
+  const workspaceId = String(payload.workspace_id || payload.workspaceId || "").trim();
+  if (!grantId || !executionToken) {
+    return { ok: false, status: "missing_execution_grant", error: "AION desktop execution grant is required." };
+  }
+  let authority;
+  try {
+    authority = await httpPostJson(
+      `http://${BACKEND_HOST}:${BACKEND_PORT}/api/local-node/computer-harness/grants/redeem`,
+      { grant_id: grantId, execution_token: executionToken, workspace_id: workspaceId || null },
+    );
+  } catch (error) {
+    return { ok: false, status: "execution_grant_rejected", error: String(error?.message || error) };
+  }
+  const steps = Array.isArray(authority?.steps) ? authority.steps.slice(0, 20) : [];
+  const approvedStepIds = Array.isArray(authority?.approved_step_ids) ? authority.approved_step_ids : [];
+  const stepResults = [];
+  let result;
+  try {
+    for (const step of steps) stepResults.push(await executeGovernedComputerStep(step, approvedStepIds));
+    result = { ok: true, status: "computer_task_completed", steps: stepResults };
+  } catch (error) {
+    result = { ok: false, status: "computer_task_failed", error: String(error?.message || error), steps: stepResults };
+  }
+  try {
+    const recorded = await httpPostJson(
+      `http://${BACKEND_HOST}:${BACKEND_PORT}/api/local-node/computer-harness/receipts`,
+      { grant_id: grantId, result, workspace_id: workspaceId || null },
+    );
+    return { ...result, receipt: recorded?.receipt || null };
+  } catch (error) {
+    return { ...result, ok: false, status: "receipt_recording_failed", error: String(error?.message || error) };
+  }
+});
+
 
 ipcMain.on("aion-browser-recorder-event", (_event, payload = {}) => {
   console.log("[browser-recorder-event]", payload?.type, payload?.label, payload?.selector || "");
@@ -1664,16 +2787,82 @@ ipcMain.on("aion-isolated-browser-loaded", (_event, payload = {}) => {
   });
 });
 
+function mainWindowStatePath() {
+  return path.join(app.getPath("userData"), "main-window-state.json");
+}
+
+function isUsableWindowBounds(bounds) {
+  if (!bounds || typeof bounds !== "object") return false;
+  const x = Number(bounds.x);
+  const y = Number(bounds.y);
+  const width = Number(bounds.width);
+  const height = Number(bounds.height);
+  if (![x, y, width, height].every(Number.isFinite) || width < 800 || height < 600) return false;
+  return screen.getAllDisplays().some(({ workArea }) => (
+    x < workArea.x + workArea.width - 80
+    && x + width > workArea.x + 80
+    && y < workArea.y + workArea.height - 80
+    && y + height > workArea.y + 80
+  ));
+}
+
+function readMainWindowState() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(mainWindowStatePath(), "utf8"));
+    return {
+      maximized: parsed?.maximized === true,
+      normalBounds: isUsableWindowBounds(parsed?.normalBounds) ? parsed.normalBounds : null,
+    };
+  } catch {
+    // Tessaris is a dashboard shell, so use the full desktop until the user
+    // explicitly chooses and saves a smaller window.
+    return { maximized: true, normalBounds: null };
+  }
+}
+
+function writeMainWindowState() {
+  if (!app.isReady()) return;
+  try {
+    const statePath = mainWindowStatePath();
+    fs.mkdirSync(path.dirname(statePath), { recursive: true, mode: 0o700 });
+    fs.writeFileSync(statePath, JSON.stringify(mainWindowState), { mode: 0o600 });
+  } catch (error) {
+    console.error("[window] failed to remember the main window state:", error);
+  }
+}
+
+function scheduleMainWindowStateWrite() {
+  if (mainWindowStateWriteTimer) clearTimeout(mainWindowStateWriteTimer);
+  mainWindowStateWriteTimer = setTimeout(() => {
+    mainWindowStateWriteTimer = null;
+    writeMainWindowState();
+  }, 180);
+}
+
+function restorePreferredMainWindowMode() {
+  if (!mainWindow || mainWindow.isDestroyed() || !mainWindowState.maximized) return;
+  if (mainWindow.isFullScreen() || mainWindow.isMaximized()) return;
+  // macOS can return a zoomed window to its older frame while another app is
+  // active. Re-apply the user's chosen zoom state when Tessaris is foregrounded.
+  mainWindow.maximize();
+}
+
 function createWindow() {
   const iconPath = resolveIconPath();
+  mainWindowState = readMainWindowState();
+  const rememberedBounds = mainWindowState.normalBounds || {};
 
   mainWindow = new BrowserWindow({
-    width: 1600,
-    height: 980,
+    width: rememberedBounds.width || 1600,
+    height: rememberedBounds.height || 980,
+    ...(Number.isFinite(rememberedBounds.x) ? { x: rememberedBounds.x } : {}),
+    ...(Number.isFinite(rememberedBounds.y) ? { y: rememberedBounds.y } : {}),
     minWidth: 1280,
     minHeight: 800,
     title: "Tessaris",
     icon: iconPath,
+    titleBarStyle: "hiddenInset",
+    trafficLightPosition: { x: 18, y: 19 },
     backgroundColor: "#f3f6fb",
     autoHideMenuBar: true,
     webPreferences: {
@@ -1686,12 +2875,80 @@ function createWindow() {
   const rendererPath = resolveRendererPath();
   mainWindow.loadFile(rendererPath);
 
+  mainWindow.once("ready-to-show", () => {
+    restorePreferredMainWindowMode();
+    setTimeout(() => {
+      void prepareDesktopPermissions({ interactive: true });
+    }, 1200);
+  });
+
+  mainWindow.on("maximize", () => {
+    mainWindowState.maximized = true;
+    scheduleMainWindowStateWrite();
+  });
+
+  mainWindow.on("unmaximize", () => {
+    // An unfocused unmaximize can be produced by macOS while switching apps;
+    // only treat it as the user's choice when Tessaris is actually active.
+    if (mainWindow && !mainWindow.isDestroyed() && mainWindow.isFocused()) {
+      mainWindowState.maximized = false;
+      scheduleMainWindowStateWrite();
+    }
+  });
+
+  const rememberNormalBounds = () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    if (mainWindow.isMaximized() || mainWindow.isFullScreen() || mainWindowState.maximized) return;
+    const bounds = mainWindow.getBounds();
+    if (isUsableWindowBounds(bounds)) {
+      mainWindowState.normalBounds = bounds;
+      scheduleMainWindowStateWrite();
+    }
+  };
+  mainWindow.on("resize", rememberNormalBounds);
+  mainWindow.on("move", rememberNormalBounds);
+
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
+
+  mainWindow.on("show", () => {
+    void ensureMacDockVisible();
+  });
+
+  mainWindow.on("blur", () => {
+    // Capture the zoomed state before macOS changes window presentation while
+    // another application is taking focus.
+    if (mainWindow && !mainWindow.isDestroyed() && mainWindow.isMaximized()) {
+      mainWindowState.maximized = true;
+      writeMainWindowState();
+    }
+  });
+
+  mainWindow.on("focus", () => {
+    void ensureMacDockVisible();
+    setTimeout(restorePreferredMainWindowMode, 0);
+  });
+}
+
+async function ensureMacDockVisible() {
+  if (process.platform !== "darwin") return;
+
+  try {
+    app.setActivationPolicy("regular");
+    await app.dock.show();
+
+    const iconPath = resolveIconPath();
+    if (iconPath) {
+      app.dock.setIcon(iconPath);
+    }
+  } catch (error) {
+    console.error("[dock] failed to restore the macOS Dock item:", error);
+  }
 }
 
 const SENTINEL_STATUS_PATH = path.join(os.homedir(), ".tessaris", "security-sentinel", "status.json");
+const SENTINEL_POSITION_PATH = path.join(os.homedir(), ".tessaris", "security-sentinel", "window-position.json");
 
 function readSentinelStatus() {
   try {
@@ -1719,6 +2976,23 @@ function readSentinelStatus() {
 
 function positionSentinelWindow() {
   if (!sentinelWindow || sentinelWindow.isDestroyed()) return;
+  try {
+    const saved = JSON.parse(fs.readFileSync(SENTINEL_POSITION_PATH, "utf8"));
+    const savedX = Number(saved?.x);
+    const savedY = Number(saved?.y);
+    const visible = Number.isFinite(savedX) && Number.isFinite(savedY) && screen.getAllDisplays().some(({ workArea }) => (
+      savedX >= workArea.x - 40
+      && savedX < workArea.x + workArea.width - 40
+      && savedY >= workArea.y - 40
+      && savedY < workArea.y + workArea.height - 40
+    ));
+    if (visible) {
+      sentinelWindow.setPosition(Math.round(savedX), Math.round(savedY), false);
+      return;
+    }
+  } catch {
+    // Use the default corner until the companion has been moved once.
+  }
   const point = screen.getCursorScreenPoint();
   const display = screen.getDisplayNearestPoint(point);
   const { x, y, width, height } = display.workArea;
@@ -1729,7 +3003,7 @@ function positionSentinelWindow() {
 function createSentinelWindow() {
   if (sentinelWindow && !sentinelWindow.isDestroyed()) return sentinelWindow;
   sentinelWindow = new BrowserWindow({
-    width: 164, height: 190, transparent: true, frame: false, resizable: false,
+    width: 112, height: 132, transparent: true, frame: false, resizable: false,
     movable: true, alwaysOnTop: true, skipTaskbar: true, hasShadow: false,
     focusable: true, show: false,
     webPreferences: { contextIsolation: true, nodeIntegration: false, preload: path.join(__dirname, "preload.js") },
@@ -1737,6 +3011,16 @@ function createSentinelWindow() {
   sentinelWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   sentinelWindow.loadFile(path.join(__dirname, "aion-sentinel.html"));
   sentinelWindow.once("ready-to-show", () => { positionSentinelWindow(); sentinelWindow.showInactive(); });
+  sentinelWindow.on("moved", () => {
+    if (!sentinelWindow || sentinelWindow.isDestroyed()) return;
+    try {
+      fs.mkdirSync(path.dirname(SENTINEL_POSITION_PATH), { recursive: true, mode: 0o700 });
+      const [x, y] = sentinelWindow.getPosition();
+      fs.writeFileSync(SENTINEL_POSITION_PATH, JSON.stringify({ x, y }), { mode: 0o600 });
+    } catch (error) {
+      console.error("[sentinel] failed to remember window position:", error);
+    }
+  });
   sentinelWindow.on("closed", () => { sentinelWindow = null; });
   return sentinelWindow;
 }
@@ -1855,10 +3139,67 @@ ipcMain.handle("aion-launch-spatial-boardroom", async (_event, payload = {}) => 
   return { ok: true, mode: "native", status: "launched", app_path: resolved.appPath };
 });
 
+ipcMain.handle("aion-spatial-boardroom-embed", async (_event, payload = {}) => {
+  const webRoot = resolveSpatialBoardroomWebRoot();
+  if (!webRoot) {
+    return {
+      ok: false,
+      error: "webgl_build_not_found",
+      message: "The embedded Spatial Boardroom build is not installed yet.",
+      searched: SPATIAL_BOARDROOM_WEB_CANDIDATES,
+    };
+  }
+  const bridge = await ensureSpatialBoardroomBridge();
+  const members = Array.isArray(payload.members)
+    ? payload.members.map(sanitizeSpatialBoardroomMember).filter((member) => member?.connected).slice(0, 16)
+    : [];
+  if (!members.some((member) => member.id === "aion")) {
+    members.unshift({ id: "aion", label: "AION", role: "Pilot", connected: true });
+  }
+  enqueueSpatialBoardroomEvent({ type: "board_members_snapshot", members });
+  enqueueSpatialBoardroomEvent({
+    type: "caption",
+    text: `Connected Board intelligence: ${members.map((member) => member.label).join(", ")}. Select a member to open their Tessaris chat.`,
+  });
+  const origin = `http://127.0.0.1:${bridge.port}`;
+  const query = new URLSearchParams({
+    "tessaris-endpoint": `${origin}/events`,
+    "tessaris-actions": `${origin}/actions`,
+    "tessaris-session": bridge.token,
+  });
+  return {
+    ok: true,
+    mode: "embedded_webgl",
+    status: "ready",
+    url: `${origin}/boardroom/?${query.toString()}`,
+  };
+});
+
 ipcMain.handle("aion-spatial-boardroom-event", async (_event, payload = {}) => {
   if (!spatialBoardroomBridge) return { ok: false, error: "spatial_boardroom_not_running" };
   const event = enqueueSpatialBoardroomEvent(payload);
   return { ok: Boolean(event), event_id: event?.id || null };
+});
+
+ipcMain.handle("pilot-control-status", async () => getPilotControlStatus());
+
+ipcMain.handle("pilot-open-dashboard", async () => {
+  try {
+    return await openPilotDashboard();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    pilotServiceLastError = message;
+    return { ok: false, error: "pilot_start_failed", message, status: await getPilotControlStatus() };
+  }
+});
+
+ipcMain.handle("pilot-control-action", async (_event, rawAction = "") => {
+  try {
+    return await runPilotControl(String(rawAction || ""));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { ok: false, error: "pilot_action_failed", message, status: await getPilotControlStatus() };
+  }
 });
 
 ipcMain.handle("aion-open-external-url", async (_event, rawUrl = "") => {
@@ -1927,6 +3268,50 @@ ipcMain.handle("aion-choose-local-media", async (_event, payload = {}) => {
   return { ok: true, paths: result.filePaths, path: result.filePaths[0] };
 });
 
+ipcMain.handle("aion-choose-chat-attachments", async () => {
+  const owner = BrowserWindow.getFocusedWindow() || mainWindow || undefined;
+  const result = await dialog.showOpenDialog(owner, {
+    title: "Attach files or folders to AI Chat",
+    buttonLabel: "Attach",
+    properties: ["openFile", "openDirectory", "multiSelections"],
+  });
+  if (result.canceled || !result.filePaths?.length) {
+    return { ok: false, canceled: true, attachments: [] };
+  }
+  const attachments = [];
+  const errors = [];
+  for (const selectedPath of result.filePaths.slice(0, 20)) {
+    try {
+      const resolvedPath = fs.realpathSync.native ? fs.realpathSync.native(selectedPath) : fs.realpathSync(selectedPath);
+      const stats = fs.statSync(resolvedPath);
+      if (!stats.isFile() && !stats.isDirectory()) {
+        errors.push({ path: selectedPath, error: "unsupported_file_type" });
+        continue;
+      }
+      const extension = path.extname(resolvedPath).toLowerCase().slice(0, 20);
+      const packageDocument = stats.isDirectory() && [".pages", ".numbers", ".key", ".rtfd"].includes(extension);
+      attachments.push({
+        id: crypto.createHash("sha256").update(`${resolvedPath}:${stats.mtimeMs}:${stats.size}`).digest("hex").slice(0, 20),
+        path: resolvedPath,
+        name: path.basename(resolvedPath),
+        kind: stats.isDirectory() && !packageDocument ? "folder" : "file",
+        extension,
+        size: stats.isFile() ? stats.size : 0,
+        modified_at: stats.mtime.toISOString(),
+      });
+    } catch (error) {
+      errors.push({ path: selectedPath, error: String(error?.message || error) });
+    }
+  }
+  return {
+    ok: attachments.length > 0,
+    canceled: false,
+    attachments,
+    errors,
+    error: attachments.length ? null : "attachments_unavailable",
+  };
+});
+
 ipcMain.handle("aion-play-local-voice", async (_event, payload = {}) => {
   try {
     return await playAionLocalVoiceInMain(payload);
@@ -1961,6 +3346,11 @@ app.on("before-quit", async (event) => {
   isQuitting = true;
   event.preventDefault();
 
+  if (backendRestartTimer) {
+    clearTimeout(backendRestartTimer);
+    backendRestartTimer = null;
+  }
+
   if (spatialBoardroomBridge?.server) {
     try { spatialBoardroomBridge.server.close(); } catch {}
     spatialBoardroomBridge = null;
@@ -1974,6 +3364,7 @@ app.on("before-quit", async (event) => {
 });
 
 app.whenReady().then(async () => {
+  await ensureMacDockVisible();
   installAionMicrophonePermissionPolicy();
   // AION O25P: start backend before loading renderer.
   // The renderer contains many eager backend fetchers; loading it before
@@ -2008,6 +3399,7 @@ app.whenReady().then(async () => {
   }
 
   app.on("activate", async () => {
+    await ensureMacDockVisible();
     if (!mainWindow || mainWindow.isDestroyed()) {
       try {
         await ensureBackendRunning();
@@ -2022,6 +3414,11 @@ app.whenReady().then(async () => {
           void bootBackendForWindow();
         });
       }
+    } else {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+      setTimeout(restorePreferredMainWindowMode, 0);
     }
   });
 });

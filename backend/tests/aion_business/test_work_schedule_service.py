@@ -25,6 +25,29 @@ def test_desktop_and_mobile_share_the_same_canonical_job(tmp_path: Path) -> None
     assert loaded["jobs"][0]["customer"] == "Alex"
 
 
+def test_quote_estimate_lives_on_the_same_shared_work_record(tmp_path: Path) -> None:
+    subject = service(tmp_path)
+    created = subject.action("company", "create", {
+        "title": "Pergola quote", "customer": "Alex", "type": "quote",
+        "status": "quote_required", "offering_id": "pergola-3m",
+        "quote": {"status": "draft", "amount": "1500"},
+        "cost_estimate": {
+            "material_cost": "700", "labour_cost": "240", "external_cost": "60",
+            "currency": "EUR", "note": "Initial site estimate",
+        },
+    }, actor_id="desktop")
+
+    item = created["items"][0]
+    assert item["type"] == "quote"
+    assert item["offering_id"] == "pergola-3m"
+    assert item["quote"]["amount"] == "1500.00"
+    assert item["cost_estimate"] == {
+        "material_cost": "700.00", "labour_cost": "240.00", "external_cost": "60.00",
+        "currency": "EUR", "note": "Initial site estimate",
+        "source": "shared_work_record", "updated_at": "",
+    }
+
+
 def test_reports_and_uploaded_evidence_are_real_files(tmp_path: Path) -> None:
     subject = service(tmp_path)
     model = subject.action("company", "create", {

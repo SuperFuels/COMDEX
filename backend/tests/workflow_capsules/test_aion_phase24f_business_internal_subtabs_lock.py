@@ -10,12 +10,19 @@ def test_business_internal_subtabs_exist():
     assert 'data-aion-business-context-subtab="${escapeHtml(key)}"' in APP
     assert '"key_business_info", "Key Business Info"' in APP
     assert '"brand_foundation", "Brand Foundation"' in APP
+    assert '"audience", "Audience"' in APP
     assert '"design_system", "Business Design System"' in APP
-    assert '"sales", "Sales"' in APP
-    assert '"marketing", "Marketing"' in APP
-    assert '"finance", "Finance"' in APP
-    assert '"operations", "Operations"' in APP
-    assert '"support", "Support"' in APP
+    start = APP.index("function renderBusinessContextSubtabs()")
+    end = APP.index("function getAionBrandDesignSystem()", start)
+    body = APP[start:end]
+    for removed_tab in (
+        '["sales", "Sales"]',
+        '["marketing", "Marketing"]',
+        '["finance", "Finance"]',
+        '["operations", "Operations"]',
+        '["support", "Support"]',
+    ):
+        assert removed_tab not in body
 
 
 def test_brand_foundation_reconnected_inside_business_tab():
@@ -53,12 +60,26 @@ def test_live_brand_board_uses_confirmed_palette_not_tessaris_blue():
     assert "background:#102a43" not in APP[design_start:design_end]
 
 
-def test_department_function_tabs_store_context():
+def test_legacy_department_context_remains_available_to_department_runtime_only():
     assert "function renderBusinessDepartmentContextSubtab(" in APP
     assert "function getBusinessDepartmentContextDraft()" in APP
     assert "data-aion-business-department-context-field" in APP
     assert "data-aion-business-department-context-save" in APP
     assert "aion.businessDepartmentContextDraft" in APP
+    surface_start = APP.index("function renderBusinessContextSurface()")
+    surface_end = APP.index("function normaliseSmallBusinessFoundationDraft", surface_start)
+    assert "renderBusinessDepartmentContextSubtab(activeSubtab" not in APP[surface_start:surface_end]
+
+
+def test_audience_tab_builds_reusable_structured_personas():
+    assert "function renderBusinessAudienceSubtabContent()" in APP
+    assert "function getAionAudiencePersonas()" in APP
+    assert 'brandMap.customerPersonas.personas' in APP
+    assert "data-aion-persona-new" in APP
+    assert "data-aion-persona-save" in APP
+    assert "data-aion-persona-edit" in APP
+    for field in ("goals", "painPoints", "buyingTriggers", "objections", "preferredChannels", "messagingNotes"):
+        assert f'renderAionAudiencePersonaField("{field}"' in APP
 
 
 def test_department_statuses_are_specific_not_generic_only():
@@ -77,7 +98,7 @@ def test_business_internal_subtabs_have_capture_click_handler_lock():
     assert "event.preventDefault()" in APP
     assert "event.stopPropagation()" in APP
     assert 'document.addEventListener("click", (event) => {' in APP
-    assert "setAionBusinessContextSubtab(value)" in APP
+    assert "const value = setAionBusinessContextSubtab(" in APP
     assert "aion.activeBusinessContextSubtab" in APP
 
 

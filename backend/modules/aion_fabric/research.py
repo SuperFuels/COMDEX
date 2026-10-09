@@ -291,6 +291,13 @@ class AionTVResearch:
         )
 
     def _public_evidence(self, query: str, *, mode: str) -> list[Dict[str, str]]:
+        searxng = self._searxng_evidence(query, mode=mode)
+        if searxng:
+            return searxng
+        if mode == "general" and re.search(r"\b(latest|recent|today|news|coverage|current)\b", query, re.I):
+            news = self._news_evidence(query)
+            if news:
+                return news
         search_query = query
         if mode == "fact_check":
             search_query = f"{query} official source fact check"
@@ -351,6 +358,105 @@ class AionTVResearch:
                     evidence.append({"title": title[:140], "url": target[:1000], "summary": summary[:500]})
                 if len(evidence) == 5:
                     break
+        return evidence
+
+    def _news_evidence(self, query: str) -> list[Dict[str, str]]:
+        """Current-news fallback when a private/local SearXNG service is unavailable."""
+        target = "https://news.google.com/rss/search?" + urllib.parse.urlencode({
+            "q": query,
+            "hl": "en-GB",
+            "gl": "GB",
+            "ceid": "GB:en",
+        })
+        request = urllib.request.Request(
+            target,
+            headers={"User-Agent": "Tessaris-AION/1.0 public-news", "Accept": "application/rss+xml, application/xml;q=0.9"},
+        )
+        try:
+            with self.urlopen(request, timeout=12) as response:
+                body = response.read(750_001)
+            if len(body) > 750_000:
+                return []
+            root = ET.fromstring(body)
+        except (OSError, urllib.error.URLError, ET.ParseError, AttributeError):
+            return []
+        evidence: list[Dict[str, str]] = []
+        for item in root.findall("./channel/item")[:8]:
+            title = re.sub(r"\s+", " ", html.unescape(str(item.findtext("title") or ""))).strip()
+            url = str(item.findtext("link") or "").strip()
+            published = str(item.findtext("pubDate") or "").strip()
+            source = item.find("source")
+            source_name = str(source.text or "").strip() if source is not None else ""
+            if not title or not url.startswith("https://"):
+                continue
+            evidence.append({
+                "title": title[:180],
+                "url": url[:1000],
+                "summary": f"Current news result from {source_name or 'Google News'}."[:500],
+                "published_at": published[:80],
+                "source_provider": "google_news_rss",
+            })
+            if len(evidence) == 5:
+                break
+        return evidence
+
+    def collect_public_evidence(self, query: str, *, mode: str = "general") -> list[Dict[str, str]]:
+        """Public, provider-neutral evidence entry point used by connected models."""
+        clean_query = " ".join(str(query or "").split()).strip()[:500]
+        if len(clean_query) < 3:
+            return []
+        return self._public_evidence(clean_query, mode=mode)
+
+    def _searxng_evidence(self, query: str, *, mode: str) -> list[Dict[str, str]]:
+        """Prefer a configured local SearXNG instance without exposing it to a model."""
+        base_url = str(os.getenv("AION_SEARXNG_URL") or os.getenv("SEARXNG_URL") or "").strip().rstrip("/")
+        if not base_url:
+            return []
+        parsed_base = urllib.parse.urlparse(base_url)
+        if parsed_base.scheme not in {"http", "https"} or not parsed_base.hostname:
+            return []
+        search_query = f"{query} official source fact check" if mode == "fact_check" else query
+        target = base_url + "/search?" + urllib.parse.urlencode({
+            "q": search_query,
+            "format": "json",
+            "language": "en",
+            "safesearch": "1",
+        })
+        request = urllib.request.Request(
+            target,
+            headers={"User-Agent": "Tessaris-AION/1.0 local-research", "Accept": "application/json"},
+        )
+        try:
+            with self.urlopen(request, timeout=12) as response:
+                body = response.read(750_001)
+            if len(body) > 750_000:
+                return []
+            payload = json.loads(body)
+        except (OSError, urllib.error.URLError, json.JSONDecodeError, AttributeError):
+            return []
+        evidence: list[Dict[str, str]] = []
+        seen: set[str] = set()
+        for item in list(payload.get("results") or [])[:10]:
+            if not isinstance(item, dict):
+                continue
+            url = str(item.get("url") or "").strip()
+            parsed = urllib.parse.urlparse(url)
+            if parsed.scheme not in {"http", "https"} or not parsed.hostname or url in seen:
+                continue
+            seen.add(url)
+            title = re.sub(r"\s+", " ", html.unescape(str(item.get("title") or ""))).strip()
+            summary = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", str(item.get("content") or "")))).strip()
+            if not title:
+                continue
+            evidence.append({
+                "title": title[:140],
+                "url": url[:1000],
+                "summary": summary[:1200],
+                "published_at": str(item.get("publishedDate") or "")[:80],
+                "source_provider": "searxng",
+            })
+            if len(evidence) == 5:
+                break
         return evidence
 
     @staticmethod

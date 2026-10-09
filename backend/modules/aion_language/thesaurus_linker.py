@@ -5,7 +5,7 @@ Builds a resonance-weighted graph linking lexical atoms in the
 Meaning Field Engine (MFG) by synonym/antonym relations.
 """
 
-import json, math, time, logging
+import json, time, logging
 from pathlib import Path
 from itertools import combinations
 from backend.modules.aion_language.meaning_field_engine import MFG
@@ -23,9 +23,9 @@ class ThesaurusLinker:
     def _resonance_score(self, rel_type: str) -> float:
         """Assign resonance polarity by relation type."""
         if rel_type == "synonym":
-            return round(0.8 + 0.2 * math.sin(time.time()), 3)
+            return 0.95
         elif rel_type == "antonym":
-            return round(-0.8 - 0.2 * math.sin(time.time()), 3)
+            return -0.95
         return 0.0
 
     # ─────────────────────────────────────────

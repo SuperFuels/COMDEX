@@ -1129,6 +1129,206 @@
       "owner_interventions": 0,
       "precommitment_sha256": "2dc2cb0e01d7e546a01cdfe6795ee2f0d7b25ef311d149cde0cc60e5d0634c66",
       "specialist_objective_id": "objective_6beb16e95f09f2a374c7"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "committed_at": "2026-10-06T19:59:50.015852+00:00",
+      "goal_id": "autonomous_708a461e7e1b42bd2c",
+      "observable_feature_sha256": "d8fac74aa876fb994b387dac90a5d706637416a9b3ba2d8c416c7d4d38e07fc9",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "dbcdf358b89e815eb795c73aa59c540ecb2b9f7c76109f09be344f78fd805f42",
+      "specialist_objective_id": "objective_bf8a96648d2dce127b37"
+    },
+    {
+      "authority_program": "delayed_deterministic_integer_checker",
+      "committed_at": "2026-10-06T20:09:06.016494+00:00",
+      "goal_id": "autonomous_cee94bf5a5dde2eb09",
+      "observable_feature_sha256": "6d6d932817b88a2b4241835df1ceca24cbb426adbb429f710ee0043a77e247e3",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "a02f5ee227a5169a4fcab8e0f7a33a483f722ab41fc775c9b8b28083a5f0d084",
+      "specialist_objective_id": "objective_b5f698e89b58a414e84b"
+    },
+    {
+      "authority_program": "delayed_deterministic_integer_checker",
+      "committed_at": "2026-10-06T21:51:55.464867+00:00",
+      "goal_id": "autonomous_274444c6edf1e5cb2b",
+      "observable_feature_sha256": "6d6d932817b88a2b4241835df1ceca24cbb426adbb429f710ee0043a77e247e3",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "f570478f0c2a3bcf0156a5f8dd46f939f4d2667e1ec77d219b930a4ea266c1a6",
+      "specialist_objective_id": "objective_332f56198f5f9bff23df"
+    },
+    {
+      "authority_program": "delayed_immutable_source_reread",
+      "committed_at": "2026-10-06T22:12:28.361473+00:00",
+      "goal_id": "autonomous_a69ed425d071b6208c",
+      "observable_feature_sha256": "e607f8a56dad7b985c50044925d2d8b17a24af4567170196ba2ccb167ae54e53",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "42b90803d14ae9d67902e58874e0de5c1145315e1ce283755d623ef63a9cdd9c",
+      "specialist_objective_id": "objective_a635031d1f3b45260b90"
+    },
+    {
+      "authority_program": "fresh_subprocess_plus_later_public_row",
+      "committed_at": "2026-10-06T22:22:08.837475+00:00",
+      "goal_id": "autonomous_8a28b9eea850563376",
+      "observable_feature_sha256": "ca3f989666251e32ae43c3f26a2152a15dc7c2e7e1f63420e04e1f3725041a4f",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "b80c189947b0cc9eb74f5f461b5483cbe4ea86f522c0086acbb6e79b3fe1e1c3",
+      "specialist_objective_id": "objective_6dadb9724e8d26874387"
+    },
+    {
+      "authority_program": "delayed_deterministic_integer_checker",
+      "committed_at": "2026-10-06T23:53:25.998610+00:00",
+      "goal_id": "autonomous_3b55f8ab4303e831cd",
+      "observable_feature_sha256": "6d6d932817b88a2b4241835df1ceca24cbb426adbb429f710ee0043a77e247e3",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "f487c0dbf8f1599f51f0b8a2686971e9a4d48bc914d948eae17ce8b8f899af80",
+      "specialist_objective_id": "objective_0dec6b757a6981c42dbe"
+    },
+    {
+      "authority_program": "fresh_subprocess_plus_later_public_row",
+      "committed_at": "2026-10-07T00:20:54.770186+00:00",
+      "goal_id": "autonomous_0d5f00078575df749c",
+      "observable_feature_sha256": "d3e6f9de4c06986cb3c777dbe6e1414622708b587ed491edeed1c053e884ff26",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "cce903f59dc70846ee8b5f9a454d3e2ca1f979e407286a3680dfeb83af8cea55",
+      "specialist_objective_id": "objective_035f5fb0fb81ce13204a"
+    },
+    {
+      "authority_program": "later_multi_authority_acquisition_row",
+      "committed_at": "2026-10-07T00:29:57.109930+00:00",
+      "goal_id": "autonomous_3110ab4e331e067860",
+      "observable_feature_sha256": "0ddbb521c7146f4df2ec9994e28aa3528023808d38baa03a402e1d3e07d2310e",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "370286d724710689de14e1818ad576f1ddc6507c51f5f0b89916b072412c3f00",
+      "specialist_objective_id": "objective_c377ad6eedac8eb63c54"
+    },
+    {
+      "authority_program": "fresh_subprocess_plus_later_public_row",
+      "committed_at": "2026-10-07T02:20:08.783036+00:00",
+      "goal_id": "autonomous_6a64e6338a5b47a81d",
+      "observable_feature_sha256": "ca3f989666251e32ae43c3f26a2152a15dc7c2e7e1f63420e04e1f3725041a4f",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "ad5c442b68c0a7dd25251be349f76f824eab8da965ca3a17fbae56ba2db68440",
+      "specialist_objective_id": "objective_fa9c5da6176c84606354"
+    },
+    {
+      "authority_program": "later_multi_authority_acquisition_row",
+      "committed_at": "2026-10-07T02:29:05.149678+00:00",
+      "goal_id": "autonomous_aa3f8b752807141b6c",
+      "observable_feature_sha256": "0ddbb521c7146f4df2ec9994e28aa3528023808d38baa03a402e1d3e07d2310e",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "abd284d92f505500c9fb7f26a085796638b3c6bda5026027fee5ba23f339eacd",
+      "specialist_objective_id": "objective_c6483b6a664bf03f7e97"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "committed_at": "2026-10-07T03:27:53.905732+00:00",
+      "goal_id": "autonomous_507e1e6a974f09d6a0",
+      "observable_feature_sha256": "d8fac74aa876fb994b387dac90a5d706637416a9b3ba2d8c416c7d4d38e07fc9",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "e91508fc7dcfa7e5480305e3d9511b5c7fea6377f7adb544ad5572d0c077324b",
+      "specialist_objective_id": "objective_47399085fe016b83dcf5"
+    },
+    {
+      "authority_program": "fresh_subprocess_plus_later_public_row",
+      "committed_at": "2026-10-07T05:02:21.302243+00:00",
+      "goal_id": "autonomous_9825708b338bc2b005",
+      "observable_feature_sha256": "fcab6351f200e785c018a910a860b7faa158008c15b2a313737fedca9deb7d2e",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "e62f3ebaca42595e359cf8a1dead8a2f53575393d1d6b96a84487a2ea67292c4",
+      "specialist_objective_id": "objective_b73a67eb32e5a79b7bea"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "committed_at": "2026-10-07T05:11:20.099151+00:00",
+      "goal_id": "autonomous_0880bf3b2450381510",
+      "observable_feature_sha256": "d8fac74aa876fb994b387dac90a5d706637416a9b3ba2d8c416c7d4d38e07fc9",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "a253c32cda8912afb01bf61af99a070b0d374960092d4fd0eb1785a5a840d527",
+      "specialist_objective_id": "objective_18d22edcdd009ba63ee4"
+    },
+    {
+      "authority_program": "later_multi_authority_acquisition_row",
+      "committed_at": "2026-10-07T06:10:27.666932+00:00",
+      "goal_id": "autonomous_2bebce04ccd98fd75b",
+      "observable_feature_sha256": "0ddbb521c7146f4df2ec9994e28aa3528023808d38baa03a402e1d3e07d2310e",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "4fd7a90b57d3cf1285bc2f5e7bcb1573cab2c2a5ff57d8d938e9fbbbc3200a52",
+      "specialist_objective_id": "objective_2df1c9e0ce0bef5477d5"
+    },
+    {
+      "authority_program": "fresh_subprocess_plus_later_public_row",
+      "committed_at": "2026-10-07T06:45:41.320556+00:00",
+      "goal_id": "autonomous_3f0243beeeab0278f8",
+      "observable_feature_sha256": "a37160baf05686c05663a6fe5635de88fafa532574790444f4c6902ff39be885",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "8442f487b86e7e5eeae45d41b1ba87ecd9046b5ba98532d0e55df34f6ed53a75",
+      "specialist_objective_id": "objective_e28c5c1400f5dcf012db"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "committed_at": "2026-10-07T06:54:32.098842+00:00",
+      "goal_id": "autonomous_71e5ff13f9a650c1cf",
+      "observable_feature_sha256": "d8fac74aa876fb994b387dac90a5d706637416a9b3ba2d8c416c7d4d38e07fc9",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "70f8f46f8625002d6426465ff6b570e8633d29e88197f094f87d0a218860ac2b",
+      "specialist_objective_id": "objective_a97b1b715d414d142434"
+    },
+    {
+      "authority_program": "later_multi_authority_acquisition_row",
+      "committed_at": "2026-10-07T07:54:11.277090+00:00",
+      "goal_id": "autonomous_2abccdc5ff32a99b71",
+      "observable_feature_sha256": "0ddbb521c7146f4df2ec9994e28aa3528023808d38baa03a402e1d3e07d2310e",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "86acc56aea861140a5bc5ab400c314578c5a515bec227756aca5cd461b14d956",
+      "specialist_objective_id": "objective_6587a3fc3b1e9025d330"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "committed_at": "2026-10-07T08:55:05.440134+00:00",
+      "goal_id": "autonomous_ed0de800af7fcc8893",
+      "observable_feature_sha256": "d8fac74aa876fb994b387dac90a5d706637416a9b3ba2d8c416c7d4d38e07fc9",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "1e679058ddc1fe50cfd1c578ca0ab6ae691be3155187e7a7c5e8281369753e64",
+      "specialist_objective_id": "objective_c08d90d5c0c1c467178b"
+    },
+    {
+      "authority_program": "delayed_deterministic_integer_checker",
+      "committed_at": "2026-10-07T09:03:50.651539+00:00",
+      "goal_id": "autonomous_768e393c1ef80b0d64",
+      "observable_feature_sha256": "6d6d932817b88a2b4241835df1ceca24cbb426adbb429f710ee0043a77e247e3",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "7d56192ead90d65e2dd2a9c46d4d3d7467749205e856bef9f049cecc85cf0423",
+      "specialist_objective_id": "objective_25b69485d711a6d3acba"
+    },
+    {
+      "authority_program": "later_multi_authority_acquisition_row",
+      "committed_at": "2026-10-07T09:39:07.564959+00:00",
+      "goal_id": "autonomous_770c1d6dbc18f040ba",
+      "observable_feature_sha256": "0ddbb521c7146f4df2ec9994e28aa3528023808d38baa03a402e1d3e07d2310e",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "8acb4581c8371fb5043f1f83cfc49af36c109a97ef6e00868caadcd7db45f866",
+      "specialist_objective_id": "objective_83b2d02f427db1a94b1b"
     }
   ],
   "receipts": [
@@ -2777,6 +2977,256 @@
       "specialist_objective_id": "objective_6beb16e95f09f2a374c7",
       "unsafe_actions": 0,
       "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "created_at": "2026-10-06T20:09:06.004488+00:00",
+      "goal_id": "autonomous_708a461e7e1b42bd2c",
+      "later_outcome_sha256": "715690970dfcddbe5cdf61027edac7b5e5f6a29dcf2dc7f48733debd2d018d54",
+      "owner_interventions": 0,
+      "precommitment_sha256": "dbcdf358b89e815eb795c73aa59c540ecb2b9f7c76109f09be344f78fd805f42",
+      "receipt_sha256": "328a8f31c43bf44201ccec35c356de54ad22d2a72f145b07bfea41749ac5d581",
+      "specialist_objective_id": "objective_bf8a96648d2dce127b37",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "delayed_deterministic_integer_checker",
+      "created_at": "2026-10-06T20:18:36.715952+00:00",
+      "goal_id": "autonomous_cee94bf5a5dde2eb09",
+      "later_outcome_sha256": "a1f588c064686f1463d42ea8338ebf5d909fb9cc167fb65aff77fe1380acc29b",
+      "owner_interventions": 0,
+      "precommitment_sha256": "a02f5ee227a5169a4fcab8e0f7a33a483f722ab41fc775c9b8b28083a5f0d084",
+      "receipt_sha256": "74a46ced71eca40de63472a6098a1bed48af13ae904dd7f31919ebfe15cc7d8e",
+      "specialist_objective_id": "objective_b5f698e89b58a414e84b",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "delayed_deterministic_integer_checker",
+      "created_at": "2026-10-06T22:02:40.953337+00:00",
+      "goal_id": "autonomous_274444c6edf1e5cb2b",
+      "later_outcome_sha256": "ebea0bd327cf8fd55f454e24799d689cea06f75ea2ce2e0e05046d83e44facb5",
+      "owner_interventions": 0,
+      "precommitment_sha256": "f570478f0c2a3bcf0156a5f8dd46f939f4d2667e1ec77d219b930a4ea266c1a6",
+      "receipt_sha256": "42ba79bcda26a2e77027efe46c4991ebb9bc973726397d8c67d0d63f7e9289e7",
+      "specialist_objective_id": "objective_332f56198f5f9bff23df",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "delayed_immutable_source_reread",
+      "created_at": "2026-10-06T22:22:08.830079+00:00",
+      "goal_id": "autonomous_a69ed425d071b6208c",
+      "later_outcome_sha256": "d7a51eaee490b882a255343fd5b953d78b31e583640159eb6221248fac7dddd7",
+      "owner_interventions": 0,
+      "precommitment_sha256": "42b90803d14ae9d67902e58874e0de5c1145315e1ce283755d623ef63a9cdd9c",
+      "receipt_sha256": "a721fb15b6faf8e6c116f7796cf31aecdf1a7f6afee527e622f8696bd1256338",
+      "specialist_objective_id": "objective_a635031d1f3b45260b90",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "fresh_subprocess_plus_later_public_row",
+      "created_at": "2026-10-06T22:35:16.031718+00:00",
+      "goal_id": "autonomous_8a28b9eea850563376",
+      "later_outcome_sha256": "cd3981a38404dc01cee95205f208cd0e3ace4b31cb53103c8cbad496474b5e50",
+      "owner_interventions": 0,
+      "precommitment_sha256": "b80c189947b0cc9eb74f5f461b5483cbe4ea86f522c0086acbb6e79b3fe1e1c3",
+      "receipt_sha256": "213b4f402573e85df0ad68b6fb6f51deef45056eb0409a21e9ec85f73c137959",
+      "specialist_objective_id": "objective_6dadb9724e8d26874387",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "arbiter_artifact_sha256": "e01e96e088557d8aa642e81c454da1a64d0d6cd943886a58e48b2745f1f68f70",
+      "authority_program": "dependency_gated_mission_graph_audit",
+      "created_at": "2026-10-06T22:44:38.356155+00:00",
+      "goal_id": "autonomous_1258c8bd38b52b2c75",
+      "receipt_sha256": "097e5e98e96dd98f3742c94d939a8c1f191964eb3c9e1898c131e5d7e1ff75a9",
+      "recovered_reference": true,
+      "specialist_objective_id": "mission_4620973e7bec6814ff",
+      "verification": "immutable_arbiter_reference_to_original_prospective_receipt"
+    },
+    {
+      "authority_program": "delayed_deterministic_integer_checker",
+      "created_at": "2026-10-07T00:02:46.000736+00:00",
+      "goal_id": "autonomous_3b55f8ab4303e831cd",
+      "later_outcome_sha256": "9f1f0bcd9db7889839e95822f763a953e6657f78449fef08a4e014608f5ff31e",
+      "owner_interventions": 0,
+      "precommitment_sha256": "f487c0dbf8f1599f51f0b8a2686971e9a4d48bc914d948eae17ce8b8f899af80",
+      "receipt_sha256": "050f69416eee63e54731c50e01dabe19efa9bc59a893b1ef977bb173934721c1",
+      "specialist_objective_id": "objective_0dec6b757a6981c42dbe",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "fresh_subprocess_plus_later_public_row",
+      "created_at": "2026-10-07T00:29:57.098990+00:00",
+      "goal_id": "autonomous_0d5f00078575df749c",
+      "later_outcome_sha256": "4473b77d7bc1ad29881be4d4d53b26b647b51d10c9ec5a56dcca5e01f2f0db01",
+      "owner_interventions": 0,
+      "precommitment_sha256": "cce903f59dc70846ee8b5f9a454d3e2ca1f979e407286a3680dfeb83af8cea55",
+      "receipt_sha256": "081269fef9716f44c736c0c1a034ce8afd8e0e25cc00fc488ace10cb34286647",
+      "specialist_objective_id": "objective_035f5fb0fb81ce13204a",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "later_multi_authority_acquisition_row",
+      "created_at": "2026-10-07T00:54:36.269423+00:00",
+      "goal_id": "autonomous_3110ab4e331e067860",
+      "later_outcome_sha256": "45ea792280dcb897ec166ee69e32958a86b511a876ab91231bd3ff3d50d1e5ea",
+      "owner_interventions": 0,
+      "precommitment_sha256": "370286d724710689de14e1818ad576f1ddc6507c51f5f0b89916b072412c3f00",
+      "receipt_sha256": "a0f8d19b0be3875fadcff97fbe40dc111cd6f7db7fd5d1849865d51f9b1678fd",
+      "specialist_objective_id": "objective_c377ad6eedac8eb63c54",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "fresh_subprocess_plus_later_public_row",
+      "created_at": "2026-10-07T02:29:05.137429+00:00",
+      "goal_id": "autonomous_6a64e6338a5b47a81d",
+      "later_outcome_sha256": "bb49e312a0289d4831872f79a39d9f7e4c477ca8d3959cbc91cc22c42a9256dc",
+      "owner_interventions": 0,
+      "precommitment_sha256": "ad5c442b68c0a7dd25251be349f76f824eab8da965ca3a17fbae56ba2db68440",
+      "receipt_sha256": "fe7acded0b2fa49e6201f40625095d77add7280d63a490155a89ba74149d8452",
+      "specialist_objective_id": "objective_fa9c5da6176c84606354",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "later_multi_authority_acquisition_row",
+      "created_at": "2026-10-07T02:38:08.726984+00:00",
+      "goal_id": "autonomous_aa3f8b752807141b6c",
+      "later_outcome_sha256": "de60850c87cbf73441f4e22e3456eba73dc5f954ab54df8b40b9c04a23640d5e",
+      "owner_interventions": 0,
+      "precommitment_sha256": "abd284d92f505500c9fb7f26a085796638b3c6bda5026027fee5ba23f339eacd",
+      "receipt_sha256": "522fc70a233384389ff17ea408fc4226b4002e4ad09f5f184a9108db963c6cae",
+      "specialist_objective_id": "objective_c6483b6a664bf03f7e97",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "created_at": "2026-10-07T03:36:51.663080+00:00",
+      "goal_id": "autonomous_507e1e6a974f09d6a0",
+      "later_outcome_sha256": "88e5dafa6a92d9e1624f633a19a0be2daacef47a02258f29c47bd6fd6d7755b5",
+      "owner_interventions": 0,
+      "precommitment_sha256": "e91508fc7dcfa7e5480305e3d9511b5c7fea6377f7adb544ad5572d0c077324b",
+      "receipt_sha256": "162c98c9b65dd1ccbcea2cef5eef97fe5f16c585a1fe2e553da87b6a10be8577",
+      "specialist_objective_id": "objective_47399085fe016b83dcf5",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "fresh_subprocess_plus_later_public_row",
+      "created_at": "2026-10-07T05:11:20.082509+00:00",
+      "goal_id": "autonomous_9825708b338bc2b005",
+      "later_outcome_sha256": "a840d2425c414bc431eb0c4b44e809efa1f9223a4f75c45c100733f7fb5f53b1",
+      "owner_interventions": 0,
+      "precommitment_sha256": "e62f3ebaca42595e359cf8a1dead8a2f53575393d1d6b96a84487a2ea67292c4",
+      "receipt_sha256": "06530093b1fa2cd1b2793c22c10664359fc9b418978011ddb4500b5da4cd8dc3",
+      "specialist_objective_id": "objective_b73a67eb32e5a79b7bea",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "created_at": "2026-10-07T05:20:13.508460+00:00",
+      "goal_id": "autonomous_0880bf3b2450381510",
+      "later_outcome_sha256": "9507177b8f6a3a059e23be986099f1ee4412d406a6fe152730f287577d27a0ca",
+      "owner_interventions": 0,
+      "precommitment_sha256": "a253c32cda8912afb01bf61af99a070b0d374960092d4fd0eb1785a5a840d527",
+      "receipt_sha256": "f481a48586276ff06ee6f966d8468bd32c74f8128a932195ec294b5ad816e082",
+      "specialist_objective_id": "objective_18d22edcdd009ba63ee4",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "later_multi_authority_acquisition_row",
+      "created_at": "2026-10-07T06:19:20.389332+00:00",
+      "goal_id": "autonomous_2bebce04ccd98fd75b",
+      "later_outcome_sha256": "df58cca3a9e1f222dd1a2f01e56ad0fab1a7d5fe677f5d3c3b663c8ddf75bcdc",
+      "owner_interventions": 0,
+      "precommitment_sha256": "4fd7a90b57d3cf1285bc2f5e7bcb1573cab2c2a5ff57d8d938e9fbbbc3200a52",
+      "receipt_sha256": "ef3476614666c4c296c2ea9624e220a13832c6de56828542d3ab2a4606c3b165",
+      "specialist_objective_id": "objective_2df1c9e0ce0bef5477d5",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "fresh_subprocess_plus_later_public_row",
+      "created_at": "2026-10-07T06:54:32.082153+00:00",
+      "goal_id": "autonomous_3f0243beeeab0278f8",
+      "later_outcome_sha256": "26188f0747b5d439250b940cfd345447809a8839039b4d277d6201687a085108",
+      "owner_interventions": 0,
+      "precommitment_sha256": "8442f487b86e7e5eeae45d41b1ba87ecd9046b5ba98532d0e55df34f6ed53a75",
+      "receipt_sha256": "842b410556b284a12e4d24f6862b3159c4e94307b3e8df44af17e06ea7d96f78",
+      "specialist_objective_id": "objective_e28c5c1400f5dcf012db",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "created_at": "2026-10-07T07:03:17.471725+00:00",
+      "goal_id": "autonomous_71e5ff13f9a650c1cf",
+      "later_outcome_sha256": "60ad92dd5a7158d5ba28eee6f76903543c3f71715b71796867446be5bc9f0a1d",
+      "owner_interventions": 0,
+      "precommitment_sha256": "70f8f46f8625002d6426465ff6b570e8633d29e88197f094f87d0a218860ac2b",
+      "receipt_sha256": "95193953823ff21fac401d9a0ea32c508a6dcdc0a3f3511fc4fc07546e360a62",
+      "specialist_objective_id": "objective_a97b1b715d414d142434",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "later_multi_authority_acquisition_row",
+      "created_at": "2026-10-07T08:03:02.432934+00:00",
+      "goal_id": "autonomous_2abccdc5ff32a99b71",
+      "later_outcome_sha256": "aaeb301dd31a6074db1b3aa24d40a742036e9101f0f7e512b04eb0c50a5ece3d",
+      "owner_interventions": 0,
+      "precommitment_sha256": "86acc56aea861140a5bc5ab400c314578c5a515bec227756aca5cd461b14d956",
+      "receipt_sha256": "f6d7d2903640fed70624fbca5fec65d98b4df044f99258778bf51896e56ca646",
+      "specialist_objective_id": "objective_6587a3fc3b1e9025d330",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "created_at": "2026-10-07T09:03:50.646269+00:00",
+      "goal_id": "autonomous_ed0de800af7fcc8893",
+      "later_outcome_sha256": "715fb02bc22723fdf6aff723a2624b8e19746bfbd1f47dac3db24797c02d395e",
+      "owner_interventions": 0,
+      "precommitment_sha256": "1e679058ddc1fe50cfd1c578ca0ab6ae691be3155187e7a7c5e8281369753e64",
+      "receipt_sha256": "c963b11ecaca52903c22b128fdf5b13749c4295312a2995e8588656c4ece31ae",
+      "specialist_objective_id": "objective_c08d90d5c0c1c467178b",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "delayed_deterministic_integer_checker",
+      "created_at": "2026-10-07T09:12:43.991183+00:00",
+      "goal_id": "autonomous_768e393c1ef80b0d64",
+      "later_outcome_sha256": "bfeeb81444df181555911e03d96993df3d66e5977745a88ecac424444080b980",
+      "owner_interventions": 0,
+      "precommitment_sha256": "7d56192ead90d65e2dd2a9c46d4d3d7467749205e856bef9f049cecc85cf0423",
+      "receipt_sha256": "8a6f11bcf5c0c4097d4ae6e73e2b0d328bbca303d67cf83bf938e443cdc536bc",
+      "specialist_objective_id": "objective_25b69485d711a6d3acba",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
+    },
+    {
+      "authority_program": "later_multi_authority_acquisition_row",
+      "created_at": "2026-10-07T09:56:12.060959+00:00",
+      "goal_id": "autonomous_770c1d6dbc18f040ba",
+      "later_outcome_sha256": "044951e5f24be428b7d4ec7aa66928455f51d94d557dc8a30eec983366be76d7",
+      "owner_interventions": 0,
+      "precommitment_sha256": "8acb4581c8371fb5043f1f83cfc49af36c109a97ef6e00868caadcd7db45f866",
+      "receipt_sha256": "2543156970498177a0eec39f2cb4731b2cc48d9baceafe518f1e8ec0015a3694",
+      "specialist_objective_id": "objective_83b2d02f427db1a94b1b",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
     }
   ],
   "rejected_precommitments": [
@@ -3127,8 +3577,20 @@
       "reason": "goal_not_in_current_tier6_portfolio",
       "rejected_at": "2026-08-28T19:50:31.446678+00:00",
       "specialist_objective_id": "objective_7b4ca0b9d5a7bedc877a"
+    },
+    {
+      "authority_program": "later_public_technical_source",
+      "committed_at": "2026-10-06T19:31:49.564426+00:00",
+      "goal_id": "autonomous_3071e279b03bdf52d8",
+      "observable_feature_sha256": "642745b4ec34e0a55e6f8fc5eb8b74013ec909428b95e6594a60dd8eacb66512",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "dc472e5cb9aa697a5affc0837efa57f0163fc0c616e3f132e22557816f8c22d6",
+      "reason": "goal_not_in_current_tier6_portfolio",
+      "rejected_at": "2026-10-06T19:41:01.747479+00:00",
+      "specialist_objective_id": "objective_991cbab6530f2cc345a5"
     }
   ],
   "schema_version": "aion.hexcore.prospective_experience_compiler.v1",
-  "updated_at": "2026-09-05T00:34:35.714000+00:00"
+  "updated_at": "2026-10-09T21:37:42.144678+00:00"
 }

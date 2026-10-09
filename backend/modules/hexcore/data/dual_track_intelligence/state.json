@@ -3,7 +3,7 @@
     "embodied_physical": 3,
     "practical_apprenticeship": 7
   },
-  "generation": 33,
+  "generation": 35,
   "learning_dispatch": {
     "mission_id": "practical_secure_service",
     "reason": "lowest_evidenced_capability_blocking_practical_work",
@@ -166,11 +166,11 @@
             "knowledge_level": "advanced",
             "missing_subskills": [],
             "name": "Python programming",
-            "overall_level": "beginner",
-            "practical_level": "beginner",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
             "subject_id": "python",
             "target_level": "expert",
-            "work_readiness": "practice_only"
+            "work_readiness": "independent_work_with_normal_verification"
           },
           {
             "knowledge_level": "intermediate",
@@ -307,8 +307,16 @@
             "work_readiness": "bounded_work_with_strong_verification"
           },
           {
-            "knowledge_level": "advanced",
-            "missing_subskills": [],
+            "knowledge_level": "intermediate",
+            "missing_subskills": [
+              "lexical_grounding",
+              "morphology",
+              "native_question_answering",
+              "reference_resolution",
+              "semantic_relations",
+              "sentence_semantics",
+              "syntax"
+            ],
             "name": "English natural-language cognition",
             "overall_level": "intermediate",
             "practical_level": "intermediate",
@@ -778,11 +786,11 @@
             "knowledge_level": "advanced",
             "missing_subskills": [],
             "name": "Python programming",
-            "overall_level": "beginner",
-            "practical_level": "beginner",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
             "subject_id": "python",
             "target_level": "expert",
-            "work_readiness": "practice_only"
+            "work_readiness": "independent_work_with_normal_verification"
           }
         ],
         "technology_proposal": {
@@ -1120,8 +1128,8 @@
       ]
     }
   ],
-  "portfolio_digest": "21b5e3e99061fcff2a656c1ed14e20a48117d42957dd19f979e7b317c2907235",
+  "portfolio_digest": "6d4f51c35b73807f38d87c4b7af5352c1b3dea366ddaefd54432eb1138f0482c",
   "procedure_id": "procedure_dual_track_practical_embodied_portfolio_v1",
   "schema_version": "aion.dual_track_intelligence.v1",
-  "updated_at": 1788565722.4249642
+  "updated_at": 1791580119.951263
 }

@@ -389,6 +389,11 @@
       liveAgentsView: liveAgentsViewFromStorage,
       marketingCalendarMode: marketingCalendarModeFromStorage,
 
+      aionChatAttachments: readJsonStorage(
+        contracts.CACHE_KEYS.aionChatAttachments,
+        contracts.DEFAULTS.aionChatAttachments,
+      ),
+
       status: readJsonStorage(
         contracts.CACHE_KEYS.status,
         null,
@@ -573,6 +578,10 @@
       contracts.CACHE_KEYS.marketingCalendarMode,
       normalized.marketingCalendarMode,
     );
+    writeJsonStorage(
+      contracts.CACHE_KEYS.aionChatAttachments,
+      normalized.aionChatAttachments,
+    );
   }
 
   function clearCacheOnly() {
@@ -595,6 +604,7 @@
       contracts.CACHE_KEYS.lastRefreshAt,
       contracts.CACHE_KEYS.liveAgentsView,
       contracts.CACHE_KEYS.marketingCalendarMode,
+      contracts.CACHE_KEYS.aionChatAttachments,
     ].forEach((key) => {
       try {
         localStorage.removeItem(key);

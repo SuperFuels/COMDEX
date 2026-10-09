@@ -102,7 +102,7 @@ def test_phase23y_pilot_marketing_workspace_surfaces_pilot_outputs():
 def test_phase23y_manual_workspace_is_consolidated_into_the_governed_studio():
     assert "function renderMarketingManualWorkspaceSurface" in APP_JS
     assert "return renderPilotMarketingWorkspaceSurface([], null);" in APP_JS
-    assert "renderMarketingStreamSurface({ embedded: true })" in APP_JS
+    assert "renderMarketingOverviewSurface(selectedRuns, selectedAgentCard)" in APP_JS
     assert 'data-aion-marketing-automation-studio="true"' in APP_JS
     assert 'data-aion-marketing-creation-studio=' in APP_JS
 
