@@ -30,6 +30,7 @@ const withMDX = require("@next/mdx")({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  outputFileTracingRoot: __dirname,
   eslint: { ignoreDuringBuilds: true },
   pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
 
