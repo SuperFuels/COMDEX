@@ -21,6 +21,16 @@ const researchLinks = [
   { label: "Symatics", href: "/symatics", copy: "Exploration of information, resonance and physical systems." },
   { label: "Photon Algebra", href: "/photon-algebra-demo", copy: "A mathematical language for describing and testing complex systems." },
   { label: "Photon Binary", href: "/photon-binary", copy: "Experimental work on new forms of machine representation." },
+  { label: "SQI", href: "/sqi", copy: "A symbolic intelligence runtime for quantum-like reasoning on everyday hardware." },
+  { label: "Sovereign QKD", href: "/sovereign-qkd", copy: "Secure communication research for sovereign agents and protected machine work." },
+  { label: "Glyph Net", href: "/glyph-net", copy: "A network layer for exchanging structured intelligence across systems." },
+  { label: "SLE Resonance", href: "/sle-resonance", copy: "Live research into resonance, stability and adaptive system behaviour." },
+  { label: "RQC Awareness", href: "/rqc-awareness", copy: "An awareness horizon showing how AION detects change and returns to coherence." },
+  { label: "AI", href: "/ai", copy: "A live proof-of-life view into AION's cognition, learning and system activity." },
+  { label: "Cognition", href: "/phase7-calibration", copy: "Calibration tools for evaluating and developing AION's cognitive systems." },
+  { label: "WirePack", href: "/wirepack", copy: "A deterministic transport protocol for moving structured meaning efficiently." },
+  { label: "QFC Canvas", href: "/qfc-canvas", copy: "An interactive field lab for exploring coherence across live system telemetry." },
+  { label: "Homeostasis", href: "/homeostasis", copy: "A live training gate for monitoring balance, stability and recovery." },
 ];
 
 function Eyebrow({ children, dark = false }: { children: ReactNode; dark?: boolean }) {
