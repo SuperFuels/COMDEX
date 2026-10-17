@@ -26,6 +26,9 @@ export default function TessarisNavbar() {
           <Link href="/pricing" className="!border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
             Pricing
           </Link>
+          <Link href="/aion" className="!border-0 !bg-transparent px-3 py-2 text-sm font-bold !text-slate-600 transition hover:!text-[#1748e5]">
+            AION
+          </Link>
           <Link
             href="/register"
             className="ml-1 inline-flex items-center gap-2 rounded-full !border-0 !bg-[#1748e5] px-4 py-2.5 text-sm font-extrabold !text-white shadow-[0_8px_22px_rgba(23,72,229,.2)] transition hover:!bg-[#1039bc] sm:px-5"
